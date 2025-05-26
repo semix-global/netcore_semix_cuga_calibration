@@ -365,6 +365,7 @@ FodyWeavers.xsd
 # Idea
 .idea/
 
+# WebStorm
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
