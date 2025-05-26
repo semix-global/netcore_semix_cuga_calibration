@@ -32,10 +32,10 @@
 
     <ItemGroup>
         <Reference Include="halcondotnetxl">
-            <HintPath>..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
         </Reference>
         <Reference Include="MWArray">
-            <HintPath>..\..\Dependencies\Matlab\MWArray.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Matlab\MWArray.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -56,7 +56,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ContentWithTargetPath Include="..\..\Dependencies\Halcon\Runtime\halconxl.dll">
+        <ContentWithTargetPath Include="..\..\..\Dependencies\Halcon\Runtime\halconxl.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>

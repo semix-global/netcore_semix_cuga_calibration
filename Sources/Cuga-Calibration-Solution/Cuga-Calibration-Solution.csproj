@@ -33,7 +33,7 @@
 
     <ItemGroup>
         <Reference Include="halcondotnetxl">
-            <HintPath>..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
+            <HintPath>..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
         </Reference>
     </ItemGroup>
 
@@ -41,15 +41,15 @@
         <ProjectReference Include="..\Cores\Core.Services\Core.Services.csproj" />
         <ProjectReference Include="..\Utilities\Net.Utilities.WPF.MVVM\Net.Utilities.WPF.MVVM.csproj" />
         <ProjectReference Include="..\Utilities\Net.Utilities.WPF\Net.Utilities.WPF.csproj" />
-        <ProjectReference Include="..\WPF.CustomControl\WPF.CustomControl.csproj" />
+        <ProjectReference Include="..\Utilities\WPF.CustomControl\WPF.CustomControl.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
         <Reference Include="Semix.CoreLib">
-            <HintPath>..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
+            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>
         <Reference Include="Cuga.Data.DataStruct">
-            <HintPath>..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>
     </ItemGroup>
 

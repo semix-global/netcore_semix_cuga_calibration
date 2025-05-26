@@ -1,0 +1,100 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters;assembly=Net.Utilities.WPF"
+                    xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
+                    xmlns:units="clr-namespace:WPF.CustomControl.UI.Common"
+                    xmlns:treeViewList="clr-namespace:WPF.CustomControl.UI.PermissionMenuTreeView">
+    <valueConverters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"
+                                               TrueValue="Visible"
+                                               FalseValue="Collapsed" />
+    <Style TargetType="{x:Type treeViewList:PermissionMenuTreeViewItem}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ItemsSource" Value="{Binding ChildList}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type treeViewList:PermissionMenuTreeViewItem}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <StackPanel>
+                            <Grid x:Name="Item"
+                                  Height="36"
+                                  Background="{TemplateBinding Background}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="FirstColumn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="SecondColumn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ThirdColumn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="FourthColumn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="FifthColumn" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="SixthColumn" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Id}"
+                                           Margin="10"
+                                           TextAlignment="Center" />
+                                <StackPanel x:Name="NameGroup" Grid.Column="1"
+                                            Margin="{Binding Depth, Converter={converters:IntToMarginConverter}}"
+                                            Orientation="Horizontal">
+                                    <units:ChevronSwitch x:Name="Chevron"
+                                                         IsChecked="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=IsExpanded}"
+                                                         Margin="10" />
+                                    <CheckBox x:Name="DistributedCheckBox"
+                                              IsChecked="{Binding IsDistributed}"
+                                              Margin="10"
+                                              HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}"
+                                               Margin="10"
+                                               TextAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding MenuTypeEnum}"
+                                           Margin="10"
+                                           TextAlignment="Center" />
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding Component}"
+                                           Margin="10"
+                                           TextAlignment="Center" />
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding Perms}"
+                                           Margin="10"
+                                           TextAlignment="Center" />
+                                <TextBlock Grid.Column="5"
+                                           Text="{Binding Remark}"
+                                           Margin="10"
+                                           TextAlignment="Center" />
+                            </Grid>
+
+                            <ItemsPresenter x:Name="Items" Visibility="Collapsed" />
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="Items" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding ElementName=Item, Path=IsMouseOver}" Value="True">
+                            <Setter TargetName="Item" Property="Background" Value="#D1E3FF" />
+                        </DataTrigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Item" Property="Background" Value="#004EFF" />
+                            <Setter TargetName="Item" Property="TextBlock.Foreground" Value="#FFFFFF" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding ChildList.Count}" Value="0">
+                            <Setter TargetName="Chevron" Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                        <!--  控制是否启用combobox  -->
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=treeViewList:PermissionMenuTreeView}, Path=IsCheckBoxEnabled}" Value="0">
+                            <Setter TargetName="DistributedCheckBox" Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=treeViewList:PermissionMenuTreeView}, Path=IsCheckBoxEnabled}" Value="1">
+                            <Setter TargetName="DistributedCheckBox" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=treeViewList:PermissionMenuTreeView}, Path=IsCheckBoxEnabled}" Value="2">
+                            <Setter TargetName="DistributedCheckBox" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

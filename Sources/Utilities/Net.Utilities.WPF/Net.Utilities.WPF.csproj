@@ -8,7 +8,6 @@
     <ItemGroup>
         <PackageReference Include="HandyControl" />
         <PackageReference Include="MahApps.Metro.IconPacks.FontAwesome" />
-        <PackageReference Include="Jamesnet.Wpf" />
         <PackageReference Include="ScottPlot.WPF" />
         <PackageReference Include="AvalonEdit" />
         <!-- .NET8: 引入了Winform、Bitmap程序集 -->
@@ -24,10 +23,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Net.Utilities.Nlog\Net.Utilities.Nlog.csproj" />
         <ProjectReference Include="..\WPF.CanvasViewer\WPF.CanvasViewer.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="NativeMethods.txt" />
     </ItemGroup>
 
     <ItemGroup>

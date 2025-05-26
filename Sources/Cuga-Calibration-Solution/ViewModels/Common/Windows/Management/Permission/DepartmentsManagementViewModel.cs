@@ -10,6 +10,7 @@ using Net.Utilities.Helper.IOC.Providers;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
+using Net.Utilities.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Permission;
 

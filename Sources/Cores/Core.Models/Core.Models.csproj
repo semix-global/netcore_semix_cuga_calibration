@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <Reference Include="halcondotnetxl">
-            <HintPath>..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
         </Reference>
     </ItemGroup>
     
@@ -23,13 +23,13 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
         <Reference Include="Semix.CoreLib">
-            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>
         <Reference Include="Semix.WcfTransfer.DTO">
-            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
         </Reference>
         <Reference Include="Cuga.Data.DataStruct">
-            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>
     </ItemGroup>
 

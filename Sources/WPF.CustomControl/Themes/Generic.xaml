@@ -1,9 +1,0 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/WPF.CustomControl;component/Themes/Common/ChevronSwitch.xaml" />
-        <ResourceDictionary Source="/WPF.CustomControl;component/Themes/DepartmentTreeView/DepartmentTreeView.xaml" />
-        <ResourceDictionary Source="/WPF.CustomControl;component/Themes/DepartmentTreeView/DepartmentTreeViewItem.xaml" />
-        <ResourceDictionary Source="/WPF.CustomControl;component/Themes/PermissionMenuTreeView/PermissionMenuTreeView.xaml" />
-        <ResourceDictionary Source="/WPF.CustomControl;component/Themes/PermissionMenuTreeView/PermissionMenuTreeViewItem.xaml" />
-    </ResourceDictionary.MergedDictionaries>
-</ResourceDictionary>
