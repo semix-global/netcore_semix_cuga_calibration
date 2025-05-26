@@ -1,58 +1,48 @@
 <Project>
 
     <PropertyGroup>
-        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>12.0</LangVersion>
-        <NeutralLanguage>en-US</NeutralLanguage>
+        <RepositoryDirectory>$([System.IO.Path]::GetDirectoryName($(MSBuildThisFileDirectory.TrimEnd('\'))))</RepositoryDirectory>
+        <BuildToolsDirectory>$(RepositoryDirectory)\Build</BuildToolsDirectory>
+        <SolutionDirectory>$(SolutionDir.TrimEnd('\'))</SolutionDirectory>
+    </PropertyGroup>
 
-        <AssemblyVersion>2.1.0.0523</AssemblyVersion>
-        <FileVersion>2.1.0.0523</FileVersion>
+    <Import Project="$(BuildToolsDirectory)\Common.Build.props" />
+
+    <PropertyGroup>
+        <Version>1.0.4</Version>
+        <AssemblyVersion>1.0.4.0</AssemblyVersion>
+        <FileVersion>1.0.4.0</FileVersion>
     </PropertyGroup>
 
     <PropertyGroup>
-        <!-- VSTHRD002后面要删除, 警告是同步方法不能调用异步方法 -->
-        <NoWarn>$(NoWarn);VSTHRD001;VSTHRD101;</NoWarn>
+        <PackageId>$(AssemblyName)</PackageId>
+        <PackageReleaseNotes>If you have questions, please submit issue.</PackageReleaseNotes>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageProjectUrl>http://192.168.0.28:8099/semix/software/publiclibraries/common/Net.Utilities.git</PackageProjectUrl>
+
+        <Title>$(AssemblyName)</Title>
+        <Authors>Kaizhi Xuan</Authors>
+        <Owners>Kaizhi Xuan</Owners>
+        <Company>Kaizhi Xuan</Company>
+        <Product>$(AssemblyName)</Product>
+        <Description>$(AssemblyName)</Description>
+        <Copyright>Copyright © 2025.Semix</Copyright>
+
+        <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
+        <RepositoryUrl>http://192.168.0.28:8099/semix/software/publiclibraries/common/Net.Utilities.Nlog</RepositoryUrl>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <RepositoryType>GitLab</RepositoryType>
+
+        <IsPackable>true</IsPackable>
+        <!-- 创建符号包 -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <!-- 构建系统将未由源代码管理跟踪或未从源包导入到生成的 PDB 的项目源文件嵌入 -->
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!-- 在生成期间自动生成包 -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageOutputPath>$(RepositoryDirectory)\Output</PackageOutputPath>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <MvvmToolkitEnableINotifyPropertyChangingSupport>false</MvvmToolkitEnableINotifyPropertyChangingSupport>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="IDisposableAnalyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(MSBuildProjectFile)'!='SourceGenerator.AssemblyMetadata.csproj' and '$(MSBuildProjectFile)'!='SourceGenerator.InjectHostDI.csproj'">
-        <PackageReference Include="SourceGenerator.AssemblyMetadata">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net480' or '$(TargetFramework)' == 'netstandard2.0'">
-        <PackageReference Include="PolySharp">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <!--<ItemGroup Condition="'$(TargetFramework)' == 'net480' or '$(TargetFramework)' == 'netstandard2.0'">
-        <Compile Include="$(SolutionDir)\Utilities\RuntimeHelpers.cs">
-            <Link>%(Filename)%(Extension)</Link>
-        </Compile>
-    </ItemGroup>-->
 
 </Project>
