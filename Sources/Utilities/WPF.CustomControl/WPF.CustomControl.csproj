@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
-        <ProjectReference Include="..\Utilities\Net.Utilities.WPF\Net.Utilities.WPF.csproj" />
+        <ProjectReference Include="..\..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
+        <ProjectReference Include="..\Net.Utilities.WPF\Net.Utilities.WPF.csproj" />
     </ItemGroup>
 
 </Project>

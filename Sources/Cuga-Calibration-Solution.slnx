@@ -28,7 +28,7 @@
         <Project Path="Utilities/Net.Utilities.WPF/Net.Utilities.WPF.csproj" />
         <Project Path="Utilities/Net.Utilities/Net.Utilities.csproj" />
         <Project Path="Utilities/WPF.CanvasViewer/WPF.CanvasViewer.csproj" />
-        <Project Path="WPF.CustomControl/WPF.CustomControl.csproj" />
+        <Project Path="Utilities/WPF.CustomControl/WPF.CustomControl.csproj" />
     </Folder>
     <Folder Name="/02. Databases/">
         <Project Path="Databases/Local.NoSQL.DB.Providers/Local.NoSQL.DB.Providers.csproj" />
