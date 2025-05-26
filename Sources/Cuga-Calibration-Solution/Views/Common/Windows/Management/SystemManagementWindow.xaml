@@ -1,0 +1,206 @@
+﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Management.SystemManagementWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management"
+           xmlns:converters="clr-namespace:CugaCalibration.Core.Converters"
+           xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
+           xmlns:constants="clr-namespace:Net.Utilities.Constants;assembly=Net.Utilities"
+           xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
+           xmlns:wpfAttachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           Title="System Management"
+           d:DesignHeight="800"
+           d:DesignWidth="1200"
+           d:DataContext="{d:DesignInstance Type=viewModels:SystemManagementViewModel}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <Window.Resources>
+        <converters:MultiValueEqualityManageViewModelConverter x:Key="MultiValueEqualityManageViewModelConverter" />
+        <valueConverters:ValueConverterGroup x:Key="IntIsLessThan1ToBooleanConverter">
+            <!--  [1, 100000000]之间true  -->
+            <valueConverters:IsInRangeConverter MaxValue="100000000" MinValue="1" />
+            <!--  反转  -->
+            <valueConverters:BoolNegationConverter />
+        </valueConverters:ValueConverterGroup>
+    </Window.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <hc:SimplePanel Grid.Row="0" Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="Management"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <TreeView Margin="5,7,5,3" ItemsSource="{Binding ApplicationCookie.SystemManageMenuList}">
+                    <TreeView.ItemContainerStyle>
+                        <!--  防止覆盖原有样式  -->
+                        <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ChildList.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
+                                    <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.Command" Value="{Binding DataContext.OpenManagementMenuCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
+                                    <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding Component}" />
+                                </DataTrigger>
+                                <DataTrigger Value="True">
+                                    <DataTrigger.Binding>
+                                        <MultiBinding Converter="{StaticResource MultiValueEqualityManageViewModelConverter}">
+                                            <!--  任何一个Binding变动都会触发MultiBinding  -->
+                                            <Binding Mode="OneWay" Path="Component" />
+                                            <Binding Mode="OneWay"
+                                                     Path="DataContext.ActiveItem"
+                                                     RelativeSource="{RelativeSource FindAncestor,
+                                                                                     AncestorType=Window}" />
+                                        </MultiBinding>
+                                    </DataTrigger.Binding>
+                                    <Setter Property="Foreground" Value="{StaticResource DarkAccentBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding ChildList}">
+                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                <TextBlock Text="{Binding DisplayName}" />
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </Grid>
+            <GridSplitter Grid.Column="1"
+                          Width="10"
+                          Margin="-5" />
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="200" />
+                </Grid.RowDefinitions>
+                <hc:UniformSpacingPanel Margin="5,10,5,10"
+                                        IsEnabled="{Binding ActiveItem.IsEnableWindow}"
+                                        Spacing="10">
+                    <hc:SimpleStackPanel Orientation="Horizontal" Visibility="{Binding ActiveItem.IsEnableEdit, Converter={StaticResource BoolToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
+                        <Button Content="Edit"
+                                Command="{Binding UpdateCommand}"
+                                Width="100"
+                                Margin="5,0,5,0"
+                                hc:IconElement.Geometry="{StaticResource DropperGeometry}"
+                                Style="{StaticResource ButtonSuccess}" />
+                        <Button Content="Add"
+                                Command="{Binding InsertCommand}"
+                                Width="100"
+                                Margin="5,0,5,0"
+                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                Style="{StaticResource ButtonSuccess}" />
+                        <Button Content="Delete"
+                                Command="{Binding DeleteCommand}"
+                                CommandParameter="false"
+                                Width="100"
+                                Margin="5,0,0,0"
+                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                Style="{StaticResource ButtonDanger}" />
+                    </hc:SimpleStackPanel>
+
+                    <Button Content="AllSearch"
+                            Command="{Binding SelectAllCommand}"
+                            CommandParameter="false"
+                            Width="100"
+                            hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                            Style="{StaticResource ButtonSuccess}" />
+                    <Button Content="ConditionSearch"
+                            Command="{Binding SelectWithConditionCommand}"
+                            CommandParameter="false"
+                            Width="150"
+                            hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                            Style="{StaticResource ButtonSuccess}" />
+                    <Button Content="Reset"
+                            Command="{Binding ResetCommand}"
+                            CommandParameter="false"
+                            Width="100"
+                            hc:IconElement.Geometry="{StaticResource RotateLeftGeometry}"
+                            Style="{StaticResource ButtonWarning}" />
+                    <Button Content="Cancel"
+                            Command="{Binding SelectAllCancelCommand}"
+                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                            Style="{StaticResource ButtonWarning}"
+                            Visibility="Collapsed" />
+                </hc:UniformSpacingPanel>
+                <hc:ScrollViewer Grid.Row="1"
+                                 HorizontalScrollBarVisibility="Disabled"
+                                 IsInertiaEnabled="True"
+                                 VerticalScrollBarVisibility="Disabled">
+                    <hc:ScrollViewer.Style>
+                        <Style BasedOn="{StaticResource ScrollViewerBaseStyle}" TargetType="{x:Type hc:ScrollViewer}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:ConstantHelper.False}">
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <ContentControl Content="{Binding ActiveItem, Converter={StaticResource ViewModel2ViewConverter}}" />
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </hc:ScrollViewer.Style>
+                </hc:ScrollViewer>
+                <GridSplitter Grid.Row="2"
+                              Width="10"
+                              Margin="-5" />
+                <hc:SimplePanel Grid.Row="3" Margin="5">
+                    <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
+                </hc:SimplePanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</hc:Window>

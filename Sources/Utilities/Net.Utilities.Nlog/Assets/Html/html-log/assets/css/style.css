@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .menu-ul-display {
+        @apply flex flex-col items-start gap-1;
+    }
+
+    .menu-link {
+        @apply hover:underline;
+    }
+
+    .menu-link-text {
+        @apply text-sm break-all;
+    }
+
+    .menu-link-style {
+        @apply py-[2px] px-[2px] -ml-[2px] bg-gray-200 underline underline-offset-1 decoration-blue-600 hover:opacity-80 focus:outline-none focus:opacity-80
+    }
+
+    .menu-link-svg {
+        @apply size-4 transition-transform transform;
+    }
+
+    .toggle-button {
+        @apply w-28 h-6 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg text-xs p-1 me-2 mb-2;
+    }
+
+    .table-thread {
+        @apply bg-gray-200;
+    }
+
+    .table-thread-tr {
+        @apply divide-x divide-gray-300;
+    }
+
+    .table-thread-th {
+        @apply p-3 text-xs text-center align-middle font-medium text-gray-800 uppercase min-w-80;
+    }
+
+    .table-tbody {
+        @apply divide-y divide-gray-300;
+    }
+
+    .table-tbody-tr {
+        @apply divide-x divide-gray-300 hover:bg-blue-100;
+    }
+
+    .table-tbody-td {
+        @apply p-3 text-sm text-center align-middle text-gray-800;
+    }
+
+    .menu-toggle {
+        position: fixed;
+        left: 4px;
+        top: 8px;
+        z-index: 1001;
+    }
+
+    .menu-toggle.hidden {
+        transform: translateX(-95%);
+    }
+
+    .menu-toggle.visible {
+        transform: translateX(10%);
+    }
+
+    .button-container {
+        @apply p-2 bg-transparent backdrop-blur-sm rounded-full shadow-md mt-1 border border-slate-200/50 transition-all
+    }
+}
+
+@layer utilities {
+    [data-menu-visible="false"] {
+        @apply hidden;
+    }
+
+    [data-menu-svg-rotate="true"] {
+        @apply rotate-90;
+    }
+
+    [data-log-visible="false"] {
+        @apply hidden;
+    }
+
+    [data-log-svg-rotate="false"] {
+        @apply rotate-180;
+    }
+}
+
+/* plot.js中tailwind css bug */
+.js-plotly-plot .plotly .modebar svg {
+    display: inline;
+}
+
+/* viewer js  */
+.viewer-download {
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.viewer-download::before {
+    content: "";
+    display: inline-block;
+    width: 12px; /* 设置宽度 */
+    height: 12px; /* 设置高度 */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M224 0c17.7 0 32 14.3 32 32v268.7l73.4-73.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3l-128 128c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l73.4 73.4V32c0-17.7 14.3-32 32-32zm192 448c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h384z"/></svg>');
+    background-size: contain; /* 确保背景图像缩放 */
+    background-repeat: no-repeat;
+    background-position: center;
+}

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0-windows</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>CanvasViewer</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities\Net.Utilities.csproj" />
+    </ItemGroup>
+
+</Project>

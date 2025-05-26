@@ -1,0 +1,11 @@
+root = true
+
+[*.cs]
+end_of_line = crlf
+charset = utf-8
+
+spelling_exclusion_path = .\ignored-misspelling.dic
+
+[*.csproj]
+end_of_line = crlf
+charset = utf-8

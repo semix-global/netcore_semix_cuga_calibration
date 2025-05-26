@@ -1,0 +1,150 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Chuck.Prealigner.ChuckPrealignerCalibrationUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
+             xmlns:childrenView="clr-namespace:CugaCalibration.Views.Chuck.Prealigner.Children"
+             xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckPrealignerCalibrationViewModel}"
+             d:DesignHeight="900"
+             d:DesignWidth="1920"
+             mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <hc:TransitioningContentControl TransitionStoryboard="{StaticResource Left2RightWithFadeTransition}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="500" />
+            </Grid.ColumnDefinitions>
+            <!--#region Left-->
+            <Border Margin="5"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow2}">
+                <Grid>
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsLoadingToVisibilityConverter}}">
+                        <hc:LoadingCircle Width="200"
+                                          Height="200"
+                                          Style="{StaticResource LoadingCircleLarge}" />
+                        <TextBlock Text="Loading calibration..." Style="{StaticResource TextBlockLargeBold}" />
+                    </StackPanel>
+                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsWelcomeToVisibilityConverter}}">
+                        <TextBlock Text="Welcome to calibration!" Style="{StaticResource TextBlockLargeBold}" />
+                    </Grid>
+                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsAutoCalibrationToVisibilityConverter}}">
+                        <childrenView:Step0View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
+                        <childrenView:Step3View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
+                        <childrenView:Review Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
+                    </Grid>
+                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
+                        <childrenView:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
+                        <childrenView:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
+                        <childrenView:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
+                        <childrenView:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
+
+                    </Grid>
+                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
+                        <childrenView:Review />
+                    </Grid>
+                </Grid>
+            </Border>
+            <!--#endregion-->
+
+            <GridSplitter Grid.Column="1"
+                          Width="10"
+                          Margin="-5" />
+
+            <!--#region Right-->
+            <Border Grid.Column="2"
+                    Margin="5"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow2}">
+                <Grid hc:BorderElement.Circular="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="35" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Instructions"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource TextBlockLargeBold}" />
+                    <RichTextBox Grid.Row="1"
+                                 Margin="5"
+                                 Padding="5"
+                                 FontSize="14"
+                                 IsReadOnly="True"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text="1. Manually move the wafer to move the appropriate pattern to the center of the bright field;" />
+                                <LineBreak />
+                                <Run Text="2. Change the microscope objective to the lowest magnification of 5X;" />
+                                <LineBreak />
+                                <Run Text="3. Determine the focal plane state of the objective lens: capture the imaging image and calculate the image sharpness score according to the image algorithm;" />
+                                <LineBreak />
+                                <Run Text="4. At the beginning, the wafer is below the focal plane, and the wafer is moved upward with a moving distance of 5um. Once each step, the current ECS value and the corresponding image sharpness score are recorded. Determine the size of the current score and the score of the previous step. If the current score is high, the wafer continues to step upward until the current score decreases. After the current score decreases, continue to step upward twice to obtain the difference between the ECS and the clarity score. Dot plot, use a parabola to fit the relationship between ECS and sharpness score. The ECS value corresponding to the top of the parabola is the optimal focal length." />
+                                <LineBreak />
+                            </Paragraph>
+                            <Paragraph>
+                                <Hyperlink>https://www.semixchina.com</Hyperlink>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+                    <hc:StepBar Grid.Row="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="10"
+                                StepIndex="{Binding CalibrationStepIndex}"
+                                ItemsSource="{Binding CalibrationStepList}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                        <hc:StepBar.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding StepName}"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center" />
+                            </DataTemplate>
+                        </hc:StepBar.ItemTemplate>
+                    </hc:StepBar>
+                    <ProgressBar Grid.Row="3"
+                                 Margin="5"
+                                 Style="{StaticResource ProgressBarSuccess}"
+                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                 Value="{Binding CalibrationProgress, Mode=OneWay}" />
+                    <hc:StepBar Grid.Row="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="10"
+                                StepIndex="{Binding AutoCalibrationStepIndex}"
+                                ItemsSource="{Binding AutoCalibrationStepList}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                        <hc:StepBar.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding StepName}"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center" />
+                            </DataTemplate>
+                        </hc:StepBar.ItemTemplate>
+                    </hc:StepBar>
+                    <ProgressBar Grid.Row="3"
+                                 Margin="5"
+                                 Style="{StaticResource ProgressBarSuccess}"
+                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                 Value="{Binding AutoCalibrationProgress, Mode=OneWay}" />
+                </Grid>
+            </Border>
+            <!--#endregion-->
+        </Grid>
+    </hc:TransitioningContentControl>
+</UserControl>

@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Laser.PmtGain.Children.DataView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserPmtGainCalibrationViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <Grid>
+        <Border Padding="2"
+                Style="{StaticResource BorderRegion}"
+                Effect="{StaticResource EffectShadow1}">
+            <GroupBox x:Name="groupBox"
+                      Header="PMT Data"
+                      Style="{StaticResource GroupBoxTabBaseStyle}">
+                <ListView x:Name="DataListView"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView x:Name="GridViewControl">
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <!--  列将在后台代码中动态添加  -->
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="ExcelExport" Click="ExcelExport_Click" />
+                            <MenuItem Header="ExcelTempExport" Click="ExcelTempExport_Click" />
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
+            </GroupBox>
+        </Border>
+    </Grid>
+</UserControl>

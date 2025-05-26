@@ -1,0 +1,62 @@
+<hc:Window x:Class="CugaCalibrationTest.Views.MainWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:viewModels="clr-namespace:CugaCalibrationTest.ViewModels"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
+           xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           Title="Function"
+           Width="1000"
+           Height="800"
+           attachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
+           d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel,
+                                            IsDesignTimeCreatable=True}"
+           WindowState="Normal"
+           WindowStartupLocation="CenterScreen"
+           Icon="/Assets/Images/Function.ico"
+           mc:Ignorable="d">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource BorderRegion}">
+            <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical">
+                <hc:UniformSpacingPanel Spacing="5">
+                    <hc:UniformSpacingPanel.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                    </hc:UniformSpacingPanel.Resources>
+                    <Button Content="Stage Map" Command="{Binding StageMapCommand}" />
+                    <Button Content="Split Image" Command="{Binding SplitImageCommand}" />
+                    <Button Content="Generate Aod Wave" Command="{Binding GenerateChirpAodWaveCommand}" />
+                    <Button Content="Generate Chirp Aod Wave Training" Command="{Binding GenerateChirpAodWaveTrainingCommand}" />
+                    <Button Content="Test Log 1" Command="{Binding TestLog1Command}" />
+                    <Button Content="Test Log 2" Command="{Binding TestLog2Command}" />
+                    <Button Content="Test Stage Map" Command="{Binding TestStageMapCommand}" />
+                    <Button Style="{StaticResource ButtonDanger}">
+                        <hc:UniformSpacingPanel Spacing="5">
+                            <iconPacks:PackIconFontAwesome Kind="AddressBookRegular" />
+                            <TextBlock Text="Google" />
+                        </hc:UniformSpacingPanel>
+                    </Button>
+                </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel Spacing="5">
+                    <Button Content="AutomaticMPeakDetection" Command="{Binding AutomaticMPeakCommand}" />
+                </hc:UniformSpacingPanel>
+            </hc:UniformSpacingPanel>
+        </Border>
+
+        <GridSplitter Grid.Row="1" Height="5" />
+
+        <nlog:NLogViewer Grid.Row="2"
+                         MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}"
+                         TargetName="targetNLogViewer" />
+    </Grid>
+</hc:Window>

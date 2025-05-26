@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NLog" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities\Net.Utilities.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Assets\Css\*.*" />
+        <EmbeddedResource Include="Assets\Js\*.*" />
+    </ItemGroup>
+
+</Project>

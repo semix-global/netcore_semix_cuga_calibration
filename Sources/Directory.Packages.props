@@ -1,0 +1,166 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- System -->
+        <PackageVersion Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+        <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+        <PackageVersion Include="System.Numerics.Vectors" Version="4.6.1" />
+        <PackageVersion Include="System.Buffers" Version="4.6.1" />
+        <PackageVersion Include="System.Memory" Version="4.6.3" />
+        <PackageVersion Include="System.ValueTuple" Version="4.6.1" />
+        <PackageVersion Include="System.Threading.Channels" Version="9.0.4" />
+        <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <PackageVersion Include="System.Collections.Immutable" Version="9.0.4" />
+        <PackageVersion Include="System.ServiceModel.Primitives" Version="8.1.0" />
+        <PackageVersion Include="System.Text.Json" Version="9.0.4" />
+        <PackageVersion Include="System.Drawing.Common" Version="9.0.4" />
+        <PackageVersion Include="System.Reactive" Version="6.0.1" />
+        <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="9.0.0" />
+        <PackageVersion Include="System.Data.SQLite.Core" Version="1.0.119" />
+        <PackageVersion Include="PolySharp" Version="1.15.0" />
+        <!-- System -->
+        <!-- Microsoft -->
+        <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.183" />
+        <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+        <PackageVersion Include="Microsoft.Bcl.Numerics" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Bcl.TimeProvider" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.Primitives" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.Diagnostics.Abstractions" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
+        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+        <!-- Microsoft -->
+        <!-- CommunityToolkit -->
+        <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageVersion Include="CommunityToolkit.Common" Version="8.4.0" />
+        <PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
+        <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+        <!-- CommunityToolkit -->
+        <!-- Roslyn -->
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
+        <PackageVersion Include="DynamicExpresso.Core" Version="2.17.1" />
+        <!-- Roslyn -->
+        <!-- Anslyzers -->
+        <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4" />
+        <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.61" />
+        <PackageVersion Include="IDisposableAnalyzers" Version="4.0.8" />
+        <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+        <PackageVersion Include="WpfAnalyzers" Version="4.1.1" />
+        <!-- Anslyzers -->
+        <!-- Source Generator -->
+        <PackageVersion Include="SourceGenerator.AssemblyMetadata" Version="1.7.2" />
+        <PackageVersion Include="SourceGenerator.InjectHostDI" Version="1.7.2" />
+        <!-- Source Generator -->
+        <!-- UnitTest -->
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+        <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+        <PackageVersion Include="xunit" Version="2.9.3" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
+        <PackageVersion Include="xunit.analyzers" Version="1.21.0" />
+        <!-- UnitTest -->
+        <!-- Utilities -->
+        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageVersion Include="Humanizer.Core" Version="2.14.1" />
+        <PackageVersion Include="MiniExcel" Version="1.41.0" />
+        <PackageVersion Include="Mapster" Version="7.4.0" />
+        <PackageVersion Include="morelinq" Version="4.4.0" />
+        <PackageVersion Include="Yitter.IdGenerator" Version="1.0.14" />
+        <PackageVersion Include="Ulid" Version="1.3.4" />
+        <PackageVersion Include="TouchSocket" Version="2.1.10" />
+        <PackageVersion Include="Markdig" Version="0.40.0" />
+        <PackageVersion Include="IndexRange" Version="1.0.3" />
+        <PackageVersion Include="CliWrap" Version="3.6.7" />
+        <PackageVersion Include="ByteSize" Version="2.1.2" />
+        <PackageVersion Include="UnitsNet" Version="5.60.0" />
+        <PackageVersion Include="LiteDB" Version="5.0.21" />
+        <!-- Utilities -->
+        <!-- AOP -->
+        <PackageVersion Include="MrAdvice" Version="2.19.1" />
+        <!-- AOP -->
+        <!-- 算法 -->
+        <PackageVersion Include="OpenCvSharp4" Version="4.10.0.20241108" />
+        <PackageVersion Include="OpenCvSharp4.Extensions" Version="4.10.0.20241108" />
+        <PackageVersion Include="OpenCvSharp4.WpfExtensions" Version="4.10.0.20241108" />
+        <PackageVersion Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
+        <!-- 扩展库: 用作超大图片 -->
+        <PackageVersion Include="MVTec.HalconDotNet" Version="24050.0.0" />
+        <PackageVersion Include="MVTec.HalconDotNetXL" Version="24050.0.0" />
+        <PackageVersion Include="MathNet.Numerics" Version="5.0.0" />
+        <PackageVersion Include="AForge.Math" Version="2.2.5" />
+        <PackageVersion Include="Accord.Math" Version="3.8.0" />
+        <PackageVersion Include="FFTW.NET" Version="1.0.1" />
+        <PackageVersion Include="alglib.net" Version="3.19.0" />
+        <!-- 算法 -->
+        <!-- WPF -->
+        <PackageVersion Include="HandyControl" Version="3.5.1" />
+        <PackageVersion Include="MahApps.Metro.IconPacks.FontAwesome" Version="5.1.0" />
+        <PackageVersion Include="ScottPlot.WPF" Version="5.0.55" />
+        <PackageVersion Include="AvalonEdit" Version="6.3.1.120" />
+        <PackageVersion Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+        <PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+        <PackageVersion Include="ValueConverters" Version="3.1.22" />
+        <PackageVersion Include="SkiaSharp.Views.WPF" Version="3.116.1" />
+        <PackageVersion Include="Jamesnet.Wpf" Version="1.0.0.113" />
+        <PackageVersion Include="gong-wpf-dragdrop" Version="4.0.0" />
+        <!-- WPF -->
+        <!-- WINFORM -->
+        <PackageVersion Include="FontAwesome.Sharp" Version="6.6.0" />
+        <!-- WINFORM -->
+        <!-- Log -->
+        <PackageVersion Include="NLog" Version="5.4.0" />
+        <PackageVersion Include="NLog.Schema" Version="5.4.0" />
+        <PackageVersion Include="NLog.Extensions.Hosting" Version="5.4.0" />
+        <PackageVersion Include="NLog.Web.AspNetCore" Version="5.3.14" />
+        <PackageVersion Include="NLog.Windows.Forms" Version="5.2.3" />
+        <PackageVersion Include="Sentinel.NLogViewer" Version="2.0.1" />
+        <PackageVersion Include="Exceptionless.NLog" Version="6.0.4" />
+        <!-- Log -->
+        <!-- ORM -->
+        <PackageVersion Include="SqlSugarCore" Version="5.1.4.170" />
+        <PackageVersion Include="SqlSugar" Version="5.1.4.170" />
+        <PackageVersion Include="FreeSql" Version="3.5.203" />
+        <PackageVersion Include="FreeSql.Repository" Version="3.5.203" />
+        <PackageVersion Include="FreeSql.Provider.Sqlite" Version="3.5.203" />
+        <!-- ORM -->
+        <!-- GRPC -->
+        <!-- 公用API -->
+        <PackageVersion Include="Grpc.Core.Api" Version="2.70.0" />
+        <!-- 老版本: 基于原生gPRC（C-Core）核心库实现 grpc -->
+        <PackageVersion Include="Grpc.Core" Version="2.46.6" />
+        <PackageVersion Include="Google.Protobuf" Version="3.28.3" />
+        <PackageVersion Include="Grpc.Tools" Version="2.67.0" />
+        <!-- 新版本: 没有原生依赖 grpc-dotnet -->
+        <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.70.0" />
+        <PackageVersion Include="Grpc.Net.Client" Version="2.70.0" />
+        <PackageVersion Include="protobuf-net" Version="3.2.52" />
+        <PackageVersion Include="protobuf-net.Grpc" Version="1.2.2" />
+        <PackageVersion Include="protobuf-net.Reflection" Version="3.2.52" />
+        <PackageVersion Include="protobuf-net.BuildTools" Version="3.2.33" />
+        <PackageVersion Include="protobuf-net.Grpc.Native" Version="1.2.2" />
+        <PackageVersion Include="protobuf-net.Grpc.Reflection" Version="1.2.2" />
+        <PackageVersion Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2" />
+        <PackageVersion Include="protobuf-net.Grpc.AspNetCore.Reflection" Version="1.2.2" />
+        <!-- GRPC -->
+        <!-- CUGA -->
+        <PackageVersion Include="Semix.CoreLib" Version="1.0.1" />
+        <PackageVersion Include="Semix.CoreLib.Grpc" Version="1.0.0" />
+        <PackageVersion Include="Semix.GRPC.DTO" Version="1.0.0" />
+        <PackageVersion Include="Cuga.Interface" Version="1.0.3.1" />
+        <!-- CUGA -->
+    </ItemGroup>
+</Project>

@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Cuga-Script-Solution(dev)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "Cuga-Script-Solution(prod)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

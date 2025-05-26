@@ -1,0 +1,136 @@
+using Core.Models.Enums.Microscope;
+using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
+using Net.Utilities.Helper.File;
+using Net.Utilities.Models;
+using System.Collections.Frozen;
+
+namespace Core.Models.Helper;
+
+public static class CalibrationConstantsHelper
+{
+    /// <summary>
+    /// 校准明场PixelSize标准掩膜方块大小
+    /// </summary>
+    public static readonly FrozenDictionary<MicroscopeMagnificationEnum, Size> CalibrationPixelSizeStandardMaskSquareSizeDic = new Dictionary<MicroscopeMagnificationEnum, Size>
+    {
+        { MicroscopeMagnificationEnum.Magnification5X, new Size(100, 100) },
+        { MicroscopeMagnificationEnum.Magnification10X, new Size(50, 50) },
+        { MicroscopeMagnificationEnum.Magnification50X, new Size(25, 25) },
+        { MicroscopeMagnificationEnum.Magnification100X, new Size(10, 10) },
+        { MicroscopeMagnificationEnum.Magnification150X, new Size(10, 10) }
+    }.ToFrozenDictionary();
+
+    /// <summary>
+    /// 校准明场StageY轴长度
+    /// </summary>
+    public const double CalibrationGantryHLength = 1130000;
+
+    /// <summary>
+    /// 校准暗场YPixelSize标准掩膜方块大小
+    /// </summary>
+    public static readonly Size CalibrationYPixelSizeStandardMaskSquareSize = CalibrationPixelSizeStandardMaskSquareSizeDic[MicroscopeMagnificationEnum.Magnification150X];
+
+    /// <summary>
+    /// 校准暗场采集波形功率系数(1表示100%, 0表示0%)
+    /// </summary>
+    public static readonly double[] CalibrationCoefficients = [1, 0.85, 0.785, 0.635, 0.495, 0.39, 0.335, 0.26, 0.19, 0.12, 0.07, 0.05, 0.035, 0.005];
+
+    /// <summary>
+    /// 主校准暗场采集波形功率系数
+    /// </summary>
+    public const double MainCoefficient = 0.85;
+
+    /// <summary>
+    /// 校准暗场采集PmtId集合
+    /// </summary>
+    public static readonly int[] PmtIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+    /// <summary>
+    /// 主校准暗场采集PmtId
+    /// </summary>
+    public const int MainPmtId = 8;
+
+    /// <summary>
+    /// 校准暗场采集通道Id集合
+    /// </summary>
+    public static readonly int[] ChannelIdList = [1, 2, 3];
+
+    /// <summary>
+    /// 主校准暗场采集通道Id
+    /// </summary>
+    public const int MainChannelId = 3;
+
+    /// <summary>
+    /// 主校准暗场采集宽度
+    /// </summary>
+    public const int MainXWidthPixel = 800;
+
+    /// <summary>
+    /// 主校准暗场采集倍率
+    /// </summary>
+    public const OpticsMagTypeEnum MainOpticsMagTypeEnum = OpticsMagTypeEnum.High;
+
+    /// <summary>
+    /// 主校准暗场采集速度
+    /// </summary>
+    public const StageSpeedEnum MainStageSpeedEnum = StageSpeedEnum.Low;
+
+    /// <summary>
+    /// 主校准暗场采集坐标系系统
+    /// </summary>
+    public const StageCoordinateSystemEnum MainStageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
+
+    /// <summary>
+    /// 校准步长
+    /// </summary>
+    public static readonly double[] StageSteps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
+
+    /// <summary>
+    /// 校准步长
+    /// </summary>
+    public static readonly double[] StageThetaSteps = [-1, -0.5, -0.2, -0.1, -0.05, 0.05, 0.1, 0.2, 0.5, 1];
+
+    /// <summary>
+    /// 平移台监控间隔
+    /// </summary>
+    public const int MonitorStageMilliseconds = 1000;
+
+    /// <summary>
+    /// 显微镜监控间隔
+    /// </summary>
+    public const int MonitorMicroscopeMilliseconds = 1000;
+
+    /// <summary>
+    /// Fps监控间隔
+    /// </summary>
+    public const int FpsMonitorMilliseconds = 1000;
+
+    #region 方法
+
+    #region 规则
+
+    /// <summary>
+    /// 根据模板文件路径获取模板图片路径
+    /// </summary>
+    /// <param name="templateFilePath">模板文件</param>
+    /// <returns>模板图片路径</returns>
+    public static string TemplatePathToTemplateImagePath(string templateFilePath)
+    {
+        return $"{templateFilePath}.jpg";
+    }
+
+    /// <summary>
+    /// 根据图片文件路径获取raw图片路径
+    /// </summary>
+    /// <param name="templateFilePath">模板文件</param>
+    /// <returns>raw图片路径</returns>
+    public static string ImagePathToRawImagePath(string templateFilePath)
+    {
+        return $"{FileHelper.GetFileFullName(templateFilePath)}.raw";
+    }
+
+    #endregion 规则
+
+    #endregion 方法
+}

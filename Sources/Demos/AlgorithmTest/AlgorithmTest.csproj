@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFrameworks>net480;net8.0-windows</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Cores\Core.Models\Core.Models.csproj" />
+        <ProjectReference Include="..\..\Utilities\Net.Utilities.WPF\Net.Utilities.WPF.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="halcondotnetxl">
+            <HintPath>..\..\..\..\Depends\semix.arithmetic\halcondotnetxl.dll</HintPath>
+        </Reference>
+        <Reference Include="HAlgorithm">
+          <HintPath>..\..\..\..\Depends\semix.arithmetic\calibration\HAlgorithm.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>

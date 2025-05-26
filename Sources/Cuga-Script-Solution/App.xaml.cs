@@ -1,0 +1,135 @@
+using Core.Services;
+using CugaScript.Core;
+using CugaScript.Views;
+using Local.NoSQL.DB.Providers;
+using Local.SQL.DB.Providers;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Models;
+using Net.Utilities.WPF.MVVM;
+using NLog;
+using NLog.Extensions.Hosting;
+using NLog.Extensions.Logging;
+using SourceGenerator.AssemblyMetadata;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Threading;
+
+namespace CugaScript;
+
+public sealed partial class App
+{
+    private static readonly Logger Logger = LogManager.Setup().GetCurrentClassLogger();
+
+    [STAThread]
+    private static void Main(string[] args)
+    {
+        var mutex = new Mutex(true, typeof(App).Namespace, out var create);
+        if (create == false)
+        {
+            MessageBox.Show("The program is already running", typeof(App).Namespace, MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        try
+        {
+            var app = new App();
+            var host = Host.CreateDefaultBuilder(args)
+                .ConfigureServices((context, services) =>
+                {
+                    services
+                        .Configure<ApplicationSetting>(context.Configuration.GetSection(ApplicationSetting.AppSetting))
+                        .AddMvvmService(context.HostingEnvironment, app, CugaScriptSolutionAssemblyMetadata.Version)
+                        .AddNoSqlDbContext(context.HostingEnvironment)
+                        .AddSqlDbContext(context.HostingEnvironment)
+                        .AddCoreService(context.HostingEnvironment)
+                        .AddApplication(context.HostingEnvironment);
+                })
+                .UseNLog(new NLogProviderOptions { ReplaceLoggerFactory = true })
+#if RELEASE
+                .UseEnvironment(Environments.Production)
+#endif
+#if SIMULATOR
+                .UseEnvironment(Environments.Development)
+#endif
+                .Build()
+                .ConfigureHostApplication();
+
+            app.InitializeComponent();
+            app.MainWindow = HostApplication.GetRequiredService<MainWindow>();
+            app.MainWindow.Visibility = Visibility.Visible;
+            app.Startup += async (_, _) =>
+            {
+                TaskScheduler.UnobservedTaskException += TaskSchedulerOmUnobservedTaskException; // Task线程内未捕获异常处理事件
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException; // 非UI线程未捕获异常处理事件
+                app.DispatcherUnhandledException += AppOnDispatcherUnhandledException; // UI线程未捕获异常处理事件
+                await host.StartAsync().ConfigureAwait(false);
+            };
+            app.Exit += async (_, _) =>
+            {
+                app.DispatcherUnhandledException -= AppOnDispatcherUnhandledException; // UI线程未捕获异常处理事件
+                TaskScheduler.UnobservedTaskException -= TaskSchedulerOmUnobservedTaskException; // Task线程内未捕获异常处理事件
+                AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException; // 非UI线程未捕获异常处理事件
+                await host.StopAsync().ConfigureAwait(false);
+            };
+            app.Run();
+        }
+        catch (Exception ex)
+        {
+            Logger.Fatal(ex, "Stopped program because of exception");
+            MessageBox.Show($"Stopped program because of exception\r\n{ex.Message}{Environment.NewLine}{ex.StackTrace}",
+                typeof(App).Namespace, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            LogManager.Shutdown();
+            mutex.Dispose();
+        }
+    }
+
+    public App()
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+        // Thread.CurrentThread.CurrentCulture = new CultureInfo("zh-CN");
+        // Thread.CurrentThread.CurrentUICulture = new CultureInfo("zh-CN");
+    }
+
+    #region 全局异常捕获
+
+    private static void AppOnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        // 处理线程异常
+        Current.Dispatcher.Invoke(() => MessageBox.Show($"System Information: Exception not caught\r\n{e.Exception.Message}{Environment.NewLine}{e.Exception.StackTrace}",
+            typeof(App).Namespace, MessageBoxButton.OK, MessageBoxImage.Error), null);
+        Logger.Fatal(e.Exception, "System Information: Exception not caught");
+        e.Handled = true; // 继续运行程序
+    }
+
+    private static void TaskSchedulerOmUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        // 处理线程异常
+        Current.Dispatcher.Invoke(() => MessageBox.Show($"System Information: Exception not caught\r\n{e.Exception.Message}{Environment.NewLine}{e.Exception.StackTrace}",
+            typeof(App).Namespace, MessageBoxButton.OK, MessageBoxImage.Error), null);
+        Logger.Fatal(e.Exception, "System Information: Exception not caught");
+    }
+
+    private static void CurrentDomainOnUnhandledException(object? sender, UnhandledExceptionEventArgs e)
+    {
+        // 处理应用程序域中的异常
+        if (e.ExceptionObject is Exception exception)
+        {
+            Current.Dispatcher.Invoke(() => MessageBox.Show($"System Information: Exception not caught\r\n{exception.Message}{Environment.NewLine}{exception.StackTrace}",
+                typeof(App).Namespace, MessageBoxButton.OK, MessageBoxImage.Error), null);
+            Logger.Fatal(exception, "System Information: Exception not caught");
+            return;
+        }
+
+        // 发生了未处理的非托管异常
+        Current.Dispatcher.Invoke(() => MessageBox.Show($"System Information: Exception not caught\r\nAn unhandled unmanaged exception occurred {e.ExceptionObject}",
+            typeof(App).Namespace, MessageBoxButton.OK, MessageBoxImage.Error), null);
+        Logger.Fatal($"System Information: Exception not caught(An unhandled unmanaged exception occurred){e.ExceptionObject}");
+    }
+
+    #endregion 全局异常捕获
+}

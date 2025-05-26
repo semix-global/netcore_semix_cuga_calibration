@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Cuga-Calibration-Test(dev)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "Cuga-Calibration-Test(prod)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

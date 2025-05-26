@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="OpenCvSharp4" />
+        <PackageReference Include="OpenCvSharp4.runtime.win" />
+        <PackageReference Include="protobuf-net.Grpc.Native" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\GRPC.CodeFirst.Shared\GRPC.CodeFirst.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\GRPC.CodeFirst.Net8Service\Services\*.cs">
+            <Link>Services\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+        </Compile>
+    </ItemGroup>
+
+</Project>

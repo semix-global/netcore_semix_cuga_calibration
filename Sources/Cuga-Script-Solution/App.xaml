@@ -1,0 +1,17 @@
+﻿<Application x:Class="CugaScript.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Converters.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Geometries.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/DrawingImages.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

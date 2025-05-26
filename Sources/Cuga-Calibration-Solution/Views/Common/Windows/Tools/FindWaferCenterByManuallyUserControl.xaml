@@ -1,0 +1,196 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.Tools.FindWaferCenterByManuallyUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewModels:FindWaferCenterByManuallyWindowViewModel}"
+             d:DesignHeight="700"
+             d:DesignWidth="1300"
+             mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding FindWaferCenterLoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <GroupBox Header="Find Wafer Center Image">
+            <UniformGrid Columns="4" Rows="2">
+                <UniformGrid.Resources>
+                    <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
+                        <Setter Property="Margin" Value="1" />
+                    </Style>
+                    <Style BasedOn="{StaticResource TextBlockDefaultInfo}" TargetType="TextBlock">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="FontSize" Value="13" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                        <Setter Property="Foreground" Value="{Binding Cache.IsOk, Converter={StaticResource BoolToBrushConverter}}" />
+                    </Style>
+                </UniformGrid.Resources>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb1, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb1, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset1}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset1, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb2, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb2, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset2}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset2, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb3, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb3, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset3}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset3, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb4, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb4, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset4}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset4, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb5, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb5, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset5}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset5, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb6, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb6, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset6}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset6, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb7, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb7, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset7}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset7, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <hc:ImageViewer Width="200"
+                                        Height="200"
+                                        ShowToolBar="False"
+                                        ShowImgMap="False"
+                                        Background="#0A0A0A"
+                                        ImageSource="{Binding Cache.WaferCenterThumb8, Converter={StaticResource BitmapMemoryByteArrayToBitmapFrameConverter}}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ImageViewerClickBehavior BitmapSource="{Binding Cache.WaferCenterThumb8, Mode=TwoWay, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" ClickPosition="{Binding Cache.FindWaferCenterOffset8}" />
+                            </i:Interaction.Behaviors>
+                        </hc:ImageViewer>
+                        <TextBox Text="{Binding Cache.FindWaferCenterOffset8, Converter={StaticResource PointToStringConverter}}"
+                                 Width="180"
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:InfoElement.Title="Position(um): "
+                                 hc:InfoElement.TitlePlacement="Top"
+                                 Style="{StaticResource TextBoxExtend}" />
+                    </hc:UniformSpacingPanel>
+                </Border>
+            </UniformGrid>
+        </GroupBox>
+    </Grid>
+</UserControl>

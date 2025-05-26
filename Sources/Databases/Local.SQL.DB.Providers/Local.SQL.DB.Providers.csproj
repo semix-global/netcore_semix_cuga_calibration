@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FreeSql" />
+        <PackageReference Include="FreeSql.Repository" />
+        <PackageReference Include="SourceGenerator.InjectHostDI">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Utilities\Net.Utilities\Net.Utilities.csproj" />
+    </ItemGroup>
+
+</Project>

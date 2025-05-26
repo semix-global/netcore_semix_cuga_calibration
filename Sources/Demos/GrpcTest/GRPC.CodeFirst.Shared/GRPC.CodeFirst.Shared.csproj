@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.Core.Api" />
+        <PackageReference Include="protobuf-net" />
+        <PackageReference Include="protobuf-net.Grpc" />
+        <PackageReference Include="protobuf-net.Reflection" />
+        <PackageReference Include="protobuf-net.Grpc.Reflection" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Utilities\Net.Utilities\Net.Utilities.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Assets\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+</Project>

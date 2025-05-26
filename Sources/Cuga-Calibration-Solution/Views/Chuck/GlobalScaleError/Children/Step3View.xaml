@@ -1,0 +1,191 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Chuck.GlobalScaleError.Children.Step3View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckGlobalScaleErrorCalibrationViewModel}"
+             d:DesignHeight="700"
+             d:DesignWidth="1300"
+             mc:Ignorable="d">
+    <Grid IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!--#region Left-->
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Global Scale Error Step 4: "
+                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                           Color="{StaticResource InfoBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}"
+                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox x:Name="BaseSiteTextBox"
+                             Text="{Binding Cache.BaseFindResultPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:InfoElement.Title="Base High Position: "
+                             hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Column Cell Width(um): "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.ColumnCellWidth}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Row Cell Height(um): "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      hc:TitleElement.TitleWidth="180"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.RowCellHeight}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Wafer Diameter(um): "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      hc:TitleElement.TitleWidth="180"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.WaferDiameter}" />
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10"
+                                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                        <Button Content="Action"
+                                Command="{Binding Step3CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step3CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+            </Border>
+        </hc:UniformSpacingPanel>
+        <!--#endregion-->
+
+        <GridSplitter Grid.Column="1" Width="5" />
+
+        <!--#region Right-->
+        <Grid Grid.Column="2">
+            <GroupBox Grid.Row="2" Header="Calibration Data">
+                <UniformGrid Columns="2" Rows="2">
+                    <UniformGrid.Resources>
+                        <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                        <Style BasedOn="{StaticResource TextBlockDefaultInfo}" TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="FontSize" Value="13" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="Foreground" Value="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                        </Style>
+                    </UniformGrid.Resources>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Wafer Top Idea Position " />
+                            </StackPanel>
+                            <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
+                                <TextBox Text="{Binding Cache.TopSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                         Width="245"
+                                         hc:TitleElement.TitleWidth="90"
+                                         hc:InfoElement.Title="Position(um): "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         IsReadOnly="True"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <Button x:Name="TopGotoButton"
+                                        Content="Goto"
+                                        Command="{Binding GotoPointCommand}"
+                                        CommandParameter="{x:Static stage:StageDirectionTypeEnum.Up}"
+                                        Width="70" />
+                            </hc:UniformSpacingPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Wafer Left Idea Position" />
+                            </StackPanel>
+                            <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
+                                <TextBox Text="{Binding Cache.LeftSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                         Width="245"
+                                         hc:TitleElement.TitleWidth="90"
+                                         hc:InfoElement.Title="Position(um): "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         IsReadOnly="True"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <Button x:Name="LeftLowSiteGotoButton"
+                                        Content="Goto"
+                                        Command="{Binding GotoPointCommand}"
+                                        CommandParameter="{x:Static stage:StageDirectionTypeEnum.Left}"
+                                        Width="70" />
+                            </hc:UniformSpacingPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Wafer Bottom Idea Position" />
+                            </StackPanel>
+                            <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
+                                <TextBox Text="{Binding Cache.BottomSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                         Width="245"
+                                         hc:TitleElement.TitleWidth="90"
+                                         hc:InfoElement.Title="Position(um): "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         IsReadOnly="True"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <Button x:Name="BottomGotoButton"
+                                        Content="Goto"
+                                        Command="{Binding GotoPointCommand}"
+                                        CommandParameter="{x:Static stage:StageDirectionTypeEnum.Down}"
+                                        Width="70" />
+                            </hc:UniformSpacingPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Wafer Right Idea Position" />
+                            </StackPanel>
+                            <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
+                                <TextBox Text="{Binding Cache.RightSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                         Width="245"
+                                         hc:TitleElement.TitleWidth="90"
+                                         hc:InfoElement.Title="Position(um): "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         IsReadOnly="True"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <Button x:Name="RightGotoButton"
+                                        Content="Goto"
+                                        Command="{Binding GotoPointCommand}"
+                                        CommandParameter="{x:Static stage:StageDirectionTypeEnum.Right}"
+                                        Width="70" />
+                            </hc:UniformSpacingPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </UniformGrid>
+            </GroupBox>
+        </Grid>
+        <!--#endregion-->
+    </Grid>
+</UserControl>

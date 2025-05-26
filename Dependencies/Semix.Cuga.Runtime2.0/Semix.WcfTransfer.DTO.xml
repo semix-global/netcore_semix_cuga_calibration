@@ -1,0 +1,2100 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Semix.WcfTransfer.DTO</name>
+    </assembly>
+    <members>
+        <member name="F:Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens.None">
+            <summary>
+            无镜头
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens.One">
+            <summary>
+            第一个物镜
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens.Two">
+            <summary>
+            第二个物镜
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens.Three">
+            <summary>
+            第三个物镜
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens.Four">
+            <summary>
+            第四个物镜
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens.Five">
+            <summary>
+            第五个物镜
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.BaseResponse.Success">
+            <summary>
+            执行结果
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.BaseResponse.Message">
+            <summary>
+            返回消息
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxErrorData">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxDemoDTO">
+            <summary>
+            示例说明类<br/>
+            仅用作示例说明，无实际含义
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxPointD">
+            <summary>
+            双浮点类型坐标点
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxProcessStatusInfo">
+            <summary>
+            检测状态信息
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxSizeD">
+            <summary>
+            双浮点尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.Orientation">
+            <summary>
+            0:0、1:90、2:180、3:270
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.WaferType">
+            <summary>
+            0:Patterned ,1: Blank
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.AdiType">
+            <summary>
+            0:Not ADI, 1:ADI
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.AfLedType">
+            <summary>
+            0:hign, 1:mid, 2:low
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.IsLaserPowerSensitive">
+            <summary>
+            否对激光敏感
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.LaserPowerFactor">
+            <summary>
+            激光功率
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferProperties.LaserPowerLimit">
+            <summary>
+            激光功率限制
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBoxFourierTraingingResult.BoxNo">
+            <summary>
+            Box序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBoxFourierTraingingResult.TrainingResult">
+            <summary>
+            傅里叶训练结果
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierTrainingResult.Channel">
+            <summary>
+            通道号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierTrainingResult.FourierData">
+            <summary>
+            傅里叶数据
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierTrainingResult.Peaks">
+            <summary>
+            峰谷位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierTrainingResult.Score">
+            <summary>
+            屏风
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierFilterTrainingAxis.RodType">
+            <summary>
+            Rod类别，0:X, 1：Y
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierFilterTrainingAxis.Rods">
+            <summary>
+            傅里叶层集合集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxFourierFilterTrainingRod">
+            <summary>
+            傅里叶参数明细
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierFilterTrainingRod.RodNo">
+            <summary>
+            Rod序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierFilterTrainingRod.IsEnable">
+            <summary>
+            是否使用
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFourierFilterTrainingRod.Position">
+            <summary>
+            位置
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxTestChannelFourierFilterRodInfo">
+            <summary>
+            傅里叶训练信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestChannelFourierFilterRodInfo.Channel">
+            <summary>
+            通道序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestChannelFourierFilterRodInfo.Axis">
+            <summary>
+            傅里叶层集合集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestChannelFourierFilterRodInfo.Rods">
+            <summary>
+            傅里叶层集合集合 Old,弃用
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionChannelOptics.Channel">
+            <summary>
+            通道
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionChannelOptics.IsEnable">
+            <summary>
+            是否使用
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionChannelOptics.Polariation">
+            <summary>
+            偏正[1.S 垂直偏振 2.P 水平偏振 3.N 没有偏振
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionChannelOptics.LightLevel">
+            <summary>
+            光强
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionChannelOptics.IsUseFourierFilter">
+            <summary>
+            是否使用傅里叶
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxAlgo">
+            <summary>
+            算法参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.AlgoName">
+            <summary>
+            算法名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.IsRunAlgo">
+            <summary>
+            是否执行算法
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.IsRunCFAlgo">
+            <summary>
+            是否执行CF算法
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.IsRunSecondaryAlgo">
+            <summary>
+            是否执行Secondary算法
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.IsRunSecondaryCFAlgo">
+            <summary>
+            是否执行SecondaryCF算法
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.SegList">
+            <summary>
+            算法参数集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlgo.CFInfos">
+            <summary>
+            CF 算法参数集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxAllAlgo">
+            <summary>
+            算法参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllAlgo.AlgoName">
+            <summary>
+            算法名称
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxAllAlgoInfo">
+            <summary>
+            算法参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllAlgoInfo.IsSecondary">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllAlgoInfo.PostFillter">
+            <summary>
+            0:None,1:Weak,2:Normal,3:Strong
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllAlgoInfo.IsEnhancedSecondaryDie">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllAlgoInfo.SecondaryDieFactor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllAlgoInfo.DarkDefectFactor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxAllCFInfo">
+            <summary>
+            算法参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllCFInfo.Id">
+            <summary>
+            channel fusion 名 0:CF12,1:CF13,2:CF23,3:CF123
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllCFInfo.Name">
+            <summary>
+            cf名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllCFInfo.IsSecondary">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAllCFInfo.DarkDefectFactor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxCell2Cell">
+            <summary>
+            算法参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.IsRun">
+            <summary>
+            是否执行Segments
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.CellSize">
+            <summary>
+            CellSize
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.CellType">
+            <summary>
+            方向类型
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxCFInfo">
+            <summary>
+            算法 channel fusion 参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCFInfo.Id">
+            <summary>
+            channel fusion 名 0:CF12,1:CF13,2:CF23,3:CF123
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCFInfo.Name">
+            <summary>
+            序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCFInfo.SegList">
+            <summary>
+            算法参数集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxChannelInfo">
+            <summary>
+            采集通道
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelInfo.Id">
+            <summary>
+            通道序号 1 Left，2 Right，3 Center，4 ChannelFusion
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelInfo.LLT">
+            <summary>
+            光强训练参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelInfo.Sensitivity">
+            <summary>
+            图像算法参数
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter">
+            <summary>
+            通道灵敏度参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.Algorithm">
+            <summary>
+            算法 0:HALT,1:FAST,2:AutoSens,3:ArrayMode,4:WaferScaleProfile,5:SingleDieInspection,6:LAT
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.Authority">
+            <summary>
+            权限
+            0.None 1.Engineer 2.Production
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.IsVariableNoiseControl">
+            <summary>
+            可变噪声控制
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.Preconvolver">
+            <summary>
+            预转化器
+            平均原始数据的通道特定的卷积内核
+            0:None,
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.L0">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.K">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.Gain">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.RunL0K">
+            <summary>
+            是否启用LOK
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.RegionList">
+            <summary>
+            算法区域集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelSensitivityParameter.IsSecondary">
+            <summary>
+            是否Secondary
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxDieCareArea">
+            <summary>
+            关注区域信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieCareArea.Offset">
+            <summary>
+            区域偏移位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieCareArea.Width">
+            <summary>
+            宽
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieCareArea.Height">
+            <summary>
+            高 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieCareArea.Size">
+            <summary>
+            尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieCareArea.CellSize">
+            <summary>
+            cell size
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieCareArea.DieCareAreas">
+            <summary>
+            CaType为1的情况下，Auto Care Area 的值
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxGroupInfo">
+            <summary>
+            组
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.Id">
+            <summary>
+            序列
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.CaType">
+            <summary>
+            CA TYPE : 1 :care area, 2:Auto Care Area,3 :Derived Care Areas,4:Do not Care Area
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.Priority">
+            <summary>
+            优先级
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.RegionName">
+            <summary>
+            区域名[匹配算法时使用]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.IsEnable">
+            <summary>
+            是否启用
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.CagCode">
+            <summary>
+            未知，待定
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGroupInfo.DieCareAreas">
+            <summary>
+            关注区域集合 
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxLightTrainingParameter">
+            <summary>
+            光强训练参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxLightTrainingParameter.LightLevels">
+            <summary>
+            强度
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxLightTrainingParameter.CameraGains">
+            <summary>
+            相机增益
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxLightTrainingParameter.PILONoiseValues">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxLightTrainingParameter.Exposures">
+            <summary>
+            曝光时间
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxRegion">
+            <summary>
+            算法区域
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.Id">
+            <summary>
+            序号 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.Name">
+            <summary>
+            序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.Priority">
+            <summary>
+            优先级
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.AlgoList">
+            <summary>
+            算法参数集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.SegInfos">
+            <summary>
+            分割参数(弃用)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.IsRunSeg">
+            <summary>
+            是否执行Segments
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.SegmentationType">
+            <summary>
+            Seg 类型
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.DilationX">
+            <summary>
+            projection X方向膨胀系数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.DilationY">
+            <summary>
+            projection Y方向膨胀系数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.Segments">
+            <summary>
+            分割参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.SdiInfo">
+            <summary>
+            Sdi适用当前Test参数（不区分Channel）
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRegion.Cell2Cell">
+            <summary>
+            Cell2Cell 参数(适用不同region，不区分通道）
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.SdiType">
+            <summary>
+            SDI类型
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.CellSizeA">
+            <summary>
+            Ref_1_distance
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.CellSizeB">
+            <summary>
+            Ref_2_distance
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.CellSizeC">
+            <summary>
+            Ref_3_distance
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.X_EdgeFactor">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.X_EdgeDistance">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.Y_EdgeFactor">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.Y_EdgeDistance">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.SDI_CF_DilationX">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.SDI_CF_DilationY">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.SDI_RCIN_Run">
+            <summary>
+            预留 range 0，1
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.SDI_RCIN_X_Range">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSdiInfo.SDI_RCIN_Y_Range">
+            <summary>
+            预留
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxSeg">
+            <summary>
+            算法参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Id">
+            <summary>
+            序号   0:SEG/SENS 0, 1:SEG 1
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Name">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.IsSecondary">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Threshold">
+            <summary>
+            阈值
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Noise">
+            <summary>
+            噪声
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Absmin">
+            <summary>
+            绝对值
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Gradient">
+            <summary>
+            渐变
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Color">
+            <summary>
+            彩色
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.IsDilation">
+            <summary>
+            是否膨胀
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Kernelsize">
+            <summary>
+            卷积核大小【3,5,7】
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.IsRun">
+            <summary>
+            是否执行
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.EnableRemap">
+            <summary>
+            是否重新映射
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.MaxThreshold">
+            <summary>
+            最大阈值
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.MeanThreshold">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.LocalNoise">
+            <summary>
+            本地音噪
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.Intensity">
+            <summary>
+            PNF参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.SideRatio">
+            <summary>
+            PNF参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.TopRatio">
+            <summary>
+            PNF参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSeg.SegmentMask">
+            <summary>
+            CF参数 SegmentMask
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxSegCoordinate">
+            <summary>
+            seg范围
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxSegment">
+            <summary>
+            Segmentation信息
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxTestCareArea">
+            <summary>
+            晶圆关注区域信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestCareArea.Border">
+            <summary>
+            区域边框
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestCareArea.Groups">
+            <summary>
+            组集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestCareArea.Channels">
+            <summary>
+            通道集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxTestInfo">
+            <summary>
+            Test
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.TestName">
+            <summary>
+            Test 名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.TestIndex">
+            <summary>
+            Test 索引
+            从0开始
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.WCA">
+            <summary>
+            关注区域信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.TestParam">
+            <summary>
+            Test参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.TPP">
+            <summary>
+            Test后处理
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.ChlFFRodList">
+            <summary>
+            傅里叶参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestInfo.InspChlOptics">
+            <summary>
+            检测采集光路光学参数
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxFeatureVectors">
+            <summary>
+            向量选项                    
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFeatureVectors.IsSaveFeatureVectors">
+            <summary>
+            是否保存
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxFeatureVectors.FeatrueVectorVersion">
+            <summary>
+            版本
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxIDOClassifier">
+            <summary>
+            Inline Defect Organizer(IDO)
+            内联缺陷管理器（iDO）是一种用户可训练的缺陷分类能力，
+            它使用缺陷特性在运行时将缺陷分类到粗糙的箱子中。
+            它的设计目的是通过消除有害的缺陷来捕获产生相关的（杀手级）缺陷，
+            从而降低阈值和增加对真实缺陷的敏感性。
+            iDO使用了在检查过程中获得的候选模具和参考模具线扫描图像的缺陷信息。
+            这些图像处于检查像素大小
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxIDOClassifier.Classifier">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxIDOClassifier.View">
+            <summary>
+            是否显示
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxIDOClassifier.IsRun">
+            <summary>
+            是否执行
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxInspectionOptics">
+            <summary>
+            检测光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.PixelSize">
+            <summary>
+            像素尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.SampleRate">
+            <summary>
+            采样 2.0, 3.0 (Normal) or 4.0
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.Speed">
+            <summary>
+            扫描速度 [1.低速2.中速3.高速]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.Polarization">
+            <summary>
+            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.IncidenceAngle">
+            <summary>
+            入射倾斜角
+            倾斜 or 正常  Oblique or Normal
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNanoDefect.Classifier">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNanoDefect.View">
+            <summary>
+            是否显示
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNanoDefect.IsRunNanoDefect">
+            <summary>
+            是否执行
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNanoDefect.IsRunLocal">
+            <summary>
+            是否本地执行
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxNEFClassifier">
+            <summary>
+            NEF分类器(s)允许将单个ST-NEF或多个序列NEF附加到一个测试中。
+            这些nef在检查运行期间执行，从而对所需的缺陷进行分类，
+            并消除或保存批次结果中的有害缺陷。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNEFClassifier.Classifier">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNEFClassifier.View">
+            <summary>
+            是否显示
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxNEFClassifier.IsRun">
+            <summary>
+            是否执行
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxPatchImageAlignConfig.IsRunPIAC">
+            <summary>
+            是否执行
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxPatchImageAlignConfig.PIACSearchRangeX">
+            <summary>
+            查找x范围
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxPatchImageAlignConfig.PIACSearchRangeY">
+            <summary>
+            查找Y范围
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxRBBClassifier">
+            <summary>
+            RBB
+            基于规则的分类(RBB)是一种分类方法，
+            它使用一组用户定义的规则来对类似的缺陷进行分组。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRBBClassifier.Classifier">
+            <summary>
+            名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRBBClassifier.IsRun">
+            <summary>
+            是否执行
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.IsRunSingleDieInspection">
+            <summary>
+            是否执行单个Die检测
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.FocusOffset">
+            <summary>
+            对焦偏差
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.EffectiveRadius">
+            <summary>
+            有效半径
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.IsRunRTFC">
+            <summary>
+            是否运行RTFC
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.Coverage">
+            <summary>
+            检测范围[百分比]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.IsSaveImagePatches">
+            <summary>
+            是否保存图片路径
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.FV">
+            <summary>
+            向量选项
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.RBB">
+            <summary>
+            RBB分类器
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.NEF">
+            <summary>
+            NEF分类
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.IDO">
+            <summary>
+            IDO分类器
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.NanoDefect">
+            <summary>
+            IDO 2.0
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.PatchImageAlignConfig">
+            <summary>
+            PatchImageAlignConfig
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestParameter.InspOpt">
+            <summary>
+            检测光学
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxModuleParameter">
+            <summary>
+            模块参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxModuleParameter.RuleName">
+            <summary>
+            规则名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxModuleParameter.Priority">
+            <summary>
+            优先级
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxModuleParameter.Expression">
+            <summary>
+            公式
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxModuleParameter.Bin">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxModuleParameter.Nuisance">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxModuleParameter.Enable">
+            <summary>
+            是否可用
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxTestPostProcessing">
+            <summary>
+            Test后处理
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestPostProcessing.IsRBB">
+            <summary>
+            是否使用RBB分类
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxTestPostProcessing.ModuleList">
+            <summary>
+            模块参数集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxDieInfo">
+            <summary>
+            Die信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.Width">
+            <summary>
+            宽
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.Height">
+            <summary>
+            高
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.DiePitchWidth">
+            <summary>
+            die pitch 宽
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.DiePitchHeight">
+            <summary>
+            die pitch 高
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.DieCornerOffserX">
+            <summary>
+            die corner 偏移量 宽
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.DieCornerOffserY">
+            <summary>
+            die corner 偏移量 高
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.DieValidXOffset">
+            <summary>
+            X方向扫描阈值
+            </summary>    
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieInfo.SwathWidth">
+            <summary>
+            扫描宽度
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxReticle.IsUse">
+            <summary>
+            是否使用
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxReticle.Size">
+            <summary>
+            尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxReticle.ReferenceDie">
+            <summary>
+            标准Die
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxWaferCol">
+            <summary>
+            列信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferCol.Id">
+            <summary>
+            序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferCol.Location">
+            <summary>
+            坐标
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferCol.IsEdge">
+            <summary>
+            边缘die
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferCol.IsReport">
+            <summary>
+            是否报告
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferCol.AlgorithmType">
+            <summary>
+            算法检测 1:Primary Threshold Die,2:Secondary Threshold Die,0:DoNotInspect
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxWaferMap">
+            <summary>
+            晶圆矩阵
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMap.Rows">
+            <summary>
+            行集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMap.Die">
+            <summary>
+            Die信息
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxWaferRow">
+            <summary>
+            行信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferRow.Id">
+            <summary>
+            索引
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferRow.Cols">
+            <summary>
+            列集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxDataValid">
+            <summary>
+            数据信号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDataValid.RowId">
+            <summary>
+            晶圆行序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDataValid.SwathId">
+            <summary>
+            扫描列序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDataValid.Start">
+            <summary>
+            起始位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDataValid.End">
+            <summary>
+            结束位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDataValid.DieValidList">
+            <summary>
+            DieValid集合
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxDieValid">
+            <summary>
+            单元信号[DieValid]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieValid.ColId">
+            <summary>
+            列序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieValid.SwathId">
+            <summary>
+            扫描列序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDieValid.Start">
+            <summary>
+            起始位置
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxSwathInfo">
+            <summary>
+            数据信号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathInfo.Id">
+            <summary>
+            扫描列序号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathInfo.SwathRect">
+            <summary>
+            扫描矩阵
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathInfo.Start">
+            <summary>
+            起始位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathInfo.End">
+            <summary>
+            结束位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathInfo.DieValidList">
+            <summary>
+            DieValid集合
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathInfo.Dir">
+            <summary>
+            扫描方向 1 正向 0反向
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxSwathMap">
+            <summary>
+            扫描矩阵
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxAlignOptics">
+            <summary>
+            光学参数[对焦与通道使用]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignOptics.PixelSize">
+            <summary>
+            像素尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignOptics.SampleRate">
+            <summary>
+            采样 2.0, 3.0 (Normal) or 4.0
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignOptics.Polarization">
+            <summary>
+            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignOptics.IncidenceAngle">
+            <summary>
+            入射倾斜角
+            倾斜 or 正常  Oblique or Normal
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDFAlignSite.AlignSite1">
+            <summary>
+            低倍镜标记点1位置 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDFAlignSite.AlignSite2">
+            <summary>
+            低倍镜标记点2位置
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxAlignParameter">
+            <summary>
+            对齐参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.Site1Location">
+            <summary>
+            标记点1位置 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.Site2Location">
+            <summary>
+            标记点2位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.Template">
+            <summary>
+            模板图字节数据
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.AlignOptics">
+            <summary>
+            照明光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.AlignChlOptics">
+            <summary>
+            采集光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.LowAlignSite1">
+            <summary>
+            低倍镜标记点1位置 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.LowAlignSite2">
+            <summary>
+            低倍镜标记点2位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.HighAlignSite1">
+            <summary>
+            高倍镜标记点1位置 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxAlignParameter.HighAlignSite2">
+            <summary>
+            高倍镜标记点2位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignParam.LowOptics">
+            <summary>
+            照明光学参数低倍镜
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignParam.HighOptics">
+            <summary>
+            照明光学参数高倍镜
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignParam.AlignSites">
+            <summary>
+            对准点
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignSite.LowAlignSite1">
+            <summary>
+            低倍镜标记点1位置 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignSite.LowAlignSite2">
+            <summary>
+            低倍镜标记点2位置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignSite.HighAlignSite1">
+            <summary>
+            高倍镜标记点1位置 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxBFAlignSite.HighAlignSite2">
+            <summary>
+            高倍镜标记点2位置
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxChannelAlignOptics">
+            <summary>
+            光学参数[对焦与通道使用]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelAlignOptics.Channel">
+            <summary>
+            通道
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelAlignOptics.IsEnable">
+            <summary>
+            是否启用光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelAlignOptics.Polariation">
+            <summary>
+            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelAlignOptics.LightLevel">
+            <summary>
+            光强
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChannelAlignOptics.FourierFiliterUsed">
+            <summary>
+            是否使用傅里叶过滤器
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDFAlignParam.AlignOptics">
+            <summary>
+            照明光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDFAlignParam.AlignChlOptics">
+            <summary>
+            采集光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxDFAlignParam.AlignSites">
+            <summary>
+            对准点
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxGlobalParameter">
+            <summary>
+            全局光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.PixelSize">
+            <summary>
+            像素尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.SampleRate">
+            <summary>
+            采样
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.Incidence">
+            <summary>
+            入射角 0.垂直入射 1.倾斜入射
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.Polarization">
+            <summary>
+             偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.FocusOffset">
+            <summary>
+            对焦补偿
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.IlluminationLevel">
+            <summary>
+            照度等级
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxGlobalParameter.Aperture">
+            <summary>
+            光圈
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxClusterInfo">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxClusterInfo.IsAutoThreshold">
+            <summary>
+            启用自动阈值
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxClusterInfo.DistanceThreshold">
+            <summary>
+            cluster之间距离
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxClusterInfo.MinimumDefectsPerCluster">
+            <summary>
+            cluster最少缺陷数量
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxClusterInfo.SecondPassMultiple">
+            <summary>
+            控制cluster合并数量
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRepeatersInfo.RepeaterAlgorithm">
+            <summary>
+            Repeater算法。0:Reticle Wafer,1:Wafer
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRepeatersInfo.XToderance">
+            <summary>
+            Range is from 1 to 50 µm。Tolerance是两个缺陷之间允许的最大距离（半径）的单个repeater缺陷
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRepeatersInfo.YToderance">
+            <summary>
+            Range is from 1 to 50 µm。Tolerance是两个缺陷之间允许的最大距离（半径）的单个repeater缺陷
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRepeatersInfo.RepeaterThreshold">
+            <summary>
+            Range is from 2 to 1000。Repeater Threshold是发出 repeater defect信号所需的一致缺陷数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSampling.SamplingType">
+            <summary>
+            0:Review,1:Patch ,2:Patch Image Transfer,3:Hi-Res Image
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSampling.SSet">
+            <summary>
+            Review,Patch ,Patch Image Transfer,Hi-Res Image主界面设置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSampling.SRandom">
+            <summary>
+            Review,Patch ,Patch Image Transfer,Hi-Res Image的Random界面设置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSampling.SClassCode">
+            <summary>
+            Review,Patch ,Patch Image Transfer,Hi-Res Image的ClassCode界面设置
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingClassCode.SClassCodeInfo">
+            <summary>
+            ClassCode信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingClassCode.MaximumNumber">
+            <summary>
+            采样的类编码缺陷的最大数。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingClassCodeInfo.Category">
+            <summary>
+            ClassCode名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingClassCodeInfo.Code">
+            <summary>
+            是否选中All Nonzero
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingClassCodeInfo.Defects">
+            <summary>
+            缺陷数量或百分比值，依据Symbol字段
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingClassCodeInfo.Symbol">
+            <summary>
+            #:总数。%：缺陷百分比
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.MinimumSampledDefectsPerWafer">
+            <summary>
+            每个晶圆的采样审核的最小采样缺陷数量。范围为0-65000。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.MaximumSampledDefectsPerWafer">
+            <summary>
+            每个晶圆的采样审核的最大采样缺陷数量。范围为0-65000。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.MaximumSampledDefectsPerDie">
+            <summary>
+            每个芯片采样审核的最大缺陷数。范围为1-65000。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.MaximumSampledDefectsPerCluster">
+            <summary>
+            每个Cluster采样审核的最大缺陷数。范围为2-65000。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.PercentSampledDefectsFromClusters">
+            <summary>
+            待采样审核的clusters缺陷的最大百分比。范围为1-100%。
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.MinimumSampledDefectSize">
+            <summary>
+            待采样审核的缺陷的最小尺寸限制.0–500000000 µm2
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingRandom.MaximumSampledDefectSize">
+            <summary>
+            待采样审核的缺陷的最大尺寸限制。0–500000000 µm2
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingSet.MaxNumber">
+            <summary>
+            被采样最大缺陷数量
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingSet.UseResultsFrom">
+            <summary>
+            使用其他Sampling的结果
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSamplingSet.isPreservePatches">
+            <summary>
+            是否使用 Patch Sampling保存patch image
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.InspName">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.DeviceName">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.LayerName">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.RecipeType">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.WaferSize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.WaferId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.DTO.SxRectangleD.Intersect(Semix.WcfTransfer.DTO.SxRectangleD,Semix.WcfTransfer.DTO.SxRectangleD)">
+            <summary>
+            计算相交区域
+            </summary>
+            <param name="a"></param>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.DTO.SxRectangleD.IntersectsWith(Semix.WcfTransfer.DTO.SxRectangleD)">
+            <summary>
+            判断是否相交
+            </summary>
+            <param name="rect"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.RecipeProperties">
+            <summary>
+            配方属性
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.WaferProperties">
+            <summary>
+            wafer属性
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.Test">
+            <summary>
+            test参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.WaferMap">
+            <summary>
+            wafermap参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.SwathMap">
+            <summary>
+            SwathMap参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.AlignParam">
+            <summary>
+            对准参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxSwathRecipe.PostProcessing">
+            <summary>
+            后处理参数
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.FFCH">
+            <summary>
+            FF通道号
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH12MaxPOS">
+            <summary>
+            通道12杆子最大值  
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH12MinPOS">
+            <summary>
+            通道12杆子最小值 
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH3_X_LPOSMax">
+            <summary>
+            通道3转盘最大值
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH3_X_LPOSMin">
+            <summary>
+            通道3转盘最小值
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH3_X_PPOSMax">
+            <summary>
+            通道3额外挡杆位置最大值（只有X有）
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH3_X_PPOSMin">
+            <summary>
+            额外挡杆位置最小值（只有X有）
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH3_Y_LPOSMax">
+            <summary>
+            通道3转盘最大值
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.CH3_Y_LPOSMin">
+            <summary>
+            通道3转盘最小值
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO._88.C2M.C2MFFRangeModel.RodNum">
+            <summary>
+            通道12杆子数量
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.C2MSiteDTO.Algo">
+            <summary>
+            匹配算法 1.Shape 2.NCC
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO">
+            <summary>
+            上传MainUI的缺陷块对象
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.X">
+            <summary>
+            缺陷块坐标X 左下角
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.Y">
+            <summary>
+            缺陷块坐标Y 左下角
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.Width">
+            <summary>
+            缺陷块宽
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.Height">
+            <summary>
+            缺陷块高
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.CenterX">
+            <summary>
+            缺陷块中心点坐标X
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.CenterY">
+            <summary>
+            缺陷块中心点坐标Y
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.Die">
+            <summary>
+            缺陷块所在Die的行列 X列 Y行
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.Url">
+            <summary>
+            图像地址
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.CheckDefInfo">
+            <summary>
+            当Def坐标有问题时可以用此查询
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.Ido2PassType">
+            <summary>
+            IDO2.0通过类型
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.DefectPoints">
+            <summary>
+            缺陷块的缺陷点集和
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.IDO">
+            <summary>
+            IDO参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO.DefectID">
+            <summary>
+            此属性字段为MainUI端使用，CUGA无需上传
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.C2MDemoDTO">
+            <summary>
+            示例说明类<br/>
+            仅用作示例说明，无实际含义
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysCollectImgDTO.Dir">
+            <summary>
+            方向1正 0负
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CImgSysCollectImgDTO.Position">
+            <summary>
+            Die位置 DIE_R1 = 1,DIE_T = 2, DIE_R2 = 3
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.Magnification">
+            <summary>
+            放大率 1:Min, 2:Mid, 3:Max
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.Polarization">
+            <summary>
+            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.SampleRate">
+            <summary>
+            采样1: 2.0,2: 3.0 (Normal) or 3: 4.0
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.Apodization">
+            <summary>
+            变迹?? 1 : Cosine ,2:Gaussian, 3:Super Gaussian（无）
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.IncidenceAngle">
+            <summary>
+            入射倾斜角
+            倾斜 or 正常  1:Oblique or 2: Normal（无）
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.FocusOffset">
+            <summary>
+            AF
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireOptics.LightLevelUnit">
+            <summary>
+            Light 0 - 1
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageAcquireParameter.AcquireChlOptics">
+            <summary>
+            采集光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageChannelOptics.Channel">
+            <summary>
+            通道
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageChannelOptics.IsEnable">
+            <summary>
+            是否启用光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageChannelOptics.Polariation">
+            <summary>
+            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxWaferMapImageChannelOptics.FlexApertureUsed">
+            <summary>
+            是否使用Flex Aperture
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.Channel">
+            <summary>
+            通道
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.IsEnable">
+            <summary>
+            是否启用光学参数
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.Polariation">
+            <summary>
+            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.FlexApertureUsed">
+            <summary>
+            是否使用Flex Aperture
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.PixelSize">
+            <summary>
+            像素尺寸
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Magnification">
+            <summary>
+            放大率 1:High, 2:Mid, 3:Low
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.SampleRate">
+            <summary>
+            采样 2.0, 3.0 (Normal) or 4.0
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Speed">
+            <summary>
+            扫描速度 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Polarization">
+            <summary>
+            入射光偏振 [1.C 圆偏振.2.S 垂直偏振 3.P 水平偏振 ]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Analyzer">
+            <summary>
+            采集偏振 [1.N 无. 2.S 垂直偏振 3.P 水平偏振 ] 
+            OpticsSelector 使用
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.IncidenceAngle">
+            <summary>
+            入射倾斜角
+            倾斜 or 正常  Oblique or Normal
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Apodization">
+            <summary>
+            切换转轮的三种角度状态 1 : Gaussian/Gaussian ,2:4-Super Gaussian/Gaussian, 3:Cos/Cos
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.LightLevelUnit">
+            <summary>
+            光强 
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.FocusOffset">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.FocusOffsetStepSize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Aperture">
+            <summary>
+            光圈大小 %
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.ImagingMode">
+            <summary>
+            明场暗场 0:明场，1：暗场
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Roos">
+            <summary>
+            Light Trainging or FFT used,set roos height
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.OpenZoos">
+            <summary>
+            Light Trainging or FFT used,open zoos
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.M2CAlarmDTO">
+            <summary>
+            MainUI接收CUGA上传的报警/错误信息
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CAlarmDTO.IsError">
+            <summary>
+            是否为错误
+            </summary>
+            <remarks>
+            True: MainUI会停机
+            False: MainUI仅做记录
+            </remarks>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2CAlarmDTO.Message">
+            <summary>
+            错误消息
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.DTO.M2CDemoDTO">
+            <summary>
+            示例说明类<br/>
+            仅用作示例说明，无实际含义
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2COpticsSelectorDTO.Magnification">
+            <summary>
+            放大率 1:Min, 2:Mid, 3:Max
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2COpticsSelectorDTO.Incident">
+            <summary>
+            入射光偏振 [1.C 圆偏振.2.S 垂直偏振 3.P 水平偏振 ]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2COpticsSelectorDTO.Analyzer">
+            <summary>
+            采集偏振    [1.N 无. 2.S 垂直偏振 3.P 水平偏振 ]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2COpticsSelectorDTO.Apodizabon">
+            <summary>
+            变迹?? 1 : Cosine ,2:Gaussian, 3:Super Gaussian（无）
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2COpticsSelectorDTO.Illumination">
+            <summary>
+            入射倾斜角
+            倾斜 or 正常  1:Oblique or 2: Normal（无）
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.M2COpticsSelectorDTO.FocesOffset">
+            <summary>
+            AF
+            </summary>
+        </member>
+    </members>
+</doc>

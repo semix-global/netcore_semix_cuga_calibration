@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Utilities\Net.Utilities\Net.Utilities.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Cuga.Interface" />
+        <PackageReference Include="protobuf-net" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+        <Reference Include="Cuga.Data.DataStruct">
+            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>

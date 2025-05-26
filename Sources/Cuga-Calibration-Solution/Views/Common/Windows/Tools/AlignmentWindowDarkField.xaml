@@ -1,0 +1,65 @@
+﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AlignmentWindowDarkField"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Alignment"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           d:DataContext="{d:DesignInstance Type=viewModels:AlignmentWindowDarkFieldViewModel}"
+           WindowStartupLocation="CenterScreen"
+           SizeToContent="WidthAndHeight"
+           WindowStyle="None"
+           ShowInTaskbar="False"
+           ResizeMode="NoResize"
+           BorderThickness="2"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" MethodName="DragMove" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="Dark Field Alignment"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <hc:UniformSpacingPanel Grid.Row="1">
+            <tools:AlignmentDarkFieldUserControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </hc:UniformSpacingPanel>
+    </Grid>
+</hc:Window>

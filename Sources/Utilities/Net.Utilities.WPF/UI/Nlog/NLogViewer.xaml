@@ -1,0 +1,130 @@
+﻿<UserControl x:Class="Net.Utilities.WPF.UI.Nlog.NLogViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:enums="clr-namespace:Net.Utilities.Enums;assembly=Net.Utilities"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors"
+             xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions"
+             xmlns:view="clr-namespace:Net.Utilities.WPF.UI.Nlog"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DesignHeight="440"
+             d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=view:NLogViewer}"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Border Padding="2" Style="{StaticResource BorderRegion}">
+        <TabControl>
+            <TabItem Header="Log Messages">
+                <hc:SimplePanel>
+                    <Border Margin="2"
+                            BorderBrush="Gray"
+                            BorderThickness="1"
+                            CornerRadius="5">
+                        <!--  IsReadOnlyCaretVisible 禁用编辑但保留光标  -->
+                        <RichTextBox Name="RichTextBox"
+                                     Margin="0"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     IsReadOnly="True"
+                                     FontFamily="Console"
+                                     FontSize="12"
+                                     Background="#efefef"
+                                     IsReadOnlyCaretVisible="True"
+                                     BorderThickness="0" />
+                    </Border>
+                    <hc:UniformSpacingPanel x:Name="NlogUniformSpacingPanel"
+                                            Margin="0,5,0,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Orientation="Horizontal"
+                                            Spacing="5">
+                        <ToggleButton x:Name="ToggleButton"
+                                      Content="{Binding MinLogLevelEnum, Mode=OneWay, Converter={x:Static converters:EnumDescriptionConverter.Instance}}"
+                                      Width="52"
+                                      Height="30"
+                                      d:Content="Info"
+                                      Style="{StaticResource ToggleButtonDefault.Small}" />
+                        <Popup StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButton}"
+                               Placement="Top"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButton, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <ItemsControl Grid.Row="2"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enums:LogLevelEnum}}}">
+                                    <b:Interaction.Behaviors>
+                                        <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding MinLogLevelEnum, Mode=TwoWay}" />
+                                    </b:Interaction.Behaviors>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <RadioButton Content="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}"
+                                                         Width="200"
+                                                         HorizontalAlignment="Left"
+                                                         FontSize="15"
+                                                         Tag="{Binding}"
+                                                         GroupName="67fa1ece-8b12-4ec1-9443-078bb25af07b" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </Popup>
+                        <ToggleButton IsChecked="{Binding IsAutoScroll}"
+                                      Width="30"
+                                      Height="30"
+                                      hc:IconElement.Geometry="{StaticResource ScrollModeGeometry}"
+                                      ToolTip="Auto Scroll">
+                            <ToggleButton.Style>
+                                <Style BasedOn="{StaticResource ToggleButtonPrimary.Small}" TargetType="ToggleButton">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                        <ToggleButton IsChecked="{Binding IsPause}"
+                                      Width="30"
+                                      Height="30"
+                                      hc:IconElement.Geometry="{StaticResource NailGeometry}"
+                                      ToolTip="Pause">
+                            <ToggleButton.Style>
+                                <Style BasedOn="{StaticResource ToggleButtonPrimary.Small}" TargetType="ToggleButton">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                        <Button Width="30"
+                                Height="30"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                ToolTip="Clear"
+                                Style="{StaticResource ButtonDanger.Small}"
+                                Click="ButtonClearOnClick" />
+                    </hc:UniformSpacingPanel>
+                </hc:SimplePanel>
+            </TabItem>
+        </TabControl>
+    </Border>
+</UserControl>

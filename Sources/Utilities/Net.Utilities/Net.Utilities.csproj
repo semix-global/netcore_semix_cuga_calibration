@@ -1,0 +1,77 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Text.Json" />
+        <PackageReference Include="System.Drawing.Common" />
+        <!-- .NET8: 引入了Winform程序集，Bitmap(net480自带的程序集) -->
+        <PackageReference Include="System.Reactive" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Humanizer.Core" />
+        <PackageReference Include="MiniExcel" />
+        <PackageReference Include="MathNet.Numerics" />
+        <PackageReference Include="morelinq" />
+        <PackageReference Include="Yitter.IdGenerator" />
+        <PackageReference Include="Ulid" />
+        <PackageReference Include="CommunityToolkit.Mvvm" />
+        <PackageReference Include="CommunityToolkit.Common" />
+        <PackageReference Include="CommunityToolkit.Diagnostics" />
+        <PackageReference Include="CommunityToolkit.HighPerformance" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+        <PackageReference Include="Microsoft.Extensions.Primitives" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="halcondotnetxl">
+            <HintPath>..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
+        </Reference>
+        <Reference Include="MWArray">
+            <HintPath>..\..\Dependencies\Matlab\MWArray.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net480'">
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" />
+        <PackageReference Include="System.Threading.Tasks.Extensions" />
+        <PackageReference Include="System.Numerics.Vectors" />
+        <PackageReference Include="System.Buffers" />
+        <PackageReference Include="System.Memory" />
+        <PackageReference Include="System.ValueTuple" />
+        <PackageReference Include="System.Threading.Channels" />
+        <PackageReference Include="System.ComponentModel.Annotations" />
+        <PackageReference Include="System.Collections.Immutable" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+        <PackageReference Include="Microsoft.Bcl.HashCode" />
+        <PackageReference Include="Microsoft.Bcl.Numerics" />
+        <PackageReference Include="Microsoft.Bcl.TimeProvider" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ContentWithTargetPath Include="..\..\Dependencies\Halcon\Runtime\halconxl.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>%(Filename)%(Extension)</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Properties\Lang.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Lang.resx</DependentUpon>
+        </Compile>
+        <EmbeddedResource Update="Properties\Lang.resx">
+            <Generator>PublicResXFileCodeGenerator</Generator>
+            <LastGenOutput>Lang.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

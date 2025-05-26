@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Chuck.Prealigner.Children.Review"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckPrealignerCalibrationViewModel}"
+             d:DesignHeight="700"
+             d:DesignWidth="1500"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!--#region Left-->
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Prealigner: "
+                           Status="Review"
+                           Color="{StaticResource InfoBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}"
+                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                    <StackPanel>
+                        <TextBlock Text="Verify"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:NumericUpDown x:Name="PositionThresholdNumeric"
+                                      Width="275"
+                                      hc:InfoElement.Title="Position Threshold(um):"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.PositionThreshold}" />
+                    <hc:NumericUpDown x:Name="AngleThresholdNumeric"
+                                      Width="275"
+                                      hc:InfoElement.Title="Angle Threshold(um):    "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.AngleThreshold}" />
+                    <TextBox Text="{Binding Cache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:InfoElement.Title="Center offset position:"
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.OffsetAngle, StringFormat={}{0:f10}}"
+                             Width="275"
+                             hc:InfoElement.Title="Center offset angle:    "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+
+                        <Button x:Name="ActionButton"
+                                Content="Action"
+                                Command="{Binding VerifyActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                        <Button x:Name="CancelButton"
+                                Content="Cancel"
+                                Command="{Binding VerifyActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+            </Border>
+        </hc:UniformSpacingPanel>
+        <!--#endregion-->
+
+        <GridSplitter Grid.Column="1" Width="5" />
+
+        <!--#region Right-->
+        <Grid Grid.Column="2" />
+        <!--#endregion-->
+    </Grid>
+</UserControl>

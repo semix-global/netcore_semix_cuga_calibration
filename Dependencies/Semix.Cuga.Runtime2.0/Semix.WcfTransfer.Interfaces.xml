@@ -1,0 +1,810 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Semix.WcfTransfer.Interfaces</name>
+    </assembly>
+    <members>
+        <member name="T:Semix.WcfTransfer.Interfaces.ISxDemo">
+            <summary>
+            示例说明类<br/>
+            仅用作示例说明，无实际含义
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.ISxDemo.SayHello">
+            <summary>
+            心跳
+            </summary>
+            <seealso cref="M:Semix.WcfTransfer.Interfaces.ISxDemo.Heartbeat"/>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.ISxDemo.Heartbeat">
+            <summary>
+            心跳
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.Interfaces.IC2MDemo">
+            <summary>
+            示例说明类<br/>
+            仅用作示例说明，无实际含义
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MDemo.SayHello">
+            <summary>
+            心跳
+            </summary>
+            <seealso cref="M:Semix.WcfTransfer.Interfaces.IC2MDemo.Heartbeat"/>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MDemo.Heartbeat">
+            <summary>
+            心跳
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.Interfaces.IC2MEfemService">
+            <summary>
+            服务接口
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.LoadFoup(System.String)">
+            <summary>
+            上载花篮
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.UnLoadFoup(System.String)">
+            <summary>
+            卸载花篮
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.LoadWafer(System.String,System.String,System.Boolean,System.Int32)">
+            <summary>
+            从foup区晶圆到主机台   返回晶圆ID
+            </summary>
+            <param name="Orientation">0，90，180，270</param>
+            <param name="foupNumstr"></param>
+            <param name="waferNumstr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.LoadAlignWafer(Semix.WcfTransfer.DTO.SxWcfAlignmentParameter,System.String,System.String,System.Boolean,System.Int32)">
+            <summary>
+            从foup区晶圆到主机台, 执行晶圆对准
+            </summary>
+            <param name="param"></param>
+            <param name="Orientation">0，90，180，270</param>
+            <param name="foupNumstr"></param>
+            <param name="waferNumstr"></param>
+            <param name="IsReadWaferId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.ChangeWaferOrientation(System.Int32)">
+            <summary>
+            从chuck上获取晶圆 -> 将晶圆转移到pre align -> 变更方向 -> 放入chuck上
+            </summary>
+            <param name="Orientation">0，90，180，270</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.UnLoadWafer(System.String,System.String)">
+            <summary>
+            将晶圆从主机台放入晶圆盒
+            </summary>
+            <param name="foupNumstr"></param>
+            <param name="waferNumstr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.PreLoadWafer(System.String,System.String,System.Boolean)">
+            <summary>
+            预准备晶圆
+            </summary>
+            <param name="foupNumstr"></param>
+            <param name="waferNumstr"></param>
+            <param name="IsReadWaferId"></param>
+            <param name="fingerNumstr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.ExchangeWafer">
+            <summary>
+             手指1拿回晶圆，并且将手臂2的晶圆放入操作台
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.UnLoadWaferbyStep(System.String,System.String)">
+            <summary>
+            按步骤卸载晶圆, 将机台的晶圆手指1取出，放入手指2的晶圆，然后将手指1的晶圆放入Foup盒
+            </summary>
+            <param name="foupNumstr"></param>
+            <param name="waferNumstr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MEfemService.AutomaticWaferRecovery">
+            <summary>
+            自动晶圆回收
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.LoadFoup(Semix.WcfTransfer.DTO.ESxStation,System.Boolean)">
+            <summary>
+            上载foup
+            </summary>
+            <param name="station">foup编号</param>
+            <param name="isReadId">是否读取wafer id</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.LoadWafer(Semix.WcfTransfer.DTO.ESxStation,System.String,System.Int32,System.Boolean)">
+            <summary>
+            加载一片wafer
+            </summary>
+            <param name="station">foup编号</param>
+            <param name="slotId">slot编号</param>
+            <param name="angle">校准角度</param>
+            <param name="isReadId">是否读取waferId</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.PreLoadWafer(Semix.WcfTransfer.DTO.ESxStation,System.String,System.Int32,System.Boolean)">
+            <summary>
+            预加载一片晶圆到chuck前等待
+            </summary>
+            <param name="station">foup编号</param>
+            <param name="slotId">slot编号</param>
+            <param name="angle">对准角度</param>
+            <param name="isReadId">是否读取waferId</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ExChangeOnChuck">
+            <summary>
+            chuck上交换片源
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.UnloadWaferFormLFinger(Semix.WcfTransfer.DTO.ESxStation,System.String)">
+            <summary>
+            将下手臂上的wafer 放回指定foup的指定层中
+            </summary>
+            <param name="station">foup编号</param>
+            <param name="slotId">slot编号</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.UnloadWaferFormChuck(Semix.WcfTransfer.DTO.ESxStation,System.String)">
+            <summary>
+            从主机台拿回Wafer到指定Foup层
+            </summary>
+            <param name="station">foup编号</param>
+            <param name="slotId">slot编号</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ChangAlignerWafer(System.Int32)">
+            <summary>
+            重洗对chuck上的wafer进行对准
+            </summary>
+            <param name="angle">对准角度</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.UnLoadFoup(Semix.WcfTransfer.DTO.ESxStation)">
+            <summary>
+            卸载foup
+            </summary>
+            <param name="station">foup编号</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetMapData(Semix.WcfTransfer.DTO.ESxStation)">
+            <summary>
+            获取foup中wafer的状态信息
+            </summary>
+            <param name="station">foup标识</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetLoadPortSTA(Semix.WcfTransfer.DTO.ESxStation)">
+            <summary>
+            获取load port 上的foup状态
+            </summary>
+            <param name="station">foup标识</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetWaferInfo(System.Int32)">
+            <summary>
+            获取wafer信息
+            </summary>
+            <param name="position">1-上手臂，2-下手臂，3-校准台，4-chuck台</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ToLoadWafer">
+            <summary>
+            移动到上料位置(基于chuck中心)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ToBFWaferPosition(System.Double,System.Double)">
+            <summary>
+            移动至明场位置(基于晶圆中心)
+            </summary>
+            <param name="x">基于晶圆中心的明场X位置</param>
+            <param name="y">基于晶圆中心的明场Y位置</param>
+            <param name="waferCenterOffset">晶圆中心和chuck中心的偏移量</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ToDFWaferPosition(System.Double,System.Double)">
+            <summary>
+            移动至暗场位置(基于晶圆中心)
+            </summary>
+            <param name="x">基于晶圆中心的暗场X位置</param>
+            <param name="y">基于晶圆中心的暗场Y位置</param>
+            /// <param name="waferCenterOffset">晶圆中心和chuck中心的偏移量</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.PTP(System.Double,System.Double)">
+            <summary>
+            点到点移动
+            </summary>
+            <param name="x">目标X位置</param>
+            <param name="y">目标Y位置</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.RotateTheta(System.Double)">
+            <summary>
+            旋转chuck角度
+            </summary>
+            <param name="angle"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetStagePosition">
+            <summary>
+            获取Stage坐标
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetDarkFieldPosition">
+            <summary>
+            获取暗场坐标
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetBrightFieldPosition">
+            <summary>
+            获取明场坐标
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.RelativeMove(Semix.WcfTransfer.DTO.ESxMotionDirection,System.Double)">
+            <summary>
+            相对运动
+            </summary>
+            <param name="direction">运动方向</param>
+            <param name="distance">运动距离</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetVelParam(Semix.WcfTransfer.DTO.Basic.ESxAxisEnum,System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            设置轴速度参数
+            </summary>
+            <param name="axis">轴号</param>
+            <param name="vel">速度</param>
+            <param name="acc">加速度</param>
+            <param name="dec">减速度</param>
+            <param name="jerk">加加速</param>
+            <param name="kdec">减减速</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ToBFWaferPositionNoMic(System.Double,System.Double)">
+            <summary>
+            明场移动
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.OpenJoystick">
+            <summary>
+            打开joystick
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CloseJoystick">
+            <summary>
+            关闭joystick
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetJoystickState">
+            <summary>
+            获取joystick状态
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DefectRunSwath(Semix.WcfTransfer.DTO.SxSwathRecipe)">
+            <summary>
+            defect 扫片
+            </summary>
+            <param name="recipe">配方信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.StopSwath">
+            <summary>
+            停止扫片
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SuspendSwath">
+            <summary>
+            暂停扫片
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ResumeSwath">
+            <summary>
+            恢复扫片
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DefectRunSwath_Frame(Semix.WcfTransfer.DTO.SxSwathRecipe,System.Collections.Generic.List{Semix.WcfTransfer.DTO.M2CReviewFrameDTO})">
+            <summary>
+            根据缺陷坐标下发对应Frame信息
+            </summary>
+            <param name="recipe"></param>
+            <param name="defPoint"></param>
+            <param name="diePoint"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetRunSwathTime(Semix.WcfTransfer.DTO.SxSwathRecipe)">
+            <summary>
+            获取扫片总时间
+            </summary>
+            <param name="recipe"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.MarkSite1(System.Drawing.Size,System.UInt16)">
+            <summary>
+            Mark site1
+            </summary>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.MarkSite2(Semix.WcfTransfer.DTO.C2MSiteDTO)">
+            <summary>
+            Mark Site2
+            </summary>
+            <param name="site">Site1</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.MarkAlignSite1(System.Drawing.Size,System.UInt16)">
+            <summary>
+            Mark site1
+            </summary>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.MarkAlignSite2(Semix.WcfTransfer.DTO.C2MSiteDTO)">
+            <summary>
+            Mark site2
+            </summary>
+            <param name="site"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Alignment(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,System.UInt16,System.UInt16)">
+            <summary>
+            执行晶圆对准
+            </summary>
+            <param name="low1"></param>
+            <param name="low2"></param>
+            <param name="high1"></param>
+            <param name="high2"></param>
+            <param name="ll">低倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="hl">高倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="wafer">1.D200 2.D300</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.AlignmentVerify(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,System.UInt16,System.UInt16)">
+            <summary>
+            晶圆对准
+            验证角度不校正
+            </summary>
+            <param name="low1"></param>
+            <param name="low2"></param>
+            <param name="high1"></param>
+            <param name="high2"></param>
+            <param name="ll">低倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="hl">高倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="wafer">1.D200 2.D300</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FindWaferCenter(System.Collections.Generic.List{System.Byte[]}@,System.Collections.Generic.List{System.Drawing.Point},System.Int32)">
+            <summary>
+            查找晶圆中心
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FindWaferCenterWithoutVerify(System.Collections.Generic.List{System.Byte[]}@,Semix.WcfTransfer.DTO.SxPointD,System.Collections.Generic.List{System.Drawing.Point})">
+            <summary>
+            查找晶圆中心不自我验证
+            </summary>
+            <param name="images"></param>
+            <param name="offset"></param>
+            <param name="offsets"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ReadSystemWaferSetting">
+            <summary>
+            查询系统晶圆类型设置
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SwichMicroscope(System.Int32)">
+            <summary>
+            切换倍镜 
+            </summary>
+            <param name="type">0.低倍镜 1.高倍镜</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SwitchMicroscopeLensNoCorrection(Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens)">
+            <summary>
+            切换镜头, 不修正中心偏移
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SwitchMicroscopeLensn(Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens)">
+            <summary>
+            切换镜头, 修正中心偏移
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetReviewImage">
+            <summary>
+            获取图像
+            </summary>
+            <param name="location"></param>
+            <param name="tmpl_size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetReviewImageByPosition(Semix.WcfTransfer.DTO.SxPointD)">
+            <summary>
+            到指定位置获取图像
+            </summary>
+            <param name="position">stage position</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImageToCombine(Semix.WcfTransfer.DTO.SxPointD,Semix.WcfTransfer.DTO.SxSizeD,Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens)">
+            <summary>
+            图像采集
+            </summary>
+            <param name="point"></param>
+            <param name="size"></param>
+            <param name="lens"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetCurrentBFImgInfo">
+            <summary>
+            读取当前明场图片信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetMicroscopeObjOffset(Semix.WcfTransfer.DTO.Basic.ESxMicroscopelens)">
+            <summary>
+            获取切换倍镜的坐标偏移
+            </summary>
+            <param name="lens"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImg_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Int32,Semix.WcfTransfer.DTO.SxPointD,System.Int32,System.Boolean,System.Int32,System.Boolean,System.Double)">
+            <summary>
+            高产率暗场采图
+            </summary>
+            <param name="mag"></param>
+            <param name="speedLevel"></param>
+            <param name="width"></param>
+            <param name="pos"></param>
+            <param name="pmt"></param>
+            <param name="isSingle"></param>
+            <param name="af"></param>
+            <param name="isForward"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImgPxSize_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum)">
+            <summary>
+            获取像素比例
+            </summary>
+            <param name="mag"></param>
+            <param name="speedLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImg_Mosaic_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Double,System.Double,Semix.WcfTransfer.DTO.SxPointD,System.Double)">
+            <summary>
+            die图采图 宽高单位um
+            </summary>
+            <param name="mag"></param>
+            <param name="speedLevel"></param>
+            <param name="width">单位um</param>
+            <param name="dieHeight">单位um</param>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImg_LightTraing_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Double,Semix.WcfTransfer.DTO.SxPointD,Semix.WcfTransfer.DTO.SxPointD@,System.Double)">
+            <summary>
+            lightTraing暗场采图 宽度单位um
+            </summary>
+            <param name="mag"></param>
+            <param name="speedLevel"></param>
+            <param name="width"></param>
+            <param name="pos"></param>
+            <param name="pxSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DefectRunSwath_LightTraining(Semix.WcfTransfer.DTO.SxSwathRecipe)">
+            <summary>
+            LightTraining2.0
+            </summary>
+            <param name="recipe"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetOpticParam_Common(Semix.WcfTransfer.DTO.SxOptics)">
+            <summary>
+            通用光学参数下发
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetFFHome(Semix.WcfTransfer.DTO.FFCH)">
+            <summary>
+            设置傅里叶按通道回原
+            </summary>
+            <param name="ch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetFFRods(Semix.WcfTransfer.DTO.FFCH,System.UInt16,System.Int32)">
+            <summary>
+            设置傅里叶
+            </summary>
+            <param name="ch">通道</param>
+            <param name="rod">杆子号1-5</param>
+            <param name="pos">距离</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetFFAllHome">
+            <summary>
+            设置傅里叶所有回原
+            </summary>
+            <param name="ch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FFTraining(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,Semix.WcfTransfer.DTO.SxPointD,Semix.WcfTransfer.DTO.SxPointD,System.Boolean,System.Double)">
+            <summary>
+            FF训练  返回长度为3的集合，通道号对应再集合中的下标为 0（CH1） 1（CH3） 2（CH3）
+            </summary>
+            <param name="point">扫图坐标</param>
+            <param name="size">需要截取的图片尺寸</param>
+            <param name="isUsdCh3">ch3是否采图训练</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FFTraining_MorePoint(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Collections.Generic.List{Semix.WcfTransfer.DTO.SxPointD},System.Collections.Generic.List{Semix.WcfTransfer.DTO.SxPointD},System.Boolean,System.Double)">
+            <summary>
+            FF训练
+            </summary>
+            <param name="point">采图坐标</param>
+            <param name="size">需要截取的图片尺寸</param>
+            <param name="isUsdCh3">ch3是否采图训练</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetFFReviewImg(System.Int32)">
+            <summary>
+            获取傅里叶相机图像
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CH3_AirCylinder_EXC(System.Boolean)">
+            <summary>
+            CH3气缸运动
+            </summary>
+            <param name="exc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetFFRodRange(System.Int32,System.UInt16)">
+            <summary>
+            获取傅里叶杆子的范围
+            </summary>
+            <param name="channel"></param>
+            <param name="rod"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ReadAutofocusData">
+            <summary>
+            读取自动对焦数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAGC(System.Boolean)">
+            <summary>
+            AGC是否开启
+            </summary>
+            <param name="used"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAOD(Semix.WcfTransfer.DTO.SxMAGEnum,System.Double)">
+            <summary>
+            设置光强
+            </summary>
+            <param name="prop">比例</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetL0K(System.Boolean)">
+            <summary>
+            L0K是否开启
+            </summary>
+            <param name="used"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.LaserPowerDiagnosis(System.DateTime)">
+            <summary>
+             激光功率检测 success为false并且返回值为true时不再补偿，需要提示客户偏差较大
+            </summary>
+            <param name="time"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAOD_NO(System.Int32)">
+            <summary>
+            设置AOD开关量,1常开,0常闭,2直通
+            </summary>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ReadMachineState">
+            <summary>
+            读取设备状态
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.MarkAlignDFSite1(Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,System.Drawing.Size)">
+            <summary>
+            Mark DF Site1
+            </summary>
+            <param name="mag"></param>
+            <param name="speed"></param>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.MarkAlignDFSite2(Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,Semix.WcfTransfer.DTO.C2MSiteDTO)">
+            <summary>
+            Mark DF Site2
+            </summary>
+            <param name="mag"></param>
+            <param name="speed"></param>
+            <param name="site"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DFAlignment(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,System.UInt16)">
+            <summary>
+            执行暗场晶圆对准
+            </summary>
+            <param name="low1"></param>
+            <param name="low2"></param>
+            <param name="high1"></param>
+            <param name="high2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DFAlignmentVerify(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,Semix.WcfTransfer.DTO.Basic.ESxLevelEnum,System.UInt16)">
+            <summary>
+            晶圆暗场对准
+            验证角度不校正
+            </summary>
+            <param name="low1"></param>
+            <param name="low2"></param>
+            <param name="high1"></param>
+            <param name="high2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetProductivityInfos">
+            <summary>
+            读取产率参数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.BlankWaferAlignment(Semix.WcfTransfer.DTO.SxPointD,System.UInt16)">
+            <summary>
+            裸硅片晶圆对准
+            </summary>
+            <param name="center"></param>
+            <param name="nouch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.BlankWaferAlignmentVerify(Semix.WcfTransfer.DTO.SxPointD,System.UInt16)">
+            <summary>
+            裸硅片晶圆对准
+            验证角度
+            </summary>
+            <param name="center"></param>
+            <param name="nouch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.RTFC(Semix.WcfTransfer.DTO.SxPointD)">
+            <summary>
+            实时聚焦校准
+            </summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Semix.WcfTransfer.Interfaces.IM2CAlarmUploadService">
+            <summary>
+            MainUI提供给CUGA上传报警信息用的接口
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CAlarmUploadService.Upload(Semix.WcfTransfer.DTO.M2CAlarmDTO)">
+            <summary>
+            上传报警信息
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CAlarmUploadService.ClearAlarm">
+            <summary>
+            清除报警
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.Interfaces.IM2CDefectUploadService">
+            <summary>
+            CUGA缺陷上传的接口
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CDefectUploadService.UploadDefect(System.Collections.Generic.List{Semix.WcfTransfer.DTO.M2CImgSysDefectInfoDTO})">
+            <summary>
+            缺陷上传
+            </summary>
+            <param name="lstDefects">缺陷列表数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CDefectUploadService.UploadReviewImg(System.Collections.Generic.List{Semix.WcfTransfer.DTO.C2MReviewFrameImgDTO})">
+            <summary>
+            上传九宫格图像
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Semix.WcfTransfer.Interfaces.IM2CDemo">
+            <summary>
+            示例说明类<br/>
+            仅用作示例说明，无实际含义
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CDemo.SayHello">
+            <summary>
+            心跳
+            </summary>
+            <seealso cref="M:Semix.WcfTransfer.Interfaces.IM2CDemo.Heartbeat"/>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CDemo.Heartbeat">
+            <summary>
+            心跳
+            </summary>
+        </member>
+        <member name="T:Semix.WcfTransfer.Interfaces.IM2CUploadService">
+            <summary>
+            CUGA上传的接口
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CUploadService.StartDefectInspection">
+            <summary>
+            开始检测
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CUploadService.EndDefectInspection">
+            <summary>
+            结束检测
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CUploadService.SwathScanStart(Semix.WcfTransfer.DTO.SxRectD)">
+            <summary>
+            Swath扫描开始
+            </summary>
+            <param name="rect"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CUploadService.SwathScanEnd(Semix.WcfTransfer.DTO.SxRectD)">
+            <summary>
+            Swath扫描结束
+            </summary>
+            <param name="rect"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CUploadService.ReportMessage(Semix.WcfTransfer.DTO.SxErrorData)">
+            <summary>
+            报告错误信息
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CUploadService.ProcessStatus(Semix.WcfTransfer.DTO.SxProcessStatusInfo)">
+            <summary>
+            报告进程信息
+            </summary>
+        </member>
+    </members>
+</doc>

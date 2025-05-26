@@ -1,0 +1,60 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper"
+                    xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters"
+                    xmlns:hc="https://handyorg.github.io/handycontrol">
+    <Style x:Key="ButtonPrimary.Loading"
+           BasedOn="{StaticResource ButtonPrimary}"
+           TargetType="Button">
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="attachedHelper:LoadingHelper.IsShow" Value="True" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="ButtonWarning.Loading"
+           BasedOn="{StaticResource ButtonWarning}"
+           TargetType="Button">
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="attachedHelper:LoadingHelper.IsShow" Value="True" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="ButtonDefault.Loading"
+           BasedOn="{StaticResource ButtonDefault}"
+           TargetType="Button">
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="attachedHelper:LoadingHelper.IsShow" Value="True" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="ButtonDefault.Small.Loading"
+           BasedOn="{StaticResource ButtonDefault.Small}"
+           TargetType="Button">
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="attachedHelper:LoadingHelper.IsShow" Value="True" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="NumericUpDownExtend.ToolTip"
+           BasedOn="{StaticResource NumericUpDownExtend}"
+           TargetType="hc:NumericUpDown">
+        <Setter Property="Validation.ErrorTemplate" Value="{x:Null}" />
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="true">
+                <Setter Property="ToolTip" Value="{Binding Path=(Validation.Errors), RelativeSource={RelativeSource Self}, Converter={x:Static converters:ValidationErrorsToStringConverter.Instance}}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style BasedOn="{StaticResource {x:Type GridSplitter}}" TargetType="GridSplitter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+</ResourceDictionary>

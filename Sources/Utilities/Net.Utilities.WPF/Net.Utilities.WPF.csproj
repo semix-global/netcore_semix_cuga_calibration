@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0-windows</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="HandyControl" />
+        <PackageReference Include="MahApps.Metro.IconPacks.FontAwesome" />
+        <PackageReference Include="Jamesnet.Wpf" />
+        <PackageReference Include="ScottPlot.WPF" />
+        <PackageReference Include="AvalonEdit" />
+        <!-- .NET8: 引入了Winform、Bitmap程序集 -->
+        <PackageReference Include="Ookii.Dialogs.Wpf" />
+        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
+        <PackageReference Include="ValueConverters" />
+        <PackageReference Include="Microsoft.Windows.CsWin32">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities.Nlog\Net.Utilities.Nlog.csproj" />
+        <ProjectReference Include="..\WPF.CanvasViewer\WPF.CanvasViewer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="NativeMethods.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="Converters\MatToImageSourceConverter.cs" />
+    </ItemGroup>
+
+</Project>

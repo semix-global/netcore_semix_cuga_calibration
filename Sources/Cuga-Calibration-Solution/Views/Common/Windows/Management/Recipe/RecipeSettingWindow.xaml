@@ -1,0 +1,247 @@
+﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Management.Recipe.RecipeSettingWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
+           xmlns:children="clr-namespace:CugaCalibration.Views.Common.Windows.Management.Recipe.Children"
+           xmlns:requireAction="clr-namespace:CugaCalibration.Views.Common.Windows.Management.Recipe.Children.RequireAction"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           Title="System Management"
+           d:DesignHeight="1500"
+           d:DesignWidth="1200"
+           d:DataContext="{d:DesignInstance Type=viewModels:RecipeSettingViewModel}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowState="Normal"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <hc:Window.Resources>
+        <DataTemplate x:Key="PositionTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="textBox" Grid.Column="0"
+                         Text="{TemplateBinding Property=Content,
+                                                Converter={StaticResource PointToStringConverter}}"
+                         Margin="0,0,-1,0"
+                         hc:TitleElement.Title="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Converter={StaticResource BindingPathToStringConverter}}"
+                         hc:InfoElement.TitlePlacement="Left"
+                         hc:BorderElement.CornerRadius="4,0,0,4"
+                         Style="{StaticResource TextBoxExtend}" />
+                <Button Grid.Column="1"
+                        Command="{Binding DataContext.GetMachinePositionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Converter={StaticResource BindingPathToStringConverter}}"
+                        Height="{Binding Height, ElementName=textBox}"
+                        Padding="3"
+                        hc:BorderElement.CornerRadius="0,0,0,0"
+                        hc:IconElement.Width="30"
+                        hc:IconElement.Height="30"
+                        hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                        Style="{StaticResource ButtonDefault}" />
+                <Button Grid.Column="2"
+                        Command="{Binding DataContext.GotoMachinePositionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Converter={StaticResource BindingPathToStringConverter}}"
+                        Height="{Binding Height, ElementName=textBox}"
+                        Padding="3"
+                        hc:BorderElement.CornerRadius="0,4,4,0"
+                        hc:IconElement.Width="30"
+                        hc:IconElement.Height="30"
+                        hc:IconElement.Geometry="{StaticResource JoystickGeometry}"
+                        Style="{StaticResource ButtonDefault}" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="LoadImageFilePathDataTemplate">
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <view:CanvasView Width="200"
+                                     Height="200"
+                                     Margin="5"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch"
+                                     BackgroundColor="#0A0A0A"
+                                     AxisColor="Red"
+                                     Interactive="True"
+                                     ShowAxes="True"
+                                     ShowCursor="False"
+                                     ShowGrid="False"
+                                     BackgroundImage="{TemplateBinding Property=Content,
+                                                                       Converter={StaticResource StringToBitmapSourceConverter}}" />
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Converter={StaticResource BindingPathToStringConverter}}"
+                               HorizontalAlignment="Center" />
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="PathTextBox"
+                                 Text="{TemplateBinding Property=Content}"
+                                 Margin="0,0,-1,0"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:BorderElement.CornerRadius="4,0,0,4"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <Button Grid.Column="1"
+                                Command="{Binding DataContext.LoadImageFilePathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Converter={StaticResource BindingPathToStringConverter}}"
+                                Height="{Binding Height, ElementName=PathTextBox}"
+                                Padding="5"
+                                hc:BorderElement.CornerRadius="0,0,0,0"
+                                hc:IconElement.Width="30"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonDefault}" />
+                        <Button Grid.Column="2"
+                                Command="{Binding DataContext.GenerateTemplateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContentControl}, Converter={StaticResource BindingPathToStringConverter}}"
+                                Height="{Binding Height, ElementName=PathTextBox}"
+                                Padding="5"
+                                hc:BorderElement.CornerRadius="0,4,4,0"
+                                hc:IconElement.Width="30"
+                                hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                                Style="{StaticResource ButtonDefault}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </hc:Window.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadingCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="Recipe Setting"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <TabControl TabStripPlacement="Left" SelectedItem="{Binding EditRecipeTypeObj}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding DataContext.ParamTypeChangedCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                               CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=TabControl}}"
+                                               PassEventArgsToCommand="True" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TabItem Height="50"
+                         VerticalAlignment="Bottom"
+                         Header="Common"
+                         BorderThickness="5">
+                    <hc:ScrollViewer>
+                        <children:RecipeCommonSettingUserControl DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}" />
+                    </hc:ScrollViewer>
+                </TabItem>
+                <TabItem Height="50"
+                         VerticalAlignment="Bottom"
+                         Header="Require Action"
+                         BorderThickness="5">
+                    <requireAction:RecipeRequireActionUserControl />
+                </TabItem>
+                <TabItem Height="50"
+                         MinWidth="180"
+                         Header="Wafer"
+                         BorderThickness="5"
+                         IsEnabled="{Binding IsEditWaferMapEnable}">
+                    <children:RecipeWaferSettingUserControl DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}" />
+                </TabItem>
+                <TabItem Height="50"
+                         Header="Reticle Mask Config"
+                         BorderThickness="5"
+                         IsEnabled="{Binding IsEditWaferMapEnable}">
+                    <children:RecipeReticleMaskConfigUserControl DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}" />
+                </TabItem>
+                <TabItem Height="50"
+                         Header="Reticle Mask"
+                         BorderThickness="5"
+                         IsEnabled="{Binding IsEditWaferMapEnable}">
+                    <children:RecipeReticleMaskUserControl DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}" />
+                </TabItem>
+                <TabItem Height="50"
+                         Header="Dark Field Alignment"
+                         BorderThickness="5">
+                    <hc:UniformSpacingPanel>
+                        <tools:AlignmentDarkFieldUserControl Width="Auto"
+                                                             Height="Auto"
+                                                             HorizontalAlignment="Stretch"
+                                                             VerticalAlignment="Stretch"
+                                                             DataContext="{Binding DataContext.AlignmentWindowDarkFieldViewModel, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}" />
+                    </hc:UniformSpacingPanel>
+                </TabItem>
+                <TabItem Height="50"
+                         Header="File"
+                         BorderThickness="5">
+                    <hc:ScrollViewer>
+                        <children:RecipeFileSettingUserControl DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}" />
+                    </hc:ScrollViewer>
+                </TabItem>
+            </TabControl>
+            <hc:SimplePanel Grid.Row="1" Margin="10">
+                <Button Content="Save"
+                        Command="{Binding SaveCommand}"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        hc:IconElement.Geometry="{StaticResource SaveGeometry}"
+                        FontSize="20"
+                        Style="{StaticResource ButtonPrimary}" />
+                <Button Content="Verify"
+                        Command="{Binding VerifyCommand}"
+                        Height="40"
+                        HorizontalAlignment="Center"
+                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                        FontSize="20"
+                        Style="{StaticResource ButtonPrimary.Loading}" />
+            </hc:SimplePanel>
+        </Grid>
+    </Grid>
+</hc:Window>

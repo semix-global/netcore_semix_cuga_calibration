@@ -1,0 +1,383 @@
+using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.Algorithm;
+using Core.Models.Exceptions;
+using Core.Models.Extensions;
+using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Setting;
+using Core.Services.Interfaces;
+using HalconDotNet;
+using HAlgorithm;
+using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Attributes;
+using Net.Utilities.Enums;
+using Net.Utilities.Helper.File;
+using Net.Utilities.Models;
+using System.IO;
+using Rect = Net.Utilities.Models.Rect;
+
+namespace Core.Services.Implements;
+
+[IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
+public sealed class CalibrationAlgorithmServiceImpl(
+    ILogger<CalibrationAlgorithmServiceImpl> logger,
+    CalibrationSetting calibrationSetting,
+    AffineTransformation affineTransformation) : ICalibrationAlgorithmService
+{
+    private readonly Algorithm _algorithm = new();
+
+    public string Version => Algorithm.Version;
+
+    public double GetQuality(HObject image)
+    {
+        // 适应彩色和灰度图像, 方差越大, 说明图像越清晰
+        _algorithm.LaplaceDefinition(image, out var meanTuple);
+        using var _ = meanTuple;
+
+        return meanTuple.D;
+    }
+
+    public double GetDarkFieldQuality(HObject image)
+    {
+        // 适应彩色和灰度图像, 方差越大, 说明图像越清晰
+        _algorithm.DarkLaplaceDefinition(image, out var meanTuple);
+        using var _ = meanTuple;
+
+        return meanTuple.D;
+    }
+
+    public (double XQuality, double YQuality) GetXyQuality(HObject image)
+    {
+        _algorithm.DarkDefinition(image, out var meanTupleY, out var meanTupleX);
+
+        using var _1 = meanTupleX;
+        using var _2 = meanTupleY;
+
+        return (meanTupleX.D, meanTupleY.D);
+    }
+
+    public Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle)
+    {
+        _algorithm.CalculatePixSize(image, out drawingImage, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
+        using var _1 = xTuple;
+        using var _2 = yTuple;
+        using var _3 = angleX;
+        angle = angleX.D;
+        return new Size(xTuple.D, yTuple.D);
+    }
+
+    public double GetYPixelSize(DarkFieldImageDto image, double standardMaskSquareYSize)
+    {
+        var y = image.ProjectionYs;
+
+        // 使用AMPD算法找出波峰
+        var signal = Vector<double>.Build.DenseOfEnumerable(y.Select(t => -t));
+        var peaks = AutomaticMPeakDetection.Ampd(signal);
+        // 所有后一个减去前一个，得到差值, 然后取得均值
+        var mean = peaks.Skip(1).Select((t, i) => (double)t - peaks[i]).Average();
+
+        return standardMaskSquareYSize / mean;
+    }
+
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, string templateFilePath, Rect rect, out HObject templateImage)
+    {
+        templateImage = HalconHelper.EmptyHObject;
+
+        try
+        {
+            using var scaleImageTo8Bit = HalconHelper.ScaleImageTo8Bit(image);
+            var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
+            DirectoryHelper.CreateFileDirectoryIfNotExists(temp);
+            FileHelper.DeleteFileIfExists(temp);
+
+            _algorithm.HCreateModelXY(scaleImageTo8Bit, out templateImage, algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, rect.X, rect.Y, rect.Width, rect.Height);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Generate Template Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryReadTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, out HTuple templateId)
+    {
+        templateId = HalconHelper.EmptyHTuple;
+
+        try
+        {
+            var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
+            if (File.Exists(temp) == false) throw new FileNotFoundException(nameof(templateFilePath), temp);
+
+            _algorithm.HReadModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, out templateId);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Read Template Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryCleanTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HTuple templateId)
+    {
+        try
+        {
+            _algorithm.HClearModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Clean Template Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
+    {
+        markPoint = Point.Empty;
+        offsetPoint = Point.Empty;
+        score = 0;
+        angle = 0;
+
+        try
+        {
+            using var scaleImageTo8Bit = HalconHelper.ScaleImageTo8Bit(image);
+            _algorithm.HFindModel(scaleImageTo8Bit, algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId, out var yHTuple, out var xHTuple, out var angleHTuple, out var scoreHTuple);
+            using var _1 = yHTuple;
+            using var _2 = xHTuple;
+            using var _3 = angleHTuple;
+            using var _4 = scoreHTuple;
+            if (xHTuple.Length == 0 || yHTuple.Length == 0 || scoreHTuple.Length == 0 || angleHTuple.Length == 0) return false;
+
+            var size = HalconHelper.GetSize(scaleImageTo8Bit);
+            markPoint = new Point(xHTuple.D, yHTuple.D);
+            score = scoreHTuple.D;
+            angle = angleHTuple.D;
+
+            var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
+            var tryGetMatchPosition = score >= templateMatchScoreThreshold;
+            if (tryGetMatchPosition == false)
+            {
+                logger.LogWarning("{@Name} Error: Match Score is Less Than Threshold {@MatchScoreThreshold} > {@Score}", nameof(CalibrationAlgorithmServiceImpl), templateMatchScoreThreshold, score);
+                return false;
+            }
+
+            var offset = markPoint - (Point)(size / 2d);
+            offsetPoint = new Point(offset.X, -offset.Y);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Template Math To Offset Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryGenerateProjectionTemplate(HObject image, string templateFilePath, out HObject templateImage)
+    {
+        templateImage = HalconHelper.EmptyHObject;
+
+        try
+        {
+            using var scaleImageTo8Bit = HalconHelper.ScaleImageTo8Bit(image);
+            templateImage = HalconHelper.Copy(scaleImageTo8Bit);
+
+            DirectoryHelper.CreateFileDirectoryIfNotExists($"{templateFilePath}.x.ncc");
+            FileHelper.DeleteFileIfExists(templateFilePath);
+
+            _algorithm.ProjectionCreateModel(scaleImageTo8Bit, $"{templateFilePath}.x", $"{templateFilePath}.y");
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Generate Template Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryReadProjectionTemplate(string templateFilePath, out HTuple templateXId, out HTuple templateYId)
+    {
+        templateXId = HalconHelper.EmptyHTuple;
+        templateYId = HalconHelper.EmptyHTuple;
+
+        try
+        {
+            if (File.Exists($"{templateFilePath}.x.ncc") == false) throw new FileNotFoundException(nameof(templateFilePath));
+            if (File.Exists($"{templateFilePath}.y.ncc") == false) throw new FileNotFoundException(nameof(templateFilePath));
+
+            _algorithm.ProjectionReadModel($"{templateFilePath}.x", $"{templateFilePath}.y", out templateXId, out templateYId);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Read Template Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryCleanProjectionTemplate(HTuple templateXId, HTuple templateYId)
+    {
+        try
+        {
+            _algorithm.ProjectionClearModel(templateXId, templateYId);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Clean Template Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public bool TryProjectionTemplateMatchToOffset(HObject image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
+    {
+        markPoint = Point.Empty;
+        offsetPoint = Point.Empty;
+
+        try
+        {
+            using var scaleImageTo8Bit = HalconHelper.ScaleImageTo8Bit(image);
+            _algorithm.ProjectionFindModel(scaleImageTo8Bit, templateXId, templateYId, out var yHTuple, out var xHTuple);
+            using var _1 = yHTuple;
+            using var _2 = xHTuple;
+            if (xHTuple.Length == 0 || yHTuple.Length == 0) return false;
+
+            var size = HalconHelper.GetSize(scaleImageTo8Bit);
+            markPoint = new Point(xHTuple.D, yHTuple.D);
+
+            var offset = markPoint - (Point)(size / 2d);
+            offsetPoint = new Point(offset.X, -offset.Y);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Template Math To Offset Failed", nameof(CalibrationAlgorithmServiceImpl));
+            return false;
+        }
+    }
+
+    public (Size Size, int BodyBytesStartIndex, int BodyBytesLength) GetSize(byte[] rawBytes)
+    {
+        return RawImageHelper.GetSize(rawBytes);
+    }
+
+    public byte[] ToRawBytes(byte[] bodyBytes, Size size)
+    {
+        return RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
+    }
+
+    public (HObject Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
+    {
+        var (matrix, _) = RawImageHelper.ToMatrix(rawBytes);
+
+        return (_algorithm.GetDataImage(rawBytes), matrix);
+    }
+
+    public (HObject Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
+    {
+        var (matrix, horizontalFlipRawBytes, _) = RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
+
+        return (_algorithm.GetDataImage(horizontalFlipRawBytes), matrix, horizontalFlipRawBytes);
+    }
+
+    public (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue)
+    {
+        _algorithm.AutoPMT(dicPmtData, lineValue, minValue, maxValue, out List<string> datavge1, out List<string> data1);
+
+        return (datavge1, data1);
+    }
+
+    public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HObject> image)
+    {
+        _algorithm.ChannelFineSamePositionPoint(image, out var ch3SubCh1, out var ch3SubCh2, out var result);
+        if (result == -1) ThrowHelper.ThrowArgumentException("Get Cib List Failed");
+
+        return ([.. ch3SubCh1], [.. ch3SubCh2]);
+    }
+
+    public Point GetChuckCenter(
+        Point firstTopLeftPosition,
+        Point secondTopLeftPosition,
+        Point secondTopRightPosition,
+        Point firstTopRightPosition,
+        Point firstBottomLeftPosition,
+        Point secondBottomLeftPosition,
+        Point secondBottomRightPosition,
+        Point firstBottomRightPosition)
+    {
+        double[] xArray = [firstTopLeftPosition.X, secondTopLeftPosition.X, secondTopRightPosition.X, firstTopRightPosition.X, firstBottomLeftPosition.X, secondBottomLeftPosition.X, secondBottomRightPosition.X, firstBottomRightPosition.X];
+        double[] yArray = [firstTopLeftPosition.Y, secondTopLeftPosition.Y, secondTopRightPosition.Y, firstTopRightPosition.Y, firstBottomLeftPosition.Y, secondBottomLeftPosition.Y, secondBottomRightPosition.Y, firstBottomRightPosition.Y];
+        _algorithm.WaferCenterCalculate(xArray, yArray, out var xHTuple, out var yHTuple);
+        using var _1 = xHTuple;
+        using var _2 = yHTuple;
+
+        var centerX = xHTuple.D;
+        var centerY = yHTuple.D;
+
+        return new Point(centerX, centerY);
+    }
+
+    public bool CalculateChuckStageMapError(
+        StageMapDto stageMapDto,
+        Guid htmlLogUniqueId,
+        int calculateContainRowMinCount,
+        int calculateContainColumnMinCount,
+        double alignmentThreshold,
+        double gantryThreshold,
+        double scaleThreshold,
+        double diameter)
+    {
+        var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
+        var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();
+
+        var idealXMatrix = Matrix<double>.Build.DenseOfArray(idealXArray);
+        var idealYMatrix = Matrix<double>.Build.DenseOfArray(idealYArray);
+        var realXMatrix = Matrix<double>.Build.DenseOfArray(realXArray);
+        var realYMatrix = Matrix<double>.Build.DenseOfArray(realYArray);
+        var isInWaferMatrix = Matrix<double>.Build.DenseOfArray(isInWaferArray);
+        var templateMathIsOkMatrix = Matrix<double>.Build.DenseOfArray(templateMathIsOkArray);
+
+        var (isSuccess, errorXMatrix, errorYMatrix) = affineTransformation.CalculateMatrixError(
+            idealXMatrix,
+            idealYMatrix,
+            realXMatrix,
+            realYMatrix,
+            isInWaferMatrix,
+            templateMathIsOkMatrix,
+            htmlLogUniqueId,
+            calculateContainRowMinCout: calculateContainRowMinCount,
+            calculateContainColumnMinCount: calculateContainColumnMinCount,
+            diameter: diameter,
+            alignmentThreshold: alignmentThreshold,
+            gantryThreshold: gantryThreshold,
+            scaleThreshold: scaleThreshold
+        );
+
+        for (var row = 0; row < stageMapDto.RowNumber; row++)
+        {
+            for (var column = 0; column < stageMapDto.ColumnNumber; column++)
+            {
+                stageMapDto.ErrorMatrix[row][column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
+            }
+        }
+
+        return isSuccess;
+    }
+
+    public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)
+    {
+        return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
+    }
+}

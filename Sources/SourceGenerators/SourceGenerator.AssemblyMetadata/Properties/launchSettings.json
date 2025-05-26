@@ -1,0 +1,9 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "SourceGenerator.AssemblyMetadata": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\Cuga-Calibration-Solution\\Cuga-Calibration-Solution.csproj"
+    }
+  }
+}
