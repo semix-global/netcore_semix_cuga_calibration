@@ -1,45 +1,45 @@
 <Solution>
-  <Folder Name="/00. Solution Items/">
-    <File Path="Directory.Build.props" />
-    <File Path="Directory.Build.targets" />
-    <File Path="Directory.Packages.props" />
-  </Folder>
-  <Folder Name="/00. Solution Items/00. Build/">
-    <File Path="../Build/Common.Build.props" />
-    <File Path="../Build/Common.Packages.props" />
-  </Folder>
-  <Folder Name="/00. Solution Items/01. Format/">
-    <File Path="../Build/.csharpierrc.json" />
-    <File Path="../Build/.editorconfig" />
-    <File Path="../Build/ignored-misspelling.dic" />
-    <File Path="../Build/Settings.XamlStyler" />
-  </Folder>
-  <Folder Name="/00. Solution Items/02. Git/">
-    <File Path="../Build/.gitattributes" />
-    <File Path="../Build/.gitignore" />
-    <File Path="../Build/LICENSE.txt" />
-    <File Path="../.gitmodules" />
-    <File Path="../README.md" />
-  </Folder>
-  <Folder Name="/01. Utilities/">
-    <Project Path="Utilities/Net.Utilities.Nlog/Net.Utilities.Nlog.csproj" />
-    <Project Path="Utilities/Net.Utilities.Roslyn.Build/Net.Utilities.Roslyn.Build.csproj" />
-    <Project Path="Utilities/Net.Utilities.WPF.MVVM/Net.Utilities.WPF.MVVM.csproj" />
-    <Project Path="Utilities/Net.Utilities.WPF/Net.Utilities.WPF.csproj" />
-    <Project Path="Utilities/Net.Utilities/Net.Utilities.csproj" />
-    <Project Path="Utilities/WPF.CanvasViewer/WPF.CanvasViewer.csproj" />
-    <Project Path="WPF.CustomControl/WPF.CustomControl.csproj" />
-  </Folder>
-  <Folder Name="/02. Databases/">
-    <Project Path="Databases/Local.NoSQL.DB.Providers/Local.NoSQL.DB.Providers.csproj" />
-    <Project Path="Databases/Local.SQL.DB.Providers/Local.SQL.DB.Providers.csproj" />
-  </Folder>
-  <Folder Name="/03. Cores/">
-    <Project Path="Cores/Core.Models/Core.Models.csproj" />
-    <Project Path="Cores/Core.Services/Core.Services.csproj" />
-    <Project Path="Cores/Core.Wcf/Core.Wcf.csproj" />
-  </Folder>
-  <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj" />
-  <Project Path="Cuga-Calibration-Test/Cuga-Calibration-Test.csproj" />
-  <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj" />
+    <Folder Name="/00. Solution Items/">
+        <File Path="Directory.Build.props" />
+        <File Path="Directory.Build.targets" />
+        <File Path="Directory.Packages.props" />
+    </Folder>
+    <Folder Name="/00. Solution Items/00. Build/">
+        <File Path="../Build/Common.Build.props" />
+        <File Path="../Build/Common.Packages.props" />
+    </Folder>
+    <Folder Name="/00. Solution Items/01. Format/">
+        <File Path="../Build/.csharpierrc.json" />
+        <File Path="../Build/.editorconfig" />
+        <File Path="../Build/ignored-misspelling.dic" />
+        <File Path="../Build/Settings.XamlStyler" />
+    </Folder>
+    <Folder Name="/00. Solution Items/02. Git/">
+        <File Path="../Build/.gitattributes" />
+        <File Path="../Build/.gitignore" />
+        <File Path="../Build/LICENSE.txt" />
+        <File Path="../.gitmodules" />
+        <File Path="../README.md" />
+    </Folder>
+    <Folder Name="/01. Utilities/">
+        <Project Path="Utilities/Net.Utilities.Nlog/Net.Utilities.Nlog.csproj" />
+        <Project Path="Utilities/Net.Utilities.Roslyn.Build/Net.Utilities.Roslyn.Build.csproj" />
+        <Project Path="Utilities/Net.Utilities.WPF.MVVM/Net.Utilities.WPF.MVVM.csproj" />
+        <Project Path="Utilities/Net.Utilities.WPF/Net.Utilities.WPF.csproj" />
+        <Project Path="Utilities/Net.Utilities/Net.Utilities.csproj" />
+        <Project Path="Utilities/WPF.CanvasViewer/WPF.CanvasViewer.csproj" />
+        <Project Path="WPF.CustomControl/WPF.CustomControl.csproj" />
+    </Folder>
+    <Folder Name="/02. Databases/">
+        <Project Path="Databases/Local.NoSQL.DB.Providers/Local.NoSQL.DB.Providers.csproj" />
+        <Project Path="Databases/Local.SQL.DB.Providers/Local.SQL.DB.Providers.csproj" />
+    </Folder>
+    <Folder Name="/03. Cores/">
+        <Project Path="Cores/Core.Models/Core.Models.csproj" />
+        <Project Path="Cores/Core.Services/Core.Services.csproj" />
+        <Project Path="Cores/Core.Wcf/Core.Wcf.csproj" />
+    </Folder>
+    <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj" />
+    <Project Path="Cuga-Calibration-Test/Cuga-Calibration-Test.csproj" />
+    <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj" />
 </Solution>

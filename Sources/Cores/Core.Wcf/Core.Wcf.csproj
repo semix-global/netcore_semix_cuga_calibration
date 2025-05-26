@@ -17,7 +17,7 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
         <Reference Include="Cuga.Data.DataStruct">
-            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>
     </ItemGroup>
 

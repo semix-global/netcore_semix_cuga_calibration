@@ -9,40 +9,16 @@
     <Import Project="$(BuildToolsDirectory)\Common.Build.props" />
 
     <PropertyGroup>
-        <Version>1.0.4</Version>
-        <AssemblyVersion>1.0.4.0</AssemblyVersion>
-        <FileVersion>1.0.4.0</FileVersion>
+        <LangVersion>12.0</LangVersion>
+        <AssemblyVersion>2.1.0.0523</AssemblyVersion>
+        <FileVersion>2.1.0.0523</FileVersion>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <PackageId>$(AssemblyName)</PackageId>
-        <PackageReleaseNotes>If you have questions, please submit issue.</PackageReleaseNotes>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <PackageProjectUrl>http://192.168.0.28:8099/semix/software/publiclibraries/common/Net.Utilities.git</PackageProjectUrl>
-
-        <Title>$(AssemblyName)</Title>
-        <Authors>Kaizhi Xuan</Authors>
-        <Owners>Kaizhi Xuan</Owners>
-        <Company>Kaizhi Xuan</Company>
-        <Product>$(AssemblyName)</Product>
-        <Description>$(AssemblyName)</Description>
-        <Copyright>Copyright © 2025.Semix</Copyright>
-
-        <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
-        <RepositoryUrl>http://192.168.0.28:8099/semix/software/publiclibraries/common/Net.Utilities.Nlog</RepositoryUrl>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <RepositoryType>GitLab</RepositoryType>
-
-        <IsPackable>true</IsPackable>
-        <!-- 创建符号包 -->
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <!-- 构建系统将未由源代码管理跟踪或未从源包导入到生成的 PDB 的项目源文件嵌入 -->
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <!-- 在生成期间自动生成包 -->
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageOutputPath>$(RepositoryDirectory)\Output</PackageOutputPath>
-    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="SourceGenerator.AssemblyMetadata">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
 </Project>
