@@ -620,6 +620,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.LowMicroscopeMagnificationEnum,
                 Cache.HighMicroscopeMagnificationEnum,
                 Cache.AlgorithmWaferTypeEnum);
+            Cache.OffsetAngle = alignmentResultDto.Degrees;
             result = Math.Abs(Cache.OffsetAngle) <= Cache.AngleErrorThreshold;
             Logger.LogHtmlInformation(result ? "P5 OK" : "P5 Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { Cache.OffsetAngle }), HtmlLogUniqueId.LoggingHtml());
         });

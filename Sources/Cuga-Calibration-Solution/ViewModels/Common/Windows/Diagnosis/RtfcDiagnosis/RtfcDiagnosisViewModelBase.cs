@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Core.Models.Enums.Stage;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -71,7 +70,6 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     /// 模板存储位置
     /// </summary>m
     public string TemplateFileDirectory => Path.Combine(Options.Value.AppHomeDirectory, "Template", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
-
     /// <summary>
     /// Csv文件存储名称前缀
     /// </summary>
@@ -81,9 +79,6 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     /// 校准文件名称
     /// </summary>
     public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
-
-    [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
     #region ViewModel
 
@@ -112,7 +107,6 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     #endregion 界面
 
     #endregion 属性
-
     public RtfcDiagnosisViewModelBase()
     {
         _typeName = GetType().Name;
@@ -166,4 +160,5 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     public virtual Task<bool> DiagnosisActionAsync(CancellationToken cancellationToken) => Task.FromResult(true);
 
     #endregion 重载
+
 }

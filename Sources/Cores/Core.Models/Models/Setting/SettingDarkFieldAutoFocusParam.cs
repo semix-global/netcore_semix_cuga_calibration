@@ -7,7 +7,7 @@ namespace Core.Models.Models.Setting;
 /// <summary>
 /// 暗场自动聚焦参数
 /// </summary>
-public sealed partial class SettingDarkFieldAutoFocusParam : ObservableCacheBase, IAdaptIn<SettingDarkFieldAutoFocusParam, SettingDarkFieldAutoFocusParam>
+public sealed partial class SettingDarkFieldAutoFocusParam : ObservableCacheBase, IAdaptIn<SettingDarkFieldAutoFocusParam, SettingDarkFieldAutoFocusParam>, ICloneable<SettingDarkFieldAutoFocusParam>
 {
     /// <summary>
     /// Chuck暗场自动聚焦标准Ecs值
@@ -125,6 +125,25 @@ public sealed partial class SettingDarkFieldAutoFocusParam : ObservableCacheBase
 
         return obj;
     }
+
+    public SettingDarkFieldAutoFocusParam Clone() => new()
+    {
+        ChuckEcsValue = ChuckEcsValue,
+        ChuckMotorValue = ChuckMotorValue,
+        IsEnableChuck = IsEnableChuck,
+        DswEcsValue = DswEcsValue,
+        DswMotorValue = DswMotorValue,
+        IsEnableDsw = IsEnableDsw,
+        UndefinedEcsValue = UndefinedEcsValue,
+        UndefinedMotorValue = UndefinedMotorValue,
+        IsEnableUndefined = IsEnableUndefined,
+        HazeEcsValue = HazeEcsValue,
+        HazeMotorValue = HazeMotorValue,
+        IsEnableHaze = IsEnableHaze,
+        ShinyWaferEcsValue = ShinyWaferEcsValue,
+        ShinyWaferMotorValue = ShinyWaferMotorValue,
+        IsEnableShinyWafer = IsEnableShinyWafer
+    };
 
     #endregion Mapper
 }

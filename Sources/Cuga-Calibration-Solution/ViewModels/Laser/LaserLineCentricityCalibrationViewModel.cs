@@ -680,13 +680,13 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             if (GetLineCentricity(laserLineCentricityItemDto) == false) return false;
 
-            var newForwardFindDarkMachinePosition = laserLineCentricityItemDto.ForwardFindDarkMachinePosition;
-            var oldForwardFindDarkMachinePosition = selectReviewItemDto.ForwardFindDarkMachinePosition;
-            var errorForward = newForwardFindDarkMachinePosition - oldForwardFindDarkMachinePosition;
+            var newForwardDarkMachineCenterPosition = laserLineCentricityItemDto.ForwardDarkMachineCenterPosition;
+            var oldForwardDarkMachineCenterPosition = selectReviewItemDto.ForwardDarkMachineCenterPosition;
+            var errorForward = newForwardDarkMachineCenterPosition - oldForwardDarkMachineCenterPosition;
             var resultForward = errorForward.DistanceToZero() < Cache.Threshold.DistanceToZero();
-            var oldReverseFindDarkMachinePosition = selectReviewItemDto.ReverseFindDarkMachinePosition;
-            var newReverseFindDarkMachinePosition = laserLineCentricityItemDto.ReverseFindDarkMachinePosition;
-            var errorReverse = newReverseFindDarkMachinePosition - oldReverseFindDarkMachinePosition;
+            var oldReverseDarkMachineCenterPosition = selectReviewItemDto.ReverseDarkMachineCenterPosition;
+            var newReverseDarkMachineCenterPosition = laserLineCentricityItemDto.ReverseDarkMachineCenterPosition;
+            var errorReverse = newReverseDarkMachineCenterPosition - oldReverseDarkMachineCenterPosition;
             var resultReverse = errorReverse.DistanceToZero() < Cache.Threshold.DistanceToZero();
 
             verifyResultList.Add(resultForward);
@@ -694,11 +694,11 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             Logger.LogHtmlInformation(resultForward && resultReverse ? "OK" : "Failed", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                newForwardFindDarkMachinePosition,
-                oldForwardFindDarkMachinePosition,
+                newForwardDarkMachineCenterPosition,
+                oldForwardDarkMachineCenterPosition,
                 errorForward,
-                newReverseFindDarkMachinePosition,
-                oldReverseFindDarkMachinePosition,
+                newReverseDarkMachineCenterPosition,
+                oldReverseDarkMachineCenterPosition,
                 errorReverse
             }), HtmlLogUniqueId.LoggingHtml());
 
