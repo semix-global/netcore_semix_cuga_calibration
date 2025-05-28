@@ -70,7 +70,7 @@ public interface ICalibrationAdsService
     /// </summary>
     /// <param name="timeSpan">多长时间Buffer</param>
     /// <returns>TransBuffer 高度、横滚、俯仰的值</returns>
-    SxExecuteRet<List<(double Height, double Roll, double Pitch)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan);
+    SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan);
 
     /// <summary>
     /// 根据速度获取传感器: ADS 高度传感器 Z1 Z2 Z3的Buffer值

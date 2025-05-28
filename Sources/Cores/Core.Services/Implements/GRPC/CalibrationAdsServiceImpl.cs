@@ -106,25 +106,27 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
         return SxExecuteRetHelper.CreateSuccess(pressureList);
     }
 
-    public SxExecuteRet<List<(double Height, double Roll, double Pitch)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
     {
         var calibrationRegList = new List<CalibrationRegEnum>
         {
             AdsTracebufferRegEnum.Height.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.Roll.ToCalibrationRegEnum(),
-            AdsTracebufferRegEnum.Pitch.ToCalibrationRegEnum()
+            AdsTracebufferRegEnum.Pitch.ToCalibrationRegEnum(),
+            AdsTracebufferRegEnum.ACS_X_Speed.ToCalibrationRegEnum(),
+            AdsTracebufferRegEnum.ACS_Y_Speed.ToCalibrationRegEnum(),
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(new SxParamObj<(List<CalibrationRegEnum> regs, int time)>((calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)))));
-        if (sxExecuteRet.Anything.Count != 3
+        if (sxExecuteRet.Anything.Count != 5
             || sxExecuteRet.Anything.Any(t => t.Count == 0)
             || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
-            || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch)>>("Ads error trans buffer is empty", []);
+            || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch, double SpeedX, double SpeedY)>>("Ads error trans buffer is empty", []);
         // 将三个地址的tracebuffer的数据合并成一个列表
         var tracebufferList = sxExecuteRet.Anything
             .Select(shortList => shortList.Select(t => Convert.ToDouble(t)).ToList())
             .ToList();
         var resultList = tracebufferList[0]
-            .Select((height, index) => (Height: tracebufferList[0][index], Roll: tracebufferList[1][index], Pitch: tracebufferList[2][index]))
+            .Select((height, index) => (Height: tracebufferList[0][index], Roll: tracebufferList[1][index], Pitch: tracebufferList[2][index], SpeedX: tracebufferList[3][index], SpeedY: tracebufferList[4][index]))
             .ToList();
 
         return SxExecuteRetHelper.CreateSuccess(resultList);
@@ -139,11 +141,13 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
             AdsTracebufferRegEnum.Z_ECS2.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.Height.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.Roll.ToCalibrationRegEnum(),
-            AdsTracebufferRegEnum.Pitch.ToCalibrationRegEnum()
+            AdsTracebufferRegEnum.Pitch.ToCalibrationRegEnum(),
+            AdsTracebufferRegEnum.ACS_X_Speed.ToCalibrationRegEnum(),
+            AdsTracebufferRegEnum.ACS_Y_Speed.ToCalibrationRegEnum(),
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(new SxParamObj<(List<CalibrationRegEnum> regs, int time)>((calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)))));
 
-        if (sxExecuteRet.Anything.Count != 6
+        if (sxExecuteRet.Anything.Count != 8
             || sxExecuteRet.Anything.Any(t => t.Count == 0)
             || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
             || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count

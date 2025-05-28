@@ -71,23 +71,21 @@ public sealed class AdsViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Height, double Roll, double Pitch)> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan, int repeatCount = 0)
+    public List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
         var ret = calibrationAdsService.GetSensorHeightRollPitchTraceBufferList(timeSpan);
         logger.LogInformation("End TraceBuffer");
 
-        if (repeatCount == 0 || repeatCount == 5) return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-        else return ret.IsSuccess ? ret.Anything : [];
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<List<double>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan, int repeatCount = 0)
+    public List<List<double>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
         var ret = calibrationAdsService.GetSensorSpeedZ1Z2Z3TraceBufferList(timeSpan);
         logger.LogInformation("End TraceBuffer");
-        if (repeatCount == 0 || repeatCount == 5) return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-        else return ret.IsSuccess ? ret.Anything : [];
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public List<List<double>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)

@@ -80,18 +80,19 @@ public sealed class CalibrationAdsServiceMockImpl : ICalibrationAdsService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 5000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
     }
 
-    public SxExecuteRet<List<(double Height, double Roll, double Pitch)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
+
+    public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
     }
 
     public SxExecuteRet<List<List<double>>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 6).Select(_ => Enumerable.Range(1, 5000).Select(_ => Random.NextDouble()).ToList()).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 8).Select(_ => Enumerable.Range(1, 5000).Select(_ => Random.NextDouble()).ToList()).ToList());
     }
 
     public SxExecuteRet<List<List<double>>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)
