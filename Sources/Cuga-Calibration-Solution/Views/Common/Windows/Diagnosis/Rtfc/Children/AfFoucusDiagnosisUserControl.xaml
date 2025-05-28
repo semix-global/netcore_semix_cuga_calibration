@@ -7,12 +7,15 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
+             xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors1="clr-namespace:CanvasViewer.Behaviors;assembly=WPF.CanvasViewer"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis"
              xmlns:coreModels="clr-namespace:Core.Models.Models.Laser.Rtfc;assembly=Core.Models"
+             xmlns:focusShiftCoreModels="clr-namespace:Core.Models.Models.Laser.FocusShift;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AfFocusDiagnosisViewModel}"
              d:DesignHeight="1600"
              d:DesignWidth="1300"
@@ -29,9 +32,7 @@
             </i:EventTrigger>
         </i:Interaction.Triggers>
         <hc:ScrollViewer Grid.Column="0">
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="10"
-                                    IsEnabled="{Binding IsEnableWindow}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
@@ -51,7 +52,7 @@
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Minimum="1"
                                           Maximum="1000"
-                                          Value="{Binding Cache.FindFocusMin}" />
+                                          Value="{Binding FocusShiftCache.FindFocusMin}" />
                         <hc:NumericUpDown x:Name="ZLimitMaxNumeric"
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Limit Max: "
@@ -62,7 +63,7 @@
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Minimum="1"
                                           Maximum="1000"
-                                          Value="{Binding Cache.FindFocusMax}" />
+                                          Value="{Binding FocusShiftCache.FindFocusMax}" />
                         <hc:NumericUpDown x:Name="IntervalNumeric"
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Interval: "
@@ -73,7 +74,7 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Maximum="500"
-                                          Value="{Binding Cache.FindFocusInterval}" />
+                                          Value="{Binding FocusShiftCache.FindFocusInterval}" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Quality Threshold: "
                                           hc:InfoElement.Necessary="True"
@@ -113,7 +114,7 @@
                                               hc:InfoElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="100"
                                               Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.SettingDarkFieldAutoFocusParam.ChuckEcsValue}" />
+                                              Value="{Binding FocusShiftCache.SettingDarkFieldAutoFocusParam.DswEcsValue}" />
                             <hc:NumericUpDown Height="30"
                                               Margin="2"
                                               hc:InfoElement.ShowClearButton="True"
@@ -121,12 +122,12 @@
                                               hc:InfoElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="100"
                                               Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.SettingDarkFieldAutoFocusParam.ChuckMotorValue}" />
+                                              Value="{Binding FocusShiftCache.SettingDarkFieldAutoFocusParam.DswMotorValue}" />
                             <hc:SimplePanel Height="30">
                                 <TextBlock Text="AutoFocus:"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding Cache.SettingDarkFieldAutoFocusParam.IsEnableChuck}"
+                                <ToggleButton IsChecked="{Binding FocusShiftCache.SettingDarkFieldAutoFocusParam.IsEnableDsw}"
                                               HorizontalAlignment="Right"
                                               VerticalAlignment="Center"
                                               Background="{StaticResource DangerBrush}"
@@ -136,7 +137,9 @@
                         </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </Border>
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <Border Style="{StaticResource BorderRegion}"
+                        Effect="{StaticResource EffectShadow1}"
+                        IsEnabled="{Binding IsEnableWindow}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
                             <TextBlock Text="LowSite Template"
@@ -147,7 +150,7 @@
                         </StackPanel>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
-                                <TextBox Text="{Binding Cache.LowSiteFindPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding FocusShiftCache.LowSiteFindPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="275"
                                          hc:InfoElement.Title="Position1(um): "
                                          hc:InfoElement.TitlePlacement="Left"
@@ -164,12 +167,14 @@
                                              ShowAxes="True"
                                              ShowCursor="False"
                                              ShowGrid="False"
-                                             BackgroundImage="{Binding Cache.LowSiteTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                             BackgroundImage="{Binding FocusShiftCache.LowSiteTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                         </hc:UniformSpacingPanel>
 
                     </hc:UniformSpacingPanel>
                 </Border>
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <Border Style="{StaticResource BorderRegion}"
+                        Effect="{StaticResource EffectShadow1}"
+                        IsEnabled="{Binding IsEnableWindow}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
                             <TextBlock Text="HighSite Template"
@@ -183,7 +188,7 @@
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="Dark Field Template Type: "
                                          hc:InfoElement.Necessary="True"
-                                         SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
+                                         SelectedItem="{Binding FocusShiftCache.AlgorithmTemplateTypeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -192,7 +197,7 @@
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
-                                <TextBox Text="{Binding Cache.HighSiteFindPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding FocusShiftCache.HighSiteFindPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="275"
                                          hc:InfoElement.Title="Position2(um): "
                                          hc:InfoElement.TitlePlacement="Left"
@@ -214,7 +219,7 @@
                                                  ShowAxes="True"
                                                  ShowCursor="False"
                                                  ShowGrid="False"
-                                                 BackgroundImage="{Binding Cache.HighSiteTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                                 BackgroundImage="{Binding FocusShiftCache.HighSiteTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                                 <view:CanvasView Width="100"
                                                  Height="100"
                                                  BackgroundColor="#0A0A0A"
@@ -223,28 +228,57 @@
                                                  ShowAxes="True"
                                                  ShowCursor="False"
                                                  ShowGrid="False"
-                                                 BackgroundImage="{Binding Cache.DarkFiledTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                                 BackgroundImage="{Binding FocusShiftCache.DarkFiledTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                             </hc:UniformSpacingPanel>
-                            <TextBox Text="{Binding Cache.MachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:InfoElement.Title="Dark Filed Machine Point(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <view:CanvasView Width="100"
-                                             Height="100"
-                                             BackgroundColor="#0A0A0A"
-                                             AxisColor="Red"
-                                             Interactive="True"
-                                             ShowAxes="True"
-                                             ShowCursor="False"
-                                             ShowGrid="False"
-                                             BackgroundImage="{Binding Cache.DarkFiledImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                         </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </Border>
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
-                            <TextBlock Text="Result"
+                            <TextBlock Text="Focus Shift Calibration Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                            <TextBox Text="{Binding FocusShiftCache.QualityThreshold}"
+                                     Width="275"
+                                     hc:InfoElement.Title="Quality Threshold: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultFocusShiftDto.EcsOffset, Mode=OneWay}"
+                                     Width="275"
+                                     hc:InfoElement.Title="Ecs Offset: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     Style="{StaticResource TextBoxExtend}"
+                                     IsReadOnly="True" />
+                            <TextBox Text="{Binding ResultFocusShiftDto.BrightFiedlToDarkFieldOffset, Mode=OneWay}"
+                                     Width="275"
+                                     hc:InfoElement.Title="BF To DF Machine Offset: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    Spacing="10">
+                                <Button x:Name="ActionButton"
+                                        Content="Action"
+                                        Command="{Binding FocusShiftCalibrationCommand}"
+                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                        Style="{StaticResource ButtonPrimary.Loading}" />
+                                <Button x:Name="CancelButton"
+                                        Content="Cancel"
+                                        Command="{Binding FocusShiftCalibrationCancelCommand}"
+                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                        Style="{StaticResource ButtonWarning}" />
+                            </hc:UniformSpacingPanel>
+                        </StackPanel>
+                    </hc:UniformSpacingPanel>
+                </Border>
+                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="RTFC Diagnosis Result"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
@@ -294,7 +328,7 @@
             </Grid.RowDefinitions>
 
             <TabControl TabStripPlacement="Bottom">
-                <TabItem Header="Get Quality">
+                <TabItem Header="Diagnosis">
                     <GroupBox Header="Get Quality">
                         <ListView d:SelectedIndex="0"
                                   ItemsSource="{Binding RtfcDtoItems}"
@@ -341,6 +375,61 @@
                                                             Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                                             CommandParameter="{Binding DarkFieldImageFilePath}"
                                                             d:DataContext="{d:DesignInstance Type=coreModels:RtfcDto}" />
+                                                </hc:ButtonGroup>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </GroupBox>
+                </TabItem>
+                <TabItem Header="Focus Shift Calibration">
+                    <GroupBox Header="Get Quality">
+                        <ListView d:SelectedIndex="0"
+                                  ItemsSource="{Binding FocusShiftDtoItems}"
+                                  Style="{StaticResource ListView.Small}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ListBoxScrollToCurrentBehavior />
+                            </i:Interaction.Behaviors>
+                            <ListView.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn Width="80"
+                                                    Header="Index"
+                                                    DisplayMemberBinding="{Binding Index}" />
+                                    <GridViewColumn Width="80"
+                                                    Header="EcsValue"
+                                                    DisplayMemberBinding="{Binding DarkFieldEcsValue, StringFormat={}{0:f3}}" />
+                                    <GridViewColumn Width="100"
+                                                    Header="Quality"
+                                                    DisplayMemberBinding="{Binding DarkFieldQuality, StringFormat={}{0:f3}}" />
+                                    <GridViewColumn Width="200" Header="Action Review">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <hc:ButtonGroup>
+                                                    <Button Content="Image"
+                                                            Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding DarkFieldImageFilePath}"
+                                                            d:DataContext="{d:DesignInstance Type=focusShiftCoreModels:FocusShiftDto}" />
                                                 </hc:ButtonGroup>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>

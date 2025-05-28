@@ -237,9 +237,19 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         var sxExecuteRet = Invoke(() => Service?.GetAuotofocusTraceBufferData(new SxParamObj<TimeSpan>(timeSpan)));
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.AFERROR.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trans buffer is empty", []);
+        if (sxExecuteRet.Anything.AFERROR.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trace buffer is empty", []);
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.AFERROR.Select(Convert.ToDouble).ToList());
+    }
+
+    public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetAuotofocusTraceBufferData(new SxParamObj<TimeSpan>(timeSpan)));
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.Anything.Nsc.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Nsc trace buffer is empty", []);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
     public SxExecuteRet<bool> SetDarkFieldAutoFocusMotorAbsoluteValue(double value)

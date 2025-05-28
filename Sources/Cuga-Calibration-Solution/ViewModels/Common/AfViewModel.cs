@@ -113,9 +113,18 @@ public sealed class AfViewModel(
 
     public List<double> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
     {
-        logger.LogInformation("Start TransBuffer");
+        logger.LogInformation("Start TraceBuffer");
         var ret = calibrationAfService.GetSensorAfErrorTraceBufferList(timeSpan);
-        logger.LogInformation("End TransBuffer");
+        logger.LogInformation("End TraceBuffer");
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public List<double> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    {
+        logger.LogInformation("Start TraceBuffer");
+        var ret = calibrationAfService.GetSensorNscTraceBufferList(timeSpan);
+        logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

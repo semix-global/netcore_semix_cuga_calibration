@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Microscope;
+using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
@@ -191,7 +192,8 @@ public sealed partial class ReviewViewModel(
         out double resultScore,
         out double resultAngle,
         out string resultImageFilePath,
-        out string originImageFilePath)
+        out string originImageFilePath,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         resultPosition = Point.Empty;
         resultScore = 0;
@@ -224,7 +226,7 @@ public sealed partial class ReviewViewModel(
             var currentMag = microscopeViewModel.GetMagnification();
             if (microscopeMagnificationEnum != currentMag)
                 microscopeViewModel.SwitchMagnification(microscopeMagnificationEnum);
-            stageViewModel.SetBrightFieldAbsoluteStageXy(position);
+            stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
             Thread.Sleep(500);
 
             using var image = GetBrightFieldImage();

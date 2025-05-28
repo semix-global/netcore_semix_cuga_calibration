@@ -98,11 +98,18 @@ public interface ICalibrationAfService
     SxExecuteRet<bool> SetSensorCurrentValue(double current, bool isA);
 
     /// <summary>
-    /// 获取传感器: TransBuffer error的Buffer值
+    /// 获取传感器: TracesBuffer error的Buffer值
     /// </summary>
     /// <param name="timeSpan">多长时间Buffer</param>
-    /// <returns>TransBuffer error当前值</returns>
+    /// <returns>TraceBuffer error当前值</returns>
     SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan);
+
+    /// <summary>
+    /// 获取传感器: TraceBuffer Nsc的Buffer值
+    /// </summary>
+    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <returns>TraceBuffer error当前值</returns>
+    SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan);
 
     #region 自动聚焦下发参数
 
