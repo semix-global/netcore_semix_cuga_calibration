@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Events;
+using Core.Models.Exceptions;
 using Core.Models.Models.Ads.CenterOfMass;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -214,7 +215,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
                         logger.LogHtmlInformation($"Find {(Cache.IsFindX ? "X" : "Y")} Times:{index}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                         SelectedItemDto = dto;
-                        if (await GetXyDeltaValueAsync(dto, diagnosisItem.Cache).ConfigureAwait(false) == false)
+                        if (await GetXyDeltaValueAsync(dto, diagnosisItem.Cache, cancellationToken).ConfigureAwait(false) == false)
                             return false;
                         SelectedItemDto.IsCalibrated = true;
 
@@ -299,7 +300,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
         }
     }
 
-    private async Task<bool> GetXyDeltaValueAsync(AdsCenterOfMassItemDto adsCenterOfMassDto, AdsCenterOfMassCache cache)
+    private async Task<bool> GetXyDeltaValueAsync(AdsCenterOfMassItemDto adsCenterOfMassDto, AdsCenterOfMassCache cache, CancellationToken cancellationToken)
     {
         try
         {
@@ -323,9 +324,9 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var isPositive = adsCenterOfMassDto.IsPositive;
             var (forwardValue1, forwardValue2, forwardValue3) = cache.GetForwardValue(isPositive);
             if (Cache.IsFindX)
-                adsViewModel.SetSensorYSpeedFeedForwardValue(isPositive, (forwardValue1, forwardValue2, forwardValue3));
+                InvokeAdsService(() => adsViewModel.SetSensorYSpeedFeedForwardValue(isPositive, (forwardValue1, forwardValue2, forwardValue3)), cancellationToken);
             else
-                adsViewModel.SetSensorXSpeedFeedForwardValue(isPositive, (forwardValue1, forwardValue2));
+                InvokeAdsService(() => adsViewModel.SetSensorXSpeedFeedForwardValue(isPositive, (forwardValue1, forwardValue2)), cancellationToken);
 
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 10000);
 
@@ -490,6 +491,23 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
         }
     }
 
+    public void InvokeAdsService(Action action, CancellationToken cancellationToken)
+    {
+        for (var i = 0; i < 5; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                action.Invoke();
+                return;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "InvokeSetValue failed, retrying {RetryCount} times", i + 1);
+            }
+        }
+        throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
+    }
     #endregion 诊断业务
 
     #region 文件读写

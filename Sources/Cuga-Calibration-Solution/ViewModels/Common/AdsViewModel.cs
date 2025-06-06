@@ -29,6 +29,7 @@ public sealed class AdsViewModel(
 
     public void SetSensorXSpeedFeedForwardValue(bool isPositive, (double X1, double X2) value)
     {
+
         var ret = calibrationAdsService.SetSensorXSpeedFeedForwardValue(isPositive, value);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);

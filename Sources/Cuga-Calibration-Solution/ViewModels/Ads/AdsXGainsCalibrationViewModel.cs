@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
@@ -385,7 +386,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         EndPosition = Cache.GetEndPosition(),
                         SpeedXValue = speedvalue
                     }), HtmlLogUniqueId.LoggingHtml());
-                    var (isSuccess, transBuffer) = await GetZ1Z2CurveAsync(adsXGainsCacheItem).ConfigureAwait(false);
+                    var (isSuccess, transBuffer) = await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken).ConfigureAwait(false);
                     if (isSuccess == false)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Get Hrp Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -416,7 +417,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         index++;
-                        var resultValue = await DichotomyFindX1X2Async(Cache.IsPositive, speedvalue, index, x1Min, x1Max, x2Min, x2Max);
+                        var resultValue = await DichotomyFindX1X2Async(Cache.IsPositive, speedvalue, index, x1Min, x1Max, x2Min, x2Max, cancellationToken);
                         Z1List.Add((resultValue.x1, resultValue.Z1));
                         Z2List.Add((resultValue.x2, resultValue.Z2));
                         if (!IsX1Stop)
@@ -454,7 +455,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         }
 
                         if (IsX1Stop && IsX2Stop) isStop = false;
-                        SetDefaultXValue();
+                        SetDefaultXValue(cancellationToken);
                     }
 
                     var adsXGainsZ1Z2HrpCacheList = AdsXGainsCacheItemList.Where(t => t.SpeedXValue == speedvalue).ToList();
@@ -488,7 +489,8 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             }
             catch (Exception ex)
             {
-                SetDefaultXValue();
+                SetDefaultXValue(cancellationToken);
+
                 DialogWindowProvider.ShowDialog("Calibrate Z1Z2 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
@@ -548,9 +550,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                             };
                             adsXGainsHrpCacheItem.SetX1(x1Value);
                             adsXGainsHrpCacheItem.SetX2(x2Value);
-                            await GetHrpAsync(adsXGainsHrpCacheItem).ConfigureAwait(false);
+                            await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
                             SynchronizationContextProvider.Send(() => AdsXGainsHrpCacheItemList.Add(adsXGainsHrpCacheItem));
-                            SetDefaultXValue();
+                            SetDefaultXValue(cancellationToken);
                         }
                     }
 
@@ -669,7 +671,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             }
             catch (Exception ex)
             {
-                SetDefaultXValue();
+                SetDefaultXValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Calibrate HRP Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
@@ -701,7 +703,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         var result = await VerifyAsync(true).ConfigureAwait(false) && await VerifyAsync(false).ConfigureAwait(false);
         if (!result)
         {
-            SetDefaultXValue();
+            SetDefaultXValue(cancellationToken);
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
         else
@@ -714,7 +716,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 return false;
             }
 
-            SetBestX1X2Values(selectItemDto, Cache.DefaultSpeedXValue);
+            SetBestX1X2Values(selectItemDto, Cache.DefaultSpeedXValue, cancellationToken);
             if (!IsAutoCalibrate) DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
 
@@ -768,7 +770,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     };
                     adsXGainsHrpCacheItem.SetX1(GetXValue(adsXGainsItemDto.GetX1P1(), adsXGainsItemDto.GetX1P2(), adsXGainsItemDto.GetX1P3(), speedvalueItem));
                     adsXGainsHrpCacheItem.SetX2(GetXValue(adsXGainsItemDto.GetX2P1(), adsXGainsItemDto.GetX2P2(), adsXGainsItemDto.GetX2P3(), speedvalueItem));
-                    (resultTemp, var transBuffer) = await GetHrpAsync(adsXGainsHrpCacheItem).ConfigureAwait(false);
+                    (resultTemp, var transBuffer) = await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
                     if (adsXGainsItemDto.IsPositive) SynchronizationContextProvider.Send(() => PositiveAdsXGainsHrpCacheItemList.Add(adsXGainsHrpCacheItem));
                     else SynchronizationContextProvider.Send(() => NegativeAdsXGainsHrpCacheItemList.Add(adsXGainsHrpCacheItem));
                     if (resultTemp == false) break;
@@ -776,7 +778,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             }
             catch (Exception ex)
             {
-                SetDefaultXValue();
+                SetDefaultXValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Verify Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 resultTemp = false;
@@ -787,14 +789,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         }
     }
 
-    private void SetDefaultXValue()
+    private void SetDefaultXValue(CancellationToken cancellationToken)
     {
         StageViewModel.SetXSpeedValue(Cache.DefaultSpeedXValue);
-        AdsViewModel.SetSensorXSpeedFeedForwardValue(false, defaultXList[1]);
-        AdsViewModel.SetSensorXSpeedFeedForwardValue(true, defaultXList[0]);
+        InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(false, defaultXList[1]), cancellationToken);
+        InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(true, defaultXList[0]), cancellationToken);
     }
 
-    private void SetBestX1X2Values(AdsXGainsItemDto adsXGainsItemDto, double speedValue)
+    private void SetBestX1X2Values(AdsXGainsItemDto adsXGainsItemDto, double speedValue, CancellationToken cancellationToken)
     {
         StageViewModel.SetXSpeedValue(speedValue);
         double x1 = 0d, x2 = 0d, x3 = 0d, x4 = 0d;
@@ -802,8 +804,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         if (adsXGainsItemDto.PositiveX2P1 != 0) x2 = GetXValue(adsXGainsItemDto.PositiveX2P1, adsXGainsItemDto.PositiveX2P2, adsXGainsItemDto.PositiveX2P3, speedValue);
         if (adsXGainsItemDto.NegativeX3P1 != 0) x3 = GetXValue(adsXGainsItemDto.NegativeX3P1, adsXGainsItemDto.NegativeX3P2, adsXGainsItemDto.NegativeX3P3, speedValue);
         if (adsXGainsItemDto.NegativeX4P1 != 0) x4 = GetXValue(adsXGainsItemDto.NegativeX4P1, adsXGainsItemDto.NegativeX4P2, adsXGainsItemDto.NegativeX4P3, speedValue);
-        if (x1 != 0 && x2 != 0) AdsViewModel.SetSensorXSpeedFeedForwardValue(true, (x1, x2));
-        if (x3 != 0 && x4 != 0) AdsViewModel.SetSensorXSpeedFeedForwardValue(false, (x3, x4));
+        if (x1 != 0 && x2 != 0)
+        {
+            InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(true, (x1, x2)), cancellationToken);
+        }
+        if (x3 != 0 && x4 != 0)
+        {
+            InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(false, (x3, x4)), cancellationToken);
+        }
     }
 
     private static double GetXValue(double p1, double p2, double p3, double speed)
@@ -817,13 +825,13 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         else return " - " + Math.Abs(p).ToString();
     }
 
-    private async Task<(bool, List<List<double>>)> GetZ1Z2CurveAsync(AdsXGainsCacheItem adsXGainsCacheItem, int repeatCount = 1)
+    private async Task<(bool, List<List<double>>)> GetZ1Z2CurveAsync(AdsXGainsCacheItem adsXGainsCacheItem, CancellationToken cancellationToken, int repeatCount = 1)
     {
         var transBuffer = new List<List<double>>();
         try
         {
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            AdsViewModel.SetSensorXSpeedFeedForwardValue(adsXGainsCacheItem.IsPositive, (adsXGainsCacheItem.GetX1(), adsXGainsCacheItem.GetX2()));
+            InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(adsXGainsCacheItem.IsPositive, (adsXGainsCacheItem.GetX1(), adsXGainsCacheItem.GetX2())), cancellationToken);
             StageViewModel.SetXSpeedValue(adsXGainsCacheItem.SpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             Thread.Sleep(HostEnvironment.IsDevelopment() ? 100 : 20000);
@@ -833,20 +841,20 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             StageViewModel.SetXSpeedValue(Cache.SpeedXValueList.First());
             if (transBuffer.Count > 0) return (true, transBuffer);
             if (repeatCount > 5) return (false, transBuffer);
-            return await GetZ1Z2CurveAsync(adsXGainsCacheItem, repeatCount++).ConfigureAwait(false);
+            return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             if (repeatCount > 5) return (false, transBuffer);
-            return await GetZ1Z2CurveAsync(adsXGainsCacheItem, repeatCount++).ConfigureAwait(false);
+            return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
-    private async Task<(bool, List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>)> GetHrpAsync(AdsXGainsCacheItem adsXGainsHrpCacheItem, int repeatCount = 1)
+    private async Task<(bool, List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>)> GetHrpAsync(AdsXGainsCacheItem adsXGainsHrpCacheItem, CancellationToken cancellationToken, int repeatCount = 1)
     {
         try
         {
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            AdsViewModel.SetSensorXSpeedFeedForwardValue(Cache.IsPositive, (adsXGainsHrpCacheItem.GetX1(), adsXGainsHrpCacheItem.GetX2()));
+            InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(Cache.IsPositive, (adsXGainsHrpCacheItem.GetX1(), adsXGainsHrpCacheItem.GetX2())), cancellationToken);
             StageViewModel.SetXSpeedValue(adsXGainsHrpCacheItem.SpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             Thread.Sleep(HostEnvironment.IsDevelopment() ? 100 : 12000);
@@ -935,17 +943,17 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             }
             if (repeatCount > 5) return (false, transBuffer);
 
-            return await GetHrpAsync(adsXGainsHrpCacheItem, repeatCount++).ConfigureAwait(false);
+            return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
-            return await GetHrpAsync(adsXGainsHrpCacheItem, repeatCount++).ConfigureAwait(false);
+            return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
 
     }
 
-    private async Task<(int x1, int x2, double Z1, double Z2, bool z1IsPositive, bool z2IsPositive)> DichotomyFindX1X2Async(bool isPositive, double speedValue, int index, int minX1, int maxX1, int minX2, int maxX2)
+    private async Task<(int x1, int x2, double Z1, double Z2, bool z1IsPositive, bool z2IsPositive)> DichotomyFindX1X2Async(bool isPositive, double speedValue, int index, int minX1, int maxX1, int minX2, int maxX2, CancellationToken cancellationToken)
     {
         var z1IsPositive = false;
         var z2IsPositive = false;
@@ -959,7 +967,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         };
         adsXGainsCacheItemTemp.SetX1(x1Value);
         adsXGainsCacheItemTemp.SetX2(x2Value);
-        var (isSuccess, transBuffer) = await GetZ1Z2CurveAsync(adsXGainsCacheItemTemp).ConfigureAwait(false);
+        var (isSuccess, transBuffer) = await GetZ1Z2CurveAsync(adsXGainsCacheItemTemp, cancellationToken).ConfigureAwait(false);
         if (isSuccess == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Get Hrp Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -1123,6 +1131,24 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         }
 
         return (pointZ, pointSmoothZ, smoothZ);
+    }
+
+    public void InvokeAdsService(Action action, CancellationToken cancellationToken)
+    {
+        for (var i = 0; i < 5; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                action.Invoke();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "InvokeSetValue failed, retrying {RetryCount} times", i + 1);
+            }
+        }
+        throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
     }
 
     private bool Save(AdsXGainsItemDto itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
