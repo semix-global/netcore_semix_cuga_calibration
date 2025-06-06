@@ -275,7 +275,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         await InvokeCalibrateAsync(() =>
         {
             ClearCalibrationTemp();
-            var (isSuccessVerify, errorMessage) = Cache.Verify();
+            var (isSuccessVerify, errorMessage) = Cache.CalibrationVerify();
             if (isSuccessVerify == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());

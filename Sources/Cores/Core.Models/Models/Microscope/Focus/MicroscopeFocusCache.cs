@@ -130,21 +130,21 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
         set => SetProperty(ref _findFocusInterval10X, value, validate: true);
     }
 
-    [Comparison(1, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval50X: ")]
+    [Comparison(1d, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval50X: ")]
     public double FindFocusInterval50X
     {
         get => _findFocusInterval50X;
         set => SetProperty(ref _findFocusInterval50X, value, validate: true);
     }
 
-    [Comparison(1, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval100X: ")]
+    [Comparison(1d, 100d, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval100X: ")]
     public double FindFocusInterval100X
     {
         get => _findFocusInterval100X;
         set => SetProperty(ref _findFocusInterval100X, value, validate: true);
     }
 
-    [Comparison(1, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval150X: ")]
+    [Comparison(1d, 100d, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval150X: ")]
     public double FindFocusInterval150X
     {
         get => _findFocusInterval150X;
@@ -259,4 +259,56 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
             _ => throw new ArgumentOutOfRangeException()
         };
     }
+
+    public (bool IsSuccess, string ErrorMessage) CalibrationVerify()
+    {
+        ClearErrors();
+        switch (MicroscopeMagnificationEnum)
+        {
+            case MicroscopeMagnificationEnum.Magnification5X:
+                {
+                    ValidateProperty(FindFocusMin5X, nameof(FindFocusMin5X));
+                    ValidateProperty(FindFocusMax5X, nameof(FindFocusMax5X));
+                    ValidateProperty(FindFocusInterval5X, nameof(FindFocusInterval5X));
+                    ValidateProperty(SetVoltageAfErrorThreshold5X, nameof(SetVoltageAfErrorThreshold5X));
+                }
+                break;
+            case MicroscopeMagnificationEnum.Magnification10X:
+                {
+                    ValidateProperty(FindFocusMin10X, nameof(FindFocusMin10X));
+                    ValidateProperty(FindFocusMax10X, nameof(FindFocusMax10X));
+                    ValidateProperty(FindFocusInterval10X, nameof(FindFocusInterval10X));
+                    ValidateProperty(SetVoltageAfErrorThreshold10X, nameof(SetVoltageAfErrorThreshold10X));
+                }
+                break;
+            case MicroscopeMagnificationEnum.Magnification50X:
+                {
+                    ValidateProperty(FindFocusMin50X, nameof(FindFocusMin50X));
+                    ValidateProperty(FindFocusMax50X, nameof(FindFocusMax50X));
+                    ValidateProperty(FindFocusInterval50X, nameof(FindFocusInterval50X));
+                    ValidateProperty(SetVoltageAfErrorThreshold50X, nameof(SetVoltageAfErrorThreshold50X));
+                }
+                break;
+            case MicroscopeMagnificationEnum.Magnification100X:
+                {
+                    ValidateProperty(FindFocusMin100X, nameof(FindFocusMin100X));
+                    ValidateProperty(FindFocusMax100X, nameof(FindFocusMax100X));
+                    ValidateProperty(FindFocusInterval100X, nameof(FindFocusInterval100X));
+                    ValidateProperty(SetVoltageAfErrorThreshold100X, nameof(SetVoltageAfErrorThreshold100X));
+                }
+                break;
+            case MicroscopeMagnificationEnum.Magnification150X:
+                {
+                    ValidateProperty(FindFocusMin150X, nameof(FindFocusMin150X));
+                    ValidateProperty(FindFocusMax150X, nameof(FindFocusMax150X));
+                    ValidateProperty(FindFocusInterval150X, nameof(FindFocusInterval150X));
+                    ValidateProperty(SetVoltageAfErrorThreshold150X, nameof(SetVoltageAfErrorThreshold150X));
+                }
+                break;
+            default:
+                break;
+        }
+        return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
+    }
+
 }

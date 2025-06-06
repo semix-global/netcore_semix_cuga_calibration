@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.YGains;
@@ -356,7 +357,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         EndPosition = Cache.GetEndPosition(),
                         SpeedXValue = speedvalue
                     }), HtmlLogUniqueId.LoggingHtml());
-                    var (isSuccess, transBuffer) = await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem).ConfigureAwait(false);
+                    var (isSuccess, transBuffer) = await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken).ConfigureAwait(false);
                     if (isSuccess == false)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Get Z1Z2Z3 Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -397,7 +398,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         index++;
-                        var resultValue = await DichotomyFindY1Y2Y3Async(Cache.IsPositive, speedvalue, index, y1Min, y1Max, y2Min, y2Max, y3Min, y3Max);
+                        var resultValue = await DichotomyFindY1Y2Y3Async(Cache.IsPositive, speedvalue, index, y1Min, y1Max, y2Min, y2Max, y3Min, y3Max, cancellationToken);
                         Z1List.Add((resultValue.y1, resultValue.Z1));
                         Z2List.Add((resultValue.y2, resultValue.Z2));
                         Z3List.Add((resultValue.y3, resultValue.Z3));
@@ -453,7 +454,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         }
 
                         if (IsY1Stop && IsY2Stop && IsY3Stop) isStop = false;
-                        SetDefaultYValue();
+                        SetDefaultYValue(cancellationToken);
                     }
                 }
 
@@ -476,7 +477,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             }
             catch (Exception ex)
             {
-                SetDefaultYValue();
+                SetDefaultYValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Calibrate Z1Z2Z3 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
@@ -544,9 +545,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                 adsYGainsHrpCacheItem.SetAdsY1(y1Value);
                                 adsYGainsHrpCacheItem.SetAdsY2(y2Value);
                                 adsYGainsHrpCacheItem.SetAdsY3(y3Value);
-                                await GetHrpAsync(adsYGainsHrpCacheItem).ConfigureAwait(false);
+                                await GetHrpAsync(adsYGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
                                 SynchronizationContextProvider.Send(() => AdsYGainsHrpCacheItemList.Add(adsYGainsHrpCacheItem));
-                                SetDefaultYValue();
+                                SetDefaultYValue(cancellationToken);
                             }
                         }
                     }
@@ -686,7 +687,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             }
             catch (Exception ex)
             {
-                SetDefaultYValue();
+                SetDefaultYValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Calibrate HRP Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
@@ -723,7 +724,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         if (!result)
         {
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-            SetDefaultYValue();
+            SetDefaultYValue(cancellationToken);
         }
         else
         {
@@ -735,7 +736,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 return false;
             }
 
-            SetBestY1Y2Y3Values(selectItemDto, Cache.DefaultSpeedXValue);
+            SetBestY1Y2Y3Values(selectItemDto, Cache.DefaultSpeedXValue, cancellationToken);
             if (!IsAutoCalibrate)
             {
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
@@ -799,7 +800,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     adsYGainsHrpCacheItem.SetAdsY1(GetYValue(adsYGainsItemDto.GetY1P1(), adsYGainsItemDto.GetY1P2(), adsYGainsItemDto.GetY1P3(), speedvalueItem));
                     adsYGainsHrpCacheItem.SetAdsY2(GetYValue(adsYGainsItemDto.GetY2P1(), adsYGainsItemDto.GetY2P2(), adsYGainsItemDto.GetY2P3(), speedvalueItem));
                     adsYGainsHrpCacheItem.SetAdsY3(GetYValue(adsYGainsItemDto.GetY3P1(), adsYGainsItemDto.GetY3P2(), adsYGainsItemDto.GetY3P3(), speedvalueItem));
-                    (resultTemp, var transBuffer) = await GetHrpAsync(adsYGainsHrpCacheItem).ConfigureAwait(false);
+                    (resultTemp, var transBuffer) = await GetHrpAsync(adsYGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
                     if (adsYGainsItemDto.IsPositive) SynchronizationContextProvider.Send(() => PositiveAdsYGainsHrpCacheItemList.Add(adsYGainsHrpCacheItem));
                     else SynchronizationContextProvider.Send(() => NegativeAdsYGainsHrpCacheItemList.Add(adsYGainsHrpCacheItem));
                     if (resultTemp == false) break;
@@ -807,7 +808,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             }
             catch (Exception ex)
             {
-                SetDefaultYValue();
+                SetDefaultYValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Verify Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 resultTemp = false;
@@ -869,13 +870,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         return (pointZ, pointSmoothZ, smoothZ);
     }
 
-    private async Task<(bool, List<List<double>>)> GetZ1Z2Z3CurveAsync(AdsYGainsCacheItem adsYGainsCacheItem, int repeatCount = 1)
+    private async Task<(bool, List<List<double>>)> GetZ1Z2Z3CurveAsync(AdsYGainsCacheItem adsYGainsCacheItem, CancellationToken cancellationToken, int repeatCount = 1)
     {
         var transBuffer = new List<List<double>>();
         try
         {
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            AdsViewModel.SetSensorYSpeedFeedForwardValue(Cache.IsPositive, (adsYGainsCacheItem.GetAdsY1(), adsYGainsCacheItem.GetAdsY2(), adsYGainsCacheItem.GetAdsY3()));
+            InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(Cache.IsPositive, (adsYGainsCacheItem.GetAdsY1(), adsYGainsCacheItem.GetAdsY2(), adsYGainsCacheItem.GetAdsY3())), cancellationToken);
             StageViewModel.SetYSpeedValue(adsYGainsCacheItem.SpeedYValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             Thread.Sleep(HostEnvironment.IsDevelopment() ? 1000 : 20000);
@@ -885,21 +886,21 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             StageViewModel.SetXSpeedValue(Cache.DefaultSpeedYValue);
             if (transBuffer.Count > 0) return (true, transBuffer);
             if (repeatCount > 5) return (false, transBuffer);
-            return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, repeatCount++).ConfigureAwait(false);
+            return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             if (repeatCount > 5) return (false, transBuffer);
-            return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, repeatCount++).ConfigureAwait(false);
+            return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
 
-    private async Task<(bool, List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>)> GetHrpAsync(AdsYGainsCacheItem adsYGainsItemDto, int repeatCount = 1)
+    private async Task<(bool, List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>)> GetHrpAsync(AdsYGainsCacheItem adsYGainsItemDto, CancellationToken cancellationToken, int repeatCount = 1)
     {
         try
         {
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsItemDto.IsPositive, (adsYGainsItemDto.GetAdsY1(), adsYGainsItemDto.GetAdsY2(), adsYGainsItemDto.GetAdsY3()));
+            InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsItemDto.IsPositive, (adsYGainsItemDto.GetAdsY1(), adsYGainsItemDto.GetAdsY2(), adsYGainsItemDto.GetAdsY3())), cancellationToken);
             StageViewModel.SetYSpeedValue(adsYGainsItemDto.SpeedYValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             Thread.Sleep(HostEnvironment.IsDevelopment() ? 1000 : 12000);
@@ -1004,12 +1005,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             }
             if (repeatCount > 5) return (false, transBuffer);
 
-            return await GetHrpAsync(adsYGainsItemDto, repeatCount++).ConfigureAwait(false);
+            return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
-            return await GetHrpAsync(adsYGainsItemDto, repeatCount++).ConfigureAwait(false);
+            return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
 
     }
@@ -1044,14 +1045,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         Cache.Y6 = negativeValue.Y3;
     }
 
-    private void SetDefaultYValue()
+    private void SetDefaultYValue(CancellationToken cancellationToken)
     {
         StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
-        AdsViewModel.SetSensorYSpeedFeedForwardValue(false, (Cache.Y4, Cache.Y5, Cache.Y6));
-        AdsViewModel.SetSensorYSpeedFeedForwardValue(true, (Cache.Y1, Cache.Y2, Cache.Y3));
+        InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(false, (Cache.Y4, Cache.Y5, Cache.Y6)), cancellationToken);
+        InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(true, (Cache.Y1, Cache.Y2, Cache.Y3)), cancellationToken);
     }
 
-    private void SetBestY1Y2Y3Values(AdsYGainsItemDto adsXGainsItemDto, double speedValue)
+    private void SetBestY1Y2Y3Values(AdsYGainsItemDto adsXGainsItemDto, double speedValue, CancellationToken cancellationToken)
     {
         StageViewModel.SetXSpeedValue(speedValue);
         double y1 = 0d, y2 = 0d, y3 = 0d, y4 = 0d, y5 = 0d, y6 = 0d;
@@ -1061,8 +1062,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         if (adsXGainsItemDto.NegativeY4P1 != 0) y4 = GetYValue(adsXGainsItemDto.NegativeY4P1, adsXGainsItemDto.NegativeY4P2, adsXGainsItemDto.NegativeY4P3, speedValue);
         if (adsXGainsItemDto.NegativeY5P1 != 0) y5 = GetYValue(adsXGainsItemDto.NegativeY5P1, adsXGainsItemDto.NegativeY5P2, adsXGainsItemDto.NegativeY5P3, speedValue);
         if (adsXGainsItemDto.NegativeY5P1 != 0) y6 = GetYValue(adsXGainsItemDto.NegativeY5P1, adsXGainsItemDto.NegativeY5P2, adsXGainsItemDto.NegativeY5P3, speedValue);
-        if (y1 != 0 && y2 != 0 && y3 != 0) AdsViewModel.SetSensorYSpeedFeedForwardValue(true, (y1, y2, y3));
-        if (y4 != 0 && y5 != 0 && y6 != 0) AdsViewModel.SetSensorYSpeedFeedForwardValue(false, (y4, y5, y6));
+        if (y1 != 0 && y2 != 0 && y3 != 0) InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(true, (y1, y2, y3)), cancellationToken);
+        if (y4 != 0 && y5 != 0 && y6 != 0) InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(false, (y4, y5, y6)), cancellationToken);
     }
 
     private double GetYValue(double p1, double p2, double p3, double speed)
@@ -1194,7 +1195,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         }
     }
 
-    private async Task<(int y1, int y2, int y3, double Z1, double Z2, double Z3, bool z1IsPositive, bool z2IsPositive, bool z3IsPositive)> DichotomyFindY1Y2Y3Async(bool isPositive, double speedValue, int index, int minY1, int maxY1, int minY2, int maxY2, int minY3, int maxY3)
+    private async Task<(int y1, int y2, int y3, double Z1, double Z2, double Z3, bool z1IsPositive, bool z2IsPositive, bool z3IsPositive)> DichotomyFindY1Y2Y3Async(bool isPositive, double speedValue, int index, int minY1, int maxY1, int minY2, int maxY2, int minY3, int maxY3, CancellationToken cancellationToken)
     {
         var z1IsPositive = false;
         var z2IsPositive = false;
@@ -1211,7 +1212,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         adsYGainsCacheItemTemp.SetAdsY1(x1Value);
         adsYGainsCacheItemTemp.SetAdsY2(x2Value);
         adsYGainsCacheItemTemp.SetAdsY3(x3Value);
-        var (isSuccess, transBuffer) = await GetZ1Z2Z3CurveAsync(adsYGainsCacheItemTemp).ConfigureAwait(false);
+        var (isSuccess, transBuffer) = await GetZ1Z2Z3CurveAsync(adsYGainsCacheItemTemp, cancellationToken).ConfigureAwait(false);
         if (isSuccess == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Get Hrp Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -1224,6 +1225,24 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         z2IsPositive = adsYGainsCacheItemTemp.GetZ2() <= 0;
         z3IsPositive = adsYGainsCacheItemTemp.GetZ3() <= 0;
         return (x1Value, x2Value, x3Value, adsYGainsCacheItemTemp.GetZ1(), adsYGainsCacheItemTemp.GetZ2(), adsYGainsCacheItemTemp.GetZ3(), z1IsPositive, z2IsPositive, z3IsPositive);
+    }
+
+    public void InvokeAdsService(Action action, CancellationToken cancellationToken)
+    {
+        for (var i = 0; i < 5; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                action.Invoke();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "InvokeSetValue failed, retrying {RetryCount} times", i + 1);
+            }
+        }
+        throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
     }
 
     #endregion 校准
