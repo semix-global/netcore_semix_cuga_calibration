@@ -213,6 +213,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         }
     }
 
+    protected override async Task<bool> CancelingAsync()
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+        var point = StageViewModel.BrightFieldToMachinePosition(Point.Empty);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(point);
+        return true;
+    }
     #endregion 控制校准业务
 
     #region 校准
@@ -486,6 +493,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
             return result;
         }).ConfigureAwait(false);
+        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml());
         return result;
     }
 
@@ -753,6 +761,15 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 Cache.IsPositive = isPositive;
                 var adsYGainsItemDto = selectItemDto.Clone();
                 adsYGainsItemDto.IsPositive = Cache.IsPositive;
+
+                // 下发与校准方向相反的，默认移动速度下的合适前馈，防止快速移动时不合适的前馈导致stage无法停稳就继续监测buffer带来的误差
+                var negativeDto = selectItemDto.Clone();
+                negativeDto.IsPositive = !isPositive;
+                var y1 = GetYValue(negativeDto.GetY1P1(), negativeDto.GetY1P2(), negativeDto.GetY1P3(), Cache.DefaultSpeedYValue);
+                var y2 = GetYValue(negativeDto.GetY2P1(), negativeDto.GetY2P2(), negativeDto.GetY2P3(), Cache.DefaultSpeedYValue);
+                var y3 = GetYValue(negativeDto.GetY3P1(), negativeDto.GetY3P2(), negativeDto.GetY3P3(), Cache.DefaultSpeedYValue);
+                AdsViewModel.SetSensorYSpeedFeedForwardValue(negativeDto.IsPositive, (y1, y2, y3));
+
                 var index = 0;
                 if (isPositive)
                     Logger.LogHtmlInformation("Positive", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -875,21 +892,24 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         var transBuffer = new List<List<double>>();
         try
         {
+            StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(Cache.IsPositive, (adsYGainsCacheItem.GetAdsY1(), adsYGainsCacheItem.GetAdsY2(), adsYGainsCacheItem.GetAdsY3())), cancellationToken);
             StageViewModel.SetYSpeedValue(adsYGainsCacheItem.SpeedYValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            Thread.Sleep(HostEnvironment.IsDevelopment() ? 1000 : 20000);
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             transBuffer = await task.ConfigureAwait(false);
-            StageViewModel.SetXSpeedValue(Cache.DefaultSpeedYValue);
+            //StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
             if (transBuffer.Count > 0) return (true, transBuffer);
             if (repeatCount > 5) return (false, transBuffer);
             return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
+            if (ex is OperationCanceledException) throw;
             if (repeatCount > 5) return (false, transBuffer);
             return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
@@ -899,12 +919,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         try
         {
+            StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsItemDto.IsPositive, (adsYGainsItemDto.GetAdsY1(), adsYGainsItemDto.GetAdsY2(), adsYGainsItemDto.GetAdsY3())), cancellationToken);
             StageViewModel.SetYSpeedValue(adsYGainsItemDto.SpeedYValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            Thread.Sleep(HostEnvironment.IsDevelopment() ? 1000 : 12000);
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             var transBuffer = await task.ConfigureAwait(false);
             StageViewModel.SetXSpeedValue(Cache.DefaultSpeedYValue);
@@ -912,25 +934,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             {
                 var YSpeedList = transBuffer.Select(t => t.ySpeed).ToList();
                 if (YSpeedList.Count == 0 && YSpeedList is null) return (false, transBuffer);
-                var ySpeedStartIndex = 0;
-                var ySpeedEndIndex = 0;
-                foreach (var (itemSpeed, index) in YSpeedList.Select((t, index) => (t, index)))
-                {
-                    if (Math.Round(itemSpeed / adsYGainsItemDto.SpeedYValue, 2) > 0.5)
-                    {
-                        ySpeedStartIndex = index;
-                        break;
-                    }
-                }
-                YSpeedList.Reverse();
-                foreach (var (itemSpeed, index) in YSpeedList.Select((t, index) => (t, index)))
-                {
-                    if (Math.Round(itemSpeed / adsYGainsItemDto.SpeedYValue, 2) > 0.5)
-                    {
-                        ySpeedEndIndex = index;
-                        break;
-                    }
-                }
+
+                var speedChangedList = YSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsYGainsItemDto.SpeedYValue, 2) > 0.5);
+                var ySpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
+                var ySpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
+
                 var heightList = transBuffer.Select(t => t.Height).Skip(ySpeedStartIndex).SkipLast(ySpeedEndIndex).ToList();
                 var rollList = transBuffer.Select(t => t.Roll).Skip(ySpeedStartIndex).SkipLast(ySpeedEndIndex).ToList();
                 var pitchList = transBuffer.Select(t => t.Pitch).Skip(ySpeedStartIndex).SkipLast(ySpeedEndIndex).ToList();
@@ -963,6 +971,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             Y1 = adsYGainsItemDto.GetAdsY1(),
                             Y2 = adsYGainsItemDto.GetAdsY2(),
                             Y3 = adsYGainsItemDto.GetAdsY3(),
+                            ySpeedStartIndex,
+                            ySpeedEndIndex,
                             PlotHrp = new HtmlPlot2DLinesChart([
                                 ("H", adsYGainsItemDto.GetPlotH().ToPoints()),
                         ("P", adsYGainsItemDto.GetPlotP().ToPoints()),
@@ -1009,6 +1019,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         }
         catch (Exception ex)
         {
+            if (ex is OperationCanceledException) throw;
             if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
             return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
@@ -1081,26 +1092,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         var YSpeedList = transBuffer[7];
         if (YSpeedList.Count == 0 && YSpeedList is null) return;
-        var ySpeedStartIndex = 0;
-        var ySpeedEndIndex = 0;
-        foreach (var (itemSpeed, index) in YSpeedList.Select((t, index) => (t, index)))
-        {
-            if (Math.Round(itemSpeed / adsYGainsCacheItem.SpeedYValue, 2) > 0.5)
-            {
-                ySpeedStartIndex = index;
-                break;
-            }
-        }
-        YSpeedList.Reverse();
-        foreach (var (itemSpeed, index) in YSpeedList.Select((t, index) => (t, index)))
-        {
-            if (Math.Round(itemSpeed / adsYGainsCacheItem.SpeedYValue, 2) > 0.5)
-            {
-                ySpeedEndIndex = index;
-                break;
-            }
-        }
-        if (ySpeedStartIndex == 0) ySpeedStartIndex = 1;
+
+        var speedChangedList = YSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsYGainsCacheItem.SpeedYValue, 2) > 0.5);
+        var ySpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
+        var ySpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
+
         var z1List = transBuffer[0].SkipLast(ySpeedEndIndex).ToList();
         var z2List = transBuffer[1].SkipLast(ySpeedEndIndex).ToList();
         var z3List = transBuffer[2].SkipLast(ySpeedEndIndex).ToList();
@@ -1159,11 +1155,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 HeightMax = heightMax,
                 RollMax = rollMax,
                 PitchMax = pitchMax,
+                ySpeedStartIndex,
+                ySpeedEndIndex,
                 PlotZ1Z2Z3 = new HtmlPlot2DLinesChart([
                     ("Z1", adsYGainsCacheItem.GetPlotZ1().ToPoints()), ("smoothZ1", adsYGainsCacheItem.GetSmoothPlotZ1().ToPoints()),
                     ("Z2", adsYGainsCacheItem.GetPlotZ2().ToPoints()), ("smoothZ2", adsYGainsCacheItem.GetSmoothPlotZ2().ToPoints()),
-                    ("Z3", adsYGainsCacheItem.GetPlotZ3().ToPoints()), ("smoothZ3", adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints())
-                ], "PlotZ1Z2Z3"),
+                    ("Z3", adsYGainsCacheItem.GetPlotZ3().ToPoints()), ("smoothZ3", adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints()),
+                    ("Y Speed", YSpeedList.ToPoints())
+                    ], "PlotZ1Z2Z3"),
                 PlotHRP = new HtmlPlot2DLinesChart([("H", transBuffer[3].ToPoints()), ("R", transBuffer[4].ToPoints()), ("P", transBuffer[5].ToPoints())], "PlotHRP")
             }), HtmlLogUniqueId.LoggingHtml());
         }

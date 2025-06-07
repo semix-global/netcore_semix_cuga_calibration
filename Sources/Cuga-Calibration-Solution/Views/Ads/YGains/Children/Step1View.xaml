@@ -240,6 +240,15 @@
                                 <GridViewColumn Width="80"
                                                 Header="Z3"
                                                 DisplayMemberBinding="{Binding PositiveZ3, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="80"
+                                                Header="H"
+                                                DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="80"
+                                                Header="P"
+                                                DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="80"
+                                                Header="R"
+                                                DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -314,6 +323,15 @@
                                 <GridViewColumn Width="80"
                                                 Header="Z6"
                                                 DisplayMemberBinding="{Binding NegativeZ6, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="80"
+                                                Header="H"
+                                                DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="80"
+                                                Header="P"
+                                                DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="80"
+                                                Header="R"
+                                                DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
                             </GridView>
                         </ListView.View>
                     </ListView>

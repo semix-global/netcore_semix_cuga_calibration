@@ -740,11 +740,11 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 var adsXGainsItemDto = selectItemDto.Clone();
                 adsXGainsItemDto.IsPositive = Cache.IsPositive;
 
-                // 下发默认速度下合适的前馈
-                var negativeDto= selectItemDto.Clone();
+                // 下发与校准方向相反的，默认移动速度下的合适前馈，防止快速移动时不合适的前馈导致stage无法停稳就继续监测buffer带来的误差
+                var negativeDto = selectItemDto.Clone();
                 negativeDto.IsPositive = !isPositive;
-                var x1=GetXValue(negativeDto.GetX1P1(), negativeDto.GetX1P2(), negativeDto.GetX1P3(), Cache.DefaultSpeedXValue);
-                var x2=GetXValue(negativeDto.GetX2P1(), negativeDto.GetX2P2(), negativeDto.GetX2P3(), Cache.DefaultSpeedXValue);
+                var x1 = GetXValue(negativeDto.GetX1P1(), negativeDto.GetX1P2(), negativeDto.GetX1P3(), Cache.DefaultSpeedXValue);
+                var x2 = GetXValue(negativeDto.GetX2P1(), negativeDto.GetX2P2(), negativeDto.GetX2P3(), Cache.DefaultSpeedXValue);
                 AdsViewModel.SetSensorXSpeedFeedForwardValue(negativeDto.IsPositive, (x1, x2));
 
                 var index = 0;
@@ -847,11 +847,12 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         var transBuffer = new List<List<double>>();
         try
         {
+            StageViewModel.SetXSpeedValue(Cache.DefaultSpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(adsXGainsCacheItem.IsPositive, (adsXGainsCacheItem.GetX1(), adsXGainsCacheItem.GetX2())), cancellationToken);
             StageViewModel.SetXSpeedValue(adsXGainsCacheItem.SpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 20000, cancellationToken);
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 30000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
@@ -872,12 +873,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         try
         {
+            StageViewModel.SetXSpeedValue(Cache.DefaultSpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(Cache.IsPositive, (adsXGainsHrpCacheItem.GetX1(), adsXGainsHrpCacheItem.GetX2())), cancellationToken);
             StageViewModel.SetXSpeedValue(adsXGainsHrpCacheItem.SpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 30000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             var transBuffer = await task.ConfigureAwait(false);
             StageViewModel.SetXSpeedValue(Cache.SpeedXValueList.First());
@@ -885,25 +888,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             {
                 var XSpeedList = transBuffer.Select(t => t.xSpeed).ToList();
                 if (XSpeedList.Count == 0 && XSpeedList is null) return (false, transBuffer);
-                var xSpeedStartIndex = 0;
-                var xSpeedEndIndex = 0;
-                foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
-                {
-                    if (Math.Round(itemSpeed / adsXGainsHrpCacheItem.SpeedXValue, 2) > 0.5)
-                    {
-                        xSpeedStartIndex = index;
-                        break;
-                    }
-                }
-                XSpeedList.Reverse();
-                foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
-                {
-                    if (Math.Round(itemSpeed / adsXGainsHrpCacheItem.SpeedXValue, 2) > 0.5)
-                    {
-                        xSpeedEndIndex = index;
-                        break;
-                    }
-                }
+                var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsHrpCacheItem.SpeedXValue, 2) > 0.5);
+                var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
+                var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
 
                 var heightList = transBuffer.Select(t => t.Height).SkipLast(xSpeedEndIndex).ToList();
                 var rollList = transBuffer.Select(t => t.Roll).SkipLast(xSpeedEndIndex).ToList();
@@ -966,6 +953,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         }
         catch (Exception ex)
         {
+            if (ex is OperationCanceledException) throw;
             if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
             return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
@@ -1007,24 +995,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsCacheItem.SpeedXValue, 2) > 0.5);
         var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
         var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
-        //foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
-        //{
-        //    if (Math.Round(itemSpeed / adsXGainsCacheItem.SpeedXValue, 2) > 0.5)
-        //    {
-        //        xSpeedStartIndex = index;
-        //        break;
-        //    }
-        //}
-        //XSpeedList.Reverse();
-        //foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
-        //{
-        //    if (Math.Round(itemSpeed / adsXGainsCacheItem.SpeedXValue, 2) > 0.5)
-        //    {
-        //        xSpeedEndIndex = index;
-        //        break;
-        //    }
-        //}
-        //if (xSpeedStartIndex == 0) xSpeedStartIndex = 1;
+
         adsXGainsCacheItem.SetPlotZ1(transBuffer[0].SkipLast(xSpeedEndIndex).ToList());
         adsXGainsCacheItem.SetPlotZ2(transBuffer[1].SkipLast(xSpeedEndIndex).ToList());
         var (pointZ1, pointSmoothZ1, smoothZ1) = GetadsXGainsValue(adsXGainsCacheItem.GetPlotZ1(), xSpeedStartIndex);
