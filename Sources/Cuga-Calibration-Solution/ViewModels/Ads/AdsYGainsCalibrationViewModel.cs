@@ -1100,6 +1100,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 break;
             }
         }
+        if (ySpeedStartIndex == 0) ySpeedStartIndex = 1;
         var z1List = transBuffer[0].SkipLast(ySpeedEndIndex).ToList();
         var z2List = transBuffer[1].SkipLast(ySpeedEndIndex).ToList();
         var z3List = transBuffer[2].SkipLast(ySpeedEndIndex).ToList();

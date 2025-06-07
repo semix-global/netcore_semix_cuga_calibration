@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -35,6 +35,9 @@
         <Reference Include="halcondotnetxl">
             <HintPath>..\..\Dependencies\Halcon\halcondotnetxl.dll</HintPath>
         </Reference>
+		<Reference Include="HAlgorithm">
+			<HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
+		</Reference>
     </ItemGroup>
 
     <ItemGroup>
