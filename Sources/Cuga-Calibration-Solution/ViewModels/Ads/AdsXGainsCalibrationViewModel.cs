@@ -217,6 +217,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         }
     }
 
+    protected override async Task<bool> CancelingAsync()
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+        var point = StageViewModel.BrightFieldToMachinePosition(Point.Empty);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(point);
+        return true;
+    }
+
     #endregion 控制校准业务
 
     #region 校准
@@ -499,6 +507,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
             return result;
         }).ConfigureAwait(false);
+        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml());
         return result;
     }
 
@@ -730,6 +739,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 Cache.IsPositive = isPositive;
                 var adsXGainsItemDto = selectItemDto.Clone();
                 adsXGainsItemDto.IsPositive = Cache.IsPositive;
+
+                // 下发默认速度下合适的前馈
+                var negativeDto= selectItemDto.Clone();
+                negativeDto.IsPositive = !isPositive;
+                var x1=GetXValue(negativeDto.GetX1P1(), negativeDto.GetX1P2(), negativeDto.GetX1P3(), Cache.DefaultSpeedXValue);
+                var x2=GetXValue(negativeDto.GetX2P1(), negativeDto.GetX2P2(), negativeDto.GetX2P3(), Cache.DefaultSpeedXValue);
+                AdsViewModel.SetSensorXSpeedFeedForwardValue(negativeDto.IsPositive, (x1, x2));
+
                 var index = 0;
                 if (isPositive)
                     Logger.LogHtmlInformation("Positive", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -834,8 +851,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(adsXGainsCacheItem.IsPositive, (adsXGainsCacheItem.GetX1(), adsXGainsCacheItem.GetX2())), cancellationToken);
             StageViewModel.SetXSpeedValue(adsXGainsCacheItem.SpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            Thread.Sleep(HostEnvironment.IsDevelopment() ? 100 : 20000);
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 20000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             transBuffer = await task.ConfigureAwait(false);
             StageViewModel.SetXSpeedValue(Cache.SpeedXValueList.First());
@@ -845,6 +863,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         }
         catch (Exception ex)
         {
+            if (ex is OperationCanceledException) throw;
             if (repeatCount > 5) return (false, transBuffer);
             return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
@@ -857,7 +876,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(Cache.IsPositive, (adsXGainsHrpCacheItem.GetX1(), adsXGainsHrpCacheItem.GetX2())), cancellationToken);
             StageViewModel.SetXSpeedValue(adsXGainsHrpCacheItem.SpeedXValue);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
-            Thread.Sleep(HostEnvironment.IsDevelopment() ? 100 : 12000);
+            await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 30000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             var transBuffer = await task.ConfigureAwait(false);
@@ -985,25 +1004,27 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         var XSpeedList = transBuffer[6];
         if (XSpeedList.Count == 0 && transBuffer is null) return;
-        var xSpeedStartIndex = 0;
-        var xSpeedEndIndex = 0;
-        foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
-        {
-            if (Math.Round(itemSpeed / adsXGainsCacheItem.SpeedXValue, 2) > 0.5)
-            {
-                xSpeedStartIndex = index;
-                break;
-            }
-        }
-        XSpeedList.Reverse();
-        foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
-        {
-            if (Math.Round(itemSpeed / adsXGainsCacheItem.SpeedXValue, 2) > 0.5)
-            {
-                xSpeedEndIndex = index;
-                break;
-            }
-        }
+        var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsCacheItem.SpeedXValue, 2) > 0.5);
+        var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
+        var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
+        //foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
+        //{
+        //    if (Math.Round(itemSpeed / adsXGainsCacheItem.SpeedXValue, 2) > 0.5)
+        //    {
+        //        xSpeedStartIndex = index;
+        //        break;
+        //    }
+        //}
+        //XSpeedList.Reverse();
+        //foreach (var (itemSpeed, index) in XSpeedList.Select((t, index) => (t, index)))
+        //{
+        //    if (Math.Round(itemSpeed / adsXGainsCacheItem.SpeedXValue, 2) > 0.5)
+        //    {
+        //        xSpeedEndIndex = index;
+        //        break;
+        //    }
+        //}
+        //if (xSpeedStartIndex == 0) xSpeedStartIndex = 1;
         adsXGainsCacheItem.SetPlotZ1(transBuffer[0].SkipLast(xSpeedEndIndex).ToList());
         adsXGainsCacheItem.SetPlotZ2(transBuffer[1].SkipLast(xSpeedEndIndex).ToList());
         var (pointZ1, pointSmoothZ1, smoothZ1) = GetadsXGainsValue(adsXGainsCacheItem.GetPlotZ1(), xSpeedStartIndex);
@@ -1047,9 +1068,12 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 HeightMax = heightMax,
                 RollMax = rollMax,
                 PitchMax = pitchMax,
+                xSpeedStartIndex,
+                xSpeedEndIndex,
                 PlotZ1Z2 = new HtmlPlot2DLinesChart([
-                    ("Z1", adsXGainsCacheItem.GetPlotZ1().ToPoints()), ("smoothZ1", adsXGainsCacheItem.GetSmoothPlotZ1().ToPoints()),
-                    ("Z2", adsXGainsCacheItem.GetPlotZ2().ToPoints()), ("smoothZ2", adsXGainsCacheItem.GetSmoothPlotZ2().ToPoints())
+                    ("Z1", transBuffer[0].ToPoints()), ("smoothZ1", adsXGainsCacheItem.GetSmoothPlotZ1().ToPoints()),
+                    ("Z2", transBuffer[1].ToPoints()), ("smoothZ2", adsXGainsCacheItem.GetSmoothPlotZ2().ToPoints()),
+                    ("X Speed", XSpeedList.ToPoints())
                 ], "PlotZ1Z2"),
                 PlotHRP = new HtmlPlot2DLinesChart([("H", heightList.ToPoints()), ("R", rollList.ToPoints()), ("P", pitchList.ToPoints())], "PlotHRP")
             }), HtmlLogUniqueId.LoggingHtml());
