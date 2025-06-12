@@ -506,8 +506,10 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
                 logger.LogError(ex, "InvokeSetValue failed, retrying {RetryCount} times", i + 1);
             }
         }
+
         throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
     }
+
     #endregion 诊断业务
 
     #region 文件读写

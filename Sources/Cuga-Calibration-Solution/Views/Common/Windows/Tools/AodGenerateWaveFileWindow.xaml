@@ -268,8 +268,8 @@
                                                      hc:TitleElement.TitleWidth="240"
                                                      Style="{StaticResource TextBoxExtend}" />
                                             <Slider VerticalAlignment="Center"
-                                                    Minimum="-0.0001"
-                                                    Maximum="0.0001"
+                                                    Minimum="-100"
+                                                    Maximum="100"
                                                     Value="{Binding GenerateChirpAodWaveParamDto.AstigmatismCompensationCoefficient}" />
                                             <TextBox Text="{Binding GenerateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                      hc:InfoElement.Title="Spherical Aberration Compensation: "
@@ -277,8 +277,8 @@
                                                      hc:TitleElement.TitleWidth="240"
                                                      Style="{StaticResource TextBoxExtend}" />
                                             <Slider VerticalAlignment="Center"
-                                                    Minimum="-0.0000001"
-                                                    Maximum="0.0000001"
+                                                    Minimum="-100"
+                                                    Maximum="100"
                                                     Value="{Binding GenerateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient}" />
                                             <TextBox Text="{Binding GenerateChirpAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                      hc:InfoElement.Title="Secondary Astigmatism Compensation: "
@@ -286,8 +286,8 @@
                                                      hc:TitleElement.TitleWidth="240"
                                                      Style="{StaticResource TextBoxExtend}" />
                                             <Slider VerticalAlignment="Center"
-                                                    Minimum="-0.000000001"
-                                                    Maximum="0.000000001"
+                                                    Minimum="-100"
+                                                    Maximum="100"
                                                     Value="{Binding GenerateChirpAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient}" />
                                             <TextBox Text="{Binding GenerateChirpAodWaveParamDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                      hc:InfoElement.Title="Coma Compensation: "
@@ -339,15 +339,15 @@
                                 </GroupBox>
                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.FrequencyCompensationsFilePath}"
+                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.FrequencyAmplitudesFilePath}"
                                                  Height="20"
                                                  TextWrapping="Wrap"
                                                  hc:TitleElement.TitleWidth="200"
-                                                 hc:InfoElement.Title="Frequency Compensations File:"
+                                                 hc:InfoElement.Title="Frequency Amplitudes File:"
                                                  hc:InfoElement.TitlePlacement="Left"
                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <Button Content="Change Frequency Compensations" Command="{Binding ChangeFrequencyCompensationsFilePathCommand}" />
+                                        <Button Content="Change Frequency Amplitudes" Command="{Binding ChangeChirpAodWaveFrequencyCompensationsFilePathCommand}" />
                                         <Button Content="Generate" Command="{Binding GenerateChirpAodWaveFileCommand}" />
                                         <TextBox Text="{Binding ChirpAodWaveFilePath}"
                                                  Height="20"
@@ -554,8 +554,8 @@
                                                      hc:TitleElement.TitleWidth="240"
                                                      Style="{StaticResource TextBoxExtend}" />
                                             <Slider VerticalAlignment="Center"
-                                                    Minimum="-0.0001"
-                                                    Maximum="0.0001"
+                                                    Minimum="-100"
+                                                    Maximum="100"
                                                     Value="{Binding GeneratePrescanAodWaveParamDto.AstigmatismCompensationCoefficient}" />
                                             <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                      hc:InfoElement.Title="Spherical Aberration Compensation: "
@@ -563,8 +563,8 @@
                                                      hc:TitleElement.TitleWidth="240"
                                                      Style="{StaticResource TextBoxExtend}" />
                                             <Slider VerticalAlignment="Center"
-                                                    Minimum="-0.0000001"
-                                                    Maximum="0.0000001"
+                                                    Minimum="-100"
+                                                    Maximum="100"
                                                     Value="{Binding GeneratePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient}" />
                                             <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                      hc:InfoElement.Title="Secondary Astigmatism Compensation: "
@@ -572,8 +572,8 @@
                                                      hc:TitleElement.TitleWidth="240"
                                                      Style="{StaticResource TextBoxExtend}" />
                                             <Slider VerticalAlignment="Center"
-                                                    Minimum="-0.000000001"
-                                                    Maximum="0.000000001"
+                                                    Minimum="-100"
+                                                    Maximum="100"
                                                     Value="{Binding GeneratePrescanAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient}" />
                                             <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                      hc:InfoElement.Title="Coma Compensation: "
@@ -625,6 +625,15 @@
                                 </GroupBox>
                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.FrequencyAmplitudesFilePath}"
+                                                 Height="20"
+                                                 TextWrapping="Wrap"
+                                                 hc:TitleElement.TitleWidth="200"
+                                                 hc:InfoElement.Title="Frequency Amplitudes File:"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <Button Content="Change Frequency Amplitudes" Command="{Binding ChangePrescanAodWaveFrequencyCompensationsFilePathCommand}" />
                                         <Button Content="Generate" Command="{Binding GeneratePrescanAodWaveFileCommand}" />
                                         <TextBox Text="{Binding PrescanAodWaveFilePath}"
                                                  Height="50"
@@ -662,17 +671,17 @@
                                 </Grid.ColumnDefinitions>
                                 <wpf:WpfPlot Grid.Column="0">
                                     <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Signals" Plot0="{Binding AodWaveSignals}" />
+                                        <behaviors:WpfPlotMultiBehavior Title="Time Domain Signal" Plot0="{Binding AodWaveSignals}" />
                                     </i:Interaction.Behaviors>
                                 </wpf:WpfPlot>
                                 <wpf:WpfPlot Grid.Column="1">
                                     <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Fouriers" Plot0="{Binding AodWaveSignalsFourier}" />
+                                        <behaviors:WpfPlotMultiBehavior Title="Spectrum Analysis" Plot0="{Binding AodWaveSignalsFourier}" />
                                     </i:Interaction.Behaviors>
                                 </wpf:WpfPlot>
                                 <wpf:WpfPlot Grid.Column="2">
                                     <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Sinc" Plot0="{Binding AodWaveSignalsSinc}" />
+                                        <behaviors:WpfPlotMultiBehavior Title="Dynamic Frequency Amplitude Profile" Plot0="{Binding AodWaveFrequencyAmplitudes}" />
                                     </i:Interaction.Behaviors>
                                 </wpf:WpfPlot>
                             </Grid>
@@ -682,94 +691,31 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <wpf:WpfPlot Grid.Column="0">
                                     <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Linear" Plot0="{Binding AodWaveFlatnessLinearFrequencySignals}" />
+                                        <behaviors:WpfPlotMultiBehavior Title="Frequency Compensation Components"
+                                                                        Plot0="{Binding AodWaveFlatnessLinearFrequencySignals}"
+                                                                        Plot0Title="Liner"
+                                                                        Plot1="{Binding AodWaveFlatnessAstigmatismCompensationSignals}"
+                                                                        Plot1Title="Astigmatism"
+                                                                        Plot2="{Binding AodWaveFlatnessSphericalAberrationCompensationSignals}"
+                                                                        Plot2Title="Spherical Aberration"
+                                                                        Plot3="{Binding AodWaveFlatnessSecondaryAstigmatismCompensationSignals}"
+                                                                        Plot3Title="Secondary Astigmatism"
+                                                                        Plot4="{Binding AodWaveFlatnessComaCompensationSignals}"
+                                                                        Plot4Title="Coma"
+                                                                        Plot5="{Binding AodWaveFlatnessTrefoilCompensationSignals}"
+                                                                        Plot5Title="Trefoil"
+                                                                        Plot6="{Binding AodWaveFlatnessQuadrafoilCompensationSignals}"
+                                                                        Plot6Title="Quadrafoil"
+                                                                        Plot7="{Binding AodWaveFlatnessAlphaOrderCompensationSignals}"
+                                                                        Plot7Title="Alpha Order" />
                                     </i:Interaction.Behaviors>
                                 </wpf:WpfPlot>
                                 <wpf:WpfPlot Grid.Column="1">
                                     <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="NonLinear" Plot0="{Binding AodWaveFlatnessNonLinearFrequencySignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Column="2">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Linear + NonLinear" Plot0="{Binding AodWaveFlatnessTotalFrequencySignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="Linear, NonLinear Compensation">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <wpf:WpfPlot Grid.Column="0">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Linear" Plot0="{Binding AodWaveFlatnessLinearCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Column="1">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="NonLinear" Plot0="{Binding AodWaveFlatnessNonlinearCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Column="2">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Linear + NonLinear" Plot0="{Binding AodWaveFlatnessTotalCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="NonLinear Details Compensation">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <wpf:WpfPlot Grid.Row="0" Grid.Column="0">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Astigmatism" Plot0="{Binding AodWaveFlatnessAstigmatismCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Row="0" Grid.Column="1">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Spherical Aberration" Plot0="{Binding AodWaveFlatnessSphericalAberrationCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Row="0" Grid.Column="2">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Secondary Astigmatism" Plot0="{Binding AodWaveFlatnessSecondaryAstigmatismCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Row="1" Grid.Column="0">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Coma" Plot0="{Binding AodWaveFlatnessComaCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Row="1" Grid.Column="1">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Trefoil" Plot0="{Binding AodWaveFlatnessTrefoilCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Row="1" Grid.Column="2">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Quadrafoil" Plot0="{Binding AodWaveFlatnessQuadrafoilCompensationSignals}" />
-                                    </i:Interaction.Behaviors>
-                                </wpf:WpfPlot>
-                                <wpf:WpfPlot Grid.Row="2" Grid.Column="0">
-                                    <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Title="Quadrafoil" Plot0="{Binding AodWaveFlatnessAlphaOrderCompensationSignals}" />
+                                        <behaviors:WpfPlotMultiBehavior Title="Synthesized Frequency Profile" Plot0="{Binding AodWaveFlatnessTotalFrequencySignals}" />
                                     </i:Interaction.Behaviors>
                                 </wpf:WpfPlot>
                             </Grid>

@@ -6,7 +6,4 @@ public sealed partial class GenerateChirpAodWaveParamDto : GenerateAodWaveParamB
 {
     [ObservableProperty]
     private double _soundPackageLength = 3.2;
-
-    [ObservableProperty]
-    private string _frequencyCompensationsFilePath = string.Empty;
 }

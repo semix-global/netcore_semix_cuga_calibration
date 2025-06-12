@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.DarkField;
-using MiniExcelLibs;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithm.MathNet.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -15,7 +15,8 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 [IOCAppService(ServiceType = typeof(AodGenerateWaveFileWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class AodGenerateWaveFileWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
-    LaserViewModel laserViewModel) : ViewModelBase
+    LaserViewModel laserViewModel,
+    ILogger<AodGenerateWaveFileWindowViewModel> logger) : ViewModelBase
 {
     [ObservableProperty]
     private GenerateChirpAodWaveParamDto _generateChirpAodWaveParamDto = new();
@@ -33,13 +34,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
     private Point[] _aodWaveFlatnessLinearFrequencySignals = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveFlatnessNonLinearFrequencySignals = [];
-
-    [ObservableProperty]
     private Point[] _aodWaveFlatnessTotalFrequencySignals = [];
-
-    [ObservableProperty]
-    private Point[] _aodWaveFlatnessLinearCompensationSignals = [];
 
     [ObservableProperty]
     private Point[] _aodWaveFlatnessAstigmatismCompensationSignals = [];
@@ -63,19 +58,13 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
     private Point[] _aodWaveFlatnessAlphaOrderCompensationSignals = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveFlatnessNonlinearCompensationSignals = [];
-
-    [ObservableProperty]
-    private Point[] _aodWaveFlatnessTotalCompensationSignals = [];
-
-    [ObservableProperty]
     private Point[] _aodWaveSignals = [];
 
     [ObservableProperty]
     private Point[] _aodWaveSignalsFourier = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveSignalsSinc = [];
+    private Point[] _aodWaveFrequencyAmplitudes = [];
 
     #region Chirp Aod
 
@@ -89,12 +78,12 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
     }
 
     [RelayCommand]
-    private void ChangeFrequencyCompensationsFilePath()
+    private void ChangeChirpAodWaveFrequencyCompensationsFilePath()
     {
         var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
         if (dialog == false) return;
 
-        GenerateChirpAodWaveParamDto.FrequencyCompensationsFilePath = filePath;
+        GenerateChirpAodWaveParamDto.FrequencyAmplitudesFilePath = filePath;
     }
 
     [RelayCommand]
@@ -107,18 +96,9 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 ChirpAodWaveFilePath = string.Empty;
                 Clear();
 
-                Point[]? frequencyCompensations = null;
-                if (string.IsNullOrWhiteSpace(GenerateChirpAodWaveParamDto.FrequencyCompensationsFilePath) == false)
-                {
-                    frequencyCompensations = [.. MiniExcel.Query<AodPowerUniformityItemDto>(GenerateChirpAodWaveParamDto.FrequencyCompensationsFilePath).Select(t => new Point(t.CenterFrequency, t.Coefficient))];
-                }
-
-                var (isSuccess,
-                    aodWaveFilePath,
+                var (aodWaveFilePath,
                     aodWaveFlatnessLinearFrequencySignals,
-                    aodWaveFlatnessNonLinearFrequencySignals,
                     aodWaveFlatnessTotalFrequencySignals,
-                    aodWaveFlatnessLinearCompensationSignals,
                     aodWaveFlatnessAstigmatismCompensationSignals,
                     aodWaveFlatnessSphericalAberrationCompensationSignals,
                     aodWaveFlatnessSecondaryAstigmatismCompensationSignals,
@@ -126,12 +106,9 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveFlatnessTrefoilCompensationSignals,
                     aodWaveFlatnessQuadrafoilCompensationSignals,
                     aodWaveFlatnessAlphaOrderCompensationSignals,
-                    aodWaveFlatnessNonlinearCompensationSignals,
-                    aodWaveFlatnessTotalCompensationSignals,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    aodWaveSignalsSinc,
-                    exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                    aodWaveFrequencyAmplitudes) = AodWaveGenerator.GenerateChirpAodWaveFile(
                     GenerateChirpAodWaveParamDto.BandWidth,
                     GenerateChirpAodWaveParamDto.CenterFrequency,
                     GenerateChirpAodWaveParamDto.SoundPackageLength,
@@ -150,14 +127,12 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     quadrafoilCompensationCoefficient: GenerateChirpAodWaveParamDto.QuadrafoilCompensationCoefficient,
                     alphaOrder: GenerateChirpAodWaveParamDto.AlphaOrder,
                     alphaOrderCoefficient: GenerateChirpAodWaveParamDto.AlphaOrderCoefficient,
-                    frequencyCompensations: frequencyCompensations,
+                    frequencyAmplitudes: GenerateChirpAodWaveParamDto.FrequencyAmplitudes,
                     generateRetryTimes: GenerateChirpAodWaveParamDto.GenerateRetryTimes);
 
                 ChirpAodWaveFilePath = aodWaveFilePath;
                 AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;
-                AodWaveFlatnessNonLinearFrequencySignals = aodWaveFlatnessNonLinearFrequencySignals;
                 AodWaveFlatnessTotalFrequencySignals = aodWaveFlatnessTotalFrequencySignals;
-                AodWaveFlatnessLinearCompensationSignals = aodWaveFlatnessLinearCompensationSignals;
                 AodWaveFlatnessAstigmatismCompensationSignals = aodWaveFlatnessAstigmatismCompensationSignals;
                 AodWaveFlatnessSphericalAberrationCompensationSignals = aodWaveFlatnessSphericalAberrationCompensationSignals;
                 AodWaveFlatnessSecondaryAstigmatismCompensationSignals = aodWaveFlatnessSecondaryAstigmatismCompensationSignals;
@@ -165,20 +140,15 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 AodWaveFlatnessTrefoilCompensationSignals = aodWaveFlatnessTrefoilCompensationSignals;
                 AodWaveFlatnessQuadrafoilCompensationSignals = aodWaveFlatnessQuadrafoilCompensationSignals;
                 AodWaveFlatnessAlphaOrderCompensationSignals = aodWaveFlatnessAlphaOrderCompensationSignals;
-                AodWaveFlatnessNonlinearCompensationSignals = aodWaveFlatnessNonlinearCompensationSignals;
-                AodWaveFlatnessTotalCompensationSignals = aodWaveFlatnessTotalCompensationSignals;
                 AodWaveSignals = aodWaveSignals;
                 AodWaveSignalsFourier = aodWaveSignalsFourier;
-                AodWaveSignalsSinc = aodWaveSignalsSinc;
+                AodWaveFrequencyAmplitudes = aodWaveFrequencyAmplitudes;
 
-                dialogWindowProvider.ShowDialog(isSuccess
-                    ? "Generate Chirp Aod Wave File Success!"
-                    : $"""
-                       Generate Chirp Aod Wave File Success!
-                       """, DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog("Generate Chirp Aod Wave File Success!");
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Generate Chirp Aod Wave File Failed!");
                 dialogWindowProvider.ShowDialog($"""
                                                  Generate Chirp Aod Wave File Failed!
                                                  {ex}
@@ -229,6 +199,15 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
     }
 
     [RelayCommand]
+    private void ChangePrescanAodWaveFrequencyCompensationsFilePath()
+    {
+        var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
+        if (dialog == false) return;
+
+        GeneratePrescanAodWaveParamDto.FrequencyAmplitudesFilePath = filePath;
+    }
+
+    [RelayCommand]
     private async Task GeneratePrescanAodWaveFileAsync()
     {
         await Task.Run(() =>
@@ -238,12 +217,9 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 PrescanAodWaveFilePath = string.Empty;
                 Clear();
 
-                var (isSuccess,
-                    aodWaveFilePath,
+                var (aodWaveFilePath,
                     aodWaveFlatnessLinearFrequencySignals,
-                    aodWaveFlatnessNonLinearFrequencySignals,
                     aodWaveFlatnessTotalFrequencySignals,
-                    aodWaveFlatnessLinearCompensationSignals,
                     aodWaveFlatnessAstigmatismCompensationSignals,
                     aodWaveFlatnessSphericalAberrationCompensationSignals,
                     aodWaveFlatnessSecondaryAstigmatismCompensationSignals,
@@ -251,12 +227,9 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveFlatnessTrefoilCompensationSignals,
                     aodWaveFlatnessQuadrafoilCompensationSignals,
                     aodWaveFlatnessAlphaOrderCompensationSignals,
-                    aodWaveFlatnessNonlinearCompensationSignals,
-                    aodWaveFlatnessTotalCompensationSignals,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    aodWaveSignalsSinc,
-                    exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                    aodWaveFrequencyAmplitudes) = AodWaveGenerator.GeneratePrescanAodWaveFile(
                     GeneratePrescanAodWaveParamDto.BandWidth,
                     GeneratePrescanAodWaveParamDto.CenterFrequency,
                     GeneratePrescanAodWaveParamDto.FlatnessTime,
@@ -275,13 +248,12 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     quadrafoilCompensationCoefficient: GeneratePrescanAodWaveParamDto.QuadrafoilCompensationCoefficient,
                     alphaOrder: GeneratePrescanAodWaveParamDto.AlphaOrder,
                     alphaOrderCoefficient: GeneratePrescanAodWaveParamDto.AlphaOrderCoefficient,
+                    frequencyAmplitudes: GeneratePrescanAodWaveParamDto.FrequencyAmplitudes,
                     generateRetryTimes: GeneratePrescanAodWaveParamDto.GenerateRetryTimes);
 
                 PrescanAodWaveFilePath = aodWaveFilePath;
                 AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;
-                AodWaveFlatnessNonLinearFrequencySignals = aodWaveFlatnessNonLinearFrequencySignals;
                 AodWaveFlatnessTotalFrequencySignals = aodWaveFlatnessTotalFrequencySignals;
-                AodWaveFlatnessLinearCompensationSignals = aodWaveFlatnessLinearCompensationSignals;
                 AodWaveFlatnessAstigmatismCompensationSignals = aodWaveFlatnessAstigmatismCompensationSignals;
                 AodWaveFlatnessSphericalAberrationCompensationSignals = aodWaveFlatnessSphericalAberrationCompensationSignals;
                 AodWaveFlatnessSecondaryAstigmatismCompensationSignals = aodWaveFlatnessSecondaryAstigmatismCompensationSignals;
@@ -289,20 +261,15 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 AodWaveFlatnessTrefoilCompensationSignals = aodWaveFlatnessTrefoilCompensationSignals;
                 AodWaveFlatnessQuadrafoilCompensationSignals = aodWaveFlatnessQuadrafoilCompensationSignals;
                 AodWaveFlatnessAlphaOrderCompensationSignals = aodWaveFlatnessAlphaOrderCompensationSignals;
-                AodWaveFlatnessNonlinearCompensationSignals = aodWaveFlatnessNonlinearCompensationSignals;
-                AodWaveFlatnessTotalCompensationSignals = aodWaveFlatnessTotalCompensationSignals;
                 AodWaveSignals = aodWaveSignals;
                 AodWaveSignalsFourier = aodWaveSignalsFourier;
-                AodWaveSignalsSinc = aodWaveSignalsSinc;
+                AodWaveFrequencyAmplitudes = aodWaveFrequencyAmplitudes;
 
-                dialogWindowProvider.ShowDialog(isSuccess
-                    ? "Generate Prescan Aod Wave File Success!"
-                    : $"""
-                       Generate Prescan Aod Wave File Success!
-                       """, DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog("Generate Prescan Aod Wave File Success!");
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Generate Prescan Aod Wave File Failed!");
                 dialogWindowProvider.ShowDialog($"""
                                                  Generate Prescan Aod Wave File Failed!
                                                  {ex}
@@ -344,20 +311,17 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
     private void Clear()
     {
         AodWaveFlatnessLinearFrequencySignals = [];
-        AodWaveFlatnessNonLinearFrequencySignals = [];
         AodWaveFlatnessTotalFrequencySignals = [];
-        AodWaveFlatnessLinearCompensationSignals = [];
         AodWaveFlatnessAstigmatismCompensationSignals = [];
         AodWaveFlatnessSphericalAberrationCompensationSignals = [];
         AodWaveFlatnessSecondaryAstigmatismCompensationSignals = [];
         AodWaveFlatnessComaCompensationSignals = [];
         AodWaveFlatnessTrefoilCompensationSignals = [];
         AodWaveFlatnessQuadrafoilCompensationSignals = [];
-        AodWaveFlatnessNonlinearCompensationSignals = [];
-        AodWaveFlatnessTotalCompensationSignals = [];
+        AodWaveFlatnessAlphaOrderCompensationSignals = [];
         AodWaveSignals = [];
         AodWaveSignalsFourier = [];
-        AodWaveSignalsSinc = [];
+        AodWaveFrequencyAmplitudes = [];
     }
 
     [RelayCommand]
