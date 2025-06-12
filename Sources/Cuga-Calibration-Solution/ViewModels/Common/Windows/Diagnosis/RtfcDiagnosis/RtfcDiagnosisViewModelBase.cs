@@ -70,6 +70,7 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     /// 模板存储位置
     /// </summary>m
     public string TemplateFileDirectory => Path.Combine(Options.Value.AppHomeDirectory, "Template", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+
     /// <summary>
     /// Csv文件存储名称前缀
     /// </summary>
@@ -107,6 +108,7 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     #endregion 界面
 
     #endregion 属性
+
     public RtfcDiagnosisViewModelBase()
     {
         _typeName = GetType().Name;
@@ -160,5 +162,4 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     public virtual Task<bool> DiagnosisActionAsync(CancellationToken cancellationToken) => Task.FromResult(true);
 
     #endregion 重载
-
 }

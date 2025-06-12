@@ -308,7 +308,7 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
             default:
                 break;
         }
+
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
-
 }

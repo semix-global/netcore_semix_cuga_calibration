@@ -1,7 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.NoSQL.DB.Providers.Bases;
+using MiniExcelLibs;
 using Net.Utilities.Enums.Maths;
+using Net.Utilities.Models;
 
 namespace Core.Models.Models.Common.DarkField;
 
@@ -32,7 +34,7 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     private double _amplitude = 1d;
 
     [ObservableProperty]
-    private string _aodWaveDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+    private string _aodWaveDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AodWaveDirectory));
 
     [ObservableProperty]
     private int _zeroSampleCount;
@@ -68,7 +70,25 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     private double _alphaOrderCoefficient;
 
     [ObservableProperty]
-    private int _generateRetryTimes = 1;
+    private int _generateRetryTimes = 1000;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FrequencyAmplitudes))]
+    private string _frequencyAmplitudesFilePath = string.Empty;
+
+    public Point[]? FrequencyAmplitudes
+    {
+        get
+        {
+            Point[]? value = null;
+            if (File.Exists(FrequencyAmplitudesFilePath))
+            {
+                value = [.. MiniExcel.Query<GenerateAodWaveUniformityItemDto>(FrequencyAmplitudesFilePath).Select(t => new Point(t.CenterFrequency, t.Coefficient))];
+            }
+
+            return value;
+        }
+    }
 
     partial void OnBandWidthChanged(double value)
     {

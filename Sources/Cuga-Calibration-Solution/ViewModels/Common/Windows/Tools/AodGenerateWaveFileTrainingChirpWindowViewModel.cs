@@ -595,7 +595,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
         {
             return await Task.Run(async () =>
             {
-                GenerateChirpAodWaveFile();
+                if (GenerateChirpAodWaveFile() == false) return false;
+
                 logger.LogHtmlInformation($"""
                                            {item.AstigmatismCompensationCoefficient:0.###############}astigmatism
                                            {item.SphericalAberrationCompensationCoefficient:0.###############}sphericalAberration
@@ -624,17 +625,13 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                         AodWaveSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveSignals)], string.Empty),
                         AodWaveSignalsFourier = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveSignalsFourier)], string.Empty),
                         AodWaveFlatnessLinearFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessLinearFrequencySignals)], string.Empty),
-                        AodWaveFlatnessNonLinearFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessNonLinearFrequencySignals)], string.Empty),
                         AodWaveFlatnessTotalFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessTotalFrequencySignals)], string.Empty),
-                        AodWaveFlatnessLinearCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessLinearCompensationSignals)], string.Empty),
                         AodWaveFlatnessAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessAstigmatismCompensationSignals)], string.Empty),
                         AodWaveFlatnessSphericalAberrationCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessSphericalAberrationCompensationSignals)], string.Empty),
                         AodWaveFlatnessSecondaryAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessSecondaryAstigmatismCompensationSignals)], string.Empty),
                         AodWaveFlatnessComaCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessComaCompensationSignals)], string.Empty),
                         AodWaveFlatnessTrefoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessTrefoilCompensationSignals)], string.Empty),
                         AodWaveFlatnessQuadrafoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessQuadrafoilCompensationSignals)], string.Empty),
-                        AodWaveFlatnessNonlinearCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessNonlinearCompensationSignals)], string.Empty),
-                        AodWaveFlatnessTotalCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessTotalCompensationSignals)], string.Empty)
                     })
                 }), htmlGuid.LoggingHtml());
                 logger.LogHtmlInformation($"ECS: [{EcsMin}, {EcsMax}] STEP: {EcsStep}", HtmlHeaderLevelEnum.Header4, htmlGuid.LoggingHtml());
@@ -714,61 +711,70 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             return false;
         }
 
-        void GenerateChirpAodWaveFile()
+        bool GenerateChirpAodWaveFile()
         {
-            item.Items = [];
+            try
+            {
+                item.Items = [];
 
-            var (_,
-                aodWaveFilePath,
-                aodWaveFlatnessLinearFrequencySignals,
-                aodWaveFlatnessNonLinearFrequencySignals,
-                aodWaveFlatnessTotalFrequencySignals,
-                aodWaveFlatnessLinearCompensationSignals,
-                aodWaveFlatnessAstigmatismCompensationSignals,
-                aodWaveFlatnessSphericalAberrationCompensationSignals,
-                aodWaveFlatnessSecondaryAstigmatismCompensationSignals,
-                aodWaveFlatnessComaCompensationSignals,
-                aodWaveFlatnessTrefoilCompensationSignals,
-                aodWaveFlatnessQuadrafoilCompensationSignals,
-                _,
-                aodWaveFlatnessNonlinearCompensationSignals,
-                aodWaveFlatnessTotalCompensationSignals,
-                aodWaveSignals,
-                aodWaveSignalsFourier,
-                _,
-                _) = AodWaveGenerator.GenerateChirpAodWaveFile(
-                GenerateChirpAodWaveParamDto.BandWidth,
-                GenerateChirpAodWaveParamDto.CenterFrequency,
-                GenerateChirpAodWaveParamDto.SoundPackageLength,
-                GenerateChirpAodWaveParamDto.MonotonicTypeEnum,
-                GenerateChirpAodWaveParamDto.SampleRate,
-                GenerateChirpAodWaveParamDto.Amplitude,
-                aodWaveDirectory,
-                zeroSampleCount: GenerateChirpAodWaveParamDto.ZeroSampleCount,
-                endpointSampleCount: GenerateChirpAodWaveParamDto.EndpointSampleCount,
-                astigmatismCompensationCoefficient: item.AstigmatismCompensationCoefficient,
-                sphericalAberrationCompensationCoefficient: item.SphericalAberrationCompensationCoefficient,
-                secondaryAstigmatismCompensationCoefficient: item.SecondaryAstigmatismCompensationCoefficient,
-                comaCompensationCoefficient: item.ComaCompensationCoefficient,
-                trefoilCompensationCoefficient: item.TrefoilCompensationCoefficient,
-                quadrafoilCompensationCoefficient: item.QuadrafoilCompensationCoefficient,
-                generateRetryTimes: 1);
+                var (aodWaveFilePath,
+                    aodWaveFlatnessLinearFrequencySignals,
+                    aodWaveFlatnessTotalFrequencySignals,
+                    aodWaveFlatnessAstigmatismCompensationSignals,
+                    aodWaveFlatnessSphericalAberrationCompensationSignals,
+                    aodWaveFlatnessSecondaryAstigmatismCompensationSignals,
+                    aodWaveFlatnessComaCompensationSignals,
+                    aodWaveFlatnessTrefoilCompensationSignals,
+                    aodWaveFlatnessQuadrafoilCompensationSignals,
+                    _,
+                    aodWaveSignals,
+                    aodWaveSignalsFourier,
+                    _) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                    GenerateChirpAodWaveParamDto.BandWidth,
+                    GenerateChirpAodWaveParamDto.CenterFrequency,
+                    GenerateChirpAodWaveParamDto.SoundPackageLength,
+                    GenerateChirpAodWaveParamDto.MonotonicTypeEnum,
+                    GenerateChirpAodWaveParamDto.SampleRate,
+                    GenerateChirpAodWaveParamDto.Amplitude,
+                    aodWaveDirectory,
+                    zeroSampleCount: GenerateChirpAodWaveParamDto.ZeroSampleCount,
+                    endpointSampleCount: GenerateChirpAodWaveParamDto.EndpointSampleCount,
+                    astigmatismCompensationCoefficient: item.AstigmatismCompensationCoefficient,
+                    sphericalAberrationCompensationCoefficient: item.SphericalAberrationCompensationCoefficient,
+                    secondaryAstigmatismCompensationCoefficient: item.SecondaryAstigmatismCompensationCoefficient,
+                    comaCompensationCoefficient: item.ComaCompensationCoefficient,
+                    trefoilCompensationCoefficient: item.TrefoilCompensationCoefficient,
+                    quadrafoilCompensationCoefficient: item.QuadrafoilCompensationCoefficient,
+                    generateRetryTimes: 1000);
 
-            item.ChirpAodWaveFilePath = aodWaveFilePath;
-            item.AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;
-            item.AodWaveFlatnessNonLinearFrequencySignals = aodWaveFlatnessNonLinearFrequencySignals;
-            item.AodWaveFlatnessTotalFrequencySignals = aodWaveFlatnessTotalFrequencySignals;
-            item.AodWaveFlatnessLinearCompensationSignals = aodWaveFlatnessLinearCompensationSignals;
-            item.AodWaveFlatnessAstigmatismCompensationSignals = aodWaveFlatnessAstigmatismCompensationSignals;
-            item.AodWaveFlatnessSphericalAberrationCompensationSignals = aodWaveFlatnessSphericalAberrationCompensationSignals;
-            item.AodWaveFlatnessSecondaryAstigmatismCompensationSignals = aodWaveFlatnessSecondaryAstigmatismCompensationSignals;
-            item.AodWaveFlatnessComaCompensationSignals = aodWaveFlatnessComaCompensationSignals;
-            item.AodWaveFlatnessTrefoilCompensationSignals = aodWaveFlatnessTrefoilCompensationSignals;
-            item.AodWaveFlatnessQuadrafoilCompensationSignals = aodWaveFlatnessQuadrafoilCompensationSignals;
-            item.AodWaveFlatnessNonlinearCompensationSignals = aodWaveFlatnessNonlinearCompensationSignals;
-            item.AodWaveFlatnessTotalCompensationSignals = aodWaveFlatnessTotalCompensationSignals;
-            item.AodWaveSignals = aodWaveSignals;
-            item.AodWaveSignalsFourier = aodWaveSignalsFourier;
+                item.ChirpAodWaveFilePath = aodWaveFilePath;
+                item.AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;
+                item.AodWaveFlatnessTotalFrequencySignals = aodWaveFlatnessTotalFrequencySignals;
+                item.AodWaveFlatnessAstigmatismCompensationSignals = aodWaveFlatnessAstigmatismCompensationSignals;
+                item.AodWaveFlatnessSphericalAberrationCompensationSignals = aodWaveFlatnessSphericalAberrationCompensationSignals;
+                item.AodWaveFlatnessSecondaryAstigmatismCompensationSignals = aodWaveFlatnessSecondaryAstigmatismCompensationSignals;
+                item.AodWaveFlatnessComaCompensationSignals = aodWaveFlatnessComaCompensationSignals;
+                item.AodWaveFlatnessTrefoilCompensationSignals = aodWaveFlatnessTrefoilCompensationSignals;
+                item.AodWaveFlatnessQuadrafoilCompensationSignals = aodWaveFlatnessQuadrafoilCompensationSignals;
+                item.AodWaveSignals = aodWaveSignals;
+                item.AodWaveSignalsFourier = aodWaveSignalsFourier;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogHtmlError(ex, "Generate Aod Wave Error", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    item.AstigmatismCompensationCoefficient,
+                    item.SphericalAberrationCompensationCoefficient,
+                    item.SecondaryAstigmatismCompensationCoefficient,
+                    item.ComaCompensationCoefficient,
+                    item.TrefoilCompensationCoefficient,
+                    item.QuadrafoilCompensationCoefficient
+                }), htmlGuid.LoggingHtml());
+
+                return false;
+            }
         }
     }
 
@@ -822,13 +828,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp : ObservableObject
     private Point[] _aodWaveFlatnessLinearFrequencySignals = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveFlatnessNonLinearFrequencySignals = [];
-
-    [ObservableProperty]
     private Point[] _aodWaveFlatnessTotalFrequencySignals = [];
-
-    [ObservableProperty]
-    private Point[] _aodWaveFlatnessLinearCompensationSignals = [];
 
     [ObservableProperty]
     private Point[] _aodWaveFlatnessAstigmatismCompensationSignals = [];
@@ -847,12 +847,6 @@ public sealed partial class AodGenerateWaveFileTrainingChirp : ObservableObject
 
     [ObservableProperty]
     private Point[] _aodWaveFlatnessQuadrafoilCompensationSignals = [];
-
-    [ObservableProperty]
-    private Point[] _aodWaveFlatnessNonlinearCompensationSignals = [];
-
-    [ObservableProperty]
-    private Point[] _aodWaveFlatnessTotalCompensationSignals = [];
 
     [ObservableProperty]
     private Point[] _aodWaveSignals = [];

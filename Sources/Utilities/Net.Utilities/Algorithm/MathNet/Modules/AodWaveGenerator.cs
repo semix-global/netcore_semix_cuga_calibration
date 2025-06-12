@@ -1,10 +1,12 @@
 using CommunityToolkit.Diagnostics;
-using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Constants;
 using Net.Utilities.Enums.Maths;
+using Net.Utilities.Extensions;
 using Net.Utilities.Helper.File;
 using Net.Utilities.Models;
+using Complex = System.Numerics.Complex;
 
 namespace Net.Utilities.Algorithm.MathNet.Modules;
 
@@ -31,7 +33,7 @@ public static class AodWaveGenerator
     /// <param name="quadrafoilCompensationCoefficient">sin(8πt/T)</param>
     /// <param name="alphaOrder">α次补偿</param>
     /// <param name="alphaOrderCoefficient">α次补偿系数t^α</param>
-    /// <param name="frequencyCompensations">波形频率生成补偿系数</param>
+    /// <param name="frequencyAmplitudes">波形频率生成补偿系数</param>
     /// <param name="generateRetryTimes">生成Aod文件重试次数</param>
     /// <returns>
     /// <code>
@@ -57,12 +59,9 @@ public static class AodWaveGenerator
     /// </code>
     /// </returns>
     public static (
-        bool IsSuccess,
         string AodWaveFilePath,
         Point[] AodWaveFlatnessLinearFrequencySignals,
-        Point[] AodWaveFlatnessNonLinearFrequencySignals,
         Point[] AodWaveFlatnessTotalFrequencySignals,
-        Point[] AodWaveFlatnessLinearCompensationSignals,
         Point[] AodWaveFlatnessAstigmatismCompensationSignals,
         Point[] AodWaveFlatnessSphericalAberrationCompensationSignals,
         Point[] AodWaveFlatnessSecondaryAstigmatismCompensationSignals,
@@ -70,12 +69,9 @@ public static class AodWaveGenerator
         Point[] AodWaveFlatnessTrefoilCompensationSignals,
         Point[] AodWaveFlatnessQuadrafoilCompensationSignals,
         Point[] AodWaveFlatnessAlphaOrderCompensationSignals,
-        Point[] AodWaveFlatnessNonlinearCompensationSignals,
-        Point[] AodWaveFlatnessTotalCompensationSignals,
         Point[] AodWaveSignals,
         Point[] AodWaveSignalsFourier,
-        Point[] AodWaveSignalsSinc,
-        Exception? Exception) GenerateChirpAodWaveFile(
+        Point[] AodWaveFrequencyAmplitudes) GenerateChirpAodWaveFile(
             double bandWidth,
             double centerFrequency,
             double soundPacketLength,
@@ -94,7 +90,7 @@ public static class AodWaveGenerator
             double quadrafoilCompensationCoefficient = 0d,
             double alphaOrder = 0d,
             double alphaOrderCoefficient = 0d,
-            Point[]? frequencyCompensations = null,
+            Point[]? frequencyAmplitudes = null,
             int generateRetryTimes = 1000)
         => GenerateAodWaveFile(
             bandWidth,
@@ -116,7 +112,7 @@ public static class AodWaveGenerator
             quadrafoilCompensationCoefficient: quadrafoilCompensationCoefficient,
             alphaOrder: alphaOrder,
             alphaOrderCoefficient: alphaOrderCoefficient,
-            frequencyCompensations: frequencyCompensations,
+            frequencyAmplitudes: frequencyAmplitudes,
             generateRetryTimes: generateRetryTimes);
 
     /// <summary>
@@ -140,7 +136,7 @@ public static class AodWaveGenerator
     /// <param name="quadrafoilCompensationCoefficient">sin(8πt/T)</param>
     /// <param name="alphaOrder">α次补偿</param>
     /// <param name="alphaOrderCoefficient">α次补偿系数t^α</param>
-    /// <param name="frequencyCompensations">波形频率生成补偿系数</param>
+    /// <param name="frequencyAmplitudes">波形频率生成补偿系数</param>
     /// <param name="generateRetryTimes">生成Aod文件重试次数</param>
     /// <returns>
     /// <code>
@@ -166,12 +162,9 @@ public static class AodWaveGenerator
     /// </code>
     /// </returns>
     public static (
-        bool IsSuccess,
         string AodWaveFilePath,
         Point[] AodWaveFlatnessLinearFrequencySignals,
-        Point[] AodWaveFlatnessNonLinearFrequencySignals,
         Point[] AodWaveFlatnessTotalFrequencySignals,
-        Point[] AodWaveFlatnessLinearCompensationSignals,
         Point[] AodWaveFlatnessAstigmatismCompensationSignals,
         Point[] AodWaveFlatnessSphericalAberrationCompensationSignals,
         Point[] AodWaveFlatnessSecondaryAstigmatismCompensationSignals,
@@ -179,12 +172,9 @@ public static class AodWaveGenerator
         Point[] AodWaveFlatnessTrefoilCompensationSignals,
         Point[] AodWaveFlatnessQuadrafoilCompensationSignals,
         Point[] AodWaveFlatnessAlphaOrderCompensationSignals,
-        Point[] AodWaveFlatnessNonlinearCompensationSignals,
-        Point[] AodWaveFlatnessTotalCompensationSignals,
         Point[] AodWaveSignals,
         Point[] AodWaveSignalsFourier,
-        Point[] AodWaveSignalsSinc,
-        Exception? Exception) GeneratePrescanAodWaveFile(
+        Point[] AodWaveFrequencyAmplitudes) GeneratePrescanAodWaveFile(
             double bandWidth,
             double centerFrequency,
             double flatnessTime,
@@ -203,7 +193,7 @@ public static class AodWaveGenerator
             double quadrafoilCompensationCoefficient = 0d,
             double alphaOrder = 0d,
             double alphaOrderCoefficient = 0d,
-            Point[]? frequencyCompensations = null,
+            Point[]? frequencyAmplitudes = null,
             int generateRetryTimes = 1000)
         => GenerateAodWaveFile(
             bandWidth,
@@ -225,7 +215,7 @@ public static class AodWaveGenerator
             quadrafoilCompensationCoefficient: quadrafoilCompensationCoefficient,
             alphaOrder: alphaOrder,
             alphaOrderCoefficient: alphaOrderCoefficient,
-            frequencyCompensations: frequencyCompensations,
+            frequencyAmplitudes: frequencyAmplitudes,
             generateRetryTimes: generateRetryTimes);
 
     /// <summary>
@@ -250,7 +240,7 @@ public static class AodWaveGenerator
     /// <param name="quadrafoilCompensationCoefficient">sin(8πt/T)</param>
     /// <param name="alphaOrder">α次补偿</param>
     /// <param name="alphaOrderCoefficient">α次补偿系数t^α</param>
-    /// <param name="frequencyCompensations">波形频率生成补偿系数</param>
+    /// <param name="frequencyAmplitudes">波形频率生成补偿系数</param>
     /// <param name="generateRetryTimes">生成Aod文件重试次数</param>
     /// <returns>
     /// <code>
@@ -275,13 +265,10 @@ public static class AodWaveGenerator
     ///  异常信息)
     /// </code>
     /// </returns>
-    private static (
-        bool IsSuccess,
+    public static (
         string AodWaveFilePath,
         Point[] AodWaveFlatnessLinearFrequencySignals,
-        Point[] AodWaveFlatnessNonLinearFrequencySignals,
         Point[] AodWaveFlatnessTotalFrequencySignals,
-        Point[] AodWaveFlatnessLinearCompensationSignals,
         Point[] AodWaveFlatnessAstigmatismCompensationSignals,
         Point[] AodWaveFlatnessSphericalAberrationCompensationSignals,
         Point[] AodWaveFlatnessSecondaryAstigmatismCompensationSignals,
@@ -289,12 +276,9 @@ public static class AodWaveGenerator
         Point[] AodWaveFlatnessTrefoilCompensationSignals,
         Point[] AodWaveFlatnessQuadrafoilCompensationSignals,
         Point[] AodWaveFlatnessAlphaOrderCompensationSignals,
-        Point[] AodWaveFlatnessNonlinearCompensationSignals,
-        Point[] AodWaveFlatnessTotalCompensationSignals,
         Point[] AodWaveSignals,
         Point[] AodWaveSignalsFourier,
-        Point[] AodWaveSignalsSinc,
-        Exception? Exception) GenerateAodWaveFile(
+        Point[] AodWaveFrequencyAmplitudes) GenerateAodWaveFile(
             double bandWidth,
             double centerFrequency,
             MonotonicTypeEnum monotonicTypeEnum,
@@ -314,7 +298,7 @@ public static class AodWaveGenerator
             double quadrafoilCompensationCoefficient = 0d,
             double alphaOrder = 0d,
             double alphaOrderCoefficient = 0d,
-            Point[]? frequencyCompensations = null,
+            Point[]? frequencyAmplitudes = null,
             int generateRetryTimes = 1000)
     {
         // 5.742 = 音速(mm/us), 固体声速更快:
@@ -328,25 +312,8 @@ public static class AodWaveGenerator
         Guard.IsGreaterThan(amplitude, 0d, nameof(amplitude));
         Guard.IsLessThanOrEqualTo(amplitude, 1d, nameof(amplitude));
         Guard.IsNotNullOrWhiteSpace(aodWaveDirectory, nameof(aodWaveDirectory));
-
         Guard.IsGreaterThanOrEqualTo(zeroSampleCount, 0, nameof(zeroSampleCount));
         Guard.IsGreaterThanOrEqualTo(endpointSampleCount, 0, nameof(endpointSampleCount));
-
-        Guard.IsGreaterThanOrEqualTo(sincCoefficient, 0d, nameof(sincCoefficient));
-
-        Guard.IsGreaterThanOrEqualTo(astigmatismCompensationCoefficient, -1d, nameof(astigmatismCompensationCoefficient));
-        Guard.IsLessThanOrEqualTo(astigmatismCompensationCoefficient, 1d, nameof(astigmatismCompensationCoefficient));
-        Guard.IsGreaterThanOrEqualTo(sphericalAberrationCompensationCoefficient, -1d, nameof(sphericalAberrationCompensationCoefficient));
-        Guard.IsLessThanOrEqualTo(sphericalAberrationCompensationCoefficient, 1d, nameof(sphericalAberrationCompensationCoefficient));
-        Guard.IsGreaterThanOrEqualTo(secondaryAstigmatismCompensationCoefficient, -1d, nameof(secondaryAstigmatismCompensationCoefficient));
-        Guard.IsLessThanOrEqualTo(secondaryAstigmatismCompensationCoefficient, 1d, nameof(secondaryAstigmatismCompensationCoefficient));
-        Guard.IsGreaterThanOrEqualTo(comaCompensationCoefficient, -100d, nameof(comaCompensationCoefficient));
-        Guard.IsLessThanOrEqualTo(comaCompensationCoefficient, 100d, nameof(comaCompensationCoefficient));
-        Guard.IsGreaterThanOrEqualTo(trefoilCompensationCoefficient, -100d, nameof(trefoilCompensationCoefficient));
-        Guard.IsLessThanOrEqualTo(trefoilCompensationCoefficient, 100d, nameof(trefoilCompensationCoefficient));
-        Guard.IsGreaterThanOrEqualTo(quadrafoilCompensationCoefficient, -100d, nameof(quadrafoilCompensationCoefficient));
-        Guard.IsLessThanOrEqualTo(quadrafoilCompensationCoefficient, 100d, nameof(quadrafoilCompensationCoefficient));
-
         Guard.IsGreaterThan(generateRetryTimes, 0, nameof(generateRetryTimes));
 
         if (monotonicTypeEnum is MonotonicTypeEnum.Flatness && bandWidth != 0) ThrowHelper.ThrowArgumentException(nameof(bandWidth), "if monotonic is flatness then band Width is must 0");
@@ -355,41 +322,35 @@ public static class AodWaveGenerator
         var flatnessTime = flatnessTimeNullable switch
         {
             not null when flatnessTimeNullable > 0d && soundPacketLengthNullable is null => flatnessTimeNullable.Value,
-            // mm/(mm/us)*1000 = ns(10^-9s)
-            null when soundPacketLengthNullable > 0d => Math.Round(soundPacketLengthNullable.Value / chirpAodSoundSpeed * 1000d, MidpointRounding.AwayFromZero),
+            null when soundPacketLengthNullable > 0d => Math.Round(soundPacketLengthNullable.Value / chirpAodSoundSpeed * 1000d, MidpointRounding.AwayFromZero), // (ns): mm/(mm/us) * 1000 = us * 1000 = ns
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>("if prescan : flatness > 0; if chirp: sound packet length > 0")
-        }; // 平坦时间ns
+        };
 
         #endregion 参数判断
 
-        var readonlyCenterFrequency = centerFrequency; // 中心频率
-        var readonlyLowFrequency = monotonicTypeEnum switch // 低频
+        var lowFrequency = monotonicTypeEnum switch // 低频
         {
             MonotonicTypeEnum.Increasing or MonotonicTypeEnum.Deceasing => centerFrequency - bandWidth / 2d,
-            MonotonicTypeEnum.Flatness => readonlyCenterFrequency,
+            MonotonicTypeEnum.Flatness => centerFrequency,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
         };
-        var readonlyHighFrequency = monotonicTypeEnum switch // 高频
+        var highFrequency = monotonicTypeEnum switch // 高频
         {
             MonotonicTypeEnum.Increasing or MonotonicTypeEnum.Deceasing => centerFrequency + bandWidth / 2d,
-            MonotonicTypeEnum.Flatness => readonlyCenterFrequency,
+            MonotonicTypeEnum.Flatness => centerFrequency,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
         };
 
-        var lowFrequency = readonlyLowFrequency;
-        var highFrequency = readonlyHighFrequency;
-        var bandwidthTemp = bandWidth;
+        var readonlyBandwidth = bandWidth;
+        var readonlyCenterFrequency = centerFrequency; // 中心频率
+        var readonlyLowFrequency = lowFrequency;
+        var readonlyHighFrequency = highFrequency;
 
-        // ns*(Msa/s)/1000 = (10^-9s)*(10^6sa/s)/(10^-3) = (10^-3sa)/(10^-3) = sa
-        var totalSampleCount = (int)Math.Round(flatnessTime * sampleRate / 1000 + 2 * endpointSampleCount, MidpointRounding.AwayFromZero); // 总采样点的个数
-
-        // 总采样点的索引Array
-        var totalSampleIndices = Generate.LinearRangeInt32(0, 1, totalSampleCount - 1); // 以1为起始，1为步长，截至的数值(<= n): 等差数列 1, 2, 3, ..., n
-        var headerSampleIndices = Generate.LinearRangeInt32(0, 1, endpointSampleCount - 1);
-        var flatnessSampleIndices = Generate.LinearRangeInt32(endpointSampleCount, 1, totalSampleCount - endpointSampleCount - 1);
-        var footerSampleIndices = Generate.LinearRangeInt32(totalSampleCount - endpointSampleCount, 1, totalSampleCount - 1);
+        var numberOfSamples = (int)Math.Round(flatnessTime * sampleRate / 1000 + 2 * endpointSampleCount, MidpointRounding.AwayFromZero); // 总采样点的个数: ns * (Msa/s) / 1000 = ns * (Gsa/s) = (10^-9s)*(10^9sa/s) = sa
 
         #region 返回结果
+
+        #region 文件
 
         var frequencyFileName = monotonicTypeEnum switch
         {
@@ -402,7 +363,7 @@ public static class AodWaveGenerator
         var aodWaveFilePath = soundPacketLengthNullable is not null
             ? Path.Combine(aodWaveDirectory, $"chirp" +
                                              $"_{soundPacketLengthNullable.Value:0.###}mm" +
-                                             $"_{bandWidth:0.###}BWMhz" +
+                                             $"_{readonlyBandwidth:0.###}BWMhz" +
                                              $"_{frequencyFileName}" +
                                              $"_{flatnessTime:0.###}ns" +
                                              $"_{amplitude:0.###}AMP" +
@@ -412,10 +373,10 @@ public static class AodWaveGenerator
                                              $"_{comaCompensationCoefficient:0.###############}coma" +
                                              $"_{trefoilCompensationCoefficient:0.###############}trefoil" +
                                              $"_{quadrafoilCompensationCoefficient:0.###############}quadrafoil" +
-                                             $"_{totalSampleCount}Count" +
-                                             $"${totalSampleCount}${zeroSampleCount}$600$03$.txt")
+                                             $"_{numberOfSamples}Count" +
+                                             $"${numberOfSamples}${zeroSampleCount}$600$03$.txt")
             : Path.Combine(aodWaveDirectory, $"prescan" +
-                                             $"_{bandWidth:0.###}BWMhz" +
+                                             $"_{readonlyBandwidth:0.###}BWMhz" +
                                              $"_{frequencyFileName}" +
                                              $"_{flatnessTime:0.###}ns" +
                                              $"_{amplitude:0.###}AMP" +
@@ -425,381 +386,309 @@ public static class AodWaveGenerator
                                              $"_{comaCompensationCoefficient:0.###############}coma" +
                                              $"_{trefoilCompensationCoefficient:0.###############}trefoil" +
                                              $"_{quadrafoilCompensationCoefficient:0.###############}quadrafoil" +
-                                             $"_{totalSampleCount}Count" +
-                                             $"${totalSampleCount}${zeroSampleCount}$600$02$.txt");
+                                             $"_{numberOfSamples}Count" +
+                                             $"${numberOfSamples}${zeroSampleCount}$600$02$.txt");
 
         aodWaveFilePath = FileHelper.GetEnsureLongPathSupport(aodWaveFilePath);
 
-        var aodWaveSignals = new double[totalSampleCount];
-        double[] aodWaveFlatnessLinearFrequencySignals = [];
-        double[] aodWaveFlatnessNonLinearFrequencySignals = [];
-        double[] aodWaveFlatnessTotalFrequencySignals = [];
-        double[] aodWaveFlatnessLinearCompensationSignals = [];
-        double[] aodWaveFlatnessAstigmatismCompensationSignals = [];
-        double[] aodWaveFlatnessSphericalAberrationCompensationSignals = [];
-        double[] aodWaveFlatnessSecondaryAstigmatismCompensationSignals = [];
-        double[] aodWaveFlatnessComaCompensationSignals = [];
-        double[] aodWaveFlatnessTrefoilCompensationSignals = [];
-        double[] aodWaveFlatnessQuadrafoilCompensationSignals = [];
-        double[] aodWaveFlatnessAlphaOrderCompensationSignals = [];
-        double[] aodWaveFlatnessNonlinearCompensationSignals = [];
-        double[] aodWaveFlatnessTotalCompensationSignals = [];
-        Point[] aodWaveSignalsFourier = [];
-        double[] aodWaveSignalsSinc = [];
-        bool isSuccess;
-        Exception? exception = null;
+        #endregion 文件
+
+        var dt = 1d / sampleRate; // 每个采样点的时间间隔 (us/sa): 1 / (Msa/s) = 10^-6s/sa = us/sa
+
+        var allSampleIndices = GenerateHelper.LinearIndexRange(0, numberOfSamples - 1);
+        var headerSampleIndices = GenerateHelper.LinearIndexRange(0, endpointSampleCount - 1);
+        var flatnessSampleIndices = GenerateHelper.LinearIndexRange(endpointSampleCount, numberOfSamples - endpointSampleCount - 1);
+        var footerSampleIndices = GenerateHelper.LinearIndexRange(numberOfSamples - endpointSampleCount, numberOfSamples - 1);
+
+        var aodWaveSignals = Vector<double>.Build.Dense(numberOfSamples);
+
+        Vector<double> dLinearFrequencies;
+        Vector<double> dAstigmatismFrequencies;
+        Vector<double> dSphericalAberrationFrequencies;
+        Vector<double> dSecondaryAstigmatismFrequencies;
+        Vector<double> dComaFrequencies;
+        Vector<double> dTrefoilFrequencies;
+        Vector<double> dQuadrafoilFrequencies;
+        Vector<double> dAlphaOrderFrequencies;
+        Vector<double> dFlatnessFrequencies;
+
+        double minFlatnessFrequency;
+        double maxFlatnessFrequency;
+
+        Vector<Complex> fftResult;
+        Vector<double> fftFrequencies;
+        Vector<double> fftMagnitudes;
 
         #endregion 返回结果
 
         var count = 1;
         while (true)
         {
-            try
+            #region 频率
+
+            var t = (Vector<double>.Build.DenseOfArray(flatnessSampleIndices) - flatnessSampleIndices[0]) * dt;
+
+            switch (monotonicTypeEnum)
             {
-                var ramp = bandwidthTemp / flatnessSampleIndices.Length; // MHz/ns 斜率
+                case MonotonicTypeEnum.Increasing:
+                case MonotonicTypeEnum.Deceasing:
+                    dLinearFrequencies = bandWidth / t.Maximum() * t;
+                    dAstigmatismFrequencies = astigmatismCompensationCoefficient * t.PointwisePower(2);
+                    dSphericalAberrationFrequencies = sphericalAberrationCompensationCoefficient * t.PointwisePower(3);
+                    dSecondaryAstigmatismFrequencies = secondaryAstigmatismCompensationCoefficient * t.PointwisePower(4);
+                    dComaFrequencies = comaCompensationCoefficient * (2 * Math.PI * t / t.Maximum()).PointwiseSin();
+                    dTrefoilFrequencies = trefoilCompensationCoefficient * (6 * Math.PI * t / t.Maximum()).PointwiseSin();
+                    dQuadrafoilFrequencies = quadrafoilCompensationCoefficient * (8 * Math.PI * t / t.Maximum()).PointwiseSin();
+                    dAlphaOrderFrequencies = alphaOrderCoefficient * t.PointwisePower(alphaOrder);
 
-                #region Flatness
+                    break;
 
-                var flatnessSampleX = flatnessSampleIndices
-                    .Select(t => (
-                        X: (t + 1) - (flatnessSampleIndices[0] + 1), // 起点补偿
-                        XOfCenter: (t + 1) - ((flatnessSampleIndices[0] + 1) + (flatnessSampleIndices[^1] + 1)) / 2d)) // 中心补偿
-                    .ToArray();
+                case MonotonicTypeEnum.Flatness:
+                default:
+                    dLinearFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dAstigmatismFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dSphericalAberrationFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dSecondaryAstigmatismFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dComaFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dTrefoilFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dQuadrafoilFrequencies = Vector<double>.Build.Dense(t.Count, 0);
+                    dAlphaOrderFrequencies = Vector<double>.Build.Dense(t.Count, 0);
 
-                aodWaveFlatnessLinearCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => ramp / 2d * t.X,
-                            MonotonicTypeEnum.Deceasing => -ramp / 2d * t.X,
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessAstigmatismCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => astigmatismCompensationCoefficient * ramp / 2d * Math.Pow(t.XOfCenter, 2),
-                            MonotonicTypeEnum.Deceasing => -astigmatismCompensationCoefficient * ramp / 2d * Math.Pow(t.XOfCenter, 2),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessSphericalAberrationCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => sphericalAberrationCompensationCoefficient * ramp / 2d * Math.Pow(t.XOfCenter, 3),
-                            MonotonicTypeEnum.Deceasing => -sphericalAberrationCompensationCoefficient * ramp / 2d * Math.Pow(t.XOfCenter, 3),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessSecondaryAstigmatismCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => secondaryAstigmatismCompensationCoefficient * ramp / 2d * Math.Pow(t.XOfCenter, 4),
-                            MonotonicTypeEnum.Deceasing => -secondaryAstigmatismCompensationCoefficient * ramp / 2d * Math.Pow(t.XOfCenter, 4),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessComaCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => comaCompensationCoefficient * Math.Sin(2 * Math.PI * t.X / flatnessSampleIndices.Length),
-                            MonotonicTypeEnum.Deceasing => -comaCompensationCoefficient * Math.Sin(2 * Math.PI * t.X / flatnessSampleIndices.Length),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessTrefoilCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => trefoilCompensationCoefficient * Math.Sin(6 * Math.PI * t.X / flatnessSampleIndices.Length),
-                            MonotonicTypeEnum.Deceasing => -trefoilCompensationCoefficient * Math.Sin(6 * Math.PI * t.X / flatnessSampleIndices.Length),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessQuadrafoilCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => quadrafoilCompensationCoefficient * Math.Sin(8 * Math.PI * t.X / flatnessSampleIndices.Length),
-                            MonotonicTypeEnum.Deceasing => -quadrafoilCompensationCoefficient * Math.Sin(8 * Math.PI * t.X / flatnessSampleIndices.Length),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessAlphaOrderCompensationSignals =
-                [
-                    .. flatnessSampleX.Select(t =>
-                        monotonicTypeEnum switch
-                        {
-                            MonotonicTypeEnum.Increasing => alphaOrderCoefficient * Math.Pow(t.X, alphaOrder),
-                            MonotonicTypeEnum.Deceasing => -alphaOrderCoefficient * Math.Pow(t.X, alphaOrder),
-                            MonotonicTypeEnum.Flatness => 0,
-                            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                        })
-                ];
-                aodWaveFlatnessNonlinearCompensationSignals = flatnessSampleX.Select((_, index) =>
-                    aodWaveFlatnessAstigmatismCompensationSignals[index] +
-                    aodWaveFlatnessSphericalAberrationCompensationSignals[index] +
-                    aodWaveFlatnessSecondaryAstigmatismCompensationSignals[index] +
-                    aodWaveFlatnessComaCompensationSignals[index] +
-                    aodWaveFlatnessTrefoilCompensationSignals[index] +
-                    aodWaveFlatnessQuadrafoilCompensationSignals[index] +
-                    aodWaveFlatnessAlphaOrderCompensationSignals[index]
-                ).ToArray();
-                aodWaveFlatnessTotalCompensationSignals = flatnessSampleX.Select((_, index) =>
-                    aodWaveFlatnessLinearCompensationSignals[index] +
-                    aodWaveFlatnessNonlinearCompensationSignals[index]
-                ).ToArray();
+                    break;
+            }
 
-                aodWaveFlatnessLinearFrequencySignals = flatnessSampleX.Select((_, index) =>
-                    monotonicTypeEnum switch
-                    {
-                        MonotonicTypeEnum.Increasing => lowFrequency + aodWaveFlatnessLinearCompensationSignals[index],
-                        MonotonicTypeEnum.Deceasing => highFrequency + aodWaveFlatnessLinearCompensationSignals[index],
-                        MonotonicTypeEnum.Flatness => centerFrequency,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                    }).ToArray();
-                aodWaveFlatnessNonLinearFrequencySignals = flatnessSampleX.Select((_, index) =>
-                    monotonicTypeEnum switch
-                    {
-                        MonotonicTypeEnum.Increasing => lowFrequency + aodWaveFlatnessNonlinearCompensationSignals[index],
-                        MonotonicTypeEnum.Deceasing => highFrequency + aodWaveFlatnessNonlinearCompensationSignals[index],
-                        MonotonicTypeEnum.Flatness => centerFrequency,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                    }).ToArray();
-                aodWaveFlatnessTotalFrequencySignals = flatnessSampleX.Select((_, index) =>
-                    monotonicTypeEnum switch
-                    {
-                        MonotonicTypeEnum.Increasing => lowFrequency + aodWaveFlatnessTotalCompensationSignals[index],
-                        MonotonicTypeEnum.Deceasing => highFrequency + aodWaveFlatnessTotalCompensationSignals[index],
-                        MonotonicTypeEnum.Flatness => centerFrequency,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                    }).ToArray();
+            var dHeaderFrequencies = monotonicTypeEnum switch
+            {
+                MonotonicTypeEnum.Increasing => Vector<double>.Build.Dense(headerSampleIndices.Length, lowFrequency),
+                MonotonicTypeEnum.Deceasing => Vector<double>.Build.Dense(headerSampleIndices.Length, highFrequency),
+                MonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(headerSampleIndices.Length, centerFrequency),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(monotonicTypeEnum))
+            };
 
-                var flatnessSampleFrequencies = flatnessSampleX.Select(t =>
-                    monotonicTypeEnum switch
-                    {
-                        MonotonicTypeEnum.Increasing => lowFrequency + (highFrequency - lowFrequency) * t.X / flatnessSampleIndices.Length,
-                        MonotonicTypeEnum.Deceasing => highFrequency - (highFrequency - lowFrequency) * t.X / flatnessSampleIndices.Length,
-                        MonotonicTypeEnum.Flatness => centerFrequency,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                    }).ToArray();
-                var eta = flatnessSampleFrequencies
-                    .Select(t => monotonicTypeEnum != MonotonicTypeEnum.Flatness
-                        ? sincCoefficient * (t - (highFrequency + lowFrequency) / 2) / (highFrequency - lowFrequency)
-                        : 0d)
-                    .Select(t => t == 0d ? 1d : Math.Sin(t) / t)
-                    .Select(t => Math.Pow(t, 2))
-                    .ToArray();
-                var arf = eta
-                    .Select(t => t == 0d ? 0.1 : t)
-                    .Select(t => 1 / Math.Sqrt(t))
-                    .ToArray();
-                aodWaveSignalsSinc = arf.Select(t => t / arf.Max()).ToArray();
+            var dFooterFrequencies = monotonicTypeEnum switch
+            {
+                MonotonicTypeEnum.Increasing => Vector<double>.Build.Dense(footerSampleIndices.Length, highFrequency),
+                MonotonicTypeEnum.Deceasing => Vector<double>.Build.Dense(footerSampleIndices.Length, lowFrequency),
+                MonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(footerSampleIndices.Length, centerFrequency),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(monotonicTypeEnum))
+            };
 
-                /*
-                 * 非固定频率 cos(2*pi*f*x) * 固定增益
-                 * f = aodWaveTotalFrequencySignals[i], T = 2*pi/(2*pi*f) = 1/f
-                 * x = (aodWaveTotalFrequencySignals[i] + 1) / sampleRate
-                 * 单位: Mhz*sa/(Msa/s) = (10^6s^-1)*sa/(10^6sa/s) = (10^6s^-1)/(10^6s^-1)*sa/sa = 无量纲
-                 */
-                for (var i = 0; i < flatnessSampleIndices.Length; i++)
+            dFlatnessFrequencies = monotonicTypeEnum switch
+            {
+                MonotonicTypeEnum.Increasing => lowFrequency + dLinearFrequencies + dAstigmatismFrequencies + dSphericalAberrationFrequencies + dSecondaryAstigmatismFrequencies + dComaFrequencies + dTrefoilFrequencies + dQuadrafoilFrequencies + dAlphaOrderFrequencies,
+                MonotonicTypeEnum.Deceasing => highFrequency - dLinearFrequencies - dAstigmatismFrequencies - dSphericalAberrationFrequencies - dSecondaryAstigmatismFrequencies - dComaFrequencies - dTrefoilFrequencies - dQuadrafoilFrequencies - dAlphaOrderFrequencies,
+                MonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(flatnessSampleIndices.Length, centerFrequency),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(monotonicTypeEnum))
+            };
+
+            if (dFlatnessFrequencies.Exists(f => f <= 0 || f > readonlyHighFrequency * 1.5)) ThrowHelper.ThrowArgumentException(nameof(dFlatnessFrequencies), $"Synthesized frequencies must be in the range (0, {readonlyHighFrequency * 1.5:f3} MHz)");
+
+            #endregion 频率
+
+            #region 相位
+
+            var dHeaderPhases = 2 * Math.PI * dHeaderFrequencies * dt;
+            var headerPhases = dHeaderPhases.IntegrateCumulative();
+            var dFooterPhases = 2 * Math.PI * dFooterFrequencies * dt;
+            var footerPhases = dFooterPhases.IntegrateCumulative();
+            var dFlatnessPhases = 2 * Math.PI * dFlatnessFrequencies * dt;
+            var flatnessPhases = dFlatnessPhases.IntegrateCumulative();
+
+            #endregion 相位
+
+            #region 波形
+
+            if (headerSampleIndices.Length > 0) aodWaveSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], amplitude * headerPhases.PointwiseCos().PointwiseMultiply(Vector<double>.Build.DenseOfArray(headerSampleIndices) / headerSampleIndices.Length));
+            aodWaveSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], amplitude * flatnessPhases.PointwiseCos());
+            if (footerSampleIndices.Length > 0) aodWaveSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerPhases.PointwiseCos().PointwiseMultiply(1 - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1) / footerSampleIndices.Length));
+
+            #endregion 波形
+
+            #region 傅里叶
+
+            var flatnessAodWaveSignals = aodWaveSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
+            fftResult = flatnessAodWaveSignals.ToComplex().FastFourierTransform();
+            (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(sampleRate);
+
+            #endregion 傅里叶
+
+            #region 平坦部分的起始和终止频率
+
+            var fftDerivative = fftMagnitudes.Differentiate() / fftFrequencies.Differentiate();
+            var fftDerivativeFrequencies = fftFrequencies.SubVectorRange(0, fftFrequencies.Count - 2);
+
+            // 寻找极值点
+            const double threshold = 0.0001;
+            var indices = fftDerivative.FindAbsAbove(threshold);
+            var headerIndices = GenerateHelper.LinearIndexRange(0, indices[0] - 1);
+            var flatnessIndices = GenerateHelper.LinearIndexRange(indices[0], indices[^1]);
+            var footerIndices = GenerateHelper.LinearIndexRange(indices[^1] + 1, fftDerivative.Count - 1);
+
+            var fftDerivativeSign = Vector<double>.Build.SameAs(fftDerivative);
+            fftDerivativeSign.SetByIndices(flatnessIndices, fftDerivative.GetByIndices(flatnessIndices).PointwiseSign());
+            fftDerivativeSign.SetByIndices(headerIndices, Vector<double>.Build.Dense(headerIndices.Length, fftDerivativeSign[flatnessIndices[0]]));
+            fftDerivativeSign.SetByIndices(footerIndices, Vector<double>.Build.Dense(footerIndices.Length, fftDerivativeSign[flatnessIndices[^1]]));
+
+            var fftExtremumPointIndices = fftDerivativeSign.Differentiate().FindAll(d => d != 0); // 通过sign寻找极值点, 极值点的索引都提前了1个点
+            var fftExtremumPointFrequencies = fftFrequencies.GetByIndices([.. fftExtremumPointIndices.Select(d => d + 1)]);
+            var readonlyMinFrequency = minFlatnessFrequency = fftExtremumPointFrequencies[0];
+            var readonlyMaxFrequency = maxFlatnessFrequency = fftExtremumPointFrequencies[^1];
+
+            // 寻找拐点
+            var fftSecondDerivative = fftDerivative.Differentiate() / fftDerivativeFrequencies.Differentiate();
+
+            indices = fftSecondDerivative.FindAbsAbove(0.0001);
+            headerIndices = GenerateHelper.LinearIndexRange(0, indices[0] - 1);
+            flatnessIndices = GenerateHelper.LinearIndexRange(indices[0], indices[^1]);
+            footerIndices = GenerateHelper.LinearIndexRange(indices[^1] + 1, fftSecondDerivative.Count - 1);
+
+            var fftSecondDerivativeSign = Vector<double>.Build.SameAs(fftSecondDerivative);
+            fftSecondDerivativeSign.SetByIndices(flatnessIndices, fftSecondDerivative.GetByIndices(flatnessIndices).PointwiseSign());
+            fftSecondDerivativeSign.SetByIndices(headerIndices, Vector<double>.Build.Dense(headerIndices.Length, fftSecondDerivativeSign[flatnessIndices[0]]));
+            fftSecondDerivativeSign.SetByIndices(footerIndices, Vector<double>.Build.Dense(footerIndices.Length, fftSecondDerivativeSign[flatnessIndices[^1]]));
+
+            var fftInflectionPointIndices = fftSecondDerivativeSign.Differentiate().FindAll(d => d != 0); // 通过sign寻找拐点点, 极值点的索引都提前了1个点
+            var fftInflectionPointFrequencies = fftFrequencies.GetByIndices([.. fftInflectionPointIndices.Select(d => d + 1)]);
+
+            switch (monotonicTypeEnum)
+            {
+                case MonotonicTypeEnum.Flatness:
+                    if (Math.Abs(minFlatnessFrequency - maxFlatnessFrequency) > ConstantHelper.Tolerance) ThrowHelper.ThrowArgumentException("leftFreq != rightFreq");
+                    break;
+
+                case MonotonicTypeEnum.Deceasing:
+                case MonotonicTypeEnum.Increasing:
+                    var leftIndex = fftInflectionPointFrequencies.Find(d => d < readonlyMinFrequency);
+                    var rightIndex = fftInflectionPointFrequencies.FindLast(d => d > readonlyMaxFrequency);
+
+                    minFlatnessFrequency = leftIndex?.Item2 ?? double.NaN;
+                    maxFlatnessFrequency = rightIndex?.Item2 ?? double.NaN;
+                    if (double.IsNaN(minFlatnessFrequency) || double.IsNaN(maxFlatnessFrequency)) ThrowHelper.ThrowArgumentException("leftFreq or rightFreq is NaN");
+
+                    break;
+
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(monotonicTypeEnum));
+                    break;
+            }
+
+            #endregion 平坦部分的起始和终止频率
+
+            #region 修正
+
+            if (monotonicTypeEnum == MonotonicTypeEnum.Flatness)
+            {
+                if (Math.Abs(centerFrequency - readonlyCenterFrequency) < sampleRate / flatnessSampleIndices.Length) break;
+                if (centerFrequency < readonlyCenterFrequency)
                 {
-                    var frequency = aodWaveFlatnessTotalFrequencySignals[i];
-                    double? compensation = null;
-                    if (frequencyCompensations is not null)
-                    {
-                        if (BinarySearch.TryValueIndexRange(
-                                [.. frequencyCompensations.Select(tt => tt.X)],
-                                flatnessSampleFrequencies[i],
-                                out var startColumnIndex,
-                                out var endColumnIndex))
-                        {
-                            compensation = Interpolator.Linear(frequencyCompensations[startColumnIndex], frequencyCompensations[endColumnIndex], flatnessSampleFrequencies[i]);
-                        }
-                    }
-
-                    aodWaveSignals[flatnessSampleIndices[i]] = aodWaveSignalsSinc[i] * Math.Cos(2 * Math.PI * frequency * (flatnessSampleIndices[i] + 1) / sampleRate) * amplitude * (compensation ?? 1d);
-                }
-
-                #endregion Flatness
-
-                /*
-                 * 固定频率 cos(2*pi*f*x) * 递增增益(头部信号的增益, 在[0,1]之间严格递增序列) * 固定增益
-                 * f = lowFrequency or highFrequency, T = 2*pi/(2*pi*f) = 1/f
-                 * x = (headerSampleIndices[i] + 1) / sampleRate
-                 * 单位: Mhz*sa/(Msa/s) = (10^6s^-1)*sa/(10^6sa/s) = (10^6s^-1)/(10^6s^-1)*sa/sa = 无量纲
-                 */
-                var headerAmplitudes = headerSampleIndices
-                    .Select(temp => (double)(temp + 1) / headerSampleIndices.Length)
-                    .ToArray();
-                for (var i = 0; i < headerSampleIndices.Length; i++)
-                    aodWaveSignals[headerSampleIndices[i]] = Math.Cos(2 * Math.PI * monotonicTypeEnum switch
-                    {
-                        MonotonicTypeEnum.Increasing => lowFrequency,
-                        MonotonicTypeEnum.Deceasing => highFrequency,
-                        MonotonicTypeEnum.Flatness => centerFrequency,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                    } * (headerSampleIndices[i] + 1) / sampleRate) * headerAmplitudes[i] * amplitude; // 固定频率 cos(2*pi*T), 递增增益
-
-                /*
-                 * 固定频率 cos(2*pi*f*x) * 递减(尾部信号的增益, 在[0,1]之间严格递减小序列) * 固定增益
-                 * f = lowFrequency or highFrequency, T = 2*pi/(2*pi*f) = 1/f
-                 * x = (footerSampleIndices[i] + 1) / sampleRate
-                 * 单位: Mhz*sa/(Msa/s) = (10^6s^-1)*sa/(10^6sa/s) = (10^6s^-1)/(10^6s^-1)*sa/sa = 无量纲
-                 */
-                var footerAmplitudes = headerSampleIndices
-                    .Reverse()
-                    .Select(temp => (double)(temp + 1) / headerSampleIndices.Length)
-                    .ToArray();
-                for (var i = 0; i < footerSampleIndices.Length; i++)
-                    aodWaveSignals[footerSampleIndices[i]] = Math.Cos(2 * Math.PI * monotonicTypeEnum switch
-                    {
-                        MonotonicTypeEnum.Increasing => highFrequency,
-                        MonotonicTypeEnum.Deceasing => lowFrequency,
-                        MonotonicTypeEnum.Flatness => centerFrequency,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
-                    } * (footerSampleIndices[i] + 1) / sampleRate) * footerAmplitudes[i] * amplitude; // 固定频率 cos(2*pi*T), 递减增益
-
-                var freq = Generate.LinearSpaced(flatnessSampleIndices.Length, -sampleRate / 2d, sampleRate / 2d); // 起点: start 终点: stop 步进: step = (stop - start) / (length - 1), 包含起点终点
-                var matlabFastFourierTransform = FourierTransform.MatlabFastFourierTransform(Vector<double>.Build.DenseOfEnumerable(flatnessSampleIndices.Select(temp => aodWaveSignals[temp]))).Map(c => c.Magnitude); // 平坦区域进行 Matlab FFT, 并得到 FFT的幅值
-                /*
-                 *  FFT with fftshift
-                 *  |
-                 *  |       *       *
-                 *  |     *   *   *   *
-                 *  |   *       *       *
-                 *  -------------------------
-                 *  -Fs/2        0        Fs/2
-                 *
-                 *  FFT without fftshift
-                 *  |
-                 *  |       *       *
-                 *  |     *   *   *   *
-                 *  |   *       *       *
-                 *  -------------------------
-                 *  0        Fs/2        Fs
-                 */
-                var fourierResult = FourierTransform.MatlabFastFourierTransformShift(matlabFastFourierTransform).ToArray(); // 将零频分量移动到数组中心，正负频率对称, 得到快速傅里叶变换结果
-                aodWaveSignalsFourier = [.. freq.Select((t, i) => new Point(t, fourierResult[i]))];
-
-                if (monotonicTypeEnum is MonotonicTypeEnum.Flatness)
-                {
-                    var max = aodWaveSignalsFourier.OrderByDescending(t => t.Y).Take(2).OrderByDescending(t => t.X).ToArray();
-
-                    var frequency = Math.Abs(max[0].X);
-
-                    if (Math.Abs(frequency - readonlyHighFrequency) < sampleRate / flatnessSampleIndices.Length)
-                    {
-                        isSuccess = true;
-                        break;
-                    }
-
-                    if (frequency < readonlyCenterFrequency)
-                    {
-                        centerFrequency += sampleRate / (2d * totalSampleIndices.Length);
-                    }
-                    else
-                    {
-                        centerFrequency -= sampleRate / (2d * totalSampleIndices.Length);
-                    }
+                    centerFrequency += sampleRate / (2d * flatnessSampleIndices.Length);
                 }
                 else
                 {
-                    var lowFlatnessFrequencyIndex = (int)Math.Round(((lowFrequency + highFrequency) / 2d - (highFrequency - lowFrequency) / 4d)
-                                                                    / (sampleRate / flatnessSampleIndices.Length)
-                                                                    + flatnessSampleIndices.Length / 2d, MidpointRounding.AwayFromZero) - 1; // 平坦区域的低频
-                    var highFlatnessFrequencyIndex = (int)Math.Round(((lowFrequency + highFrequency) / 2d + (highFrequency - lowFrequency) / 4d)
-                                                                     / (sampleRate / flatnessSampleIndices.Length)
-                                                                     + flatnessSampleIndices.Length / 2d, MidpointRounding.AwayFromZero) - 1; // 平坦区域的高频
-#if NET
-                    var mean = fourierResult[lowFlatnessFrequencyIndex..(highFlatnessFrequencyIndex + 1)].ToArray().Average();
-#else
-                    var mean = fourierResult.AsSpan()[lowFlatnessFrequencyIndex..(highFlatnessFrequencyIndex + 1)].ToArray().Average();
-#endif
-                    var x1 = Generate.LinearRangeInt32((int)Math.Round(flatnessSampleIndices.Length / 2d, MidpointRounding.AwayFromZero) - 1, 1, fourierResult.Length - 1)
-                        .Where(temp => fourierResult[temp] - mean > 0)
-                        .Select(temp => Math.Abs(fourierResult[temp] - mean) > Math.Abs(fourierResult[temp - 1] - mean)
-                            ? temp - 1
-                            : (int?)temp)
-                        .FirstOrDefault();
-                    if (x1 is null) ThrowHelper.ThrowInvalidOperationException("find flatness start(x1) failed");
-
-                    var x2 = Generate.LinearRangeInt32(0, 1, fourierResult.Length - 1)
-                        .Where(temp => fourierResult[fourierResult.Length - 1 - temp] - mean > 0)
-                        .Select(temp => Math.Abs(fourierResult[fourierResult.Length - 1 - temp] - mean) > Math.Abs(fourierResult[fourierResult.Length - 1 - temp + 1] - mean)
-                            ? fourierResult.Length - 1 - temp + 1
-                            : (int?)(fourierResult.Length - 1 - temp))
-                        .FirstOrDefault();
-                    if (x2 is null) ThrowHelper.ThrowInvalidOperationException("find flatness end(x2) failed");
-
-                    if (monotonicTypeEnum is MonotonicTypeEnum.Increasing)
-                    {
-                        if (Math.Abs(freq[x1.Value] - readonlyLowFrequency) < sampleRate / flatnessSampleIndices.Length)
-                        {
-                            if (Math.Abs(freq[x2.Value] - readonlyHighFrequency) < sampleRate / flatnessSampleIndices.Length)
-                            {
-                                isSuccess = true;
-                                break;
-                            }
-
-                            if (freq[x1.Value] < readonlyHighFrequency)
-                                bandwidthTemp -= sampleRate / (2d * totalSampleIndices.Length);
-                            else
-                                bandwidthTemp += sampleRate / (2d * totalSampleIndices.Length);
-                        }
-                        else if (freq[x2.Value] < readonlyLowFrequency)
-                            lowFrequency += sampleRate / (2d * totalSampleIndices.Length);
-                        else
-                            lowFrequency -= sampleRate / (2d * totalSampleIndices.Length);
-                    }
+                    centerFrequency -= sampleRate / (2d * flatnessSampleIndices.Length);
+                }
+            }
+            else if (monotonicTypeEnum == MonotonicTypeEnum.Increasing)
+            {
+                if (Math.Abs(minFlatnessFrequency - readonlyLowFrequency) < sampleRate / flatnessSampleIndices.Length)
+                {
+                    if (Math.Abs(maxFlatnessFrequency - readonlyHighFrequency) < sampleRate / flatnessSampleIndices.Length) break;
+                    if (maxFlatnessFrequency < readonlyHighFrequency)
+                        bandWidth += sampleRate / (2d * flatnessSampleIndices.Length);
                     else
-                    {
-                        if (Math.Abs(freq[x2.Value] - readonlyHighFrequency) < sampleRate / flatnessSampleIndices.Length)
-                        {
-                            if (Math.Abs(freq[x1.Value] - readonlyLowFrequency) < sampleRate / flatnessSampleIndices.Length)
-                            {
-                                isSuccess = true;
-                                break;
-                            }
+                        bandWidth -= sampleRate / (2d * flatnessSampleIndices.Length);
+                }
+                else if (minFlatnessFrequency < readonlyLowFrequency)
+                    lowFrequency += sampleRate / (2d * flatnessSampleIndices.Length);
+                else
+                    lowFrequency -= sampleRate / (2d * flatnessSampleIndices.Length);
+            }
+            else if (monotonicTypeEnum == MonotonicTypeEnum.Deceasing)
+            {
+                if (Math.Abs(maxFlatnessFrequency - readonlyHighFrequency) < sampleRate / flatnessSampleIndices.Length)
+                {
+                    if (Math.Abs(minFlatnessFrequency - readonlyLowFrequency) < sampleRate / flatnessSampleIndices.Length) break;
+                    if (minFlatnessFrequency < readonlyLowFrequency)
+                        bandWidth -= sampleRate / (2d * flatnessSampleIndices.Length);
+                    else
+                        bandWidth += sampleRate / (2d * flatnessSampleIndices.Length);
+                }
+                else if (maxFlatnessFrequency < readonlyHighFrequency)
+                    highFrequency += sampleRate / (2d * flatnessSampleIndices.Length);
+                else
+                    highFrequency -= sampleRate / (2d * flatnessSampleIndices.Length);
+            }
+            else
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(monotonicTypeEnum));
+            }
 
-                            if (freq[x1.Value] < readonlyLowFrequency)
-                                bandwidthTemp -= sampleRate / (2d * totalSampleIndices.Length);
-                            else
-                                bandwidthTemp += sampleRate / (2d * totalSampleIndices.Length);
-                        }
-                        else if (freq[x2.Value] < readonlyHighFrequency)
-                            highFrequency += sampleRate / (2d * totalSampleIndices.Length);
-                        else
-                            highFrequency -= sampleRate / (2d * totalSampleIndices.Length);
-                    }
+            #endregion 修正
+
+            if (++count > generateRetryTimes) ThrowHelper.ThrowInvalidOperationException("AOD waveforms could not be generated");
+        }
+
+        var frequencyCompensationsResult = new List<Point>();
+
+        if (monotonicTypeEnum != MonotonicTypeEnum.Flatness && (frequencyAmplitudes?.Length > 0 || sincCoefficient != 0))
+        {
+            var fftFullFrequencies = fftResult.GetFullFrequencies(sampleRate);
+            var indices = fftFullFrequencies.FindAll(d => minFlatnessFrequency <= Math.Abs(d) && Math.Abs(d) <= maxFlatnessFrequency);
+            if (frequencyAmplitudes?.Length > 0)
+            {
+                foreach (var index in indices)
+                {
+                    var f = Math.Abs(fftFullFrequencies[index]);
+                    var compensation = BinarySearch.TryValueIndexRange(
+                        [.. frequencyAmplitudes.Select(tt => tt.X)],
+                        f,
+                        out var startColumnIndex,
+                        out var endColumnIndex)
+                        ? Interpolator.Linear(frequencyAmplitudes[startColumnIndex], frequencyAmplitudes[endColumnIndex], f)
+                        : f <= frequencyAmplitudes.First().X
+                            ? frequencyAmplitudes.First().Y
+                            : frequencyAmplitudes.Last().Y;
+
+                    fftResult[index] *= compensation;
+                    if (fftFullFrequencies[index] >= 0) frequencyCompensationsResult.Add(new Point(f, compensation));
+                }
+            }
+            else
+            {
+                var compensations = Vector<double>.Build.Dense(indices.Length);
+
+                for (var i = 0; i < indices.Length; i++)
+                {
+                    var index = indices[i];
+                    var f = Math.Abs(fftFullFrequencies[index]);
+                    var x = sincCoefficient * (f - readonlyCenterFrequency) / readonlyBandwidth;
+                    var compensation = x == 0
+                        ? 1
+                        : 1 / (Math.Sin(x) / x + 1e-10);
+                    compensations[i] = compensation;
                 }
 
-                if (++count > generateRetryTimes) ThrowHelper.ThrowInvalidOperationException("AOD waveforms could not be generated");
+                compensations /= compensations.AbsoluteMaximum();
+
+                for (var i = 0; i < indices.Length; i++)
+                {
+                    var index = indices[i];
+                    var f = Math.Abs(fftFullFrequencies[index]);
+
+                    var compensation = compensations[i];
+                    fftResult[index] *= compensation;
+
+                    if (fftFullFrequencies[index] >= 0) frequencyCompensationsResult.Add(new Point(f, compensation));
+                }
             }
-            catch (Exception ex)
-            {
-                exception = ex;
-                isSuccess = false;
-                break;
-            }
+
+            var recoveredSignal = fftResult.InverseFastFourierTransform().Real();
+            if (recoveredSignal.AbsoluteMaximum() > amplitude)
+                recoveredSignal = recoveredSignal / recoveredSignal.AbsoluteMaximum() * amplitude;
+            aodWaveSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], recoveredSignal);
+
+            fftResult = recoveredSignal.ToComplex().FastFourierTransform();
+            (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(sampleRate);
         }
 
         /*
@@ -837,24 +726,18 @@ public static class AodWaveGenerator
         File.WriteAllText(aodWaveFilePath, string.Join(Environment.NewLine, hexStrings));
 
         return (
-            isSuccess,
             aodWaveFilePath,
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessLinearFrequencySignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessNonLinearFrequencySignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessTotalFrequencySignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessLinearCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessAstigmatismCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessSphericalAberrationCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessSecondaryAstigmatismCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessComaCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessTrefoilCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessQuadrafoilCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessAlphaOrderCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessNonlinearCompensationSignals[index])).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveFlatnessTotalCompensationSignals[index])).ToArray(),
-            totalSampleIndices.Select(t => new Point(t + 1, aodWaveSignals[t])).ToArray(),
-            aodWaveSignalsFourier.Where(t => t.X >= 0).ToArray(),
-            flatnessSampleIndices.Select((t, index) => new Point(t + 1, aodWaveSignalsSinc[index])).ToArray(),
-            exception);
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dLinearFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dFlatnessFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dAstigmatismFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dSphericalAberrationFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dSecondaryAstigmatismFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dComaFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dTrefoilFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dQuadrafoilFrequencies[index])).ToArray(),
+            flatnessSampleIndices.Select((t, index) => new Point(t + 1, dAlphaOrderFrequencies[index])).ToArray(),
+            allSampleIndices.Select(t => new Point(t + 1, aodWaveSignals[t])).ToArray(),
+            fftFrequencies.Zip(fftMagnitudes, (f, m) => new Point(f, m)).ToArray(),
+            frequencyCompensationsResult.ToArray());
     }
 }

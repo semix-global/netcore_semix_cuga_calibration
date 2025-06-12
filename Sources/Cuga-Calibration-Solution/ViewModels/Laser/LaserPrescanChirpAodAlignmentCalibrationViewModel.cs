@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -317,8 +316,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var item = new LaserPrescanChirpAodAlignmentItemDto();
-                var (isSuccess,
-                    aodWaveFilePath,
+                var (aodWaveFilePath,
                     _,
                     _,
                     _,
@@ -328,13 +326,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                     _,
                     _,
                     _,
-                    _,
-                    _,
-                    _,
-                    _, _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                    _) = AodWaveGenerator.GeneratePrescanAodWaveFile(
                     0,
                     centerFrequency,
                     Cache.PrescanFlatnessTime,
@@ -345,7 +339,6 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                     zeroSampleCount: Cache.PrescanZeroNum,
                     endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
                     generateRetryTimes: Cache.PrescanGenerateRetryCount);
-                if (isSuccess == false) ThrowHelper.ThrowInvalidDataException(string.Empty, exception);
 
                 item.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
                 item.PrescanCenterFrequency = centerFrequency;
@@ -355,7 +348,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
                 var prescanDto = LaserViewModel.ReadPrescanByFile(item.PrescanFilePath, 1);
 
-                (isSuccess, var channel1DarkFieldImageDto, var channel2DarkFieldImageDto, var channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
+                var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
                 if (isSuccess == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Get Dark Field Line Scan Image Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -415,13 +408,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             ResultCalibrateDto.RSquared = rSquared;
             ResultCalibrateDto.ItemFitPoints = [.. itemPoints.Select((t, i) => new Point(t.X, yPredicted[i]))];
 
-            var (isSuccessResult,
-                aodWaveFilePathResult,
-                _,
-                _,
-                _,
-                _,
-                _,
+            var (aodWaveFilePathResult,
                 _,
                 _,
                 _,
@@ -433,7 +420,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 _,
                 aodWaveSignalsResult,
                 aodWaveSignalsFourierResult,
-                exceptionResult) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                _) = AodWaveGenerator.GeneratePrescanAodWaveFile(
                 Math.Abs(yPixelHeight / ResultCalibrateDto.Slope),
                 (yPixelHeight / 2d - ResultCalibrateDto.Intercept) / ResultCalibrateDto.Slope,
                 yPixelHeight * 4d,
@@ -444,7 +431,6 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 zeroSampleCount: Cache.PrescanZeroNum,
                 endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
                 generateRetryTimes: Cache.PrescanGenerateRetryCount);
-            if (isSuccessResult == false) ThrowHelper.ThrowInvalidDataException(string.Empty, exceptionResult);
 
             ResultCalibrateDto.PrescanSignals = aodWaveSignalsResult;
             ResultCalibrateDto.PrescanFouriers = aodWaveSignalsFourierResult;

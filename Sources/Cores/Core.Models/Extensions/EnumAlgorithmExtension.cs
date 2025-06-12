@@ -5,6 +5,7 @@ using CalibrationSetting = Core.Models.Models.Setting.CalibrationSetting;
 
 #if NET
 using Semix.GRPC.DTO.Basic;
+
 #else
 using Semix.WcfTransfer.DTO.Basic;
 

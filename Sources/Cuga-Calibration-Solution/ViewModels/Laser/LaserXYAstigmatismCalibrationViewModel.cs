@@ -1036,13 +1036,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
             // 生成结果chirpAOD波形
             if (isAutoGenerate)
             {
-                (Cache.AodWaveSignal, Cache.AodWaveSignalFourier, var isGenerateSuccess) = chirpAodChangeDto.GenerateChirpAodWave();
-                if (!isGenerateSuccess)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Generate chirp aod wave failed."), HtmlLogUniqueId.LoggingHtml());
-                    return (chirpAodChangeDto, false);
-                }
-
+                (Cache.AodWaveSignal, Cache.AodWaveSignalFourier) = chirpAodChangeDto.GenerateChirpAodWave();
                 (_, chirpAodChangeDto) = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodChangeDto, rateRange);
             }
             else

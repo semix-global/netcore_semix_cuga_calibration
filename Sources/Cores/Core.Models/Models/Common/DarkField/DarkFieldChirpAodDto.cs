@@ -111,19 +111,13 @@ public sealed partial class DarkFieldChirpAodWaveDto : ObservableCacheBase, IClo
     [ObservableProperty]
     private List<byte> _chirpAodWaveByteList = [];
 
-    public (List<(double, double)> AodWaveSignal, List<(double, double)> AodWaveSignalFourier, bool isSuccess) GenerateChirpAodWave()
+    public (List<(double, double)> AodWaveSignal, List<(double, double)> AodWaveSignalFourier) GenerateChirpAodWave()
     {
         var directoryName = Path.GetDirectoryName(IncrementChirpAodFilePath);
 
         Guard.IsNotNullOrWhiteSpace(directoryName, nameof(directoryName));
 
-        var (isSuccess,
-            aodWaveFilePath,
-            _,
-            _,
-            _,
-            _,
-            _,
+        var (aodWaveFilePath,
             _,
             _,
             _,
@@ -148,7 +142,7 @@ public sealed partial class DarkFieldChirpAodWaveDto : ObservableCacheBase, IClo
             generateRetryTimes: GenerateRetryCount);
 
         IncrementChirpAodFilePath = aodWaveFilePath;
-        return (aodWaveSignals.Select(t => (t.X, t.Y)).ToList(), aodWaveSignalsFourier.Select(t => (t.X, t.Y)).ToList(), isSuccess);
+        return (aodWaveSignals.Select(t => (t.X, t.Y)).ToList(), aodWaveSignalsFourier.Select(t => (t.X, t.Y)).ToList());
     }
 
     #region Mapper

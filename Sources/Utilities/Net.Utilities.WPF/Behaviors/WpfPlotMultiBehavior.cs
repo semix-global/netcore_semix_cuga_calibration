@@ -248,6 +248,281 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
 
     #endregion Plot3
 
+    #region Plot4
+
+    public string Plot4Title
+    {
+        get => (string)GetValue(Plot4TitleProperty);
+        set => SetValue(Plot4TitleProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot4TitleProperty = DependencyProperty.Register(
+        nameof(Plot4Title),
+        typeof(string),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(string.Empty, PropertyChangedCallback)
+    );
+
+    public Color Plot4Color
+    {
+        get => (Color)GetValue(Plot4ColorProperty);
+        set => SetValue(Plot4ColorProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot4ColorProperty = DependencyProperty.Register(
+        nameof(Plot4Color),
+        typeof(Color),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(Colors.Category10[4], PropertyChangedCallback));
+
+    public IEnumerable<Point>? Plot4
+    {
+        get => (IEnumerable<Point>?)GetValue(Plot4Property);
+        set => SetValue(Plot4Property, value);
+    }
+
+    public static readonly DependencyProperty Plot4Property = DependencyProperty.Register(
+        nameof(Plot4),
+        typeof(IEnumerable<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    public List<Point>? MarkShape4
+    {
+        get => (List<Point>?)GetValue(MarkShape4Property);
+        set => SetValue(MarkShape4Property, value);
+    }
+
+    public static readonly DependencyProperty MarkShape4Property = DependencyProperty.Register(
+        nameof(MarkShape4),
+        typeof(List<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    #endregion Plot4
+
+    #region Plot5
+
+    public string Plot5Title
+    {
+        get => (string)GetValue(Plot5TitleProperty);
+        set => SetValue(Plot5TitleProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot5TitleProperty = DependencyProperty.Register(
+        nameof(Plot5Title),
+        typeof(string),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(string.Empty, PropertyChangedCallback)
+    );
+
+    public Color Plot5Color
+    {
+        get => (Color)GetValue(Plot5ColorProperty);
+        set => SetValue(Plot5ColorProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot5ColorProperty = DependencyProperty.Register(
+        nameof(Plot5Color),
+        typeof(Color),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(Colors.Category10[5], PropertyChangedCallback));
+
+    public IEnumerable<Point>? Plot5
+    {
+        get => (IEnumerable<Point>?)GetValue(Plot5Property);
+        set => SetValue(Plot5Property, value);
+    }
+
+    public static readonly DependencyProperty Plot5Property = DependencyProperty.Register(
+        nameof(Plot5),
+        typeof(IEnumerable<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    public List<Point>? MarkShape5
+    {
+        get => (List<Point>?)GetValue(MarkShape5Property);
+        set => SetValue(MarkShape5Property, value);
+    }
+
+    public static readonly DependencyProperty MarkShape5Property = DependencyProperty.Register(
+        nameof(MarkShape5),
+        typeof(List<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    #endregion Plot5
+
+    #region Plot6
+
+    public string Plot6Title
+    {
+        get => (string)GetValue(Plot6TitleProperty);
+        set => SetValue(Plot6TitleProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot6TitleProperty = DependencyProperty.Register(
+        nameof(Plot6Title),
+        typeof(string),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(string.Empty, PropertyChangedCallback)
+    );
+
+    public Color Plot6Color
+    {
+        get => (Color)GetValue(Plot6ColorProperty);
+        set => SetValue(Plot6ColorProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot6ColorProperty = DependencyProperty.Register(
+        nameof(Plot6Color),
+        typeof(Color),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(Colors.Category10[6], PropertyChangedCallback));
+
+    public IEnumerable<Point>? Plot6
+    {
+        get => (IEnumerable<Point>?)GetValue(Plot6Property);
+        set => SetValue(Plot6Property, value);
+    }
+
+    public static readonly DependencyProperty Plot6Property = DependencyProperty.Register(
+        nameof(Plot6),
+        typeof(IEnumerable<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    public List<Point>? MarkShape6
+    {
+        get => (List<Point>?)GetValue(MarkShape6Property);
+        set => SetValue(MarkShape6Property, value);
+    }
+
+    public static readonly DependencyProperty MarkShape6Property = DependencyProperty.Register(
+        nameof(MarkShape6),
+        typeof(List<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    #endregion Plot6
+
+    #region Plot7
+
+    public string Plot7Title
+    {
+        get => (string)GetValue(Plot7TitleProperty);
+        set => SetValue(Plot7TitleProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot7TitleProperty = DependencyProperty.Register(
+        nameof(Plot7Title),
+        typeof(string),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(string.Empty, PropertyChangedCallback)
+    );
+
+    public Color Plot7Color
+    {
+        get => (Color)GetValue(Plot7ColorProperty);
+        set => SetValue(Plot7ColorProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot7ColorProperty = DependencyProperty.Register(
+        nameof(Plot7Color),
+        typeof(Color),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(Colors.Category10[7], PropertyChangedCallback));
+
+    public IEnumerable<Point>? Plot7
+    {
+        get => (IEnumerable<Point>?)GetValue(Plot7Property);
+        set => SetValue(Plot7Property, value);
+    }
+
+    public static readonly DependencyProperty Plot7Property = DependencyProperty.Register(
+        nameof(Plot7),
+        typeof(IEnumerable<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    public List<Point>? MarkShape7
+    {
+        get => (List<Point>?)GetValue(MarkShape7Property);
+        set => SetValue(MarkShape7Property, value);
+    }
+
+    public static readonly DependencyProperty MarkShape7Property = DependencyProperty.Register(
+        nameof(MarkShape7),
+        typeof(List<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    #endregion Plot7
+
+    #region Plot8
+
+    public string Plot8Title
+    {
+        get => (string)GetValue(Plot8TitleProperty);
+        set => SetValue(Plot8TitleProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot8TitleProperty = DependencyProperty.Register(
+        nameof(Plot8Title),
+        typeof(string),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(string.Empty, PropertyChangedCallback)
+    );
+
+    public Color Plot8Color
+    {
+        get => (Color)GetValue(Plot8ColorProperty);
+        set => SetValue(Plot8ColorProperty, value);
+    }
+
+    public static readonly DependencyProperty Plot8ColorProperty = DependencyProperty.Register(
+        nameof(Plot8Color),
+        typeof(Color),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(Colors.Category10[8], PropertyChangedCallback));
+
+    public IEnumerable<Point>? Plot8
+    {
+        get => (IEnumerable<Point>?)GetValue(Plot8Property);
+        set => SetValue(Plot8Property, value);
+    }
+
+    public static readonly DependencyProperty Plot8Property = DependencyProperty.Register(
+        nameof(Plot8),
+        typeof(IEnumerable<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    public List<Point>? MarkShape8
+    {
+        get => (List<Point>?)GetValue(MarkShape8Property);
+        set => SetValue(MarkShape8Property, value);
+    }
+
+    public static readonly DependencyProperty MarkShape8Property = DependencyProperty.Register(
+        nameof(MarkShape8),
+        typeof(List<Point>),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(null, PropertyChangedCallback)
+    );
+
+    #endregion Plot8
+
     private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
     {
         if (d is not WpfPlotMultiBehavior behaviors || behaviors.AssociatedObject is null) return;
@@ -301,6 +576,36 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
         {
             resultList.Add(("X", Plot3.Select(t => t.X).ToList()));
             resultList.Add((Plot3Title, Plot3.Select(t => t.Y).ToList()));
+        }
+
+        if (Plot4?.Count() > 0)
+        {
+            resultList.Add(("X", Plot4.Select(t => t.X).ToList()));
+            resultList.Add((Plot4Title, Plot4.Select(t => t.Y).ToList()));
+        }
+
+        if (Plot5?.Count() > 0)
+        {
+            resultList.Add(("X", Plot5.Select(t => t.X).ToList()));
+            resultList.Add((Plot5Title, Plot5.Select(t => t.Y).ToList()));
+        }
+
+        if (Plot6?.Count() > 0)
+        {
+            resultList.Add(("X", Plot6.Select(t => t.X).ToList()));
+            resultList.Add((Plot6Title, Plot6.Select(t => t.Y).ToList()));
+        }
+
+        if (Plot7?.Count() > 0)
+        {
+            resultList.Add(("X", Plot7.Select(t => t.X).ToList()));
+            resultList.Add((Plot7Title, Plot7.Select(t => t.Y).ToList()));
+        }
+
+        if (Plot8?.Count() > 0)
+        {
+            resultList.Add(("X", Plot8.Select(t => t.X).ToList()));
+            resultList.Add((Plot8Title, Plot8.Select(t => t.Y).ToList()));
         }
 
         // 获取最大行数
@@ -382,6 +687,66 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             }
 
             scatterPoints.LegendText = Plot3Title;
+        }
+
+        if (Plot4?.Count() > 0)
+        {
+            var scatterPoints = AssociatedObject.Plot.Add.Scatter(Plot4.Select(t => t.X).ToList(), Plot4.Select(t => t.Y).ToList(), Plot4Color);
+            scatterPoints.LegendText = Plot4Title;
+            if (MarkShape4 is not null)
+            {
+                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape4.Select(t => t.X)], [.. MarkShape4.Select(t => t.Y)]);
+                mk.MarkerShape = MarkerShape.OpenCircle;
+                mk.Color = Plot4Color;
+            }
+        }
+
+        if (Plot5?.Count() > 0)
+        {
+            var scatterPoints = AssociatedObject.Plot.Add.Scatter(Plot5.Select(t => t.X).ToList(), Plot5.Select(t => t.Y).ToList(), Plot5Color);
+            scatterPoints.LegendText = Plot5Title;
+            if (MarkShape5 is not null)
+            {
+                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape5.Select(t => t.X)], [.. MarkShape5.Select(t => t.Y)]);
+                mk.MarkerShape = MarkerShape.OpenCircle;
+                mk.Color = Plot5Color;
+            }
+        }
+
+        if (Plot6?.Count() > 0)
+        {
+            var scatterPoints = AssociatedObject.Plot.Add.Scatter(Plot6.Select(t => t.X).ToList(), Plot6.Select(t => t.Y).ToList(), Plot6Color);
+            scatterPoints.LegendText = Plot6Title;
+            if (MarkShape6 is not null)
+            {
+                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape6.Select(t => t.X)], [.. MarkShape6.Select(t => t.Y)]);
+                mk.MarkerShape = MarkerShape.OpenCircle;
+                mk.Color = Plot6Color;
+            }
+        }
+
+        if (Plot7?.Count() > 0)
+        {
+            var scatterPoints = AssociatedObject.Plot.Add.Scatter(Plot7.Select(t => t.X).ToList(), Plot7.Select(t => t.Y).ToList(), Plot7Color);
+            scatterPoints.LegendText = Plot7Title;
+            if (MarkShape7 is not null)
+            {
+                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape7.Select(t => t.X)], [.. MarkShape7.Select(t => t.Y)]);
+                mk.MarkerShape = MarkerShape.OpenCircle;
+                mk.Color = Plot7Color;
+            }
+        }
+
+        if (Plot8?.Count() > 0)
+        {
+            var scatterPoints = AssociatedObject.Plot.Add.Scatter(Plot8.Select(t => t.X).ToList(), Plot8.Select(t => t.Y).ToList(), Plot8Color);
+            scatterPoints.LegendText = Plot8Title;
+            if (MarkShape8 is not null)
+            {
+                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape8.Select(t => t.X)], [.. MarkShape8.Select(t => t.Y)]);
+                mk.MarkerShape = MarkerShape.OpenCircle;
+                mk.Color = Plot8Color;
+            }
         }
 
         AssociatedObject.Plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);

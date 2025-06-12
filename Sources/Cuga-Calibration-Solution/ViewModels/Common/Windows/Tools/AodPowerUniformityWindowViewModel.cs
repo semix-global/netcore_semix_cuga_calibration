@@ -1,7 +1,7 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.DarkField;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,6 +20,8 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+
+// ReSharper disable All
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -256,7 +258,7 @@ public partial class AodPowerUniformityWindowViewModel(
             if (dialog == false) return;
 
             FileHelper.DeleteFileIfExists(filePath);
-            MiniExcel.SaveAs(filePath, Items);
+            MiniExcel.SaveAs(filePath, Items.Select(t => new GenerateAodWaveUniformityItemDto { CenterFrequency = t.CenterFrequency, Coefficient = t.Coefficient }));
         }
         catch (Exception ex)
         {
@@ -354,13 +356,7 @@ public partial class AodPowerUniformityWindowViewModel(
         {
             try
             {
-                var (isSuccess,
-                    aodWaveFilePath,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
+                var (aodWaveFilePath,
                     _,
                     _,
                     _,
@@ -372,7 +368,7 @@ public partial class AodPowerUniformityWindowViewModel(
                     _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    exception) = OpticsAodTypeEnum == OpticsAodTypeEnum.Chirp
+                    _) = OpticsAodTypeEnum == OpticsAodTypeEnum.Chirp
                     ? AodWaveGenerator.GenerateChirpAodWaveFile(
                         0,
                         item.CenterFrequency,
@@ -395,7 +391,6 @@ public partial class AodPowerUniformityWindowViewModel(
                         zeroSampleCount: item.ZeroNum,
                         endpointSampleCount: 0,
                         generateRetryTimes: AodWaveGenerateRetryCount);
-                if (isSuccess == false) ThrowHelper.ThrowInvalidDataException(string.Empty, exception);
 
                 item.AodWaveFilePath = aodWaveFilePath;
                 item.AodWaveSignals = aodWaveSignals;
@@ -473,51 +468,41 @@ public partial class AodPowerUniformityWindowViewModel(
 public sealed partial class AodPowerUniformityItemDto : ObservableObject
 {
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private string _aodWaveFileDirectory = string.Empty;
 
     [ObservableProperty]
     private double _coefficient;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private double _chirpSoundPacketLength;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private double _prescanFlatnessTime;
 
     [ObservableProperty]
     private double _centerFrequency = 0.495;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private double _sampleRate = 1064;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private int _zeroNum;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private Point[] _aodWaveSignals = [];
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private Point[] _aodWaveSignalsFourier = [];
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private string _aodWaveFilePath = string.Empty;
 
     [ObservableProperty]
     private double _measurePower;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private double _rate;
 
     [ObservableProperty]
-    [property: MiniExcelLibs.Attributes.ExcelIgnore]
     private bool _isOk;
 }
