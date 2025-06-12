@@ -857,16 +857,39 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             transBuffer = await task.ConfigureAwait(false);
-            StageViewModel.SetXSpeedValue(Cache.SpeedXValueList.First());
-            if (transBuffer.Count > 0) return (true, transBuffer);
-            if (repeatCount > 5) return (false, transBuffer);
-            return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
+
+            if (repeatCount > 10) return (false, transBuffer);
+            if (transBuffer.Count <= 0) return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
+
+            var dataIsError = HasConsecutiveZeros(transBuffer[0], 50) &&
+                              HasConsecutiveZeros(transBuffer[1], 50) &&
+                              HasConsecutiveZeros(transBuffer[3], 50) &&
+                              HasConsecutiveZeros(transBuffer[4], 50) &&
+                              HasConsecutiveZeros(transBuffer[5], 50);
+            if(dataIsError) return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
+
+            var XSpeedList = transBuffer[6];
+            var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsCacheItem.SpeedXValue, 2) > 0.5);
+            var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
+            var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
+            
+            return (true, transBuffer);
         }
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, transBuffer);
+            if (repeatCount > 10) return (false, transBuffer);
+            
+            Logger.LogError(ex, "GetZ1Z2CurveAsync Error!");
             return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
+        }
+        
+        bool HasConsecutiveZeros(IEnumerable<double> array, int requiredZeros = 10)
+        {
+            return array
+                .SkipWhile(x => x != 0)              // 跳过非零部分
+                .TakeWhile(x => x == 0)              // 取连续的零
+                .Count() >= requiredZeros;           // 判断数量
         }
     }
     private async Task<(bool, List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>)> GetHrpAsync(AdsXGainsCacheItem adsXGainsHrpCacheItem, CancellationToken cancellationToken, int repeatCount = 1)
@@ -1065,8 +1088,8 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 RollMax = rollMax,
                 PitchMax = pitchMax,
                 PlotZ3Z4 = new HtmlPlot2DLinesChart([
-                    ("Z3", adsXGainsCacheItem.GetPlotZ1().ToPoints()), ("smoothZ3", adsXGainsCacheItem.GetSmoothPlotZ1().ToPoints()),
-                    ("Z4", adsXGainsCacheItem.GetPlotZ2().ToPoints()), ("smoothZ4", adsXGainsCacheItem.GetSmoothPlotZ2().ToPoints())
+                    ("Z3", transBuffer[0].ToPoints()), ("smoothZ3", adsXGainsCacheItem.GetSmoothPlotZ1().ToPoints()),
+                    ("Z4", transBuffer[1].ToPoints()), ("smoothZ4", adsXGainsCacheItem.GetSmoothPlotZ2().ToPoints())
                 ], "PlotZ3Z4"),
                 PlotHRP = new HtmlPlot2DLinesChart([("H", heightList.ToPoints()), ("R", rollList.ToPoints()), ("P", pitchList.ToPoints())], "PlotHRP")
             }), HtmlLogUniqueId.LoggingHtml());

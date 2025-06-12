@@ -331,6 +331,7 @@ public sealed class LiteDbCacheProviderImpl(
 
     private static bool RemoveExpirationCache<T>(ILiteCollection<T> liteCollection) where T : class, ICacheItem, new()
     {
+        return true;
         var totalCount = liteCollection
             .Query()
             .Where(t => t.IsDeleted == false)

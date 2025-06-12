@@ -87,7 +87,7 @@
                                           hc:InfoElement.Placeholder="Input x value"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="1"
-                                          Maximum="150"
+                                          Maximum="300"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.FindMaxY}" />
                         <hc:NumericUpDown x:Name="MinValueNumeric1"
