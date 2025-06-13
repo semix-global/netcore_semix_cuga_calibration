@@ -341,7 +341,7 @@ public static class AodWaveGenerator
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
         };
 
-        var readonlyBandwidth = bandWidth;
+        var readonlyBandWidth = bandWidth;
         var readonlyCenterFrequency = centerFrequency; // 中心频率
         var readonlyLowFrequency = lowFrequency;
         var readonlyHighFrequency = highFrequency;
@@ -363,7 +363,7 @@ public static class AodWaveGenerator
         var aodWaveFilePath = soundPacketLengthNullable is not null
             ? Path.Combine(aodWaveDirectory, $"chirp" +
                                              $"_{soundPacketLengthNullable.Value:0.###}mm" +
-                                             $"_{readonlyBandwidth:0.###}BWMhz" +
+                                             $"_{readonlyBandWidth:0.###}BWMhz" +
                                              $"_{frequencyFileName}" +
                                              $"_{flatnessTime:0.###}ns" +
                                              $"_{amplitude:0.###}AMP" +
@@ -376,7 +376,7 @@ public static class AodWaveGenerator
                                              $"_{numberOfSamples}Count" +
                                              $"${numberOfSamples}${zeroSampleCount}$600$03$.txt")
             : Path.Combine(aodWaveDirectory, $"prescan" +
-                                             $"_{readonlyBandwidth:0.###}BWMhz" +
+                                             $"_{readonlyBandWidth:0.###}BWMhz" +
                                              $"_{frequencyFileName}" +
                                              $"_{flatnessTime:0.###}ns" +
                                              $"_{amplitude:0.###}AMP" +
@@ -656,12 +656,13 @@ public static class AodWaveGenerator
             else
             {
                 var compensations = Vector<double>.Build.Dense(indices.Length);
-
+                var flatnessBandwidth = maxFlatnessFrequency - minFlatnessFrequency;
+                var flatnessCenterFrequency = minFlatnessFrequency + flatnessBandwidth / 2d;
                 for (var i = 0; i < indices.Length; i++)
                 {
                     var index = indices[i];
                     var f = Math.Abs(fftFullFrequencies[index]);
-                    var x = sincCoefficient * (f - readonlyCenterFrequency) / readonlyBandwidth;
+                    var x = sincCoefficient * (f - flatnessCenterFrequency) / flatnessBandwidth;
                     var compensation = x == 0
                         ? 1
                         : 1 / (Math.Sin(x) / x + 1e-10);
