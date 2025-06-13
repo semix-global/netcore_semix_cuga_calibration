@@ -26,7 +26,7 @@ pause
 
 set git_user=xuankaizhi
 set brance_name=main
-set repository_url=http://semix_df70:Aa123456@192.168.0.28:8099/semix/software/calibrationui/semix_cuga_calibration_2.0.git
+set repository_url=ssh://git@192.168.0.28:23334/semix/software/calibrationui/netcore_semix_cuga_calibration.git
 
 set apps_home=C:\APPs\Cuga-Calibration
 set repository_path=%apps_home%\Cuga-Calibration-Solution_Code
@@ -40,9 +40,9 @@ set devPackChsUrl=http://192.168.60.201:8090/chfs/shared/04_SDKS/NDP48-DevPack-C
 set gitUrl=http://192.168.60.201:8090/chfs/shared/04_SDKS/PortableGit-2.48.1-64-bit.zip
 if not exist "%tempDir%" mkdir "%tempDir%"
 
-set compile_mode="Release"
-set csproj_name=Calibration\Calibration.Wpf\Cuga-Calibration-Solution\Cuga-Calibration-Solution.csproj
-set csproj_output_name=Calibration\Calibration.Wpf\Cuga-Calibration-Solution\bin\\%compile_mode%\publish\net480\win-x64
+set compile_mode=Release
+set csproj_name=Sources\Cuga-Calibration-Solution\Cuga-Calibration-Solution.csproj
+set csproj_output_name=Sources\Cuga-Calibration-Solution\bin\%compile_mode%\publish\net480\win-x64
 
 echo.
 echo.
@@ -183,7 +183,7 @@ if not exist %repository_path%\%csproj_name% (
 if %is_already_clone%==0 (
 	mkdir %repository_path%
 	echo clone repository from server
-	%tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe clone -b %brance_name% %repository_url% %repository_path%
+	%tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe clone --recursive -b %brance_name% %repository_url% %repository_path%
 )
 
 cd /d %repository_path%
@@ -205,7 +205,6 @@ echo csproj_output_path: %repository_path%\%csproj_output_name%
 echo.
 
 if /I %compile_mode%=="Debug" (
-
 	echo.
 	echo.
 	echo it will take a while to compile, take a coffee break ...
