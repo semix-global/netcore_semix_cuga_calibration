@@ -7,11 +7,14 @@ public sealed class ListToStringConverter : AbstractSingletonConverterBase<ListT
 {
     public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is null) return string.Empty;
-        if (value is List<string> listString) return string.Join(", ", listString);
-        if (value is List<double> listDouble) return string.Join(", ", listDouble);
-        if (value is List<int> listInt) return string.Join(", ", listInt);
-        return DependencyProperty.UnsetValue;
+        return value switch
+        {
+            null => string.Empty,
+            IEnumerable<string> listString => string.Join(", ", listString),
+            IEnumerable<double> listDouble => string.Join(", ", listDouble),
+            IEnumerable<int> listInt => string.Join(", ", listInt),
+            _ => DependencyProperty.UnsetValue
+        };
     }
 
     public override object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

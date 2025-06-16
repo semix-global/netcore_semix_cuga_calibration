@@ -1,0 +1,555 @@
+﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AodGenerateWaveFileTrainingChirp2Window"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Enums.Maths;assembly=Net.Utilities"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:models="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools"
+           xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+           Width="1240"
+           Height="950"
+           d:DataContext="{d:DesignInstance Type=viewModels:AodGenerateWaveFileTrainingChirp2WindowViewModel}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!--#region Title-->
+        <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="Generate Chirp Wave File Training"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <!--#endregion-->
+        <!--#region Body-->
+        <Border Grid.Row="1"
+                Margin="1"
+                Padding="2"
+                Effect="{StaticResource EffectShadow1}"
+                Style="{StaticResource BorderRegion}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="500" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <!--#region Left-->
+                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                 IsInertiaEnabled="True"
+                                 VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <Expander ExpandDirection="Down"
+                                  Header="0. Chirp Aod Wave Param"
+                                  IsExpanded="False">
+                            <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:InfoElement.Title="Sound Package Length(mm): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding GenerateChirpAodWaveParamDto.SoundPackageLength}" />
+                                    <Border Margin="-5,0"
+                                            Padding="5,2"
+                                            Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <StackPanel Margin="0,3">
+                                                <TextBlock Text="Frequency(MHz)"
+                                                           HorizontalAlignment="Center"
+                                                           FontWeight="Bold"
+                                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Enable Header Footer:  "
+                                                           Width="180"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center" />
+                                                <ToggleButton IsChecked="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Background="{StaticResource DarkMaskBrush}"
+                                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                            </StackPanel>
+                                            <hc:NumericUpDown hc:InfoElement.Title="Header Frequency(MHz): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="180"
+                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                              Minimum="0"
+                                                              Value="{Binding GenerateChirpAodWaveParamDto.HeaderFrequency}">
+                                                <hc:NumericUpDown.Style>
+                                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Background" Value="LightGray" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </hc:NumericUpDown.Style>
+                                            </hc:NumericUpDown>
+                                            <hc:NumericUpDown hc:InfoElement.Title="Footer Frequency(MHz): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="180"
+                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                              Minimum="0"
+                                                              Value="{Binding GenerateChirpAodWaveParamDto.FooterFrequency}">
+                                                <hc:NumericUpDown.Style>
+                                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Background" Value="LightGray" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </hc:NumericUpDown.Style>
+                                            </hc:NumericUpDown>
+                                            <hc:NumericUpDown hc:InfoElement.Title="Band Width(MHz): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="180"
+                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                              Minimum="0"
+                                                              Value="{Binding GenerateChirpAodWaveParamDto.BandWidth}">
+                                                <hc:NumericUpDown.Style>
+                                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Background" Value="LightGray" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </hc:NumericUpDown.Style>
+                                            </hc:NumericUpDown>
+                                            <hc:NumericUpDown hc:InfoElement.Title="Center Frequency(MHz): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="180"
+                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                              Minimum="0"
+                                                              Value="{Binding GenerateChirpAodWaveParamDto.CenterFrequency}">
+                                                <hc:NumericUpDown.Style>
+                                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Background" Value="LightGray" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </hc:NumericUpDown.Style>
+                                            </hc:NumericUpDown>
+                                            <hc:ComboBox hc:InfoElement.Title="Monotonic: "
+                                                         hc:InfoElement.TitlePlacement="Left"
+                                                         hc:InfoElement.TitleWidth="180"
+                                                         IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:MonotonicTypeEnum}}}"
+                                                         SelectedItem="{Binding GenerateChirpAodWaveParamDto.MonotonicTypeEnum}">
+                                                <hc:ComboBox.Style>
+                                                    <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Background" Value="LightGray" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </hc:ComboBox.Style>
+                                                <hc:ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                    </DataTemplate>
+                                                </hc:ComboBox.ItemTemplate>
+                                            </hc:ComboBox>
+                                        </hc:UniformSpacingPanel>
+                                    </Border>
+                                    <hc:NumericUpDown hc:InfoElement.Title="SampleRate(Msa/s): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding GenerateChirpAodWaveParamDto.SampleRate}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
+                                                      Maximum="1"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding GenerateChirpAodWaveParamDto.Amplitude}" />
+                                    <Separator />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Zero Count(sa): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding GenerateChirpAodWaveParamDto.ZeroSampleCount}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Endpoint Count(sa): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding GenerateChirpAodWaveParamDto.EndpointSampleCount}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander ExpandDirection="Down"
+                                  Header="1. ROI"
+                                  IsExpanded="False">
+                            <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <TextBox Text="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}"
+                                             hc:InfoElement.Title="Position(um): "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="100"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Width(px): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="100"
+                                                      Minimum="100"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding XWidthPixel}" />
+                                    <hc:ComboBox hc:InfoElement.Title="Mag: "
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.TitleWidth="100"
+                                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type models:OpticsMagTypeEnum}}}"
+                                                 SelectedItem="{Binding OpticsMagTypeEnum}">
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                    <hc:ComboBox hc:InfoElement.Title="Speed: "
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.TitleWidth="100"
+                                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageSpeedEnum}}}"
+                                                 SelectedItem="{Binding StageSpeedEnum}">
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                    <TextBox Text="{Binding RoiRect, Converter={StaticResource RectToStringConverter}}"
+                                             hc:InfoElement.Title="ROI: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="100"
+                                             IsReadOnly="True"
+                                             IsTabStop="False"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step1Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                    </hc:UniformSpacingPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander ExpandDirection="Down"
+                                  Header="2. RTFC"
+                                  IsExpanded="False">
+                            <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:InfoElement.Title="Ecs Min: "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="100"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding EcsMin}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Ecs Max: "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="100"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding EcsMax}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Ecs Step: "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="100"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding EcsStep}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander ExpandDirection="Down"
+                                  Header="3. Training"
+                                  IsExpanded="False">
+                            <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:ComboBox HorizontalAlignment="Left"
+                                                 hc:InfoElement.Title="Prescan Coefficient: "
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.TitleWidth="150"
+                                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}"
+                                                 SelectedItem="{Binding PrescanCoefficient}">
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                    <Border Margin="-5,0"
+                                            Padding="5,2"
+                                            Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical">
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                <Button Content="Add"
+                                                        Command="{Binding AddDeltaKItemCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                        Style="{StaticResource ButtonInfo}" />
+                                                <Button Content="Delete"
+                                                        Command="{Binding RemoveDeltaKItemCommand}"
+                                                        CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridDeltaKItems}"
+                                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                        Style="{StaticResource ButtonDanger}" />
+                                            </hc:UniformSpacingPanel>
+                                            <DataGrid x:Name="DataGridDeltaKItems"
+                                                      hc:DataGridAttach.ShowRowNumber="True"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="All"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      ItemsSource="{Binding DeltaKItems}">
+                                                <DataGrid.Columns>
+                                                    <DataGridCheckBoxColumn CanUserResize="False"
+                                                                            Binding="{Binding IsOk}"
+                                                                            Header="OK" />
+                                                    <DataGridTextColumn Width="100"
+                                                                        Header="Value"
+                                                                        Binding="{Binding DeltaKValue}" />
+                                                    <DataGridTextColumn Width="100"
+                                                                        Header="Min"
+                                                                        Binding="{Binding DeltaKMin}" />
+                                                    <DataGridTextColumn Width="100"
+                                                                        Header="Max"
+                                                                        Binding="{Binding DeltaKMax}" />
+                                                    <DataGridTextColumn Width="100"
+                                                                        Header="Step"
+                                                                        Binding="{Binding DeltaKStep}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </hc:UniformSpacingPanel>
+                                    </Border>
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step3Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step3CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                    </hc:UniformSpacingPanel>
+                </hc:ScrollViewer>
+                <!--#endregion-->
+
+                <GridSplitter Grid.Column="1" Width="5" />
+
+                <!--#region Right-->
+                <GroupBox Grid.Column="2" Header="History">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="1.5*" />
+                        </Grid.RowDefinitions>
+                        <ListView d:SelectedIndex="0"
+                                  ItemsSource="{Binding Items}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  SelectedItem="{Binding SelectItem}"
+                                  Style="{StaticResource ListView.Small}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ListBoxScrollToCurrentBehavior />
+                            </i:Interaction.Behaviors>
+                            <ListView.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                        </Trigger>
+                                        <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn Width="500"
+                                                    DisplayMemberBinding="{Binding DeltaKs, Mode=OneWay, Converter={StaticResource ListToStringConverter}}"
+                                                    Header="DeltaKs" />
+                                    <GridViewColumn Width="200" Header="File">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding ChirpAodWaveFilePath}"
+                                                           TextWrapping="Wrap"
+                                                           d:DataContext="{d:DesignInstance Type=viewModels:AodGenerateWaveFileTrainingChirp}"
+                                                           ToolTip="{Binding ChirpAodWaveFilePath}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Row="1" Height="5" />
+                        <TabControl Grid.Row="2">
+                            <TabItem Header="Select Details">
+                                <TabControl Margin="2">
+                                    <TabItem Header="Picture">
+                                        <ListBox Margin="2" ItemsSource="{Binding SelectItem.Items}">
+                                            <ListBox.Resources>
+                                                <attachedHelper:BindingProxy x:Key="BindingProxy" Value="{Binding}" />
+                                                <ContextMenu x:Key="ContextMenu" Placement="Left">
+                                                    <MenuItem Command="{Binding Path=Value.(viewModels:AodGenerateWaveFileTrainingChirp2WindowViewModel.SavePictureCommand), Source={StaticResource BindingProxy}}"
+                                                              CommandParameter="{Binding Path=PlacementTarget.(ContextMenu.Tag), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
+                                                              Header="Save" />
+                                                </ContextMenu>
+                                            </ListBox.Resources>
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:ListBoxScrollToCurrentBehavior />
+                                            </i:Interaction.Behaviors>
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="Margin" Value="5" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <hc:SimplePanel>
+                                                        <view:CanvasView Width="400"
+                                                                         Height="400"
+                                                                         AxisColor="Red"
+                                                                         BackgroundColor="#0A0A0A"
+                                                                         BackgroundImage="{Binding FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                         ContextMenu="{StaticResource ContextMenu}"
+                                                                         Interactive="True"
+                                                                         ShowAxes="True"
+                                                                         ShowCursor="False"
+                                                                         ShowGrid="False"
+                                                                         Tag="{Binding .}" />
+                                                        <TextBlock Text="{Binding Ecs, StringFormat='ECS: {0:f0}'}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Top"
+                                                                   FontSize="14"
+                                                                   Foreground="Yellow" />
+                                                    </hc:SimplePanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </TabItem>
+                                    <TabItem Header="Ecs">
+                                        <wpf:WpfPlot>
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Plot0="{Binding SelectItem.EcsPoints}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </TabItem>
+                                </TabControl>
+                            </TabItem>
+                            <TabItem Header="Select Aod Wave">
+                                <TabControl>
+                                    <TabItem Header="Aod Wave">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <wpf:WpfPlot Grid.Column="0">
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:WpfPlotMultiBehavior Title="Time Domain Signal" Plot0="{Binding SelectItem.AodWaveSignals}" />
+                                                </i:Interaction.Behaviors>
+                                            </wpf:WpfPlot>
+                                            <wpf:WpfPlot Grid.Column="1">
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:WpfPlotMultiBehavior Title="Spectrum Analysis" Plot0="{Binding SelectItem.AodWaveSignalsFourier}" />
+                                                </i:Interaction.Behaviors>
+                                            </wpf:WpfPlot>
+                                        </Grid>
+                                    </TabItem>
+                                    <TabItem Header="Flatness Frequency">
+                                        <wpf:WpfPlot>
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Synthesized Frequency Profile" Plot0="{Binding SelectItem.AodWaveFlatnessTotalFrequencySignals}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </TabItem>
+                                </TabControl>
+                            </TabItem>
+                            <TabItem Header="Current Compensation Result">
+                                <wpf:WpfPlot>
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:WpfPlotMultiBehavior Plot0="{Binding ItemsPoints}" />
+                                    </i:Interaction.Behaviors>
+                                </wpf:WpfPlot>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
+                </GroupBox>
+                <!--#endregion-->
+            </Grid>
+        </Border>
+        <!--#endregion-->
+    </Grid>
+</hc:Window>
