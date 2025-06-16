@@ -287,4 +287,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             ? SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Height)>((sxExecuteRet.Anything.ECS, sxExecuteRet.Anything.Offset));
     }
+
+    public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
+    {
+        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Empty], 1d));
+    }
 }

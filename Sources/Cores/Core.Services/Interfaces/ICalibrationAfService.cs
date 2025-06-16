@@ -206,5 +206,11 @@ public interface ICalibrationAfService
     /// <returns>是否成功</returns>
     SxExecuteRet<(double Ecs, double Height)> ChuckAfRtfc(Point position);
 
+    /// <summary>
+    /// Nsc 诊断
+    /// </summary>
+    /// <returns>Ecs-Nsc traceBuffer</returns>
+    SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis();
+
     #endregion RTFC
 }

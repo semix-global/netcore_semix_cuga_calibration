@@ -184,6 +184,18 @@ public class CalibrationStatusServiceImpl(
         return true;
     }
 
+    public bool EnableDependLaserFocusShiftCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    public bool EnableDependLaserRtfcCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+        return true;
+    }
+
     #endregion Laser
 
     #region Common

@@ -60,7 +60,7 @@ public static class WcfConstantHelper
 
     public const string LaserAodDelayCalibrationName = "Aod Delay";
 
-    public const string LaserPixelSizeCalibrationName = "Laser Pixel Size";
+    public const string LaserPixelSizeCalibrationName = "Laser Y Pixel Size";
 
     public const string LaserXPixelSizeCalibrationName = "Laser X Pixel Size";
 
@@ -77,6 +77,8 @@ public static class WcfConstantHelper
     public const string LaserPmtGainCalibrationName = "PMT Gain";
 
     public const string LaserXyAstigmatismCalibrationName = "XY Astigmatism";
+
+    public const string LaserFocusShiftCalibrationName = "Focus Shift";
 
     #endregion Laser校准小项描述文本
 }

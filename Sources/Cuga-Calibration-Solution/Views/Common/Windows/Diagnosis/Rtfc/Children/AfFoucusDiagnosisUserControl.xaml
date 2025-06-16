@@ -5,6 +5,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
@@ -49,10 +50,23 @@
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Minimum="1"
-                                          Maximum="1000"
-                                          Value="{Binding FocusShiftCache.FindFocusMin}" />
+                                          Minimum="1">
+                            <hc:NumericUpDown.Style>
+                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.LowMagFindFocusMin}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.MiddleMagFindFocusMin}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.HighMagFindFocusMin}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
                         <hc:NumericUpDown x:Name="ZLimitMaxNumeric"
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Limit Max: "
@@ -60,10 +74,23 @@
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Minimum="1"
-                                          Maximum="1000"
-                                          Value="{Binding FocusShiftCache.FindFocusMax}" />
+                                          Minimum="1">
+                            <hc:NumericUpDown.Style>
+                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.LowMagFindFocusMax}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.MiddleMagFindFocusMax}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.HighMagFindFocusMax}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
                         <hc:NumericUpDown x:Name="IntervalNumeric"
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Interval: "
@@ -72,9 +99,23 @@
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Maximum="500"
-                                          Value="{Binding FocusShiftCache.FindFocusInterval}" />
+                                          Maximum="100">
+                            <hc:NumericUpDown.Style>
+                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.LowMagFindFocusInterval}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.MiddleMagFindFocusInterval}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}">
+                                            <Setter Property="Value" Value="{Binding FocusShiftCache.HighMagFindFocusInterval}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Quality Threshold: "
                                           hc:InfoElement.Necessary="True"
@@ -112,26 +153,68 @@
                                               hc:InfoElement.ShowClearButton="True"
                                               hc:InfoElement.Title="Ecs: "
                                               hc:InfoElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="100"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding FocusShiftCache.SettingDarkFieldAutoFocusParam.DswEcsValue}" />
+                                              hc:TitleElement.TitleWidth="100">
+                                <hc:NumericUpDown.Style>
+                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}">
+                                                <Setter Property="Value" Value="{Binding FocusShiftCache.LowMagDarkFieldAutoFocusParam.DswEcsValue}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}">
+                                                <Setter Property="Value" Value="{Binding FocusShiftCache.MiddleMagDarkFieldAutoFocusParam.DswEcsValue}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}">
+                                                <Setter Property="Value" Value="{Binding FocusShiftCache.HighMagDarkFieldAutoFocusParam.DswEcsValue}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:NumericUpDown.Style>
+                            </hc:NumericUpDown>
                             <hc:NumericUpDown Height="30"
                                               Margin="2"
                                               hc:InfoElement.ShowClearButton="True"
                                               hc:InfoElement.Title="Motor: "
                                               hc:InfoElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="100"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding FocusShiftCache.SettingDarkFieldAutoFocusParam.DswMotorValue}" />
+                                              hc:TitleElement.TitleWidth="100">
+                                <hc:NumericUpDown.Style>
+                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}">
+                                                <Setter Property="Value" Value="{Binding FocusShiftCache.LowMagDarkFieldAutoFocusParam.DswMotorValue}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}">
+                                                <Setter Property="Value" Value="{Binding FocusShiftCache.MiddleMagDarkFieldAutoFocusParam.DswMotorValue}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}">
+                                                <Setter Property="Value" Value="{Binding FocusShiftCache.HighMagDarkFieldAutoFocusParam.DswMotorValue}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:NumericUpDown.Style>
+                            </hc:NumericUpDown>
                             <hc:SimplePanel Height="30">
                                 <TextBlock Text="AutoFocus:"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding FocusShiftCache.SettingDarkFieldAutoFocusParam.IsEnableDsw}"
-                                              HorizontalAlignment="Right"
+                                <ToggleButton HorizontalAlignment="Right"
                                               VerticalAlignment="Center"
-                                              Background="{StaticResource DangerBrush}"
-                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                              Background="{StaticResource DangerBrush}">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonSwitch}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}">
+                                                    <Setter Property="IsChecked" Value="{Binding FocusShiftCache.LowMagDarkFieldAutoFocusParam.IsEnableDsw}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}">
+                                                    <Setter Property="IsChecked" Value="{Binding FocusShiftCache.MiddleMagDarkFieldAutoFocusParam.IsEnableDsw}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding FocusShiftCache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}">
+                                                    <Setter Property="IsChecked" Value="{Binding FocusShiftCache.HighMagDarkFieldAutoFocusParam.IsEnableDsw}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                </ToggleButton>
                             </hc:SimplePanel>
 
                         </hc:UniformSpacingPanel>
@@ -241,17 +324,23 @@
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
-                            <TextBox Text="{Binding FocusShiftCache.QualityThreshold}"
-                                     Width="275"
-                                     hc:InfoElement.Title="Quality Threshold: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ResultFocusShiftDto.EcsOffset, Mode=OneWay}"
                                      Width="275"
                                      hc:InfoElement.Title="Ecs Offset: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}"
                                      IsReadOnly="True" />
+                            <TextBox Text="{Binding ResultFocusShiftDto.FocusShiftOffset, Mode=OneWay}"
+                                     Width="275"
+                                     hc:InfoElement.Title="Focus Shift Offset: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     Style="{StaticResource TextBoxExtend}"
+                                     IsReadOnly="True" />
+                            <TextBox Text="{Binding ResultFocusShiftDto.AfMotorOffset}"
+                                     Width="275"
+                                     hc:InfoElement.Title="Af Motor Offset: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ResultFocusShiftDto.BrightFiedlToDarkFieldOffset, Mode=OneWay}"
                                      Width="275"
                                      hc:InfoElement.Title="BF To DF Machine Offset: "
@@ -283,34 +372,34 @@
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
-                            <TextBox Text="{Binding Cache.AutoFocusEcs}"
+                            <TextBox Text="{Binding ResultRtfcDto.AutoFocusEcs}"
                                      Width="275"
                                      hc:InfoElement.Title="AutoFocus Ecs: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultRtfcDto.IlluminationFocusOffset}"
+                            <TextBox Text="{Binding ResultRtfcDto.AutoFocusNsc}"
                                      Width="275"
-                                     hc:InfoElement.Title="Illumination Focus Offset: "
+                                     hc:InfoElement.Title="AutoFocus Nsc: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultRtfcDto.DeltaEcs}"
+                            <TextBox Text="{Binding ResultRtfcDto.IdealEcs}"
                                      Width="275"
-                                     hc:InfoElement.Title="Delta Ecs: "
+                                     hc:InfoElement.Title="Idea Ecs: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultRtfcDto.IdealEcsNsc}"
+                                     Width="275"
+                                     hc:InfoElement.Title="Ideal Ecs Nsc: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ResultRtfcDto.EcsValue}"
                                      Width="275"
-                                     hc:InfoElement.Title="Ecs Value: "
+                                     hc:InfoElement.Title="Real Ecs: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultRtfcDto.DeltaNsc}"
+                            <TextBox Text="{Binding ResultRtfcDto.NscValue}"
                                      Width="275"
-                                     hc:InfoElement.Title="Delta Nsc: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultRtfcDto.AfMotor}"
-                                     Width="275"
-                                     hc:InfoElement.Title="AF Motor: "
+                                     hc:InfoElement.Title="Real Ecs Nsc: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}" />
                         </StackPanel>
@@ -481,8 +570,8 @@
                                                     Header="DarkFieldMatchOffset"
                                                     DisplayMemberBinding="{Binding DarkFieldMatchOffset, Converter={StaticResource PointToStringConverter}}" />
                                     <GridViewColumn Width="180"
-                                                    Header="IlluminationFocusOffset"
-                                                    DisplayMemberBinding="{Binding IlluminationFocusOffset, StringFormat={}{0:f3}}" />
+                                                    Header="LightAxisOffset"
+                                                    DisplayMemberBinding="{Binding LightAxisOffset, StringFormat={}{0:f3}}" />
                                     <GridViewColumn Width="80"
                                                     Header="DeltaEcs"
                                                     DisplayMemberBinding="{Binding DeltaEcs, StringFormat={}{0:f3}}" />
@@ -490,8 +579,8 @@
                                                     Header="DeltaNsc"
                                                     DisplayMemberBinding="{Binding DeltaNsc, StringFormat={}{0:f3}}" />
                                     <GridViewColumn Width="80"
-                                                    Header="AfMotor"
-                                                    DisplayMemberBinding="{Binding AfMotor, StringFormat={}{0:f3}}" />
+                                                    Header="AfMotorOffset"
+                                                    DisplayMemberBinding="{Binding AfMotorOffset, StringFormat={}{0:f3}}" />
                                     <GridViewColumn Width="200" Header="Action Review">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>

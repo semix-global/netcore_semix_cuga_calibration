@@ -310,5 +310,15 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public (Point[] traceBuffer, double k) NscDiagnosis(double afEcs, CalChipSiteModelEnum calChipSiteModelEnum)
+    {
+        SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, afEcs);
+
+        var ret = calibrationAfService.NscDiagnosis();
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        return (ret.Anything.tracebuffer, ret.Anything.k);
+    }
+
     #endregion 服务
 }

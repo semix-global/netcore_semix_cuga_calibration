@@ -49,6 +49,10 @@ public interface ICalibrationStatusService
 
     bool EnableDependLaserLineCentricityCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);
 
+    bool EnableDependLaserFocusShiftCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);
+
+    bool EnableDependLaserRtfcCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);
+
     #endregion laser
 
     #region Common

@@ -30,7 +30,7 @@ public sealed partial class EFEMWindowViewModel(
     private bool _isEnable = true;
 
     [ObservableProperty]
-    private EFEMAngleEnum _angleEnum;
+    private EFEMAngleEnum _angleEnum = EFEMAngleEnum.Down;
 
     [ObservableProperty]
     private EFEMFoupItem? _selectedFoupItem;

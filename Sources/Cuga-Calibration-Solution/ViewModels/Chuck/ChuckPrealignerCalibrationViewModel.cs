@@ -468,6 +468,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition.ToShortString(),
                 OffsetAngleCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle,
             }), HtmlLogUniqueId.LoggingHtml());
+
+            if (IsAutoCalibrate == false)
+                DialogWindowProvider.ShowDialog($"Chuck Prealigner Calibration {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
             return result;
         });
         return result;
@@ -499,6 +502,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             }
 
             result = await VerifyCaibrationAsync(ReviewDto, cancellationToken);
+            if (IsAutoCalibrate == false)
+                DialogWindowProvider.ShowDialog($"Chuck Prealigner Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
             return result;
         }).ConfigureAwait(false);
         return result;

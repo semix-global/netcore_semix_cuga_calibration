@@ -17,7 +17,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 public sealed partial class RtfcDiagnosisWindowViewModel : ViewModelBase, IRecipient<ValueChangedMessage<ToggleCalibrateEvent>>
 {
     private readonly IMessenger _messenger;
-    protected readonly ISynchronizationContextProvider _synchronizationContextProvider;
+    public readonly ISynchronizationContextProvider _synchronizationContextProvider;
 
     [ObservableProperty]
     private bool _isEnableWindow = true;
