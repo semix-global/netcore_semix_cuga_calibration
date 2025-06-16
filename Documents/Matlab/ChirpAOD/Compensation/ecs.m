@@ -1,5 +1,5 @@
 % 读取 Excel 数据
-excelData = readtable('RtfcDiagnosis6.xlsx');
+excelData = readtable('RtfcDiagnosisB3-1.xlsx');
 
 % 确保数据是数值格式
 XAxisTemperature = str2double(excelData.XAxisTemperature);
@@ -64,7 +64,7 @@ grid on;
 
 % 图4：YAxisTemperature 变化趋势
 subplot(2, 2, 4);
-plot(BF_CalChipAfEcs, 'ro-', 'MarkerSize', 6, 'LineWidth', 1);
+plot(YAxisTemperature, 'ro-', 'MarkerSize', 6, 'LineWidth', 1);
 xlabel('Data Point Index');
 ylabel('YAxisTemperature (°C)');
 title('YAxisTemperature Trend');

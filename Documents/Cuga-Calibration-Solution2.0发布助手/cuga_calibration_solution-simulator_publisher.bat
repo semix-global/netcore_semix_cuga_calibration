@@ -180,6 +180,31 @@ if not exist %repository_path%\%csproj_name% (
 	set is_already_clone=0
 )
 
+set "TEMP_KEY=%TEMP%\git_temp_key"
+
+powershell -NoProfile -Command ^
+"$key = [System.Text.StringBuilder]::new(); ^
+$null = $key.Append('-----BEGIN OPENSSH PRIVATE KEY-----'); ^
+$null = $key.Append([char]10); ^
+$null = $key.Append('b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW'); ^
+$null = $key.Append([char]10); ^
+$null = $key.Append('QyNTUxOQAAACC2FJ37gWFHTjVv6KQX4fLibS1OPby9d104BlmfW/JRFAAAAJBYpMyuWKTM'); ^
+$null = $key.Append([char]10); ^
+$null = $key.Append('rgAAAAtzc2gtZWQyNTUxOQAAACC2FJ37gWFHTjVv6KQX4fLibS1OPby9d104BlmfW/JRFA'); ^
+$null = $key.Append([char]10); ^
+$null = $key.Append('AAAEDMNbGHQObGtNmSfpoAKJD308veOOvcF37Knf8pBGaSjLYUnfuBYUdONW/opBfh8uJt'); ^
+$null = $key.Append([char]10); ^
+$null = $key.Append('LU49vL13XTgGWZ9b8lEUAAAADERFTExAREVMTC1QQwE='); ^
+$null = $key.Append([char]10); ^
+$null = $key.Append('-----END OPENSSH PRIVATE KEY-----'); ^
+$null = $key.Append([char]10); ^
+[IO.File]::WriteAllText('%TEMP_KEY%', $key.ToString())"
+
+set "TEMP_KEY_FOR_GIT=%TEMP_KEY:\=/%"
+echo "%TEMP_KEY_FOR_GIT%"
+
+set "GIT_SSH_COMMAND=ssh -i '%TEMP_KEY_FOR_GIT%' -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+
 if %is_already_clone%==0 (
 	mkdir %repository_path%
 	echo clone repository from server
@@ -190,7 +215,7 @@ cd /d %repository_path%
 %tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe reset --hard
 %tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe clean -xdf
 %tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe checkout %brance_name%
-%tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe pull
+%tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe pull --recurse-submodules
 %tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe config --local user.name "%git_user%"
 %tempDir%\PortableGit-2.48.1-64-bit\PortableGit-2.48.1-64-bit\bin\git.exe config --local user.email %git_user%@semixchina.com
 
