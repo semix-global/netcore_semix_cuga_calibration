@@ -16,11 +16,13 @@ using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Models.Models.Laser.FocusShift;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPower;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
+using Core.Models.Models.Laser.Rtfc;
 using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
@@ -339,6 +341,28 @@ public static class CoreWcfModelsExtension
 
         var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
         if (isOk == false) errorMessage = "Laser Prescan Chirp Aod Alignment is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this FocusShiftDto[] result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        //var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
+        var isOk = result.SingleOrDefault(t => t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
+        if (isOk == false) errorMessage = "Laser Focus Shift is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this RtfcDto[] result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        //var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
+        var isOk = result.SingleOrDefault(t => t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
+        if (isOk == false) errorMessage = "Laser Rtfc is Empty";
 
         return isOk;
     }

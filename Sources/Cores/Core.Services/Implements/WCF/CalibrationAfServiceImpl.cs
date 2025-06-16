@@ -394,4 +394,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Score));
     }
+
+    public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
+    {
+        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Empty], 1d));
+    }
 }

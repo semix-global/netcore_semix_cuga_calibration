@@ -866,24 +866,24 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                               HasConsecutiveZeros(transBuffer[3], 50) &&
                               HasConsecutiveZeros(transBuffer[4], 50) &&
                               HasConsecutiveZeros(transBuffer[5], 50);
-            if(dataIsError) return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
+            if (dataIsError) return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
 
             var XSpeedList = transBuffer[6];
             var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsCacheItem.SpeedXValue, 2) > 0.5);
             var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
             var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
-            
+
             return (true, transBuffer);
         }
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
             if (repeatCount > 10) return (false, transBuffer);
-            
+
             Logger.LogError(ex, "GetZ1Z2CurveAsync Error!");
             return await GetZ1Z2CurveAsync(adsXGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
-        
+
         bool HasConsecutiveZeros(IEnumerable<double> array, int requiredZeros = 10)
         {
             return array

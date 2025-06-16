@@ -12,8 +12,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helper.File;
 using Net.Utilities.Helper.IOC.Providers;
 using Net.Utilities.Models;
-using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -56,7 +54,7 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     /// <summary>
     /// Csv文件存储名称前缀
     /// </summary>
-    public string CsvFileDirectory => Path.Combine(Options.Value.AppHomeDirectory, "Csv", "Diagnosis");
+    public string CsvFileDirectory => Path.Combine(Options.Value.AppHomeDirectory, "Csv", "Diagnosis", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName));
 
     /// <summary>
     /// 校准名称
@@ -98,6 +96,9 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     [ObservableProperty]
     private StageViewModel _stageViewModel = HostApplication.GetRequiredService<StageViewModel>();
 
+    [ObservableProperty]
+    private MonitorViewModel _monitorViewModel = HostApplication.GetRequiredService<MonitorViewModel>();
+
     #endregion
 
     #region 界面
@@ -131,14 +132,9 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
 
     public async Task ActionAsync(CancellationToken cancellationToken)
     {
-        HtmlLogUniqueId = Guid.NewGuid();
-        Logger.LogHtmlInformation($"{LogHtmlFileName}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
         var result = await DiagnosisActionAsync(cancellationToken).ConfigureAwait(false);
         if (result == false)
             DialogWindowProvider.ShowDialog("Diagnosis Action Failed! ", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
-        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
     }
 
     public async Task SaveAsync()

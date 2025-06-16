@@ -214,4 +214,9 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 
         return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
     }
+
+    public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
+    {
+        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Empty], 1d));
+    }
 }

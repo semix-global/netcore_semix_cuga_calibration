@@ -559,7 +559,8 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        double coefficient = CalibrationConstantsHelper.MainCoefficient)
     {
         resultPosition = Point.Empty;
         resultScore = 0;
@@ -591,7 +592,7 @@ public sealed class LaserViewModel(
             using var darkFieldImageDto = GetDarkFieldLineScanImage(
                 calChipSiteModelEnum,
                 position,
-                (false, CalibrationConstantsHelper.MainCoefficient),
+                (false, coefficient),
                 false,
                 settingDarkFieldAutoFocus,
                 xWidthPixel,
@@ -650,7 +651,7 @@ public sealed class LaserViewModel(
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImage(
                 calChipSiteModelEnum,
                 resultPosition,
-                (false, CalibrationConstantsHelper.MainCoefficient),
+                (false, coefficient),
                 false,
                 settingDarkFieldAutoFocus,
                 xWidthPixel,
@@ -746,7 +747,8 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        double coefficient = CalibrationConstantsHelper.MainCoefficient)
     {
         resultPosition = Point.Empty;
         resultScore = 0;
@@ -777,7 +779,7 @@ public sealed class LaserViewModel(
         {
             using var darkFieldImageDto = GetDarkFieldLineScanImageByNotAutoFocus(
                 position,
-                (false, CalibrationConstantsHelper.MainCoefficient),
+                (false, coefficient),
                 false,
                 xWidthPixel,
                 yOpticsMagTypeEnum,
@@ -834,7 +836,7 @@ public sealed class LaserViewModel(
             resultPosition = position + actualOffset;
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImageByNotAutoFocus(
                 resultPosition,
-                (false, CalibrationConstantsHelper.MainCoefficient),
+                (false, coefficient),
                 false,
                 xWidthPixel,
                 yOpticsMagTypeEnum,

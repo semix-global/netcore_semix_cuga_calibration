@@ -902,17 +902,17 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
             transBuffer = await task.ConfigureAwait(false);
-            
+
             if (repeatCount > 10) return (false, transBuffer);
             if (transBuffer.Count <= 0) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
-            
+
             var dataIsError = HasConsecutiveZeros(transBuffer[0], 50) &&
             HasConsecutiveZeros(transBuffer[1], 50) &&
             HasConsecutiveZeros(transBuffer[2], 50) &&
             HasConsecutiveZeros(transBuffer[3], 50) &&
             HasConsecutiveZeros(transBuffer[4], 50) &&
             HasConsecutiveZeros(transBuffer[5], 50);
-            if(dataIsError) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
+            if (dataIsError) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
 
             var YSpeedList = transBuffer[7];
             var speedChangedList = YSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsYGainsCacheItem.SpeedYValue, 2) > 0.5);
@@ -925,7 +925,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         {
             if (ex is OperationCanceledException) throw;
             if (repeatCount > 10) return (false, transBuffer);
-            
+
             Logger.LogError(ex, "GetZ1Z2Z3CurveAsync Error!");
             return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
