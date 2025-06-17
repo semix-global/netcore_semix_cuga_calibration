@@ -12,6 +12,7 @@ using Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithm.Halcon.Helper;
 using Net.Utilities.Attributes;
+using Net.Utilities.Constants;
 using Net.Utilities.Enums;
 using Net.Utilities.Helper.File;
 using Net.Utilities.Models;
@@ -31,6 +32,7 @@ public sealed class LaserViewModel(
     StageViewModel stageViewModel,
     AfViewModel afViewModel) : ViewModelBase
 {
+    private double MainCoefficient => calibrationSetting.SettingCommonParam.MainCoefficient;
     #region 服务
 
     public bool Connect()
@@ -560,8 +562,10 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        double coefficient = CalibrationConstantsHelper.MainCoefficient)
+        double coefficient = ConstantHelper.NegValue)
     {
+        if (coefficient == ConstantHelper.NegValue) coefficient = MainCoefficient;
+
         resultPosition = Point.Empty;
         resultScore = 0;
         resultAngle = 0;
@@ -748,8 +752,10 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        double coefficient = CalibrationConstantsHelper.MainCoefficient)
+        double coefficient = ConstantHelper.NegValue)
     {
+        if (coefficient == ConstantHelper.NegValue) coefficient = MainCoefficient;
+
         resultPosition = Point.Empty;
         resultScore = 0;
         resultAngle = 0;

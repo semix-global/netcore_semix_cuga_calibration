@@ -37,11 +37,6 @@ public static class CalibrationConstantsHelper
     public static readonly double[] CalibrationCoefficients = [1, 0.85, 0.785, 0.635, 0.495, 0.39, 0.335, 0.26, 0.19, 0.12, 0.07, 0.05, 0.035, 0.005];
 
     /// <summary>
-    /// 主校准暗场采集波形功率系数
-    /// </summary>
-    public const double MainCoefficient = 0.85;
-
-    /// <summary>
     /// 校准暗场采集PmtId集合
     /// </summary>
     public static readonly int[] PmtIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];

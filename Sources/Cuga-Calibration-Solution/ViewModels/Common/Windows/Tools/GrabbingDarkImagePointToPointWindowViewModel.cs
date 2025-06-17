@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
+using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,6 +26,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
     ILogger<ChuckPrealignerCalibrationViewModel> logger,
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
+    CalibrationSetting calibrationSetting,
     IOptions<ApplicationSetting> options) : ViewModelBase
 {
     [ObservableProperty]
@@ -69,7 +71,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                 var positionList = Enumerable.Range(0, ColumnNumber).Select(t => new Point(StartPosition.X + t * ColumnCellWidth, StartPosition.Y)).ToList();
                 var cropResultList = laserViewModel.GetChuckDarkFieldRowLineScanImage(
                     positionList,
-                    (false, CalibrationConstantsHelper.MainCoefficient),
+                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
                     XWidth,
                     OpticsMagTypeEnum,
@@ -121,7 +123,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                     using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                         CalChipSiteModelEnum.ChuckModel,
                         resultPosition,
-                        (false, CalibrationConstantsHelper.MainCoefficient),
+                        (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                         false,
                         null,
                         XWidth,

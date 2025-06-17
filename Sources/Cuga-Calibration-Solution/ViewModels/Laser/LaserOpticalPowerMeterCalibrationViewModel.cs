@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -283,7 +282,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-            LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, CalibrationConstantsHelper.MainCoefficient);
+            LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
             var repeatCout = 0;
 
@@ -415,7 +414,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-            LaserViewModel.SendPrescanByCoefficient(ReviewDto.OpticsMagTypeEnum, CalibrationConstantsHelper.MainCoefficient);
+            LaserViewModel.SendPrescanByCoefficient(ReviewDto.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
             var resultList = new List<double>();
 
