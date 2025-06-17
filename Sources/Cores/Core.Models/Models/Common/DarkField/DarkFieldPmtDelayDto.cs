@@ -9,7 +9,7 @@ namespace Core.Models.Models.Common.DarkField;
 public sealed partial class DarkFieldPmtDelayDto : ObservableCacheBase, ICloneable<DarkFieldPmtDelayDto>, IAdaptTo<CgPMTDelayModel>, IAdaptIn<CgPMTDelayModel, DarkFieldPmtDelayDto>
 {
     /// <summary>
-    /// PMT Id
+    /// PMT ID
     /// </summary>
     [ObservableProperty]
     private int _pmtId;

@@ -142,45 +142,65 @@ public interface ICalibrationLaserService
     #region 暗场相机PMT CIB
 
     /// <summary>
-    /// 读取PMT8 Channel3 传感器信号, 例如: 高mag为一列1000个信号点的值
+    /// 获取可以使用的PMT ID列表
     /// </summary>
-    /// <returns>PMT信号</returns>
-    SxExecuteRet<List<double>> GetSensorPmtValueList();
+    /// <returns>PMT ID列表</returns>
+    SxExecuteRet<List<int>> GetUsedPmtIdList();
 
     /// <summary>
-    /// 读取任意PMT Channel 传感器信号, 例如: 高mag为一列1000个信号点的值
+    /// 读取任意PMT Channel 数据
     /// </summary>
-    /// <returns>PMT信号</returns>
-    SxExecuteRet<List<double>> GetAnyPmtValueList(int pmtId, int channel);
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>PMT Channel 数据</returns>
+    SxExecuteRet<List<double>> GetPmtDataList(int pmtId, int channelId);
 
     /// <summary>
     /// 获取PMT数值
     /// </summary>
-    /// <returns>是否成功</returns>
+    /// <returns>获取PMT数值</returns>
     SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList();
 
     /// <summary>
-    /// 将45个光斑的PMTGain数据下发给CIB
+    /// 读取任意PMT Sense Channel 数据
     /// </summary>
-    /// <param name="pmtData">数据1</param>
-    ///  <param name="igData">数据2</param>
-    ///  <param name="pmtId">PMTid</param>
-    ///  <param name="channel">通道ID</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SendPmtGainToCib(List<string> pmtData, List<string> igData, int pmtId, int channel);
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="count">同一个PMT Sense Channel数据的数量</param>
+    /// <returns>PMT Sense Channel 多次数据</returns>
+    SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count);
 
     /// <summary>
     /// 获取第1到15号光斑的CH1,CH2,CH3的CIB采样值
     /// </summary>
     /// <returns>返回第1到15号(PMT id, 光斑的CH1,CH2,CH3的CIB采样值集合)</returns>
-    SxExecuteRet<List<DarkFieldPmtDelayDto>> GetCibSamplePmtDelayList();
+    SxExecuteRet<List<DarkFieldPmtDelayDto>> GetPmtDelayList();
 
     /// <summary>
     /// 将第1到15号光斑的CH1,CH2,CH3的CIB采样值重新写入
     /// </summary>
     /// <param name="darkFieldPmtDelayDtoList">返回第1到15号光斑缺陷坐标集合</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetCibSamplePmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList);
+    SxExecuteRet<bool> SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList);
+
+    /// <summary>
+    /// 下发Pmt增益波形给cuga
+    /// </summary>
+    /// <param name="pmtGainFilePath">PMT增益文件路径</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId);
+
+    /// <summary>
+    /// 将45个光斑的PMTGain数据下发给CIB
+    /// </summary>
+    /// <param name="pmtData">数据1</param>
+    /// <param name="igData">数据2</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId);
 
     /// <summary>
     /// 切换偏振
@@ -236,14 +256,6 @@ public interface ICalibrationLaserService
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <returns>图片的Y像素高度</returns>
     SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum);
-
-    /// <summary>
-    /// 获取暗场图片的X SizePerPixel um/pixel
-    /// </summary>
-    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="xStageSpeedEnum">X方向线扫描速度</param>
-    /// <returns>单位um/pixel(XSizePerPixel)</returns>
-    SxExecuteRet<double> GetDarkFieldLineScanImageXSizePerPixel(OpticsMagTypeEnum yOpticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum);
 
     /// <summary>
     /// 获取暗场图片列表
@@ -302,16 +314,19 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="machinePositionList">机械坐标集合（分割区域中心点），stageMap使用时输入ideaPosition集合</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
+    /// <param name="xPixelSize">图片X像素尺寸</param>
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
-    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
+    /// <param name="customPrescanAod">(是否自定义PrescanAOD波形,波形功率系数(1表示100%, 0表示0%))</param>
+    /// <param name="isCustomChirpAod">是否自定义ChirpAOD波形</param>
     /// <returns>明场位置，切割后三个通道图片</returns>
     SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
+        double xPixelSize,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,

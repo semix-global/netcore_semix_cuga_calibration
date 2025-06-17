@@ -1027,22 +1027,8 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
     private (DarkFieldChirpAodWaveDto waveDto, bool isSuccess) SendChirpAodWave(DarkFieldChirpAodWaveDto chirpAodWaveDto, double rateRange, bool isAutoGenerate = true)
     {
-        var (isSuccess, chirpAodChangeDto) = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodWaveDto, rateRange);
+        var chirpAodChangeDto = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodWaveDto, rateRange);
         chirpAodChangeDto.SampleRate = Cache.SampleRate;
-
-        if (isSuccess == false)
-        {
-            Logger.LogWarning("The specified waveform file does not exist in the folder.");
-            // 生成结果chirpAOD波形
-            if (isAutoGenerate)
-            {
-                (Cache.AodWaveSignal, Cache.AodWaveSignalFourier) = chirpAodChangeDto.GenerateChirpAodWave();
-                (_, chirpAodChangeDto) = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodChangeDto, rateRange);
-            }
-            else
-                return (chirpAodChangeDto, false);
-        }
-
         chirpAodChangeDto.ZeroNum = chirpAodWaveDto.ZeroNum;
         Cache.SetChirpAodRegNum((short)chirpAodChangeDto.ChirpAodWaveList.Count);
         LaserViewModel.SendChirpAodByList(chirpAodChangeDto);
@@ -1115,9 +1101,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
             ("Ecs-QualityX", plotList1),
             ("Ecs-QualityY", plotList2)
         ];
-        var (isSuccess, chirpAodChangeDto) = LaserViewModel.GetChirpAodByChangeRateFromFile(ChirpAodDefaultDto, resultList[0].FrequenceIncrease);
+        var chirpAodChangeDto = LaserViewModel.GetChirpAodByChangeRateFromFile(ChirpAodDefaultDto, resultList[0].FrequenceIncrease);
 
-        Logger.LogHtmlInformation($"Get the XY ECS-Quality Wave {(isSuccess ? "Success" : "Error")}: FrequenceIncrement {resultList[0].FrequenceIncrease}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        Logger.LogHtmlInformation($"Get the XY ECS-Quality Wave Success: FrequenceIncrement {resultList[0].FrequenceIncrease}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
             OpticsMagType = resultList[0].OpticsMagTypeEnum,
             resultList[0].EcsErrorValue,

@@ -21,6 +21,7 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPower;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
+using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
@@ -120,6 +121,9 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
     [ObservableProperty]
     private LaserPixelSizeItemDto[] _laserPixelSizeItems = [];
+
+    [ObservableProperty]
+    private LaserXPixelSizeItemDto[] _laserXPixelSizeItems = [];
 
     [ObservableProperty]
     private LaserLineCentricityItemDto[] _laserLineCentricityItems = [];
@@ -250,6 +254,14 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         }
 
         LaserPixelSizeItems = laserPixelSizeItems;
+
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXPixelSizeItemDto>(out var laserXPixelSizeItems, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        LaserXPixelSizeItems = laserXPixelSizeItems;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out var laserLineCentricityItems, out errorMessage) == false)
         {
@@ -1003,9 +1015,8 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                             cancellationToken.ThrowIfCancellationRequested();
 
                             using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
-                            var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum);
-                            var xSizePerPixel = LaserViewModel.GetDarkFieldLineScanImageXSizePerPixel(Cache.OpticsMagTypeEnum, CalibrationConstantsHelper.MainStageSpeedEnum);
-
+                            var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk).YPixelSize;
+                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.XStageSpeedEnum == Cache.StageSpeedEnum && t.IsOk).XPixelSize;
                             var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
                             HalconHelper.Save(darkFieldImageDto.Image, originImageFilePath);
 
@@ -1022,7 +1033,6 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                                     Cache.OpticsMagTypeEnum,
                                     CalibrationConstantsHelper.MainStageSpeedEnum,
                                     point,
-                                    offset,
                                     OriginPosition = stageMapItem.Point,
                                     HtmlTab = new HtmlTab(new
                                     {
@@ -1034,7 +1044,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                             }
 
                             offset.X = xDirection * offset.X;
-                            var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySizePerPixel.YPixelSize);
+                            var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySizePerPixel);
                             plotDic.Add((index, column), actualOffset);
 
                             stageMapItem.FilePath = originImageFilePath;

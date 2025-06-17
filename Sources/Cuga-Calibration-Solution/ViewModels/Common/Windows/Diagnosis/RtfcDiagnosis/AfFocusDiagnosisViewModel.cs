@@ -413,7 +413,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 if (LaserViewModel.TryGetMatchPosition(
                            FocusShiftCache.AlgorithmTemplateTypeEnum,
                            FocusShiftCache.CalChipSiteModelEnum,
-                           LaserPixelSizeItems,
                            8,
                            highResultPosition,
                            FocusShiftCache.DarkFiledTemplateFilePath,
@@ -561,7 +560,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 // 获得照明焦点偏移量
                 if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
                         FocusShiftCache.AlgorithmTemplateTypeEnum,
-                        LaserPixelSizeItems,
                         8,
                         darkFieldResultPosition,
                         FocusShiftCache.DarkFiledTemplateFilePath,
@@ -1067,7 +1065,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
         var notAutoFocusNsc = nscBuffers.Average();
         if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
                 FocusShiftCache.AlgorithmTemplateTypeEnum,
-                LaserPixelSizeItems,
                 8,
                 ResultRtfcDto.BrightFieldFindPosition,
                 FocusShiftCache.DarkFiledTemplateFilePath,
@@ -1138,7 +1135,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
         {
             if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
                     FocusShiftCache.AlgorithmTemplateTypeEnum,
-                    LaserPixelSizeItems,
                     8,
                     rtfcDto.BrightFieldFindPosition,
                     FocusShiftCache.DarkFiledTemplateFilePath,
@@ -1170,7 +1166,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             if (LaserViewModel.TryGetMatchPosition(
                     FocusShiftCache.AlgorithmTemplateTypeEnum,
                     FocusShiftCache.CalChipSiteModelEnum,
-                    LaserPixelSizeItems,
                     8,
                     rtfcDto.BrightFieldFindPosition,
                     FocusShiftCache.DarkFiledTemplateFilePath,

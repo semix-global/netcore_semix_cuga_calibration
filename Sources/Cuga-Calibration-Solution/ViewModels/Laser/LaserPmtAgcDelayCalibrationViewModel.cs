@@ -22,8 +22,8 @@ using Core.Models.Helper;
 
 namespace CugaCalibration.ViewModels.Laser;
 
-[IOCAppService(ServiceType = typeof(LaserAodDelayCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(LaserPmtAgcDelayCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 

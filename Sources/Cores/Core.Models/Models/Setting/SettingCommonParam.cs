@@ -53,7 +53,7 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
     /// 校准暗场采集波形功率系数
     /// </summary>
     [ObservableProperty]
-    public double _mainCoefficient;
+    private double _mainCoefficient;
 
     #endregion 校准状态控制
 

@@ -4,6 +4,7 @@ using Cuga.Data.DataStruct.Stage;
 using System;
 using System.ComponentModel;
 
+
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
 #else
@@ -48,6 +49,12 @@ namespace Core.Wcf.Models.Laser
         /// </summary>
         [Description(WcfConstantHelper.LaserXtcCalibrationName)]
         public CalibrationLaserXTCCalibrationItem[] CalibrationLaserXtcCalibrationItemList { get; set; } = Array.Empty<CalibrationLaserXTCCalibrationItem>();
+
+        /// <summary>
+        /// AGC延迟时间校准对象列表
+        /// </summary>
+        [Description(WcfConstantHelper.LaserAgcDelayCalibrationName)]
+        public CalibrationLaserPmtAgcDelayItem[] CalibrationLaserPmtAgcDelayItemList { get; set; } = Array.Empty<CalibrationLaserPmtAgcDelayItem>();
 
         /// <summary>
         /// 暗场相机的Y像素尺寸校准对象列表
@@ -201,6 +208,38 @@ namespace Core.Wcf.Models.Laser
         /// 当前暗场Mag和PmtId下的通道3延迟时间, **需要下发Laser硬件**
         /// </summary>
         public int CH3Delay { get; set; }
+    }
+
+    /// <summary>
+    /// Pmt Agc Delay
+    /// </summary>
+    [Serializable]
+    public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
+    {
+        /// <summary>
+        /// Mag类型
+        /// </summary>
+        public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+        /// <summary>
+        /// 暗场相机ID
+        /// </summary>
+        public int PmtId { get; set; }
+
+        /// <summary>
+        /// 当前暗场Mag和PmtId下的通道1 AGC延迟时间, **需要下发Laser硬件**
+        /// </summary>
+        public double Channel1AgcDelay { get; set; }
+
+        /// <summary>
+        /// 当前暗场Mag和PmtId下的通道2 AGC延迟时间, **需要下发Laser硬件**
+        /// </summary>
+        public double Channel2AgcDelay { get; set; }
+
+        /// <summary>
+        /// 当前暗场Mag和PmtId下的通道3 AGC延迟时间, **需要下发Laser硬件**
+        /// </summary>
+        public double Channel3AgcDelay { get; set; }
     }
 
     /// <summary>

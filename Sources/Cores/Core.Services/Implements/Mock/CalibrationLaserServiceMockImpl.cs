@@ -128,21 +128,35 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<double>> GetSensorPmtValueList()
+    public SxExecuteRet<List<int>> GetUsedPmtIdList()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 800).Select(_ => Random.NextDouble()).ToList());
+        return SxExecuteRetHelper.CreateSuccess<List<int>>([.. Enumerable.Range(1, 15)]);
     }
 
-    public SxExecuteRet<List<double>> GetAnyPmtValueList(int pmtId, int channel)
+    public SxExecuteRet<List<double>> GetPmtDataList(int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList());
     }
 
-    public SxExecuteRet<List<DarkFieldPmtDelayDto>> GetCibSamplePmtDelayList()
+    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count)
+    {
+        Thread.Sleep(100);
+
+        var result = new List<List<double>>(count);
+
+        for (var i = 0; i < count; i++)
+        {
+            result.Add([.. Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950)]);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<List<DarkFieldPmtDelayDto>> GetPmtDelayList()
     {
         var pmtDelayDtoList = new List<DarkFieldPmtDelayDto>();
         for (var i = 1; i < 16; i++)
@@ -183,13 +197,21 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<bool> SendPmtGainToCib(List<string> pmtData, List<string> igData, int pmtId, int channel)
+    public SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
     {
         Thread.Sleep(100);
+
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetCibSamplePmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    public SxExecuteRet<bool> SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
     {
         Thread.Sleep(100);
 
@@ -245,11 +267,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(1080);
     }
 
-    public SxExecuteRet<double> GetDarkFieldLineScanImageXSizePerPixel(OpticsMagTypeEnum yOpticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum)
-    {
-        return SxExecuteRetHelper.CreateSuccess(Random.NextDouble());
-    }
-
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -302,6 +319,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
+        double xPixelSize,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,

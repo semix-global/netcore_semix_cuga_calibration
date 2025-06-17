@@ -719,7 +719,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                 var dataPath = Path.Combine(path, "data.txt");
                 File.WriteAllLines(datavgePath, datavge);
                 File.WriteAllLines(dataPath, data);
-                LaserViewModel.SendPmtGainToCib(data, datavge, itemPmtGainDto.PmtId, itemPmtGainDto.Channel);
+                LaserViewModel.SendPmtGain(data, datavge, itemPmtGainDto.PmtId, itemPmtGainDto.Channel);
                 Logger.LogHtmlInformation($"Send Cib PMT ID: {itemPmtGainDto.PmtId},Channel: {itemPmtGainDto.Channel} OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     itemPmtGainDto.PmtId,

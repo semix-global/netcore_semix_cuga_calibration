@@ -1,12 +1,21 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Cuga.Data.DataStruct.PMT;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
+#if NET
+
+using CgPMTDataModel = Cuga.Data.DataStruct.PMT.CgPMTdataModel;
+
+#else
+
+using Cuga.Data.DataStruct.PMT;
+
+#endif
+
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneable<DarkFieldPmtDataDto>, IAdaptTo<CgPMTdataModel>, IAdaptIn<CgPMTdataModel, DarkFieldPmtDataDto>
+public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneable<DarkFieldPmtDataDto>, IAdaptTo<CgPMTDataModel>, IAdaptIn<CgPMTDataModel, DarkFieldPmtDataDto>
 {
     [ObservableProperty]
     private int _pmtId;
@@ -36,7 +45,7 @@ public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneabl
         Expiration = Expiration
     };
 
-    public CgPMTdataModel AdaptTo() => new()
+    public CgPMTDataModel AdaptTo() => new()
     {
         PMTId = PmtId,
         Channel = Channel,
@@ -45,7 +54,7 @@ public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneabl
         AVGData = AvgData
     };
 
-    public DarkFieldPmtDataDto AdaptIn(CgPMTdataModel obj)
+    public DarkFieldPmtDataDto AdaptIn(CgPMTDataModel obj)
     {
         Guard.IsNotNull(obj, nameof(obj));
 

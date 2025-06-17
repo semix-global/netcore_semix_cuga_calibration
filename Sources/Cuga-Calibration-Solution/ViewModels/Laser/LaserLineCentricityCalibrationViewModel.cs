@@ -727,7 +727,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         if (LaserViewModel.TryGetMatchPosition(
                 Cache.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
-                LaserPixelSizes,
                 laserLineCentricityItemDto.PmtId,
                 laserLineCentricityItemDto.FindPosition,
                 Cache.TemplateFilePath,
@@ -759,7 +758,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         if (LaserViewModel.TryGetMatchPosition(
                 Cache.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
-                LaserPixelSizes,
                 laserLineCentricityItemDto.PmtId,
                 laserLineCentricityItemDto.FindPosition,
                 Cache.TemplateFilePath,

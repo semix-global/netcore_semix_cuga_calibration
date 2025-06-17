@@ -68,6 +68,8 @@ public static class WcfConstantHelper
 
     public const string LaserXtcCalibrationName = "XTC";
 
+    public const string LaserAgcDelayCalibrationName = "AGC Delay";
+
     public const string LaserIlluminationProfileCalibrationName = "Illumination Profile";
 
     public const string LaserAttenuatorCalibrationName = "Attenuator";

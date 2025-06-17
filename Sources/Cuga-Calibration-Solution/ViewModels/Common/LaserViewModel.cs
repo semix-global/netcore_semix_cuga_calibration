@@ -20,6 +20,8 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Models.Models.Laser.XPixelSize;
+using Local.NoSQL.DB.Providers.Interfaces;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -30,9 +32,9 @@ public sealed class LaserViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
-    AfViewModel afViewModel) : ViewModelBase
+    AfViewModel afViewModel,
+    ICacheProvider cacheProvider) : ViewModelBase
 {
-    private double MainCoefficient => calibrationSetting.SettingCommonParam.MainCoefficient;
     #region 服务
 
     public bool Connect()
@@ -129,19 +131,11 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public (bool IsSuccess, DarkFieldChirpAodWaveDto Result) GetChirpAodByChangeRateFromFile(DarkFieldChirpAodWaveDto currentDarkFieldChirpAodWaveDto, double rateChange)
+    public DarkFieldChirpAodWaveDto GetChirpAodByChangeRateFromFile(DarkFieldChirpAodWaveDto currentDarkFieldChirpAodWaveDto, double rateChange)
     {
-        try
-        {
-            var ret = calibrationLaserService.GetChirpAodByChangeRateFromFile(currentDarkFieldChirpAodWaveDto, rateChange);
+        var ret = calibrationLaserService.GetChirpAodByChangeRateFromFile(currentDarkFieldChirpAodWaveDto, rateChange);
 
-            return ret.IsSuccess ? (true, ret.Anything) : (false, ret.Anything);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{@Name}: Get chirp AOD by change rate from file failed", nameof(LaserViewModel));
-            return (false, new DarkFieldChirpAodWaveDto());
-        }
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public void SendChirpAodByList(DarkFieldChirpAodWaveDto darkFieldChirpAodDto)
@@ -151,16 +145,16 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<double> GetSensorPmtValueList()
+    public List<int> GetUsedPmtIdList()
     {
-        var ret = calibrationLaserService.GetSensorPmtValueList();
+        var ret = calibrationLaserService.GetUsedPmtIdList();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<double> GetAnyPmtValueList(int pmtId, int channel)
+    public List<double> GetPmtDataList(int pmtId, int channel)
     {
-        var ret = calibrationLaserService.GetAnyPmtValueList(pmtId, channel);
+        var ret = calibrationLaserService.GetPmtDataList(pmtId, channel);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -172,23 +166,37 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SendPmtGainToCib(List<string> pmtData, List<string> igData, int pmtId, int channel)
+    public List<List<double>> GetPmtSenseDataList(int pmtId, int channelId, int count)
     {
-        var ret = calibrationLaserService.SendPmtGainToCib(pmtData, igData, pmtId, channel);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public List<DarkFieldPmtDelayDto> GetCibSamplePmtDelayList()
-    {
-        var ret = calibrationLaserService.GetCibSamplePmtDelayList();
+        var ret = calibrationLaserService.GetPmtSenseDataList(pmtId, channelId, count);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetCibSamplePmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    public List<DarkFieldPmtDelayDto> GetPmtDelayList()
     {
-        var ret = calibrationLaserService.SetCibSamplePmtDelayList(darkFieldPmtDelayDtoList);
+        var ret = calibrationLaserService.GetPmtDelayList();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    {
+        var ret = calibrationLaserService.SetPmtDelayList(darkFieldPmtDelayDtoList);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.SendPmtGain(pmtGainFilePath, pmtId, channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.SendPmtGain(pmtData, igData, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -238,13 +246,6 @@ public sealed class LaserViewModel(
     public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum)
     {
         var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public double GetDarkFieldLineScanImageXSizePerPixel(OpticsMagTypeEnum yOpticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum)
-    {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageXSizePerPixel(yOpticsMagTypeEnum, xStageSpeedEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -475,6 +476,9 @@ public sealed class LaserViewModel(
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod)
     {
+        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.OpticsMagTypeEnum == yOpticsMagTypeEnum && t.XStageSpeedEnum == xStageSpeedEnum);
+        if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
+
         switch (stageCoordinateSystemEnum)
         {
             case StageCoordinateSystemEnum.Machine:
@@ -487,7 +491,18 @@ public sealed class LaserViewModel(
 
         var isAutoFocus = afViewModel.SetDarkFieldAutoFocus(null, yOpticsMagTypeEnum, CalChipSiteModelEnum.ChuckModel);
 
-        var ret = calibrationLaserService.GetChuckDarkFieldRowLineScanImageList(positionList, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, customPrescanAod, isCustomChirpAod);
+        var ret = calibrationLaserService.GetChuckDarkFieldRowLineScanImageList(
+            positionList,
+            xWidthPixel,
+            xSize.XPixelSize,
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum,
+            pmtId,
+            stageCoordinateSystemEnum,
+            isAutoFocus,
+            customPrescanAod,
+            isCustomChirpAod);
+
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
@@ -502,7 +517,15 @@ public sealed class LaserViewModel(
         int channelId = CalibrationConstantsHelper.MainChannelId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
     {
-        var temp = GetChuckDarkFieldRowLineScanImageList(positionList, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, customPrescanAod, isCustomChirpAod);
+        var temp = GetChuckDarkFieldRowLineScanImageList(
+            positionList,
+            xWidthPixel,
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum,
+            pmtId,
+            stageCoordinateSystemEnum,
+            customPrescanAod,
+            isCustomChirpAod);
 
         var result = temp.SelectMany(t => t).Where(t => t.ChannelId == channelId).ToList();
 
@@ -521,7 +544,6 @@ public sealed class LaserViewModel(
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="calChipSiteModelEnum">chuck位置</param>
-    /// <param name="laserPixelSizeItemDtoList">暗场相机的像素尺寸列表</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">明场位置</param>
     /// <param name="templateFilePath">匹配的模板</param>
@@ -539,12 +561,12 @@ public sealed class LaserViewModel(
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="coefficient">功率</param>
     /// <exception cref="AlgorithmException"></exception>
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
-        IEnumerable<LaserPixelSizeItemDto> laserPixelSizeItemDtoList,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -564,14 +586,14 @@ public sealed class LaserViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
         double coefficient = ConstantHelper.NegValue)
     {
-        if (coefficient == ConstantHelper.NegValue) coefficient = MainCoefficient;
+        if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
         resultPosition = Point.Empty;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var ySize = laserPixelSizeItemDtoList.SingleOrDefault(t => t.PmtId == pmtId && t.OpticsMagTypeEnum == yOpticsMagTypeEnum);
+        var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>().SingleOrDefault(t => t.PmtId == pmtId && t.OpticsMagTypeEnum == yOpticsMagTypeEnum);
         if (ySize is null || ySize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
@@ -579,7 +601,13 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSizePerPixel = GetDarkFieldLineScanImageXSizePerPixel(yOpticsMagTypeEnum, xStageSpeedEnum);
+        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.OpticsMagTypeEnum == yOpticsMagTypeEnum && t.XStageSpeedEnum == xStageSpeedEnum);
+        if (xSize is null || xSize.IsOk == false)
+        {
+            if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
+            else logger.LogError("{@Name}: Laser X Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+            return false;
+        }
 
         var isSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
         using var _1 = templateId;
@@ -650,7 +678,7 @@ public sealed class LaserViewModel(
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine) offset.X = -offset.X;
 
-            var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySize.YPixelSize);
+            var actualOffset = new Point(offset.X * xSize.XPixelSize, offset.Y * ySize.YPixelSize);
             resultPosition = position + actualOffset;
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImage(
                 calChipSiteModelEnum,
@@ -714,7 +742,6 @@ public sealed class LaserViewModel(
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="calChipSiteModelEnum">chuck位置</param>
-    /// <param name="laserPixelSizeItemDtoList">暗场相机的像素尺寸列表</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">明场位置</param>
     /// <param name="templateFilePath">匹配的模板</param>
@@ -735,7 +762,6 @@ public sealed class LaserViewModel(
     /// <returns>是否成功</returns>
     public bool TryGetMatchPositionByNotAutoFocus(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<LaserPixelSizeItemDto> laserPixelSizeItemDtoList,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -754,14 +780,14 @@ public sealed class LaserViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
         double coefficient = ConstantHelper.NegValue)
     {
-        if (coefficient == ConstantHelper.NegValue) coefficient = MainCoefficient;
+        if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
         resultPosition = Point.Empty;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var ySize = laserPixelSizeItemDtoList.SingleOrDefault(t => t.PmtId == pmtId && t.OpticsMagTypeEnum == yOpticsMagTypeEnum);
+        var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>().SingleOrDefault(t => t.PmtId == pmtId && t.OpticsMagTypeEnum == yOpticsMagTypeEnum);
         if (ySize is null || ySize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
@@ -769,7 +795,13 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSizePerPixel = GetDarkFieldLineScanImageXSizePerPixel(yOpticsMagTypeEnum, xStageSpeedEnum);
+        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.OpticsMagTypeEnum == yOpticsMagTypeEnum && t.XStageSpeedEnum == xStageSpeedEnum);
+        if (xSize is null || xSize.IsOk == false)
+        {
+            if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
+            else logger.LogError("{@Name}: Laser X Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+            return false;
+        }
 
         var isSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
         using var _1 = templateId;
@@ -838,7 +870,7 @@ public sealed class LaserViewModel(
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine) offset.X = -offset.X;
 
-            var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySize.YPixelSize);
+            var actualOffset = new Point(offset.X * xSize.XPixelSize, offset.Y * ySize.YPixelSize);
             resultPosition = position + actualOffset;
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImageByNotAutoFocus(
                 resultPosition,
@@ -894,13 +926,11 @@ public sealed class LaserViewModel(
         }
     }
 
-
     /// <summary>
     /// 记录日志的匹配模板
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="calChipSiteModelEnum">chuck位置</param>
-    /// <param name="laserPixelSizeItemDtoList">暗场相机的像素尺寸列表</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">匹配旧的位置</param>
     /// <param name="templateFilePath">匹配的模板</param>
@@ -913,7 +943,6 @@ public sealed class LaserViewModel(
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
-        IEnumerable<LaserPixelSizeItemDto> laserPixelSizeItemDtoList,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -923,8 +952,25 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum)
     {
-        return TryGetMatchPosition(algorithmTemplateTypeEnum, calChipSiteModelEnum, laserPixelSizeItemDtoList, pmtId, position, templateFilePath, null, null, null, null, null,
-            out resultPosition, out _, out _, out _, isForward, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum);
+        return TryGetMatchPosition(
+            algorithmTemplateTypeEnum,
+            calChipSiteModelEnum,
+            pmtId,
+            position,
+            templateFilePath,
+            null,
+            null,
+            null,
+            null,
+            null,
+            out resultPosition,
+            out _,
+            out _,
+            out _,
+            isForward,
+            xWidthPixel,
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum);
     }
 
     /// <summary>
@@ -932,7 +978,6 @@ public sealed class LaserViewModel(
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="calChipSiteModelEnum">chuck位置</param>
-    /// <param name="laserPixelSizeItemDtoList">暗场相机的像素尺寸列表</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">匹配的位置</param>
     /// <param name="templateFilePath">模板</param>
@@ -948,7 +993,6 @@ public sealed class LaserViewModel(
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
-        IEnumerable<LaserPixelSizeItemDto> laserPixelSizeItemDtoList,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -961,8 +1005,25 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum)
     {
-        return TryGetMatchPosition(algorithmTemplateTypeEnum, calChipSiteModelEnum, laserPixelSizeItemDtoList, pmtId, position, templateFilePath, null, null, null, null, null,
-            out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, isForward, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum);
+        return TryGetMatchPosition(
+            algorithmTemplateTypeEnum,
+            calChipSiteModelEnum,
+            pmtId,
+            position,
+            templateFilePath,
+            null,
+            null,
+            null,
+            null,
+            null,
+            out resultPosition,
+            out resultScore,
+            out resultAngle,
+            out resultImageFilePath,
+            isForward,
+            xWidthPixel,
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum);
     }
 
     #endregion 模板匹配
