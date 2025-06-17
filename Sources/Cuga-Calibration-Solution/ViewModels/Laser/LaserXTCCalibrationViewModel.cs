@@ -5,7 +5,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
-using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
@@ -492,7 +491,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 return false;
             }
 
-            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationConstantsHelper.MainCoefficient);
+            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
             LaserViewModel.SetGain(LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8).Gain);
 

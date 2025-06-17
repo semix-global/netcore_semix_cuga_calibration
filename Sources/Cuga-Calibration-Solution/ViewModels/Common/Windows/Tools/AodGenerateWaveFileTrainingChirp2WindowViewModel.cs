@@ -1,10 +1,12 @@
+using CommunityToolkit.Common;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Setting;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,8 +28,6 @@ using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.IO;
-using CommunityToolkit.Common;
-using MathNet.Numerics;
 using Complex = System.Numerics.Complex;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -42,6 +42,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     ConfigViewModel configViewModel,
     AfViewModel afViewModel,
     IOptions<ApplicationSetting> options,
+    CalibrationSetting calibrationSetting,
     ILogger<AodGenerateWaveFileTrainingChirp2WindowViewModel> logger) : ViewModelBase
 {
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
@@ -94,7 +95,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #region 3. 补偿训练
 
     [ObservableProperty]
-    private double _prescanCoefficient = CalibrationConstantsHelper.MainCoefficient;
+    private double _prescanCoefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
     [ObservableProperty]
     private ObservableCollection<DeltaKItem> _deltaKItems = [];
@@ -124,7 +125,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.ChuckModel,
                     FindPosition,
-                    (false, CalibrationConstantsHelper.MainCoefficient),
+                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
                     null,
                     XWidthPixel,
@@ -150,7 +151,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
 
                 logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
                 {
-                    CalibrationConstantsHelper.MainCoefficient,
+                    calibrationSetting.SettingCommonParam.MainCoefficient,
                     FindPosition,
                     XWidthPixel,
                     OpticsMagTypeEnum,

@@ -6,6 +6,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:enumsUtilities="clr-namespace:Net.Utilities.Enums;assembly=Net.Utilities"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting.Children"
@@ -83,9 +84,22 @@
                             <hc:NumericUpDown Margin="5"
                                               hc:InfoElement.Title="PMT Interval(um): "
                                               hc:InfoElement.TitlePlacement="Left"
+                                              hc:InfoElement.TitleWidth="150"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding SettingCommonParam.PmtInterval}" />
-
+                            <hc:ComboBox Margin="5"
+                                         HorizontalAlignment="Left"
+                                         hc:InfoElement.TitleWidth="150"
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         hc:InfoElement.Title="Coefficient: "
+                                         SelectedItem="{Binding SettingCommonParam.MainCoefficient}"
+                                         ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}">
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
                         </hc:UniformSpacingPanel>
                     </Grid>
                 </Border>

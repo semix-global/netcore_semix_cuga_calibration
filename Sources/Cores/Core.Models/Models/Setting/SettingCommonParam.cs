@@ -49,6 +49,12 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
         set => SetProperty(ref _pmtInterval, value, true);
     }
 
+    /// <summary>
+    /// 校准暗场采集波形功率系数
+    /// </summary>
+    [ObservableProperty]
+    public double _mainCoefficient;
+
     #endregion 校准状态控制
 
     #region Mapper
@@ -60,6 +66,7 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
         PrerequisitesEnable = obj.PrerequisitesEnable;
         IsDebugEnvironment = obj.IsDebugEnvironment;
         PmtInterval = obj.PmtInterval;
+        MainCoefficient = obj.MainCoefficient;
         return this;
     }
 

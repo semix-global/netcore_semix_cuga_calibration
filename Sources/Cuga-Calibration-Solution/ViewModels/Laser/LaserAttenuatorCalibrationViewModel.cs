@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
@@ -260,7 +259,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
 
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(ResultLaserAttenuatorObjDto.StagePosition);
         LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-        LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, CalibrationConstantsHelper.MainCoefficient);
+        LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -274,7 +273,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity = (firstLightIntensity + secondLightIntensity) / 2; // 计算平均值。
         if (HostEnvironment.IsProduction())
         {
-            if (ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity < ResultLaserAttenuatorObjDto.InitialightIntensity * CalibrationConstantsHelper.MainCoefficient)
+            if (ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity < ResultLaserAttenuatorObjDto.InitialightIntensity * CalibrationSetting.SettingCommonParam.MainCoefficient)
             {
                 Logger.LogHtmlInformation($"{Name}: Attenuator calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {

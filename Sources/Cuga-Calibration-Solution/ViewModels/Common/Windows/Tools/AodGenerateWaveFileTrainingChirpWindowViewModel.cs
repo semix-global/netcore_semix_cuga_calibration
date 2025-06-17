@@ -2,8 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Setting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithm.Halcon.Helper;
@@ -34,6 +34,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     LaserViewModel laserViewModel,
     ConfigViewModel configViewModel,
     AfViewModel afViewModel,
+    CalibrationSetting calibrationSetting,
     IOptions<ApplicationSetting> options,
     ILogger<AodGenerateWaveFileTrainingChirpWindowViewModel> logger) : ViewModelBase
 {
@@ -87,7 +88,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     #region 3. 补偿训练
 
     [ObservableProperty]
-    private double _prescanCoefficient = CalibrationConstantsHelper.MainCoefficient;
+    private double _prescanCoefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
     #region 散光
 
@@ -210,7 +211,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.ChuckModel,
                     FindPosition,
-                    (false, CalibrationConstantsHelper.MainCoefficient),
+                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
                     null,
                     XWidthPixel,
@@ -236,7 +237,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
 
                 logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
                 {
-                    CalibrationConstantsHelper.MainCoefficient,
+                    calibrationSetting.SettingCommonParam.MainCoefficient,
                     FindPosition,
                     XWidthPixel,
                     OpticsMagTypeEnum,

@@ -966,7 +966,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
                     var rowDarkFieldImageDtoList = LaserViewModel.GetChuckDarkFieldRowLineScanImage(
                         points,
-                        (false, CalibrationConstantsHelper.MainCoefficient),
+                        (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
                         false,
                         Cache.XWidthPixel,
                         Cache.OpticsMagTypeEnum,
