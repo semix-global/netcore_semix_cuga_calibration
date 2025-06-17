@@ -876,7 +876,6 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     // 获得照明焦点偏移量
                     if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
                             FocusShiftCache.AlgorithmTemplateTypeEnum,
-                            LaserPixelSizeItems,
                             8,
                             findDarkFieldPosition,
                             FocusShiftCache.DarkFiledTemplateFilePath,

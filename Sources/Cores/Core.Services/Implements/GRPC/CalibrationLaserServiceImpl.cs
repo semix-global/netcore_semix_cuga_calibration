@@ -114,19 +114,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<double>> GetSensorPmtValueList()
+    public SxExecuteRet<List<int>> GetUsedPmtIdList()
     {
-        var sxExecuteRet = Invoke(() => Service?.GetPMTData());
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Pmt Value List is empty", []);
-
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<double>> GetAnyPmtValueList(int pmtId, int channel)
+    public SxExecuteRet<List<double>> GetPmtDataList(int pmtId, int channelId)
     {
-        var sxExecuteRet = Invoke(() => Service?.GetPMTDataAppoint(new SxParamObj<(int pmtId, int channel)>((pmtId, channel))));
+        var sxExecuteRet = Invoke(() => Service?.GetPMTDataAppoint(new SxParamObj<(int pmtId, int channel)>((pmtId, channelId))));
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
         if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Pmt Value List is empty", []);
@@ -145,16 +140,12 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<bool> SendPmtGainToCib(List<string> pmtData, List<string> igData, int pmtId, int channel)
+    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count)
     {
-        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(new SxParamObj<(List<string> pmtData, List<string> igData, int pmtId, int channel)>((pmtData, igData, pmtId, channel))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<DarkFieldPmtDelayDto>> GetCibSamplePmtDelayList()
+    public SxExecuteRet<List<DarkFieldPmtDelayDto>> GetPmtDelayList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDelay());
         if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldPmtDelayDto>>(pmtRet.ErrorMsg, []);
@@ -165,7 +156,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<bool> SetCibSamplePmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    public SxExecuteRet<bool> SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
     {
         var pmtDelayModel = darkFieldPmtDelayDtoList.Select(item => item.AdaptTo()).ToList();
 
@@ -173,6 +164,20 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         return pmtRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(pmtRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channel)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(new SxParamObj<(List<string> pmtData, List<string> igData, int pmtId, int channel)>((pmtData, igData, pmtId, channel))));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -237,22 +242,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-    }
-
-    public SxExecuteRet<double> GetDarkFieldLineScanImageXSizePerPixel(OpticsMagTypeEnum yOpticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum)
-    {
-        // 线扫Y方向扫描频率: 200000Hz(pixel/s), 速度单位: um/s 像素单位 = 速度/扫描频率
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(yOpticsMagTypeEnum.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
-            : xStageSpeedEnum switch
-            {
-                StageSpeedEnum.Low => SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.LowSpeed.XPixelSize),
-                StageSpeedEnum.Middle => SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.MidSpeed.XPixelSize),
-                StageSpeedEnum.High => SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.HighSpeed.XPixelSize),
-                _ => SxExecuteRetHelper.CreateError<double>($"{nameof(xStageSpeedEnum)}: {xStageSpeedEnum} {nameof(ArgumentOutOfRangeException)}")
-            };
     }
 
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
@@ -356,6 +345,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
+        double xPixelSize,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
@@ -380,11 +370,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (picturePixelHeightRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(picturePixelHeightRet.ErrorMsg, []);
         var height = picturePixelHeightRet.Anything;
 
-        var pixelRet = GetDarkFieldLineScanImageXSizePerPixel(yOpticsMagTypeEnum, xStageSpeedEnum);
-        if (pixelRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(pixelRet.ErrorMsg, []);
-        var sizeXPerPixel = pixelRet.Anything;
-
-        var extendWidth = xWidthPixel * sizeXPerPixel / 2.0;
+        var extendWidth = xWidthPixel * xPixelSize / 2.0;
 
         // 计算采图的起点终点机械坐标
         var startPoint = new Point(machinePositionList[0].X - extendWidth, machinePositionList[0].Y);
@@ -411,7 +397,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var splitImageLength = xWidthPixel * heightPixelOfByte;
         var pointerList = Enumerable
             .Range(0, machinePositionList.Count)
-            .Select((count, index) => index == 0 ? 0 : count * (machinePositionList[1].X - machinePositionList[0].X) / sizeXPerPixel * heightPixelOfByte)
+            .Select((count, index) => index == 0 ? 0 : count * (machinePositionList[1].X - machinePositionList[0].X) / xPixelSize * heightPixelOfByte)
             .Select(Convert.ToInt32)
             .ToList();
 
@@ -419,7 +405,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         foreach (var channelId in Enumerable.Range(0, 3))
         {
             var rawBytes = File.ReadAllBytes(darkFieldImagesRet.Anything[channelId].Url);
-            var ((width, _), bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
+            var (_, bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
             ReadOnlySpan<byte> span = rawBytes.AsSpan().Slice(bodyBytesStartIndex, bodyBytesLength);
 
             var splitImages = new List<DarkFieldImageDto>();

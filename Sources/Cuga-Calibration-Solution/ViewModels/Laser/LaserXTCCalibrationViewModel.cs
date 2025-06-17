@@ -622,7 +622,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         {
             ClearCalibrationTemp();
             //获取CH1,CH2,CH3的值
-            var sampleValueCH = LaserViewModel.GetCibSamplePmtDelayList();
+            var sampleValueCH = LaserViewModel.GetPmtDelayList();
             SampleValueList = sampleValueCH;
 
             foreach (var laserXTCCalibrationItemDto in LaserXTCCalibrationItemDtoList)
@@ -656,7 +656,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             }
 
             //把更新后的值返回给 cuga 接口
-            LaserViewModel.SetCibSamplePmtDelayList(SampleValueList);
+            LaserViewModel.SetPmtDelayList(SampleValueList);
             return true;
         }).ConfigureAwait(false);
     }

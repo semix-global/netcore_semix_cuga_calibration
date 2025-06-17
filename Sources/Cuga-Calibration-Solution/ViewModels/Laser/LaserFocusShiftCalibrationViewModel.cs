@@ -638,7 +638,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             if (LaserViewModel.TryGetMatchPosition(
                        Cache.AlgorithmTemplateTypeEnum,
                        Cache.CalChipSiteModelEnum,
-                       LaserPixelSizeItems,
                        8,
                        Cache.HighSiteFindPosition,
                        Cache.DarkFiledTemplateFilePath,
@@ -771,7 +770,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             // 获得照明焦点偏移量
             if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
                     Cache.AlgorithmTemplateTypeEnum,
-                    LaserPixelSizeItems,
                     8,
                     darkFieldResultPosition,
                     Cache.DarkFiledTemplateFilePath,
