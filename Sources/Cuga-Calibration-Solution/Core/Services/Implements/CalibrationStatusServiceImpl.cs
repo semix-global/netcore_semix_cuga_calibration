@@ -162,6 +162,13 @@ public class CalibrationStatusServiceImpl(
         return true;
     }
 
+    public bool EnableDependLaserPmtAgcDelayCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        return true;
+    }
+
     public bool EnableDependLaserXTCCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibration<LaserPmtGainDto>(isOk, cancellationToken, out errorMessage) == false) return false;

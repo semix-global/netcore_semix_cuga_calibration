@@ -1,19 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
-using EnumOpticsExtension = Core.Models.Extensions.EnumOpticsExtension;
 
 namespace Core.Models.Models.Laser.PmtAgcDelay;
 
 public sealed partial class LaserPmtAgcDelayItemDto : CalibrationDtoBase, ICloneable<LaserPmtAgcDelayItemDto>, IAdaptTo<CalibrationLaserPmtAgcDelayItem>
 {
-    [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
-
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
@@ -30,27 +24,53 @@ public sealed partial class LaserPmtAgcDelayItemDto : CalibrationDtoBase, IClone
     private double _channel3AgcDelay;
 
     [ObservableProperty]
-    private Point[] _channel1SenseDataPoints = [];
+    private double _channel1AgcOffset;
 
     [ObservableProperty]
-    private Point[] _channel2SenseDataPoints = [];
+    private double _channel2AgcOffset;
 
     [ObservableProperty]
-    private Point[] _channel3SenseDataPoints = [];
+    private double _channel3AgcOffset;
+
+    [ObservableProperty]
+    private List<List<double>> _channel1SenseData = [];
+
+    [ObservableProperty]
+    private List<List<double>> _channel2SenseData = [];
+
+    [ObservableProperty]
+    private List<List<double>> _channel3SenseData = [];
 
     #region Mapper
 
     public LaserPmtAgcDelayItemDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         PmtId = PmtId,
         Channel1AgcDelay = Channel1AgcDelay,
         Channel2AgcDelay = Channel2AgcDelay,
         Channel3AgcDelay = Channel3AgcDelay,
-        Channel1SenseDataPoints = [.. Channel1SenseDataPoints],
-        Channel2SenseDataPoints = [.. Channel2SenseDataPoints],
-        Channel3SenseDataPoints = [.. Channel3SenseDataPoints],
+        Channel1SenseData =
+        [
+            .. Channel1SenseData.Select<List<double>, List<double>>(t =>
+            [
+                .. t
+            ])
+        ],
+        Channel2SenseData =
+        [
+            .. Channel2SenseData.Select<List<double>, List<double>>(t =>
+            [
+                .. t
+            ])
+        ],
+        Channel3SenseData =
+        [
+            .. Channel3SenseData.Select<List<double>, List<double>>(t =>
+            [
+                .. t
+            ])
+        ],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

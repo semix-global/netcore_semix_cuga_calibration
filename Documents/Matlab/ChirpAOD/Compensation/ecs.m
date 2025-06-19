@@ -5,6 +5,16 @@ excelData = readtable('RtfcDiagnosisB3-2.xlsx');
 XAxisTemperature = str2double(excelData.XAxisTemperature);
 YAxisTemperature = str2double(excelData.YAxisTemperature);
 BF_CalChipAfEcs = excelData.BF_CalChipAfEcs;
+DF_IdealEcs = excelData.DF_IdealEcs;
+DF_AutoFocusEcs = excelData.DF_AutoFocusEcs;
+DF_CalChipRealEcs = excelData.DF_CalChipRealEcs;
+
+XAxisTemperature = XAxisTemperature(196:end);
+YAxisTemperature = YAxisTemperature(196:end);
+BF_CalChipAfEcs = BF_CalChipAfEcs(196:end);
+DF_IdealEcs = DF_IdealEcs(196:end);
+DF_AutoFocusEcs = DF_AutoFocusEcs(196:end);
+DF_CalChipRealEcs = DF_CalChipRealEcs(196:end);
 
 % 按 XAxisTemperature 排序
 [sortedX, sortIdx] = sort(XAxisTemperature);
@@ -19,7 +29,7 @@ set(groot, 'DefaultAxesFontSize', 12)
 set(groot, 'DefaultLineLineWidth', 1.5)
 
 % 图1：X vs BF（带线性拟合）
-subplot(2, 2, 1);
+subplot(3, 2, 1);
 plot(sortedX, sortedBF, 'ro', 'MarkerSize', 6, 'DisplayName', 'Data');
 hold on;
 p1 = polyfit(sortedX, sortedBF, 1);
@@ -37,7 +47,7 @@ grid on;
 hold off;
 
 % 图2：Y vs BF（带线性拟合）
-subplot(2, 2, 2);
+subplot(3, 2, 2);
 plot(sortedY, sortedBFY, 'ro', 'MarkerSize', 6, 'DisplayName', 'Data');
 hold on;
 p2 = polyfit(sortedY, sortedBFY, 1);
@@ -55,7 +65,7 @@ grid on;
 hold off;
 
 % 图3：XAxisTemperature 变化趋势
-subplot(2, 2, 3);
+subplot(3, 2, 3);
 plot(XAxisTemperature, 'bo-', 'MarkerSize', 6, 'LineWidth', 1);
 xlabel('Data Point Index');
 ylabel('XAxisTemperature (°C)');
@@ -63,9 +73,24 @@ title('XAxisTemperature Trend');
 grid on;
 
 % 图4：YAxisTemperature 变化趋势
-subplot(2, 2, 4);
+subplot(3, 2, 4);
 plot(YAxisTemperature, 'ro-', 'MarkerSize', 6, 'LineWidth', 1);
 xlabel('Data Point Index');
 ylabel('YAxisTemperature (°C)');
 title('YAxisTemperature Trend');
 grid on;
+
+% 图4：YAxisTemperature 变化趋势
+subplot(3, 2, 5);
+hold on;
+% plot(BF_CalChipAfEcs - DF_IdealEcs, 'co-', 'MarkerSize', 6, 'LineWidth', 1, 'DisplayName', '1');
+plot(DF_IdealEcs, 'ro-', 'MarkerSize', 6, 'LineWidth', 1, 'DisplayName', 'IdealEcs');
+plot(DF_AutoFocusEcs, 'go-', 'MarkerSize', 6, 'LineWidth', 1, 'DisplayName', 'AF');
+plot(DF_CalChipRealEcs, 'bo-', 'MarkerSize', 6, 'LineWidth', 1, 'DisplayName', 'DF');
+xlabel('Data Point Index');
+ylabel('ECS');
+title('AF DF Offset Trend');
+hold off;
+legend('show', 'Location', 'best');
+grid on; box on;
+

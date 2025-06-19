@@ -74,7 +74,7 @@ public interface ICalibrationLaserService
     #region 设置扫描线功率
 
     /// <summary>
-    ///设置mag
+    /// 设置mag
     /// </summary>
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <returns>是否成功</returns>

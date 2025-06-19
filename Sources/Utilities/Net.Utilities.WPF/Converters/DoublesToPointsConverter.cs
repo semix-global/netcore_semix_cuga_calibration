@@ -1,6 +1,8 @@
+using CommunityToolkit.Diagnostics;
 using Net.Utilities.Extensions;
 using System.Globalization;
 using System.Windows;
+using Net.Utilities.WPF.Behaviors;
 
 namespace Net.Utilities.WPF.Converters;
 
@@ -11,9 +13,9 @@ public sealed class DoublesToPointsConverter : AbstractSingletonConverterBase<Do
         return value switch
         {
             null => DependencyProperty.UnsetValue,
-            List<double> list => list.ToPoints(),
-            double[] array => array.ToPoints(),
-            _ => throw new NotSupportedException()
+            IEnumerable<double> list => list.ToPoints(),
+            IEnumerable<IEnumerable<double>> listOfLists => (List<WpfPlotModel>)[.. listOfLists.Select((t, i) => new WpfPlotModel($"{i + 1}", t.ToPoints()))],
+            _ => ThrowHelper.ThrowNotSupportedException<object>(nameof(value))
         };
     }
 
