@@ -127,21 +127,20 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
     }
 
     public SettingDarkFieldAutoFocusParam GetDarkFieldAutoFocusParam()
-   => OpticsMagTypeEnum switch
-   {
-       OpticsMagTypeEnum.Low => LowMagDarkFieldAutoFocusParam.Clone(),
-       OpticsMagTypeEnum.Middle => MiddleMagDarkFieldAutoFocusParam.Clone(),
-       OpticsMagTypeEnum.High => HighMagDarkFieldAutoFocusParam.Clone(),
-       _ => throw new NotImplementedException(),
-   };
+        => OpticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low => LowMagDarkFieldAutoFocusParam.Clone(),
+            OpticsMagTypeEnum.Middle => MiddleMagDarkFieldAutoFocusParam.Clone(),
+            OpticsMagTypeEnum.High => HighMagDarkFieldAutoFocusParam.Clone(),
+            _ => throw new NotImplementedException(),
+        };
 
     public (double min, double max, double interval) GetSteppingRangeParam()
-   => OpticsMagTypeEnum switch
-   {
-       OpticsMagTypeEnum.Low => (LowMagFindFocusMin, LowMagFindFocusMax, LowMagFindFocusInterval),
-       OpticsMagTypeEnum.Middle => (MiddleMagFindFocusMin, MiddleMagFindFocusMax, MiddleMagFindFocusInterval),
-       OpticsMagTypeEnum.High => (HighMagFindFocusMin, HighMagFindFocusMax, HighMagFindFocusInterval),
-       _ => throw new NotImplementedException(),
-   };
-
+        => OpticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low => (LowMagFindFocusMin, LowMagFindFocusMax, LowMagFindFocusInterval),
+            OpticsMagTypeEnum.Middle => (MiddleMagFindFocusMin, MiddleMagFindFocusMax, MiddleMagFindFocusInterval),
+            OpticsMagTypeEnum.High => (HighMagFindFocusMin, HighMagFindFocusMax, HighMagFindFocusInterval),
+            _ => throw new NotImplementedException(),
+        };
 }

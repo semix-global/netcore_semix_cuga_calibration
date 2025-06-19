@@ -234,6 +234,30 @@
                                   IsExpanded="False">
                             <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:ComboBox HorizontalAlignment="Left"
+                                                 hc:InfoElement.TitleWidth="100"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.Title="PMT ID: "
+                                                 SelectedItem="{Binding PmtId}"
+                                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                    <hc:ComboBox HorizontalAlignment="Left"
+                                                 hc:InfoElement.TitleWidth="100"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.Title="Channel ID: "
+                                                 SelectedItem="{Binding ChannelId}"
+                                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}">
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
                                     <TextBox Text="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:InfoElement.Title="Position(um): "
                                              hc:InfoElement.TitlePlacement="Left"

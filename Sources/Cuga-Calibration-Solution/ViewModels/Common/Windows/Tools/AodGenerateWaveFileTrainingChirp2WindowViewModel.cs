@@ -6,6 +6,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Setting;
+using Core.Services.Interfaces;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
@@ -36,6 +37,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     CreateRoiWindowViewModel createRoiWindowViewModel,
     StageViewModel stageViewModel,
     LaserViewModel laserViewModel,
@@ -61,6 +63,12 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #endregion 0. 确认生成波形参数
 
     #region 1. 确认ROI范围用来寻找最大灰阶值
+
+    [ObservableProperty]
+    private int _pmtId = 8;
+
+    [ObservableProperty]
+    private int _channelId = 3;
 
     [ObservableProperty]
     private Point _findPosition;
@@ -123,7 +131,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 FindPosition = stageViewModel.GetBrightFieldStagePosition();
 
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
-                    CalChipSiteModelEnum.ChuckModel,
+                    CalChipSiteModelEnum.DswModel,
                     FindPosition,
                     (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
@@ -131,7 +139,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     XWidthPixel,
                     OpticsMagTypeEnum,
                     StageSpeedEnum,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
+                    pmtId: PmtId,
+                    channelId: ChannelId);
                 var detectImageDirectory = ImageDirectory;
                 using var _ = darkFieldImageDto;
 
@@ -250,11 +260,11 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     if (await CatchImagesAsync(item, imageDirectory, aodWaveDirectory, htmlGuid, cancellationToken).ConfigureAwait(false) == false) continue;
 
                     item.IsOk = true;
-                    ItemsPoints = [.. ItemsPoints, new Point(item.DeltaKs[i], item.MaxItem?.ImageMaxGrayValue ?? 0d)];
+                    ItemsPoints = [.. ItemsPoints, new Point(item.DeltaKs[i], item.MaxItem?.MaxValue ?? 0d)];
                     await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
                 }
 
-                var maxItem = Items.OrderByDescending(t => t.MaxItem?.ImageMaxGrayValue ?? 0).First();
+                var maxItem = Items.OrderByDescending(t => t.MaxItem?.MaxValue ?? 0).First();
 
                 DeltaKItems[i].DeltaKValue = deltaKs[i] = maxItem.DeltaKs[i];
 
@@ -262,7 +272,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 {
                     MaxDeltaKs = deltaKs[i],
                     MaxItemAstigmatismCompensationEcs = maxItem.MaxItem?.Ecs,
-                    MaxItemAstigmatismCompensationImageMaxGrayValue = maxItem.MaxItem?.ImageMaxGrayValue,
+                    MaxItemAstigmatismCompensationImageMaxValue = maxItem.MaxItem?.MaxValue,
                     Table = new HtmlTable([
                         ..Items.Select(t => new
                         {
@@ -276,6 +286,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 }), htmlGuid.LoggingHtml());
             }
 
+            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FindPosition);
             isSuccess = true;
         }
         catch (Exception ex)
@@ -341,7 +352,10 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         XWidthPixel,
                         OpticsMagTypeEnum,
                         StageSpeedEnum,
-                        stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                        stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
+                        pmtId: PmtId,
+                        channelId: ChannelId,
+                        isReturnBrightField: false);
 
                     var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat)}" +
                                    $"_{item.DeltaKs}" +
@@ -350,7 +364,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
 
                     HalconHelper.Save(darkFieldImageDto.Image, filePath);
 
-                    var (maxGrayValue, maxGrayPoints, _, _) = HalconHelper.GetMaxMinGrayValue(darkFieldImageDto.Image, RoiRect);
+                    var (mtfX, mtfY) = calibrationAlgorithmService.ModulationTransferFunction(darkFieldImageDto.Image, RoiRect);
+
                     item.Items =
                     [
                         .. item.Items,
@@ -358,7 +373,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         {
                             Ecs = ecs,
                             FilePath = filePath,
-                            ImageMaxGrayValue = maxGrayValue
+                            MaxValue = mtfY
                         }
                     ];
                     logger.LogHtmlInformation($"{ecs}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -370,8 +385,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         XWidthPixel,
                         StageSpeedEnum,
                         ecs,
-                        Image = new HtmlImage(filePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect), .. maxGrayPoints.Select(t => new HtmlImageCrossOverlay(t))]),
-                        maxGrayValue
+                        Image = new HtmlImage(filePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect)]),
+                        mtfX,
+                        mtfY
                     }), htmlGuid.LoggingHtml());
                 }
 
@@ -379,7 +395,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 {
                     ECSOfGray = new HtmlPlot2DLinesChart([(string.Empty, item.EcsPoints)], string.Empty),
                     MaxItemEcs = item.MaxItem?.Ecs,
-                    MaxItemImageMaxGrayValue = item.MaxItem?.ImageMaxGrayValue
+                    item.MaxItem?.MaxValue
                 }), htmlGuid.LoggingHtml());
 
                 return true;
@@ -501,9 +517,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2 : ObservableObject
     [ObservableProperty]
     private bool _isOk;
 
-    public AodGenerateWaveFileTrainingChirpItem2? MaxItem => Items.Length > 0 ? Items.OrderByDescending(t => t.ImageMaxGrayValue).First() : null;
+    public AodGenerateWaveFileTrainingChirpItem2? MaxItem => Items.Length > 0 ? Items.OrderByDescending(t => t.MaxValue).First() : null;
 
-    public Point[] EcsPoints => [.. Items.Select(t => new Point(t.Ecs, t.ImageMaxGrayValue))];
+    public Point[] EcsPoints => [.. Items.Select(t => new Point(t.Ecs, t.MaxValue))];
 }
 
 public sealed partial class AodGenerateWaveFileTrainingChirpItem2 : ObservableObject
@@ -515,7 +531,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpItem2 : ObservableOb
     private string _filePath = string.Empty;
 
     [ObservableProperty]
-    private double _imageMaxGrayValue;
+    private double _maxValue;
 }
 
 public static class GenerateChirpAodWave
@@ -599,6 +615,7 @@ public static class GenerateChirpAodWave
                                                              $"_{frequencyFileName}" +
                                                              $"_{flatnessTime:0.###}ns" +
                                                              $"_{amplitude:0.###}AMP" +
+                                                             $"_{(deltaKs is null ? string.Empty : string.Join(",", deltaKs))}DeltaKs" +
                                                              $"_{numberOfSamples}Count" +
                                                              $"${numberOfSamples}${zeroSampleCount}$600$03$.txt");
 

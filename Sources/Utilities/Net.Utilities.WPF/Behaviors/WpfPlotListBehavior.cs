@@ -145,7 +145,7 @@ public sealed class WpfPlotListBehavior : Behavior<WpfPlot>
                 var color = turbo is null ? Colors.Category10[i % Colors.Category10.Length] : _turbo.GetColor(turbo.Value.Value, new Range(turbo.Value.Min, turbo.Value.Max));
                 if (MarkerPoint is not null)
                 {
-                    var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkerPoint.Select(t => t.X)], [.. MarkerPoint.Select(t => t.Y)]);
+                    var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkerPoint.Select(t => t.X)], [.. MarkerPoint.Select(t => t.Y)]);
                     mk.MarkerShape = MarkerShape.OpenCircle;
                     mk.Color = color;
                 }

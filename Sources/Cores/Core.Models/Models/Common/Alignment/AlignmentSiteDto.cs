@@ -8,7 +8,6 @@ using Net.Utilities.Models;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 

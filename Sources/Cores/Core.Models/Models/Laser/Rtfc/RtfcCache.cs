@@ -29,6 +29,5 @@ namespace Core.Models.Models.Laser.Rtfc
 
         [ObservableProperty]
         private double _offsetThreshold;
-
     }
 }

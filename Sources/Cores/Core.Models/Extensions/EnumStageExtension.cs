@@ -7,7 +7,6 @@ using Cuga.Data.DataStruct.Basic;
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
-
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;

@@ -37,6 +37,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return (Random.Next(100, 1000), Random.Next(100, 1000));
     }
 
+    public (double MtfX, double MtfY) ModulationTransferFunction(HObject image, Rect roiRect)
+    {
+        return (Random.Next(100, 1000), Random.Next(100, 1000));
+    }
+
     public Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Next(1, 10), Random.Next(1, 10));
