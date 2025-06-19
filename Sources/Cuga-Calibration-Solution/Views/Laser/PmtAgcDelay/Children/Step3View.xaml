@@ -9,7 +9,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
-             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPmtAgcDelayCalibrationViewModel}"
              d:DesignHeight="800"

@@ -81,7 +81,7 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
         HighMagSettingDarkFieldGainViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.High;
         foreach (var pmtId in CalibrationConstantsHelper.PmtIds)
         {
-            foreach (var channel in CalibrationConstantsHelper.ChannelIdList)
+            foreach (var channel in CalibrationConstantsHelper.ChannelIds)
             {
                 var lowMagSettingDarkField = _calibrationSetting.LowMagSettingDarkFieldGainParam.FirstOrDefault(t => t.PmtId == pmtId && t.ChannelId == channel);
                 if (lowMagSettingDarkField is null) _calibrationSetting.LowMagSettingDarkFieldGainParam.Add(new SettingDarkFieldGainParam { PmtId = pmtId, ChannelId = channel });
@@ -165,6 +165,7 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
             _dialogWindowProvider.ShowDialog("Save Failed, Please try again!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
+
         _calibrationSetting.AdaptIn(_cacheProvider.GetOrDefault<CalibrationSetting>());
 
         CloseView(true);

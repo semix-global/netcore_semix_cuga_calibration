@@ -52,9 +52,9 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select a Mag"},
-        new() { StepName = "Find Low Site Position"},
-        new() { StepName = "Find High Site Position"},
+        new() { StepName = "Select a Mag" },
+        new() { StepName = "Find Low Site Position" },
+        new() { StepName = "Find High Site Position" },
         new() { StepName = "Find Dark Field Position" },
         new() { StepName = "Calibration" }
     ];
@@ -201,6 +201,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         LaserPixelSizeItems = laserPixelSizeItems;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out var laserLineCentricityItems, out errorMessage) == false)
@@ -233,6 +234,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
+
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -369,7 +371,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 catch (Exception ex)
                 {
                     Logger.LogInformation("{@Name}: Get Point Image OK!{@Exception}", parameter, ex.Message);
-
                 }
             }).ConfigureAwait(false);
         }
@@ -487,6 +488,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     return false;
                 }
             }
+
             Cache.DarkFiledTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.DarkFiledTemplateFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -523,6 +525,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             SelectReviewDto.IsVerified = false;
             Cache.OpticsMagTypeEnum = SelectReviewDto.OpticsMagTypeEnum;
             var settingDarkFieldAutoFocusParam = SelectReviewDto.SettingDarkFieldAutoFocusParam.Clone();
@@ -534,6 +537,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Cache.SetDarkFieldAutoFocusParam(ResultFocusShiftDto.SettingDarkFieldAutoFocusParam);
                 SelectReviewDto = ResultFocusShiftDto.Clone();
             }
+
             SelectReviewDto.IsVerified = result;
 
             if (Save(SelectReviewDto, cancellationToken) == false)
@@ -542,6 +546,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 SelectReviewDto.IsVerified = false;
                 return false;
             }
+
             await ReviewAsync().ConfigureAwait(false);
             Logger.LogHtmlInformation($"Verify {(result ? "Ok" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -571,7 +576,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             if (findFocusMin <= 0 || findFocusMax <= 0 || findFocusInterval == 0)
             {
                 DialogWindowProvider.ShowDialog("Please set the correct parameters!(Focus Min > 0 and Focs Max > 0 and Focus Interval > 0)", DialogButtonsEnum.OK,
-                        DialogIconEnum.Warning);
+                    DialogIconEnum.Warning);
                 return false;
             }
 
@@ -601,22 +606,25 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             }), HtmlLogUniqueId.LoggingHtml());
 
             #region Bright Field
+
             Logger.LogHtmlInformation("2. Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.LowMicroscopeMagnificationEnum, Cache.LowSiteTemplateFilePath, ImageFileDirectory,
-                       HtmlLogUniqueId, Name,
-                       "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
+                    HtmlLogUniqueId, Name,
+                    "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
             }
+
             Cache.LowSiteFindPosition = lowResultPosition;
             if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.HighMicroscopeMagnificationEnum, Cache.HighSiteTemplateFilePath, ImageFileDirectory,
-                      HtmlLogUniqueId, Name,
-                      "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
+                    HtmlLogUniqueId, Name,
+                    "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
             }
+
             Cache.HighSiteFindPosition = highResultPosition;
 
             //获得明场Af模式下的ECS、机械坐标
@@ -630,38 +638,45 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 brightFieldMachinePosition,
                 afEcs,
             }), HtmlLogUniqueId.LoggingHtml());
+
             #endregion Bright Field
 
             #region Dark Field
+
             Logger.LogHtmlInformation("3. Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var originImagePath = $"{detectImageDirectory}\\DarkFieldMatchOriginImage_{Guid.NewGuid()}).jpg";
             if (LaserViewModel.TryGetMatchPosition(
-                       Cache.AlgorithmTemplateTypeEnum,
-                       Cache.CalChipSiteModelEnum,
-                       8,
-                       Cache.HighSiteFindPosition,
-                       Cache.DarkFiledTemplateFilePath,
-                       originImagePath,
-                       HtmlLogUniqueId,
-                       string.Empty,
-                       string.Empty,
-                       settingDarkFieldAutoFocusParam,
-                       out var darkFieldResultPosition,
-                       out _,
-                       out _,
-                       out var resultImageFilePath,
-                       true,
-                       800,
-                       Cache.OpticsMagTypeEnum,
-                       Cache.StageSpeedEnum,
-                       StageCoordinateSystemEnum.Bright,
-                       Cache.LightCoefficient) == false)
+                    Cache.AlgorithmTemplateTypeEnum,
+                    Cache.CalChipSiteModelEnum,
+                    8,
+                    Cache.HighSiteFindPosition,
+                    Cache.DarkFiledTemplateFilePath,
+                    originImagePath,
+                    HtmlLogUniqueId,
+                    string.Empty,
+                    string.Empty,
+                    settingDarkFieldAutoFocusParam,
+                    out var darkFieldResultPosition,
+                    out _,
+                    out _,
+                    out var resultImageFilePath,
+                    true,
+                    800,
+                    Cache.OpticsMagTypeEnum,
+                    Cache.StageSpeedEnum,
+                    StageCoordinateSystemEnum.Bright,
+                    Cache.LightCoefficient) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
             }
+
             var darkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(darkFieldResultPosition);
-            SynchronizationContextProvider.Send(() => { EcsPoints = []; FocusShiftDtoItems.Clear(); });
+            SynchronizationContextProvider.Send(() =>
+            {
+                EcsPoints = [];
+                FocusShiftDtoItems.Clear();
+            });
 
             // 获得NSC模式下的当前的ECS、NSC值
             StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(darkFieldResultPosition, Cache.CalChipSiteModelEnum);
@@ -671,6 +686,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Dark Field Auto Focus Enable Is Closed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
             }
+
             AfViewModel.ToggleDarkFieldEnable(true);
             var nscBuffers = AfViewModel.GetSensorNscTraceBufferList(TimeSpan.FromSeconds(2));
             var autoFocusNsc = nscBuffers.Average();
@@ -683,11 +699,13 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 autoFocusNsc,
                 NscTraceBuffers = new HtmlPlot2DLinesChart([
                     ("Time-Nsc", nscBuffers.ToPoints()),
-             ], "NscTraceBuffers"),
+                ], "NscTraceBuffers"),
             }), HtmlLogUniqueId.LoggingHtml());
+
             #endregion Dark Field
 
             #region Ecs Offset
+
             Logger.LogHtmlInformation("4. Ecs Offset Calibration", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             // 初始化
             var focusShiftList = new List<FocusShiftDto>();
@@ -703,8 +721,8 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 ImageFileDirectory
             }), HtmlLogUniqueId.LoggingHtml());
             foreach (var (index, ecsValueTemp) in Enumerable.Range(0, Convert.ToInt32((findFocusMax + findFocusMin) / findFocusInterval) + 1)
-                        .Select(x => Math.Min(minEcs + x * findFocusInterval, maxEcs))
-                        .Select((d, i) => (i, d)))
+                         .Select(x => Math.Min(minEcs + x * findFocusInterval, maxEcs))
+                         .Select((d, i) => (i, d)))
             {
                 focusShiftList.Add(new FocusShiftDto
                 {
@@ -751,12 +769,14 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     ResultImage = new HtmlImage(ResultFocusShiftDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 }),
                 EcsQuality = new HtmlPlot2DLinesChart([
-                        ("Ecs-Quality", FocusShiftDtoItems.Select(t => new Point(t.DarkFieldEcsValue,t.DarkFieldQuality)).ToArray())
-                    ], "EcsQuality")
+                    ("Ecs-Quality", FocusShiftDtoItems.Select(t => new Point(t.DarkFieldEcsValue, t.DarkFieldQuality)).ToArray())
+                ], "EcsQuality")
             }), HtmlLogUniqueId.LoggingHtml());
+
             #endregion Ecs Offset
 
             #region BF To DF Machine Offset
+
             Logger.LogHtmlInformation("5.BF To DF Machine Offset Calibration", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             // 监控NSC值
             StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(darkFieldResultPosition, Cache.CalChipSiteModelEnum);
@@ -791,6 +811,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
             }
+
             ResultFocusShiftDto.DarkFieldFindPosition = StageViewModel.DarkFieldToMachinePosition(resultPosition);
             Logger.LogHtmlInformation("Position Offset", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
@@ -800,9 +821,10 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 RealNscEcs = ResultFocusShiftDto.DarkFieldEcsValue,
                 RealNsc = ResultFocusShiftDto.NscValue,
                 NscTraceBuffers = new HtmlPlot2DLinesChart([
-                      ("Time-Nsc", nscBuffers.ToPoints()),
-             ], "NscTraceBuffers"),
+                    ("Time-Nsc", nscBuffers.ToPoints()),
+                ], "NscTraceBuffers"),
             }), HtmlLogUniqueId.LoggingHtml());
+
             #endregion BF To DF Machine Offset
 
             ResultFocusShiftDto.AfMotorOffset = ResultFocusShiftDto.FocusShiftOffset / Cache.AfEcsRelation;
@@ -816,6 +838,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 autoFocusEcs = AfViewModel.GetSensorAverageEcsValue();
                 ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.DswEcsValue = autoFocusEcs;
             }
+
             var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
             Logger.LogHtmlInformation("Result Ok", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -841,7 +864,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.IsEnableDsw,
                 resultAfMotor = ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.DswMotorValue,
                 RealNscTraceBuffers = new HtmlPlot2DLinesChart([
-                           ("Time-Nsc", nscBuffers.ToPoints()),
+                    ("Time-Nsc", nscBuffers.ToPoints()),
                 ], "NscTraceBuffers"),
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -854,6 +877,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             return false;
         }
     }
+
     public bool GetQuality(ref FocusShiftDto focusShiftDto)
     {
         try
@@ -867,15 +891,15 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             Thread.Sleep(1000);
             var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(focusShiftDto.DarkFieldFindPosition);
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
-                 darkFieldPosition,
-                 (false, Cache.LightCoefficient),
-                 true,
-                 800,
-                 Cache.OpticsMagTypeEnum,
-                 StageSpeedEnum.Low,
-                 8,
-                 3,
-                 StageCoordinateSystemEnum.Dark);
+                darkFieldPosition,
+                (false, Cache.LightCoefficient),
+                true,
+                800,
+                Cache.OpticsMagTypeEnum,
+                StageSpeedEnum.Low,
+                8,
+                3,
+                StageCoordinateSystemEnum.Dark);
 
             using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
@@ -883,7 +907,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
             focusShiftDto.DarkFieldImageFilePath =
-               $"{ImageFileDirectory}\\ECS({focusShiftDto.DarkFieldEcsValue})_Guid({HtmlLogUniqueId}).jpg";
+                $"{ImageFileDirectory}\\ECS({focusShiftDto.DarkFieldEcsValue})_Guid({HtmlLogUniqueId}).jpg";
             focusShiftDto.DarkFieldOriginImageFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(focusShiftDto.DarkFieldImageFilePath);
             focusShiftDto.DarkFieldQuality = qualityX;
 
@@ -944,6 +968,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
     {
         SynchronizationContextProvider.Send(FocusShiftDtoItems.Clear);
     }
-    #endregion 校准
 
+    #endregion 校准
 }

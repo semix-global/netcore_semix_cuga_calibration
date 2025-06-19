@@ -825,6 +825,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         {
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(true, (x1, x2)), cancellationToken);
         }
+
         if (x3 != 0 && x4 != 0)
         {
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(false, (x3, x4)), cancellationToken);
@@ -887,11 +888,12 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         bool HasConsecutiveZeros(IEnumerable<double> array, int requiredZeros = 10)
         {
             return array
-                .SkipWhile(x => x != 0)              // 跳过非零部分
-                .TakeWhile(x => x == 0)              // 取连续的零
-                .Count() >= requiredZeros;           // 判断数量
+                .SkipWhile(x => x != 0) // 跳过非零部分
+                .TakeWhile(x => x == 0) // 取连续的零
+                .Count() >= requiredZeros; // 判断数量
         }
     }
+
     private async Task<(bool, List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>)> GetHrpAsync(AdsXGainsCacheItem adsXGainsHrpCacheItem, CancellationToken cancellationToken, int repeatCount = 1)
     {
         try
@@ -945,8 +947,8 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                             PitchMax = pitchMax,
                             PlotHrp = new HtmlPlot2DLinesChart([
                                 ("H", adsXGainsHrpCacheItem.GetPlotH().ToPoints()),
-                        ("P", adsXGainsHrpCacheItem.GetPlotP().ToPoints()),
-                        ("R", adsXGainsHrpCacheItem.GetPlotR().ToPoints())
+                                ("P", adsXGainsHrpCacheItem.GetPlotP().ToPoints()),
+                                ("R", adsXGainsHrpCacheItem.GetPlotR().ToPoints())
                             ], "PlotHrp")
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -963,13 +965,15 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                             PitchMax = pitchMax,
                             PlotHrp = new HtmlPlot2DLinesChart([
                                 ("H", adsXGainsHrpCacheItem.GetPlotH().ToPoints()),
-                        ("P", adsXGainsHrpCacheItem.GetPlotP().ToPoints()),
-                        ("R", adsXGainsHrpCacheItem.GetPlotR().ToPoints())
+                                ("P", adsXGainsHrpCacheItem.GetPlotP().ToPoints()),
+                                ("R", adsXGainsHrpCacheItem.GetPlotR().ToPoints())
                             ], "PlotHrp")
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
+
                 return (true, transBuffer);
             }
+
             if (repeatCount > 5) return (false, transBuffer);
 
             return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
@@ -980,7 +984,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
             return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
-
     }
 
     private async Task<(int x1, int x2, double Z1, double Z2, bool z1IsPositive, bool z2IsPositive)> DichotomyFindX1X2Async(bool isPositive, double speedValue, int index, int minX1, int maxX1, int minX2, int maxX2, CancellationToken cancellationToken)
@@ -1166,6 +1169,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 Logger.LogError(ex, "InvokeSetValue failed, retrying {RetryCount} times", i + 1);
             }
         }
+
         throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
     }
 

@@ -220,6 +220,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(point);
         return true;
     }
+
     #endregion 控制校准业务
 
     #region 校准
@@ -907,11 +908,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             if (transBuffer.Count <= 0) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
 
             var dataIsError = HasConsecutiveZeros(transBuffer[0], 50) &&
-            HasConsecutiveZeros(transBuffer[1], 50) &&
-            HasConsecutiveZeros(transBuffer[2], 50) &&
-            HasConsecutiveZeros(transBuffer[3], 50) &&
-            HasConsecutiveZeros(transBuffer[4], 50) &&
-            HasConsecutiveZeros(transBuffer[5], 50);
+                              HasConsecutiveZeros(transBuffer[1], 50) &&
+                              HasConsecutiveZeros(transBuffer[2], 50) &&
+                              HasConsecutiveZeros(transBuffer[3], 50) &&
+                              HasConsecutiveZeros(transBuffer[4], 50) &&
+                              HasConsecutiveZeros(transBuffer[5], 50);
             if (dataIsError) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
 
             var YSpeedList = transBuffer[7];
@@ -933,9 +934,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         bool HasConsecutiveZeros(IEnumerable<double> array, int requiredZeros = 10)
         {
             return array
-                .SkipWhile(x => x != 0)              // 跳过非零部分
-                .TakeWhile(x => x == 0)              // 取连续的零
-                .Count() >= requiredZeros;           // 判断数量
+                .SkipWhile(x => x != 0) // 跳过非零部分
+                .TakeWhile(x => x == 0) // 取连续的零
+                .Count() >= requiredZeros; // 判断数量
         }
     }
 
@@ -999,8 +1000,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             ySpeedEndIndex,
                             PlotHrp = new HtmlPlot2DLinesChart([
                                 ("H", adsYGainsItemDto.GetPlotH().ToPoints()),
-                        ("P", adsYGainsItemDto.GetPlotP().ToPoints()),
-                        ("R", adsYGainsItemDto.GetPlotR().ToPoints())
+                                ("P", adsYGainsItemDto.GetPlotP().ToPoints()),
+                                ("R", adsYGainsItemDto.GetPlotR().ToPoints())
                             ], "PlotHrp"),
                             HeightMax = heightMax,
                             RollMax = rollMax,
@@ -1024,8 +1025,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             Y6 = adsYGainsItemDto.GetAdsY3(),
                             PlotHrp = new HtmlPlot2DLinesChart([
                                 ("H", adsYGainsItemDto.GetPlotH().ToPoints()),
-                        ("P", adsYGainsItemDto.GetPlotP().ToPoints()),
-                        ("R", adsYGainsItemDto.GetPlotR().ToPoints())
+                                ("P", adsYGainsItemDto.GetPlotP().ToPoints()),
+                                ("R", adsYGainsItemDto.GetPlotR().ToPoints())
                             ], "PlotHrp"),
                             HeightMax = heightMax,
                             RollMax = rollMax,
@@ -1035,8 +1036,10 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             PositiveZ6 = z3
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
+
                 return (result, transBuffer);
             }
+
             if (repeatCount > 5) return (false, transBuffer);
 
             return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
@@ -1047,7 +1050,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
             return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
-
     }
 
     private bool Save(AdsYGainsItemDto itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
@@ -1186,7 +1188,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     ("Z2", transBuffer[1].ToPoints()), ("smoothZ2", adsYGainsCacheItem.GetSmoothPlotZ2().ToPoints()),
                     ("Z3", transBuffer[2].ToPoints()), ("smoothZ3", adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints()),
                     ("Y Speed", YSpeedList.ToPoints())
-                    ], "PlotZ1Z2Z3"),
+                ], "PlotZ1Z2Z3"),
                 PlotHRP = new HtmlPlot2DLinesChart([("H", transBuffer[3].ToPoints()), ("R", transBuffer[4].ToPoints()), ("P", transBuffer[5].ToPoints())], "PlotHRP")
             }), HtmlLogUniqueId.LoggingHtml());
         }
@@ -1267,6 +1269,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 Logger.LogError(ex, "InvokeSetValue failed, retrying {RetryCount} times", i + 1);
             }
         }
+
         throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
     }
 

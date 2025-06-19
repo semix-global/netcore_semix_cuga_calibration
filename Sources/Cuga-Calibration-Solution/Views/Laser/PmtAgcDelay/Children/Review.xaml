@@ -9,7 +9,6 @@
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:pmtAgcDelay="clr-namespace:Core.Models.Models.Laser.PmtAgcDelay;assembly=Core.Models"
-             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPmtAgcDelayCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"

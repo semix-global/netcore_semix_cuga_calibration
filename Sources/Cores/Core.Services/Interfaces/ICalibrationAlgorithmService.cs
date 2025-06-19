@@ -39,6 +39,14 @@ public interface ICalibrationAlgorithmService
     /// <returns>清晰度</returns>
     (double XQuality, double YQuality) GetXyQuality(HObject image);
 
+    /// <summary>
+    /// 获得暗场图片调制传递函数
+    /// </summary>
+    /// <param name="image">图片</param>
+    /// <param name="roiRect">ROI</param>
+    /// <returns>MTF</returns>
+    (double MtfX, double MtfY) ModulationTransferFunction(HObject image, Rect roiRect);
+
     #endregion 清晰度
 
     #region 尺寸

@@ -44,8 +44,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserRtfcCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserRtfcCalibrationViewModel
-    (CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
+public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -55,16 +54,17 @@ public sealed partial class LaserRtfcCalibrationViewModel
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select a Mag"},
-        new() { StepName = "Find Low Site Position"},
-        new() { StepName = "Find High Site Position"},
-        new() { StepName = "Dark Field Template"},
+        new() { StepName = "Select a Mag" },
+        new() { StepName = "Find Low Site Position" },
+        new() { StepName = "Find High Site Position" },
+        new() { StepName = "Dark Field Template" },
         new() { StepName = "Calibration" }
     ];
 
     #region 界面相关
 
     #region Calibrate
+
     /// <summary>
     /// 诊断对象集合
     /// </summary>
@@ -235,6 +235,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         LaserPixelSizeItems = laserPixelSizeItems;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out var laserLineCentricityItems, out errorMessage) == false)
@@ -279,6 +280,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
+
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -417,7 +419,6 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 catch (Exception ex)
                 {
                     Logger.LogInformation("{@Name}: Get Point Image OK!{@Exception}", parameter, ex.Message);
-
                 }
             }).ConfigureAwait(false);
         }
@@ -438,12 +439,14 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 DialogWindowProvider.ShowDialog("Please find focus shift first!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             if (selectFocusShiftDto.IsCalibrated == false)
             {
                 DialogWindowProvider.ShowDialog("Please calibration offset first!", DialogButtonsEnum.OK,
-                       DialogIconEnum.Warning);
+                    DialogIconEnum.Warning);
                 return false;
             }
+
             SelectFocusShiftDto = selectFocusShiftDto.Clone();
             FocusShiftCache.OpticsMagTypeEnum = selectFocusShiftDto.OpticsMagTypeEnum;
 
@@ -550,6 +553,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     return false;
                 }
             }
+
             FocusShiftCache.DarkFiledTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(FocusShiftCache.DarkFiledTemplateFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -578,7 +582,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 if (findFocusMin <= 0 || findFocusMax <= 0 || findFocusInterval == 0)
                 {
                     DialogWindowProvider.ShowDialog("Please set the correct parameters!(Focus Min > 0 and Focs Max > 0 and Focus Interval > 0)", DialogButtonsEnum.OK,
-                            DialogIconEnum.Warning);
+                        DialogIconEnum.Warning);
                     return false;
                 }
 
@@ -619,27 +623,28 @@ public sealed partial class LaserRtfcCalibrationViewModel
                         HighSiteTemplateImage = new HtmlImage(FocusShiftCache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                         DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     })
-
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 #region Bright Field
+
                 // Bright Field Match
                 Logger.LogHtmlInformation($"2. Bright Field Match Template", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, FocusShiftCache.LowSiteFindPosition, FocusShiftCache.LowMicroscopeMagnificationEnum, FocusShiftCache.LowSiteTemplateFilePath, ImageFileDirectory,
-                           HtmlLogUniqueId, Name,
-                           "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
+                        HtmlLogUniqueId, Name,
+                        "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
                 }
 
                 if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowResultPosition, FocusShiftCache.HighMicroscopeMagnificationEnum, FocusShiftCache.HighSiteTemplateFilePath, ImageFileDirectory,
-                       HtmlLogUniqueId, Name,
-                       "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
+                        HtmlLogUniqueId, Name,
+                        "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
                 }
+
                 //获得明场Af模式下的ECS值
                 var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(highResultPosition);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(highResultPosition, FocusShiftCache.CalChipSiteModelEnum);
@@ -650,9 +655,11 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     highSiteFindPosition = highResultPosition,
                     brightFieldMachinePosition
                 }), HtmlLogUniqueId.LoggingHtml());
+
                 #endregion Bright Field
 
                 #region Dark Field
+
                 Logger.LogHtmlInformation($"3. Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 // 获得自动聚焦AutoEcs下的AutoEcs
                 Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + SelectFocusShiftDto.BrightFiedlToDarkFieldOffset;
@@ -664,6 +671,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Error: Set Dark Field Auto Focus Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
+
                 AfViewModel.ToggleDarkFieldEnable(true);
                 var nscBuffers = AfViewModel.GetSensorNscTraceBufferList(TimeSpan.FromSeconds(2));
                 var autoFocusNsc = nscBuffers.Average();
@@ -683,18 +691,18 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 AfViewModel.SetSensorEcsValue(autoFocusEcs);
                 await Task.Delay(5000, cancellationToken);
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
-                                                               Cache.IdeaDarkFieldMachinePosition,
-                                                               (false, FocusShiftCache.LightCoefficient),
-                                                               true,
-                                                               800,
-                                                               Cache.OpticsMagTypeEnum,
-                                                               FocusShiftCache.StageSpeedEnum,
-                                                               8,
-                                                               3,
-                                                               StageCoordinateSystemEnum.Machine);
+                    Cache.IdeaDarkFieldMachinePosition,
+                    (false, FocusShiftCache.LightCoefficient),
+                    true,
+                    800,
+                    Cache.OpticsMagTypeEnum,
+                    FocusShiftCache.StageSpeedEnum,
+                    8,
+                    3,
+                    StageCoordinateSystemEnum.Machine);
                 var path = $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
                 var nscDarkFieldImageFilePath =
-                   $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
+                    $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
                 HalconHelper.Save(darkFieldImageDto.Image, nscDarkFieldImageFilePath);
 
                 Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
@@ -707,21 +715,23 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     NscDiagnosisK,
                     NscDiagnosisTraceBuffers = new HtmlPlot2DLinesChart([
                         ("Ecs-Nsc", nscDiagnosis),
-             ], "NscDiagnosisTraceBuffers"),
+                    ], "NscDiagnosisTraceBuffers"),
                     IdeaEcsNscTraceBuffer = new HtmlPlot2DLinesChart([
-                        ("Time-nm", notAutoFocusNscBuffers.Select(t=>t*NscDiagnosisK).ToPoints()),
-            ], "IdeaEcsNscTraceBuffer"),
+                        ("Time-nm", notAutoFocusNscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                    ], "IdeaEcsNscTraceBuffer"),
                     AutoFocusNscTraceBuffer = new HtmlPlot2DLinesChart([
-                        ("Time-nm", nscBuffers.Select(t=>t*NscDiagnosisK).ToPoints()),
-            ], "AutoFocusNscTraceBuffer"),
+                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                    ], "AutoFocusNscTraceBuffer"),
                     HtmlTab = new HtmlTab(new
                     {
                         nscDarkFieldImageFilePath = new HtmlImage(nscDarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     }),
                 }), HtmlLogUniqueId.LoggingHtml());
+
                 #endregion Dark Field
 
                 #region Reviese Af
+
                 // 修正Af
                 Logger.LogHtmlInformation($"4. Revise Af", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 var focusShiftOffset = idealEcs - autoFocusEcs;
@@ -746,6 +756,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                         return false;
                     }
                 }
+
                 Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     FocusShiftCache.AfMotorReviseThreshold,
@@ -757,19 +768,26 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     settingDarkFieldAutoFocusParam.DswMotorValue,
                     autoFocusEcs,
                 }), HtmlLogUniqueId.LoggingHtml());
+
                 #endregion Reviese Af
 
                 #region Reviese Light Focus
+
                 // 修正照明焦点
                 Logger.LogHtmlInformation("5. Revise Light Focus", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 // 迭代修正
-                SynchronizationContextProvider.Send(() => { EcsPoints = []; RtfcDtoIterationItems.Clear(); });
+                SynchronizationContextProvider.Send(() =>
+                {
+                    EcsPoints = [];
+                    RtfcDtoIterationItems.Clear();
+                });
                 var iterationIndex = 1;
                 var iterationResult = await RevieseLightFocusAsync(cancellationToken);
                 if (iterationResult == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Get Optimal Quality Failed!"), HtmlLogUniqueId.LoggingHtml());
                 }
+
                 Logger.LogHtmlInformation("Iteration Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     Cache.ObliqueAngle,
@@ -789,8 +807,9 @@ public sealed partial class LaserRtfcCalibrationViewModel
                         ("Times-XOffset", RtfcDtoIterationItems.Select(t => t.DarkFieldMatchOffset.X).ToList().ToPoints()),
                         ("Times-DeltaZ", RtfcDtoIterationItems.Select(t => t.DeltaEcs).ToList().ToPoints()),
                         ("Times-LightAxisOffset", RtfcDtoIterationItems.Select(t => t.LightAxisOffset).ToList().ToPoints()),
-            ], "IterationCurve"),
+                    ], "IterationCurve"),
                 }), HtmlLogUniqueId.LoggingHtml());
+
                 #endregion Reviese Light Focus
 
                 (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
@@ -828,7 +847,11 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 async Task<bool> RevieseLightFocusAsync(CancellationToken cancellationToken)
                 {
                     Logger.LogHtmlInformation($"Iteration Times: {iterationIndex}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                    SynchronizationContextProvider.Send(() => { EcsPoints = []; RtfcDtoItems.Clear(); });
+                    SynchronizationContextProvider.Send(() =>
+                    {
+                        EcsPoints = [];
+                        RtfcDtoItems.Clear();
+                    });
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var rtfcDtoList = new List<RtfcDto>();
@@ -846,8 +869,8 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     var findDarkFieldPosition = StageViewModel.MachineToDarkFieldPosition(Cache.IdeaDarkFieldMachinePosition);
                     var findBrightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(findDarkFieldPosition);
                     foreach (var (index, ecsValueTemp) in Enumerable.Range(0, Convert.ToInt32((findFocusMax + findFocusMin) / findFocusInterval) + 1)
-                                .Select(x => Math.Min(minEcs + x * findFocusInterval, maxEcs))
-                                .Select((d, i) => (i, d)))
+                                 .Select(x => Math.Min(minEcs + x * findFocusInterval, maxEcs))
+                                 .Select((d, i) => (i, d)))
                     {
                         rtfcDtoList.Add(new RtfcDto
                         {
@@ -862,6 +885,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                             DarkFieldImageFilePath = ImageFileDirectory
                         });
                     }
+
                     if (GetRealEcs(rtfcDtoList, cancellationToken, out var rtfcDto) == false) return false;
                     ResultRtfcDto = rtfcDto.Clone();
 
@@ -897,6 +921,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                         return false;
                     }
+
                     var matchMachinePosition = StageViewModel.DarkFieldToMachinePosition(resultPosition);
                     ResultRtfcDto.BrightFieldFindPosition = brightFieldMachinePosition;
                     ResultRtfcDto.DarkFieldFindPosition = matchMachinePosition;
@@ -915,7 +940,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                         ResultRtfcDto.EcsValue,
                         ResultRtfcDto.NscValue,
                         NscTraceBuffers = new HtmlPlot2DLinesChart([
-                                       ("Time-Nsc", nscBuffers.ToPoints()),
+                            ("Time-Nsc", nscBuffers.ToPoints()),
                         ], "NscTraceBuffers"),
                         HtmlTab = new HtmlTab(new
                         {
@@ -960,6 +985,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             FocusShiftCalibrationViewModel.HtmlLogUniqueId = HtmlLogUniqueId;
             SelectReviewDto.IsVerified = false;
             FocusShiftCache.OpticsMagTypeEnum = SelectReviewDto.OpticsMagTypeEnum;
@@ -970,6 +996,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 DialogWindowProvider.ShowDialog("Please find focus shift first!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             if (await FocusShiftCalibrationViewModel.CalibrationAsync(settingDarkFieldAutoFocusParam, cancellationToken) == false) return false;
 
             ResultRtfcDto.DarkFieldMatchOffset = FocusShiftCalibrationViewModel.ResultFocusShiftDto.DarkFieldFindPosition - SelectReviewDto.DarkFieldFindPosition;
@@ -979,8 +1006,8 @@ public sealed partial class LaserRtfcCalibrationViewModel
             var dfShift = FocusShiftCalibrationViewModel.ResultFocusShiftDto.DarkFieldEcsValue - idealEcs;
             var afDfOffset = FocusShiftCalibrationViewModel.ResultFocusShiftDto.FocusShiftOffset;
             var result = SelectReviewDto.IsVerified = Math.Abs(afShift) < FocusShiftCache.FocusShiftThreshold
-                                                   && Math.Abs(dfShift) < FocusShiftCache.FocusShiftThreshold
-                                                   && Math.Abs(ResultRtfcDto.DarkFieldMatchOffset.X) < Cache.OffsetThreshold;
+                                                      && Math.Abs(dfShift) < FocusShiftCache.FocusShiftThreshold
+                                                      && Math.Abs(ResultRtfcDto.DarkFieldMatchOffset.X) < Cache.OffsetThreshold;
 
             if (Save(SelectReviewDto, cancellationToken) == false)
             {
@@ -988,6 +1015,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 SelectReviewDto.IsVerified = false;
                 return false;
             }
+
             DialogWindowProvider.ShowDialog($"RTFC Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
             Logger.LogHtmlInformation($"Verify {(result ? "Ok" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -1030,6 +1058,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 downQualityValue = tempItemDto.Quality;
                 if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 10)) break; // 连续30个下降说明已经到了最低点
             }
+
             rtfcDto = RtfcDtoItems.Select(s => s.Clone()).Maxima(s => s.Quality).Single();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
             {
@@ -1040,8 +1069,8 @@ public sealed partial class LaserRtfcCalibrationViewModel
                     ResultImage = new HtmlImage(rtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)]),
                 }),
                 EcsQuality = new HtmlPlot2DLinesChart([
-                        ("Ecs-Quality", RtfcDtoItems.Select(t => new Point(t.EcsValue,t.Quality)).ToArray())
-                    ], "EcsQuality")
+                    ("Ecs-Quality", RtfcDtoItems.Select(t => new Point(t.EcsValue, t.Quality)).ToArray())
+                ], "EcsQuality")
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         }
@@ -1064,15 +1093,15 @@ public sealed partial class LaserRtfcCalibrationViewModel
             AfViewModel.SetSensorEcsValue(rtfcItemDto.EcsValue);
             Thread.Sleep(1000);
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
-                 rtfcItemDto.BrightFieldFindPosition,
-                 (false, FocusShiftCache.LightCoefficient),
-                 true,
-                 800,
-                 Cache.OpticsMagTypeEnum,
-                 StageSpeedEnum.Low,
-                 8,
-                 3,
-                 StageCoordinateSystemEnum.Dark);
+                rtfcItemDto.BrightFieldFindPosition,
+                (false, FocusShiftCache.LightCoefficient),
+                true,
+                800,
+                Cache.OpticsMagTypeEnum,
+                StageSpeedEnum.Low,
+                8,
+                3,
+                StageCoordinateSystemEnum.Dark);
 
             using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
@@ -1080,7 +1109,7 @@ public sealed partial class LaserRtfcCalibrationViewModel
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
             rtfcItemDto.DarkFieldImageFilePath =
-               $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).jpg";
+                $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).jpg";
             rtfcItemDto.DarkFieldOriginImageFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcItemDto.DarkFieldImageFilePath);
             rtfcItemDto.Quality = qualityX;
 
@@ -1158,7 +1187,9 @@ public sealed partial class LaserRtfcCalibrationViewModel
                 Logger.LogError(ex, "Invoke failed, retrying {RetryCount} times", i + 1);
             }
         }
+
         throw new CugaException($"Ads Service Invoke Error! {nameof(action.Method.Name)}");
     }
+
     #endregion 校准
 }

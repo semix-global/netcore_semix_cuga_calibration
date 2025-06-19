@@ -59,6 +59,18 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (meanTupleX.D, meanTupleY.D);
     }
 
+    public (double MtfX, double MtfY) ModulationTransferFunction(HObject image, Rect roiRect)
+    {
+        using var roiImage = HalconHelper.ToRoi(image, roiRect);
+
+        _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
+
+        using var _1 = mtfX;
+        using var _2 = mtfY;
+
+        return (mtfX.D, mtfY.D);
+    }
+
     public Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle)
     {
         _algorithm.CalculatePixSize(image, out drawingImage, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);

@@ -50,7 +50,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
     private List<int> _pmtIdList = [.. CalibrationConstantsHelper.PmtIds];
 
     [ObservableProperty]
-    private List<int> _channelIdList = [.. CalibrationConstantsHelper.ChannelIdList];
+    private List<int> _channelIdList = [.. CalibrationConstantsHelper.ChannelIds];
 
     [ObservableProperty]
     private int _pmtId = 8;

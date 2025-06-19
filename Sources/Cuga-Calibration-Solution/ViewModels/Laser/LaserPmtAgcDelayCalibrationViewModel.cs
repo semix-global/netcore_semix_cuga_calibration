@@ -23,10 +23,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
-using Net.Utilities.WPF.Behaviors;
-using Net.Utilities.WPF.Converters;
 
 namespace CugaCalibration.ViewModels.Laser;
 

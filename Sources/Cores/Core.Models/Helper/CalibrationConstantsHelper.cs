@@ -49,7 +49,7 @@ public static class CalibrationConstantsHelper
     /// <summary>
     /// 校准暗场采集通道Id集合
     /// </summary>
-    public static readonly int[] ChannelIdList = [1, 2, 3];
+    public static readonly int[] ChannelIds = [1, 2, 3];
 
     /// <summary>
     /// 主校准暗场采集通道Id
