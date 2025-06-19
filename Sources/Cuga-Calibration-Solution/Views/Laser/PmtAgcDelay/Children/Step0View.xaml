@@ -7,7 +7,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserAodDelayCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserPmtAgcDelayCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -18,13 +18,9 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="Laser AOD Delay Step 1: "
+            <hc:Shield Subject="Laser Pmt Agc Delay Step 1: "
                        Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="OpticsMagType: "
-                       Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                       Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
@@ -38,9 +34,7 @@
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
-
         <GridSplitter Grid.Column="1" Width="5" />
-
         <ItemsControl Grid.Column="2"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
@@ -58,7 +52,7 @@
                     <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                  FontSize="35"
                                  Tag="{Binding .OpticsMagTypeEnum}"
-                                 GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
+                                 GroupName="BB4FAC9C-C54F-4930-9479-7F7753BF4BD3">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
                                 <Style.Triggers>

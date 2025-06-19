@@ -28,6 +28,19 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
         new PropertyMetadata(string.Empty, PropertyChangedCallback)
     );
 
+    public bool IsShowLegend
+    {
+        get => (bool)GetValue(IsShowLegendProperty);
+        set => SetValue(IsShowLegendProperty, value);
+    }
+
+    public static readonly DependencyProperty IsShowLegendProperty = DependencyProperty.Register(
+        nameof(IsShowLegend),
+        typeof(bool),
+        typeof(WpfPlotMultiBehavior),
+        new PropertyMetadata(true, PropertyChangedCallback)
+    );
+
     #region Plot0
 
     public string Plot0Title
@@ -646,7 +659,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot0Title;
             if (MarkShape0 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape0.Select(t => t.X)], [.. MarkShape0.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape0.Select(t => t.X)], [.. MarkShape0.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot0Color;
             }
@@ -658,7 +671,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot1Title;
             if (MarkShape1 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape1.Select(t => t.X)], [.. MarkShape1.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape1.Select(t => t.X)], [.. MarkShape1.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot1Color;
             }
@@ -670,7 +683,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot2Title;
             if (MarkShape2 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape2.Select(t => t.X)], [.. MarkShape2.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape2.Select(t => t.X)], [.. MarkShape2.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot2Color;
             }
@@ -681,7 +694,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             var scatterPoints = AssociatedObject.Plot.Add.Scatter(Plot3.Select(t => t.X).ToList(), Plot3.Select(t => t.Y).ToList(), Plot3Color);
             if (MarkShape3 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape3.Select(t => t.X)], [.. MarkShape3.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape3.Select(t => t.X)], [.. MarkShape3.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot3Color;
             }
@@ -695,7 +708,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot4Title;
             if (MarkShape4 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape4.Select(t => t.X)], [.. MarkShape4.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape4.Select(t => t.X)], [.. MarkShape4.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot4Color;
             }
@@ -707,7 +720,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot5Title;
             if (MarkShape5 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape5.Select(t => t.X)], [.. MarkShape5.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape5.Select(t => t.X)], [.. MarkShape5.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot5Color;
             }
@@ -719,7 +732,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot6Title;
             if (MarkShape6 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape6.Select(t => t.X)], [.. MarkShape6.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape6.Select(t => t.X)], [.. MarkShape6.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot6Color;
             }
@@ -731,7 +744,7 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot7Title;
             if (MarkShape7 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape7.Select(t => t.X)], [.. MarkShape7.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape7.Select(t => t.X)], [.. MarkShape7.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot7Color;
             }
@@ -743,13 +756,15 @@ public sealed class WpfPlotMultiBehavior : Behavior<WpfPlot>
             scatterPoints.LegendText = Plot8Title;
             if (MarkShape8 is not null)
             {
-                var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkShape8.Select(t => t.X)], [.. MarkShape8.Select(t => t.Y)]);
+                var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkShape8.Select(t => t.X)], [.. MarkShape8.Select(t => t.Y)]);
                 mk.MarkerShape = MarkerShape.OpenCircle;
                 mk.Color = Plot8Color;
             }
         }
 
-        AssociatedObject.Plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
+        if (IsShowLegend) AssociatedObject.Plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
+        else AssociatedObject.Plot.HideLegend();
+
         AssociatedObject.Plot.Axes.AutoScale();
         AssociatedObject.Refresh();
     }

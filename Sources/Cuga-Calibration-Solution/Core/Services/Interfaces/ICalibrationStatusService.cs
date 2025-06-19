@@ -43,6 +43,8 @@ public interface ICalibrationStatusService
 
     bool EnableDependIlluminationProfileCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);
 
+    bool EnableDependLaserPmtAgcDelayCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);
+
     bool EnableDependLaserXTCCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);
 
     bool EnableDependLaserPixelSizeCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage);

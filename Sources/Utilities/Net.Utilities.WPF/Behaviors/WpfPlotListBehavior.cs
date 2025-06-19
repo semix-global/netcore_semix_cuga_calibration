@@ -32,6 +32,19 @@ public sealed class WpfPlotListBehavior : Behavior<WpfPlot>
         new PropertyMetadata(string.Empty, PropertyChangedCallback)
     );
 
+    public bool IsShowLegend
+    {
+        get => (bool)GetValue(IsShowLegendProperty);
+        set => SetValue(IsShowLegendProperty, value);
+    }
+
+    public static readonly DependencyProperty IsShowLegendProperty = DependencyProperty.Register(
+        nameof(IsShowLegend),
+        typeof(bool),
+        typeof(WpfPlotListBehavior),
+        new PropertyMetadata(true, PropertyChangedCallback)
+    );
+
     public List<WpfPlotModel>? PlotList
     {
         get => (List<WpfPlotModel>?)GetValue(PlotListProperty);
@@ -132,7 +145,7 @@ public sealed class WpfPlotListBehavior : Behavior<WpfPlot>
                 var color = turbo is null ? Colors.Category10[i % Colors.Category10.Length] : _turbo.GetColor(turbo.Value.Value, new Range(turbo.Value.Min, turbo.Value.Max));
                 if (MarkerPoint is not null)
                 {
-                    var mk = AssociatedObject.Plot.Add.Markers((double[])[.. MarkerPoint.Select(t => t.X)], [.. MarkerPoint.Select(t => t.Y)]);
+                    var mk = AssociatedObject.Plot.Add.Markers((double[]) [.. MarkerPoint.Select(t => t.X)], [.. MarkerPoint.Select(t => t.Y)]);
                     mk.MarkerShape = MarkerShape.OpenCircle;
                     mk.Color = color;
                 }
@@ -141,7 +154,9 @@ public sealed class WpfPlotListBehavior : Behavior<WpfPlot>
                 scatterPoints.LegendText = title;
             }
 
-            AssociatedObject.Plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
+            if (IsShowLegend) AssociatedObject.Plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
+            else AssociatedObject.Plot.HideLegend();
+
             AssociatedObject.Plot.Axes.AutoScale();
         }
         finally

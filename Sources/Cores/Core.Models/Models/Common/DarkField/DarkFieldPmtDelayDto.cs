@@ -33,10 +33,10 @@ public sealed partial class DarkFieldPmtDelayDto : ObservableCacheBase, ICloneab
     private int _senseDelay;
 
     /// <summary>
-    /// CH值
+    /// Agc Delay 值
     /// </summary>
     [ObservableProperty]
-    private int _dacDelay;
+    private double _agcDelay;
 
     #region Mapper
 
@@ -46,7 +46,7 @@ public sealed partial class DarkFieldPmtDelayDto : ObservableCacheBase, ICloneab
         ChannelId = ChannelId,
         PmtDelay = PmtDelay,
         SenseDelay = SenseDelay,
-        DacDelay = DacDelay,
+        AgcDelay = AgcDelay,
         Id = Id,
         Expiration = Expiration
     };
@@ -57,7 +57,7 @@ public sealed partial class DarkFieldPmtDelayDto : ObservableCacheBase, ICloneab
         Channel = ChannelId,
         PMTDelay = PmtDelay,
         SenseDelay = SenseDelay,
-        DAC_Delay = DacDelay
+        DAC_Delay = (int)AgcDelay
     };
 
     public DarkFieldPmtDelayDto AdaptIn(CgPMTDelayModel obj)
@@ -68,7 +68,7 @@ public sealed partial class DarkFieldPmtDelayDto : ObservableCacheBase, ICloneab
         ChannelId = obj.Channel;
         PmtDelay = obj.PMTDelay;
         SenseDelay = obj.SenseDelay;
-        DacDelay = obj.DAC_Delay;
+        AgcDelay = obj.DAC_Delay;
 
         return this;
     }
