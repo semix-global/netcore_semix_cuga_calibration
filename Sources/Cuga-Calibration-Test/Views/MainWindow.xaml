@@ -40,6 +40,7 @@
                     <Button Content="Test Log 1" Command="{Binding TestLog1Command}" />
                     <Button Content="Test Log 2" Command="{Binding TestLog2Command}" />
                     <Button Content="Test Stage Map" Command="{Binding TestStageMapCommand}" />
+                    <Button Content="Set NoSql Data" Command="{Binding SetLiteDbDataCommand}" />
                     <Button Style="{StaticResource ButtonDanger}">
                         <hc:UniformSpacingPanel Spacing="5">
                             <iconPacks:PackIconFontAwesome Kind="AddressBookRegular" />

@@ -130,13 +130,14 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             return false;
         }
 
-        (_, IdeaPositionCache) = CacheProvider.TryGetOrDefault<ChuckGlobalScaleErrorCache>();
+        (var isHasIdealCache, IdeaPositionCache) = RecipeCacheProvider.TryGetOrDefault<ChuckGlobalScaleErrorCache>();
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<ChuckRotateScaleErrorCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckRotateScaleErrorCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>();
-        AlignmentCacheBrightField = CacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        return isHasCache || CacheProvider.Set(IdeaPositionCache, cancellationToken);
+        return (isHasIdealCache || RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken))
+               && (isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken));
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -749,8 +750,8 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         Calibration = dto.Clone();
 
         return CacheProvider.Set(dto, cancellationToken)
-               && CacheProvider.Set(IdeaPositionCache, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken);
+               && RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

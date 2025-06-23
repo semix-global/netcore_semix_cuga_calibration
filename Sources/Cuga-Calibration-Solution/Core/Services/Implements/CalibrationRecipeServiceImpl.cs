@@ -8,7 +8,9 @@ using Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -18,7 +20,7 @@ namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationRecipeService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public class CalibrationRecipeServiceImpl(
-    ICacheProvider cacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider cacheProvider,
     ILogger<CalibrationRecipeServiceImpl> logger,
     StageViewModel stageViewModel,
     ApplicationCookie applicationCookie) : ICalibrationRecipeService

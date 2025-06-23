@@ -127,11 +127,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<ChuckPrealignerCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckPrealignerCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckPrealignerObjDto>();
         CalibrationStepList[0].StepIsNextEnable = false;
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -535,7 +535,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     return result;
                 }
 
-                if (CacheProvider.Set(Cache, cancellationToken) == false)
+                if (RecipeCacheProvider.Set(Cache, cancellationToken) == false)
                 {
                     DialogWindowProvider.ShowDialog("Save Threshold Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
                     result = false;
@@ -765,7 +765,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         Calibration = dto.Clone();
 
         return CacheProvider.Set(dto, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 

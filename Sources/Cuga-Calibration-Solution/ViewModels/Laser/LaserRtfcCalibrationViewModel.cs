@@ -267,7 +267,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<RtfcCache>();
         (var isHasFocusShiftCache, FocusShiftCache) = CacheProvider.TryGetOrDefault<FocusShiftCache>();
-        (var isHasFocusShiftItems, ResultFocusShiftDtoItems) = CacheProvider.TryGetOrDefaultArray<FocusShiftDto>();
+        (_, ResultFocusShiftDtoItems) = CacheProvider.TryGetOrDefaultArray<FocusShiftDto>();
         Calibrations = CacheProvider.GetOrDefaultArray<RtfcDto>();
 
         FocusShiftCalibrationViewModel.MicroscopePixelSizeItems = MicroscopePixelSizeItems;
@@ -280,8 +280,8 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
-
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return (isHasCache || CacheProvider.Set(Cache, cancellationToken))
+            && (isHasFocusShiftCache || CacheProvider.Set(FocusShiftCache, cancellationToken));
     }
 
 

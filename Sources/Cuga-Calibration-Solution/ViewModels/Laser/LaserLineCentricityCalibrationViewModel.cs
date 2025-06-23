@@ -211,7 +211,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         LaserPixelSizes = laserPixelSizes;
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserLineCentricityCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserLineCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>();
 
         foreach (var calibrationStatus in Calibrations)
@@ -223,7 +223,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         }
 
         Cache.PmtInterval = calibrationSetting.SettingCommonParam.PmtInterval;
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -826,7 +826,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         if (isSave == false) return true;
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 

@@ -98,7 +98,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
 
         foreach (var calibrationStatus in Calibrations)
@@ -108,7 +108,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -583,7 +583,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             itemDto.Clone(),
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        return CacheProvider.SetArray(Calibrations, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

@@ -1,14 +1,30 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Models.Ads.XGains;
+using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.Chuck.DarkFieldStageMap;
+using Core.Models.Models.Chuck.GlobalScaleError;
+using Core.Models.Models.Chuck.RotateScaleError;
+using Core.Models.Models.Laser.AodDelay;
+using Core.Models.Models.Laser.Attenuator;
+using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Models.Models.Laser.IlluminationProfile;
+using Core.Models.Models.Laser.OpticalPower;
+using Core.Models.Models.Laser.PmtGain;
+using Core.Models.Models.Laser.PrescanChirpAodAlignment;
+using Core.Models.Models.Laser.XTCCalibration;
+using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using HalconDotNet;
 using HAlgorithm;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithm.Halcon.Helper;
 using Net.Utilities.Algorithm.MathNet.Helper;
@@ -44,6 +60,7 @@ public sealed partial class MainWindowViewModel(
     ReviewViewModel reviewViewModel,
     ILogger<MainWindowViewModel> logger,
     ICacheProvider cacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider recipeCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService) : ViewModelBase
 {
     [ObservableProperty]
@@ -389,7 +406,7 @@ public sealed partial class MainWindowViewModel(
     private void TestStageMap()
     {
         if (cacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapDto>(out var darkFieldStageMapDto) == false) return;
-        if (cacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>(out var darkFieldCache) == false) return;
+        if (recipeCacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>(out var darkFieldCache) == false) return;
         /*for (var row = 0; row < darkFieldStageMapDto.CalibrationStageMap.RowNumber; row++)
         {
             for (var column = 0; column < darkFieldStageMapDto.CalibrationStageMap.ColumnNumber; column++)
@@ -562,5 +579,24 @@ public sealed partial class MainWindowViewModel(
 
             return matrix;
         }
+    }
+
+    [RelayCommand]
+    private void SetLiteDbData()
+    {
+        cacheProvider.SetArray<AdsXGainsItemDto>([], CancellationToken.None);
+        cacheProvider.SetArray<AdsYGainsItemDto>([], CancellationToken.None);
+        cacheProvider.Set<ChuckGlobalScaleErrorDto>(new(), CancellationToken.None);
+        cacheProvider.Set<ChuckRotateScaleErrorDto>(new(), CancellationToken.None);
+        cacheProvider.Set<LaserAutoFocusDto>(new(), CancellationToken.None);
+        cacheProvider.Set<LaserBeamStabilizerObjDto>(new(), CancellationToken.None);
+        cacheProvider.SetArray<LaserOpticalPowerDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserAttenuatorObjDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserAodDelayItemDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserPrescanChirpAodAlignmentDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserIlluminationProfileItemDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserXTCCalibrationItemDto>([], CancellationToken.None);
+        cacheProvider.Set<LaserPmtGainDto>(new(), CancellationToken.None);
     }
 }

@@ -23,8 +23,6 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     private double _findFocusInterval50X = 5;
     private double _findFocusInterval100X = 5;
     private double _findFocusInterval150X = 5;
-    private double _verifyResultQuality = 100;
-    private double _verifyResultError = 100;
     private double _threshold = 50;
 
 
@@ -45,6 +43,13 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
 
     [ObservableProperty]
     private Point _findFocusPosition150X;
+
+    [ObservableProperty]
+    public double _verifyResultError;
+
+    [ObservableProperty]
+    public double _verifyResultQuality;
+
 
     [Comparison(3000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMin5X: ")]
     public double FindFocusMin5X
@@ -116,21 +121,21 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
         set => SetProperty(ref _findFocusMax150X, value, validate: true);
     }
 
-    [Comparison(1, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval5X: ")]
+    [Comparison(1d, 100d, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval5X: ")]
     public double FindFocusInterval5X
     {
         get => _findFocusInterval5X;
         set => SetProperty(ref _findFocusInterval5X, value, validate: true);
     }
 
-    [Comparison(1, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval10X: ")]
+    [Comparison(1d, 100d, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval10X: ")]
     public double FindFocusInterval10X
     {
         get => _findFocusInterval10X;
         set => SetProperty(ref _findFocusInterval10X, value, validate: true);
     }
 
-    [Comparison(1d, 100, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval50X: ")]
+    [Comparison(1d, 100d, ComparisonTypeEnum.ClosedInterval, ErrorMessage = "FindFocusInterval50X: ")]
     public double FindFocusInterval50X
     {
         get => _findFocusInterval50X;
@@ -171,20 +176,6 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "SetVoltageAfErrorThreshold150X: ")]
     private double _setVoltageAfErrorThreshold150X;
 
-
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "VerifyResultQuality: ")]
-    public double VerifyResultQuality
-    {
-        get => _verifyResultQuality;
-        set => SetProperty(ref _verifyResultQuality, value, validate: true);
-    }
-
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "VerifyResultError: ")]
-    public double VerifyResultError
-    {
-        get => _verifyResultError;
-        set => SetProperty(ref _verifyResultError, value, validate: true);
-    }
 
     [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Threshold: ")]
     public double Threshold

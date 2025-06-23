@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Setting;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -12,6 +13,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helper.IOC.Providers;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -26,7 +28,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     private readonly ILogger<AlignmentWindowBrightFieldViewModel> _logger;
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly IWindowManagerService _windowManagerService;
-    private readonly ICacheProvider _cacheProvider;
+    private readonly ICacheProvider _recipeCacheProvider;
     private readonly CalibrationSetting _calibrationSetting;
 
     private CancellationTokenSource? _cancellationTokenSource;
@@ -105,7 +107,6 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         StageViewModel stageViewModel,
         MicroscopeViewModel microscopeViewModel,
         IDialogWindowProvider dialogWindowProvider,
-        ICacheProvider cacheProvider,
         ILogger<AlignmentWindowBrightFieldViewModel> logger,
         IMessenger messenger,
         ISynchronizationContextProvider contextProvider,
@@ -114,7 +115,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         CalibrationSetting calibrationSetting)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _cacheProvider = cacheProvider;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
         _logger = logger;
         _contextProvider = contextProvider;
         _alignmentParamWindowBrightFieldViewModel = alignmentParamWindowBrightFieldViewModel;
@@ -138,7 +139,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 _cancellationTokenSource = new CancellationTokenSource();
                 var cancellationToken = _cancellationTokenSource.Token;
 
-                Cache = _cacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+                Cache = _recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
                 Cache.IsVerified = false;
                 Cache.IsOk = false;
                 _contextProvider.Send(() => StepIndex = 0);
@@ -320,7 +321,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         return InvokeAsync(() =>
         {
             Cache.IsOk = true;
-            if (_cacheProvider.Set(Cache, CancellationToken.None) == false)
+            if (_recipeCacheProvider.Set(Cache, CancellationToken.None) == false)
             {
                 Cache.IsOk = false;
                 _dialogWindowProvider.ShowDialog("Failed to save alignment cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);

@@ -14,8 +14,10 @@ using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MoreLinq;
@@ -40,6 +42,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 [IOCAppService(ServiceType = typeof(RecipeSettingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class RecipeSettingViewModel(
     ICacheProvider cacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider recipeCacheProvider,
     ILogger<RecipeSettingViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
@@ -48,7 +51,7 @@ public sealed partial class RecipeSettingViewModel(
     ICalibrationRecipeService calibrationRecipeService,
     IOptions<ApplicationSetting> options,
     ISysRecipeInformationService sysRecipeInformationService,
-    ILiteDatabaseProvider liteDatabaseProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ILiteDatabaseProvider liteDatabaseProvider,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     StageViewModel stageViewModel,
@@ -180,7 +183,7 @@ public sealed partial class RecipeSettingViewModel(
                     return;
                 }
 
-                cacheProvider.Set(CalibrationRecipeDto, CancellationToken.None);
+                recipeCacheProvider.Set(CalibrationRecipeDto, CancellationToken.None);
             }
             catch (Exception ex)
             {
@@ -620,7 +623,7 @@ public sealed partial class RecipeSettingViewModel(
         var waferCenterBrightFieldPosition = CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
         var originReticleWaferPosition = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto.WaferPosition;
         // 对准缓存
-        var alignmentCacheBrightField = cacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        var alignmentCacheBrightField = recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         // 重新对准
         var alignmentResult = StageViewModel.Alignment(alignmentCacheBrightField.LowSite1, alignmentCacheBrightField.LowSite2,

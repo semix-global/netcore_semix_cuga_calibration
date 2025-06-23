@@ -4,7 +4,6 @@ using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
@@ -90,9 +89,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     private MicroscopePixelSizeCache _cache = new();
 
     [ObservableProperty]
-    private ChuckAutoFocusCache _chuckAutoFocusCache = new();
-
-    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _calibrations = [];
 
     #endregion 缓存
@@ -118,14 +114,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 return;
             }
 
-            (isHasCache, ChuckAutoFocusCache) = CacheProvider.TryGetOrDefault<ChuckAutoFocusCache>();
-            if (isHasCache == false)
-            {
-                DialogWindowProvider.ShowDialog("Get Chuck Auto Focus Cache Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
-
-            (isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
+            (isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
             Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
             foreach (var calibrationStatus in Calibrations)
             {
@@ -134,7 +123,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                     .IsCalibrated = calibrationStatus.IsCalibrated;
             }
         }).ConfigureAwait(false);
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -507,7 +496,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 
