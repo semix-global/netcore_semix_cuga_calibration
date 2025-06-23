@@ -4,11 +4,9 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
 using Core.Models.Models;
-using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.FindWaferCenter;
 using Core.Models.Models.Common.Recipe;
-using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Attributes;
@@ -42,12 +40,6 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
-
-    [ObservableProperty]
-    private ChuckPrealignerObjDto _calibration = new();
-
-    [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
     private FindWaferCenterCache _findWaferCenterCache = new();
@@ -146,11 +138,11 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
-        var calibrationRecipeDto = CacheProvider.GetOrDefault<CalibrationRecipeDto>();
+        var calibrationRecipeDto = RecipeCacheProvider.GetOrDefault<CalibrationRecipeDto>();
         FindWaferBrightFieldCenterOffset = calibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition;
         AlignmentResult = calibrationRecipeDto.WaferDto.AlignmentResultDto;
 
-        AlignmentCacheBrightField = CacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         await FindWaferCenterByManuallyWindowViewModel.LoadedAsync().ConfigureAwait(false);
         FindWaferCenterCache = FindWaferCenterByManuallyWindowViewModel.Cache;
@@ -187,7 +179,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
         return InvokeCalibrateAsync(async () =>
         {
             var result = await FindWaferCenterByManuallyWindowViewModel.ActionAsync(cancellationToken).ConfigureAwait(false);
-
+            FindWaferBrightFieldCenterOffset = FindWaferCenterByManuallyWindowViewModel.Cache.OffsetPosition;
             return result;
         });
     }
@@ -215,7 +207,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
             return;
         }
 
-        AlignmentCacheBrightField = CacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
     }
 
     public bool IsOk()

@@ -2,6 +2,7 @@ using Core.Services;
 using CugaCalibration.Core;
 using CugaCalibrationTest.Views;
 using Local.NoSQL.DB.Providers;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,7 +31,8 @@ public sealed partial class App
                     .AddMvvmService(context.HostingEnvironment, app, CugaCalibrationTestAssemblyMetadata.Version)
                     .AddNoSqlDbContext(context.HostingEnvironment)
                     .AddSqlDbContext(context.HostingEnvironment)
-                    .AddCoreService(context.HostingEnvironment)
+                    .AddNoSqlDbContext(context.HostingEnvironment)
+                    .AddKeyedNoSqlDbContext(context.HostingEnvironment, LiteDbConstantHelper.RecipeDbKey).AddCoreService(context.HostingEnvironment)
                     .AddApplication(context.HostingEnvironment)
                     .AddCugaCalibrationTestInjectHostDI(context.HostingEnvironment);
             })

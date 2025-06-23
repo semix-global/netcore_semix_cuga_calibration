@@ -128,10 +128,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Loaded() => Restore();
-
-
-    [RelayCommand]
     private void Restore()
     {
         _calibrationSetting.AdaptIn(_cacheProvider.GetOrDefault<CalibrationSetting>());

@@ -1212,10 +1212,10 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
     public override async Task<bool> SavingAsync()
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        if (CalibrationCacheProvider.TrySet(ResultRtfcDto, CancellationToken.None) == false) return false;
-        if (CalibrationCacheProvider.TrySet(ResultFocusShiftDto, CancellationToken.None) == false) return false;
-        if (CalibrationCacheProvider.TrySet(Cache, CancellationToken.None) == false) return false;
-        if (CalibrationCacheProvider.TrySet(FocusShiftCache, CancellationToken.None) == false) return false;
+        if (CacheProvider.Set(ResultRtfcDto, CancellationToken.None) == false) return false;
+        if (CacheProvider.Set(ResultFocusShiftDto, CancellationToken.None) == false) return false;
+        if (CacheProvider.Set(Cache, CancellationToken.None) == false) return false;
+        if (CacheProvider.Set(FocusShiftCache, CancellationToken.None) == false) return false;
         return true;
     }
 

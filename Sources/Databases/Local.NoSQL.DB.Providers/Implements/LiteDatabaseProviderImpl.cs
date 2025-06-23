@@ -7,7 +7,7 @@ namespace Local.NoSQL.DB.Providers.Implements;
 
 public class LiteDatabaseProviderImpl(ILogger<LiteDbCacheProviderImpl> logger) : ILiteDatabaseProvider
 {
-    public required LiteDatabase LiteDatabase { get; set; }
+    public LiteDatabase LiteDatabase { get; set; }
 
     public bool ModifyLiteDatabase(string liteDbSource)
     {

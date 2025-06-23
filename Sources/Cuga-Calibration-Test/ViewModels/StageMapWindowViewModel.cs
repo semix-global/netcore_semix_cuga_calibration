@@ -8,7 +8,9 @@ using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithm.MathNet.Helper;
 using Net.Utilities.Algorithm.MathNet.Modules;
@@ -38,6 +40,7 @@ namespace CugaCalibrationTest.ViewModels;
 [IOCAppService(ServiceType = typeof(StageMapWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StageMapWindowViewModel(
     ICacheProvider cacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider recipeCacheProvider,
     IDialogWindowProvider dialogWindowProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
@@ -74,8 +77,8 @@ public sealed partial class StageMapWindowViewModel(
         ConfigureWpfPlot(wpfPlot);
 
         if (cacheProvider.TryGetOrDefault<ChuckCenterObjDto>(out var chuckCenter) == false) return;
-        if (cacheProvider.TryGetOrDefault<ChuckBrightFieldStageMapCache>(out var brightFieldCache) == false) return;
-        if (cacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>(out var darkFieldCache) == false) return;
+        if (recipeCacheProvider.TryGetOrDefault<ChuckBrightFieldStageMapCache>(out var brightFieldCache) == false) return;
+        if (recipeCacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>(out var darkFieldCache) == false) return;
         if (cacheProvider.TryGetOrDefaultArray<LaserLineCentricityItemDto>(out var laserLineCentricityItems) == false) return;
 
         if (df is not null)

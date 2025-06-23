@@ -196,7 +196,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             return false;
         }
 
-        ChuckBrightFieldStageMapCache = CacheProvider.GetOrDefault<ChuckBrightFieldStageMapCache>();
+        ChuckBrightFieldStageMapCache = RecipeCacheProvider.GetOrDefault<ChuckBrightFieldStageMapCache>();
         ChuckBrightFieldStageMap = chuckBrightFieldStageMap;
 
         if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
@@ -280,12 +280,12 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             IsDarkField = false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckDarkFieldStageMapDto>();
-        AlignmentCacheDarkField = CacheProvider.GetOrDefault<AlignmentCacheDarkField>();
-        AlignmentCacheBrightField = CacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -1142,7 +1142,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         Calibration = dto.Clone();
 
         return CacheProvider.Set(dto, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 

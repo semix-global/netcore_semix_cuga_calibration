@@ -127,11 +127,11 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<ChuckGlobalScaleErrorCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckGlobalScaleErrorCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>();
-        AlignmentCacheBrightField = CacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -724,7 +724,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         Calibration = dto.Clone();
 
         return CacheProvider.Set(dto, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 

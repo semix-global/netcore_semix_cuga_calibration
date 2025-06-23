@@ -1,4 +1,5 @@
 using Core.Models.Models.Setting;
+using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SourceGenerator.InjectHostDI;
@@ -11,7 +12,11 @@ public static class CoreServiceProvider
     {
         services.AddCoreServicesInjectHostDI(hostEnvironment);
 
-        services.AddSingleton(_ => new CalibrationSetting());
+        services.AddSingleton(sp =>
+        {
+            var cacheProvider = sp.GetRequiredService<ICacheProvider>();
+            return cacheProvider.Get<CalibrationSetting>() ?? new CalibrationSetting();
+        });
 
         return services;
     }

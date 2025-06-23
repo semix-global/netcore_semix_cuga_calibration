@@ -26,7 +26,6 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
 {
     protected readonly ICalibrationStatusService CalibrationStatusService;
     protected readonly ICalibrationAlgorithmService CalibrationAlgorithmService;
-    protected readonly ICalibrationCacheProvider CalibrationCacheProvider;
     protected readonly IMessenger Messenger;
     protected readonly IHostEnvironment HostEnvironment;
     protected readonly IDialogWindowProvider DialogWindowProvider;
@@ -120,7 +119,6 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
         CalibrationAlgorithmService = HostApplication.GetRequiredService<ICalibrationAlgorithmService>();
-        CalibrationCacheProvider = HostApplication.GetRequiredService<ICalibrationCacheProvider>();
         Messenger = HostApplication.GetRequiredService<IMessenger>();
         HostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
         WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();

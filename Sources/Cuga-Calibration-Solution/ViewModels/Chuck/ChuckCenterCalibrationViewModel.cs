@@ -121,10 +121,10 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         MicroscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum.Magnification5X);
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<ChuckCenterCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckCenterCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckCenterObjDto>();
-        AlignmentCacheBrightField = CacheProvider.GetOrDefault<AlignmentCacheBrightField>();
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -574,7 +574,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
                 var chuckCenterObjDto = selectChuckCenterObjDto.Clone();
 
-                if (CacheProvider.Set(Cache, cancellationToken) == false)
+                if (RecipeCacheProvider.Set(Cache, cancellationToken) == false)
                 {
                     DialogWindowProvider.ShowDialog("Save Threshold Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
                     result = false;
@@ -822,7 +822,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Calibration = dto.Clone();
 
         return CacheProvider.Set(dto, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 

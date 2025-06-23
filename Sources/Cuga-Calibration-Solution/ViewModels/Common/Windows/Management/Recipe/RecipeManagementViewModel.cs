@@ -6,9 +6,11 @@ using Core.Models.Events;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Setting;
 using CugaCalibration.Core.Models;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -16,6 +18,7 @@ using Net.Utilities.Helper.File;
 using Net.Utilities.Helper.IOC.Providers;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -42,7 +45,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
     private CalibrationSetting _calibrationSetting;
 
     private readonly IDialogWindowProvider _dialogWindowProvider;
-    private readonly ICacheProvider _cacheProvider;
+    private readonly ICacheProvider _recipeCacheProvider;
     private readonly IWindowManagerService _windowManagerService;
     private readonly ISynchronizationContextProvider _contextProvider;
     private readonly IMessenger _messenger;
@@ -53,19 +56,18 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
 
     public RecipeManagementViewModel(
         IDialogWindowProvider dialogWindowProvider,
-        ICacheProvider cacheProvider,
         IWindowManagerService windowManagerService,
         ISynchronizationContextProvider contextProvider,
         IMessenger messenger,
         ISysRecipeInformationService sysRecipeInformationService,
-        ILiteDatabaseProvider liteDatabaseProvider,
+        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ILiteDatabaseProvider liteDatabaseProvider,
         IOptions<ApplicationSetting> options,
         RecipeSettingViewModel recipeSettingViewModel,
         ApplicationCookie applicationCookie,
         CalibrationSetting calibrationSetting)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _cacheProvider = cacheProvider;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
         _windowManagerService = windowManagerService;
         _contextProvider = contextProvider;
         _messenger = messenger;
@@ -93,7 +95,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                     return;
                 }
 
-                _cacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
+                _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
 
                 var defaultRecipeInfo = calibrationRecipeDto.CalibrationRecipeInfoDto.AdaptTo();
 
@@ -144,7 +146,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                         return;
                     }
 
-                    _cacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out calibrationRecipeDto);
+                    _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out calibrationRecipeDto);
                 }
 
                 _recipeSettingViewModel.CalibrationRecipeDto = calibrationRecipeDto.Clone();
@@ -285,7 +287,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                     return;
                 }
 
-                _cacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
+                _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
                 var recipeInfoDto = calibrationRecipeDto.CalibrationRecipeInfoDto.AdaptTo();
                 var resultList = await _sysRecipeInformationService.GetByConditionAsync(recipeInfoDto).ConfigureAwait(false);
                 if (resultList.Count > 0)
@@ -324,20 +326,25 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                     return;
                 }
 
+                _dialogWindowProvider.TryShowDialog("Do you need to back up to the default path?", out DialogResultEnum dialogResultEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResultEnum == DialogResultEnum.Yes)
+                    // 更新db架构后备份现有配方中的db到默认db路径，确认设备都备份后可以删除该操作
+                    System.IO.File.Copy(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource, Path.Combine(Path.GetDirectoryName(_options.Value.NosqlDbDataSource)!, "Cache_Backup.db"), overwrite: true);
+
                 if (_liteDatabaseProvider.ModifyLiteDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource) == false)
                 {
                     _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return;
                 }
 
-                _cacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
+                _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
                 ApplicationCookie.CalibrationRecipeDto = calibrationRecipeDto.Clone();
                 ApplicationCookie.CalibrationReviseRecipeDto = calibrationRecipeDto.Clone();
 
                 calibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource = SelectRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
-                _cacheProvider.Set(calibrationRecipeDto, CancellationToken.None);
+                _recipeCacheProvider.Set(calibrationRecipeDto, CancellationToken.None);
 
-                _calibrationSetting.AdaptIn(_cacheProvider.GetOrDefault<CalibrationSetting>());
+                //_calibrationSetting.AdaptIn(_recipeCacheProvider.GetOrDefault<CalibrationSetting>());
                 Close();
                 _messenger.Send(ToggleCalibrateEventFactory.RefreshMenuStatus(true)); // 刷新界面
             }
@@ -368,7 +375,10 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
             if (message.Value.IsRefreshRecipeList.HasValue)
             {
                 if (message.Value.IsRefreshRecipeList.Value)
+                {
                     await LoadedAsync().ConfigureAwait(false);
+                    OnPropertyChanged(nameof(ApplicationCookie));
+                }
             }
         });
     }
@@ -413,10 +423,10 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                 return;
             }
 
-            _cacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
+            _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
             calibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName = recipeInfoDto.RecipeDbName;
             calibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource = recipeInfoDto.RecipeNosqlRecipeDbDataSource;
-            _cacheProvider.Set(calibrationRecipeDto, CancellationToken.None);
+            _recipeCacheProvider.Set(calibrationRecipeDto, CancellationToken.None);
         }
     }
 

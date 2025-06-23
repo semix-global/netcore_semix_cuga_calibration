@@ -41,7 +41,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         {
             try
             {
-                if (FindWaferCenterCache is null) Cache = CacheProvider.GetOrDefault<FindWaferCenterCache>();
+                if (FindWaferCenterCache is null) Cache = RecipeCacheProvider.GetOrDefault<FindWaferCenterCache>();
                 else Cache = FindWaferCenterCache;
             }
             catch (Exception ex)
@@ -158,10 +158,10 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
     private void Save()
     {
         Cache.IsOk = true;
-        if (CacheProvider.Set(Cache, CancellationToken.None) == false)
+        if (RecipeCacheProvider.Set(Cache, CancellationToken.None) == false)
         {
             Cache.IsOk = false;
-            DialogWindowProvider.ShowDialog("Failed to save  cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Failed to save cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
 

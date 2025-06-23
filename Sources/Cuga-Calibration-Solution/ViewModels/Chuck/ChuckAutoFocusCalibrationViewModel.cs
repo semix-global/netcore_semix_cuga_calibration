@@ -79,10 +79,10 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<ChuckAutoFocusCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckAutoFocusDto>();
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -434,7 +434,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        return CacheProvider.Set(dto, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

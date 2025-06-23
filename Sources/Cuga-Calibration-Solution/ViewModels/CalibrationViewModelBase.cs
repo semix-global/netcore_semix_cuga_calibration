@@ -16,6 +16,7 @@ using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Humanizer;
+using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Hosting;
@@ -50,6 +51,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     protected readonly ISynchronizationContextProvider SynchronizationContextProvider;
     protected readonly ICalibrationAlgorithmService CalibrationAlgorithmService;
     protected readonly ICacheProvider CacheProvider;
+    protected readonly ICacheProvider RecipeCacheProvider;
     protected readonly ICalibrationStatusService CalibrationStatusService;
     protected readonly ICalibrationRecipeService CalibrationRecipeService;
     protected readonly ApplicationCookie ApplicationCookie;
@@ -264,6 +266,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         SynchronizationContextProvider = HostApplication.GetRequiredService<ISynchronizationContextProvider>();
         CalibrationAlgorithmService = HostApplication.GetRequiredService<ICalibrationAlgorithmService>();
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+        RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
         CalibrationSetting = HostApplication.GetRequiredService<CalibrationSetting>();

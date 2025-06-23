@@ -43,4 +43,9 @@ public static class HostApplication
             ? null
             : descriptors.Where(t => t.ServiceType.FullName == className).Select(s => GetRequiredService(s.ServiceType)).FirstOrDefault();
     }
+
+    public static T? GetKeyedService<T>(string className) where T : class
+    {
+        return ServiceProvider.GetKeyedService<T>(className);
+    }
 }

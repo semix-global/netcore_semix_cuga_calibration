@@ -174,7 +174,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXYAstigmatismCalibrationCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXYAstigmatismCalibrationCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>();
 
         foreach (var calibrationStatus in Calibrations)
@@ -184,7 +184,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -767,7 +767,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 

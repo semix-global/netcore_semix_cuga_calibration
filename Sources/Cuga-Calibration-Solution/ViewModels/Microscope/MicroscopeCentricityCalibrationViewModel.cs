@@ -110,12 +110,12 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         }
 
         MicroscopePixelSizeItems = microscopePixelSizeItems;
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
         Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -698,7 +698,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 .Concat([itemDto.Clone()])
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        return CacheProvider.SetArray(Calibrations, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

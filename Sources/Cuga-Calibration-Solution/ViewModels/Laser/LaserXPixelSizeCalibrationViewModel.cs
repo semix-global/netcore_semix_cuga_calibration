@@ -121,7 +121,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>();
 
         foreach (var calibrationStatus in Calibrations)
@@ -132,7 +132,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -754,7 +754,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         if (isSave == false) return true;
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
+               && RecipeCacheProvider.Set(Cache, cancellationToken)
                && EnableDependedCalibrationItems(cancellationToken);
     });
 
