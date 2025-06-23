@@ -104,9 +104,23 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetSensorCurrentValue(double currentA, bool isA)
+    public void SetSensorCurrentValue(bool isA, double currentA)
     {
-        var ret = calibrationAfService.SetSensorCurrentValue(currentA, isA);
+        var ret = calibrationAfService.SetSensorCurrentValue(isA, currentA);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public (double Offset, double Gain) GetSensorNscCompensationCoefficient()
+    {
+        var ret = calibrationAfService.GetSensorNscCompensationCoefficient();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetSensorNscCompensationCoefficient(double offset, double gain)
+    {
+        var ret = calibrationAfService.SetSensorNscCompensationCoefficient(offset, gain);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -114,7 +128,9 @@ public sealed class AfViewModel(
     public List<double> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
+
         var ret = calibrationAfService.GetSensorAfErrorTraceBufferList(timeSpan);
+
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -123,7 +139,20 @@ public sealed class AfViewModel(
     public List<double> GetSensorNscTraceBufferList(TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
+
         var ret = calibrationAfService.GetSensorNscTraceBufferList(timeSpan);
+
+        logger.LogInformation("End TraceBuffer");
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public List<(double Ecs, double Nsc, double Lvdt)> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    {
+        logger.LogInformation("Start TraceBuffer");
+
+        var ret = calibrationAfService.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
+
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);

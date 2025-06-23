@@ -91,11 +91,25 @@ public interface ICalibrationAfService
 
     /// <summary>
     /// 设置电流的值
-    /// <param name="current">电流的值</param>
     /// <param name="isA">是A路还是B路</param>
+    /// <param name="current">电流的值</param>
     /// </summary>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSensorCurrentValue(double current, bool isA);
+    SxExecuteRet<bool> SetSensorCurrentValue(bool isA, double current);
+
+    /// <summary>
+    /// 获取Nsc补偿系数
+    /// </summary>
+    /// <returns>偏置NSC原始数据, 归一化增益</returns>
+    SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient();
+
+    /// <summary>
+    /// 设置Nsc补偿系数
+    /// <param name="offset">偏置NSC原始数据</param>
+    /// <param name="gain">归一化增益</param>
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain);
 
     /// <summary>
     /// 获取传感器: TracesBuffer error的Buffer值
@@ -110,6 +124,16 @@ public interface ICalibrationAfService
     /// <param name="timeSpan">多长时间Buffer</param>
     /// <returns>TraceBuffer error当前值</returns>
     SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan);
+
+    /// <summary>
+    /// 获取传感器: TracesBuffer ECS NSC Lvdt 的Buffer值
+    /// </summary>
+    /// <param name="startEcs">起始Ecs</param>
+    /// <param name="endEcs">结束Ecs</param>
+    /// <param name="speedEcs">速度Ecs</param>
+    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <returns>TraceBuffer ECS NSC Lvdt当前值</returns>
+    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
 
     #region 自动聚焦下发参数
 

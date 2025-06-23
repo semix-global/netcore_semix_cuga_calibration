@@ -141,7 +141,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return SxExecuteRetHelper.CreateSuccess(led);
     }
 
-    public SxExecuteRet<bool> SetSensorCurrentValue(double current, bool isA)
+    public SxExecuteRet<bool> SetSensorCurrentValue(bool isA, double current)
     {
         var sxExecuteRet = isA
             ? Invoke(() => Service!.SetLedA(Convert.ToUInt16(current)))
@@ -150,6 +150,62 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient()
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateSuccess<(double Offset, double Gain)>((sxExecuteRet.Anything.NSCOffset, sxExecuteRet.Anything.NSCGain / 1000d))
+            : SxExecuteRetHelper.CreateError<(double Offset, double Gain)>(sxExecuteRet.Msg, (0, 0));
+    }
+
+    public SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain)
+    {
+        /*
+         * (NSC原始最大-NSC原始最小)/2
+         * 5000/(最大-偏置)   放大1000倍
+         */
+        var sxExecuteRet = Invoke(() => Service!.SetNSCProperty(Convert.ToInt32(offset), Convert.ToInt32(gain * 1000)));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetAFTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.Anything.AFERROR.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trace buffer is empty", []);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.AFERROR.Select(Convert.ToDouble).ToList());
+    }
+
+    public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetAFTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.Anything.Nsc.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Nsc Trace buffer is empty", []);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
+    }
+
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetUniformAFDiagnosisData(Convert.ToInt32(startEcs), Convert.ToInt32(endEcs), Convert.ToInt32(speedEcs), Convert.ToInt32(timeSpan.TotalMilliseconds)));
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double Lvdt)>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.Anything.Ecs.Count == 0 ||
+            sxExecuteRet.Anything.Nsc.Count == 0 ||
+            sxExecuteRet.Anything.Lvdt.Count == 0 ||
+            sxExecuteRet.Anything.Ecs.Count != sxExecuteRet.Anything.Nsc.Count ||
+            sxExecuteRet.Anything.Nsc.Count != sxExecuteRet.Anything.Lvdt.Count) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double Lvdt)>>("Nsc Trace buffer is empty", []);
+
+        return SxExecuteRetHelper.CreateSuccess<List<(double Ecs, double Nsc, double Lvdt)>>([.. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.Lvdt[i]))]);
     }
 
     public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationEnum microscopeMagnificationEnum, double standardEcsValue)
@@ -337,26 +393,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             default:
                 throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null);
         }
-    }
-
-    public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
-    {
-        var sxExecuteRet = Invoke(() => Service!.GetAFTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.AFERROR.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trace buffer is empty", []);
-
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.AFERROR.Select(Convert.ToDouble).ToList());
-    }
-
-    public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
-    {
-        var sxExecuteRet = Invoke(() => Service!.GetAFTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Nsc.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Nsc Trace buffer is empty", []);
-
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
     public SxExecuteRet<bool> SetDarkFieldAutoFocusMotorAbsoluteValue(double value)

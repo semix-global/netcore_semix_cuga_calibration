@@ -24,6 +24,33 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     [ObservableProperty]
     private double _nb;
 
+    [ObservableProperty]
+    private double _nscOffset;
+
+    [ObservableProperty]
+    private double _nscGain;
+
+    [ObservableProperty]
+    private double _nscCurrentMax;
+
+    [ObservableProperty]
+    private double _nscCurrentMin;
+
+    [ObservableProperty]
+    private double _nscCurrentOffset;
+
+    [ObservableProperty]
+    private double _nscCurrentGain;
+
+    [ObservableProperty]
+    private List<double> _ecsData = [];
+
+    [ObservableProperty]
+    private List<double> _nscData = [];
+
+    [ObservableProperty]
+    private List<double> _lvdtData = [];
+
     #region Mapper
 
     public LaserAutoFocusDto Clone() => new()
@@ -34,6 +61,13 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         CurrentB = CurrentB,
         Fb = Fb,
         Nb = Nb,
+        NscOffset = NscOffset,
+        NscGain = NscGain,
+        NscCurrentMax = NscCurrentMax,
+        NscCurrentMin = NscCurrentMin,
+        EcsData = [.. EcsData],
+        NscData = [.. NscData],
+        LvdtData = [.. LvdtData],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -45,6 +79,8 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     {
         CurrentA = CurrentA,
         CurrentB = CurrentB,
+        NscOffset = NscOffset,
+        NscGain = NscGain,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck

@@ -26,7 +26,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MoreLinq;
 using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
 using Net.Utilities.Algorithm.MathNet.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Constants;
@@ -606,7 +605,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
-            (var isSuccess, _) = await DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.AutoPmtGainAsync(1, Cache.FindPosition,
+            (var isSuccess, _) = await DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.AutoPmtGainAsync(CalibrationSetting.SettingCommonParam.MainCoefficient, Cache.FindPosition,
                 CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, Cache.PmtId, Cache.ChannelId).ConfigureAwait(false);
             if (isSuccess == false)
             {
@@ -735,7 +734,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
 
-                const double coefficient = 1d;
+                var coefficient = CalibrationSetting.SettingCommonParam.MainCoefficient;
                 var resultPrescanByteList = new List<byte>();
                 var resultPrescanWindowList = new List<double>();
 
@@ -787,7 +786,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             itemCache.ServingToPrescanListIndicesList.Clear();
             itemCache.ServingToDarkFieldImageListIndicesList.Clear();
             var prescanFilePath = itemCache.PrescanFilePath;
-            const double coefficient = 1d;
+            var coefficient = CalibrationSetting.SettingCommonParam.MainCoefficient;
             var resultPrescanByteList = new List<byte>();
             var resultPrescanWindowList = new List<double>();
             var prescanCount = itemCache.PrescanEndIndex - itemCache.PrescanStartIndex;
@@ -1237,8 +1236,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             LaserViewModel.SendPrescanByList(prescanDtoTemp);
 
-            if (await CatchDswImagesAsync(illuminationIntensityConsistentDto).ConfigureAwait(false) == false) return false;
-
             int? targetServing = null;
             double? targetValue = null;
 
@@ -1427,17 +1424,14 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
                 LaserViewModel.SendPrescanByList(prescanDtoTemp);
 
-                if (CatchQualityImages(SelectCalibrateItemDto) == false) return false;
-                if (await CatchDswImagesAsync(SelectCalibrateItemDto).ConfigureAwait(false) == false) return false;
-
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
-
-                (var isSuccess, SelectCalibrateItemDto.PolarizationPPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.P).ConfigureAwait(false);
-                if (isSuccess == false) return false;
-                (isSuccess, SelectCalibrateItemDto.PolarizationSPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.S).ConfigureAwait(false);
-                if (isSuccess == false) return false;
-                (isSuccess, SelectCalibrateItemDto.PolarizationCPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.C).ConfigureAwait(false);
-                if (isSuccess == false) return false;
+                // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
+                // 
+                // (var isSuccess, SelectCalibrateItemDto.PolarizationPPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.P).ConfigureAwait(false);
+                // if (isSuccess == false) return false;
+                // (isSuccess, SelectCalibrateItemDto.PolarizationSPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.S).ConfigureAwait(false);
+                // if (isSuccess == false) return false;
+                // (isSuccess, SelectCalibrateItemDto.PolarizationCPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.C).ConfigureAwait(false);
+                // if (isSuccess == false) return false;
 
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
 
@@ -1460,150 +1454,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                         CH3 = new HtmlImage(SelectCalibrateItemDto.Channel3ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
-
-                return true;
-            }
-
-            bool CatchQualityImages(LaserIlluminationProfileItemDto temp)
-            {
-                Logger.LogHtmlInformation("Quality Images", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    PrescanRateList = new HtmlPlot2DLinesChart([(nameof(temp.PrescanRateList), temp.PrescanRateList.ToPoints())], "PrescanRateList")
-                }), HtmlLogUniqueId.LoggingHtml());
-                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition, CalChipSiteModelEnum.HazeModel);
-
-                var isAutoFocus = AfViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, CalChipSiteModelEnum.HazeModel);
-                if (isAutoFocus)
-                    AfViewModel.ToggleDarkFieldEnable(true);
-
-                var averageEcs = AfViewModel.GetSensorAverageEcsValue();
-                AfViewModel.ToggleBrightFieldEnable(false);
-
-                var scoreList = new List<(double Ecs, double Score, string Channel1DarkFieldImageFilePath, string Channel2DarkFieldImageFilePath, string Channel3DarkFieldImageFilePath)>();
-
-                foreach (var ecs in EnumerableHelper.GenerateList(averageEcs, 3, 10).Where(t => t > 0))
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    AfViewModel.SetSensorEcsValue(ecs);
-
-                    var images = LaserViewModel.GetDarkFieldLineScanImageListByNotAutoFocus(
-                        Cache.FindPosition,
-                        Cache.WidthPixel,
-                        Cache.OpticsMagTypeEnum,
-                        Cache.XSpeed,
-                        Cache.PmtId,
-                        StageCoordinateSystemEnum.Bright,
-                        (true, null),
-                        false
-                    );
-
-                    var channel1 = images.Single(t => t.ChannelId == 1);
-                    var channel2 = images.Single(t => t.ChannelId == 2);
-                    var channel3 = images.Single(t => t.ChannelId == 3);
-                    var score = CalibrationAlgorithmService.GetQuality(channel3.Image);
-
-                    var longFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat);
-
-                    var channel1DarkFieldImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{longFileDateTimeFormat}_Channel1_{ecs:F3}).jpg";
-                    HalconHelper.Save(channel1.Image, channel1DarkFieldImageFilePath);
-                    var channel2DarkFieldImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{longFileDateTimeFormat}_Channel2_{ecs:F3}).jpg";
-                    HalconHelper.Save(channel2.Image, channel2DarkFieldImageFilePath);
-                    var channel3DarkFieldImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{longFileDateTimeFormat}_Channel3_{ecs:F3}).jpg";
-                    HalconHelper.Save(channel3.Image, channel3DarkFieldImageFilePath);
-
-                    Logger.LogHtmlInformation($"{ecs}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        score,
-                        averageEcs,
-                        HtmlTab = new HtmlTab(new
-                        {
-                            CH1 = new HtmlImage(channel1DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                            CH2 = new HtmlImage(channel2DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                            CH3 = new HtmlImage(channel3DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                        })
-                    }), HtmlLogUniqueId.LoggingHtml());
-
-                    scoreList.Add((ecs, score, channel1DarkFieldImageFilePath, channel2DarkFieldImageFilePath, channel3DarkFieldImageFilePath));
-                }
-
-                var (Ecs, Score, Channel1DarkFieldImageFilePath, Channel2DarkFieldImageFilePath, Channel3DarkFieldImageFilePath) = scoreList.OrderByDescending(t => t.Score).First();
-
-                Logger.LogHtmlInformation("Max Quality", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    Ecs,
-                    averageEcs,
-                    Offset = Ecs - averageEcs,
-                    Score,
-                    Plot = new HtmlPlot2DLinesChart([("scoreList", [.. scoreList.Select(t => new Point(t.Ecs, t.Score))])], "Plot"),
-                    HtmlTab = new HtmlTab(new
-                    {
-                        CH1 = new HtmlImage(Channel1DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        CH2 = new HtmlImage(Channel2DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        CH3 = new HtmlImage(Channel3DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                    })
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                return true;
-            }
-
-            async Task<bool> CatchDswImagesAsync(LaserIlluminationProfileItemDto temp)
-            {
-                LaserViewModel.SetGain(Cache.DswGain);
-
-                await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
-
-                Logger.LogHtmlInformation("Dsw Images", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    Cache.DswGain,
-                    Cache.DswPosition1,
-                    Cache.DswPosition2,
-                    Cache.DswPosition3,
-                    PrescanRateList = new HtmlPlot2DLinesChart([(nameof(temp.PrescanRateList), temp.PrescanRateList.ToPoints())], "PrescanRateList")
-                }), HtmlLogUniqueId.LoggingHtml());
-                foreach (var position in (Point[])[Cache.DswPosition1, Cache.DswPosition2, Cache.DswPosition3])
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var images = LaserViewModel.GetDarkFieldLineScanImageList(
-                        CalChipSiteModelEnum.DswModel,
-                        position,
-                        Cache.WidthPixel,
-                        Cache.OpticsMagTypeEnum,
-                        Cache.XSpeed,
-                        Cache.PmtId,
-                        StageCoordinateSystemEnum.Bright,
-                        (true, null),
-                        false,
-                        null);
-
-                    var channel1 = images.Single(t => t.ChannelId == 1);
-                    var channel2 = images.Single(t => t.ChannelId == 2);
-                    var channel3 = images.Single(t => t.ChannelId == 3);
-
-                    var longFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat);
-                    var channel1DarkFieldImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{longFileDateTimeFormat}_Channel1.jpg";
-                    HalconHelper.Save(channel1.Image, channel1DarkFieldImageFilePath);
-                    var channel2DarkFieldImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{longFileDateTimeFormat}_Channel2.jpg";
-                    HalconHelper.Save(channel2.Image, channel2DarkFieldImageFilePath);
-                    var channel3DarkFieldImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{longFileDateTimeFormat}_Channel3.jpg";
-                    HalconHelper.Save(channel3.Image, channel3DarkFieldImageFilePath);
-
-                    Logger.LogHtmlInformation($"{position}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        position,
-                        HtmlTab = new HtmlTab(new
-                        {
-                            CH1 = new HtmlImage(channel1DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                            CH2 = new HtmlImage(channel2DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                            CH3 = new HtmlImage(channel3DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                        })
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-
-                LaserViewModel.SetGain(PmtIdItemList.SingleOrDefault(t => t.PmtId == Cache.PmtId).Gain);
-
-                await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
                 return true;
             }
@@ -1672,7 +1522,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             var temp = SelectReviewItemDto.Clone();
 
             LaserViewModel.ToggleOpticsPolarization(OpticsPolarizationTypeEnum.P);
-            LaserViewModel.SetGain(PmtIdItemList.SingleOrDefault(t => t.PmtId == Cache.PmtId).Gain);
+            LaserViewModel.SetGain(PmtIdItemList.Single(t => t.PmtId == Cache.PmtId).Gain);
 
             var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
 

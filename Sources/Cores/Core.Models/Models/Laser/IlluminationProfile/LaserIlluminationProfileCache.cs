@@ -38,30 +38,6 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
     private Point _findPosition;
 
     /// <summary>
-    /// 校准前后去dsw的位置1采图
-    /// </summary>
-    [ObservableProperty]
-    private Point _dswPosition1;
-
-    /// <summary>
-    /// 校准前后去dsw的位置2采图
-    /// </summary>
-    [ObservableProperty]
-    private Point _dswPosition2;
-
-    /// <summary>
-    /// 校准前后去dsw的位置3采图
-    /// </summary>
-    [ObservableProperty]
-    private Point _dswPosition3;
-
-    /// <summary>
-    /// dsw增益
-    /// </summary>
-    [ObservableProperty]
-    private double _dswGain = -1;
-
-    /// <summary>
     /// 校准阈值
     /// </summary>
     [ObservableProperty]

@@ -186,11 +186,11 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发Pmt增益波形给cuga
     /// </summary>
-    /// <param name="pmtGainFilePath">PMT增益文件路径</param>
+    /// <param name="gains">PMT增益电压值</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId);
+    SxExecuteRet<bool> SendPmtGain(double[] gains, int pmtId, int channelId);
 
     /// <summary>
     /// 将45个光斑的PMTGain数据下发给CIB
@@ -224,6 +224,13 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay);
+
+    /// <summary>
+    /// 切换Mark模式
+    /// </summary>
+    /// <param name="enable">是否Mark模式</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableMarkMode(bool enable);
 
     /// <summary>
     /// 切换自动增益

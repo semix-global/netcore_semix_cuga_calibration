@@ -707,7 +707,7 @@ public static class AodWaveGenerator
          *          ((long)-900 + (long)Math.Pow(2, 32)).ToString("X4") : FFFFFC7C
          * 4. 获取Int16所有的补码, 只会有4位
          * 5. Excel拷贝txt显示曲线:
-         *          一、公式: =(HEX2DEC(A1)-IF(HEX2DEC(A1)>=32768,65536,0))/POWER(2,16)
+         *          一、公式: =(HEX2DEC(A1)-IF(HEX2DEC(A1)>=32768,65536,0))/POWER(2,15)
          *          二、不要[下拉填充点]直接推拽下拉太慢, 快速公式下拉填充: 直接双击[下拉填充点]一行直接生成
          */
 

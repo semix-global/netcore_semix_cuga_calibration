@@ -197,7 +197,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
+    public SxExecuteRet<bool> SendPmtGain(double[] gains, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -233,6 +233,13 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable)
     {
         Thread.Sleep(100);
 

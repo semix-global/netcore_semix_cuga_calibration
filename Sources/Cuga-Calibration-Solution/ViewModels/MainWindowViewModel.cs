@@ -25,6 +25,7 @@ using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPower;
 using Core.Models.Models.Laser.PixelSize;
+using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.Rtfc;
 using Core.Models.Models.Laser.XPixelSize;
@@ -597,6 +598,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<FocusShiftDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserRtfcCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<RtfcDto>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPmtAgcDelayCalibrationViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPmtAgcDelayItemDto>().IsOk(out _);
             }
             catch (Exception ex)
             {

@@ -7,6 +7,8 @@ using Core.Models.Models.Common.DarkField;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
+using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithm.MathNet.Helper;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
@@ -180,21 +182,39 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
+    public SxExecuteRet<bool> SendPmtGain(double[] gains, int pmtId, int channelId)
     {
-        var resultString = File.ReadAllLines(pmtGainFilePath).Select(t => t.Trim()).Where(t => string.IsNullOrWhiteSpace(t) == false).ToList();
-        if (resultString.Count <= 0 && resultString.All(t => t.Length == 4) == false) throw new ArgumentException("filePath value error.");
+        // pmt增益电压范围 [-14, 14]
+        var senseVector = Vector<double>.Build.Dense(gains) / 14;
+        var senseValues = senseVector
+            .Select(t => ConvertHelper.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
+            .ToArray();
 
-        short[] values = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
-
-        var result = new List<byte>();
-        foreach (var compArray in values.Select(BitConverter.GetBytes))
+        var senseData = new List<byte>();
+        foreach (var compArray in senseValues.Select(t => -t).Select(BitConverter.GetBytes))
         {
-            result.Add(compArray[1]);
-            result.Add(compArray[0]);
+            senseData.Add(0);
+            senseData.Add(0);
+            senseData.Add(compArray[1]);
+            senseData.Add(compArray[0]);
         }
 
-        var sxExecuteRet = Invoke(() => Service!.SendChirp(result, pmtId, channelId));
+        // 取反, 差分信号
+        var pmtVector = Vector<double>.Build.Dense(gains) * -1 / 14;
+        var pmtValues = pmtVector
+            .Select(t => ConvertHelper.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
+            .ToArray();
+
+        var pmtData = new List<byte>();
+        foreach (var compArray in pmtValues.Select(t => -t).Select(BitConverter.GetBytes))
+        {
+            pmtData.Add(0);
+            pmtData.Add(0);
+            pmtData.Add(compArray[1]);
+            pmtData.Add(compArray[0]);
+        }
+
+        var sxExecuteRet = Invoke(() => Service!.SendChirp(pmtData, senseData, pmtId, channelId));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -231,6 +251,15 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
     {
         var sxExecuteRet = Invoke(() => Service!.SetMagAndWaveZero(yOpticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetMarkMode(enable));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

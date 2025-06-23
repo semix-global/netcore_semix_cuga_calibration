@@ -187,9 +187,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
+    public void SendPmtGain(double[] gains, int pmtId, int channelId)
     {
-        var ret = calibrationLaserService.SendPmtGain(pmtGainFilePath, pmtId, channelId);
+        var ret = calibrationLaserService.SendPmtGain(gains, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -218,6 +218,13 @@ public sealed class LaserViewModel(
     public void SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
     {
         var ret = calibrationLaserService.SetAodDelayValue(yOpticsMagTypeEnum, prescanAodDelay, chirpAodDelay);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ToggleEnableMarkMode(bool enable)
+    {
+        var ret = calibrationLaserService.ToggleEnableMarkMode(enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -261,8 +268,7 @@ public sealed class LaserViewModel(
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod,
         SettingDarkFieldAutoFocusParam? settingDarkFieldAutoFocus,
-        bool isForward = true,
-        bool isReturnBrightField = true)
+        bool isForward = true)
     {
         try
         {
@@ -292,26 +298,23 @@ public sealed class LaserViewModel(
         }
         finally
         {
-            if (isReturnBrightField)
+            switch (stageCoordinateSystemEnum)
             {
-                switch (stageCoordinateSystemEnum)
-                {
-                    case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
-                        break;
+                case StageCoordinateSystemEnum.Bright:
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
+                    break;
 
-                    case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(position);
-                        break;
+                case StageCoordinateSystemEnum.Dark:
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(position);
+                    break;
 
-                    case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
-                        break;
+                case StageCoordinateSystemEnum.Machine:
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
+                    break;
 
-                    default:
-                        ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
-                        break;
-                }
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+                    break;
             }
         }
     }
@@ -328,10 +331,9 @@ public sealed class LaserViewModel(
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        bool isForward = true,
-        bool isReturnBrightField = true)
+        bool isForward = true)
     {
-        var result = GetDarkFieldLineScanImageList(calChipSiteModelEnum, position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, customPrescanAod, isCustomChirpAod, settingDarkFieldAutoFocus, isForward, isReturnBrightField);
+        var result = GetDarkFieldLineScanImageList(calChipSiteModelEnum, position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, customPrescanAod, isCustomChirpAod, settingDarkFieldAutoFocus, isForward);
 
         var darkFieldImageDto = result.Single(t => t.ChannelId == channelId);
 
@@ -352,8 +354,7 @@ public sealed class LaserViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod,
-        bool isForward = true,
-        bool isReturnBrightField = true)
+        bool isForward = true)
     {
         try
         {
@@ -382,26 +383,23 @@ public sealed class LaserViewModel(
         }
         finally
         {
-            if (isReturnBrightField)
+            switch (stageCoordinateSystemEnum)
             {
-                switch (stageCoordinateSystemEnum)
-                {
-                    case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(position);
-                        break;
+                case StageCoordinateSystemEnum.Bright:
+                    stageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(position);
+                    break;
 
-                    case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(position);
-                        break;
+                case StageCoordinateSystemEnum.Dark:
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(position);
+                    break;
 
-                    case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
-                        break;
+                case StageCoordinateSystemEnum.Machine:
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
+                    break;
 
-                    default:
-                        ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
-                        break;
-                }
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+                    break;
             }
         }
     }
@@ -416,10 +414,9 @@ public sealed class LaserViewModel(
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        bool isForward = true,
-        bool isReturnBrightField = true)
+        bool isForward = true)
     {
-        var result = GetDarkFieldLineScanImageListByNotAutoFocus(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, customPrescanAod, isCustomChirpAod, isForward, isReturnBrightField);
+        var result = GetDarkFieldLineScanImageListByNotAutoFocus(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, customPrescanAod, isCustomChirpAod, isForward);
 
         var darkFieldImageDto = result.Single(t => t.ChannelId == channelId);
 
@@ -745,7 +742,6 @@ public sealed class LaserViewModel(
             }
         }
     }
-
 
     /// <summary>
     /// 固定高度采图匹配模板: 从旧位置到匹配后位置

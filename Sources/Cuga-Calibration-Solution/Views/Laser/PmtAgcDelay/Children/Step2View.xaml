@@ -2,14 +2,16 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
+             xmlns:pmtAgcDelay="clr-namespace:Core.Models.Models.Laser.PmtAgcDelay;assembly=Core.Models"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPmtAgcDelayCalibrationViewModel}"
-             d:DesignHeight="500"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
@@ -28,46 +30,180 @@
                            Subject="OpticsMagType: "
                            Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
+
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <TextBox Text="{Binding Cache.PmtGainFilePath}"
+                    <TextBox Text="{Binding Cache.PmtIdList, Mode=OneWay, Converter={StaticResource ListToStringConverter}}"
+                             Width="275"
                              Height="50"
                              TextWrapping="Wrap"
-                             hc:TitleElement.TitleWidth="200"
-                             hc:InfoElement.Title="Pmt Gain File:"
+                             hc:InfoElement.Title="Pmt Ids: "
                              hc:InfoElement.TitlePlacement="Left"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             hc:InfoElement.TitleWidth="180"
+                             IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                        <hc:ComboBox Width="275"
+                                     HorizontalAlignment="Left"
+                                     hc:InfoElement.Title="Prescan Coefficient: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:InfoElement.TitleWidth="180"
+                                     ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}"
+                                     SelectedItem="{Binding Cache.Coefficient}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <hc:NumericUpDown Width="275"
+                                          hc:InfoElement.Title="Catch Count: "
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          hc:InfoElement.ShowClearButton="True"
+                                          hc:TitleElement.TitleWidth="180"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.CatchCount}" />
+                        <hc:NumericUpDown Width="275"
+                                          hc:InfoElement.Title="Retry Count: "
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          hc:InfoElement.ShowClearButton="True"
+                                          hc:TitleElement.TitleWidth="180"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.RetryCount}" />
+                        <hc:NumericUpDown Width="275"
+                                          hc:InfoElement.Title="Semaphore Count: "
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          hc:InfoElement.ShowClearButton="True"
+                                          hc:TitleElement.TitleWidth="180"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.SemaphoreCount}" />
+                        <hc:NumericUpDown Width="275"
+                                          hc:InfoElement.Title="Threshold: "
+                                          hc:TitleElement.TitleWidth="180"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Threshold}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-        <Border Grid.Column="2"
-                Margin="5"
-                Style="{StaticResource BorderRegion}"
-                Effect="{StaticResource EffectShadow1}">
-            <scottplot:WpfPlot Grid.Column="0">
-                <i:Interaction.Behaviors>
-                    <behaviors:WpfPlotMultiBehavior Title="Pmt Gain Signal" Plot0="{Binding Cache.PmtGains, Converter={StaticResource DoublesToPointsConverter}}" />
-                </i:Interaction.Behaviors>
-            </scottplot:WpfPlot>
-        </Border>
+
+        <GridSplitter Grid.Column="1" Width="5" />
+
+        <!--#region Right-->
+        <Grid Grid.Column="2">
+            <GroupBox Header="History">
+                <ListView d:SelectedIndex="0"
+                          ItemsSource="{Binding LaserPmtAgcDelayItemDtoList}"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="250" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Width="100"
+                                            Header="Pmt Id"
+                                            DisplayMemberBinding="{Binding PmtId}" />
+                            <GridViewColumn Width="150" Header="Offset">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}" Mode="OneWay">
+                                        <Binding Path="Channel1AgcOffset" />
+                                        <Binding Path="Channel2AgcOffset" />
+                                        <Binding Path="Channel3AgcOffset" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                            <GridViewColumn Width="400" Header="Channel1">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="400"
+                                                     Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
+                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotListBehavior IsShowLegend="False" PlotList="{Binding Channel1SenseData, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="400" Header="Channel2">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="400"
+                                                     Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
+                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotListBehavior IsShowLegend="False" PlotList="{Binding Channel2SenseData, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="400" Header="Channel3">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="400"
+                                                     Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
+                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotListBehavior IsShowLegend="False" PlotList="{Binding Channel3SenseData, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="150" Header="Delay">
+                                <GridViewColumn.DisplayMemberBinding>
+                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}" Mode="OneWay">
+                                        <Binding Path="Channel1AgcDelay" />
+                                        <Binding Path="Channel2AgcDelay" />
+                                        <Binding Path="Channel3AgcDelay" />
+                                    </MultiBinding>
+                                </GridViewColumn.DisplayMemberBinding>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </GroupBox>
+        </Grid>
+        <!--#endregion-->
     </Grid>
 </UserControl>
