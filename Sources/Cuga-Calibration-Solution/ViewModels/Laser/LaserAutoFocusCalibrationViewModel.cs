@@ -1,18 +1,19 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Exceptions;
+using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -23,31 +24,47 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Find a Position", DefaultIsNextEnable = true },
-        new() { StepName = "A Brightness" },
-        new() { StepName = "B Brightness" }
+        new() { StepName = "Find a Position" },
+        new() { StepName = "AB Brightness" },
+        new() { StepName = "Gain" }
     ];
 
     #region 界面相关
 
     #region Calibrate
 
-    private LaserAutoFocusDto? _lastAfBrightnessDto;
+    [ObservableProperty]
+    private LaserAutoFocusDto[] _aBrightnessList = [];
 
     [ObservableProperty]
-    private ObservableCollection<LaserAutoFocusDto> _laserAutoFocusDtoList = [];
+    private LaserAutoFocusDto? _aBrightnessSelected;
 
     [ObservableProperty]
-    private ObservableCollection<Point> _fList = [];
+    private Point[] _aBrightnessFList = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _nList = [];
+    private Point[] _aBrightnessNList = [];
 
     [ObservableProperty]
-    private LaserAutoFocusDto? _selectedLaserAutoFocusDto;
+    private LaserAutoFocusDto[] _bBrightnessList = [];
+
+    [ObservableProperty]
+    private LaserAutoFocusDto? _bBrightnessSelected;
+
+    [ObservableProperty]
+    private Point[] _bBrightnessFList = [];
+
+    [ObservableProperty]
+    private Point[] _bBrightnessNList = [];
 
     [ObservableProperty]
     private LaserAutoFocusDto? _resultLaserAutoFocusDto;
+
+    [ObservableProperty]
+    private LaserAutoFocusDto[] _nscStandardList = [];
+
+    [ObservableProperty]
+    private LaserAutoFocusDto? _nscStandardSelected;
 
     #endregion Calibrate
 
@@ -111,8 +128,10 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChip.ShinyWaferPosition;
-        StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        Cache.FindPosition = MicroscopeCalChip.ShinyWaferBrightFieldMachinePosition;
+        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+
         return true;
     }
 
@@ -122,7 +141,12 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         ReviewDto = Calibration.Clone();
 
-        return ReviewDto.IsCalibrated;
+        if (ReviewDto.IsCalibrated == false) return false;
+
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+
+        return true;
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
@@ -132,14 +156,12 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         switch (CalibrationStepIndex)
         {
             case 0:
-                _lastAfBrightnessDto = null;
-                Cache.IsA = true;
-                StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
                 return true;
 
-            case 1 or 2:
-                var isCalibrated = CalibrationStepIndex == 2;
+            case 1:
+                return true;
 
+            case 2:
                 if (ResultLaserAutoFocusDto is null)
                 {
                     DialogWindowProvider.TryShowDialog("Please find current!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -147,7 +169,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 }
                 else
                 {
-                    ResultLaserAutoFocusDto.IsCalibrated = isCalibrated;
+                    ResultLaserAutoFocusDto.IsCalibrated = true;
                     if (Save(ResultLaserAutoFocusDto, cancellationToken) == false)
                     {
                         ResultLaserAutoFocusDto.IsCalibrated = false;
@@ -156,13 +178,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     }
                 }
 
-                if (CalibrationStepIndex == 1)
-                {
-                    _lastAfBrightnessDto = ResultLaserAutoFocusDto;
-                    Cache.IsA = false;
-                }
-
-                IsCalibrated = isCalibrated;
+                IsCalibrated = true;
 
                 return true;
 
@@ -175,42 +191,15 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GetPointAsync()
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetDarkFieldStagePosition();
-
-                Cache.FindPosition = result;
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoPointAsync()
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
+            ResultLaserAutoFocusDto = null;
+
+            Cache.FindPosition = StageViewModel.GetMachineStagePosition();
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.FindPosition
@@ -222,13 +211,16 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        await InvokeCalibrateAsync(() =>
+        await InvokeCalibrateAsync(async () =>
         {
-            ClearCalibrationTemp();
-            var paramName = Cache.IsA ? "A" : "B";
-            Logger.LogHtmlInformation($"Param{paramName}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                FindPosition = Cache.FindPosition.ToShortString(),
+                Cache.FindPosition,
+                Cache.ThresholdRangeRatio,
+                Cache.ThresholdIdealFMin,
+                Cache.ThresholdIdealFMax,
+                Cache.ThresholdIdealNMin,
+                Cache.ThresholdIdealNMax,
                 Cache.ThresholdFMin,
                 Cache.ThresholdFMax,
                 Cache.ThresholdNMin,
@@ -238,107 +230,301 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.FindInterval
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+            if (Cache.ThresholdIdealFMin >= Cache.ThresholdIdealFMax || Cache.ThresholdIdealNMin >= Cache.ThresholdIdealNMax)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{nameof(Cache.ThresholdIdealFMin)} >= {nameof(Cache.ThresholdIdealFMax)} || {nameof(Cache.ThresholdIdealNMin)} >= {nameof(Cache.ThresholdIdealNMax)}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
 
+            // 恢复默认值
+            AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
+            await Task.Delay(100, cancellationToken);
+
+            StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+            AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
             // NSC模式On
             AfViewModel.ToggleDarkFieldEnable(false);
             AfViewModel.GetSensorNscCurveIsOk();
             AfViewModel.ToggleDarkFieldEnable(true);
+            await Task.Delay(100, cancellationToken);
 
             var times = 1;
+
+            ABrightnessList = [];
+            ABrightnessSelected = null;
+            ABrightnessFList = [];
+            ABrightnessNList = [];
+
+            Logger.LogHtmlInformation("A Brightness", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var (f, n) = AfViewModel.GetSensorFnValue(Cache.IsA);
-                var current = AfViewModel.GetSensorCurrentValue(Cache.IsA);
+                var (f, n) = AfViewModel.GetSensorFnValue(true);
+                var current = AfViewModel.GetSensorCurrentValue(true);
 
-                var afBrightnessDto = Cache.IsA ? new LaserAutoFocusDto { Fa = f, Na = n, CurrentA = current } : new LaserAutoFocusDto { Fb = f, Nb = n, CurrentB = current };
-                SynchronizationContextProvider.Send(() =>
+                var item = new LaserAutoFocusDto { Fa = f, Na = n, CurrentA = current };
+
+                ABrightnessList = [.. ABrightnessList, item];
+                ABrightnessFList = [.. ABrightnessFList, new Point(item.CurrentA, item.Fa)];
+                ABrightnessNList = [.. ABrightnessNList, new Point(item.CurrentA, item.Na)];
+
+                Logger.LogHtmlInformation($"time: {times}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    LaserAutoFocusDtoList.Add(afBrightnessDto);
-                    FList = [.. FList, new Point(Cache.IsA ? afBrightnessDto.CurrentA : afBrightnessDto.CurrentB, Cache.IsA ? afBrightnessDto.Fa : afBrightnessDto.Fb)];
-                    NList = [.. NList, new Point(Cache.IsA ? afBrightnessDto.CurrentA : afBrightnessDto.CurrentB, Cache.IsA ? afBrightnessDto.Na : afBrightnessDto.Nb)];
-                });
-
-                Logger.LogHtmlInformation($"{Name} time: {times}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(Cache.IsA
-                    ? new
-                    {
-                        FindPosition = Cache.FindPosition.ToShortString(),
-                        afBrightnessDto.Fa,
-                        afBrightnessDto.Na,
-                        afBrightnessDto.CurrentA
-                    }
-                    : new
-                    {
-                        FindPosition = Cache.FindPosition.ToShortString(),
-                        afBrightnessDto.Fb,
-                        afBrightnessDto.Nb,
-                        afBrightnessDto.CurrentB
-                    }), HtmlLogUniqueId.LoggingHtml());
+                    FindPosition = Cache.FindPosition.ToShortString(),
+                    ABrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessFList)], string.Empty),
+                    ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
 
                 if (Cache.ThresholdNMin <= n && n <= Cache.ThresholdNMax && Cache.ThresholdFMin <= f && f <= Cache.ThresholdFMax)
                 {
-                    SelectedLaserAutoFocusDto = afBrightnessDto;
-                    ResultLaserAutoFocusDto = _lastAfBrightnessDto ?? SelectedLaserAutoFocusDto.Clone();
-                    if (Cache.IsA)
+                    ABrightnessSelected = item;
+
+                    ResultLaserAutoFocusDto = ABrightnessSelected.Clone();
+                    ResultLaserAutoFocusDto.Fa = ABrightnessSelected.Fa;
+                    ResultLaserAutoFocusDto.Na = ABrightnessSelected.Na;
+                    ResultLaserAutoFocusDto.CurrentA = ABrightnessSelected.CurrentA;
+
+                    Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
-                        ResultLaserAutoFocusDto.Fa = SelectedLaserAutoFocusDto.Fa;
-                        ResultLaserAutoFocusDto.Na = SelectedLaserAutoFocusDto.Na;
-                        ResultLaserAutoFocusDto.CurrentA = SelectedLaserAutoFocusDto.CurrentA;
-                    }
-                    else
-                    {
-                        ResultLaserAutoFocusDto.Fb = SelectedLaserAutoFocusDto.Fb;
-                        ResultLaserAutoFocusDto.Nb = SelectedLaserAutoFocusDto.Nb;
-                        ResultLaserAutoFocusDto.CurrentB = SelectedLaserAutoFocusDto.CurrentB;
-                    }
+                        ResultLaserAutoFocusDto.Fa,
+                        ResultLaserAutoFocusDto.Na,
+                        ResultLaserAutoFocusDto.CurrentA,
+                        ABrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessFList)], string.Empty),
+                        ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
 
                     break;
                 }
 
-                // 判断电流改变方向，f、n>Threshold(f、n)Min时递减 f、n<Threshold(f、n)Min时递增
-                var interval = (n > Cache.ThresholdNMax && f >= Cache.ThresholdFMin)
-                               || (n >= Cache.ThresholdNMin && f > Cache.ThresholdFMax)
+                var interval = (n > Cache.ThresholdNMax && f >= Cache.ThresholdFMin) ||
+                               (f > Cache.ThresholdFMax && n >= Cache.ThresholdNMin)
                     ? -Cache.FindInterval
-                    : (n < Cache.ThresholdNMin && f <= Cache.ThresholdFMax)
-                      || (n <= Cache.ThresholdNMax && f < Cache.ThresholdFMin)
+                    : (n < Cache.ThresholdNMin && f <= Cache.ThresholdFMax) ||
+                      (f < Cache.ThresholdFMin && n <= Cache.ThresholdNMax)
                         ? Cache.FindInterval
-                        : throw new CalibrationException("f and n orientation discrepancy");
+                        : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
                 current += interval;
+
                 if (current > Cache.ThresholdCurrentMax || current < Cache.ThresholdCurrentMin)
                 {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment($"{Name}Error: Current Value({current}) " +
-                                                                                             $"Out Of Range({Cache.ThresholdCurrentMin},{Cache.ThresholdCurrentMax})."), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        Error = $"{Name}Error: Current Value({current}) Out Of Range({Cache.ThresholdCurrentMin},{Cache.ThresholdCurrentMax}).",
+                        ABrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessFList)], string.Empty),
+                        ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
+
                     return false;
                 }
 
-                AfViewModel.SetSensorCurrentValue(current, Cache.IsA);
+                AfViewModel.SetSensorCurrentValue(true, current);
 
-                Thread.Sleep(100);
+                await Task.Delay(1000, cancellationToken);
 
                 times++;
             }
 
-            var result = ResultLaserAutoFocusDto is not null;
-            if (result)
-                Logger.LogHtmlInformation(result ? $"{paramName}OK" : $"{paramName}Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            times = 1;
+            BBrightnessList = [];
+            BBrightnessSelected = null;
+            BBrightnessFList = [];
+            BBrightnessNList = [];
+
+            Logger.LogHtmlInformation("B Brightness", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var (f, n) = AfViewModel.GetSensorFnValue(false);
+                var current = AfViewModel.GetSensorCurrentValue(false);
+
+                var item = new LaserAutoFocusDto { Fb = f, Nb = n, CurrentB = current };
+
+                SynchronizationContextProvider.Send(() =>
                 {
-                    ResultLaserAutoFocusDto!.Fa,
-                    ResultLaserAutoFocusDto.Na,
-                    ResultLaserAutoFocusDto.CurrentA,
-                    ResultLaserAutoFocusDto.Fb,
-                    ResultLaserAutoFocusDto.Nb,
-                    ResultLaserAutoFocusDto.CurrentB,
-                    Cache.ThresholdFMin,
-                    Cache.ThresholdFMax,
-                    Cache.ThresholdNMin,
-                    Cache.ThresholdNMax,
-                    Cache.ThresholdCurrentMin,
-                    Cache.ThresholdCurrentMax
+                    BBrightnessList = [.. BBrightnessList, item];
+                    BBrightnessFList = [.. BBrightnessFList, new Point(item.CurrentB, item.Fb)];
+                    BBrightnessNList = [.. BBrightnessNList, new Point(item.CurrentB, item.Nb)];
+                });
+
+                Logger.LogHtmlInformation($"time: {times}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    FindPosition = Cache.FindPosition.ToShortString(),
+                    BBrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessFList)], string.Empty),
+                    BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
                 }), HtmlLogUniqueId.LoggingHtml());
-            return result;
+
+                if (Cache.ThresholdNMin <= n && n <= Cache.ThresholdNMax && Cache.ThresholdFMin <= f && f <= Cache.ThresholdFMax)
+                {
+                    BBrightnessSelected = item;
+
+                    ResultLaserAutoFocusDto.Fb = BBrightnessSelected.Fb;
+                    ResultLaserAutoFocusDto.Nb = BBrightnessSelected.Nb;
+                    ResultLaserAutoFocusDto.CurrentB = BBrightnessSelected.CurrentB;
+
+                    Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        ResultLaserAutoFocusDto.Fb,
+                        ResultLaserAutoFocusDto.Nb,
+                        ResultLaserAutoFocusDto.CurrentB,
+                        BBrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessFList)], string.Empty),
+                        BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+                    return true;
+                }
+
+                var interval = (n > Cache.ThresholdNMax && f >= Cache.ThresholdFMin) ||
+                               (f > Cache.ThresholdFMax && n >= Cache.ThresholdNMin)
+                    ? -Cache.FindInterval
+                    : (n < Cache.ThresholdNMin && f <= Cache.ThresholdFMax) ||
+                      (f < Cache.ThresholdFMin && n <= Cache.ThresholdNMax)
+                        ? Cache.FindInterval
+                        : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
+
+                current += interval;
+
+                if (current > Cache.ThresholdCurrentMax || current < Cache.ThresholdCurrentMin)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        Error = $"{Name}Error: Current Value({current}) Out Of Range({Cache.ThresholdCurrentMin},{Cache.ThresholdCurrentMax}).",
+                        BBrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessFList)], string.Empty),
+                        BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
+
+                AfViewModel.SetSensorCurrentValue(false, current);
+
+                await Task.Delay(1000, cancellationToken);
+
+                times++;
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        await InvokeCalibrateAsync(async () =>
+        {
+            Guard.IsNotNull(ResultLaserAutoFocusDto);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.FindPosition,
+                Cache.HalfEcsLength,
+                Cache.SpeedEcs,
+                Cache.NscStandardValue,
+                Cache.ThresholdNscOffset,
+                Cache.ThresholdNscGain,
+                Cache.RetryCount
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("Offset Gain", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            NscStandardList = [];
+            NscStandardSelected = null;
+
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
+
+            try
+            {
+                AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
+                await Task.Delay(100, cancellationToken);
+
+                AfViewModel.ToggleDarkFieldEnable(true);
+                await Task.Delay(100, cancellationToken);
+
+                var averageEcs = AfViewModel.GetSensorAverageEcsValue();
+
+                var startEcs = averageEcs - Cache.HalfEcsLength;
+                var endEcs = averageEcs + Cache.HalfEcsLength;
+
+                double offset = 0, gain = 1;
+                var count = 1;
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    AfViewModel.SetSensorNscCompensationCoefficient(offset, gain);
+                    await Task.Delay(100, cancellationToken);
+
+                    var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcs, TimeSpan.FromSeconds(Cache.HalfEcsLength * 2 / Cache.SpeedEcs + 2));
+
+                    var ecs = traceBufferList.Select(t => t.Ecs).ToList();
+                    var nsc = traceBufferList.Select(t => t.Nsc).ToList();
+                    var lvdt = traceBufferList.Select(t => t.Lvdt).ToList();
+
+                    var max = nsc.Max();
+                    var min = nsc.Min();
+                    var currentOffset = (max + min) / 2;
+                    var currentGain = Cache.NscStandardValue / (max - currentOffset);
+                    var offsetIsOk = Math.Abs(currentOffset) <= Cache.ThresholdNscOffset;
+                    var gainIsOk = Math.Abs(max - Cache.NscStandardValue) <= Cache.ThresholdNscGain &&
+                                   Math.Abs(min + Cache.NscStandardValue) <= Cache.ThresholdNscGain;
+                    if (offsetIsOk == false) offset += currentOffset / gain;
+                    if (gainIsOk == false) gain *= currentGain;
+
+                    var item = new LaserAutoFocusDto
+                    {
+                        NscOffset = offset,
+                        NscGain = gain,
+                        NscCurrentMax = max,
+                        NscCurrentMin = min,
+                        NscCurrentOffset = currentOffset,
+                        NscCurrentGain = currentGain,
+                        EcsData = ecs,
+                        NscData = nsc,
+                        LvdtData = lvdt
+                    };
+                    NscStandardList = [.. NscStandardList, item];
+
+                    var htmlBullet = new HtmlBullet(new
+                    {
+                        Cache.FindPosition,
+                        startEcs,
+                        endEcs,
+                        Cache.SpeedEcs,
+                        item.NscOffset,
+                        NscGain = 1 / item.NscGain,
+                        item.NscCurrentMax,
+                        item.NscCurrentMin,
+                        item.NscCurrentOffset,
+                        NscCurrentGain = 1 / item.NscCurrentGain,
+                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                    });
+
+                    if (offsetIsOk && gainIsOk)
+                    {
+                        NscStandardSelected = item;
+
+                        ResultLaserAutoFocusDto.NscOffset = NscStandardSelected.NscOffset;
+                        ResultLaserAutoFocusDto.NscGain = NscStandardSelected.NscGain;
+                        ResultLaserAutoFocusDto.NscCurrentMax = NscStandardSelected.NscCurrentMax;
+                        ResultLaserAutoFocusDto.NscCurrentMin = NscStandardSelected.NscCurrentMin;
+                        ResultLaserAutoFocusDto.EcsData = [.. NscStandardSelected.EcsData];
+                        ResultLaserAutoFocusDto.NscData = [.. NscStandardSelected.NscData];
+                        ResultLaserAutoFocusDto.LvdtData = [.. NscStandardSelected.LvdtData];
+
+                        Logger.LogHtmlInformation($"time: {count} OK", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        return true;
+                    }
+
+                    Logger.LogHtmlInformation($"time: {count}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                    if (++count > Cache.RetryCount) ThrowHelper.ThrowInvalidOperationException("Pmt Delay Retry Limit Exceeded");
+                }
+            }
+            finally
+            {
+                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+            }
         }).ConfigureAwait(false);
     }
 
@@ -353,63 +539,106 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         await InvokeVerifyAsync(() =>
         {
-            ClearCalibrationTemp();
-
             ReviewDto.IsVerified = false;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                FindPosition = Cache.FindPosition.ToShortString(),
+                Cache.FindPosition,
+                Cache.ThresholdRangeRatio,
+                Cache.ThresholdIdealFMin,
+                Cache.ThresholdIdealFMax,
+                Cache.ThresholdIdealNMin,
+                Cache.ThresholdIdealNMax,
                 Cache.ThresholdFMin,
                 Cache.ThresholdFMax,
                 Cache.ThresholdNMin,
                 Cache.ThresholdNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
-                Cache.FindInterval
+                Cache.FindInterval,
+                Cache.HalfEcsLength,
+                Cache.SpeedEcs,
+                Cache.NscStandardValue,
+                Cache.ThresholdNscOffset,
+                Cache.ThresholdNscGain,
+                Cache.RetryCount
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
-            AfViewModel.ToggleDarkFieldEnable(false);
-            AfViewModel.GetSensorNscCurveIsOk();
-            AfViewModel.ToggleDarkFieldEnable(true);
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
 
-            // 使用校准后的电流，读当前的fa na fb nb
-            var (fa, na) = AfViewModel.GetSensorFnValue(true);
-            var (fb, nb) = AfViewModel.GetSensorFnValue(false);
-
-            Cache.VerifyResultFa = fa;
-            Cache.VerifyResultFb = fb;
-            Cache.VerifyResultNa = na;
-            Cache.VerifyResultNb = nb;
-
-            var result = Cache.ThresholdNMin < na && na < Cache.ThresholdNMax && Cache.ThresholdNMin < nb && nb < Cache.ThresholdNMax
-                         && Cache.ThresholdFMin < fa && fa < Cache.ThresholdFMax && Cache.ThresholdFMin < fb && fb < Cache.ThresholdFMax;
-
-            Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            try
             {
-                Fa = fa,
-                Na = na,
-                Fb = fb,
-                Nb = nb,
-                Cache.ThresholdFMin,
-                Cache.ThresholdFMax,
-                Cache.ThresholdNMin,
-                Cache.ThresholdNMax
-            }), HtmlLogUniqueId.LoggingHtml());
+                StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+                AfViewModel.ToggleDarkFieldEnable(false);
+                AfViewModel.GetSensorNscCurveIsOk();
+                AfViewModel.ToggleDarkFieldEnable(true);
 
-            ReviewDto.IsVerified = result;
-            if (Save(ReviewDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ReviewDto.IsVerified = false;
-                return false;
+                // 1. 使用校准后的电流，读当前的fa na fb nb
+                var (fa, na) = AfViewModel.GetSensorFnValue(true);
+                var (fb, nb) = AfViewModel.GetSensorFnValue(false);
+                var averageEcs = AfViewModel.GetSensorAverageEcsValue();
+
+                AfViewModel.SetSensorNscCompensationCoefficient(ReviewDto.NscOffset, ReviewDto.NscGain);
+                var startEcs = averageEcs - Cache.HalfEcsLength;
+                var endEcs = averageEcs + Cache.HalfEcsLength;
+                var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcs, TimeSpan.FromSeconds(Cache.HalfEcsLength * 2 / Cache.SpeedEcs + 2));
+
+                var ecs = traceBufferList.Select(t => t.Ecs).ToList();
+                var nsc = traceBufferList.Select(t => t.Nsc).ToList();
+                var lvdt = traceBufferList.Select(t => t.Lvdt).ToList();
+
+                var currentMax = nsc.Max();
+                var currentMin = nsc.Min();
+                var currentNscOffset = (currentMax + currentMin) / 2;
+                var currentNscGain = Cache.NscStandardValue / (currentMax - currentNscOffset);
+                var abBrightnessResult = Cache.ThresholdNMin < na && na < Cache.ThresholdNMax &&
+                                         Cache.ThresholdNMin < nb && nb < Cache.ThresholdNMax &&
+                                         Cache.ThresholdFMin < fa && fa < Cache.ThresholdFMax &&
+                                         Cache.ThresholdFMin < fb && fb < Cache.ThresholdFMax;
+                var offsetIsOk = Math.Abs(currentNscOffset) <= Cache.ThresholdNscOffset;
+                var gainIsOk = Math.Abs(currentMax - Cache.NscStandardValue) <= Cache.ThresholdNscGain &&
+                               Math.Abs(currentMin + Cache.NscStandardValue) <= Cache.ThresholdNscGain;
+                var compensationCoefficientResult = offsetIsOk && gainIsOk;
+
+                var result = abBrightnessResult && compensationCoefficientResult;
+
+                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    ReviewDto.CurrentA,
+                    ReviewDto.CurrentB,
+                    ReviewDto.NscOffset,
+                    NscGain = 1 / ReviewDto.NscGain,
+                    Fa = fa,
+                    Na = na,
+                    Fb = fb,
+                    Nb = nb,
+                    startEcs,
+                    endEcs,
+                    Cache.SpeedEcs,
+                    currentMax,
+                    currentMin,
+                    currentNscOffset,
+                    currentNscGain = 1 / currentNscGain,
+                    traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                ReviewDto.IsVerified = result;
+
+                if (Save(ReviewDto, cancellationToken) == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    ReviewDto.IsVerified = false;
+                    return false;
+                }
+
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+                return result;
             }
-
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, Fa: ({fa:f3}) Na: ({na:f3}) Fb: ({fb:f3}) Nb: ({nb:f3})", DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-
-            return result;
+            finally
+            {
+                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+            }
         }).ConfigureAwait(false);
     }
 
@@ -422,15 +651,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
     });
-
-    private void ClearCalibrationTemp()
-    {
-        SynchronizationContextProvider.Send(() => { LaserAutoFocusDtoList.Clear(); });
-        FList = [];
-        NList = [];
-        SelectedLaserAutoFocusDto = null;
-        ResultLaserAutoFocusDto = null;
-    }
 
     #endregion 校准
 }

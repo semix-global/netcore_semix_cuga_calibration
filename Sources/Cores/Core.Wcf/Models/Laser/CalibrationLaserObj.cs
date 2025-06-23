@@ -4,7 +4,6 @@ using Cuga.Data.DataStruct.Stage;
 using System;
 using System.ComponentModel;
 
-
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
 #else
@@ -96,6 +95,16 @@ namespace Core.Wcf.Models.Laser
         /// B路灯的电流值(绝对电流值), **需要下发AF硬件**
         /// </summary>
         public double CurrentB { get; set; }
+
+        /// <summary>
+        /// Nsc 偏置NSC原始数据, **需要下发AF硬件**
+        /// </summary>
+        public double NscOffset { get; set; }
+
+        /// <summary>
+        /// Nsc 增益归一化, **需要下发AF硬件**
+        /// </summary>
+        public double NscGain { get; set; }
     }
 
     /// <summary>

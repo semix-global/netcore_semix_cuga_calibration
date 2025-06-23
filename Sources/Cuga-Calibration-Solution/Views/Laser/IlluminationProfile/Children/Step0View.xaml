@@ -36,28 +36,6 @@
                              hc:InfoElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="130"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.DswPosition1, Converter={StaticResource PointToStringConverter}}"
-                             hc:InfoElement.Title="DSW Position 1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="130"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.DswPosition2, Converter={StaticResource PointToStringConverter}}"
-                             hc:InfoElement.Title="DSW Position 2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="130"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.DswPosition3, Converter={StaticResource PointToStringConverter}}"
-                             hc:InfoElement.Title="DSW Position 3(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="130"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:NumericUpDown hc:InfoElement.Title="Dsw Gain: "
-                                      hc:TitleElement.TitleWidth="130"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="-10"
-                                      Maximum="10"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.DswGain}" />
                     <hc:NumericUpDown hc:InfoElement.Title="Width Pixel: "
                                       hc:TitleElement.TitleWidth="130"
                                       hc:InfoElement.TitlePlacement="Left"

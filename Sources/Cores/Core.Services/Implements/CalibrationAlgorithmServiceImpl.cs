@@ -63,7 +63,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
     {
         using var roiImage = HalconHelper.ToRoi(image, roiRect);
 
-        _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
+        _algorithm.WuMTF(roiImage, out var mtfY, out var mtfX);
 
         using var _1 = mtfX;
         using var _2 = mtfY;

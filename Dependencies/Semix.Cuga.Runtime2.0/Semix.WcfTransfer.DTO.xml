@@ -1953,9 +1953,24 @@
             是否启用光学参数
             </summary>
         </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.Mode">
+            <summary>
+            模式 1.固定位置（SPC）,2非固定位置
+            </summary>
+        </member>
         <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.Polariation">
             <summary>
-            偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
+            固定位置偏正 [1.S 垂直偏振 2.P 水平偏振 3.N]
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.PolariationVel">
+            <summary>
+            非固定位置偏振数值
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.Rotary">
+            <summary>
+            非固定位置旋转角度
             </summary>
         </member>
         <member name="P:Semix.WcfTransfer.DTO.SxChOpticsParam.FlexApertureUsed">
@@ -1997,7 +2012,7 @@
         <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.IncidenceAngle">
             <summary>
             入射倾斜角
-            倾斜 or 正常  Oblique or Normal
+            倾斜 or 正常  Oblique or Normal 1.NI 2. OI
             </summary>
         </member>
         <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.Apodization">

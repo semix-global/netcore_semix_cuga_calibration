@@ -17,6 +17,8 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     private double _ecsValue;
     private double _currentAValue;
     private double _currentBValue;
+    private double _nscOffsetValue;
+    private double _nscGainValue;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -105,7 +107,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(isA ? _currentAValue : _currentBValue);
     }
 
-    public SxExecuteRet<bool> SetSensorCurrentValue(double current, bool isA)
+    public SxExecuteRet<bool> SetSensorCurrentValue(bool isA, double current)
     {
         if (isA)
             _currentAValue = current;
@@ -113,6 +115,21 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
             _currentBValue = current;
 
         Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((_nscOffsetValue, _nscGainValue));
+    }
+
+    public SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain)
+    {
+        _nscOffsetValue = offset;
+        _nscGainValue = gain;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -129,6 +146,13 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.NextDouble()).ToList());
+    }
+
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
     }
 
     public SxExecuteRet<bool> SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)

@@ -352,10 +352,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         XWidthPixel,
                         OpticsMagTypeEnum,
                         StageSpeedEnum,
-                        stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
+                        stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
                         pmtId: PmtId,
-                        channelId: ChannelId,
-                        isReturnBrightField: false);
+                        channelId: ChannelId);
 
                     var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat)}" +
                                    $"_{item.DeltaKs}" +
@@ -386,6 +385,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         StageSpeedEnum,
                         ecs,
                         Image = new HtmlImage(filePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect)]),
+                        RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(filePath)}.raw"),
                         mtfX,
                         mtfY
                     }), htmlGuid.LoggingHtml());

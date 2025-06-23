@@ -7,9 +7,11 @@ namespace Core.Models.Models;
 public partial class CalibrationDtoBase : ObservableCacheBase, IEntityAdd
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOk))]
     private bool _isVerified;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOk))]
     private bool _isCalibrated;
 
     /// <summary>

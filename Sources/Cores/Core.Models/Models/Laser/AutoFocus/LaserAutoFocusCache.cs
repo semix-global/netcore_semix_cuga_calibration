@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Microscope;
 using Net.Utilities.Models;
 
 namespace Core.Models.Models.Laser.AutoFocus;
@@ -6,19 +7,38 @@ namespace Core.Models.Models.Laser.AutoFocus;
 public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+
+    [ObservableProperty]
     private Point _findPosition;
 
     [ObservableProperty]
-    private double _thresholdFMin = 6500;
+    [NotifyPropertyChangedFor(nameof(ThresholdFMax), nameof(ThresholdFMin), nameof(ThresholdNMax), nameof(ThresholdNMin))]
+    private double _thresholdRangeRatio = 0.8;
 
     [ObservableProperty]
-    private double _thresholdFMax = 8000;
+    [NotifyPropertyChangedFor(nameof(ThresholdFMax), nameof(ThresholdFMin))]
+    private double _thresholdIdealFMin = 6000;
 
     [ObservableProperty]
-    private double _thresholdNMin = 13000;
+    [NotifyPropertyChangedFor(nameof(ThresholdFMax), nameof(ThresholdFMin))]
+    private double _thresholdIdealFMax = 14000;
 
     [ObservableProperty]
-    private double _thresholdNMax = 16000;
+    [NotifyPropertyChangedFor(nameof(ThresholdNMax), nameof(ThresholdNMin))]
+    private double _thresholdIdealNMin = 18000;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ThresholdNMax), nameof(ThresholdNMin))]
+    private double _thresholdIdealNMax = 22000;
+
+    public double ThresholdFMin => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d - (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * ThresholdRangeRatio;
+
+    public double ThresholdFMax => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d + (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * ThresholdRangeRatio;
+
+    public double ThresholdNMin => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d - (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ThresholdRangeRatio;
+
+    public double ThresholdNMax => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d + (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ThresholdRangeRatio;
 
     [ObservableProperty]
     private double _thresholdCurrentMin;
@@ -27,20 +47,26 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private double _thresholdCurrentMax = 550;
 
     [ObservableProperty]
-    private double _verifyResultFa;
+    private double _findInterval = 100;
 
     [ObservableProperty]
-    private double _verifyResultFb;
+    private double _halfEcsLength = 250;
+
+    /// <summary>
+    /// Ecs/s
+    /// </summary>
+    [ObservableProperty]
+    private double _speedEcs = 100;
 
     [ObservableProperty]
-    private double _verifyResultNa;
+    private double _nscStandardValue = 5000;
 
     [ObservableProperty]
-    private double _verifyResultNb;
+    private double _thresholdNscOffset = 150;
 
     [ObservableProperty]
-    private double _findInterval;
+    private double _thresholdNscGain = 500;
 
     [ObservableProperty]
-    private bool _isA;
+    private int _retryCount = 5;
 }

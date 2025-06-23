@@ -65,7 +65,7 @@
         <Grid Grid.Column="2">
             <GroupBox Header="Calibration Data">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding LaserPmtAgcDelayItemDtoList}"
+                          ItemsSource="{Binding ReviewList}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -116,8 +116,7 @@
                                     <DataTemplate>
                                         <wpf:WpfPlot Width="400"
                                                      Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}"
-                                                     Opacity="0.8">
+                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotListBehavior IsShowLegend="False" PlotList="{Binding Channel1SenseData, Converter={StaticResource DoublesToPointsConverter}}" />
                                             </i:Interaction.Behaviors>
@@ -130,8 +129,7 @@
                                     <DataTemplate>
                                         <wpf:WpfPlot Width="400"
                                                      Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}"
-                                                     Opacity="0.8">
+                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotListBehavior IsShowLegend="False" PlotList="{Binding Channel2SenseData, Converter={StaticResource DoublesToPointsConverter}}" />
                                             </i:Interaction.Behaviors>
@@ -144,8 +142,7 @@
                                     <DataTemplate>
                                         <wpf:WpfPlot Width="400"
                                                      Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}"
-                                                     Opacity="0.8">
+                                                     d:DataContext="{d:DesignInstance Type=pmtAgcDelay:LaserPmtAgcDelayItemDto}">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotListBehavior IsShowLegend="False" PlotList="{Binding Channel3SenseData, Converter={StaticResource DoublesToPointsConverter}}" />
                                             </i:Interaction.Behaviors>

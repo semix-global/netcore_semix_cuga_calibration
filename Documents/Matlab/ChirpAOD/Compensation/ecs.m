@@ -1,5 +1,5 @@
 % 读取 Excel 数据
-excelData = readtable('RtfcDiagnosisB3-2.xlsx');
+excelData = readtable('RtfcDiagnosisB3-3.xlsx');
 
 % 确保数据是数值格式
 XAxisTemperature = str2double(excelData.XAxisTemperature);

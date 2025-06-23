@@ -167,7 +167,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendPmtGain(string pmtGainFilePath, int pmtId, int channelId)
+    public SxExecuteRet<bool> SendPmtGain(double[] gains, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
@@ -206,6 +206,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable)

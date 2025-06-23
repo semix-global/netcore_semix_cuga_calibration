@@ -13,11 +13,10 @@
                             Orientation="Vertical"
                             Spacing="3">
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="AF Brightness Step 1: "
+            <hc:Shield Subject="Auto Focus Step 1: "
                        Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
         </hc:UniformSpacingPanel>
-
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <StackPanel>
@@ -32,14 +31,6 @@
                          hc:InfoElement.Title="Position(um): "
                          hc:InfoElement.TitlePlacement="Left"
                          Style="{StaticResource TextBoxExtend}" />
-                <hc:ButtonGroup Width="275">
-                    <Button x:Name="GetButton"
-                            Content="Get"
-                            Command="{Binding GetPointCommand}" />
-                    <Button x:Name="GotoButton"
-                            Content="Goto"
-                            Command="{Binding GotoPointCommand}" />
-                </hc:ButtonGroup>
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"

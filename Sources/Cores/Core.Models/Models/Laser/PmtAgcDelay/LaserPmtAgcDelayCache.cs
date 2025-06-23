@@ -1,42 +1,25 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
-using Net.Utilities.Models;
 
 namespace Core.Models.Models.Laser.PmtAgcDelay;
 
 public sealed partial class LaserPmtAgcDelayCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private int _catchCount = 10;
 
     [ObservableProperty]
-    private Point _findPosition;
+    private List<int> _pmtIdList = [];
 
     [ObservableProperty]
-    private int _catchCount = 1;
+    private int _retryCount = 10;
 
     [ObservableProperty]
-    private IReadOnlyList<int> _pmtIdList = [];
+    private int _concurrentCount = 2;
 
     [ObservableProperty]
-    private double _coefficient = 1.0d;
-
-    [ObservableProperty]
-    private string _pmtGainFilePath = string.Empty;
-
-    [ObservableProperty]
-    private int _retryCount = 5;
-
-    [ObservableProperty]
-    private int _semaphoreCount = 5;
-
-    [ObservableProperty]
-    private double _threshold = 50;
-
-    [ObservableProperty]
-    private List<double> _pmtGains = [];
+    private double _threshold = 5;
 }

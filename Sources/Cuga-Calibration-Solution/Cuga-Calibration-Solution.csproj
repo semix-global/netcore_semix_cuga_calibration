@@ -77,6 +77,8 @@
 
     <ItemGroup>
         <Resource Include="Assets\Images\*.*" />
+        <Compile Remove="Views\Laser\PmtAgcDelay\Children\Step2View.xaml.cs" />
+        <Page Remove="Views\Laser\PmtAgcDelay\Children\Step2View.xaml" />
         <None Update="Assets\Data\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
