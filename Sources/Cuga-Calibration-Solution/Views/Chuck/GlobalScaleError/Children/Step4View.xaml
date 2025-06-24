@@ -28,9 +28,7 @@
                                Color="{StaticResource InfoBrush}" />
                 </hc:UniformSpacingPanel>
 
-                <Border Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}"
-                        >
+                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                         <StackPanel>
                             <TextBlock Text="Calibration Global Scale Coeffiecient"

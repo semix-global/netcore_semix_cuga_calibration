@@ -58,9 +58,7 @@
                     </hc:Shield.Style>
                 </hc:Shield>
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    >
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="1. Param"

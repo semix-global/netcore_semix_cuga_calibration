@@ -40,7 +40,8 @@ namespace CugaCalibrationTest.ViewModels;
 [IOCAppService(ServiceType = typeof(StageMapWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StageMapWindowViewModel(
     ICacheProvider cacheProvider,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider recipeCacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    ICacheProvider recipeCacheProvider,
     IDialogWindowProvider dialogWindowProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
@@ -188,7 +189,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         _currentStageMapDto = new StageMapDto(RowCount, ColumnCount, RowHeight, ColumnWidth);
 
-        var errors = (Point[])[new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
+        var errors = (Point[]) [new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
 
         // 生成矩阵数据，使用起始点作为偏移
         var index = 0;
@@ -334,7 +335,7 @@ public sealed partial class StageMapWindowViewModel(
                 rootedCoordinateVectors.Add(new RootedCoordinateVector(pt, v));
             }
 
-            foreach (var point in (Point[])[leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
+            foreach (var point in (Point[]) [leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
             {
                 var marker = WpfPlot.Plot.Add.Marker(point.X, point.Y, shape: MarkerShape.FilledCircle);
                 marker.MarkerFillColor = Colors.Red;
