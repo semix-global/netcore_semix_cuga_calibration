@@ -60,7 +60,8 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
         ISynchronizationContextProvider contextProvider,
         IMessenger messenger,
         ISysRecipeInformationService sysRecipeInformationService,
-        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ILiteDatabaseProvider liteDatabaseProvider,
+        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+        ILiteDatabaseProvider liteDatabaseProvider,
         IOptions<ApplicationSetting> options,
         RecipeSettingViewModel recipeSettingViewModel,
         ApplicationCookie applicationCookie,

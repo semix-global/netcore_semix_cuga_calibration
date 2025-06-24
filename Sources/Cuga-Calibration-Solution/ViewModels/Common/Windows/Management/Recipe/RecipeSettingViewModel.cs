@@ -42,7 +42,8 @@ namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 [IOCAppService(ServiceType = typeof(RecipeSettingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class RecipeSettingViewModel(
     ICacheProvider cacheProvider,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider recipeCacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    ICacheProvider recipeCacheProvider,
     ILogger<RecipeSettingViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
@@ -51,7 +52,8 @@ public sealed partial class RecipeSettingViewModel(
     ICalibrationRecipeService calibrationRecipeService,
     IOptions<ApplicationSetting> options,
     ISysRecipeInformationService sysRecipeInformationService,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ILiteDatabaseProvider liteDatabaseProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    ILiteDatabaseProvider liteDatabaseProvider,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     StageViewModel stageViewModel,

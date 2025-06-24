@@ -359,7 +359,6 @@ public sealed class LiteDbCacheProviderImpl(
 
         return resultList.All(b => b);
     }
-
 }
 
 internal sealed class IdsCache : ICacheItem

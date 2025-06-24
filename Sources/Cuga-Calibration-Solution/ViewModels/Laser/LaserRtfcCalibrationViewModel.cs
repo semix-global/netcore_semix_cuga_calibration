@@ -280,8 +280,9 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
+
         return (isHasCache || CacheProvider.Set(Cache, cancellationToken))
-            && (isHasFocusShiftCache || CacheProvider.Set(FocusShiftCache, cancellationToken));
+               && (isHasFocusShiftCache || CacheProvider.Set(FocusShiftCache, cancellationToken));
     }
 
 

@@ -392,6 +392,13 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
 
                 var htmlBullet = new HtmlBullet(new
                 {
+                    item.PmtId,
+                    ch1DelayPmtDelay = ch1Delay.PmtDelay,
+                    ch1DelaySenseDelay = ch1Delay.SenseDelay,
+                    ch2DelayPmtDelay = ch2Delay.PmtDelay,
+                    ch2DelaySenseDelay = ch2Delay.SenseDelay,
+                    ch3DelayPmtDelay = ch3Delay.PmtDelay,
+                    ch3DelaySenseDelay = ch3Delay.SenseDelay,
                     item.Channel1AgcDelay,
                     item.Channel1AgcOffset,
                     channel1IsOk,

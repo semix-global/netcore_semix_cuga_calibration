@@ -20,7 +20,8 @@ namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationRecipeService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public class CalibrationRecipeServiceImpl(
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)] ICacheProvider cacheProvider,
+    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    ICacheProvider cacheProvider,
     ILogger<CalibrationRecipeServiceImpl> logger,
     StageViewModel stageViewModel,
     ApplicationCookie applicationCookie) : ICalibrationRecipeService

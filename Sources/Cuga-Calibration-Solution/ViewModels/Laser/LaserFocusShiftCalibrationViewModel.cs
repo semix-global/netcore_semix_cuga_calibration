@@ -537,6 +537,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Cache.SetDarkFieldAutoFocusParam(ResultFocusShiftDto.SettingDarkFieldAutoFocusParam);
                 SelectReviewDto = ResultFocusShiftDto.Clone();
             }
+
             SelectReviewDto.IsCalibrated = true;
             SelectReviewDto.IsVerified = result;
 
@@ -546,6 +547,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 SelectReviewDto.IsVerified = false;
                 return false;
             }
+
             await ReviewingAsync(cancellationToken).ConfigureAwait(false);
             Logger.LogHtmlInformation($"Verify {(result ? "Ok" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
