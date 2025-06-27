@@ -351,41 +351,45 @@ public sealed class CalibrationAlgorithmServiceImpl(
         double scaleThreshold,
         double diameter)
     {
-        var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
-        var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();
-
-        var idealXMatrix = Matrix<double>.Build.DenseOfArray(idealXArray);
-        var idealYMatrix = Matrix<double>.Build.DenseOfArray(idealYArray);
-        var realXMatrix = Matrix<double>.Build.DenseOfArray(realXArray);
-        var realYMatrix = Matrix<double>.Build.DenseOfArray(realYArray);
-        var isInWaferMatrix = Matrix<double>.Build.DenseOfArray(isInWaferArray);
-        var templateMathIsOkMatrix = Matrix<double>.Build.DenseOfArray(templateMathIsOkArray);
-
-        var (isSuccess, errorXMatrix, errorYMatrix) = affineTransformation.CalculateMatrixError(
-            idealXMatrix,
-            idealYMatrix,
-            realXMatrix,
-            realYMatrix,
-            isInWaferMatrix,
-            templateMathIsOkMatrix,
-            htmlLogUniqueId,
-            calculateContainRowMinCout: calculateContainRowMinCount,
-            calculateContainColumnMinCount: calculateContainColumnMinCount,
-            diameter: diameter,
-            alignmentThreshold: alignmentThreshold,
-            gantryThreshold: gantryThreshold,
-            scaleThreshold: scaleThreshold
-        );
-
-        for (var row = 0; row < stageMapDto.RowNumber; row++)
+        try
         {
-            for (var column = 0; column < stageMapDto.ColumnNumber; column++)
-            {
-                stageMapDto.ErrorMatrix[row][column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
-            }
-        }
+            var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
+            var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();
 
-        return isSuccess;
+            var idealXMatrix = Matrix<double>.Build.DenseOfArray(idealXArray);
+            var idealYMatrix = Matrix<double>.Build.DenseOfArray(idealYArray);
+            var realXMatrix = Matrix<double>.Build.DenseOfArray(realXArray);
+            var realYMatrix = Matrix<double>.Build.DenseOfArray(realYArray);
+            var isInWaferMatrix = Matrix<double>.Build.DenseOfArray(isInWaferArray);
+            var templateMathIsOkMatrix = Matrix<double>.Build.DenseOfArray(templateMathIsOkArray);
+
+            var (isSuccess, errorXMatrix, errorYMatrix) = affineTransformation.CalculateMatrixError(
+                idealXMatrix,
+                idealYMatrix,
+                realXMatrix,
+                realYMatrix,
+                isInWaferMatrix,
+                templateMathIsOkMatrix,
+                htmlLogUniqueId,
+                calculateContainRowMinCout: calculateContainRowMinCount,
+                calculateContainColumnMinCount: calculateContainColumnMinCount,
+                diameter: diameter,
+                alignmentThreshold: alignmentThreshold,
+                gantryThreshold: gantryThreshold,
+                scaleThreshold: scaleThreshold
+            );
+
+            for (var row = 0; row < stageMapDto.RowNumber; row++)
+            {
+                for (var column = 0; column < stageMapDto.ColumnNumber; column++)
+                {
+                    stageMapDto.ErrorMatrix[row][column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
+                }
+            }
+
+            return isSuccess;
+        }
+        catch (Exception ex) { return false; }
     }
 
     public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)

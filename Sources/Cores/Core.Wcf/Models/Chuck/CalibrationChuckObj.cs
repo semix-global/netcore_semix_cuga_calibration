@@ -53,8 +53,8 @@ namespace Core.Wcf.Models.Chuck
         /// <summary>
         /// Stage Map 校准对象
         /// </summary>
-        [Description(WcfConstantHelper.ChuckDarkFieldStageMapCalibrationName)]
-        public CalibrationChuckDarkFieldStageMap CalibrationChuckDarkFieldStageMap { get; set; } = new CalibrationChuckDarkFieldStageMap();
+        [Description(WcfConstantHelper.ChucStageMapCalibrationName)]
+        public CalibrationChuckStageMap CalibrationChuckStageMap { get; set; } = new CalibrationChuckStageMap();
     }
 
     /// <summary>
@@ -151,12 +151,11 @@ namespace Core.Wcf.Models.Chuck
         public double ScaleT { get; set; }
     }
 
-
     /// <summary>
-    /// 暗场 Stage Map 校准对象
+    /// Stage Map 校准对象
     /// </summary>
     [Serializable]
-    public sealed class CalibrationChuckDarkFieldStageMap : CalibrationBase
+    public sealed class CalibrationChuckStageMap : CalibrationBase
     {
         /// <summary>
         /// 此显微镜镜头下做的校准

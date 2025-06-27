@@ -4,6 +4,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
@@ -21,7 +22,8 @@ namespace Core.Services.Implements.WCF;
 public sealed partial class CalibrationLaserServiceImpl(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICalibrationStageService calibrationStageService,
-    ICalibrationConfigService calibrationConfigService)
+    ICalibrationConfigService calibrationConfigService,
+    CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
     public SxExecuteRet<bool> Connect()
@@ -422,7 +424,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (picturePixelHeightRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(picturePixelHeightRet.ErrorMsg, []);
         var height = picturePixelHeightRet.Anything;
 
-        var extendWidth = xWidthPixel * xPixelSize / 2.0;
+        var scanLineXPixelSize = calibrationSetting.SettingCommonParam.GetScanLineXPixelSize(yOpticsMagTypeEnum, xStageSpeedEnum);
+        var extendWidth = xWidthPixel * scanLineXPixelSize / 2.0;
 
         // 计算采图的起点终点机械坐标
         var startPoint = new Point(machinePositionList[0].X - extendWidth, machinePositionList[0].Y);
