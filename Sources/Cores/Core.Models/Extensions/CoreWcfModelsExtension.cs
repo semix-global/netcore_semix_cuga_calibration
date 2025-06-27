@@ -12,6 +12,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
+using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -218,6 +219,16 @@ public static class CoreWcfModelsExtension
 
         var isOk = result.IsOk;
         if (isOk == false) errorMessage = "Chuck Dark Field Stage Map is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this ChuckStageMapDto result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.IsOk;
+        if (isOk == false) errorMessage = "Chuck Stage Map is Empty";
 
         return isOk;
     }

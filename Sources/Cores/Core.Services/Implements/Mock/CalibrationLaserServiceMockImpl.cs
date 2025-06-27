@@ -8,6 +8,8 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
 using Semix.CoreLib;
+using Core.Models.Models.Setting;
+
 
 #if NET
 using Core.Services.Implements.GRPC;
@@ -23,10 +25,11 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationLaserServiceMockImpl(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICalibrationStageService calibrationStageService,
-    ICalibrationConfigService calibrationConfigService) : ICalibrationLaserService
+    ICalibrationConfigService calibrationConfigService,
+    CalibrationSetting calibrationSetting) : ICalibrationLaserService
 {
     private static readonly Random Random = new();
-    private readonly CalibrationLaserServiceImpl _calibrationLaserServiceImpl = new(calibrationAlgorithmService, calibrationStageService, calibrationConfigService);
+    private readonly CalibrationLaserServiceImpl _calibrationLaserServiceImpl = new(calibrationAlgorithmService, calibrationStageService, calibrationConfigService, calibrationSetting);
 
     private Point _curPosition = new(0, 0);
 
@@ -350,7 +353,6 @@ public sealed class CalibrationLaserServiceMockImpl(
 
             result.Add(temp);
         }
-
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 }

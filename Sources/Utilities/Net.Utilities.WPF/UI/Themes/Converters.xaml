@@ -60,4 +60,5 @@
                                               FalseObject="Disable" />
 
     <multiValueConverters:MultiValueEqualityConverter x:Key="MultiValueEqualityConverter" />
+    <multiValueConverters:MultiValueBooleanConverter x:Key="MultiValueBooleanConverter" />
 </ResourceDictionary>

@@ -18,6 +18,12 @@ public sealed partial class CalibrationItemStep : ObservableCacheBase
     private string _stepName = string.Empty;
 
     /// <summary>
+    /// 步骤显示索引
+    /// </summary>
+    [ObservableProperty]
+    private int _stepIndex = 1;
+
+    /// <summary>
     /// 下一步是否可用
     /// </summary>
     [ObservableProperty]

@@ -134,7 +134,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var badXList = new List<(int Row, int Column)>();
         for (var row = 0; row < rowCount; row++)
         {
-            var (minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorXTempMatrix, row);
+            var (isSuccess, minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorXTempMatrix, row);
+            if (isSuccess == false) continue;
             var average = filterRow.Average(); // 计算平均值
             var standardDeviation = filterRow.StandardDeviation(); // 计算标准差
             var badColumnList = new List<int>();
@@ -240,7 +241,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var badYList = new List<(int Row, int Column)>();
         for (var row = 0; row < rowCount; row++)
         {
-            var (minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorYTempMatrix, row);
+            var (isSuccess, minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorYTempMatrix, row);
+            if (isSuccess == false) continue;
             var average = filterRow.Average(); // 计算平均值
             var standardDeviation = filterRow.StandardDeviation(); // 计算标准差
             var badColumnList = new List<int>();
@@ -751,7 +753,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         // 去掉因为模板匹配误差带来的误差
         for (var row = minRowIndex; row <= maxRowIndex; row++)
         {
-            var (minColIndexByRow, maxColIndexByRow, errorXRow) = FilterRow(errorX, row);
+            var (isSuccess, minColIndexByRow, maxColIndexByRow, errorXRow) = FilterRow(errorX, row);
+            if (isSuccess == false) continue;
             var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, errorXRow.Count).Select(x => (double)x));
 
             var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolyFit.Poly5Fit(x, errorXRow);
@@ -767,7 +770,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         for (var row = minRowIndex; row <= maxRowIndex; row++)
         {
-            var (minColIndexByRow, maxColIndexByRow, errorYRow) = FilterRow(errorY, row);
+            var (isSuccess, minColIndexByRow, maxColIndexByRow, errorYRow) = FilterRow(errorY, row);
+            if (isSuccess == false) continue;
             var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, errorYRow.Count).Select(x => (double)x));
 
             var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolyFit.Poly5Fit(x, errorYRow);
@@ -809,7 +813,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         return (isAlignmentSuccess && isGantrySuccess && isScaleXSuccess && isScaleYSuccess, errorX, errorY);
 
-        (int MinColIndexByRow, int MaxColIndexByRow, Vector<double> Result) FilterRow(Matrix<double> matrix, int row)
+        (bool isSuccess, int MinColIndexByRow, int MaxColIndexByRow, Vector<double> Result) FilterRow(Matrix<double> matrix, int row)
         {
             var okColumnIndexTempList = new List<int>();
             var array = matrix.Row(row).Where((_, column) =>
@@ -821,9 +825,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             if (okColumnIndexTempList.Count <= 0
                 || okColumnIndexTempList.SequenceEqual(Enumerable.Range(okColumnIndexTempList[0], okColumnIndexTempList.Count)) == false)
-                ThrowHelper.ThrowArgumentException(nameof(isInWaferMatrix));
+                return (false, 0, 0, Vector<double>.Build.Dense(matrix.ColumnCount, 0d));
 
-            return (okColumnIndexTempList[0], okColumnIndexTempList[^1], Vector<double>.Build.DenseOfArray(array));
+            return (true, okColumnIndexTempList[0], okColumnIndexTempList[^1], Vector<double>.Build.DenseOfArray(array));
         }
 
         (int MinRowIndexByCol, int MaxRowIndexByCol, Vector<double> Result) FilterColumn(Matrix<double> matrix, int column)

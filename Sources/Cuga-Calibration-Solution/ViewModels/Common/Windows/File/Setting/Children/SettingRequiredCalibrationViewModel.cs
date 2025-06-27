@@ -5,11 +5,11 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
+using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.IlluminationProfile;
@@ -106,7 +106,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
                 if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckGantryDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationChuckGantry)).IsRequired, cancellationToken) == false) return false;
                 if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckCenterObjDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationCenterObj)).IsRequired, cancellationToken) == false) return false;
                 if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckPrealignerObjDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationPrealignerObj)).IsRequired, cancellationToken) == false) return false;
-                if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckDarkFieldStageMapDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationChuckDarkFieldStageMap)).IsRequired, cancellationToken) == false) return false;
+                if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckStageMapDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationChuckStageMap)).IsRequired, cancellationToken) == false) return false;
                 if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckGlobalScaleErrorDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationChuckGlobalScaleError)).IsRequired, cancellationToken) == false) return false;
                 if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<ChuckRotateScaleErrorDto>(chuckParamList.Single(t => t.CalibrationClassName == nameof(CalibrationChuckRotateScaleError)).IsRequired, cancellationToken) == false) return false;
 

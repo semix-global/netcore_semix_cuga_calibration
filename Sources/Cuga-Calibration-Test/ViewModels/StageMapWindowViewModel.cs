@@ -5,6 +5,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Chuck.BrightFieldStageMap;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Chuck.DarkFieldStageMap;
+using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Interfaces;
@@ -17,6 +18,7 @@ using Net.Utilities.Algorithm.MathNet.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Extensions;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -354,6 +356,49 @@ public sealed partial class StageMapWindowViewModel(
         }
     }
 
+    [RelayCommand]
+    private void CalculateStageMapError()
+    {
+        var htmlLogUniqueId = Guid.NewGuid();
+        try
+        {
+            logger.LogHtmlInformation($"Test{nameof(CalculateStageMapError)}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+
+            if (cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
+            var brightFieldStageMapDto = stageMapDto.CalibrationBrightFieldStageMap.Clone();
+            var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
+            if (cacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
+            var tryCalculateStageMapError = calibrationAlgorithmService.CalculateChuckStageMapError(
+                   brightFieldStageMapDto,
+                   htmlLogUniqueId,
+                   cache.CalculateContainRowMinCout,
+                   cache.CalculateContainColumnMinCount,
+                   cache.CalibrationAlignmentThreshold,
+                   cache.CalibrationGantryThreshold,
+                   cache.CalibrationScaleThreshold,
+                   cache.WaferDiameter);
+            tryCalculateStageMapError = calibrationAlgorithmService.CalculateChuckStageMapError(
+                  darkFieldStageMapDto,
+                  htmlLogUniqueId,
+                  cache.CalculateContainRowMinCout,
+                  cache.CalculateContainColumnMinCount,
+                  cache.CalibrationAlignmentThreshold,
+                  cache.CalibrationGantryThreshold,
+                  cache.CalibrationScaleThreshold,
+                  cache.WaferDiameter);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Calculate Stage Map Error Failed");
+            dialogWindowProvider.ShowDialog("Calculate Stage Map Error Failed", ex.Message);
+            return;
+        }
+        finally
+        {
+            logger.LogHtmlInformation(htmlLogUniqueId.LoggingPeekHtml($"{CalibrationTypeEnum.HandleCalibration}"));
+        }
+    }
+
     #endregion 测试算法
 
     private static void ShowVectorField(
@@ -442,6 +487,8 @@ public sealed partial class StageMapWindowViewModel(
     }
 
     private static WrapperErrorText? _lastText;
+
+    public object HtmlLogUniqueId { get; private set; }
 
     private static void ConfigureWpfPlot(WpfPlot wpfPlot, bool isContainError = true)
     {

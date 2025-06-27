@@ -3,11 +3,11 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
+using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.IlluminationProfile;
@@ -81,7 +81,7 @@ public class CalibrationCacheProviderServiceImpl(
             tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationCenterObj = cacheProvider.GetOrDefault<ChuckCenterObjDto>().AdaptTo()));
             tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationPrealignerObj = cacheProvider.GetOrDefault<ChuckPrealignerObjDto>().AdaptTo()));
 
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckDarkFieldStageMap = cacheProvider.GetOrDefault<ChuckDarkFieldStageMapDto>().AdaptTo()));
+            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckStageMap = cacheProvider.GetOrDefault<ChuckStageMapDto>().AdaptTo()));
             tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckGlobalScaleError = cacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().AdaptTo()));
             tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckRotateScaleError = cacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>().AdaptTo()));
 
