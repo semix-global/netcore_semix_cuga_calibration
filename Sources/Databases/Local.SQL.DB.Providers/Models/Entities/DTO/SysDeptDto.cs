@@ -1,7 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Constants;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 
 namespace Local.SQL.DB.Providers.Models.Entities.DTO;
 
@@ -11,7 +11,7 @@ public sealed partial class SysDeptDto : SysBaseDto, ICloneable<SysDeptDto>, IAd
     private string _name = string.Empty;
 
     [ObservableProperty]
-    private long _parentId = ConstantHelper.NegValue;
+    private long _parentId = Constants.NegInt32Value;
 
     [ObservableProperty]
     private int _orderNum;

@@ -121,7 +121,7 @@ file static class Client
     private static readonly Lazy<SxGrpcClient> InstanceConstructor = new(() =>
     {
         var sxGrpcClient = new SxGrpcClient();
-        sxGrpcClient.Connect();
+        sxGrpcClient.Connect(port: 3000);
 
         return sxGrpcClient;
     }, LazyThreadSafetyMode.PublicationOnly);

@@ -12,12 +12,12 @@ using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -591,11 +591,11 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        double coefficient = ConstantHelper.NegValue)
+        double coefficient = Constants.NegInt32Value)
     {
         if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
-        resultPosition = Point.Empty;
+        resultPosition = Point.Origin;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
@@ -660,7 +660,7 @@ public sealed class LaserViewModel(
                         XWidthPixel = xWidthPixel,
                         OpticsMagTypeEnum = yOpticsMagTypeEnum,
                         StageSpeedEnum = xStageSpeedEnum,
-                        OriginPosition = position.ToShortString(),
+                        OriginPosition = position,
                         Score = resultScore,
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
                         HtmlTab = new HtmlTab(new
@@ -683,10 +683,14 @@ public sealed class LaserViewModel(
 
             //if (isForward == false) offset.X = -offset.X;
 
-            if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine) offset.X = -offset.X;
+            if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
+            {
+                (var xDirection, _) = stageViewModel.GetMachineDirection();
+                offset = new Point(xDirection * offset.X, offset.Y);
+            }
 
             var actualOffset = new Point(offset.X * xSize.XPixelSize, offset.Y * ySize.YPixelSize);
-            resultPosition = position + actualOffset;
+            resultPosition = position + (Vector)actualOffset;
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImage(
                 calChipSiteModelEnum,
                 resultPosition,
@@ -716,9 +720,9 @@ public sealed class LaserViewModel(
                     XWidthPixel = xWidthPixel,
                     OpticsMagTypeEnum = yOpticsMagTypeEnum,
                     StageSpeedEnum = xStageSpeedEnum,
-                    OriginPosition = position.ToShortString(),
-                    ResultPosition = resultPosition.ToShortString(),
-                    ResultOffset = actualOffset.ToShortString(),
+                    OriginPosition = position,
+                    ResultPosition = resultPosition,
+                    ResultOffset = actualOffset,
                     ResultScore = resultScore,
                     ResultAngle = resultAngle,
                     HtmlTab = new HtmlTab(new
@@ -784,11 +788,11 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        double coefficient = ConstantHelper.NegValue)
+        double coefficient = Constants.NegInt32Value)
     {
         if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
-        resultPosition = Point.Empty;
+        resultPosition = Point.Origin;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
@@ -851,7 +855,7 @@ public sealed class LaserViewModel(
                         XWidthPixel = xWidthPixel,
                         OpticsMagTypeEnum = yOpticsMagTypeEnum,
                         StageSpeedEnum = xStageSpeedEnum,
-                        OriginPosition = position.ToShortString(),
+                        OriginPosition = position,
                         Score = resultScore,
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
                         HtmlTab = new HtmlTab(new
@@ -874,10 +878,14 @@ public sealed class LaserViewModel(
 
             //if (isForward == false) offset.X = -offset.X;
 
-            if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine) offset.X = -offset.X;
+            if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
+            {
+                (var xDirection, _) = stageViewModel.GetMachineDirection();
+                offset = new Point(xDirection * offset.X, offset.Y);
+            }
 
             var actualOffset = new Point(offset.X * xSize.XPixelSize, offset.Y * ySize.YPixelSize);
-            resultPosition = position + actualOffset;
+            resultPosition = position + (Vector)actualOffset;
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImageByNotAutoFocus(
                 resultPosition,
                 (false, coefficient),
@@ -905,9 +913,9 @@ public sealed class LaserViewModel(
                     XWidthPixel = xWidthPixel,
                     OpticsMagTypeEnum = yOpticsMagTypeEnum,
                     StageSpeedEnum = xStageSpeedEnum,
-                    OriginPosition = position.ToShortString(),
-                    ResultPosition = resultPosition.ToShortString(),
-                    ResultOffset = actualOffset.ToShortString(),
+                    OriginPosition = position,
+                    ResultPosition = resultPosition,
+                    ResultOffset = actualOffset,
                     ResultScore = resultScore,
                     ResultAngle = resultAngle,
                     HtmlTab = new HtmlTab(new

@@ -7,7 +7,7 @@ using Cuga.Data.DataStruct.Stage;
 using Cuga.Interface.Calibration;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.GRPC.DTO;
 

@@ -1,6 +1,6 @@
-﻿using FreeSql.DataAnnotations;
+using FreeSql.DataAnnotations;
 using Local.SQL.DB.Providers.Models.Entities.Base.Implements;
-using Net.Utilities.Helper.Json;
+using Net.Utilities.Helpers;
 using Newtonsoft.Json;
 
 namespace Local.SQL.DB.Providers.Models.Entities;
@@ -16,14 +16,14 @@ public sealed class SysRoleMenu : EntityAdd
     /// 角色Id
     /// </summary>
     [Column(IsPrimary = true)]
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
     public long RoleId { get; init; }
 
     /// <summary>
     /// 菜单Id
     /// </summary>
     [Column(IsPrimary = true)]
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
     public long MenuId { get; init; }
 
     #region 导航属性

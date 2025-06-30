@@ -8,7 +8,7 @@ using Core.Models.Models.Common.StageMap;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
 
@@ -83,35 +83,35 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         switch (dir)
         {
             case StageDirectionTypeEnum.UpLeft:
-                _curPosition += new Point(-step, step);
+                _curPosition += new Vector(-step, step);
                 break;
 
             case StageDirectionTypeEnum.Up:
-                _curPosition += new Point(0, step);
+                _curPosition += new Vector(0, step);
                 break;
 
             case StageDirectionTypeEnum.UpRight:
-                _curPosition += new Point(step, step);
+                _curPosition += new Vector(step, step);
                 break;
 
             case StageDirectionTypeEnum.Left:
-                _curPosition += new Point(-step, 0);
+                _curPosition += new Vector(-step, 0);
                 break;
 
             case StageDirectionTypeEnum.Right:
-                _curPosition += new Point(step, 0);
+                _curPosition += new Vector(step, 0);
                 break;
 
             case StageDirectionTypeEnum.DownLeft:
-                _curPosition += new Point(-step, -step);
+                _curPosition += new Vector(-step, -step);
                 break;
 
             case StageDirectionTypeEnum.Down:
-                _curPosition += new Point(0, -step);
+                _curPosition += new Vector(0, -step);
                 break;
 
             case StageDirectionTypeEnum.DownRight:
-                _curPosition += new Point(step, -step);
+                _curPosition += new Vector(step, -step);
                 break;
         }
 
@@ -124,12 +124,12 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(_curPosition - BrightFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(_curPosition - (Vector)BrightFieldStagePosition);
     }
 
     public SxExecuteRet<bool> SetBrightFieldAbsoluteStageXy(Point point)
     {
-        _curPosition = point + BrightFieldStagePosition;
+        _curPosition = point + (Vector)BrightFieldStagePosition;
 
         Thread.Sleep(100);
 
@@ -140,12 +140,12 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(_curPosition - DarkFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(_curPosition - (Vector)DarkFieldStagePosition);
     }
 
     public SxExecuteRet<bool> SetDarkFieldAbsoluteStageXy(Point point)
     {
-        _curPosition = point + DarkFieldStagePosition;
+        _curPosition = point + (Vector)DarkFieldStagePosition;
 
         Thread.Sleep(100);
 
@@ -189,28 +189,28 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(point + BrightFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(point + (Vector)BrightFieldStagePosition);
     }
 
     public SxExecuteRet<Point> DarkFieldToMachinePosition(Point point)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(point + DarkFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(point + (Vector)DarkFieldStagePosition);
     }
 
     public SxExecuteRet<Point> MachineToBrightFieldPosition(Point point)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(point - BrightFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(point - (Vector)BrightFieldStagePosition);
     }
 
     public SxExecuteRet<Point> MachineToDarkFieldPosition(Point point)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(point - DarkFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(point - (Vector)DarkFieldStagePosition);
     }
 
     public SxExecuteRet<Point> FindWaferCenterByAutomatic(int offsetThreshold = 100)

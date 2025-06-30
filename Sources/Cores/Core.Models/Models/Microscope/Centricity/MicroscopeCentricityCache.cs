@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
@@ -12,7 +10,6 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
     private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
 
     [ObservableProperty]
-    [PointValidationAttribute(PointEnum.Point2d, ErrorMessage = "Find Position: ")]
     private Point _findPosition;
 
     [ObservableProperty]

@@ -2,8 +2,8 @@ using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Repositories.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 
 namespace Local.SQL.DB.Providers.Services.Implements;
 
@@ -79,7 +79,7 @@ public sealed class SysMenuServiceImpl(ISysMenuRepository sysMenuRepository) : I
     {
         var returnList = new List<SysMenuDto>();
 
-        foreach (var menu in menus.Where(menu => menu.ParentId == ConstantHelper.NegValue))
+        foreach (var menu in menus.Where(menu => menu.ParentId == Constants.NegInt32Value))
         {
             RecursionFn(menus, menu);
             returnList.Add(menu);

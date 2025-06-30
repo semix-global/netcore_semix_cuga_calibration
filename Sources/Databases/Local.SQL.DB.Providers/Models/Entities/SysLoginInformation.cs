@@ -1,7 +1,7 @@
-﻿using FreeSql.DataAnnotations;
+using FreeSql.DataAnnotations;
 using Local.SQL.DB.Providers.Models.Attributes;
 using Local.SQL.DB.Providers.Models.Entities.Base.Implements;
-using Net.Utilities.Helper.Json;
+using Net.Utilities.Helpers;
 using Newtonsoft.Json;
 
 namespace Local.SQL.DB.Providers.Models.Entities;
@@ -18,7 +18,7 @@ public sealed class SysLoginInformation : Entity
     /// 创建者用户Id
     /// </summary>
     [Column(CanUpdate = false)]
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
     public long LoginUserId { get; set; }
 
     /// <summary>
@@ -32,7 +32,7 @@ public sealed class SysLoginInformation : Entity
     /// </summary>
     [Column(CanUpdate = false)]
     [ServerTime]
-    [JsonConverter(typeof(JsonConverterUtil.DateTimeJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.DateTimeJsonConverter))]
     public DateTime LoginTime { get; set; }
 
     /// <summary>

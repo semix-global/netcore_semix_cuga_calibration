@@ -9,7 +9,7 @@ using Core.Models.Models.Common.StageMap;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common;
@@ -87,7 +87,7 @@ public sealed partial class StageViewModel(
     public void MoveRelativeStageXy(Point point)
     {
         var result = GetBrightFieldStagePosition();
-        result = BrightFieldToMachinePosition(result + point);
+        result = BrightFieldToMachinePosition(result + (Vector)point);
 
         SetSpeed(StageSpeedEnum.High, OpticsMagTypeEnum.High);
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(result);

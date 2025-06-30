@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
              d:DataContext="{d:DesignInstance Type=viewModels:RecipeRequireActionViewModel}"
@@ -96,7 +95,7 @@
                                             Spacing="10">
                         <Button Command="{Binding SelectSitesCommand}" Style="{StaticResource ButtonSuccess}">
                             <hc:UniformSpacingPanel Spacing="5">
-                                <iconPacks:PackIconFontAwesome Kind="PenToSquareSolid" />
+                                <!-- <iconPacks:PackIconFontAwesome Kind="PenToSquareSolid" /> -->
                                 <TextBlock Text="Select Sites" />
                             </hc:UniformSpacingPanel>
                         </Button>

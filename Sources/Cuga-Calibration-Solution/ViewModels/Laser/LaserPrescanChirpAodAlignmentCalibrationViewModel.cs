@@ -11,27 +11,26 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.Struct;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -44,7 +43,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
-    public string PrescanFileDirectory => Path.Combine(AppHomeDirectory, "Prescan", nameof(LaserPrescanChirpAodAlignmentCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
+    public string PrescanFileDirectory => Path.Combine(AppHomeDirectory, "Prescan", nameof(LaserPrescanChirpAodAlignmentCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -311,7 +310,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
             ResultCalibrateDto.Clear();
 
-            foreach (var centerFrequency in EnumerableHelper.GenerateList(Cache.StartPrescanCenterFrequency, Cache.EndPrescanCenterFrequency, Cache.StepPrescanCenterFrequency))
+            foreach (var centerFrequency in Generate.LinearRange(Cache.StartPrescanCenterFrequency, Cache.StepPrescanCenterFrequency, Cache.EndPrescanCenterFrequency))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -332,7 +331,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                     0,
                     centerFrequency,
                     Cache.PrescanFlatnessTime,
-                    MonotonicTypeEnum.Flatness,
+                    FunctionMonotonicTypeEnum.Flatness,
                     Cache.PrescanSampleRate,
                     Cache.PrescanCoefficient,
                     detectPrescanDirectory,
@@ -358,7 +357,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 using var _1 = channel1DarkFieldImageDto;
                 using var _2 = channel2DarkFieldImageDto;
                 using var _3 = channel3DarkFieldImageDto;
-                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 item.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_Channel1_{item.PrescanCenterFrequency:0.###}).jpg";
                 HalconHelper.Save(channel1DarkFieldImageDto.Image, item.Channel1ImageFilePath);
                 item.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_Channel2_{item.PrescanCenterFrequency:0.###}).jpg";
@@ -424,7 +423,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 Math.Abs(yPixelHeight / ResultCalibrateDto.Slope),
                 (yPixelHeight / 2d - ResultCalibrateDto.Intercept) / ResultCalibrateDto.Slope,
                 yPixelHeight * 4d,
-                MonotonicTypeEnum.Increasing,
+                FunctionMonotonicTypeEnum.Increasing,
                 Cache.PrescanSampleRate,
                 Cache.PrescanCoefficient,
                 detectPrescanDirectory,

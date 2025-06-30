@@ -3,10 +3,10 @@ using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Cuga.Interface.Calibration;
 using HalconDotNet;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.GRPC;
@@ -32,19 +32,19 @@ public sealed class CalibrationReviewServiceImpl : BaseService<ICgCalibReviewSer
 
     public SxExecuteRet<HObject> GetBrightFieldImage()
     {
-        var bytes = Invoke(() => Service?.GetBrightFieldImage());
+        var bytes = Invoke(() => Service?.GetBrightFieldImageMemoryByteArray());
         var size = GetBrightFieldImagePixelSize();
         var channels = GetChannels();
 
         if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, HalconHelper.EmptyHObject);
 
-        var (width, height) = size.Anything;
+        var (width, height) = size.Anything.DeconstructToInt32();
         return SxExecuteRetHelper.CreateSuccess(HalconHelper.ImageRawBytesToHObject(bytes.Anything, width, height, channels.Anything));
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()
     {
-        return Invoke(() => Service?.GetBrightFieldImageMemoryByteArray());
+        return Invoke(() => Service?.GetBrightFieldImage());
     }
 
     public SxExecuteRet<Size> GetBrightFieldImagePixelSize()

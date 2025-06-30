@@ -11,10 +11,10 @@ using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 

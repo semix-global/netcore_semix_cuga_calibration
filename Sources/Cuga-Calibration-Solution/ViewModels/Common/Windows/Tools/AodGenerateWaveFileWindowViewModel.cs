@@ -2,13 +2,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.DarkField;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 

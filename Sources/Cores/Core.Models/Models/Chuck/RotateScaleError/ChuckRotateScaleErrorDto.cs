@@ -5,7 +5,7 @@ using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.RotateScaleError;
 
@@ -21,7 +21,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
     private bool _isPositive;
 
     [ObservableProperty]
-    private Point _chuckCenterBrightFieldPosition = Point.Empty;
+    private Point _chuckCenterBrightFieldPosition = Point.Origin;
 
     /// <summary>
     /// T轴比例误差系数下发值
@@ -200,7 +200,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
             StageDirectionTypeEnum.Down => IsPositive ? PositiveBottomHighSiteRealPosition : NegativeBottomHighSiteRealPosition,
             StageDirectionTypeEnum.Left => IsPositive ? PositiveLeftHighSiteRealPosition : NegativeLeftHighSiteRealPosition,
             StageDirectionTypeEnum.Right => IsPositive ? PositiveRightHighSiteRealPosition : NegativeRightHighSiteRealPosition,
-            _ => Point.Empty
+            _ => Point.Origin
         };
     }
 
@@ -212,7 +212,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
             StageDirectionTypeEnum.Down => (PositiveBottomHighSiteRealPosition, NegativeBottomHighSiteRealPosition),
             StageDirectionTypeEnum.Left => (PositiveLeftHighSiteRealPosition, NegativeLeftHighSiteRealPosition),
             StageDirectionTypeEnum.Right => (PositiveRightHighSiteRealPosition, NegativeRightHighSiteRealPosition),
-            _ => (Point.Empty, Point.Empty)
+            _ => (Point.Origin, Point.Origin)
         };
     }
 

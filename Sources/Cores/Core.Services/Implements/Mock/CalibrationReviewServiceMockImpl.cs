@@ -1,16 +1,16 @@
 using Core.Models.Helper;
 using Core.Services.Interfaces;
 using HalconDotNet;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Helper;
 using Semix.CoreLib;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Size = Net.Utilities.Models.Size;
+using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace Core.Services.Implements.Mock;
 

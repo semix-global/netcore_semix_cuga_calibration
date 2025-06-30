@@ -1,9 +1,8 @@
 using Cuga.Data.DataStruct.Stage;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -25,7 +24,8 @@ public static class UtilitiesSizeExtension
 
     public static System.Drawing.Size ToSystemDrawingSize(this Size size)
     {
-        var (width, height) = size;
+        var (width, height) = size.DeconstructToInt32();
+
         return new System.Drawing.Size(width, height);
     }
 
@@ -34,7 +34,6 @@ public static class UtilitiesSizeExtension
     #endregion System.Drawing.Size
 
 #if NET
-
     #region SxSizeD
 
     public static Size ToSize(this SxSizeD sxSizeD) => new((int)sxSizeD.Width, (int)sxSizeD.Height);

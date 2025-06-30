@@ -1,6 +1,0 @@
-﻿SetForegroundWindow
-SetActiveWindow
-SetWindowPos
-EnableWindow
-GetWindowRect
-SetWindowPos

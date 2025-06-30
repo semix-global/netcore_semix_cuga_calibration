@@ -9,10 +9,10 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithm.MathNet.Helper;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
 
@@ -43,7 +43,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     {
         var sxExecuteRet = Invoke(() => Service!.ReadLaserBeamPos());
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (Point.Empty, Point.Empty))
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (Point.Origin, Point.Origin))
             : SxExecuteRetHelper.CreateSuccess((new Point(sxExecuteRet.Anything.PD_X_1_FPOS, sxExecuteRet.Anything.PD_Y_1_FPOS) * 1000, new Point(sxExecuteRet.Anything.PD_X_2_FPOS, sxExecuteRet.Anything.PD_Y_2_FPOS) * 1000));
     }
 
@@ -51,7 +51,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     {
         var sxExecuteRet = Invoke(() => Service!.ReadLaserBeamOriginPos());
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (Point.Empty, Point.Empty))
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (Point.Origin, Point.Origin))
             : SxExecuteRetHelper.CreateSuccess((new Point(sxExecuteRet.Anything.PD_X_1_FPOS, sxExecuteRet.Anything.PD_Y_1_FPOS) * 1000, new Point(sxExecuteRet.Anything.PD_X_2_FPOS, sxExecuteRet.Anything.PD_Y_2_FPOS) * 1000));
     }
 
@@ -189,7 +189,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         // pmt增益电压范围 [-14, 14]
         var senseVector = Vector<double>.Build.Dense(gains) / 14;
         var senseValues = senseVector
-            .Select(t => ConvertHelper.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
+            .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .ToArray();
 
         var senseData = new List<byte>();
@@ -204,7 +204,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         // 取反, 差分信号
         var pmtVector = Vector<double>.Build.Dense(gains) * -1 / 14;
         var pmtValues = pmtVector
-            .Select(t => ConvertHelper.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
+            .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .ToArray();
 
         var pmtData = new List<byte>();

@@ -16,19 +16,20 @@ using CugaCalibration.ViewModels.Common.Windows.View;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
-using Point = Net.Utilities.Models.Point;
-using Size = Net.Utilities.Models.Size;
+using Point = Net.Utilities.Models.Geometries.Point;
+using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -249,9 +250,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 case "FindTemplatePosition":
                     await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindTemplatePosition)).ConfigureAwait(false);
                     break;
-
-                default:
-                    break;
             }
         }
         catch (Exception ex)
@@ -272,8 +270,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         var filePathList = new List<(string path, string title)>();
         foreach (var itemImage in laserXPixelSizeItemDto.DarkFieldCropImageList)
         {
-            var imageFilePath = (itemImage.FilePath, "X:" + itemImage.Position.X.ToString() + ", " +
-                                                     "Y:" + itemImage.Position.Y.ToString());
+            var imageFilePath = (itemImage.FilePath, "X:" + itemImage.Position.X + ", " +
+                                                     "Y:" + itemImage.Position.Y);
             filePathList.Add(imageFilePath);
         }
 
@@ -328,15 +326,15 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
     private async Task<bool> Step3ActionAsync(CancellationToken cancellationToken)
     {
-        (var isSuccess, var matchPoint) = await GetXPixelSizeAsync(LaserXPixelSizeItem, Guid.NewGuid(), cancellationToken);
+        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(LaserXPixelSizeItem, Guid.NewGuid(), cancellationToken);
         if (isSuccess == false) return false;
         var calPixelDifferences = matchPoint
             .Zip(matchPoint.Skip(1), (prev, curr) => curr.X - prev.X)
             .ToList();
-        var UmPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(calPixelDifferences)).Average();
+        var umPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(calPixelDifferences)).Average();
         var error = calPixelDifferences.Max() - calPixelDifferences.Min();
         var resultStatus = Math.Abs(error) < Cache.Threshold;
-        LaserXPixelSizeItem.XPixelSize = UmPerPixel;
+        LaserXPixelSizeItem.XPixelSize = umPerPixel;
         LaserXPixelSizeItem.DarkFieldCropImageList = [.. DarkFieldCropImageList];
         LaserXPixelSizeItem.IsCalibrated = resultStatus;
 
@@ -345,10 +343,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         //resultStatus ? DialogIconEnum.Information : DialogIconEnum.Warning);
         Logger.LogHtmlInformation("End Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            Threshold = Cache.Threshold,
+            Cache.Threshold,
             Error = $"{error:f2}",
             IdealUmPerPixel = $"{Cache.IdealUmPerPixel:f20}",
-            XPixelSize = $"{UmPerPixel:f20}",
+            XPixelSize = $"{umPerPixel:f20}",
             Um = new HtmlPlot2DLinesChart([(nameof(calPixelDifferences), calPixelDifferences.ToPoints())], nameof(calPixelDifferences))
         }), HtmlLogUniqueId.LoggingHtml());
         return true;
@@ -384,20 +382,20 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         Cache.FindEndPosition = laserXPixelSizeItemDto.FindEndPosition;
         Cache.TemplateFilePath = laserXPixelSizeItemDto.FilePath;
         Cache.TemplateImageFilePath = laserXPixelSizeItemDto.FileTemplatePath;
-        (var isSuccess, var matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken);
+        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken);
         if (isSuccess == false) return false;
 
         var differences = matchPoint
             .Zip(matchPoint.Skip(1), (prev, curr) => curr.X - prev.X)
             .ToList();
-        var RealUmPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(differences)).Average();
+        var realUmPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(differences)).Average();
 
         var error = differences.Max() - differences.Min();
         var resultStatus = Math.Abs(error) < Cache.Threshold;
 
         Logger.LogHtmlInformation(resultStatus ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            NewXPixelSize = RealUmPerPixel,
+            NewXPixelSize = realUmPerPixel,
             OldXPixelSize = laserXPixelSizeItemDto.XPixelSize,
             Cache.Threshold,
             Error = error,
@@ -415,7 +413,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         if (!IsAutoCalibrate || !resultStatus)
         {
-            DialogWindowProvider.ShowDialog($"Verify {(resultStatus ? "OK" : "Failed")}, New XPixelSize: ({RealUmPerPixel}) Old XPixelSize: ({laserXPixelSizeItemDto.XPixelSize})", DialogButtonsEnum.OK,
+            DialogWindowProvider.ShowDialog($"Verify {(resultStatus ? "OK" : "Failed")}, New XPixelSize: ({realUmPerPixel}) Old XPixelSize: ({laserXPixelSizeItemDto.XPixelSize})", DialogButtonsEnum.OK,
                 resultStatus ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
 
@@ -532,8 +530,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
                 var (xDirection, _) = StageViewModel.GetMachineDirection();
                 // 计算采图的起点终点机械坐标
-                startMachinePosition -= new Point(xDirection * extendWidth, 0);
-                endMachinePosition += new Point(xDirection * 3 * extendWidth, 0);
+                startMachinePosition -= new Vector(xDirection * extendWidth, 0);
+                endMachinePosition += new Vector(xDirection * 3 * extendWidth, 0);
                 //采集长图
                 var resultImage = LaserViewModel.GetDarkFieldLineScanImageList(
                     CalChipSiteModelEnum.ChuckModel,
@@ -573,12 +571,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                 var calPixelDifferences = matchPoint
                                     .Zip(matchPoint.Skip(1), (prev, curr) => curr.X - prev.X)
                                     .ToList();
-                                var UmPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(calPixelDifferences)).Average();
+                                var umPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(calPixelDifferences)).Average();
                                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                                 {
-                                    XPixelSize = UmPerPixel,
+                                    XPixelSize = umPerPixel,
                                 }), HtmlLogUniqueId.LoggingHtml());
-                                isSplitImage = SplitLongImage(resultImage[2], UmPerPixel, Guid.NewGuid(), out matchPoint);
+                                isSplitImage = SplitLongImage(resultImage[2], umPerPixel, Guid.NewGuid(), out matchPoint);
                             }
                             else
                             {
@@ -616,7 +614,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             var random = new Random();
             var x = 0;
-            var (image, _, horizontalFlipRawBytes) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelRawBytes);
+            var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelRawBytes);
 
             for (int i = 0; i < Cache.SplitImageCount; i++)
             {
@@ -650,7 +648,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         }
         else
         {
-            var ((_, calUmPerPixelHeightPixel), calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = CalibrationAlgorithmService.GetSize(calUmPerPixelRawBytes);
+            var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = CalibrationAlgorithmService.GetSize(calUmPerPixelRawBytes);
+            var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
+
             var calUmPerPixelDieWidthPixel = Cache.DieWidthUm / xPixelSize;
             var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
             var calUmPerPixelHeightPixelByteLength = calUmPerPixelHeightPixel * 2;
@@ -687,13 +687,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
                 var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
                 var calUmPerPixelSplitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(array, new Size(currentWidthPixel, calUmPerPixelHeightPixel));
-                var (image, _, horizontalFlipRawBytes) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelSplitImageRawBytes);
+                var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelSplitImageRawBytes);
                 var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
                 using var _ = image;
                 var originImageFilePath = Path.Combine(ImageFileDirectory, Path.GetFileNameWithoutExtension(detectImageDirectory), $"calUmPerPixelImage_{index + 1}.jpg");
                 HalconHelper.Save(image, originImageFilePath);
                 //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
-                var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var resultOffset, out var resultScore, out var resultAngle);
+                var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
                 if (!isSuccess && resultScore < Cache.NccScoreThreshold)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -774,8 +774,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         var autoCalibrationStepList = new ObservableCollection<CalibrationItemStep>();
         WindowManagerService.ShowDialog(enableOpticsMagWindowViewModel);
         WindowManagerService.ShowDialog(enableStageSpeedWindowViewModel);
-        _enableOpticsMagList = [.. enableOpticsMagWindowViewModel.OpticsMagEnableList.Where(t => t.IsEnable == true).Select(t => (t.OpticsMagTypeEnum, t.IsEnable))];
-        _enableStageSpeedList = [.. enableStageSpeedWindowViewModel.StageSpeedEnableList.Where(t => t.IsEnable == true).Select(t => (t.StageSpeedEnum, t.IsEnable == true))];
+        _enableOpticsMagList = [.. enableOpticsMagWindowViewModel.OpticsMagEnableList.Where(t => t.IsEnable).Select(t => (t.OpticsMagTypeEnum, t.IsEnable))];
+        _enableStageSpeedList = [.. enableStageSpeedWindowViewModel.StageSpeedEnableList.Where(t => t.IsEnable).Select(t => (t.StageSpeedEnum, t.IsEnable))];
         if (_enableOpticsMagList.Count == 0 || _enableStageSpeedList.Count == 0) return;
         autoCalibrationStepList.Add(new() { StepName = "Loading" });
         foreach (var opticsMag in _enableOpticsMagList)
@@ -867,11 +867,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             return false;
         }
 
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         // Bright Field
         if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum.Caliper, Cache.MicroscopeMagnificationEnum, null, null, out var brightFieldMaskInfo) == false)
             return false;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, brightFieldMaskInfo, out var brightFieldMaskPosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, brightFieldMaskInfo, out var brightFieldMaskPosition);
         Cache.FindTemplatePosition = brightFieldMaskPosition;
         Cache.FindStartPosition = new Point(Cache.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
         Cache.FindEndPosition = new Point(Cache.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);

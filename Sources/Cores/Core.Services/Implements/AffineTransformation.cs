@@ -3,11 +3,11 @@ using Core.Models.Models.Common.StageMap;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 
@@ -374,8 +374,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             alignmentRealLineList.Add(($"row {row}", ToPoints(realXRow, realYCol)));
             alignmentRealLineList.Add(($"row {row}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realXRow, yPredicted2)));
 
-            thetaRotateVector[row - minRowIndex] = MathHelper.TwoLineToIncludedRadianAngle(k2, k1); // 每行的夹角
-            alignmentIncludedDegreeAngleList.Add(new Point(row, MathHelper.RadianAngleToDegreeAngle(thetaRotateVector[row - minRowIndex])));
+            thetaRotateVector[row - minRowIndex] = MathUtils.TwoLineToIncludedRadianAngle(k2, k1); // 每行的夹角
+            alignmentIncludedDegreeAngleList.Add(new Point(row, MathUtils.RadianAngleToDegreeAngle(thetaRotateVector[row - minRowIndex])));
             alignmentErrorList.Add(new Point(row, diameter * Math.Tan(thetaRotateVector[row - minRowIndex])));
         }
 
@@ -385,7 +385,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var htmlBullet = new HtmlBullet(new
         {
             isAlignmentSuccess,
-            meanThetaRotate = $"{MathHelper.RadianAngleToDegreeAngle(meanAlignmentTheta):f10}°",
+            meanThetaRotate = $"{MathUtils.RadianAngleToDegreeAngle(meanAlignmentTheta):f10}°",
             FitReal = new HtmlPlot2DLinesChart([.. alignmentRealLineList], "unit: um"),
             alignmentIncludedDegreeAngleList = new HtmlPlot2DLinesChart([(nameof(alignmentIncludedDegreeAngleList), [.. alignmentIncludedDegreeAngleList])], "unit: °"),
             alignmentErrorList = new HtmlPlot2DLinesChart([(nameof(alignmentErrorList), [.. alignmentErrorList])], "unit: um")
@@ -472,9 +472,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             gantryLineList.Add(($"column {column}", ToPoints(realYColumn, realXColumn)));
             gantryLineList.Add(($"column {column}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realYColumn, yPredicted2)));
 
-            thetaGantryVector[column - minColumnIndex] = MathHelper.TwoLineToIncludedRadianAngle(k2, k1); // 每列的夹角
+            thetaGantryVector[column - minColumnIndex] = MathUtils.TwoLineToIncludedRadianAngle(k2, k1); // 每列的夹角
 
-            gantryIncludedDegreeAngleList.Add(new Point(column, MathHelper.RadianAngleToDegreeAngle(thetaGantryVector[column - minColumnIndex])));
+            gantryIncludedDegreeAngleList.Add(new Point(column, MathUtils.RadianAngleToDegreeAngle(thetaGantryVector[column - minColumnIndex])));
             gantryErrorList.Add(new Point(column, diameter * Math.Tan(thetaGantryVector[column - minColumnIndex])));
         }
 
@@ -484,7 +484,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         htmlBullet = new HtmlBullet(new
         {
             isGantrySuccess,
-            meanThetaGantry = $"{MathHelper.RadianAngleToDegreeAngle(meanGantryTheta):f10}°",
+            meanThetaGantry = $"{MathUtils.RadianAngleToDegreeAngle(meanGantryTheta):f10}°",
             Fit = new HtmlPlot2DLinesChart([.. gantryLineList], "unit: um"),
             gantryIncludedDegreeAngleList = new HtmlPlot2DLinesChart([(nameof(gantryIncludedDegreeAngleList), [.. gantryIncludedDegreeAngleList])], "unit: °"),
             gantryErrorList = new HtmlPlot2DLinesChart([(nameof(gantryErrorList), [.. gantryErrorList])], "unit: um")
@@ -1007,7 +1007,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                 resultStageMap.IdealStageMapItemMatrix[row][column].Point = idealPoint;
                 resultStageMap.IdealStageMapItemMatrix[row][column].IsInWafer = false;
                 resultStageMap.RealMatrix[row][column] = idealPoint;
-                resultStageMap.ErrorMatrix[row][column] = Point.Empty;
+                resultStageMap.ErrorMatrix[row][column] = Point.Origin;
 
                 // 在基中IdealStageMapItemList的行列号获取数据
                 var baseStageMapRowIndex = row - expandBottomRowCount;
@@ -1018,7 +1018,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                 if (baseStageMapItem is not null) // 如果基中有数据
                 {
                     // 因为double会有精度损失. 序列化带来的精度损失 0.15e-10
-                    Guard.IsLessThanOrEqualTo((baseStageMapItem.Point - idealPoint).DistanceToZero(), 1e-8, nameof(baseStageMapItem));
+                    Guard.IsLessThanOrEqualTo((baseStageMapItem.Point - (Vector)idealPoint).ToOriginLength, 1e-8, nameof(baseStageMapItem));
                     if (baseStageMapItem.IsInWafer) // 如果基中有数据且在晶圆内
                     {
                         Guard.IsNotNull(baseReal, nameof(baseReal));
@@ -1079,16 +1079,16 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             {
                 resultStageMap.IdealStageMapItemMatrix[row][column].IsMatchOk = true;
                 resultStageMap.IdealStageMapItemMatrix[row][column].IsInWafer = true;
-                resultStageMap.RealMatrix[row][column] = idealPoint + error;
+                resultStageMap.RealMatrix[row][column] = idealPoint + (Vector)error;
                 resultStageMap.ErrorMatrix[row][column] = error;
             }
 
             // 找最近的一个点代替
             var (length, rowIndex, columnIndex) = mergeStageMap.IdealStageMapItemMatrix
-                .SelectMany((t, rowIndex) => t.Select((tt, columnIndex) => (Length: (tt.Point - idealPoint).DistanceToZero(), rowIndex, columnIndex)))
+                .SelectMany((t, rowIndex) => t.Select((tt, columnIndex) => (Length: (tt.Point - (Vector)idealPoint).ToOriginLength, rowIndex, columnIndex)))
                 .OrderBy(t => t.Length)
                 .First();
-            if (length < new Point(mergeStageMap.ColumnCellWidth, mergeStageMap.RowCellHeight).DistanceToZero())
+            if (length < new Point(mergeStageMap.ColumnCellWidth, mergeStageMap.RowCellHeight).ToOriginLength)
             {
                 resultStageMap.RealMatrix[row][column] = mergeStageMap.RealMatrix[rowIndex][columnIndex];
                 resultStageMap.ErrorMatrix[row][column] = mergeStageMap.ErrorMatrix[rowIndex][columnIndex];
@@ -1144,7 +1144,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             }
         }
 
-        return new HtmlPlot3DChart(MatrixHelper.ToArrayByRow(point3DMatrix), title, HtmlPlot3DType.Surface);
+        return new HtmlPlot3DChart(MatrixUtils.ToArrayByRow(point3DMatrix), title, HtmlPlot3DType.Surface);
     }
 
     private static Point[] ToPoints(

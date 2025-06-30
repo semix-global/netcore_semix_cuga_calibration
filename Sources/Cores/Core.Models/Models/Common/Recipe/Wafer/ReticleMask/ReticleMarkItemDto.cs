@@ -3,7 +3,7 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Recipe.Template;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 

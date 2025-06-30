@@ -4,7 +4,7 @@ using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.OpticalPower;
 
@@ -32,7 +32,7 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     private double _measureMaxPower;
 
     [ObservableProperty]
-    private Point _measureMaxPowerPosition = Point.Empty;
+    private Point _measureMaxPowerPosition = Point.Origin;
 
     #region Mapper
 

@@ -4,7 +4,7 @@ using Local.SQL.DB.Providers.Repositories.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Object.String;
+using Net.Utilities.Helpers;
 
 namespace Local.SQL.DB.Providers.Services.Implements;
 
@@ -25,7 +25,7 @@ public sealed class SysUserServiceImpl(
         if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
             throw new LoginException("The account or password cannot be empty!");
 
-        user.Password = MD5Encrypt.Encrypt32(user.Password);
+        user.Password = EncryptUtils.Encrypt32(user.Password);
 
         var sysUser = await sysUserRepository
             .Select

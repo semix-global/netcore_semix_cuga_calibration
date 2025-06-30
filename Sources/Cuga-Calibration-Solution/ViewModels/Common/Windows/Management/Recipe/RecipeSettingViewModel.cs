@@ -10,6 +10,7 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -21,18 +22,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.Graphics.Primitives.Enums.Editors;
+using Net.Utilities.Graphics.Primitives.ObjectModels;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.WaferMap.WPF;
+using Net.Utilities.WaferMap.WPF.Drawables;
+using Net.Utilities.WaferMap.WPF.Editors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -64,15 +71,18 @@ public sealed partial class RecipeSettingViewModel(
 {
     private readonly string _appHomeDirectory = options.Value.AppHomeDirectory;
     public readonly StageViewModel StageViewModel = stageViewModel;
+
     public AlignmentWindowDarkFieldViewModel AlignmentWindowDarkFieldViewModel { get; } = alignmentWindowDarkFieldViewModel;
+    private CancellationTokenSource? _cancellationTokenSource;
 
     #region 字段
 
     /// <summary>
     /// 模板存储位置
     /// </summary>
-    private string TemplateFileDirectory => Path.Combine(_appHomeDirectory, "Template", "Recipe", EditRecipeTypeName, DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+    private string TemplateFileDirectory => Path.Combine(_appHomeDirectory, "Template", "Recipe", EditRecipeTypeName, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
+    public SelectionSet<WaferMapDie>? _selectionDies;
     #endregion 字段
 
     #region 界面显示
@@ -104,6 +114,9 @@ public sealed partial class RecipeSettingViewModel(
     [ObservableProperty]
     private ObservableCollection<ReticleMarkItemDto> _reticleMarkList = [];
 
+    [ObservableProperty]
+    private WaferMapCanvasViewModel _waferMapCanvasViewModel = new();
+
     /// <summary>
     ///  当前编辑的配方参数对象
     /// </summary>
@@ -122,6 +135,123 @@ public sealed partial class RecipeSettingViewModel(
     }
 
     #endregion 界面显示
+
+    #region WaferMap属性
+
+    [ObservableProperty]
+    private WaferMapDieSelectionInputOptions _waferMapDieSelectionInputOptions = new();
+
+    public double WaferRadius
+    {
+        get => WaferMapCanvasViewModel.Document.WaferBuilder.Circle.Radius;
+        set
+        {
+            WaferMapCanvasViewModel.Document.WaferBuilder.Circle = new Circle(Point.Origin, value);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferDiePitchSizeWidth
+    {
+        get => WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Width;
+        set
+        {
+            WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize = new Size(value, WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Height);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferDiePitchSizeHeight
+    {
+        get => WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Height;
+        set
+        {
+            WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize = new Size(WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Width, value);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferDieScribeSizeWidth
+    {
+        get => WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Width;
+        set
+        {
+            WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize = new Size(value, WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Height);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferDieScribeSizeHeight
+    {
+        get => WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Height;
+        set
+        {
+            WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize = new Size(WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Width, value);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferReticleDiePitchSizeWidth
+    {
+        get => WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Width;
+        set
+        {
+            WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize = new Size(value, WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Height);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferReticlePitchDieSizeHeight
+    {
+        get => WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Height;
+        set
+        {
+            WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize = new Size(WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Width, value);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferReticleDieScribeSizeWidth
+    {
+        get => WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Width;
+        set
+        {
+            WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize = new Size(value, WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Height);
+            OnPropertyChanged();
+        }
+    }
+
+    public double WaferReticleDieScribeSizeHeight
+    {
+        get => WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Height;
+        set
+        {
+            WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize = new Size(WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Width, value);
+            OnPropertyChanged();
+        }
+    }
+
+    public int WaferReticleDieCountX
+    {
+        get => WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount.XCount;
+        set
+        {
+            WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount with { XCount = value };
+            OnPropertyChanged();
+        }
+    }
+
+    public int WaferReticleDieCountY
+    {
+        get => WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount.YCount;
+        set
+        {
+            WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount with { YCount = value };
+            OnPropertyChanged();
+        }
+    }
+
+    #endregion
 
     #region 业务
 
@@ -142,6 +272,17 @@ public sealed partial class RecipeSettingViewModel(
 
         // todo:判断校准状态都为ok时才可以编辑
         IsEditWaferMapEnable = CalibrationRecipeDto.WaferDto.RequireActionIsOk();
+        WaferMapCanvasViewModel.Document.Settings.IsCanToggleAxes = true;
+        WaferMapCanvasViewModel.Document.Settings.IsCanToggleCursor = true;
+        WaferMapCanvasViewModel.Document.Settings.IsCanToggleGrid = true;
+        if (WaferMapCanvasViewModel.IsToggleSelection == true)
+        {
+            CalibrationRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
+            RefreshToken();
+            Task.Run(() => SelectionDiesAsync(_cancellationTokenSource.Token));
+        }
+        WaferMapCanvasViewModel.Document = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument;
+        NotifyWaferMapSetting();
     }
 
     [RelayCommand]
@@ -149,6 +290,7 @@ public sealed partial class RecipeSettingViewModel(
     {
         try
         {
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocumentToWaferMapData();
             // 配方命名不能为空
             var recipeInfo = CalibrationRecipeDto.CalibrationRecipeInfoDto;
             if (recipeInfo.RecipeName == string.Empty)
@@ -216,16 +358,57 @@ public sealed partial class RecipeSettingViewModel(
     {
         CloseView(null);
         messenger.Send(ToggleRecipeEventFactory.RefreshRecipeManagementView(true));
+        CancelToken();
+    }
+
+    private void CancelToken()
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = null;
+    }
+
+    [MemberNotNull(nameof(_cancellationTokenSource))]
+    private void RefreshToken()
+    {
+        CancelToken();
+
+        _cancellationTokenSource = new CancellationTokenSource();
     }
 
     #endregion 业务
 
     #region wafer Map
 
-    [RelayCommand]
-    private Task RefreshWaferMapAsync(object? name)
+    private async Task SelectionDiesAsync(CancellationToken token)
     {
-        return Task.Run(() =>
+        WaferMapCanvasViewModel.IsToggleSelection = false;
+
+        WaferMapDieSelectionInputOptions.IsMultipleSelection = false;
+        WaferMapDieSelectionInputOptions.CancellationToken = token;
+        WaferMapDieSelectionInputOptions.Initialize();
+
+        while (token.IsCancellationRequested == false)
+        {
+            var inputResult = await WaferMapDieSelectionGetter
+                .RunAsync<WaferMapDieSelectionGetter>(WaferMapCanvasViewModel.Document.Editor, WaferMapDieSelectionInputOptions);
+            if (inputResult.Output.Count > 1) continue;
+            if (inputResult.InputResultModeEnum == InputResultModeEnum.Ok)
+            {
+                foreach (var waferMapDie in inputResult.Output)
+                {
+                    waferMapDie.IsSelected = true;
+                }
+            }
+            _selectionDies = inputResult.Output;
+        }
+        WaferMapCanvasViewModel.IsToggleSelection = true;
+    }
+
+    [RelayCommand]
+    private async Task RefreshWaferMapAsync(object? name)
+    {
+        await Task.Run(() =>
         {
             if (name is null) return;
             IsReticleMode = name.ToString() == "Reticle";
@@ -246,12 +429,9 @@ public sealed partial class RecipeSettingViewModel(
         try
         {
             var originDieBrightPosition = StageViewModel.GetBrightFieldStagePosition();
-
-            CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapInitialization(originDieBrightPosition - CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value);
-            CalibrationRecipeDto.WaferDto.WaferMapDto.GenerateMapByOriginDie();
-
-            if (SelectRecipeDtoBackup!.WaferDto.WaferMapDto.WaferMapData.Equals(CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData) == false)
-                dialogWindowProvider.ShowDialog("Wafer map data changed! Please re-obtain the reticle cell position of the mask", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            var originDieWaferPosition = originDieBrightPosition - (Vector)CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
+            WaferMapCanvasViewModel.Document.DieBuilder.OriginalDiePoint = originDieWaferPosition;
+            WaferMapCanvasViewModel.Document.ReticleBuilder.OriginalDiePoint = originDieWaferPosition;
 
             NotifyWaferMapView();
             return true;
@@ -265,7 +445,24 @@ public sealed partial class RecipeSettingViewModel(
 
     private void NotifyWaferMapView()
     {
-        OnPropertyChanged(nameof(CalibrationRecipeDto));
+        WaferMapCanvasViewModel.Document.OverlayCrossLine.Point = WaferMapCanvasViewModel.Document.DieBuilder.OriginalDiePoint;
+        WaferMapCanvasViewModel.Document.OverlayCrossLine.IsVisible = true;
+        OnPropertyChanged(nameof(WaferMapCanvasViewModel));
+    }
+
+    private void NotifyWaferMapSetting()
+    {
+        OnPropertyChanged(nameof(WaferRadius));
+        OnPropertyChanged(nameof(WaferDiePitchSizeWidth));
+        OnPropertyChanged(nameof(WaferDiePitchSizeHeight));
+        OnPropertyChanged(nameof(WaferDieScribeSizeWidth));
+        OnPropertyChanged(nameof(WaferDieScribeSizeHeight));
+        OnPropertyChanged(nameof(WaferReticleDiePitchSizeWidth));
+        OnPropertyChanged(nameof(WaferReticlePitchDieSizeHeight));
+        OnPropertyChanged(nameof(WaferReticleDieScribeSizeWidth));
+        OnPropertyChanged(nameof(WaferReticleDieScribeSizeHeight));
+        OnPropertyChanged(nameof(WaferReticleDieCountX));
+        OnPropertyChanged(nameof(WaferReticleDieCountY));
     }
 
     #endregion wafer Map
@@ -340,6 +537,7 @@ public sealed partial class RecipeSettingViewModel(
 
     #region Template Command
 
+    // todo:增加die模式
     [RelayCommand]
     private void GetMaskReticlePosition(object? obj)
     {
@@ -348,20 +546,22 @@ public sealed partial class RecipeSettingViewModel(
             if (obj is null)
                 return;
             var (maskDto, _) = GetSelectReticleMaskListInfo(obj.ToString());
-            var waferMapData = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData;
+            var waferBuilder = WaferMapCanvasViewModel.Document.WaferBuilder;
+            var reticleBuilder = WaferMapCanvasViewModel.Document.ReticleBuilder;
             var brightPosition = StageViewModel.GetBrightFieldStagePosition();
-            if (brightPosition.DistanceToZero() >= waferMapData.WaferDiameter / 2)
+            if (brightPosition.ToOriginLength >= waferBuilder.Circle.Radius)
             {
                 dialogWindowProvider.ShowDialog("The position out of the wafer range!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
             }
 
-            var waferPosition = brightPosition - CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
+            var waferPosition = brightPosition - (Vector)CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
 
-            var reticleHeight = waferMapData.ReticleHeight;
+            var DiePitchHeight = reticleBuilder.DiePitchSize.Height;
+            var scribeSize = reticleBuilder.DieScribeSize;
 
             var relativeReticleOriginPosition = waferPosition
-                                                - (CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto.WaferPosition - new Point(0, reticleHeight));
+                                                - (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, DiePitchHeight + scribeSize.Height));
 
             maskDto.MaskWaferCellPosition = relativeReticleOriginPosition;
             RefreshReticleMaskView();
@@ -372,7 +572,7 @@ public sealed partial class RecipeSettingViewModel(
             logger.LogError(ex, "Get Mask Reticle Position Failed!");
         }
     }
-
+    // todo:增加die模式
     [RelayCommand]
     private void GotoMaskReticlePosition(object? obj)
     {
@@ -383,12 +583,16 @@ public sealed partial class RecipeSettingViewModel(
             var (maskDto, _) = GetSelectReticleMaskListInfo(obj.ToString());
             microscopeViewModel.SwitchMagnification(maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum);
 
-            var reticleHeight = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData.ReticleHeight;
+            var waferBuilder = WaferMapCanvasViewModel.Document.WaferBuilder;
+            var reticleBuilder = WaferMapCanvasViewModel.Document.ReticleBuilder;
+
+            var diePitchHeight = reticleBuilder.DiePitchSize.Height;
+            var scribeSize = reticleBuilder.DieScribeSize;
 
             var maskWaferPosition = maskDto.MaskWaferCellPosition +
-                                    (CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto.WaferPosition - new Point(0, reticleHeight));
+                                    (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, diePitchHeight + scribeSize.Height));
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(maskWaferPosition + CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(maskWaferPosition + (Vector)CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value);
         }
         catch (Exception ex)
         {
@@ -623,7 +827,7 @@ public sealed partial class RecipeSettingViewModel(
     private void Debug()
     {
         var waferCenterBrightFieldPosition = CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
-        var originReticleWaferPosition = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto.WaferPosition;
+        var originReticleWaferPosition = WaferMapCanvasViewModel.Document.ReticleBuilder.OriginalDiePoint;
         // 对准缓存
         var alignmentCacheBrightField = recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
@@ -645,30 +849,32 @@ public sealed partial class RecipeSettingViewModel(
         // 重新对准后的originDie Corner位置
         StageViewModel.SetBrightFieldAbsoluteStageXy(originReticleWaferPosition);
         var ideaOriginReticleBrightPosition = originReticleWaferPosition
-                                              + waferCenterBrightFieldPosition
-                                              + offsetPosition;
+                                              + (Vector)waferCenterBrightFieldPosition
+                                              + (Vector)offsetPosition;
         StageViewModel.SetBrightFieldAbsoluteStageXy(ideaOriginReticleBrightPosition);
 
         // 重新对准后的指定索引Reticle Die Corner位置
-        var ideaReticleDieCornerWaferPosition = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[4][4];
-        var realReticleDieCornerBrightFieldPosition = ideaReticleDieCornerWaferPosition.WaferPosition
-                                                      + waferCenterBrightFieldPosition
-                                                      + offsetPosition;
+        var ideaReticleDieCornerWaferPosition = WaferMapCanvasViewModel.Document.ReticleModel.Single(t => t.Index.X == 4 && t.Index.Y == 4);
+        var realReticleDieCornerBrightFieldPosition = ideaReticleDieCornerWaferPosition.Rect.Point
+                                                      + (Vector)waferCenterBrightFieldPosition
+                                                      + (Vector)offsetPosition;
         StageViewModel.SetBrightFieldAbsoluteStageXy(realReticleDieCornerBrightFieldPosition);
 
         // 重新对准后基于OriginDieCorner为基准的ReticleMask位置
-        var reticleHeight = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData.ReticleHeight;
+        var reticleBuilder = WaferMapCanvasViewModel.Document.ReticleBuilder;
+
+        var reticleHeight = reticleBuilder.DiePitchSize.Height;
         var ideaReticleMaskPosition = SelectReticleMarkItem!.MaskWaferCellPosition;
-        var realReticleMaskBrightFieldPosition = ideaReticleMaskPosition + offsetPosition
-                                                                         + waferCenterBrightFieldPosition
+        var realReticleMaskBrightFieldPosition = ideaReticleMaskPosition + (Vector)offsetPosition
+                                                                         + (Vector)waferCenterBrightFieldPosition
                                                                          + (originReticleWaferPosition - new Point(0, reticleHeight));
         microscopeViewModel.SwitchMagnification(SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum);
         StageViewModel.SetBrightFieldAbsoluteStageXy(realReticleMaskBrightFieldPosition);
 
         // 重新对准后基于指定索引的ReticleDieCorner为基准的Mask位置
         var maskWaferPosition = ideaReticleMaskPosition +
-                                (ideaReticleDieCornerWaferPosition.WaferPosition - new Point(0, reticleHeight));
-        var realMaskBrightFieldPosition = maskWaferPosition + offsetPosition + waferCenterBrightFieldPosition;
+                                (ideaReticleDieCornerWaferPosition.Rect.Point - new Point(0, reticleHeight));
+        var realMaskBrightFieldPosition = maskWaferPosition + (Vector)offsetPosition + (Vector)waferCenterBrightFieldPosition;
         StageViewModel.SetBrightFieldAbsoluteStageXy(realMaskBrightFieldPosition);
     }
 
@@ -682,24 +888,25 @@ public sealed partial class RecipeSettingViewModel(
         microscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum.Magnification50X);
 
         // 重新对准后的originDie Corner位置
-        var originDieDto = reviseRecipeDto!.WaferDto.WaferMapDto.OriginDieDto;
-        StageViewModel.SetBrightFieldAbsoluteStageXy(originDieDto.WaferPosition);
+        var originDieDto = reviseRecipeDto!.WaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint;
+        StageViewModel.SetBrightFieldAbsoluteStageXy(originDieDto);
 
         // 重新对准后的reticleDie corner位置
-        var originReticleDto = reviseRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
-        StageViewModel.SetBrightFieldAbsoluteStageXy(originReticleDto.WaferPosition);
+        var originReticleDto = reviseRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint;
+        StageViewModel.SetBrightFieldAbsoluteStageXy(originReticleDto);
 
         // 重新对准后的指定索引Die Corner位置
-        var diePitchDto = reviseRecipeDto.WaferDto.WaferMapDto.WaferMapDieDtoItemList[12][44];
-        StageViewModel.SetBrightFieldAbsoluteStageXy(diePitchDto.WaferPosition);
+        var diePitchDto = reviseRecipeDto.WaferDto.WaferMapCanvasDocument.DieModel.Single(t => t.Index.X == 12 && t.Index.Y == 4);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(diePitchDto.Rect.Point);
 
         // 重新对准后的指定索引Reticle Die Corner位置
-        var reticleDto = reviseRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[10][4];
-        StageViewModel.SetBrightFieldAbsoluteStageXy(reticleDto.WaferPosition);
+        var reticleDto = reviseRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index.X == 10 && t.Index.Y == 4);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(reticleDto.Rect.Point);
 
         // 重新对准后基于OriginDieCorner为基准的ReticleMask位置
+        var originDie = reviseRecipeDto.WaferDto.WaferMapCanvasDocument.DieModel.Single(t => t.Index.X == 0 && t.Index.Y == 0);
         calibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectReticleMarkItem!.ReticleMaskTypeEnum, SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum, null, out var maskDto);
-        calibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticleDto, maskDto, out var originReticleMaskBrightFieldPosition);
+        calibrationRecipeService.GetDieMaskBrightFieldPosition(originDie, maskDto, out var originReticleMaskBrightFieldPosition);
 
         microscopeViewModel.SwitchMagnification(SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum);
         StageViewModel.SetBrightFieldAbsoluteStageXy(originReticleMaskBrightFieldPosition);

@@ -12,9 +12,9 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
@@ -254,7 +254,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
             if (isContainsEnd)
             {
                 logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(
-                    $"AutoGain_Coefficient({coefficient})_Mag({EnumHelper.ToDescriptionString(opticsMagTypeEnum)})_Position({position.ToShortString()})_CalChip({EnumHelper.ToDescriptionString(calChipSiteModelEnum)})_{(isSuccess ? "OK" : "Failed")}"));
+                    $"AutoGain_Coefficient({coefficient})_Mag({EnumHelper.ToDescriptionString(opticsMagTypeEnum)})_Position({position})_CalChip({EnumHelper.ToDescriptionString(calChipSiteModelEnum)})_{(isSuccess ? "OK" : "Failed")}"));
             }
         }
     }

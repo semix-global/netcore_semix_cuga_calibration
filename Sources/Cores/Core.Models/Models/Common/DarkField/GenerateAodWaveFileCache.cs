@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Enums.Maths;
+using Net.Utilities.Models.Enums.Maths;
 
 namespace Core.Models.Models.Common.DarkField;
 
@@ -17,7 +17,7 @@ public sealed partial class GenerateAodWaveFileCache : ObservableCacheBase
     /// 频率单调性
     /// </summary>
     [ObservableProperty]
-    private MonotonicTypeEnum _monotonicTypeEnum;
+    private FunctionMonotonicTypeEnum _monotonicTypeEnum;
 
     #region ChirpAodParam
 

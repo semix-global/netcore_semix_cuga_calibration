@@ -58,7 +58,7 @@ public sealed partial class MapView
                 {
                     if (lastText is null) return;
 
-                    viewModel.StageViewModel.SetBrightFieldAbsoluteStageXy(new Net.Utilities.Models.Point(lastText.Location.X, lastText.Location.Y));
+                    viewModel.StageViewModel.SetBrightFieldAbsoluteStageXy(new Net.Utilities.Models.Geometries.Point(lastText.Location.X, lastText.Location.Y));
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)

@@ -1,24 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net480;net8.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Implements\LiteDatabaseProviderImpl.cs~RF65f04c5.TMP" />
-      <None Remove="LiteDbContextProvider.cs~RF25441cdc.TMP" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="Net.Utilities.IOC" />
+        <PackageReference Include="Yitter.IdGenerator" />
         <PackageReference Include="LiteDB" />
         <PackageReference Include="SourceGenerator.InjectHostDI">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\Utilities\Net.Utilities\Net.Utilities.csproj" />
     </ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.XTCCalibration;
 

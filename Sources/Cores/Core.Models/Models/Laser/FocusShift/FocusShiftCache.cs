@@ -3,7 +3,7 @@ using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Setting;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.FocusShift;
 

@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
@@ -29,84 +29,84 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinDsw: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinDsw: ")]
     public double FindFocusMinDsw
     {
         get => _findFocusMinDsw;
         set => SetProperty(ref _findFocusMinDsw, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinUndefined: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinUndefined: ")]
     public double FindFocusMinUndefined
     {
         get => _findFocusMinUndefined;
         set => SetProperty(ref _findFocusMinUndefined, value);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinHaze: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinHaze: ")]
     public double FindFocusMinHaze
     {
         get => _findFocusMinHaze;
         set => SetProperty(ref _findFocusMinHaze, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinShinyWafer: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinShinyWafer: ")]
     public double FindFocusMinShinyWafer
     {
         get => _findFocusMinShinyWafer;
         set => SetProperty(ref _findFocusMinShinyWafer, value);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxDsw: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxDsw: ")]
     public double FindFocusMaxDsw
     {
         get => _findFocusMaxDsw;
         set => SetProperty(ref _findFocusMaxDsw, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxUndefined: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxUndefined: ")]
     public double FindFocusMaxUndefined
     {
         get => _findFocusMaxUndefined;
         set => SetProperty(ref _findFocusMaxUndefined, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxHaze: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxHaze: ")]
     public double FindFocusMaxHaze
     {
         get => _findFocusMaxHaze;
         set => SetProperty(ref _findFocusMaxHaze, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxShinyWafer: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxShinyWafer: ")]
     public double FindFocusMaxShinyWafer
     {
         get => _findFocusMaxShinyWafer;
         set => SetProperty(ref _findFocusMaxShinyWafer, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalDsw: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalDsw: ")]
     public double FindFocusIntervalDsw
     {
         get => _findFocusIntervalDsw;
         set => SetProperty(ref _findFocusIntervalDsw, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalUndefined: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalUndefined: ")]
     public double FindFocusIntervalUndefined
     {
         get => _findFocusIntervalUndefined;
         set => SetProperty(ref _findFocusIntervalUndefined, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalHaze: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalHaze: ")]
     public double FindFocusIntervalHaze
     {
         get => _findFocusIntervalHaze;
         set => SetProperty(ref _findFocusIntervalHaze, value, validate: true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalShinyWafer: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalShinyWafer: ")]
     public double FindFocusIntervalShinyWafer
     {
         get => _findFocusIntervalShinyWafer;
@@ -119,7 +119,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [ObservableProperty]
     private string _verifyResultError = string.Empty;
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Threshold: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Threshold: ")]
     public double Threshold
     {
         get => _threshold;

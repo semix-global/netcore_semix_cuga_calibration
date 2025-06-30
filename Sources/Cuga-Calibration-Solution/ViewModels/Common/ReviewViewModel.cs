@@ -13,12 +13,12 @@ using Core.Services.Interfaces;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -130,7 +130,7 @@ public sealed partial class ReviewViewModel(
     public bool TryGenerateTemplate(HObject image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect)
     {
         var size = HalconHelper.GetSize(image);
-        if (new Rect(Point.Empty, size).Contains(rect) == false)
+        if (new Rect(Point.Origin, size).Contains(rect) == false)
         {
             logger.LogError("{@Name}: Out of Image Area", nameof(ReviewViewModel));
             return false;
@@ -195,7 +195,7 @@ public sealed partial class ReviewViewModel(
         out string originImageFilePath,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
-        resultPosition = Point.Empty;
+        resultPosition = Point.Origin;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
@@ -241,7 +241,7 @@ public sealed partial class ReviewViewModel(
                     logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         MicroscopeMagnification = microscopeMagnificationEnum,
-                        OriginPosition = position.ToShortString(),
+                        OriginPosition = position,
                         Score = resultScore,
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
                         HtmlTab = new HtmlTab(new
@@ -262,10 +262,10 @@ public sealed partial class ReviewViewModel(
 
             if (saveResultImageFileDirectory is not null)
             {
-                originImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(ConstantHelper.LongFileDateTimeFormat)}.jpg";
+                originImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
                 HalconHelper.Save(image, originImageFilePath);
 
-                resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(ConstantHelper.LongFileDateTimeFormat)}.jpg";
+                resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
                 SaveCurrentBrightFieldImage(resultImageFilePath);
             }
 
@@ -275,10 +275,10 @@ public sealed partial class ReviewViewModel(
                 logger.LogHtmlInformation($"Match Template {logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     MicroscopeMagnification = microscopeMagnificationEnum,
-                    OriginPosition = position.ToShortString(),
-                    ResultPosition = resultPosition.ToShortString(),
-                    ResultOffset = actualOffset.ToShortString(),
-                    ResultPoint = resultPoint.ToShortString(),
+                    OriginPosition = position,
+                    ResultPosition = resultPosition,
+                    ResultOffset = actualOffset,
+                    ResultPoint = resultPoint,
                     ResultScore = resultScore,
                     ResultAngle = resultAngle,
                     HtmlTab = new HtmlTab(new
@@ -427,7 +427,7 @@ public sealed partial class ReviewViewModel(
                 return;
             }
 
-            var tmp = new Point(point.Value);
+            var tmp = new Point(point.Value.X, point.Value.Y);
             var pointEnd = new Point(tmp.X * microscopePixelSizeItemDto.PixelSize.Width, tmp.Y * microscopePixelSizeItemDto.PixelSize.Height);
             stageViewModel.MoveRelativeStageXy(pointEnd);
 

@@ -1,5 +1,5 @@
 using CugaCalibration.ViewModels.Ads;
-using Net.Utilities.Extensions;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.WPF.Behaviors;
 using System.ComponentModel;
 using System.Windows;

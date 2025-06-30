@@ -6,7 +6,7 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:constants="clr-namespace:Net.Utilities.Constants;assembly=Net.Utilities"
+             xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -48,10 +48,10 @@
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.True}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.False}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -65,10 +65,10 @@
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.True}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.False}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -82,10 +82,10 @@
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.True}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.False}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -99,10 +99,10 @@
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.True}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.False}">
+                                    <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -121,10 +121,10 @@
                             <view:CanvasView.Style>
                                 <Style TargetType="view:CanvasView">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.True}">
+                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                             <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheDarkField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.False}">
+                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
                                             <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -142,10 +142,10 @@
                             <view:CanvasView.Style>
                                 <Style TargetType="view:CanvasView">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.True}">
+                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                             <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheDarkField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:ConstantHelper.False}">
+                                        <DataTrigger Binding="{Binding IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
                                             <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                                         </DataTrigger>
                                     </Style.Triggers>

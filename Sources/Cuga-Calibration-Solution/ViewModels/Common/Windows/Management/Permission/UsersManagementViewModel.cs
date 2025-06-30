@@ -1,14 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Utilities;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.IOC.Providers;
-using Net.Utilities.Helper.Object.String;
+using Net.Utilities.Helpers;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
@@ -75,7 +75,7 @@ public sealed partial class UsersManagementViewModel(
     {
         OperateSysUserDto!.SysRoleList = [.. RoleAllocationList.Where(t => t.IsSelected).Select(t => t.RoleDto)]; //角色分配
         OperateSysUserDto!.DeptId = SelectSysDeptDto!.Id;
-        if (OperateCommandIndex == 2) OperateSysUserDto.Password = MD5Encrypt.Encrypt32(OperateSysUserDto.Password?.ToString() ?? "666666");
+        if (OperateCommandIndex == 2) OperateSysUserDto.Password = EncryptUtils.Encrypt32(OperateSysUserDto.Password?.ToString() ?? "666666");
         return await sysUserService.InsertAsync(OperateSysUserDto).ConfigureAwait(false);
     }
 
@@ -88,7 +88,7 @@ public sealed partial class UsersManagementViewModel(
     {
         var selectDto = OperateSysUserDto!.Clone();
         selectDto.DeptId = SelectSysDeptDto is null
-            ? ConstantHelper.NegValue
+            ? Constants.NegInt32Value
             : SelectSysDeptDto!.Id;
         var result = await sysUserService.GetByConditionAsync(selectDto).ConfigureAwait(false);
         SynchronizationContextProvider.Send(() =>

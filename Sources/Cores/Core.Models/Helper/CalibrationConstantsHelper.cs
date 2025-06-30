@@ -1,8 +1,8 @@
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Geometries;
 using System.Collections.Frozen;
 
 namespace Core.Models.Helper;

@@ -4,13 +4,13 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -59,7 +59,7 @@ public sealed partial class SplitImageWindowViewModel(
         await Task.Run(() =>
         {
             var guid = Guid.NewGuid();
-            var detectImageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", nameof(SplitImageWindowViewModel), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+            var detectImageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", nameof(SplitImageWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
             try
             {
                 using var templateId = HalconHelper.ReadNccTemplate(TemplateFilePath);
@@ -79,7 +79,8 @@ public sealed partial class SplitImageWindowViewModel(
                 }), guid.LoggingHtml());
 
                 var calUmPerPixelRawBytes = File.ReadAllBytes(CalUmPerPixelRawImageFilePath);
-                var ((_, calUmPerPixelHeightPixel), calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = calibrationAlgorithmService.GetSize(calUmPerPixelRawBytes);
+                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = calibrationAlgorithmService.GetSize(calUmPerPixelRawBytes);
+                var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
 
                 var calUmPerPixelDieWidthPixel = DieWidthUm / IdealUmPerPixel;
                 var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
@@ -170,7 +171,9 @@ public sealed partial class SplitImageWindowViewModel(
                 }), guid.LoggingHtml());
 
                 var rawBytes = File.ReadAllBytes(SplitRawImageFilePath);
-                var ((_, heightPixel), bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
+                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
+                var (_, heightPixel) = bodyBytesSize.DeconstructToInt32();
+
                 ReadOnlySpan<byte> span = rawBytes.AsSpan().Slice(bodyBytesStartIndex, bodyBytesLength);
 
                 var dieWidthPixel = DieWidthUm / RealUmPerPixel;
@@ -214,7 +217,7 @@ public sealed partial class SplitImageWindowViewModel(
                     HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
                     var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
                     matchPoint.Add(point);
-                    matchOffsetPoint.Add(new Point(result.X, result.Y) - size / 2);
+                    matchOffsetPoint.Add(new Point(result.X, result.Y) - (Vector)size / 2);
                     logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
                         score,

@@ -149,7 +149,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="CurrentA: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -158,7 +158,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="NA: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -167,7 +167,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="FA: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -176,7 +176,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="CurrentB: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -185,7 +185,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="NB: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -194,7 +194,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="FB: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -203,7 +203,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="Nsc Max: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -212,7 +212,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="Nsc Min: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -221,7 +221,7 @@
                                      Height="25"
                                      hc:InfoElement.Title="Nsc Offset: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
@@ -230,7 +230,16 @@
                                      Height="25"
                                      hc:InfoElement.Title="Nsc Gain: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="100"
+                                     hc:TitleElement.TitleWidth="150"
+                                     IsReadOnly="True"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ReviewDto.NscGainReciprocal, Mode=OneWay, StringFormat={}{0:f3}}"
+                                     Width="275"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Gain Reciprocal: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="150"
                                      IsReadOnly="True"
                                      Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />

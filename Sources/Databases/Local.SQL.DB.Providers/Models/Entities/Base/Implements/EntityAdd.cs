@@ -1,7 +1,7 @@
-﻿using FreeSql.DataAnnotations;
+using FreeSql.DataAnnotations;
 using Local.SQL.DB.Providers.Models.Attributes;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
-using Net.Utilities.Helper.Json;
+using Net.Utilities.Helpers;
 using Newtonsoft.Json;
 using System.ComponentModel;
 
@@ -15,7 +15,7 @@ public class EntityAdd : Entity, IEntityAdd
     [Description("创建者用户Id")]
     [Column(Position = -7002, CanUpdate = false)]
     [JsonProperty(Order = 7000)]
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
     public virtual long CreatedUserId { get; set; }
 
     /// <summary>
@@ -33,6 +33,6 @@ public class EntityAdd : Entity, IEntityAdd
     [Column(Position = -7000, CanUpdate = false)]
     [ServerTime]
     [JsonProperty(Order = 7002)]
-    [JsonConverter(typeof(JsonConverterUtil.DateTimeJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.DateTimeJsonConverter))]
     public virtual DateTime CreatedTime { get; set; } = DateTime.Now;
 }

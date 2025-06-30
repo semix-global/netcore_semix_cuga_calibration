@@ -2,8 +2,8 @@ using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Repositories.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 
 namespace Local.SQL.DB.Providers.Services.Implements;
 
@@ -110,7 +110,7 @@ public sealed class SysDeptServiceImpl(ISysDeptRepository sysDeptRepository) : I
         var returnList = new List<SysDeptDto>();
         if (depts.Count == 0)
             return returnList;
-        foreach (var dept in depts.Where(dept => dept.ParentId == ConstantHelper.NegValue))
+        foreach (var dept in depts.Where(dept => dept.ParentId == Constants.NegInt32Value))
         {
             dept.Depth = 0;
             RecursionFn(depts, dept);

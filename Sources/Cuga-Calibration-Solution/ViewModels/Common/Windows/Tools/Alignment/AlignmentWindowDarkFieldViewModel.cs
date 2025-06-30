@@ -10,8 +10,8 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
-using Net.Utilities.Models;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -145,7 +145,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 _contextProvider.Send(() => StepIndex = 0);
                 StepList.ForEach(x => x.StepIsNextEnable = x.DefaultIsNextEnable);
 
-                Cache.LowSite1.Location = Cache.LowSite2.Location = Cache.HighSite1.Location = Cache.HighSite2.Location = Point.Empty;
+                Cache.LowSite1.Location = Cache.LowSite2.Location = Cache.HighSite1.Location = Cache.HighSite2.Location = Point.Origin;
                 Cache.LowSite1.Template = Cache.LowSite2.Template = Cache.HighSite1.Template = Cache.HighSite2.Template = null;
                 Advanced();
 
@@ -159,7 +159,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 #pragma warning restore IDE0079
 
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 MicroscopeViewModel.SwitchMagnification(Cache.LowMag);
                 StageViewModel.SetAbsoluteStageTheta(0);
             }

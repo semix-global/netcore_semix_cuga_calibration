@@ -13,8 +13,8 @@ using Core.Models.Models.Microscope.Focus;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -288,7 +288,7 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsMagTypeEnum,
-                FindPosition = Cache.FindPosition.ToShortString(),
+                Cache.FindPosition,
                 RoughAodDelayMin = roughAodDelayMin,
                 RoughAodDelayMax = roughAodDelayMax,
                 RoughFindInterval = roughFindInterval,

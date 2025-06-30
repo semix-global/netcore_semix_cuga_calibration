@@ -8,10 +8,10 @@ using Core.Models.Enums.Microscope;
 using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Common.Recipe;
-using Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
@@ -22,11 +22,10 @@ using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Constants;
-using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -123,13 +122,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// </summary>
     /// 
     [ObservableProperty]
-    public ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = new();
+    public ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
 
     #endregion 重载只读属性
 
     public CalibrationRecipeDto? CalibrationRecipeDto => ApplicationCookie.CalibrationReviseRecipeDto;
-
-    public WaferMapDieItemDto? OriginReticleDieDto;
 
     /// <summary>
     /// 校准名称
@@ -142,17 +139,17 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// <summary>
     /// 日志图片存储位置
     /// </summary>
-    public string ImageFileDirectory => Path.Combine(AppHomeDirectory, "Images", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+    public string ImageFileDirectory => Path.Combine(AppHomeDirectory, "Images", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     /// <summary>
     /// 模板存储位置
     /// </summary>m
-    public string TemplateFileDirectory => Path.Combine(AppHomeDirectory, "Template", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+    public string TemplateFileDirectory => Path.Combine(AppHomeDirectory, "Template", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     /// <summary>
     /// Csv文件存储位置
     /// </summary>
-    public string CsvFileDirectory => Path.Combine(AppHomeDirectory, "Csv", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+    public string CsvFileDirectory => Path.Combine(AppHomeDirectory, "Csv", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     /// <summary>
     /// 校准文件名称
@@ -608,7 +605,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out _))
                 MicroscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum.Magnification5X);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             return true;
         });
     }

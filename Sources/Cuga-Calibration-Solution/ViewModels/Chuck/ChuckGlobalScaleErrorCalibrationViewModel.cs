@@ -18,8 +18,8 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -450,7 +450,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         await InvokeCalibrateAsync(() =>
         {
             var baseBrightFieldPosition = Cache.BaseFindResultPosition;
-            if (baseBrightFieldPosition.DistanceToZero() >= Cache.WaferDiameter / 2)
+            if (baseBrightFieldPosition.ToOriginLength >= Cache.WaferDiameter / 2)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Base Position is Out of Wafer!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -562,7 +562,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 var calibrationItem = times == 1 ? new ChuckGlobalScaleErrorDto() : GlobalScaleErrorDtoItemDtoList.Last().Clone();
                 calibrationItem.ScaleX = 1.0;
                 calibrationItem.ScaleY = 1.0;
-                calibrationItem.ScaleErrorValue = Point.Empty;
+                calibrationItem.ScaleErrorValue = Point.Origin;
                 SynchronizationContextProvider.Send(() => GlobalScaleErrorDtoItemDtoList.Add(calibrationItem));
                 SelectGlobalScaleErrorDto = calibrationItem;
                 var (isSuccess, globalScaleErrorItemDto) = GetResult(idealPositionDictionary, calibrationItem, cancellationToken);
@@ -596,8 +596,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
             var resultItemDto = GlobalScaleErrorDtoItemDtoList.Last();
             var resultList = GlobalScaleErrorDtoItemDtoList.Select(t => t)
-                .Where(t => t != GlobalScaleErrorDtoItemDtoList.Minima(t => t.ScaleErrorValue.DistanceToZero()).First()
-                            && t != GlobalScaleErrorDtoItemDtoList.Maxima(t => t.ScaleErrorValue.DistanceToZero()).First())
+                .Where(t => t != GlobalScaleErrorDtoItemDtoList.Minima(t => t.ScaleErrorValue.ToOriginLength).First()
+                            && t != GlobalScaleErrorDtoItemDtoList.Maxima(t => t.ScaleErrorValue.ToOriginLength).First())
                 .ToList();
 
             resultItemDto.ScaleX = resultList.Average(t => t.ScaleX);
@@ -815,11 +815,11 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             };
 
             var isFastMatch = true;
-            var lowResultPosition = Point.Empty;
+            var lowResultPosition = Point.Origin;
             var lowResultImageFilePath = string.Empty;
-            if (highSitePosition == Point.Empty) // 快速匹配，避免来回切倍镜
+            if (highSitePosition == Point.Origin) // 快速匹配，避免来回切倍镜
             {
-                if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, ideaPosition - Cache.LowToHighMagnificationOffset, Cache.LowMicroscopeMagnificationEnum, Cache.LowTemplateFilePath, ImageFileDirectory,
+                if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, ideaPosition - (Vector)Cache.LowToHighMagnificationOffset, Cache.LowMicroscopeMagnificationEnum, Cache.LowTemplateFilePath, ImageFileDirectory,
                         null, Name,
                         $"Low Magnification {stageDirection} Site", out lowResultPosition, out _, out _, out lowResultImageFilePath, out _) == false)
                 {
@@ -827,7 +827,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
                 }
 
-                highSitePosition = lowResultPosition + Cache.LowToHighMagnificationOffset;
+                highSitePosition = lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset;
                 isFastMatch = false;
             }
 
@@ -1018,15 +1018,24 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             return false;
         }
 
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
-        var waferMapData = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData;
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
+        var reticleRows = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
+            .Where(t => t.Index.X == 0)
+            .OrderBy(t => t.Index.Y).ToList();
+        var reticleCols = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
+            .Where(t => t.Index.Y == 0)
+            .OrderBy(t => t.Index.X).ToList();
+        var reticleTop = reticleRows.ElementAt(reticleRows.Count - 2);
+        var reticleRight = reticleCols.ElementAt(reticleRows.Count - 1);
+        var reticleBottom = reticleRows.ElementAt(1);
+        var reticleLeft = reticleCols.ElementAt(1);
 
         switch (stepName)
         {
             case "0":
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.LowMicroscopeMagnificationEnum, null, out var lowMaskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, lowMaskInfo, out var lowPosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, lowMaskInfo, out var lowPosition);
 
                 Cache.BaseLowSiteFindPosition = lowPosition;
                 Cache.LowTemplateFilePath = lowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
@@ -1037,7 +1046,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             case "1":
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMicroscopeMagnificationEnum, null, out var highMaskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, highMaskInfo, out var highPosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, highMaskInfo, out var highPosition);
                 Cache.BaseHighSiteFindPosition = highPosition;
                 Cache.HighTemplateFilePath = highMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.HighTemplateImageFilePath = highMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1047,26 +1056,22 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMicroscopeMagnificationEnum, null, out var baseHighMaskInfo) == false)
                     return false;
 
-                var topReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex + (waferMapData.CellDiePicthRowNumber / 2 - 1)][OriginReticleDieDto.ColumnIndex];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(topReticleDieDto, baseHighMaskInfo, out var topHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseHighMaskInfo, out var topHighSitePosition);
                 Cache.TopSideIdeaPosition = topHighSitePosition;
 
-                var bottomReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex - (waferMapData.CellDiePicthRowNumber / 2 - 2)][OriginReticleDieDto.ColumnIndex];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(bottomReticleDieDto, baseHighMaskInfo, out var bottomHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseHighMaskInfo, out var bottomHighSitePosition);
                 Cache.BottomSideIdeaPosition = bottomHighSitePosition;
 
-                var leftReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex - (waferMapData.CellDiePitchColumnNumber / 2 - 1 - 2)];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(leftReticleDieDto, baseHighMaskInfo, out var leftHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, baseHighMaskInfo, out var leftHighSitePosition);
                 Cache.LeftSideIdeaPosition = leftHighSitePosition;
 
-                var rightReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex + (waferMapData.CellDiePitchColumnNumber / 2 - 1 - 2)];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(rightReticleDieDto, baseHighMaskInfo, out var rightHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, baseHighMaskInfo, out var rightHighSitePosition);
                 Cache.RightSideIdeaPosition = rightHighSitePosition;
 
-                var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData;
-                Cache.RowCellHeight = waferMapDataInfo.CellDieHeight;
-                Cache.ColumnCellWidth = waferMapDataInfo.CellDieWidth;
-                Cache.WaferDiameter = waferMapDataInfo.WaferDiameter;
+                var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.DieBuilder.DiePitchSize;
+                Cache.RowCellHeight = waferMapDataInfo.Height;
+                Cache.ColumnCellWidth = waferMapDataInfo.Width;
+                Cache.WaferDiameter = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.Wafer.Circle.Diameter;
                 break;
         }
 
@@ -1077,7 +1082,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;

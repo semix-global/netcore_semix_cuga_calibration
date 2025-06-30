@@ -6,14 +6,14 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -197,7 +197,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Empty);
+        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
         return true;
     }
 
@@ -312,7 +312,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             {
                 CurrentEcsValue = ecsValue,
                 MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
-                FindFocusPosition = findFocusPosition.ToShortString(),
+                FindFocusPosition = findFocusPosition,
                 FindFocusLimitMin = findFocusMin,
                 FindFocusLimitMax = findFocusMax,
                 FindFocusInterval = findFocusInterval,
@@ -723,14 +723,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        if (IsAutoCalibrate == false)
-        {
-            if (CalibrationRecipeService.GetCorrectWaferMapByOffset(false) == false)
-                return false;
-        }
-
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
-
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         switch (microscopeName)
         {
             case "0":
@@ -738,7 +731,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.Grid_100um, Cache.MicroscopeMagnificationEnum, null, out var maskInfo) == false)
                     return false;
 
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo, out var position);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
                 Cache.SetFindFocusPosition(position);
                 break;
 
@@ -746,7 +739,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification10X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.Grid_50um, Cache.MicroscopeMagnificationEnum, null, out maskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo, out position);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out position);
                 Cache.SetFindFocusPosition(position);
                 break;
 
@@ -754,7 +747,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.Grid_25um, Cache.MicroscopeMagnificationEnum, null, out maskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo, out position);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out position);
                 Cache.SetFindFocusPosition(position);
                 break;
 
@@ -762,7 +755,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification100X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.Grid_10um, Cache.MicroscopeMagnificationEnum, null, out maskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo, out position);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out position);
                 Cache.SetFindFocusPosition(position);
                 break;
 
@@ -770,7 +763,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification150X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.Grid_10um, Cache.MicroscopeMagnificationEnum, null, out maskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo, out position);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out position);
                 Cache.SetFindFocusPosition(position);
                 break;
         }
@@ -793,7 +786,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;
@@ -815,7 +808,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         {
             try
             {
-                foreach (var (index, itemReview) in ReviewList.Select((t, i) => (index: i, itemReview: t)))
+                foreach (var (_, itemReview) in ReviewList.Select((t, i) => (index: i, itemReview: t)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     SelectReviewItemDto = itemReview;

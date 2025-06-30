@@ -4,7 +4,7 @@ using Core.Models.Models.Common.FindWaferCenter;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;

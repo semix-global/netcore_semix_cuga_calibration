@@ -2,4 +2,24 @@
 
     <Import Project="$(BuildToolsDirectory)\Common.Packages.props" />
 
+    <ItemGroup>
+        <PackageVersion Include="Net.Utilities.Mapper" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.Models" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.DataAnnotations" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.Helpers" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.Algorithms" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.Algorithms.Halcon" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.IOC" Version="2.0.6" />
+
+        <PackageVersion Include="Net.Utilities.Nlog" Version="2.0.6" />
+
+        <PackageVersion Include="Net.Utilities.Graphics" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.Graphics.WPF" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.WaferMap.WPF" Version="2.0.6" />
+
+        <PackageVersion Include="Net.Utilities.WPF" Version="2.0.6" />
+        <PackageVersion Include="Net.Utilities.WPF.MVVM" Version="2.0.6" />
+        <PackageVersion Include="WPF.CanvasViewer" Version="2.0.6" />
+    </ItemGroup>
+
 </Project>

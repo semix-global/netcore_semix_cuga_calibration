@@ -16,8 +16,7 @@ using Core.Models.Models.Microscope.PixelSize;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -483,9 +482,9 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 return false;
             }
 
-            var chuckCenterPosition = Point.Empty;
-            if (ChuckCenterObjDto.PositiveTopPosition != Point.Empty && ChuckCenterObjDto.NegativeTopPosition != Point.Empty && ChuckCenterObjDto.NegativeRightPosition != Point.Empty && ChuckCenterObjDto.PositiveRightPosition != Point.Empty && ChuckCenterObjDto.PositiveBottomPosition != Point.Empty && ChuckCenterObjDto.NegativeBottomPosition != Point.Empty &&
-                ChuckCenterObjDto.NegativeLeftPosition != Point.Empty && ChuckCenterObjDto.PositiveLeftPosition != Point.Empty)
+            var chuckCenterPosition = Point.Origin;
+            if (ChuckCenterObjDto.PositiveTopPosition != Point.Origin && ChuckCenterObjDto.NegativeTopPosition != Point.Origin && ChuckCenterObjDto.NegativeRightPosition != Point.Origin && ChuckCenterObjDto.PositiveRightPosition != Point.Origin && ChuckCenterObjDto.PositiveBottomPosition != Point.Origin && ChuckCenterObjDto.NegativeBottomPosition != Point.Origin &&
+                ChuckCenterObjDto.NegativeLeftPosition != Point.Origin && ChuckCenterObjDto.PositiveLeftPosition != Point.Origin)
             {
                 chuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
                     ChuckCenterObjDto.PositiveTopPosition,
@@ -499,12 +498,12 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 );
             }
 
-            if (chuckCenterPosition == Point.Empty)
+            if (chuckCenterPosition == Point.Origin)
             {
                 result = false;
                 Logger.LogHtmlInformation("Chuck Center calibration result Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    ChuckCenterPosition = chuckCenterPosition.ToShortString()
+                    ChuckCenterPosition = chuckCenterPosition
                 }), HtmlLogUniqueId.LoggingHtml());
                 return result;
             }
@@ -521,9 +520,9 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
             {
                 XDirection = xDirection,
                 YDirection = yDirection,
-                ChuckCenterPosition = ChuckCenterObjDto.ChuckCenterPosition.ToShortString(),
-                BFCenterStagePosition = ChuckCenterObjDto.BFCenterStagePosition.ToShortString(),
-                CalibrationResult = ChuckCenterObjDto.NewBFCenterStagePosition.ToShortString()
+                ChuckCenterObjDto.ChuckCenterPosition,
+                ChuckCenterObjDto.BFCenterStagePosition,
+                CalibrationResult = ChuckCenterObjDto.NewBFCenterStagePosition
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });
@@ -561,85 +560,76 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         var result = true;
         await Task.Run(() =>
         {
-            if (selectChuckCenterObjDto is null)
+            selectChuckCenterObjDto.IsVerified = false;
+            StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.BFCenterStagePosition);
+
+            var chuckCenterObjDto = selectChuckCenterObjDto.Clone();
+
+            if (RecipeCacheProvider.Set(Cache, cancellationToken) == false)
             {
-                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please select a review item!"), HtmlLogUniqueId.LoggingHtml());
+                DialogWindowProvider.ShowDialog("Save Threshold Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
                 result = false;
+                return;
             }
-            else
+
+            var isPositiveSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.PositiveAngle, true);
+            if (isPositiveSuccess == false)
             {
-                selectChuckCenterObjDto.IsVerified = false;
-                StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.BFCenterStagePosition);
-
-                var chuckCenterObjDto = selectChuckCenterObjDto.Clone();
-
-                if (RecipeCacheProvider.Set(Cache, cancellationToken) == false)
-                {
-                    DialogWindowProvider.ShowDialog("Save Threshold Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                    result = false;
-                    return;
-                }
-
-                var isPositiveSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.PositiveAngle, true);
-                if (isPositiveSuccess == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Positive Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
-                    result = false;
-                    return;
-                }
-
-                var isNegativeSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.NegativeAngle, false);
-                if (isNegativeSuccess == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Negative Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
-                    result = false;
-                    return;
-                }
-
-                chuckCenterObjDto.ChuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
-                    chuckCenterObjDto.PositiveTopPosition,
-                    chuckCenterObjDto.NegativeTopPosition,
-                    chuckCenterObjDto.NegativeRightPosition,
-                    chuckCenterObjDto.PositiveRightPosition,
-                    chuckCenterObjDto.PositiveBottomPosition,
-                    chuckCenterObjDto.NegativeBottomPosition,
-                    chuckCenterObjDto.NegativeLeftPosition,
-                    chuckCenterObjDto.PositiveLeftPosition
-                );
-                var offset = chuckCenterObjDto.ChuckCenterPosition - selectChuckCenterObjDto.ChuckCenterPosition;
-
-                result = Math.Abs(offset.X) <= Cache.Threshold && Math.Abs(offset.Y) <= Cache.Threshold;
-
-                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                {
-                    ChuckCenterPosition = selectChuckCenterObjDto.ChuckCenterPosition.ToShortString(),
-                    VerifyChuckCenterPosition = chuckCenterObjDto.ChuckCenterPosition.ToShortString(),
-                    BFCenterStagePosition = selectChuckCenterObjDto.BFCenterStagePosition.ToShortString(),
-                    CalibrationResult = new Point(selectChuckCenterObjDto.BFCenterStagePosition.X - selectChuckCenterObjDto.ChuckCenterPosition.X, selectChuckCenterObjDto.BFCenterStagePosition.Y + selectChuckCenterObjDto.ChuckCenterPosition.Y).ToShortString(),
-                    VerifyResult = new Point(selectChuckCenterObjDto.BFCenterStagePosition.X - chuckCenterObjDto.ChuckCenterPosition.X, selectChuckCenterObjDto.BFCenterStagePosition.Y + chuckCenterObjDto.ChuckCenterPosition.Y).ToShortString(),
-                    ChuckCenterThreshold = Cache.Threshold
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                selectChuckCenterObjDto.IsVerified = result;
-                if (Save(selectChuckCenterObjDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    selectChuckCenterObjDto.IsVerified = false;
-                    result = false;
-                    return;
-                }
-
-                if (!result || !IsAutoCalibrate)
-                {
-                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter: ({chuckCenterObjDto.ChuckCenterPosition.ToShortString()}) Old ChuckCenter: ({selectChuckCenterObjDto.ChuckCenterPosition.ToShortString()}) Error: ({offset.ToShortString()})", DialogButtonsEnum.OK,
-                        result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-                }
-
-                if (result) StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.NewBFCenterStagePosition);
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Positive Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
+                result = false;
+                return;
             }
+
+            var isNegativeSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.NegativeAngle, false);
+            if (isNegativeSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Negative Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
+                result = false;
+                return;
+            }
+
+            chuckCenterObjDto.ChuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
+                chuckCenterObjDto.PositiveTopPosition,
+                chuckCenterObjDto.NegativeTopPosition,
+                chuckCenterObjDto.NegativeRightPosition,
+                chuckCenterObjDto.PositiveRightPosition,
+                chuckCenterObjDto.PositiveBottomPosition,
+                chuckCenterObjDto.NegativeBottomPosition,
+                chuckCenterObjDto.NegativeLeftPosition,
+                chuckCenterObjDto.PositiveLeftPosition
+            );
+            var offset = chuckCenterObjDto.ChuckCenterPosition - selectChuckCenterObjDto.ChuckCenterPosition;
+
+            result = Math.Abs(offset.X) <= Cache.Threshold && Math.Abs(offset.Y) <= Cache.Threshold;
+
+            Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                selectChuckCenterObjDto.ChuckCenterPosition,
+                VerifyChuckCenterPosition = chuckCenterObjDto.ChuckCenterPosition,
+                selectChuckCenterObjDto.BFCenterStagePosition,
+                CalibrationResult = new Point(selectChuckCenterObjDto.BFCenterStagePosition.X - selectChuckCenterObjDto.ChuckCenterPosition.X, selectChuckCenterObjDto.BFCenterStagePosition.Y + selectChuckCenterObjDto.ChuckCenterPosition.Y),
+                VerifyResult = new Point(selectChuckCenterObjDto.BFCenterStagePosition.X - chuckCenterObjDto.ChuckCenterPosition.X, selectChuckCenterObjDto.BFCenterStagePosition.Y + chuckCenterObjDto.ChuckCenterPosition.Y),
+                ChuckCenterThreshold = Cache.Threshold
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            selectChuckCenterObjDto.IsVerified = result;
+            if (Save(selectChuckCenterObjDto, cancellationToken) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                selectChuckCenterObjDto.IsVerified = false;
+                result = false;
+                return;
+            }
+
+            if (!result || !IsAutoCalibrate)
+            {
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter: ({chuckCenterObjDto.ChuckCenterPosition}) Old ChuckCenter: ({selectChuckCenterObjDto.ChuckCenterPosition}) Error: ({offset})", DialogButtonsEnum.OK,
+                    result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            }
+
+            if (result) StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.NewBFCenterStagePosition);
+            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
         }, cancellationToken);
         return result;
     }
@@ -662,34 +652,34 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         //TopPosition
         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowTopPosition.DegreeAngleByOrigin(angleNew), Cache.LowMicroscopeMagnificationEnum, Cache.LowTopTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "Low Mag Top",
-                out var lowTopPosition, out _, out _, out var lowTopResultImageFilePath, out var lowTopOriginImageFilePath) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowTopPosition + Cache.LowToHighPointTop, Cache.HighMicroscopeMagnificationEnum, Cache.HighTopTemplateFilePath,
+                out var lowTopPosition, out _, out _, out var lowTopResultImageFilePath, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowTopPosition + (Vector)Cache.LowToHighPointTop, Cache.HighMicroscopeMagnificationEnum, Cache.HighTopTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "High Mag Top",
-                out var highTopPosition, out _, out _, out var highTopResultImageFilePath, out var highTopOriginImageFilePath) == false) return false;
+                out var highTopPosition, out _, out _, out var highTopResultImageFilePath, out _) == false) return false;
 
         //RightPosition
         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowRightPosition.DegreeAngleByOrigin(angleNew), Cache.LowMicroscopeMagnificationEnum, Cache.LowRightTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "Low Mag Right",
-                out var lowRightPosition, out _, out _, out var lowRightResultImageFilePath, out var lowRightOriginImageFilePath) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowRightPosition + Cache.LowToHighPointRight, Cache.HighMicroscopeMagnificationEnum, Cache.HighRightTemplateFilePath,
+                out var lowRightPosition, out _, out _, out var lowRightResultImageFilePath, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowRightPosition + (Vector)Cache.LowToHighPointRight, Cache.HighMicroscopeMagnificationEnum, Cache.HighRightTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "High Mag Right",
-                out var highRightPosition, out _, out _, out var highRightResultImageFilePath, out var highRightOriginImageFilePath) == false) return false;
+                out var highRightPosition, out _, out _, out var highRightResultImageFilePath, out _) == false) return false;
 
         //BottomPosition
         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowBottomPosition.DegreeAngleByOrigin(angleNew), Cache.LowMicroscopeMagnificationEnum, Cache.LowBottomTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "Low Mag Bottom",
-                out var lowBottomPosition, out _, out _, out var lowBottomResultImageFilePath, out var lowBottomOriginImageFilePath) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowBottomPosition + Cache.LowToHighPointBottom, Cache.HighMicroscopeMagnificationEnum, Cache.HighBottomTemplateFilePath,
+                out var lowBottomPosition, out _, out _, out var lowBottomResultImageFilePath, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowBottomPosition + (Vector)Cache.LowToHighPointBottom, Cache.HighMicroscopeMagnificationEnum, Cache.HighBottomTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "High Mag Bottom",
-                out var highBottomPosition, out _, out _, out var highBottomResultImageFilePath, out var highBottomOriginImageFilePath) == false) return false;
+                out var highBottomPosition, out _, out _, out var highBottomResultImageFilePath, out _) == false) return false;
 
         //LeftPosition
         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowLeftPosition.DegreeAngleByOrigin(angleNew), Cache.LowMicroscopeMagnificationEnum, Cache.LowLeftTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "Low Mag Left",
-                out var lowLeftPosition, out _, out _, out var lowLeftResultImageFilePath, out var lowLeftOriginImageFilePath) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowLeftPosition + Cache.LowToHighPointLeft, Cache.HighMicroscopeMagnificationEnum, Cache.HighLeftTemplateFilePath,
+                out var lowLeftPosition, out _, out _, out var lowLeftResultImageFilePath, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowLeftPosition + (Vector)Cache.LowToHighPointLeft, Cache.HighMicroscopeMagnificationEnum, Cache.HighLeftTemplateFilePath,
                 detectImageDirectory, HtmlLogUniqueId, Name, "High Mag Left",
-                out var highLeftPosition, out _, out _, out var highLeftResultImageFilePath, out var highLeftOriginImageFilePath) == false) return false;
+                out var highLeftPosition, out _, out _, out var highLeftResultImageFilePath, out _) == false) return false;
 
         if (isPositive)
         {
@@ -932,18 +922,22 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         }
 
         Cache.ThetaAngle = StageViewModel.GetMachineStageTheta();
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
-        var waferMapData = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData;
-
         Cache.LowMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+
+        var reticleRows = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
+                                             .Where(t => t.Index.X == 0)
+                                             .OrderBy(t => t.Index.Y).ToList();
+        var reticleCols = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
+                                            .Where(t => t.Index.Y == 0)
+                                            .OrderBy(t => t.Index.X).ToList();
 
         #region 上低倍
 
         if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.LowMicroscopeMagnificationEnum, null, out var maskInfo5) == false)
             return false;
-        var recipeLowDto1 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex + (waferMapData.CellDiePicthRowNumber / 2 - 2)][OriginReticleDieDto.ColumnIndex];
 
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeLowDto1, maskInfo5, out var lowPosition1);
+        var reticleTop = reticleRows.ElementAt(reticleRows.Count - 2);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfo5, out var lowPosition1);
         Cache.LowTopPosition = lowPosition1;
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition);
         Cache.LowTopTemplateFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;
@@ -953,8 +947,8 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 右边低倍
 
-        var recipeLowDto2 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex + (waferMapData.CellDiePitchColumnNumber / 2 - 3)];
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeLowDto2, maskInfo5, out var lowPosition2);
+        var reticleRight = reticleCols.ElementAt(reticleRows.Count - 1);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, maskInfo5, out var lowPosition2);
         Cache.LowRightPosition = lowPosition2;
         Cache.LowRightTemplateFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowRightTemplateImageFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -963,8 +957,8 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 下边低倍
 
-        var recipeLowDto3 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex - (waferMapData.CellDiePicthRowNumber / 2 - 2)][OriginReticleDieDto.ColumnIndex];
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeLowDto3, maskInfo5, out var lowPosition3);
+        var reticleBottom = reticleRows.ElementAt(1);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfo5, out var lowPosition3);
         Cache.LowBottomPosition = lowPosition3;
         Cache.LowBottomTemplateFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowBottomTemplateImageFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -973,9 +967,8 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 左边低倍
 
-        var recipeLowDto4 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex - (waferMapData.CellDiePitchColumnNumber / 2 - 3)];
-        ;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeLowDto4, maskInfo5, out var lowPosition4);
+        var reticleLeft = reticleCols.ElementAt(1);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, maskInfo5, out var lowPosition4);
         Cache.LowLeftPosition = lowPosition4;
         Cache.LowLeftTemplateFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowLeftTemplateImageFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -989,8 +982,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMicroscopeMagnificationEnum, null, out var maskInfo50) == false)
             return false;
 
-        var recipeHighDto1 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex + (waferMapData.CellDiePicthRowNumber / 2 - 2)][OriginReticleDieDto.ColumnIndex];
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeHighDto1, maskInfo50, out var highPosition1);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfo50, out var highPosition1);
         Cache.HighTopPosition = highPosition1;
         Cache.HighTopTemplateFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighTopTemplateImageFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -999,8 +991,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 右高倍
 
-        var recipeHighDto2 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex + (waferMapData.CellDiePitchColumnNumber / 2 - 3)];
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeHighDto2, maskInfo50, out var highPosition2);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, maskInfo50, out var highPosition2);
         Cache.HighRightPosition = highPosition2;
         Cache.HighRightTemplateFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighRightTemplateImageFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1009,8 +1000,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 下高倍
 
-        var recipeHighDto3 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex - (waferMapData.CellDiePicthRowNumber / 2 - 2)][OriginReticleDieDto.ColumnIndex];
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeHighDto3, maskInfo50, out var highPosition3);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfo50, out var highPosition3);
         Cache.HighBottomPosition = highPosition3;
         Cache.HighBottomTemplateFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighBottomTemplateImageFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1019,9 +1009,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 左高倍
 
-        var recipeHighDto4 = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex - (waferMapData.CellDiePitchColumnNumber / 2 - 3)];
-        ;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(recipeHighDto4, maskInfo50, out var highPosition4);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, maskInfo50, out var highPosition4);
         Cache.HighLeftPosition = highPosition4;
         Cache.HighLeftTemplateFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighLeftTemplateImageFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1036,7 +1024,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;

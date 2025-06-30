@@ -4,7 +4,6 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
-using Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
@@ -14,7 +13,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.WaferMap.WPF.Documents;
+using Net.Utilities.WaferMap.WPF.Drawables;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -26,17 +27,10 @@ public class CalibrationRecipeServiceImpl(
     StageViewModel stageViewModel,
     ApplicationCookie applicationCookie) : ICalibrationRecipeService
 {
-    public WaferMapDataDto GetWaferMapData()
+    public WaferMapCanvasDocument GetWaferMapCanvasDocument()
     {
         return applicationCookie.CalibrationRecipeDto is not null
-            ? applicationCookie.CalibrationRecipeDto!.WaferDto.WaferMapDto.WaferMapData
-            : throw new ArgumentNullException(nameof(applicationCookie.CalibrationRecipeDto));
-    }
-
-    public WaferMapDto GetWaferMap()
-    {
-        return applicationCookie.CalibrationRecipeDto is not null
-            ? applicationCookie.CalibrationRecipeDto!.WaferDto.WaferMapDto
+            ? applicationCookie.CalibrationRecipeDto!.WaferDto.WaferMapCanvasDocument
             : throw new ArgumentNullException(nameof(applicationCookie.CalibrationRecipeDto));
     }
 
@@ -74,7 +68,7 @@ public class CalibrationRecipeServiceImpl(
         }
         catch (Exception ex)
         {
-            offset = Point.Empty;
+            offset = Point.Origin;
             logger.LogError(ex, "Get wafer map offset failed");
             return false;
         }
@@ -85,39 +79,23 @@ public class CalibrationRecipeServiceImpl(
         try
         {
             var originalWaferDto = applicationCookie.CalibrationRecipeDto!.WaferDto;
+            originalWaferDto.WaferMapDataToWaferMapCanvasDocument();
             var waferCenterBrightFieldPosition = originalWaferDto.WaferCenterBrightFieldPosition!.Value;
             var waferDto = originalWaferDto.Clone();
-            var offsetPosition = Point.Empty;
+            waferDto.WaferMapDataToWaferMapCanvasDocument();
+            var offsetPosition = Point.Origin;
             if (isAutoAlignment && GetWaferMapOffset(out offsetPosition) == false)
                 return false;
-
-            waferDto.WaferMapDto.OriginDieDto.WaferPosition = originalWaferDto.WaferMapDto.OriginDieDto.WaferPosition
-                                                              + waferCenterBrightFieldPosition
-                                                              + offsetPosition;
-            waferDto.WaferMapDto.OriginReticleDto.WaferPosition = originalWaferDto.WaferMapDto.OriginReticleDto.WaferPosition
-                                                                  + waferCenterBrightFieldPosition
-                                                                  + offsetPosition;
-            waferDto.WaferMapDto.WaferMapDieDtoItemList.ForEach(row =>
-            {
-                row.ForEach(die =>
-                {
-                    die.WaferPosition = die.WaferPosition
-                                        + waferCenterBrightFieldPosition
-                                        + offsetPosition;
-                });
-            });
-            waferDto.WaferMapDto.WaferMapReticleDieDtoItemList.ForEach(row =>
-            {
-                row.ForEach(reticleCell =>
-                {
-                    reticleCell.WaferPosition = reticleCell.WaferPosition
-                                                + waferCenterBrightFieldPosition
-                                                + offsetPosition;
-                });
-            });
+            var offset = (Vector)waferCenterBrightFieldPosition + (Vector)offsetPosition;
+            waferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint
+                                                                        + offset;
+            waferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint
+                                                                         + offset;
+            waferDto.WaferMapCanvasDocumentToWaferMapData();
 
             applicationCookie.CalibrationReviseRecipeDto = applicationCookie.CalibrationRecipeDto!.Clone();
             applicationCookie.CalibrationReviseRecipeDto.WaferDto = waferDto.Clone();
+            applicationCookie.CalibrationReviseRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
             return true;
         }
         catch (Exception ex)
@@ -190,20 +168,46 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetReticleMaskBrightFieldPosition(WaferMapDieItemDto reticleCellDto, ReticleMarkItemDto maskDto, out Point position)
+    public bool GetDieMaskBrightFieldPosition(WaferMapDie waferMapDie, ReticleMarkItemDto maskDto, out Point position)
     {
         try
         {
-            var waferMapData = GetWaferMapData();
-            var reticleHeight = waferMapData.ReticleHeight;
-            var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition + (reticleCellDto.WaferPosition - new Point(0, reticleHeight));
+            var waferPosition = waferMapDie.Rect.Point;
+            var waferMapDocument = GetWaferMapCanvasDocument();
+            var diePitchHeight = waferMapDocument.DieBuilder.DiePitchSize.Height;
+            var scribeSize = waferMapDocument.DieBuilder.DieScribeSize;
+            var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
+                                                        + ((Vector)waferPosition
+                                                             - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
+            position = realReticleMaskBrightFieldPosition;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Get die mask bright field position failed");
+            position = Point.Origin;
+            return false;
+        }
+    }
+
+    public bool GetReticleMaskBrightFieldPosition(WaferMapReticle waferMapReticle, ReticleMarkItemDto maskDto, out Point position)
+    {
+        try
+        {
+            var waferPosition = waferMapReticle.Rect.Point;
+            var waferMapDocument = GetWaferMapCanvasDocument();
+            var diePitchHeight = waferMapDocument.ReticleBuilder.DiePitchSize.Height;
+            var scribeSize = waferMapDocument.ReticleBuilder.DieScribeSize;
+            var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
+                                                        + ((Vector)waferPosition
+                                                             - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
             position = realReticleMaskBrightFieldPosition;
             return true;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Get reticle mask bright field position failed");
-            position = Point.Empty;
+            position = Point.Origin;
             return false;
         }
     }

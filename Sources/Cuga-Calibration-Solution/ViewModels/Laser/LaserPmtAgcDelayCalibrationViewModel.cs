@@ -11,14 +11,13 @@ using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
-using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -134,7 +133,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
         return true;
     }
@@ -153,7 +152,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         if (ReviewList.All(t => t.IsCalibrated == false))
             return false;
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
         return true;
     }
@@ -232,7 +231,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                     Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 LaserViewModel.SendOpticsMagType(Cache.OpticsMagTypeEnum);
 
                 Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -296,7 +295,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                     Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 LaserViewModel.SendOpticsMagType(Cache.OpticsMagTypeEnum);
 
                 Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -357,7 +356,9 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
             Logger.LogHtmlInformation($"Pmt ID: {item.PmtId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
             var height = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
-            var baseIndex = height / 2d;
+
+            // 从1开始
+            var baseIndex = (height + 1) / 2d;
 
             var count = 1;
             while (true)
@@ -381,9 +382,14 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                     Task.Run(() => item.Channel3SenseData = LaserViewModel.GetPmtSenseDataList(item.PmtId, 3, Cache.CatchCount), cancellationToken)
                 );
 
-                item.Channel1AgcOffset = baseIndex - item.Channel1SenseData.Select(t => Vector<double>.Build.Dense([.. t]).MinimumIndex()).Average();
-                item.Channel2AgcOffset = baseIndex - item.Channel2SenseData.Select(t => Vector<double>.Build.Dense([.. t]).MinimumIndex()).Average();
-                item.Channel3AgcOffset = baseIndex - item.Channel3SenseData.Select(t => Vector<double>.Build.Dense([.. t]).MinimumIndex()).Average();
+                // 从1开始
+                var channel1Index = item.Channel1SenseData.Select(GetMiddleIndex).Average() + 1;
+                var channel2Index = item.Channel2SenseData.Select(GetMiddleIndex).Average() + 1;
+                var channel3Index = item.Channel3SenseData.Select(GetMiddleIndex).Average() + 1;
+
+                item.Channel1AgcOffset = baseIndex - channel1Index;
+                item.Channel2AgcOffset = baseIndex - channel2Index;
+                item.Channel3AgcOffset = baseIndex - channel3Index;
 
                 var channel1IsOk = Math.Abs(item.Channel1AgcOffset) <= Cache.Threshold;
                 var channel2IsOk = Math.Abs(item.Channel2AgcOffset) <= Cache.Threshold;
@@ -393,19 +399,26 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                 var htmlBullet = new HtmlBullet(new
                 {
                     item.PmtId,
-                    ch1DelayPmtDelay = ch1Delay.PmtDelay,
-                    ch1DelaySenseDelay = ch1Delay.SenseDelay,
-                    ch2DelayPmtDelay = ch2Delay.PmtDelay,
-                    ch2DelaySenseDelay = ch2Delay.SenseDelay,
-                    ch3DelayPmtDelay = ch3Delay.PmtDelay,
-                    ch3DelaySenseDelay = ch3Delay.SenseDelay,
-                    item.Channel1AgcDelay,
+                    ch1DelayCurrentPmtDelay = ch1DelayClone.PmtDelay,
+                    ch1DelayCurrentSenseDelay = ch1DelayClone.SenseDelay,
+                    ch1DelayOldAgcDelay = ch1DelayClone.AgcDelay,
+                    ch1DelayCurrentAgcDelay = item.Channel1AgcDelay,
+                    ch2DelayCurrentPmtDelay = ch2DelayClone.PmtDelay,
+                    ch2DelayCurrentSenseDelay = ch2DelayClone.SenseDelay,
+                    ch2DelayOldAgcDelay = ch2DelayClone.AgcDelay,
+                    ch2DelayCurrentAgcDelay = item.Channel2AgcDelay,
+                    ch3DelayCurrentPmtDelay = ch3DelayClone.PmtDelay,
+                    ch3DelayCurrentSenseDelay = ch3DelayClone.SenseDelay,
+                    ch3DelayOldAgcDelay = ch3DelayClone.AgcDelay,
+                    ch3DelayCurrentAgcDelay = item.Channel3AgcDelay,
+                    baseIndex,
+                    channel1Index,
+                    channel2Index,
+                    channel3Index,
                     item.Channel1AgcOffset,
                     channel1IsOk,
-                    item.Channel2AgcDelay,
                     item.Channel2AgcOffset,
                     channel2IsOk,
-                    item.Channel3AgcDelay,
                     item.Channel3AgcOffset,
                     channel3IsOk,
                     Channel1SenseData = new HtmlPlot2DLinesChart([.. item.Channel1SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 1 Sense Data"),
@@ -456,6 +469,17 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         {
             if (lockToken) semaphore.Release();
             LaserViewModel.SetPmtDelayList([ch1DelayClone, ch2DelayClone, ch3DelayClone]);
+        }
+
+        int GetMiddleIndex(List<double> values)
+        {
+            var targetValue = values.Min() + (values.Max() - values.Min()) * 2d / 3d;
+            var changedList = values.ToPoints().Where(t => t.Y < targetValue).ToList();
+
+            var startIndex = Convert.ToInt32(changedList[0].X);
+            var endIndex = Convert.ToInt32(changedList[^1].X);
+
+            return (startIndex + endIndex) / 2;
         }
     }
 

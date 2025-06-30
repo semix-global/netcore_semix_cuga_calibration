@@ -2,14 +2,14 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 
 #if NET
 using Semix.GRPC.DTO;
 using Cuga.Data.DataStruct.DTO.Calibration;
-
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -19,7 +19,7 @@ namespace Core.Models.Models.Common.DarkField;
 
 public sealed partial class DarkFieldImageDto : ObservableCacheBase, ICloneable<DarkFieldImageDto>, IAdaptTo<C2MImgModel>, IAdaptIn<C2MImgModel, DarkFieldImageDto>, IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldImageDto>, IDisposable
 {
-    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixHelper.EmptyMatrix<short>(), Image = HalconHelper.EmptyHObject };
+    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconHelper.EmptyHObject };
 
     /// <summary>
     /// PMT Id
@@ -68,7 +68,7 @@ public sealed partial class DarkFieldImageDto : ObservableCacheBase, ICloneable<
     {
         get
         {
-            var convertToDoubleMatrix = MathNetHelper.ConvertToDoubleMatrix(Matrix);
+            var convertToDoubleMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>.Build.DenseOfArray(Matrix);
             return [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.ColumnCount)];
         }
     }
@@ -84,7 +84,7 @@ public sealed partial class DarkFieldImageDto : ObservableCacheBase, ICloneable<
             Width = Width,
             Height = Height,
             Bytes = [.. Bytes],
-            Matrix = MatrixHelper.Clone(Matrix),
+            Matrix = MatrixUtils.Clone(Matrix),
             Image = HalconHelper.Copy(Image),
             Id = Id,
             Expiration = Expiration

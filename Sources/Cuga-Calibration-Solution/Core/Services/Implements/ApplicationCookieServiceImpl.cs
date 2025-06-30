@@ -1,3 +1,4 @@
+using Core.Utilities;
 using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
@@ -5,7 +6,6 @@ using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM;
 using static Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum;
 

@@ -1,7 +1,6 @@
 <hc:Window x:Class="CugaCalibrationTest.Views.MainWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-           xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibrationTest.ViewModels"
@@ -43,7 +42,7 @@
                     <Button Content="Set NoSql Data" Command="{Binding SetLiteDbDataCommand}" />
                     <Button Style="{StaticResource ButtonDanger}">
                         <hc:UniformSpacingPanel Spacing="5">
-                            <iconPacks:PackIconFontAwesome Kind="AddressBookRegular" />
+                            <!-- <iconPacks:PackIconFontAwesome Kind="AddressBookRegular" /> -->
                             <TextBlock Text="Google" />
                         </hc:UniformSpacingPanel>
                     </Button>

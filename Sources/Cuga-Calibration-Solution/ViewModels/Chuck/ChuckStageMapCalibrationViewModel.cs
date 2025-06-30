@@ -27,19 +27,17 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using CugaCalibration.ViewModels.Common.Windows.File.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.Struct;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -50,8 +48,7 @@ namespace CugaCalibration.ViewModels.Chuck;
 public sealed partial class ChuckStageMapCalibrationViewModel(
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
-    CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
-    SettingWindowViewModel settingWindowViewModel) : CalibrationViewModelBase
+    CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
 {
     private bool _isSkipStep = false;
     #region 属性
@@ -264,24 +261,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         Cache.IsDarkField = false;
-
-        DialogWindowProvider.TryShowDialog("Do you want to skip the bright field step ,if the bright field calibration is ok?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-        _isSkipStep = false;
-        if (dialogResult == DialogResultEnum.Yes)
-        {
-            ResultChuckStageMapDto = CacheProvider.GetOrDefault<ChuckStageMapDto>();
-            if (ResultChuckStageMapDto.IsCalibrationBrightField == false)
-            {
-                Logger.LogError("{@Name} Skip failed! The bright field calibration result is empty!", Name);
-            }
-            else
-            {
-                Cache.SetParam();
-                Cache.IsDarkField = true;
-                _isSkipStep = true;
-            }
-        }
-
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -289,11 +268,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
         StageViewModel.SetEnableStageMap(false);
-        if (_isSkipStep && CalibrationStepIndex == 0)
-        {
-            CalibrationStepIndex = 4;
-            return true;
-        }
 
         return !IsRecipeCalibrate || CalibrationRecipeService.GetCorrectWaferMapByOffset(true);
     }
@@ -317,7 +291,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         {
             case 0:
                 MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 return true;
             case 1 or 5:
                 Cache.GetParam();
@@ -737,7 +711,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                                     ? ResultChuckStageMapDto.CalibrationBrightFieldStageMap
                                     : ResultChuckStageMapDto.CalibrationDarkFieldStageMap;
 
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             calibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
             calibrationStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
             calibrationStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -822,7 +796,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             ResultChuckStageMapDto.ExpandStageMapDto = expandStageMapDto;
             OnPropertyChanged(nameof(ResultChuckStageMapDto.ExpandStageMapDto));
 
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             ResultChuckStageMapDto.ExpandStageMapDto.IdealCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
             ResultChuckStageMapDto.ExpandStageMapDto.RealCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
             ResultChuckStageMapDto.ExpandStageMapDto.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -910,11 +884,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                  ReviewDto.VerifyBrightFieldStageMap.Reset();
                  OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap));
 
-                 if (_isSkipStep && ReviewDto.IsVerifyDarkField)
-                 {
-                     OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap));
-                     goto BrightFieldGetStageMap;
-                 }
                  ReviewDto.IsVerifyDarkField = false;
                  ReviewDto.VerifyDarkFieldStageMap.Reset();
                  OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap));
@@ -924,13 +893,13 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                  Cache.GetParam();
 
                  Logger.LogHtmlInformation("Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                 if (IsAutoCalibrate)
+                 if (IsRecipeCalibrate)
                  {
                      if (await DarkFieldStep1ActionAsync() == false) return false;
                      DarkFieldStep2Action();
                      ReviewDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
                  }
-                 else if (IsRecipeCalibrate == false)
+                 else
                  {
                      StageViewModel.Alignment(
                          AlignmentCacheBrightField.LowSite1,
@@ -945,9 +914,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                  Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                  DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken);
 
-                 BrightFieldGetStageMap:// goto标签
-
-                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                  ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
                  ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
                  ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -994,7 +961,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                  var result = ReviewDto.VerifyDarkFieldStageMap.ErrorMatrix
                      .SelectMany(t => t)
-                     .All(t => t.DistanceToZero() < Cache.Threshold.DistanceToZero());
+                     .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
                  ReviewDto.IsVerifyDarkField = result;
 
                  Logger.LogHtmlInformation($"Dark Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
@@ -1024,7 +991,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                  Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                  BrightFieldGetStageMap(ReviewDto.VerifyBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap)), cancellationToken);
 
-                 middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+                 middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                  ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
                  ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
                  ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -1072,7 +1039,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                  result = ReviewDto.VerifyBrightFieldStageMap.ErrorMatrix
                      .SelectMany(t => t)
-                     .All(t => t.DistanceToZero() < Cache.Threshold.DistanceToZero());
+                     .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
                  ReviewDto.IsVerifyBrightField = result;
 
                  Logger.LogHtmlInformation($"Bright Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
@@ -1186,7 +1153,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     stageMapItem.IsMatchOk = true;
 
                     realMatrix[row][column] = result;
-                    errorItemList[row][column] = result - stageMapItem.Point;
+                    errorItemList[row][column] = result - (Vector)stageMapItem.Point;
                 }
 
                 stageMapItem.TemplateScore = resultScore;
@@ -1284,7 +1251,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     catch (Exception ex)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Get Dark Field ChuckRow Line Scan Image List Failed!Error:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                        continue;
                     }
                 }
 
@@ -1338,7 +1304,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                                 continue;
                             }
 
-                            offset.X = xDirection * offset.X;
+                            offset = new Point(xDirection * offset.X, offset.Y);
                             var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySizePerPixel);
                             plotDic.Add((index, column), actualOffset);
 
@@ -1373,10 +1339,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         var offsetY = actualOffsetList.Average(t => t.Y);
 
                         var offsetResult = new Point(offsetX, offsetY);
-                        var resultPosition = stageMapItem.Point + offsetResult;
+                        var resultPosition = stageMapItem.Point + (Vector)offsetResult;
                         stageMapItem.IsMatchOk = true;
                         realMatrix[row][column] = resultPosition;
-                        errorItemList[row][column] = resultPosition - stageMapItem.Point;
+                        errorItemList[row][column] = resultPosition - (Vector)stageMapItem.Point;
 
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                         {
@@ -1484,20 +1450,14 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         GetAutoCalibrationStep();
         await base.AutomationActionAsync(cancellationToken);
         CalibrationStepIndex = -1;
-        var autoStepList = AutoCalibrationStepList.Select((t, index) => (t, index)).OrderBy(t => t.index);
         try
         {
-            for (int stepItem = 0; stepItem < autoStepList.Count(); stepItem++)
+            foreach (var item in AutoCalibrationStepList)
             {
-                switch (stepItem)
+                switch (item.StepIndex)
                 {
                     case 0:
                         if (await LoadedingAsync(cancellationToken) == false) return false;
-                        if (_isSkipStep)
-                        {
-                            CalibrationStepIndex = 4;
-                            stepItem = AutoCalibrationStepIndex = 5;
-                        }
                         await InvokeCalibrateAsync(() =>
                         {
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -1532,8 +1492,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             ReviewDto = Calibration.Clone();
                             return await VerifyCalibrationAsync(cancellationToken);
                         });
-                    default:
-                        break;
                 }
                 await Task.Delay(2000, cancellationToken);
                 if (await AutoNextingAsync(cancellationToken) == false) return false;
@@ -1561,14 +1519,14 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             return false;
         }
 
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
         switch (stepName)
         {
             case "0":
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMagnificationEnum, Cache.OpticsMagTypeEnum, out var maskInfoBrightField) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfoBrightField, out var positionBright);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoBrightField, out var positionBright);
                 Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = StageViewModel.BrightFieldToMachinePosition(positionBright);
                 Cache.TemplateFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1577,7 +1535,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             case "1":
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMagnificationEnum, Cache.OpticsMagTypeEnum, out var maskInfoDarkField) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfoDarkField, out var positionDark);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoDarkField, out var positionDark);
                 Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = StageViewModel.DarkFieldToMachinePosition(positionDark);
                 Cache.TemplateFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1591,7 +1549,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;

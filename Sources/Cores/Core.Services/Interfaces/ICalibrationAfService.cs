@@ -1,6 +1,6 @@
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;

@@ -11,8 +11,8 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -410,7 +410,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     [RelayCommand(IncludeCancelCommand = true)]
     public async Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var reslut = false;
+        var result = false;
         await InvokeCalibrateAsync(() =>
         {
             try
@@ -435,26 +435,26 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 var averageCentricityPosition = new Point(averageX, averageY);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(averageCentricityPosition);
 
-                SelectMicroscopeCentricityItemDto = MicroscopeCentricityItemDtoList.OrderBy(t => (t.CentricityPosition - averageCentricityPosition).DistanceToZero()).First();
+                SelectMicroscopeCentricityItemDto = MicroscopeCentricityItemDtoList.OrderBy(t => (t.CentricityPosition - (Vector)averageCentricityPosition).ToOriginLength).First();
                 ResultMicroscopeCentricityItemDto = SelectMicroscopeCentricityItemDto.Clone();
                 ResultMicroscopeCentricityItemDto.CentricityPosition = averageCentricityPosition;
                 switch (CalibrationStepIndex)
                 {
                     case 1:
-                        ResultMicroscopeCentricityItemDto.Offset = Cache.TemplateFindPosition150X - ResultMicroscopeCentricityItemDto.CentricityPosition;
+                        ResultMicroscopeCentricityItemDto.Offset = Cache.TemplateFindPosition150X - (Vector)ResultMicroscopeCentricityItemDto.CentricityPosition;
                         MicroscopeCentricityItemDto150X.CentricityPosition = ResultMicroscopeCentricityItemDto.CentricityPosition;
                         break;
 
                     case 2 or 3 or 4 or 5:
-                        ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.CentricityPosition - MicroscopeCentricityItemDto150X.CentricityPosition;
+                        ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)MicroscopeCentricityItemDto150X.CentricityPosition;
                         break;
                 }
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     MicroscopeMagnification = ResultMicroscopeCentricityItemDto.MicroscopeMagnificationEnum,
-                    CentricityPosition = ResultMicroscopeCentricityItemDto.CentricityPosition.ToShortString(),
-                    Offset = ResultMicroscopeCentricityItemDto.Offset.ToShortString(),
+                    ResultMicroscopeCentricityItemDto.CentricityPosition,
+                    ResultMicroscopeCentricityItemDto.Offset,
                     Score = ResultMicroscopeCentricityItemDto.TemplateScore,
                     Angle = ResultMicroscopeCentricityItemDto.TemplateAngle,
                     HtmlTab = new HtmlTab(new
@@ -465,17 +465,17 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                             : ResultMicroscopeCentricityItemDto.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
-                reslut = true;
-                return reslut;
+                result = true;
+                return result;
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, "{@Name}: Step1CalibrateActionAsync Failed", Name);
-                reslut = false;
-                return reslut;
+                result = false;
+                return result;
             }
         });
-        return reslut;
+        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -490,13 +490,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         await InvokeVerifyAsync(async () =>
         {
-            if (await VerifyCaibrationAsync(SelectReviewItemDto, cancellationToken) == false) result = false;
+            if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false) result = false;
             return result;
         }).ConfigureAwait(false);
         return result;
     }
 
-    private async Task<bool> VerifyCaibrationAsync(MicroscopeCentricityItemDto selectReviewItemDto, CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(MicroscopeCentricityItemDto selectReviewItemDto, CancellationToken cancellationToken)
     {
         var result = true;
         await Task.Run(() =>
@@ -505,7 +505,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 result = false;
-                return;
             }
             else
             {
@@ -524,7 +523,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.TemplateFindPosition50X, MicroscopeMagnificationEnum.Magnification50X, Cache.TemplateFilePath50X, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
                             out var resultPosition50X, out _, out _, out _, out _) == false) return;
                     if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPosition50X, MicroscopeMagnificationEnum.Magnification150X, Cache.TemplateFilePath150X, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
-                            out var resultPosition, out _, out _, out var resultImageFilePath, out _) == false) return;
+                            out _, out _, out _, out _, out _) == false) return;
                 }
                 else
                 {
@@ -553,20 +552,20 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                 var microscopeCentricityItem = MicroscopeCentricityItemDtoList[0];
                 var newPosition = microscopeCentricityItem.CentricityPosition;
-                var error = newPosition - oldPosition;
-                result = error.DistanceToZero() < Cache.Threshold.DistanceToZero();
+                var error = newPosition - (Vector)oldPosition;
+                result = error.ToOriginLength < Cache.Threshold.ToOriginLength;
                 Cache.VerifyResultPosition = newPosition;
                 Cache.VerifyResultError = error;
 
                 Logger.LogHtmlInformation($"Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    NewPosition = newPosition.ToShortString(),
-                    OldPosition = oldPosition.ToShortString(),
-                    Error = error.ToShortString(),
-                    Threshold = Cache.Threshold.ToShortString(),
+                    NewPosition = newPosition,
+                    OldPosition = oldPosition,
+                    Error = error,
+                    Cache.Threshold,
                     MicroscopeMagnification = microscopeCentricityItem.MicroscopeMagnificationEnum,
-                    CentricityPosition = microscopeCentricityItem.CentricityPosition.ToShortString(),
-                    Offset = microscopeCentricityItem.Offset.ToShortString(),
+                    microscopeCentricityItem.CentricityPosition,
+                    microscopeCentricityItem.Offset,
                     Score = microscopeCentricityItem.TemplateScore,
                     Angle = microscopeCentricityItem.TemplateAngle,
                     HtmlTab = new HtmlTab(new
@@ -589,7 +588,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                 if (!IsAutoCalibrate)
                 {
-                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({newPosition.ToShortString()}) Old Offset: ({oldPosition.ToShortString()}) Error: ({error.ToShortString()})", DialogButtonsEnum.OK,
+                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({newPosition}) Old Offset: ({oldPosition}) Error: ({error})", DialogButtonsEnum.OK,
                         result ? DialogIconEnum.Information : DialogIconEnum.Warning);
                 }
 
@@ -600,7 +599,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 var varifiedDtoList = Calibrations.Where(t => t.IsOk).ToList();
                 if (varifiedDtoList.Count >= 2)
                 {
-                    var concentricOffset = Calibrations.Max(t => t.Offset.DistanceToZero()) - Calibrations.Min(t => t.Offset.DistanceToZero());
+                    var concentricOffset = Calibrations.Max(t => t.Offset.ToOriginLength) - Calibrations.Min(t => t.Offset.ToOriginLength);
                     result = Math.Abs(concentricOffset) <= Cache.ConcentricThreshold;
                     if (result == false)
                     {
@@ -617,9 +616,9 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     {
                         Cache.ConcentricThreshold,
                         concentricOffset,
-                        MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.DistanceToZero()).Single().MicroscopeMagnificationEnum,
-                        MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.DistanceToZero()).Single().MicroscopeMagnificationEnum,
-                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, t.MicroscopeMagnificationEnum, t.CentricityPosition, t.Offset, Distance = t.Offset.DistanceToZero() }).Cast<object>()])
+                        MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.ToOriginLength).Single().MicroscopeMagnificationEnum,
+                        MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.ToOriginLength).Single().MicroscopeMagnificationEnum,
+                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, t.MicroscopeMagnificationEnum, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength }).Cast<object>()])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
             }
@@ -635,7 +634,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             {
                 MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
                 Cache.AlgorithmTemplateTypeEnum,
-                FindFocusPosition = position.ToShortString(),
+                FindFocusPosition = position,
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -654,7 +653,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     FilePath = resultImageFilePath,
                     TemplateFilePath = templatePath,
                     TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templatePath),
-                    Offset = Cache.MicroscopeMagnificationEnum == MicroscopeMagnificationEnum.Magnification150X ? Point.Empty : resultPosition - position,
+                    Offset = Cache.MicroscopeMagnificationEnum == MicroscopeMagnificationEnum.Magnification150X ? Point.Origin : resultPosition - (Vector)position,
                     TemplateScore = score,
                     TemplateAngle = angle
                 };
@@ -662,7 +661,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Logger.LogHtmlInformation("Match Template Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     MicroscopeMagnification = microscopeCentricityItemDto.MicroscopeMagnificationEnum,
-                    ResultPosition = microscopeCentricityItemDto.CentricityPosition.ToShortString()
+                    ResultPosition = microscopeCentricityItemDto.CentricityPosition
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(position);
@@ -753,7 +752,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         });
                         CalibrationStepIndex++;
                         AutoCalibrationStepIndex++;
-                        CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName.ToString();
+                        CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName;
                         break;
 
                     case 1:
@@ -809,7 +808,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                                 foreach (var itemReview in ReviewList)
                                 {
                                     SelectReviewItemDto = itemReview;
-                                    if (await VerifyCaibrationAsync(SelectReviewItemDto, cancellationToken) == false) return false;
+                                    if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false) return false;
                                 }
 
                                 result = true;
@@ -847,14 +846,14 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         if (CalibrationRecipeService.GetCorrectWaferMapByOffset(false) == false)
             return false;
 
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         switch (microscopeName)
         {
             case "0":
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification150X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.MicroscopeMagnificationEnum, null, out var maskInfo150) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo150, out var position150);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo150, out var position150);
                 Cache.TemplateFindPosition150X = position150;
                 Cache.TemplateFilePath150X = maskInfo150.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath150X = maskInfo150.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -865,7 +864,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification100X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.MicroscopeMagnificationEnum, null, out var maskInfo100) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo100, out var position100);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo100, out var position100);
                 Cache.TemplateFindPosition100X = position100;
                 Cache.TemplateFilePath100X = maskInfo100.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath100X = maskInfo100.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -876,7 +875,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.MicroscopeMagnificationEnum, null, out var maskInfo50) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo50, out var position50);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo50, out var position50);
                 Cache.TemplateFindPosition50X = position50;
                 Cache.TemplateFilePath50X = maskInfo50.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath50X = maskInfo50.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -887,7 +886,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification10X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.MicroscopeMagnificationEnum, null, out var maskInfo10) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo10, out var position10);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo10, out var position10);
                 Cache.TemplateFindPosition10X = position10;
                 Cache.TemplateFilePath10X = maskInfo10.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath10X = maskInfo10.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -898,14 +897,11 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
                 if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.MicroscopeMagnificationEnum, null, out var maskInfo5) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo5, out var position5);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo5, out var position5);
                 Cache.TemplateFindPosition5X = position5;
                 Cache.TemplateFilePath5X = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath5X = maskInfo5.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
                 Cache.FindPosition = Cache.TemplateFindPosition5X;
-                break;
-
-            default:
                 break;
         }
 
@@ -926,7 +922,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;
@@ -950,11 +946,11 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             {
                 if (await AutomationRecipeInformationAsync("0") == false) return false;
                 if (await AutomationRecipeInformationAsync("2") == false) return false;
-                foreach (var (index, itemReview) in ReviewList.Select((t, i) => (index: i, itemReview: t)))
+                foreach (var (_, itemReview) in ReviewList.Select((t, i) => (index: i, itemReview: t)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     SelectReviewItemDto = itemReview;
-                    if (await VerifyCaibrationAsync(SelectReviewItemDto, cancellationToken) == false)
+                    if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false)
                     {
                         DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.MicroscopeMagnificationEnum} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                         return false;

@@ -12,7 +12,7 @@ using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
@@ -126,7 +126,7 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.GetBrightFieldPosition());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
@@ -144,7 +144,7 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.GetDarkFieldPosition());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
@@ -164,7 +164,7 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.GetStagePosition());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
@@ -245,7 +245,7 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.FindWaferCenter(out _, null, offsetThreshold));
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
@@ -268,7 +268,7 @@ public sealed class CalibrationStageServiceImpl(
         bitmapMemoryBytes = tempBitmaps;
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
@@ -477,7 +477,7 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.GetStagePoint2BFCenter());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
@@ -508,7 +508,7 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.GetStagePoint2EfemLoadWafer());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Empty)
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, Point.Origin)
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 

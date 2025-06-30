@@ -2,9 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Models;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models.Models.Chuck.StageMap;
@@ -86,35 +86,35 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     [ObservableProperty]
     private int _xWidthPixel = 1000;
 
-    [Comparison(1, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
     public int RowNumber
     {
         get => _rowNumber;
         set => SetProperty(ref _rowNumber, value, true);
     }
 
-    [Comparison(1, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Number: ")]
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Number: ")]
     public int ColumnNumber
     {
         get => _columnNumber;
         set => SetProperty(ref _columnNumber, value, true);
     }
 
-    [Comparison(0.1d, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth
     {
         get => _columnCellWidth;
         set => SetProperty(ref _columnCellWidth, value, true);
     }
 
-    [Comparison(0.1d, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
     public double RowCellHeight
     {
         get => _rowCellHeight;
         set => SetProperty(ref _rowCellHeight, value, true);
     }
 
-    [Comparison(1000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
     public double WaferDiameter
     {
         get => _waferDiameter;
@@ -122,7 +122,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     }
 
     [CustomValidation(typeof(ChuckStageMapCache), nameof(ValidateIsOutOfRowNumberRange))]
-    [Comparison(1, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Row MinCout: ")]
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Row MinCout: ")]
     public int CalculateContainRowMinCout
     {
         get => _calculateContainRowMinCout;
@@ -130,14 +130,14 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     }
 
     [CustomValidation(typeof(ChuckStageMapCache), nameof(ValidateIsOutOfColumnNumberRange))]
-    [Comparison(1, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Column MinCout: ")]
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Column MinCout: ")]
     public int CalculateContainColumnMinCount
     {
         get => _calculateContainColumnMinCount;
         set => SetProperty(ref _calculateContainColumnMinCount, value, true);
     }
 
-    [Comparison(0, 10, ComparisonTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "RepeatCount: ")]
+    [ComparisonRange(0, 10, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "RepeatCount: ")]
     public int RepeatCount
     {
         get => _repeatCount;

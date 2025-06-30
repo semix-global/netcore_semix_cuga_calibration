@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Models;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
@@ -25,21 +25,21 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     private double _p5Angle;
 
 
-    [Comparison(0.1d, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth
     {
         get => _columnCellWidth;
         set => SetProperty(ref _columnCellWidth, value, true);
     }
 
-    [Comparison(0.1d, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
     public double RowCellHeight
     {
         get => _rowCellHeight;
         set => SetProperty(ref _rowCellHeight, value, true);
     }
 
-    [Comparison(1000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
     public double WaferDiameter
     {
         get => _waferDiameter;
@@ -60,7 +60,7 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     /// <summary>
     /// 低倍高倍的相对位置误差
     /// </summary>
-    public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - BaseLowSiteFindPosition;
+    public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - (Vector)BaseLowSiteFindPosition;
 
     [ObservableProperty]
     private string _lowTemplateFilePath = string.Empty;

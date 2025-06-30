@@ -4,7 +4,7 @@ using Core.Models.Models.Common.EFEM;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common;

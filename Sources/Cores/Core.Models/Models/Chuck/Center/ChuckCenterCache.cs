@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Models;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.Center;
 
@@ -94,14 +94,14 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
     private double _p5Angle;
 
 
-    [Comparison(0, 50, ComparisonTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Threshold: ")]
+    [ComparisonRange(0, 50, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Threshold: ")]
     public int Threshold
     {
         get => _threshold;
         set => SetProperty(ref _threshold, value, true);
     }
 
-    [Comparison(0d, 1d, ComparisonTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Positive Angle: ")]
+    [ComparisonRange(0d, 1d, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Positive Angle: ")]
     public double PositiveAngle
     {
         get => _positiveAngle;
@@ -112,20 +112,20 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
     private double _thetaAngle;
 
 
-    [Comparison(-1d, 0d, ComparisonTypeEnum.LeftClosedAndRightOpenInterval, ErrorMessage = "Negative Angle: ")]
+    [ComparisonRange(-1d, 0d, NumberComparisonRangeTypeEnum.LeftClosedAndRightOpenInterval, ErrorMessage = "Negative Angle: ")]
     public double NegativeAngle
     {
         get => _negativeAngle;
         set => SetProperty(ref _negativeAngle, value, true);
     }
 
-    public Point LowToHighPointTop => HighTopPosition - LowTopPosition;
+    public Point LowToHighPointTop => HighTopPosition - (Vector)LowTopPosition;
 
-    public Point LowToHighPointRight => HighRightPosition - LowRightPosition;
+    public Point LowToHighPointRight => HighRightPosition - (Vector)LowRightPosition;
 
-    public Point LowToHighPointBottom => HighBottomPosition - LowBottomPosition;
+    public Point LowToHighPointBottom => HighBottomPosition - (Vector)LowBottomPosition;
 
-    public Point LowToHighPointLeft => HighLeftPosition - LowLeftPosition;
+    public Point LowToHighPointLeft => HighLeftPosition - (Vector)LowLeftPosition;
 
     #region Verify
 

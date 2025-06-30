@@ -4,13 +4,13 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -152,7 +152,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             return false;
         }
 
-        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Empty);
+        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
         return true;
     }
 
@@ -364,7 +364,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 Cache.CalChipSiteModelEnum,
                 MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
                 CurrentEcsValue = ecsValue,
-                FindFocusPosition = findFocusPosition.ToShortString(),
+                FindFocusPosition = findFocusPosition,
                 FindFocusLimitMin = findFocusMin,
                 FindFocusLimitMax = findFocusMax,
                 FindFocusInterval = findFocusInterval,
@@ -460,7 +460,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 {
                     Cache.CalChipSiteModelEnum,
                     MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
-                    FindFocusPosition = findFocusPosition.ToShortString(),
+                    FindFocusPosition = findFocusPosition,
                     FindFocusLimitMin = findFocusMin,
                     FindFocusLimitMax = findFocusMax,
                     FindFocusInterval = findFocusInterval,

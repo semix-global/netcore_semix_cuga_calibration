@@ -1,7 +1,7 @@
 ﻿using FreeSql.DataAnnotations;
 using Local.SQL.DB.Providers.Models.Entities.Base;
 using Local.SQL.DB.Providers.Models.Enums;
-using Net.Utilities.Helper.Json;
+using Net.Utilities.Helpers;
 using Newtonsoft.Json;
 
 namespace Local.SQL.DB.Providers.Models.Entities;
@@ -22,7 +22,7 @@ public sealed class SysUser : EntityBase
     /// <summary>
     /// 部门Id
     /// </summary>
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
     public long DeptId { get; set; }
 
     /// <summary>
@@ -59,7 +59,7 @@ public sealed class SysUser : EntityBase
     /// 最后登录时间
     /// </summary>
     [Column(CanInsert = false, ServerTime = DateTimeKind.Local)]
-    [JsonConverter(typeof(JsonConverterUtil.DateTimeJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.DateTimeJsonConverter))]
     public DateTime? LoginDate { get; set; }
 
     #region 导航属性

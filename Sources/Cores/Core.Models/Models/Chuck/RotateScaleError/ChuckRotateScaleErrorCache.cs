@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
 
 namespace Core.Models.Models.Chuck.RotateScaleError;
 
@@ -20,7 +20,7 @@ public sealed partial class ChuckRotateScaleErrorCache : CalibrationCacheBase
     [ObservableProperty]
     private double _p5ResultAngle = 0d;
 
-    [Comparison(0d, 1d, ComparisonTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Rotate Angle: ")]
+    [ComparisonRange(0d, 1d, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Rotate Angle: ")]
     public double RotateAngle
     {
         get => _rotateAngle;

@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.Gantry;
 
@@ -45,7 +45,7 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase
     [ObservableProperty]
     private double _p5Angle;
 
-    public Point LowToHighPoint1 => HighFindPosition1 - LowFindPosition1;
+    public Point LowToHighPoint1 => HighFindPosition1 - (Vector)LowFindPosition1;
 
-    public Point LowToHighPoint2 => HighFindPosition2 - LowFindPosition2;
+    public Point LowToHighPoint2 => HighFindPosition2 - (Vector)LowFindPosition2;
 }

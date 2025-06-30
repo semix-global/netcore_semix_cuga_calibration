@@ -5,13 +5,12 @@ using Core.Models.Models.Common.StageMap;
 using Core.Services.Interfaces;
 using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using System.IO;
-using Rect = Net.Utilities.Models.Rect;
+using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements.Mock;
 
@@ -118,7 +117,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         offsetPoint = new Point(Random.Next(1, 10), Random.Next(1, 10));
 
         var size = HalconHelper.GetSize(image);
-        markPoint = (Point)(size / 2d) + new Point(offsetPoint.X, -offsetPoint.Y);
+        markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
 
         return true;
     }
@@ -147,7 +146,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         offsetPoint = new Point(Random.Next(1, 10), Random.Next(1, 10));
 
         var size = HalconHelper.GetSize(image);
-        markPoint = (Point)(size / 2d) + new Point(offsetPoint.X, -offsetPoint.Y);
+        markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
 
         return true;
     }

@@ -1,9 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Extensions;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
@@ -71,7 +70,7 @@ public sealed partial class WaferMapDto : ObservableCacheBase, ICloneable<WaferM
                 WaferMapDieDtoItemList[row][column].RowIndex = row;
                 WaferMapDieDtoItemList[row][column].ColumnIndex = column;
 
-                WaferMapDieDtoItemList[row][column].IsInWafer = idealPoint.IsPointInCircle(centerPosition, diameter);
+                WaferMapDieDtoItemList[row][column].IsInWafer = new Circle(centerPosition, diameter / 2d).Contains(idealPoint);
             }
         }
 
@@ -98,7 +97,7 @@ public sealed partial class WaferMapDto : ObservableCacheBase, ICloneable<WaferM
                 WaferMapReticleDieDtoItemList[row][column].RowIndex = row;
                 WaferMapReticleDieDtoItemList[row][column].ColumnIndex = column;
 
-                WaferMapReticleDieDtoItemList[row][column].IsInWafer = idealPoint.IsPointInCircle(centerPosition, diameter);
+                WaferMapReticleDieDtoItemList[row][column].IsInWafer = new Circle(centerPosition, diameter / 2d).Contains(idealPoint);
             }
         }
 

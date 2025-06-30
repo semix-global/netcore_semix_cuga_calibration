@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
+        <AssemblyName>Core.Models</AssemblyName>
+        <RootNamespace>Core.Models</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041'">
+        <PackageReference Include="Semix.CoreLib" />
+        <PackageReference Include="Semix.GRPC.DTO" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+        <Reference Include="Semix.CoreLib">
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
+        </Reference>
+        <Reference Include="Semix.WcfTransfer.DTO">
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
+        </Reference>
+        <Reference Include="Cuga.Data.DataStruct">
+            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
+		<ProjectReference Include="..\Core.Utilities.WPF\01. Core.Utilities.WPF.csproj" />
+		<ProjectReference Include="..\Core.Wcf\02. Core.Wcf.csproj" />
+    </ItemGroup>
+
+</Project>

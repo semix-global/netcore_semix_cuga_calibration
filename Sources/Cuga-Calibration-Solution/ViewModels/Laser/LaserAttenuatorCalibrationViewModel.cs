@@ -9,11 +9,11 @@ using Core.Models.Models.Laser.OpticalPower;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -277,7 +277,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
             {
                 Logger.LogHtmlInformation($"{Name}: Attenuator calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    StagePosition = ResultLaserAttenuatorObjDto.StagePosition.ToShortString(),
+                    ResultLaserAttenuatorObjDto.StagePosition,
                     ResultLaserAttenuatorObjDto.InitialightIntensity,
                     ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -306,10 +306,10 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
 
             ResultLaserAttenuatorObjDto.PrescanWaveFormLightIntensitites.Add(lightIntensityC);
             var point = new Point
-            {
-                X = c,
-                Y = lightIntensityC / ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
-            };
+            (
+                c,
+                lightIntensityC / ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
+            );
             ResultLaserAttenuatorObjDto.CoefficientCurvePositions = [.. ResultLaserAttenuatorObjDto.CoefficientCurvePositions, point];
             ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [];
         }

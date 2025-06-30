@@ -4,10 +4,10 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
 using HalconDotNet;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.WCF;
@@ -40,7 +40,7 @@ public sealed class CalibrationReviewServiceImpl : BaseService<ICgCalibrationSer
 
         if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, HalconHelper.EmptyHObject);
 
-        var (width, height) = size.Anything;
+        var (width, height) = size.Anything.DeconstructToInt32();
         return SxExecuteRetHelper.CreateSuccess(HalconHelper.ImageRawBytesToHObject(bytes.Anything, width, height, channels.Anything));
     }
 

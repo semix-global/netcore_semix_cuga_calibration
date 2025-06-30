@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.Management.Recipe.Children.WaferMapCanvasView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:wpf="clr-namespace:Net.Utilities.WaferMap.WPF;assembly=Net.Utilities.WaferMap.WPF"
+             xmlns:local="clr-namespace:CugaCalibration.Views.Common.Windows.Management.Recipe.Children"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
+             d:DataContext="{d:DesignInstance Type=viewModels:RecipeSettingViewModel}"
+             d:DesignHeight="1200"
+             d:DesignWidth="1200"
+             mc:Ignorable="d">
+    <Grid>
+        <Border Padding="2"
+                Style="{StaticResource BorderRegion}"
+                Effect="{StaticResource EffectShadow1}">
+            <wpf:WaferMapCanvas x:Name="WaferMapCanvas" Grid.Row="2"
+                                DataContext="{Binding WaferMapCanvasViewModel}" />
+        </Border>
+    </Grid>
+</UserControl>

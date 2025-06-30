@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0</TargetFrameworks>
+        <AssemblyName>Core.Utilities</AssemblyName>
+        <RootNamespace>Core.Utilities</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Net.Utilities.Mapper" />
+        <PackageReference Include="Net.Utilities.Models" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" />
+        <PackageReference Include="Net.Utilities.Helpers" />
+        <PackageReference Include="Net.Utilities.Algorithms" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" />
+        <PackageReference Include="Net.Utilities.IOC" />
+
+        <PackageReference Include="Net.Utilities.Nlog" />
+
+		<PackageReference Include="Net.Utilities.Graphics" />
+	</ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Databases\Local.NoSQL.DB.Providers\Local.NoSQL.DB.Providers.csproj" />
+        <ProjectReference Include="..\..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
+    </ItemGroup>
+
+</Project>

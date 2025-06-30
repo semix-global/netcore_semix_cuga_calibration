@@ -1,13 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Utilities;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
@@ -84,7 +84,7 @@ public sealed partial class DepartmentsManagementViewModel(
     protected override async Task<bool> SelectingAsync()
     {
         var selectDto = OperateSysDeptDto!.Clone();
-        selectDto.LeaderUserId = SelectSysUserDto is null ? ConstantHelper.NegValue : SelectSysUserDto!.Id;
+        selectDto.LeaderUserId = SelectSysUserDto is null ? Constants.NegInt32Value : SelectSysUserDto!.Id;
         selectDto.Leader = SelectSysUserDto is null ? string.Empty : SelectSysUserDto.UserName;
 
         var result = await sysDeptService.GetByConditionAsync(selectDto).ConfigureAwait(false);
@@ -133,7 +133,7 @@ public sealed partial class DepartmentsManagementViewModel(
                 break;
 
             case 2: //add
-                OperateSysDeptDto = new SysDeptDto { Parent = SelectSysDeptDto!, ParentId = SelectSysDeptDto!.Id == 0 ? ConstantHelper.NegValue : SelectSysDeptDto!.Id };
+                OperateSysDeptDto = new SysDeptDto { Parent = SelectSysDeptDto!, ParentId = SelectSysDeptDto!.Id == 0 ? Constants.NegInt32Value : SelectSysDeptDto!.Id };
                 SelectSysUserDto = new SysUserDto();
                 break;
         }
@@ -193,7 +193,7 @@ public sealed partial class DepartmentsManagementViewModel(
             return;
 
         OperateSysDeptDto!.Parent = null;
-        OperateSysDeptDto!.ParentId = ConstantHelper.NegValue;
+        OperateSysDeptDto!.ParentId = Constants.NegInt32Value;
     }
 
     #endregion Command

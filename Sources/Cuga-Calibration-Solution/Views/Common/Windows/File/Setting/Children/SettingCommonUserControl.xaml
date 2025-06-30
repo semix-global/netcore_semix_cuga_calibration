@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:enumsUtilities="clr-namespace:Net.Utilities.Enums;assembly=Net.Utilities"
+             xmlns:enumsUtilities="clr-namespace:Net.Utilities.Models.Enums.Loggings;assembly=Net.Utilities.Models"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"

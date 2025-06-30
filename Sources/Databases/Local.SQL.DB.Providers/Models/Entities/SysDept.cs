@@ -1,7 +1,7 @@
 using FreeSql.DataAnnotations;
 using Local.SQL.DB.Providers.Models.Entities.Base;
-using Net.Utilities.Constants;
-using Net.Utilities.Helper.Json;
+using Net.Utilities.Helpers;
+using Net.Utilities.Models;
 using Newtonsoft.Json;
 
 namespace Local.SQL.DB.Providers.Models.Entities;
@@ -22,8 +22,8 @@ public sealed class SysDept : EntityBase
     /// <summary>
     /// 父部门ID
     /// </summary>
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
-    public long ParentId { get; set; } = ConstantHelper.NegValue;
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
+    public long ParentId { get; set; } = Constants.NegInt32Value;
 
     /// <summary>
     /// 显示顺序

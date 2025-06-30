@@ -5,8 +5,8 @@ using Core.Models.Models.Setting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 
@@ -25,7 +25,7 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
     private SettingDarkFieldAutoFocusParam _settingDarkFieldAutoFocusParam = new();
 
     [RelayCommand]
-    private Task ChuckAutoRtfcAsync() => Task.Run(action: () => ChuckAfAutoRtfc(Point.Empty, Guid.NewGuid(), true));
+    private Task ChuckAutoRtfcAsync() => Task.Run(action: () => ChuckAfAutoRtfc(Point.Origin, Guid.NewGuid(), true));
 
     public (bool IsSuccess, (double Ecs, double Height) Result) ChuckAfAutoRtfc(Point position, Guid htmlLogUniqueId, bool isContainsEnd = false)
     {
@@ -61,7 +61,7 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
             }
             finally
             {
-                stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             }
         }
         catch (Exception ex)
@@ -74,7 +74,7 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
             if (isContainsEnd)
             {
                 logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(
-                    $"ChuckAfAutoRtfc_Mag({EnumHelper.ToDescriptionString(OpticsMagTypeEnum)})_Position({position.ToShortString()})_{(isSuccess ? "OK" : "Failed")}"));
+                    $"ChuckAfAutoRtfc_Mag({EnumHelper.ToDescriptionString(OpticsMagTypeEnum)})_Position({position})_{(isSuccess ? "OK" : "Failed")}"));
             }
         }
     }

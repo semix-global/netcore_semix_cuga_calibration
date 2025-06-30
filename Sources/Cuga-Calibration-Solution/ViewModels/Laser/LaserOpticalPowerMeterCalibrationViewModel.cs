@@ -11,8 +11,8 @@ using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -253,7 +253,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsMagTypeEnum,
-                FindPosition = Cache.FindPosition.ToShortString(),
+                Cache.FindPosition,
                 Cache.MeasureMinPower,
                 Cache.MeasureMaxPower,
                 Cache.RowNumber,
@@ -297,7 +297,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
                 {
                     for (var column = 0; column < Cache.ColumnNumber; column++)
                     {
-                        var position = laserOpticalPowerObjDto.FindCenterPosition + new Point((column - centerX) * Cache.ColumnCellWidth, (row - centerY) * Cache.RowCellHeight);
+                        var position = laserOpticalPowerObjDto.FindCenterPosition + (Vector)new Point((column - centerX) * Cache.ColumnCellWidth, (row - centerY) * Cache.RowCellHeight);
                         laserOpticalPowerObjDto.Map.Add(new LaserOpticalPowerItemDto
                         {
                             MeasurePosition = position,
@@ -341,9 +341,9 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
                 var htmlBulletList = new HtmlQuote(new
                 {
-                    FindCenterPosition = laserOpticalPowerObjDto.FindCenterPosition.ToShortString(),
+                    laserOpticalPowerObjDto.FindCenterPosition,
                     laserOpticalPowerObjDto.MeasureMaxPower,
-                    MeasureMaxPowerPosition = laserOpticalPowerObjDto.MeasureMaxPowerPosition.ToShortString(),
+                    laserOpticalPowerObjDto.MeasureMaxPowerPosition,
                     MaxRow = maximumIndexRow,
                     MaxColumn = maximumIndexCol,
                     IsInEdge = isInEdge,
@@ -353,7 +353,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
                             t.Row,
                             t.Column,
                             t.MeasurePower,
-                            MeasurePosition = t.MeasurePosition.ToShortString()
+                            t.MeasurePosition
                         })
                     ])
                 });
@@ -404,7 +404,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
                 Cache.RowCellHeight,
                 Cache.WaitTime,
                 Cache.Threshold,
-                MeasureMaxPowerPosition = ReviewDto.MeasureMaxPowerPosition.ToShortString(),
+                ReviewDto.MeasureMaxPowerPosition,
                 ReviewDto.MeasureMaxPower
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -442,7 +442,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
                 Cache.RowCellHeight,
                 Cache.WaitTime,
                 Cache.Threshold,
-                MeasureMaxPowerPosition = ReviewDto.MeasureMaxPowerPosition.ToShortString(),
+                ReviewDto.MeasureMaxPowerPosition,
                 ReviewDto.MeasureMaxPower
             }), HtmlLogUniqueId.LoggingHtml());
 

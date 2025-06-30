@@ -1,12 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Utilities;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
 

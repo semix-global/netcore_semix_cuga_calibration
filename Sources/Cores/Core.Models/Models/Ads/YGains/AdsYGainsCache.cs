@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Ads.YGains;

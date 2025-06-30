@@ -1,5 +1,5 @@
 ﻿using HalconDotNet;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
