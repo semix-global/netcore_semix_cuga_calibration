@@ -75,6 +75,15 @@ public partial class AdsGainsDiagnosisViewModel(
     private AdsYGainsItemDto? _selectedYGainsItemDto;
 
     [ObservableProperty]
+    private double _singleDiagnosisSpeed = 90;
+
+    [ObservableProperty]
+    private AdsXGainsItemDto _singleDiagnosisXGainsDto = new();
+
+    [ObservableProperty]
+    private AdsYGainsItemDto _singleDiagnosisYGainsDto = new();
+
+    [ObservableProperty]
     private AdsXGainsCache _xGainCache = new();
 
     [ObservableProperty]
@@ -154,6 +163,47 @@ public partial class AdsGainsDiagnosisViewModel(
         catch (Exception ex)
         {
             logger.LogError(ex, "{@Name}: Move Point Failed", nameof(AdsGainsDiagnosisViewModel));
+        }
+    }
+
+    [RelayCommand]
+    private async Task OnceDianosisActionAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (IsX)
+            {
+                var x1 = XGainCache.GetX1();
+                var x2 = XGainCache.GetX2();
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition());
+
+                adsViewModel.SetSensorXSpeedFeedForwardValue(XGainCache.IsPositive, (x1, x2));
+
+                stageViewModel.SetXSpeedValue(SingleDiagnosisSpeed);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition(), false);
+                await Task.Delay(hostEnvironment.IsDevelopment() ? 1000 : 10000, cancellationToken);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetEndPosition(), false);
+            }
+            else
+            {
+                var y1 = YGainCache.GetY1();
+                var y2 = YGainCache.GetY2();
+                var y3 = YGainCache.GetY3();
+
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition());
+
+                adsViewModel.SetSensorYSpeedFeedForwardValue(YGainCache.IsPositive, (y1, y2, y3));
+
+                stageViewModel.SetYSpeedValue(SingleDiagnosisSpeed);
+
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition(), false);
+                await Task.Delay(hostEnvironment.IsDevelopment() ? 1000 : 10000, cancellationToken);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetEndPosition(), false);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "{@Name}: Once Diagnosis Action Failed", nameof(AdsGainsDiagnosisViewModel));
         }
     }
 
@@ -264,16 +314,18 @@ public partial class AdsGainsDiagnosisViewModel(
         async Task<bool> GetHrpAsync(AdsXGainsItemDto adsXGainsItemDto)
         {
             adsXGainsItemDto.IsPositive = XGainCache.IsPositive;
+            var x1 = XGainCache.GetX1();
+            var x2 = XGainCache.GetX2();
             // todo: 这里需要优化，暂时先用固定值,判断正反向
-            var speedXValue = 70;
-            var x1 = adsXGainsItemDto.PositiveX1P1 * speedXValue * speedXValue + adsXGainsItemDto.PositiveX1P2 * speedXValue + adsXGainsItemDto.PositiveX1P3;
-            var x2 = adsXGainsItemDto.PositiveX2P1 * speedXValue * speedXValue + adsXGainsItemDto.PositiveX2P2 * speedXValue + adsXGainsItemDto.PositiveX2P3;
+            //var speedXValue = 70;
+            //var x1 = adsXGainsItemDto.PositiveX1P1 * speedXValue * speedXValue + adsXGainsItemDto.PositiveX1P2 * speedXValue + adsXGainsItemDto.PositiveX1P3;
+            //var x2 = adsXGainsItemDto.PositiveX2P1 * speedXValue * speedXValue + adsXGainsItemDto.PositiveX2P2 * speedXValue + adsXGainsItemDto.PositiveX2P3;
 
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition());
 
             adsViewModel.SetSensorXSpeedFeedForwardValue(XGainCache.IsPositive, (x1, x2));
 
-            //stageViewModel.SetSpeed(XGainCache.StageSpeedEnum, XGainCache.OpticsMagTypeEnum);
+            stageViewModel.SetXSpeedValue(SingleDiagnosisSpeed);
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition(), false);
 
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 10000);
@@ -344,17 +396,16 @@ public partial class AdsGainsDiagnosisViewModel(
         async Task<bool> GetHrpAsync(AdsYGainsItemDto adsYGainsItemDto)
         {
             adsYGainsItemDto.IsPositive = YGainCache.IsPositive;
-            var y1 = 0;
-            var y2 = 0;
-            var y3 = 0;
-            //var y2 = adsYGainsItemDto.GetY2();
-            //var y3 = adsYGainsItemDto.GetY3();
+            var y1 = YGainCache.GetY1();
+            var y2 = YGainCache.GetY2();
+            var y3 = YGainCache.GetY3();
 
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition());
 
             adsViewModel.SetSensorYSpeedFeedForwardValue(YGainCache.IsPositive, (y1, y2, y3));
 
-            stageViewModel.SetYSpeedValue(YGainCache.DefaultSpeedXValue);
+            stageViewModel.SetYSpeedValue(SingleDiagnosisSpeed);
+
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition(), false);
 
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 10000);
