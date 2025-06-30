@@ -8,7 +8,8 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -124,7 +125,7 @@ public sealed class MicroscopeViewModel(
         {
             if (isMoveToMicroscopeCenter == false) return true;
             if (oldMicroscopeCentricityItemDto?.IsOk != true || newMicroscopeCentricityItemDto?.IsOk != true) return true;
-            stageViewModel.MoveRelativeStageXy(newMicroscopeCentricityItemDto.Offset - oldMicroscopeCentricityItemDto.Offset);
+            stageViewModel.MoveRelativeStageXy(newMicroscopeCentricityItemDto.Offset - (Vector)oldMicroscopeCentricityItemDto.Offset);
             return true;
         });
 

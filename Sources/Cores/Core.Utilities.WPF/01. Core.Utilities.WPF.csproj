@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Core.Utilities.WPF</AssemblyName>
+        <RootNamespace>Core.Utilities.WPF</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Net.Utilities.Graphics.WPF" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" />
+
+        <PackageReference Include="Net.Utilities.WPF" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" />
+        <PackageReference Include="WPF.CanvasViewer" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Databases\WPF.CustomControl\WPF.CustomControl.csproj" />
+    </ItemGroup>
+
+</Project>

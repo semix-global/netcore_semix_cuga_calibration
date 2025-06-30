@@ -28,7 +28,10 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     private double _nscOffset;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NscGainReciprocal))]
     private double _nscGain;
+
+    public double NscGainReciprocal => NscGain == 0 ? 0 : 1 / NscGain;
 
     [ObservableProperty]
     private double _nscCurrentMax;

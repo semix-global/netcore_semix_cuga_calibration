@@ -4,17 +4,17 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Setting;
+using Core.Utilities;
+using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.Struct;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -22,6 +22,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -38,9 +39,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     IOptions<ApplicationSetting> options,
     ILogger<AodGenerateWaveFileTrainingChirpWindowViewModel> logger) : ViewModelBase
 {
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirpWindowViewModel)), DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirpWindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
-    public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirpWindowViewModel)), DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
+    public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirpWindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     #region 0. 确认生成波形参数
 
@@ -221,7 +222,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 var detectImageDirectory = ImageDirectory;
                 using var _ = darkFieldImageDto;
 
-                var filePath = $"{detectImageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat)}.jpg";
+                var filePath = $"{detectImageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg";
                 HalconHelper.Save(darkFieldImageDto.Image, filePath);
                 createRoiWindowViewModel.ImageFilePath = filePath;
 
@@ -281,7 +282,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 Items =
                 [
-                    .. EnumerableHelper.GenerateList(AstigmatismCompensationCoefficientMin, AstigmatismCompensationCoefficientMax, AstigmatismCompensationCoefficientStep).Select(t => new AodGenerateWaveFileTrainingChirp
+                    .. Generate.LinearRange(AstigmatismCompensationCoefficientMin, AstigmatismCompensationCoefficientStep, AstigmatismCompensationCoefficientMax).Select(t => new AodGenerateWaveFileTrainingChirp
                     {
                         AstigmatismCompensationCoefficient = t,
                         SphericalAberrationCompensationCoefficient = 0,
@@ -330,7 +331,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 Items =
                 [
-                    .. EnumerableHelper.GenerateList(SphericalAberrationCompensationCoefficientMin, SphericalAberrationCompensationCoefficientMax, SphericalAberrationCompensationCoefficientStep).Select(t => new AodGenerateWaveFileTrainingChirp
+                    .. Generate.LinearRange(SphericalAberrationCompensationCoefficientMin, SphericalAberrationCompensationCoefficientStep, SphericalAberrationCompensationCoefficientMax).Select(t => new AodGenerateWaveFileTrainingChirp
                     {
                         AstigmatismCompensationCoefficient = 0,
                         SphericalAberrationCompensationCoefficient = t,
@@ -380,7 +381,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 Items =
                 [
-                    .. EnumerableHelper.GenerateList(SecondaryAstigmatismCompensationCoefficientMin, SecondaryAstigmatismCompensationCoefficientMax, SecondaryAstigmatismCompensationCoefficientStep).Select(t => new AodGenerateWaveFileTrainingChirp
+                    .. Generate.LinearRange(SecondaryAstigmatismCompensationCoefficientMin, SecondaryAstigmatismCompensationCoefficientStep, SecondaryAstigmatismCompensationCoefficientMax).Select(t => new AodGenerateWaveFileTrainingChirp
                     {
                         AstigmatismCompensationCoefficient = 0,
                         SphericalAberrationCompensationCoefficient = 0,
@@ -429,7 +430,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 Items =
                 [
-                    .. EnumerableHelper.GenerateList(ComaCompensationCoefficientMin, ComaCompensationCoefficientMax, ComaCompensationCoefficientStep).Select(t => new AodGenerateWaveFileTrainingChirp
+                    .. Generate.LinearRange(ComaCompensationCoefficientMin, ComaCompensationCoefficientStep, ComaCompensationCoefficientMax).Select(t => new AodGenerateWaveFileTrainingChirp
                     {
                         AstigmatismCompensationCoefficient = 0,
                         SphericalAberrationCompensationCoefficient = 0,
@@ -478,7 +479,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 Items =
                 [
-                    .. EnumerableHelper.GenerateList(TrefoilCompensationCoefficientMin, TrefoilCompensationCoefficientMax, TrefoilCompensationCoefficientStep).Select(t => new AodGenerateWaveFileTrainingChirp
+                    .. Generate.LinearRange(TrefoilCompensationCoefficientMin, TrefoilCompensationCoefficientStep, TrefoilCompensationCoefficientMax).Select(t => new AodGenerateWaveFileTrainingChirp
                     {
                         AstigmatismCompensationCoefficient = 0,
                         SphericalAberrationCompensationCoefficient = 0,
@@ -527,7 +528,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 Items =
                 [
-                    .. EnumerableHelper.GenerateList(QuadrafoilCompensationCoefficientMin, QuadrafoilCompensationCoefficientMax, QuadrafoilCompensationCoefficientStep).Select(t => new AodGenerateWaveFileTrainingChirp
+                    .. Generate.LinearRange(QuadrafoilCompensationCoefficientMin, QuadrafoilCompensationCoefficientStep, QuadrafoilCompensationCoefficientMax).Select(t => new AodGenerateWaveFileTrainingChirp
                     {
                         AstigmatismCompensationCoefficient = 0,
                         SphericalAberrationCompensationCoefficient = 0,
@@ -637,7 +638,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 }), htmlGuid.LoggingHtml());
                 logger.LogHtmlInformation($"ECS: [{EcsMin}, {EcsMax}] STEP: {EcsStep}", HtmlHeaderLevelEnum.Header4, htmlGuid.LoggingHtml());
 
-                foreach (var (index, ecs) in EnumerableHelper.GenerateList(EcsMin, EcsMax, EcsStep).Select((t, i) => (Index: i, Ecs: t)))
+                foreach (var (index, ecs) in Generate.LinearRange(EcsMin, EcsStep, EcsMax).Select((t, i) => (Index: i, Ecs: t)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum), PrescanCoefficient));
@@ -656,7 +657,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                         StageSpeedEnum,
                         stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
 
-                    var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat)}" +
+                    var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}" +
                                    $"_{item.AstigmatismCompensationCoefficient:0.###############}astigmatism" +
                                    $"_{item.SphericalAberrationCompensationCoefficient:0.###############}sphericalAberration" +
                                    $"_{item.SecondaryAstigmatismCompensationCoefficient:0.###############}secondaryAstigmatism" +

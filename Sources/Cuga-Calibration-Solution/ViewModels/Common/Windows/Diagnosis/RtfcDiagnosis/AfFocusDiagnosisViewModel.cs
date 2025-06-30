@@ -16,16 +16,16 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
+using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
@@ -773,7 +773,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 获得NSC模式下的ECS、NSC值
-                Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + ResultFocusShiftDto.BrightFiedlToDarkFieldOffset;
+                Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + (Vector)ResultFocusShiftDto.BrightFiedlToDarkFieldOffset;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.IdeaDarkFieldMachinePosition);
 
                 var isAutoFocus = AfViewModel.SetDarkFieldAutoFocus(ResultFocusShiftDto.SettingDarkFieldAutoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
@@ -890,7 +890,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 //AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(ResultRtfcDto.AfMotor);
                 //var verifyReviseAfResult = Verify(ResultRtfcDto, true);
                 (ReviewCamTemperature, CibTemperature, XAxisTemperature, YAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
-                //StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                //StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 ChuckAfEcs = 0;
                 ResultRtfcDto.IdealEcs = idealEcs;
                 ResultRtfcDto.IdealEcsNsc = idealEcsNsc;
@@ -1090,7 +1090,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
         var matchMachinePosition = StageViewModel.DarkFieldToMachinePosition(resultPosition);
         ResultRtfcDto.DarkFieldFindPosition = resultPosition;
         ResultRtfcDto.DarkFieldImageFilePath = resultImageFilePath;
-        ResultRtfcDto.DarkFieldMatchOffset = matchMachinePosition - Cache.IdeaDarkFieldMachinePosition;
+        ResultRtfcDto.DarkFieldMatchOffset = matchMachinePosition - (Vector)Cache.IdeaDarkFieldMachinePosition;
         // 照明修正值(方向未定)
         ResultRtfcDto.LightAxisOffset = ResultRtfcDto.DarkFieldMatchOffset.X / Math.Sin(Cache.ObliqueAngle);
         ResultRtfcDto.DeltaEcs = ResultRtfcDto.DarkFieldMatchOffset.X / Math.Tan(Cache.ObliqueAngle);

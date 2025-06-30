@@ -21,23 +21,17 @@
         <File Path="../.gitmodules" />
         <File Path="../README.md" />
     </Folder>
-    <Folder Name="/01. Utilities/">
-        <Project Path="Utilities/Net.Utilities.Nlog/Net.Utilities.Nlog.csproj" />
-        <Project Path="Utilities/Net.Utilities.Roslyn.Build/Net.Utilities.Roslyn.Build.csproj" />
-        <Project Path="Utilities/Net.Utilities.WPF.MVVM/Net.Utilities.WPF.MVVM.csproj" />
-        <Project Path="Utilities/Net.Utilities.WPF/Net.Utilities.WPF.csproj" />
-        <Project Path="Utilities/Net.Utilities/Net.Utilities.csproj" />
-        <Project Path="Utilities/WPF.CanvasViewer/WPF.CanvasViewer.csproj" />
-        <Project Path="Utilities/WPF.CustomControl/WPF.CustomControl.csproj" />
-    </Folder>
-    <Folder Name="/02. Databases/">
+    <Folder Name="/01. Databases/">
         <Project Path="Databases/Local.NoSQL.DB.Providers/Local.NoSQL.DB.Providers.csproj" />
         <Project Path="Databases/Local.SQL.DB.Providers/Local.SQL.DB.Providers.csproj" />
+        <Project Path="Databases/WPF.CustomControl/WPF.CustomControl.csproj" />
     </Folder>
-    <Folder Name="/03. Cores/">
-        <Project Path="Cores/Core.Models/Core.Models.csproj" />
-        <Project Path="Cores/Core.Services/Core.Services.csproj" />
-        <Project Path="Cores/Core.Wcf/Core.Wcf.csproj" />
+    <Folder Name="/02. Cores/">
+        <Project Path="Cores/Core.Models/03. Core.Models.csproj" />
+        <Project Path="Cores/Core.Services/04. Core.Services.csproj" />
+        <Project Path="Cores/Core.Utilities.WPF/01. Core.Utilities.WPF.csproj" />
+        <Project Path="Cores/Core.Utilities/00. Core.Utilities.csproj" />
+        <Project Path="Cores/Core.Wcf/02. Core.Wcf.csproj" />
     </Folder>
     <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj" />
     <Project Path="Cuga-Calibration-Test/Cuga-Calibration-Test.csproj" />

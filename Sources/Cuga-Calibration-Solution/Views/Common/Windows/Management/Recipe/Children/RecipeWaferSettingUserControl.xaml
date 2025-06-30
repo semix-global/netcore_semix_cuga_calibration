@@ -25,114 +25,86 @@
                       Margin="10"
                       Header="Wafer Map">
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                    <local:WaferMapView Width="{Binding RelativeSource={RelativeSource AncestorType=GroupBox}, Path=ActualHeight}" />
+                    <local:WaferMapCanvasView Width="{Binding RelativeSource={RelativeSource AncestorType=GroupBox}, Path=ActualHeight}" />
                 </Border>
             </GroupBox>
-            <GroupBox Grid.Row="0" Grid.Column="1"
+            <GroupBox Grid.Column="1"
+                      Grid.RowSpan="2"
                       Margin="10"
                       Header="Wafer Parameter">
-                <Border Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}"
-                        DataContext="{Binding DataContext.CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical">
-                        <hc:NumericUpDown x:Name="WaferDiameterNumeric"
-                                          Width="350"
+                        <hc:NumericUpDown Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="WaferDiameter: "
+                                          hc:InfoElement.Title="Wafer Radius: "
                                           hc:InfoElement.TitlePlacement="Left"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.WaferDiameter, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferRadius, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown x:Name="CellDieWidthNumeric"
                                           Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="CellDieWidth: "
+                                          hc:InfoElement.Title="Die Width: "
                                           hc:InfoElement.TitlePlacement="Left"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.DiePitchWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
-                        <hc:NumericUpDown x:Name="CellDieHeightNumeric"
-                                          Width="350"
-                                          Margin="5"
-                                          hc:InfoElement.Title="CellDieHeight: "
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.DiePitchHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
-                        <hc:NumericUpDown x:Name="RowNumberNumeric"
-                                          Width="350"
-                                          Margin="5"
-                                          hc:InfoElement.Title="RowNumber: "
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          IsReadOnly="True"
-                                          Value="{Binding DataContext.CellDiePicthRowNumber, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferDiePitchSizeWidth, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="ColumnNumber: "
+                                          hc:InfoElement.Title="Die Height: "
                                           hc:InfoElement.TitlePlacement="Left"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          IsReadOnly="True"
-                                          Value="{Binding DataContext.CellDiePitchColumnNumber, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
-                        <hc:SimplePanel>
-                            <Button Content="Generate By DiePitch"
-                                    Command="{Binding DataContext.RefreshWaferMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="DiePitch"
-                                    Height="50"
-                                    Margin="5"
-                                    FontSize="15" />
-                        </hc:SimplePanel>
-                    </hc:UniformSpacingPanel>
-                </Border>
-            </GroupBox>
-            <GroupBox Grid.Row="1" Grid.Column="1"
-                      Margin="10"
-                      Header="Wafer Parameter">
-                <Border Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}"
-                        DataContext="{Binding DataContext.CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                    <hc:UniformSpacingPanel Orientation="Vertical">
+                                          Value="{Binding WaferDiePitchSizeHeight, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="ReferenceDieRowNumber: "
+                                          hc:InfoElement.Title="Die Scribe Width: "
                                           hc:InfoElement.TitlePlacement="Left"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.ReferenceDieRowNumber, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferDieScribeSizeWidth, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="ReferenceDieColumnNumber: "
+                                          hc:InfoElement.Title="Die Scribe Height: "
                                           hc:InfoElement.TitlePlacement="Left"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.ReferenceDieColumnNumber, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferDieScribeSizeHeight, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
                                           hc:InfoElement.Title="ReticleWidth: "
                                           hc:InfoElement.TitlePlacement="Left"
-                                          IsReadOnly="True"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.ReticleWidth, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferReticleDiePitchSizeWidth, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
                                           hc:InfoElement.Title="ReticleHeight: "
                                           hc:InfoElement.TitlePlacement="Left"
-                                          IsReadOnly="True"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.ReticleHeight, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferReticlePitchDieSizeHeight, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="ReticleRowNumber: "
+                                          hc:InfoElement.Title="Reticle Scribe Width: "
                                           hc:InfoElement.TitlePlacement="Left"
-                                          IsReadOnly="True"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.ReticleRowNumber, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferReticleDieScribeSizeWidth, UpdateSourceTrigger=LostFocus}" />
                         <hc:NumericUpDown Width="350"
                                           Margin="5"
-                                          hc:InfoElement.Title="ReticleColumnNumber: "
+                                          hc:InfoElement.Title="Reticle Scribe Height: "
                                           hc:InfoElement.TitlePlacement="Left"
-                                          IsReadOnly="True"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding DataContext.ReticleColumnNumber, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}" />
+                                          Value="{Binding WaferReticleDieScribeSizeHeight, UpdateSourceTrigger=LostFocus}" />
+                        <hc:NumericUpDown Width="350"
+                                          Margin="5"
+                                          hc:InfoElement.Title="Reticle References Die RowCount: "
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding WaferReticleDieCountX, UpdateSourceTrigger=LostFocus}" />
+                        <hc:NumericUpDown Width="350"
+                                          Margin="5"
+                                          hc:InfoElement.Title="Reticle References Die ColCount: "
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding WaferReticleDieCountY, UpdateSourceTrigger=LostFocus}" />
                         <hc:SimplePanel>
-                            <Button Content="Generate By Reticle"
-                                    Command="{Binding DataContext.RefreshWaferMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="Reticle"
+                            <Button Content="Generate By DiePitch"
+                                    Command="{Binding RefreshWaferMapCommand}"
+                                    CommandParameter="DiePitch"
                                     Height="50"
                                     Margin="5"
                                     FontSize="15" />

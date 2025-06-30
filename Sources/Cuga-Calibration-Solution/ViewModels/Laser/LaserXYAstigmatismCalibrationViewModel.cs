@@ -14,18 +14,18 @@ using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -40,7 +40,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 {
     #region 属性
 
-    public string ChirpFileDirectory => Path.Combine(AppHomeDirectory, "Chirp", nameof(LaserXYAstigmatismCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+    public string ChirpFileDirectory => Path.Combine(AppHomeDirectory, "Chirp", nameof(LaserXYAstigmatismCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
@@ -190,7 +190,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        Cache.FindPosition = Cache.FindPosition.DistanceToZero() >= Cache.ChuckRadius
+        Cache.FindPosition = Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius
             ? new Point(0, 0)
             : Cache.FindPosition;
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
@@ -202,7 +202,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (Cache.FindPosition.DistanceToZero() >= Cache.ChuckRadius)
+        if (Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius)
         {
             DialogWindowProvider.ShowDialog("The Bright Field Cache Position Out Of The Wafer!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -229,7 +229,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 return true;
 
             case 1:
-                if (Cache.FindPosition.DistanceToZero() >= Cache.ChuckRadius)
+                if (Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header2, new HtmlComment("The Bright Field Position Out Of The Wafer!"), HtmlLogUniqueId.LoggingHtml());
                     return false;

@@ -7,7 +7,7 @@ using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.LineCentricity;
 

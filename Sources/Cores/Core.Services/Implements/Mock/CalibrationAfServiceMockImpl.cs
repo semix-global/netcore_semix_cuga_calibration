@@ -4,7 +4,7 @@ using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.Mock;
@@ -241,6 +241,6 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
     {
-        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Empty], 1d));
+        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));
     }
 }

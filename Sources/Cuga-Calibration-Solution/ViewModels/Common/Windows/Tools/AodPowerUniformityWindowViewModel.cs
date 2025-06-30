@@ -2,24 +2,25 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.DarkField;
+using Core.Utilities;
 using Humanizer;
+using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Constants = Net.Utilities.Models.Constants;
 
 // ReSharper disable All
 
@@ -37,7 +38,7 @@ public partial class AodPowerUniformityWindowViewModel(
     public const double DefaultCoefficient = 1;
 
     public string AodWaveFileDirectory => Path.Combine(options.Value.AppHomeDirectory, EnumHelper.ToDescriptionString(OpticsAodTypeEnum), DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodPowerUniformityWindowViewModel)),
-        DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
+        DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     [ObservableProperty]
     private OpticsAodTypeEnum _opticsAodTypeEnum;
@@ -117,7 +118,7 @@ public partial class AodPowerUniformityWindowViewModel(
             {
                 var aodFileDirectory = AodWaveFileDirectory;
                 Items = [];
-                foreach (var centerFrequency in EnumerableHelper.GenerateList(StartCenterFrequency, EndCenterFrequency, StepCenterFrequency))
+                foreach (var centerFrequency in Generate.LinearRange(StartCenterFrequency, StepCenterFrequency, EndCenterFrequency))
                 {
                     try
                     {
@@ -280,7 +281,7 @@ public partial class AodPowerUniformityWindowViewModel(
             MeasureCoefficientPowerPoints = [];
 
             var lastCoefficient = DefaultCoefficient;
-            foreach (var coefficient in EnumerableHelper.GenerateList(0, DefaultCoefficient, CoefficientStep).OrderByDescending(t => t))
+            foreach (var coefficient in Generate.LinearRange(0, CoefficientStep, DefaultCoefficient).OrderByDescending(t => t))
             {
                 if (coefficient == 0) return false;
 
@@ -373,7 +374,7 @@ public partial class AodPowerUniformityWindowViewModel(
                         0,
                         item.CenterFrequency,
                         item.ChirpSoundPacketLength,
-                        MonotonicTypeEnum.Flatness,
+                        FunctionMonotonicTypeEnum.Flatness,
                         item.SampleRate,
                         item.Coefficient,
                         item.AodWaveFileDirectory,
@@ -384,7 +385,7 @@ public partial class AodPowerUniformityWindowViewModel(
                         0,
                         item.CenterFrequency,
                         item.PrescanFlatnessTime,
-                        MonotonicTypeEnum.Flatness,
+                        FunctionMonotonicTypeEnum.Flatness,
                         item.SampleRate,
                         item.Coefficient,
                         item.AodWaveFileDirectory,

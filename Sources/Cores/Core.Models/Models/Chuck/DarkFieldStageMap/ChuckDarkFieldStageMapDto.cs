@@ -11,7 +11,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.DarkFieldStageMap;
 
-public sealed partial class ChuckDarkFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckDarkFieldStageMapDto>, IAdaptTo<CalibrationChuckDarkFieldStageMap>
+public sealed partial class ChuckDarkFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckDarkFieldStageMapDto>
 {
     [ObservableProperty]
     private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
@@ -58,17 +58,6 @@ public sealed partial class ChuckDarkFieldStageMapDto : CalibrationDtoBase, IClo
         IsRequiredSelfCheck = IsRequiredSelfCheck,
         Id = Id,
         Expiration = Expiration
-    };
-
-    public CalibrationChuckDarkFieldStageMap AdaptTo() => new()
-    {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(MicroscopeMagnificationEnum),
-        OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        Speed = StageSpeedEnum.ToAdsSpeedEnum(),
-        ExpandStageMap = ExpandStageMapDto.AdaptTo(),
-        IsCalibrated = IsCalibrated,
-        IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
     };
 
     #endregion Mapper

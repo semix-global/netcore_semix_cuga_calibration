@@ -9,11 +9,9 @@ using Local.SQL.DB.Providers.Models.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.Object.String;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers;
+using Net.Utilities.Helpers.Helpers.Files;
 using SourceGenerator.InjectHostDI;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -31,12 +29,15 @@ public static class SqliteDbContextProvider
 {
     private static readonly Regex Regex = new($"Data Source=(?<{nameof(Directory)}>[^;]+)");
 
-    public static IServiceCollection AddSqlDbContext(this IServiceCollection services, IHostEnvironment hostEnvironment)
+    public static IServiceCollection AddSqlDbContext(
+        this IServiceCollection services,
+        Func<IServiceProvider, string> sqlDbDataSourceProvider,
+        IHostEnvironment hostEnvironment)
     {
         services.AddSingleton(_ => new SysUserDto());
 
         // 看了源码可以WPF使用单例模式(全局一个事务), Scope是因为每次HTTP请求事务独立
-        services.AddSingleton(GetFreeSql);
+        services.AddSingleton(sp => GetFreeSql(sp, sqlDbDataSourceProvider(sp)));
         services.AddSingleton(sp => new UnitOfWorkManager(sp.GetRequiredService<IFreeSql>()));
 
         services.AddLocalSQLDBProvidersInjectHostDI(hostEnvironment);
@@ -46,7 +47,7 @@ public static class SqliteDbContextProvider
 
     #region Freesql
 
-    private static IFreeSql GetFreeSql(IServiceProvider serviceProvider)
+    private static IFreeSql GetFreeSql(IServiceProvider serviceProvider, string sqlDbDataSource)
     {
         if (YitIdHelper.IdGenInstance is null)
             YitIdHelper.SetIdGenerator(new IdGeneratorOptions
@@ -56,18 +57,17 @@ public static class SqliteDbContextProvider
                 SeqBitLength = 6
             });
 
-        var appSettingOptions = serviceProvider.GetRequiredService<IOptions<ApplicationSetting>>().Value;
         var logger = serviceProvider.GetRequiredService<ILogger<LogProvider>>();
         var sysUserDto = serviceProvider.GetRequiredService<SysUserDto>();
 
-        var match = Regex.Match(appSettingOptions.SqlDbDataSource);
+        var match = Regex.Match(sqlDbDataSource);
         if (match.Success == false) throw new ArgumentException("SqlDbDataSource is invalid");
 
         var dataSourcePath = match.Groups[nameof(Directory)].Value;
         DirectoryHelper.CreateFileDirectoryIfNotExists(dataSourcePath);
 
         var freeSql = new FreeSqlBuilder()
-            .UseConnectionString(DataType.Sqlite, appSettingOptions.SqlDbDataSource)
+            .UseConnectionString(DataType.Sqlite, sqlDbDataSource)
             .UseAutoSyncStructure(false)
             .UseLazyLoading(false)
             .UseNoneCommandParameter(true)
@@ -232,7 +232,7 @@ public static class SqliteDbContextProvider
                 nameof(EntityBase.ModifiedTime) => DateTime.Now,
                 nameof(EntityBase.IsDeleted) => false,
                 nameof(EntityBase.IsEnabled) => true,
-                nameof(SysUser.Password) => MD5Encrypt.Encrypt32(e.Value?.ToString() ?? "666666"),
+                nameof(SysUser.Password) => EncryptUtils.Encrypt32(e.Value?.ToString() ?? "666666"),
                 _ => e.Value
             };
         }

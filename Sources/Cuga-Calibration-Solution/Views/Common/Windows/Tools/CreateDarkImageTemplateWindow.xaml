@@ -4,12 +4,12 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:behaviors1="clr-namespace:CanvasViewer.Behaviors;assembly=WPF.CanvasViewer"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            Width="1200"
            Height="900"
            d:DataContext="{d:DesignInstance Type=viewModels:CreateDarkImageTemplateWindowViewModel}"
@@ -84,7 +84,7 @@
                                  ShowGrid="False"
                                  BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapFrameConverter}}">
                     <i:Interaction.Behaviors>
-                        <behaviors1:CanvasViewerRoiBehavior Rect="{Binding Rect, Mode=TwoWay}" />
+                        <behaviors:CanvasViewerRoiBehavior Rect="{Binding Rect, Mode=TwoWay}" />
                     </i:Interaction.Behaviors>
                 </view:CanvasView>
                 <!--#endregion-->

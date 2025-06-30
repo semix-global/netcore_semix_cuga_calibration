@@ -1,8 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.DB.Providers.Models.Enums;
-using Net.Utilities.Constants;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 
 namespace Local.SQL.DB.Providers.Models.Entities.DTO;
 
@@ -12,7 +12,7 @@ public partial class SysMenuDto : SysBaseDto, ICloneable<SysMenuDto>, IAdaptTo<S
     private string _name = string.Empty;
 
     [ObservableProperty]
-    private long _parentId = ConstantHelper.NegValue;
+    private long _parentId = Constants.NegInt32Value;
 
     [ObservableProperty]
     private int _orderNum;

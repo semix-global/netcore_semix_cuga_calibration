@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Setting;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.FocusShift;
 
@@ -65,7 +65,7 @@ public sealed partial class FocusShiftDto : CalibrationDtoBase, ICloneable<Focus
     /// </summary>
     public double FocusShiftOffset => DarkFieldEcsValue - AutoFocusEcs;
 
-    public Point BrightFiedlToDarkFieldOffset => DarkFieldFindPosition - BrightFieldFindPosition;
+    public Point BrightFiedlToDarkFieldOffset => DarkFieldFindPosition - (Vector)BrightFieldFindPosition;
 
 
     public FocusShiftDto Clone() => new()

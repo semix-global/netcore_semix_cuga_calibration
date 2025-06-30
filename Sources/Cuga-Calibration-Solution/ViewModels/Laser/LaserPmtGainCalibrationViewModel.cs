@@ -12,11 +12,11 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -384,7 +384,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                     var plotlist = new List<Point>();
                     foreach (var itemPoint in itemPlot.VoltageLightListPoint)
                     {
-                        var point = new Point { X = itemPoint.X, Y = itemPoint.Y };
+                        var point = new Point(itemPoint.X, itemPoint.Y);
                         plotlist.Add(point);
                     }
 
@@ -461,8 +461,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                                 isAllProtect = true;
                             }
 
-                            point.X = voltage;
-                            point.Y = averagePmt;
+                            point = new Point(voltage, averagePmt);
                             if (pmtGainItem.Plot.Where(t => t.MeasurePower == laserPmtGainDto.MeasurePower).ToList().Count > 0)
                             {
                                 pmtGainItem.Plot.FirstOrDefault(t => t.MeasurePower == laserPmtGainDto.MeasurePower).VoltageLightListPoint.Add(point);
@@ -595,9 +594,9 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                     var plotlist2 = new List<Point>();
                     foreach (var itemPlot in SelectLaserPmtGainDto.Plot)
                     {
-                        var point1 = new Point { X = double.Parse(itemPlot.MeasurePower), Y = itemPlot.CurrentPower };
+                        var point1 = new Point(double.Parse(itemPlot.MeasurePower), itemPlot.CurrentPower);
                         plotlist1.Add(point1);
-                        var point2 = new Point { X = double.Parse(itemPlot.MeasurePower), Y = itemPlot.AgingPower };
+                        var point2 = new Point(double.Parse(itemPlot.MeasurePower), itemPlot.AgingPower);
                         plotlist2.Add(point2);
                     }
 

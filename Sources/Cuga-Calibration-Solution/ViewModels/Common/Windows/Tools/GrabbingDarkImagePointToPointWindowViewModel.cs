@@ -4,14 +4,15 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Setting;
+using Core.Utilities;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
-using Net.Utilities.Models;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -80,7 +81,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                 foreach (var (index, darkFieldImageDto) in cropResultList.Select((t, i) => (i, t)))
                 {
                     using var _ = darkFieldImageDto;
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImagePointToPointWindowViewModel)}\\{positionList[index].ToShortString()}_row_scan.jpg";
+                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImagePointToPointWindowViewModel)}\\{positionList[index]}_row_scan.jpg";
                     HalconHelper.Save(darkFieldImageDto.Image, filePath);
                     var size = HalconHelper.GetSize(darkFieldImageDto.Image);
                     contextProvider.Send(() => DarkFieldRowScanImageList.Add(new DarkFieldCropImage
@@ -130,7 +131,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                         OpticsMagTypeEnum,
                         stageCoordinateSystemEnum: StageCoordinateSystemEnum);
 
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{resultPosition.ToShortString()}.jpg";
+                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{resultPosition}.jpg";
                     HalconHelper.Save(darkFieldImageDto.Image, filePath);
                     var size = HalconHelper.GetSize(darkFieldImageDto.Image);
                     var byteArray = darkFieldImageDto.Bytes;

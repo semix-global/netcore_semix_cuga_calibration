@@ -6,7 +6,6 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            d:DesignHeight="800"
            d:DesignWidth="1200"
@@ -109,7 +108,7 @@
                                                 Margin="2"
                                                 Style="{StaticResource ButtonWarning}">
                                             <hc:UniformSpacingPanel Spacing="5">
-                                                <iconPacks:PackIconFontAwesome Kind="PenToSquareSolid" />
+                                                <!-- <iconPacks:PackIconFontAwesome Kind="PenToSquareSolid" /> -->
                                                 <TextBlock Text="Edit" />
                                             </hc:UniformSpacingPanel>
                                         </Button>
@@ -120,7 +119,7 @@
                                                 Margin="2"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <hc:UniformSpacingPanel Spacing="5">
-                                                <iconPacks:PackIconFontAwesome Kind="PasteRegular" />
+                                                <!-- <iconPacks:PackIconFontAwesome Kind="PasteRegular" /> -->
                                                 <TextBlock Text="Copy" />
                                             </hc:UniformSpacingPanel>
                                         </Button>
@@ -131,7 +130,7 @@
                                                 Margin="2"
                                                 Style="{StaticResource ButtonDanger}">
                                             <hc:UniformSpacingPanel Spacing="5">
-                                                <iconPacks:PackIconFontAwesome Kind="TrashCanSolid" />
+                                                <!-- <iconPacks:PackIconFontAwesome Kind="TrashCanSolid" /> -->
                                                 <TextBlock Text="Delete" />
                                             </hc:UniformSpacingPanel>
                                         </Button>

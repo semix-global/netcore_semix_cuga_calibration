@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Algorithm.MathNet.Modules;
-using Net.Utilities.Enums.Maths;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Enums.Maths;
 
 namespace Core.Models.Models.Common.DarkField;
 
@@ -133,7 +133,7 @@ public sealed partial class DarkFieldChirpAodWaveDto : ObservableCacheBase, IClo
             RateChange * SoundPackageLength,
             CenterFrequency,
             SoundPackageLength,
-            MonotonicTypeEnum.Deceasing,
+            FunctionMonotonicTypeEnum.Deceasing,
             SampleRate,
             Amplitude,
             directoryName,

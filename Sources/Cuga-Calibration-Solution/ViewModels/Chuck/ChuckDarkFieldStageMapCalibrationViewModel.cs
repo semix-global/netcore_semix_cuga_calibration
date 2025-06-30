@@ -32,14 +32,13 @@ using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.Struct;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -590,7 +589,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
             GetStageMap(ResultChuckDarkFieldStageMapDto.CalibrationStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckDarkFieldStageMapDto.CalibrationStageMap)), cancellationToken);
 
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             ResultChuckDarkFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
             ResultChuckDarkFieldStageMapDto.CalibrationStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
             ResultChuckDarkFieldStageMapDto.CalibrationStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -675,7 +674,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             ResultChuckDarkFieldStageMapDto.ExpandStageMapDto = expandStageMapDto;
             OnPropertyChanged(nameof(ResultChuckDarkFieldStageMapDto.ExpandStageMapDto));
 
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             ResultChuckDarkFieldStageMapDto.ExpandStageMapDto.IdealCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
             ResultChuckDarkFieldStageMapDto.ExpandStageMapDto.RealCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
             ResultChuckDarkFieldStageMapDto.ExpandStageMapDto.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -761,7 +760,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 Logger.LogHtmlInformation("1. Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 GetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken);
 
-                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -808,7 +807,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
                 var result = ReviewDto.VerifyDarkFieldStageMap.ErrorMatrix
                     .SelectMany(t => t)
-                    .All(t => t.DistanceToZero() < Cache.Threshold.DistanceToZero());
+                    .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
                 ReviewDto.IsVerifyDarkField = result;
 
                 Logger.LogHtmlInformation($"Dark Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
@@ -843,7 +842,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 chuckBrightFieldStageMapCalibrationViewModel.Cache = ChuckBrightFieldStageMapCache;
                 chuckBrightFieldStageMapCalibrationViewModel.GetStageMap(ReviewDto.VerifyBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap)), cancellationToken);
 
-                middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+                middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -891,7 +890,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
                 result = ReviewDto.VerifyBrightFieldStageMap.ErrorMatrix
                     .SelectMany(t => t)
-                    .All(t => t.DistanceToZero() < Cache.Threshold.DistanceToZero());
+                    .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
                 ReviewDto.IsVerifyBrightField = result;
 
                 Logger.LogHtmlInformation($"Bright Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
@@ -1043,7 +1042,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                                 continue;
                             }
 
-                            offset.X = xDirection * offset.X;
+                            offset = new Point(xDirection * offset.X, offset.Y);
                             var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySizePerPixel);
                             plotDic.Add((index, column), actualOffset);
 
@@ -1078,10 +1077,10 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                         var offsetY = actualOffsetList.Average(t => t.Y);
 
                         var offsetResult = new Point(offsetX, offsetY);
-                        var resultPosition = stageMapItem.Point + offsetResult;
+                        var resultPosition = stageMapItem.Point + (Vector)offsetResult;
                         stageMapItem.IsMatchOk = true;
                         realMatrix[row][column] = resultPosition;
-                        errorItemList[row][column] = resultPosition - stageMapItem.Point;
+                        errorItemList[row][column] = resultPosition - (Vector)stageMapItem.Point;
 
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                         {

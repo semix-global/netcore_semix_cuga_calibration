@@ -6,7 +6,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:converters="clr-namespace:CugaCalibration.Core.Converters"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels"
-           xmlns:constants="clr-namespace:Net.Utilities.Constants;assembly=Net.Utilities"
+           xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:wpfAttachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
            xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
@@ -224,7 +224,7 @@
                     <hc:ScrollViewer.Style>
                         <Style BasedOn="{StaticResource ScrollViewerBaseStyle}" TargetType="{x:Type hc:ScrollViewer}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:ConstantHelper.True}">
+                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.True}">
                                     <Setter Property="Content">
                                         <Setter.Value>
                                             <Viewbox Width="800" Height="800">
@@ -235,7 +235,7 @@
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:ConstantHelper.False}">
+                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.False}">
                                     <Setter Property="Content">
                                         <Setter.Value>
                                             <ContentControl Content="{Binding ActiveItem, Converter={StaticResource ViewModel2ViewConverter}}" />

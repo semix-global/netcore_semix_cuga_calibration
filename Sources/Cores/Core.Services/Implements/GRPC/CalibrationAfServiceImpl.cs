@@ -12,7 +12,7 @@ using Cuga.Interface.Calibration;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.GRPC.DTO;
 
@@ -305,6 +305,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
     {
-        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Empty], 1d));
+        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));
     }
 }

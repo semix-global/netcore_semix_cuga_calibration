@@ -6,7 +6,7 @@ using Core.Models.Models.Chuck.Prealigner;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -101,7 +101,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
         switch (CalibrationStepIndex)
         {
             case 0:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
                 return true;
 
@@ -195,7 +195,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
                     {
                         t.Row,
                         t.Column,
-                        Position = t.Position.ToShortString()
+                        t.Position
                     })
                 ])
             }), HtmlLogUniqueId.LoggingHtml());
@@ -269,7 +269,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
                     var position = new Point((column - centerX) * Cache.ColumnCellWidth, -(row - centerY) * Cache.RowCellHeight);
                     var chuckAutoFocusItemDto = ResultChuckAutoFocusDto.Map
                         .Where(t => t.IsInscribedSquareSide)
-                        .OrderBy(t => (t.Position - position).DistanceToZero())
+                        .OrderBy(t => (t.Position - (Vector)position).ToOriginLength)
                         .First();
                     var autoFocusItemDto = ResultChuckAutoFocusDto.Map.SingleOrDefault(t => t.Position == position);
                     if (autoFocusItemDto is not null)
@@ -305,7 +305,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
                         t.Row,
                         t.Column,
                         t.EcsValue,
-                        Position = t.Position.ToShortString()
+                        t.Position
                     })
                 ])
             }), HtmlLogUniqueId.LoggingHtml());
@@ -411,7 +411,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
                         t.Row,
                         t.Column,
                         t.EcsValue,
-                        Position = t.Position.ToShortString()
+                        t.Position
                     })
                 ])
             }), HtmlLogUniqueId.LoggingHtml());

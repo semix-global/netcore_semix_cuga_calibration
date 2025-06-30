@@ -2,7 +2,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using HalconDotNet;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Services.Interfaces;
 

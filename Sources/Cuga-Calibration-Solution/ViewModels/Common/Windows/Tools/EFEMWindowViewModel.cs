@@ -5,8 +5,8 @@ using Core.Models.Models.Common.EFEM;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
-using Net.Utilities.Models;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -101,11 +101,11 @@ public sealed partial class EFEMWindowViewModel(
 
             if (IsPrealigner)
             {
-                if (OffsetPoint != Point.Empty || OffsetAngle != 0) efemViewModel.PreAlignerVerifyLoadWafer(SelectedFoupItem, AngleEnum, OffsetPoint, OffsetAngle);
+                if (OffsetPoint != Point.Origin || OffsetAngle != 0) efemViewModel.PreAlignerVerifyLoadWafer(SelectedFoupItem, AngleEnum, OffsetPoint, OffsetAngle);
                 else efemViewModel.LoadWafer(SelectedFoupItem, AngleEnum);
                 PrealignerIsOk = true;
                 IsPrealigner = false;
-                OffsetPoint = Point.Empty;
+                OffsetPoint = Point.Origin;
                 OffsetAngle = 0;
             }
             else efemViewModel.LoadWafer(SelectedFoupItem, AngleEnum);

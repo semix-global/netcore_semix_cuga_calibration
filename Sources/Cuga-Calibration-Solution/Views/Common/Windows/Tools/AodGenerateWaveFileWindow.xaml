@@ -5,7 +5,7 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools"
-           xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Enums.Maths;assembly=Net.Utilities"
+           xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
@@ -183,8 +183,8 @@
                                                                      hc:InfoElement.TitlePlacement="Left"
                                                                      hc:InfoElement.TitleWidth="240"
                                                                      IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                     SelectedItem="{Binding GenerateChirpAodWaveParamDto.MonotonicTypeEnum}"
-                                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:MonotonicTypeEnum}}}">
+                                                                     SelectedItem="{Binding GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum}"
+                                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
                                                             <hc:ComboBox.Style>
                                                                 <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
                                                                     <Style.Triggers>
@@ -468,8 +468,8 @@
                                                                      hc:InfoElement.TitlePlacement="Left"
                                                                      hc:InfoElement.TitleWidth="240"
                                                                      IsEnabled="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                     SelectedItem="{Binding GeneratePrescanAodWaveParamDto.MonotonicTypeEnum}"
-                                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:MonotonicTypeEnum}}}">
+                                                                     SelectedItem="{Binding GeneratePrescanAodWaveParamDto.FunctionMonotonicTypeEnum}"
+                                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
                                                             <hc:ComboBox.Style>
                                                                 <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
                                                                     <Style.Triggers>

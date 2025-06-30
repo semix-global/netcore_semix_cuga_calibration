@@ -9,8 +9,8 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -252,9 +252,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
                 await Task.Delay(100, cancellationToken);
 
-                // NSC模式On
-                AfViewModel.ToggleDarkFieldEnable(false);
-                AfViewModel.GetSensorNscCurveIsOk();
                 AfViewModel.ToggleDarkFieldEnable(true);
                 await Task.Delay(100, cancellationToken);
 
@@ -282,7 +279,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     Logger.LogHtmlInformation($"time: {times}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                     {
-                        FindPosition = Cache.FindPosition.ToShortString(),
+                        Cache.FindPosition,
                         ABrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessFList)], string.Empty),
                         ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
@@ -363,7 +360,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     Logger.LogHtmlInformation($"time: {times}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                     {
-                        FindPosition = Cache.FindPosition.ToShortString(),
+                        Cache.FindPosition,
                         BBrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessFList)], string.Empty),
                         BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
@@ -522,11 +519,12 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         endEcs,
                         Cache.SpeedEcs,
                         item.NscOffset,
-                        NscGain = 1 / item.NscGain,
+                        item.NscGain,
+                        item.NscGainReciprocal,
                         item.NscCurrentMax,
                         item.NscCurrentMin,
                         item.NscCurrentOffset,
-                        NscCurrentGain = 1 / item.NscCurrentGain,
+                        item.NscCurrentGain,
                         traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                     });
 
@@ -654,7 +652,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     ReviewDto.CurrentA,
                     ReviewDto.CurrentB,
                     ReviewDto.NscOffset,
-                    NscGain = 1 / ReviewDto.NscGain,
+                    ReviewDto.NscGain,
+                    ReviewDto.NscGainReciprocal,
                     Fa = fa,
                     Na = na,
                     Fb = fb,
@@ -665,7 +664,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     currentMax,
                     currentMin,
                     currentNscOffset,
-                    currentNscGain = 1 / currentNscGain,
+                    currentNscGain,
                     traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                 }), HtmlLogUniqueId.LoggingHtml());
 

@@ -21,14 +21,13 @@ using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.Struct;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -383,7 +382,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition - new Point(0, Cache.PmtInterval * (8 - i))
+                    FindPosition = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i))
                 };
                 pmtList.Add(pmt);
             }
@@ -395,7 +394,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition + new Point(0, Cache.PmtInterval * (i - 8))
+                    FindPosition = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8))
                 };
                 pmtList.Add(pmt);
             }
@@ -648,7 +647,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 {
                     laserXTCCalibrationItemDto.OpticsMagTypeEnum,
                     laserXTCCalibrationItemDto.PmtId,
-                    FindPosition = laserXTCCalibrationItemDto.FindPosition.ToShortString(),
+                    laserXTCCalibrationItemDto.FindPosition,
                     laserXTCCalibrationItemDto.CH1Delay,
                     laserXTCCalibrationItemDto.CH2Delay,
                     laserXTCCalibrationItemDto.CH3Delay

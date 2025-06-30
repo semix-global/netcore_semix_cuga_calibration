@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.StageMap;
 
@@ -51,7 +51,7 @@ public sealed partial class StageMapItemDto : ObservableCacheBase, ICloneable<St
     {
         Row = 0;
         Column = 0;
-        Point = Point.Empty;
+        Point = Point.Origin;
         IsInWafer = false;
         Reset();
     }

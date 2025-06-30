@@ -17,8 +17,7 @@
                 Effect="{StaticResource EffectShadow1}">
             <wpf:WpfPlot Width="{Binding Width, RelativeSource={RelativeSource AncestorType=Border, AncestorLevel=2}}" Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Border, AncestorLevel=2}}">
                 <i:Interaction.Behaviors>
-                    <behaviorsCore:WpfPlotReticleMaskBehavior ReticleWidth="{Binding CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData.ReticleWidth}"
-                                                              ReticleHeight="{Binding CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData.ReticleHeight}"
+                    <behaviorsCore:WpfPlotReticleMaskBehavior DieSize="{Binding WaferMapCanvasViewModel.Document.DieBuilder.DieSize}"
                                                               ReticleMaskList="{Binding ReticleMarkList}"
                                                               WaferCenterBrightFieldPosition="{Binding CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition}" />
                 </i:Interaction.Behaviors>

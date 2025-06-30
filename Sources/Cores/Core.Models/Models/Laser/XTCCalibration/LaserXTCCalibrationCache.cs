@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Laser.IlluminationProfile;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
 

@@ -10,14 +10,14 @@ using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Geometries;
 using System.IO;
-using Rect = Net.Utilities.Models.Rect;
+using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
 
@@ -153,8 +153,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
-        markPoint = Point.Empty;
-        offsetPoint = Point.Empty;
+        markPoint = Point.Origin;
+        offsetPoint = Point.Origin;
         score = 0;
         angle = 0;
 
@@ -254,8 +254,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public bool TryProjectionTemplateMatchToOffset(HObject image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
     {
-        markPoint = Point.Empty;
-        offsetPoint = Point.Empty;
+        markPoint = Point.Origin;
+        offsetPoint = Point.Origin;
 
         try
         {

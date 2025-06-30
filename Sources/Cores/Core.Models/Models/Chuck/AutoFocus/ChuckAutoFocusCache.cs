@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Enums.Maths;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.AutoFocus;
 
@@ -21,8 +21,8 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
 
-    [Comparison(1, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
-    [OddEvenNumber(ParityEnum.Odd, ErrorMessage = "Row Number: ")]
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
+    [OddEvenNumber(NumberParityTypeEnum.Odd, ErrorMessage = "Row Number: ")]
     public int RowNumber
     {
         get => _rowNumber;
@@ -38,8 +38,8 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
         }
     }
 
-    [Comparison(1, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Number: ")]
-    [OddEvenNumber(ParityEnum.Odd, ErrorMessage = "Column Number: ")]
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Number: ")]
+    [OddEvenNumber(NumberParityTypeEnum.Odd, ErrorMessage = "Column Number: ")]
     public int ColumnNumber
     {
         get => _columnNumber;
@@ -55,7 +55,7 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
         }
     }
 
-    [Comparison(1000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
     public double ChuckDiameter
     {
         get => _chuckDiameter;
@@ -71,7 +71,7 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
         }
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Reduce Width: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Reduce Width: ")]
     public double WaferReduceWidth
     {
         get => _waferReduceWidth;
@@ -85,7 +85,7 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
         }
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Reduce Height: ")]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Reduce Height: ")]
     public double WaferReduceHeight
     {
         get => _waferReduceHeight;
@@ -99,14 +99,14 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
         }
     }
 
-    [Comparison(0.001d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wait Time: ")]
+    [Comparison(0.001d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wait Time: ")]
     public double WaitTime
     {
         get => _waitTime;
         set => SetProperty(ref _waitTime, value, true);
     }
 
-    [Comparison(1d, ComparisonTypeEnum.GreaterThan)]
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThan)]
     public double Threshold
     {
         get => _threshold;
@@ -114,14 +114,14 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
     }
 
 
-    [Comparison(0.1d, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth
     {
         get => _columnCellWidth;
         private set => SetProperty(ref _columnCellWidth, value, true);
     }
 
-    [Comparison(0.1d, ComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
     public double RowCellHeight
     {
         get => _rowCellHeight;
@@ -130,11 +130,11 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
 
     private void UpdateColumnCellWidth()
     {
-        ColumnCellWidth = (MathHelper.CalculateInscribedSquareSide(ChuckDiameter / 2d) - WaferReduceWidth) / (ColumnNumber - 1);
+        ColumnCellWidth = (new Circle(Point.Origin, ChuckDiameter / 2d).GetInscribedRect().Width - WaferReduceWidth) / (ColumnNumber - 1);
     }
 
     private void UpdateRowCellHeight()
     {
-        RowCellHeight = (MathHelper.CalculateInscribedSquareSide(ChuckDiameter / 2d) - WaferReduceHeight) / (RowNumber - 1);
+        RowCellHeight = (new Circle(Point.Origin, ChuckDiameter / 2d).GetInscribedRect().Width - WaferReduceHeight) / (RowNumber - 1);
     }
 }

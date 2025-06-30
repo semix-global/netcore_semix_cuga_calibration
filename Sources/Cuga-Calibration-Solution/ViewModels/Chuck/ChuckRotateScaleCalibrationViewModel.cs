@@ -18,8 +18,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -65,7 +65,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     [ObservableProperty]
     private ChuckRotateScaleErrorDto _reviewDto = new();
 
-    public bool IsFastMode = true;
+    private bool _isFastMode = true;
 
     #endregion
 
@@ -165,7 +165,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             }
         }
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
         return true;
     }
 
@@ -461,7 +461,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         await InvokeCalibrateAsync(() =>
         {
             var baseBrighFieldPosition = IdeaPositionCache.BaseFindResultPosition;
-            if (baseBrighFieldPosition.DistanceToZero() >= IdeaPositionCache.WaferDiameter / 2)
+            if (baseBrighFieldPosition.ToOriginLength >= IdeaPositionCache.WaferDiameter / 2)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Base Position is Out of Wafer!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -544,7 +544,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 }
 
                 ClearCalibrationTemp();
-                IsFastMode = true;
+                _isFastMode = true;
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.RotateAngle,
@@ -697,7 +697,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 StageViewModel.SetRotateScaleErrorCoefficient(ReviewDto.AppliedScaleT);
                 var verifyItemDto = SelectRotateScaleErrorDto;
 
-                IsFastMode = !IsAutoCalibrate;
+                _isFastMode = !IsAutoCalibrate;
                 isSuccess = GetResult(idealPositionDictionary, ref verifyItemDto, cancellationToken);
                 if (isSuccess == false)
                 {
@@ -850,9 +850,9 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             resultDto.IsPositive = degreeAngle < 0;
             var affineIdeaPosition = ideaPosition.DegreeAngleByOrigin(degreeAngle);
             var highIdeaPosition = resultDto.GetRealPosition(stageDirection);
-            if (highIdeaPosition == Point.Empty || IsFastMode == false)
+            if (highIdeaPosition == Point.Origin || _isFastMode == false)
             {
-                if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, affineIdeaPosition - IdeaPositionCache.LowToHighMagnificationOffset, IdeaPositionCache.LowMicroscopeMagnificationEnum, IdeaPositionCache.LowTemplateFilePath, ImageFileDirectory,
+                if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, affineIdeaPosition - (Vector)IdeaPositionCache.LowToHighMagnificationOffset, IdeaPositionCache.LowMicroscopeMagnificationEnum, IdeaPositionCache.LowTemplateFilePath, ImageFileDirectory,
                         null, Name,
                         $"Low Magnification {stageDirection} Site", out var lowResultPosition, out _, out _, out _, out _) == false)
                 {
@@ -860,7 +860,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
                 }
 
-                highIdeaPosition = lowResultPosition + IdeaPositionCache.LowToHighMagnificationOffset;
+                highIdeaPosition = lowResultPosition + (Vector)IdeaPositionCache.LowToHighMagnificationOffset;
             }
 
             if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, highIdeaPosition, IdeaPositionCache.HighMicroscopeMagnificationEnum, IdeaPositionCache.HighTemplateFilePath, ImageFileDirectory,
@@ -954,10 +954,10 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
 
     private void GetScaleErrorValue(ref ChuckRotateScaleErrorDto tempRotateScaleErrorDto)
     {
-        var radius = ApplicationCookie.CalibrationRecipeDto!.WaferDto.WaferMapDto.WaferMapData.WaferDiameter;
+        var diameter = IdeaPositionCache.WaferDiameter;
         var angle = Cache.RotateAngle * 2 * (1 - tempRotateScaleErrorDto.ResultScaleT);
         var radian = (Math.PI / 180) * angle;
-        tempRotateScaleErrorDto.ScaleErrorValueAverage = radius * radian;
+        tempRotateScaleErrorDto.ScaleErrorValueAverage = diameter * radian;
     }
 
     #endregion
@@ -1070,15 +1070,24 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             return false;
         }
 
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
-        var waferMapData = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData;
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
+        var reticleRows = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
+            .Where(t => t.Index.X == 0)
+            .OrderBy(t => t.Index.Y).ToList();
+        var reticleCols = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
+            .Where(t => t.Index.Y == 0)
+            .OrderBy(t => t.Index.X).ToList();
+        var reticleTop = reticleRows.ElementAt(reticleRows.Count - 2);
+        var reticleRight = reticleCols.ElementAt(reticleRows.Count - 1);
+        var reticleBottom = reticleRows.ElementAt(1);
+        var reticleLeft = reticleCols.ElementAt(1);
 
         switch (stepName)
         {
             case "0":
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, IdeaPositionCache.LowMicroscopeMagnificationEnum, null, out var lowMaskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, lowMaskInfo, out var lowPosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, lowMaskInfo, out var lowPosition);
 
                 IdeaPositionCache.BaseLowSiteFindPosition = lowPosition;
                 IdeaPositionCache.LowTemplateFilePath = lowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
@@ -1089,7 +1098,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             case "1":
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, IdeaPositionCache.HighMicroscopeMagnificationEnum, null, out var highMaskInfo) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, highMaskInfo, out var highPosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, highMaskInfo, out var highPosition);
                 IdeaPositionCache.BaseHighSiteFindPosition = highPosition;
                 IdeaPositionCache.HighTemplateFilePath = highMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 IdeaPositionCache.HighTemplateImageFilePath = highMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -1099,26 +1108,22 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, IdeaPositionCache.HighMicroscopeMagnificationEnum, null, out var baseHighMaskInfo) == false)
                     return false;
 
-                var topReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex + (waferMapData.CellDiePicthRowNumber / 2 - 1)][OriginReticleDieDto.ColumnIndex];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(topReticleDieDto, baseHighMaskInfo, out var topHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseHighMaskInfo, out var topHighSitePosition);
                 IdeaPositionCache.TopSideIdeaPosition = topHighSitePosition;
 
-                var bottomReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex - (waferMapData.CellDiePicthRowNumber / 2 - 2)][OriginReticleDieDto.ColumnIndex];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(bottomReticleDieDto, baseHighMaskInfo, out var bottomHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseHighMaskInfo, out var bottomHighSitePosition);
                 IdeaPositionCache.BottomSideIdeaPosition = bottomHighSitePosition;
 
-                var leftReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex - (waferMapData.CellDiePitchColumnNumber / 2 - 1 - 2)];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(leftReticleDieDto, baseHighMaskInfo, out var leftHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, baseHighMaskInfo, out var leftHighSitePosition);
                 IdeaPositionCache.LeftSideIdeaPosition = leftHighSitePosition;
 
-                var rightReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapReticleDieDtoItemList[OriginReticleDieDto.RowIndex][OriginReticleDieDto.ColumnIndex + (waferMapData.CellDiePitchColumnNumber / 2 - 1 - 2)];
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(rightReticleDieDto, baseHighMaskInfo, out var rightHighSitePosition);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, baseHighMaskInfo, out var rightHighSitePosition);
                 IdeaPositionCache.RightSideIdeaPosition = rightHighSitePosition;
 
-                var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapDto.WaferMapData;
-                IdeaPositionCache.RowCellHeight = waferMapDataInfo.CellDieHeight;
-                IdeaPositionCache.ColumnCellWidth = waferMapDataInfo.CellDieWidth;
-                IdeaPositionCache.WaferDiameter = waferMapDataInfo.WaferDiameter;
+                var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.DieBuilder.DiePitchSize;
+                IdeaPositionCache.RowCellHeight = waferMapDataInfo.Height;
+                IdeaPositionCache.ColumnCellWidth = waferMapDataInfo.Width;
+                IdeaPositionCache.WaferDiameter = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.Wafer.Circle.Diameter;
                 break;
         }
 
@@ -1129,7 +1134,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;

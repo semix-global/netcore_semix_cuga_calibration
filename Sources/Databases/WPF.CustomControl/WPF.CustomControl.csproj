@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Net.Utilities.WPF" />
+    </ItemGroup>
+
+    <ItemGroup>
+		<ProjectReference Include="..\..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
+	</ItemGroup>
+
+</Project>

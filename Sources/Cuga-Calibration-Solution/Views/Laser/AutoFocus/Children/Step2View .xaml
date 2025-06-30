@@ -166,6 +166,9 @@
                             <GridViewColumn Width="100"
                                             Header="Gain"
                                             DisplayMemberBinding="{Binding NscGain, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Width="100"
+                                            Header="Gain Reciprocal"
+                                            DisplayMemberBinding="{Binding NscGainReciprocal, Mode=OneWay, StringFormat={}{0:f3}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

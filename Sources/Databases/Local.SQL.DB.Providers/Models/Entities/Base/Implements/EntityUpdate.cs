@@ -1,7 +1,7 @@
 using FreeSql.DataAnnotations;
 using Local.SQL.DB.Providers.Models.Attributes;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
-using Net.Utilities.Helper.Json;
+using Net.Utilities.Helpers;
 using Newtonsoft.Json;
 using System.ComponentModel;
 
@@ -15,7 +15,7 @@ public class EntityUpdate : EntityAdd, IEntityUpdate
     [Description("修改者用户Id")]
     [Column(Position = -6002)]
     [JsonProperty(Order = 6000)]
-    [JsonConverter(typeof(JsonConverterUtil.LongJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.LongJsonConverter))]
     public virtual long? ModifiedUserId { get; set; }
 
     /// <summary>
@@ -33,6 +33,6 @@ public class EntityUpdate : EntityAdd, IEntityUpdate
     [Column(Position = -6000)]
     [ServerTime(CanInsert = false, CanUpdate = true)]
     [JsonProperty(Order = 6002)]
-    [JsonConverter(typeof(JsonConverterUtil.DateTimeJsonConverter))]
+    [JsonConverter(typeof(JsonConverterUtils.DateTimeJsonConverter))]
     public virtual DateTime? ModifiedTime { get; set; }
 }

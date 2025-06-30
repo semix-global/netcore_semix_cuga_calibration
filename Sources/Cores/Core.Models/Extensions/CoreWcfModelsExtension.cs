@@ -33,7 +33,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Wcf.Models;
-using Net.Utilities.Helper.Enum;
+using Net.Utilities.Helpers.Helpers.Structs;
 
 namespace Core.Models.Extensions;
 

@@ -1,9 +1,8 @@
 using Cuga.Data.DataStruct.Stage;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -17,7 +16,7 @@ public static class UtilitiesPointExtension
 
     public static CgPoint ToCgPoint(this Point point) => new(point.X, point.Y);
 
-    public static Point ToPoint(this CgPoint? cgPoint) => cgPoint is null ? Point.Empty : new Point(cgPoint.X, cgPoint.Y);
+    public static Point ToPoint(this CgPoint? cgPoint) => cgPoint is null ? Point.Origin : new Point(cgPoint.X, cgPoint.Y);
 
     #endregion CgPoint
 
@@ -25,7 +24,7 @@ public static class UtilitiesPointExtension
 
     public static SxPointD ToSxPointD(this Point point) => new(point.X, point.Y);
 
-    public static Point ToPoint(this SxPointD? sxPointD) => sxPointD is null ? Point.Empty : new Point(sxPointD.X, sxPointD.Y);
+    public static Point ToPoint(this SxPointD? sxPointD) => sxPointD is null ? Point.Origin : new Point(sxPointD.X, sxPointD.Y);
 
     #endregion SxPointD
 
@@ -33,7 +32,8 @@ public static class UtilitiesPointExtension
 
     public static System.Drawing.Point ToSystemDrawingPoint(this Point point)
     {
-        var (x, y) = point;
+        var (x, y) = point.DeconstructToInt32();
+
         return new System.Drawing.Point(x, y);
     }
 

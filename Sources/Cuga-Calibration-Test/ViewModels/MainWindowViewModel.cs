@@ -26,14 +26,14 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.Services;
@@ -45,7 +45,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
 
@@ -286,52 +286,52 @@ public sealed partial class MainWindowViewModel(
                 test6 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d)),
-                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test7 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(257 / 5d, 257 / 5d)),
-                    new HtmlImageRectangleOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageRectangleOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test8 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test9 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test10 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test11 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test12 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test13 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(257 - 1, 257 - 1), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(257 - 1, 257 - 1), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(257 - 1, 257 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(257 - 1, 257 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test14 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test15 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
             })
         }), guid.LoggingHtml());
@@ -350,52 +350,52 @@ public sealed partial class MainWindowViewModel(
                 test6 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d)),
-                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test7 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(1009 / 5d, 1437 / 5d)),
-                    new HtmlImageRectangleOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageRectangleOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test8 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test9 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test10 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test11 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test12 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test13 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(1009 - 1, 1437 - 1), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(1009 - 1, 1437 - 1), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(1009 - 1, 1437 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(1009 - 1, 1437 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test14 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
                 test15 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
                 [
-                    new HtmlImageCrossOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Size(100, 100)),
-                    new HtmlImageRectangleOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Size(100, 100))
+                    new HtmlImageCrossOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
+                    new HtmlImageRectangleOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
             })
         }), guid.LoggingHtml());
@@ -421,19 +421,19 @@ public sealed partial class MainWindowViewModel(
 
         /*darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[16][7].IsMatchOk = false;
         darkFieldStageMapDto.CalibrationStageMap.RealMatrix[16][7] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[16][7].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[16][7] = Point.Empty;
+        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[16][7] = Point.Origin;
 
         darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].IsMatchOk = false;
         darkFieldStageMapDto.CalibrationStageMap.RealMatrix[15][5] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[15][5] = Point.Empty;
+        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[15][5] = Point.Origin;
 
         darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].IsMatchOk = false;
         darkFieldStageMapDto.CalibrationStageMap.RealMatrix[15][5] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[15][5] = Point.Empty;
+        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[15][5] = Point.Origin;
 
         darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[0][7].IsMatchOk = false;
         darkFieldStageMapDto.CalibrationStageMap.RealMatrix[0][7] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[0][7].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[0][7] = Point.Empty;
+        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[0][7] = Point.Origin;
 
         stageMapWindowViewModel.ShowWindow("Test2", darkFieldStageMapDto.CalibrationStageMap, width: 800);*/
 
@@ -479,7 +479,7 @@ public sealed partial class MainWindowViewModel(
             case ".raw":
                 // 取反
                 var (image1, matrix) = calibrationAlgorithmService.ToImageInfo(File.ReadAllBytes(openFileDialog.FileName));
-                var convertToDoubleMatrix = MathNetHelper.ConvertToDoubleMatrix(matrix);
+                var convertToDoubleMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>.Build.DenseOfArray(matrix);
                 image = image1;
                 y = [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.RowCount).Select(t => -t)];
                 break;
@@ -528,10 +528,10 @@ public sealed partial class MainWindowViewModel(
         };
 
         // 添加噪声信号
-        var scatter = wpfPlot.Plot.Add.Scatter((double[]) [.. x], [.. y], category20.GetColor(0));
+        var scatter = wpfPlot.Plot.Add.Scatter((double[])[.. x], [.. y], category20.GetColor(0));
         scatter.LegendText = "Noisy";
 
-        var markers = wpfPlot.Plot.Add.Markers((double[]) [.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
+        var markers = wpfPlot.Plot.Add.Markers((double[])[.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
         markers.LegendText = "Peaks";
 
         wpfPlot.Plot.Title("AutomaticMPeakDetection");

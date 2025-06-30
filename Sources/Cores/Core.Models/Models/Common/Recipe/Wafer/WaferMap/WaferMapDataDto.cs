@@ -1,122 +1,105 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Attributes.DataAnnotations;
-using Net.Utilities.Constants;
-using Net.Utilities.Enums.Maths;
+using Net.Utilities.DataAnnotations;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
 public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<WaferMapDataDto>
 {
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CellDiePicthRowNumber), nameof(CellDiePitchColumnNumber))]
-    [Comparison(1000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Diameter: ")]
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Diameter: ")]
     private double _waferDiameter = 300000;
 
     [ObservableProperty]
     private double _edgeReduceDiePiichNumber;
 
-    #region Scribe Lines
+    #region Die 
 
     [ObservableProperty]
-    private int _scribeLinesWidth;
+    private Point _waferOriginalDiePoint;
 
     [ObservableProperty]
-    private int _scribeLinesHeight = 0;
-
-    #endregion Scribe Lines
-
-    #region Die Pitch
+    private Point _waferReticleOriginalDiePoint;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CellDiePitchColumnNumber), nameof(ReticleWidth), nameof(ReticleHeight),
-        nameof(ReticleColumnNumber))]
-    [Comparison(1000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Cell Die Width: ")]
-    private double _diePitchWidth = 5100;
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Cell Die Width: ")]
+    private double _cellDieWidth = 5100;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CellDiePicthRowNumber), nameof(ReticleWidth), nameof(ReticleHeight),
-        nameof(ReticleRowNumber))]
-    [Comparison(1000d, ComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Cell Die Height: ")]
-    private double _diePitchHeight = 16600;
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Cell Die Height: ")]
+    private double _cellDieHeight = 16600;
+
+    [ObservableProperty]
+    private double _dieScribeWidth = 0;
+
+    [ObservableProperty]
+    private double _dieScribeHeight = 0;
+
+    public double DiePitchWidth => CellDieWidth + DieScribeWidth;
+
+    public double DiePitchHeight => CellDieHeight + DieScribeHeight;
 
     public int CellDiePicthRowNumber => (int)(WaferDiameter / DiePitchHeight);
 
     public int CellDiePitchColumnNumber => (int)(WaferDiameter / DiePitchWidth);
 
-    #endregion Die Pitch
-
-    #region Die Value
-
-    public double CellDieWidth => DiePitchWidth - ScribeLinesWidth;
-
-    public double CellDieHeight => DiePitchHeight - ScribeLinesHeight;
-
-    #endregion Die Value
+    #endregion Die 
 
     #region Reticle
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ReticleHeight), nameof(ReticleRowNumber))]
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Die Width: ")]
+    private double _reticleWidth = 5100;
+
+    [ObservableProperty]
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Die Height: ")]
+    private double _reticleHeight = 16600;
+
+    [ObservableProperty]
+    private double _reticleScribeWidth = 0;
+
+    [ObservableProperty]
+    private double _reticleScribeHeight = 0;
+
+    [ObservableProperty]
     private int _referenceDieRowNumber = 1;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ReticleWidth), nameof(ReticleColumnNumber))]
     private int _referenceDieColumnNumber = 1;
 
-    public double ReticleWidth => ReferenceDieColumnNumber * DiePitchWidth;
+    public double ReticlePitchWidth => ReticleWidth + ReticleScribeWidth;
 
-    public double ReticleHeight => ReferenceDieRowNumber * DiePitchHeight;
+    public double ReticlePitchHeight => ReticleHeight + ReticleScribeHeight;
 
-    public int ReticleRowNumber => CellDiePicthRowNumber / ReferenceDieRowNumber;
+    public int ReticleRowNumber => (int)(WaferDiameter / ReticlePitchHeight);
 
-    public int ReticleColumnNumber => CellDiePitchColumnNumber / ReferenceDieColumnNumber;
+    public int ReticleColumnNumber => (int)(WaferDiameter / ReticlePitchWidth);
+
+    #endregion Reticle
 
     public WaferMapDataDto Clone() => new()
     {
         WaferDiameter = WaferDiameter,
         EdgeReduceDiePiichNumber = EdgeReduceDiePiichNumber,
-        ScribeLinesWidth = ScribeLinesWidth,
-        ScribeLinesHeight = ScribeLinesHeight,
-        DiePitchWidth = DiePitchWidth,
-        DiePitchHeight = DiePitchHeight,
+
+        WaferOriginalDiePoint = WaferOriginalDiePoint,
+        WaferReticleOriginalDiePoint = WaferReticleOriginalDiePoint,
+
+        CellDieWidth = CellDieWidth,
+        CellDieHeight = CellDieHeight,
+        DieScribeWidth = DieScribeWidth,
+        DieScribeHeight = DieScribeHeight,
+
+        ReticleWidth = ReticleWidth,
+        ReticleHeight = ReticleHeight,
+        ReticleScribeWidth = ReticleScribeWidth,
+        ReticleScribeHeight = ReticleScribeHeight,
+
         ReferenceDieRowNumber = ReferenceDieRowNumber,
         ReferenceDieColumnNumber = ReferenceDieColumnNumber,
     };
 
-    public override bool Equals(object? obj)
-    {
-        return obj is WaferMapDataDto dto &&
-               CellDiePicthRowNumber == dto.CellDiePicthRowNumber &&
-               CellDiePitchColumnNumber == dto.CellDiePitchColumnNumber &&
-               ReticleWidth - dto.ReticleWidth < ConstantHelper.Tolerance &&
-               ReticleHeight - dto.ReticleHeight - dto.ReticleWidth < ConstantHelper.Tolerance &&
-               ReticleRowNumber - dto.ReticleRowNumber - dto.ReticleWidth < ConstantHelper.Tolerance &&
-               ReticleColumnNumber == dto.ReticleColumnNumber &&
-               WaferDiameter - dto.WaferDiameter - dto.ReticleWidth < ConstantHelper.Tolerance &&
-               DiePitchWidth - dto.DiePitchWidth - dto.ReticleWidth < ConstantHelper.Tolerance &&
-               DiePitchHeight - dto.DiePitchHeight - dto.ReticleWidth < ConstantHelper.Tolerance &&
-               ReferenceDieRowNumber == dto.ReferenceDieRowNumber &&
-               ReferenceDieColumnNumber == dto.ReferenceDieColumnNumber;
-    }
-
-    public override int GetHashCode()
-    {
-        HashCode hash = new();
-        hash.Add(CellDiePicthRowNumber);
-        hash.Add(CellDiePitchColumnNumber);
-        hash.Add(ReticleWidth);
-        hash.Add(ReticleHeight);
-        hash.Add(ReticleRowNumber);
-        hash.Add(ReticleColumnNumber);
-        hash.Add(WaferDiameter);
-        hash.Add(DiePitchWidth);
-        hash.Add(DiePitchHeight);
-        hash.Add(ReferenceDieRowNumber);
-        hash.Add(ReferenceDieColumnNumber);
-        return hash.ToHashCode();
-    }
-
-    #endregion Reticle
 }

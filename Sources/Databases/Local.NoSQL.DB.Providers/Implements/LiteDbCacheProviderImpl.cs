@@ -2,18 +2,13 @@ using LiteDB;
 using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Attributes;
-using Net.Utilities.Enums;
-using Net.Utilities.Models;
 using Yitter.IdGenerator;
 
 namespace Local.NoSQL.DB.Providers.Implements;
 
-[IOCAppService(ServiceType = typeof(ICacheProvider), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class LiteDbCacheProviderImpl(
     ILiteDatabaseProvider databaseProvider,
-    IOptions<ApplicationSetting> options,
+    ICacheSetting cacheSetting,
     ILogger<LiteDbCacheProviderImpl> logger) : ICacheProvider
 {
     /// <summary>
@@ -120,7 +115,7 @@ public sealed class LiteDbCacheProviderImpl(
                     item.Id = YitIdHelper.NextId();
                 }
 
-                item.Expiration = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(options.Value.CacheMaxArchiveDays)).ToUnixTimeSeconds();
+                item.Expiration = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(cacheSetting.CacheMaxArchiveDays)).ToUnixTimeSeconds();
                 item.CreatedTime = DateTime.Now;
 
                 var result = liteCollection.Update([item]) == 1 || liteCollection.Insert([item]) == 1;
@@ -254,7 +249,7 @@ public sealed class LiteDbCacheProviderImpl(
                 var liteCollection = liteDatabase.GetCollection<T>(collectionName, BsonAutoId.Int64);
                 var liteCollectionArray = liteDatabase.GetCollection<IdsCache>($"{collectionName}_{nameof(IdsCache)}", BsonAutoId.Int64);
 
-                var unixTimeSeconds = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(options.Value.CacheMaxArchiveDays)).ToUnixTimeSeconds();
+                var unixTimeSeconds = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(cacheSetting.CacheMaxArchiveDays)).ToUnixTimeSeconds();
 
                 var resultList = new List<bool>();
 

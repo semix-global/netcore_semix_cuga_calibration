@@ -1,6 +1,6 @@
 using Core.Models.Models.Common.StageMap;
 using Cuga.Data.DataStruct.Stage;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;

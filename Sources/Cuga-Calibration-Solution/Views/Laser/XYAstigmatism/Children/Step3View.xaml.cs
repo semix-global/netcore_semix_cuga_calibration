@@ -1,7 +1,7 @@
 using Core.Models.Models.Laser.XYAstigmatism;
 using CugaCalibration.ViewModels.Laser;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Helper.Object;
+using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.Colormaps;

@@ -4,8 +4,8 @@ using Core.Models.Models.Common.FindWaferCenter;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
-using Net.Utilities.Models;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -58,7 +58,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         var result = true;
         await InvokeAsync(() =>
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
             List<Point> waferEdgeOffsets =
             [
@@ -72,7 +72,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
                 Cache.FindWaferCenterOffset8
             ];
 
-            var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Empty, waferEdgeOffsets);
+            var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin, waferEdgeOffsets);
             Cache.OffsetPosition = offsetPosition;
             if (bitmapMemoryBytes is not null && bitmapMemoryBytes.Count > 0)
             {
@@ -103,15 +103,15 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
 
             _logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
-                OffsetPosition = Cache.OffsetPosition.ToShortString(),
-                FindWaferCenterOffset1 = Cache.FindWaferCenterOffset1.ToShortString(),
-                FindWaferCenterOffset2 = Cache.FindWaferCenterOffset2.ToShortString(),
-                FindWaferCenterOffset3 = Cache.FindWaferCenterOffset3.ToShortString(),
-                FindWaferCenterOffset4 = Cache.FindWaferCenterOffset4.ToShortString(),
-                FindWaferCenterOffset5 = Cache.FindWaferCenterOffset5.ToShortString(),
-                FindWaferCenterOffset6 = Cache.FindWaferCenterOffset6.ToShortString(),
-                FindWaferCenterOffset7 = Cache.FindWaferCenterOffset7.ToShortString(),
-                FindWaferCenterOffset8 = Cache.FindWaferCenterOffset8.ToShortString()
+                Cache.OffsetPosition,
+                Cache.FindWaferCenterOffset1,
+                Cache.FindWaferCenterOffset2,
+                Cache.FindWaferCenterOffset3,
+                Cache.FindWaferCenterOffset4,
+                Cache.FindWaferCenterOffset5,
+                Cache.FindWaferCenterOffset6,
+                Cache.FindWaferCenterOffset7,
+                Cache.FindWaferCenterOffset8
             }), HtmlLogUniqueId.LoggingHtml());
         });
         return result;

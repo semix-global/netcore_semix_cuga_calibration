@@ -3,10 +3,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Cuga.Data.DataStruct.Stage;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using System.Text;
 
 namespace Core.Models.Models.Common.StageMap;
@@ -73,7 +72,7 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
         [
             ..Enumerable.Range(0, rowNumber).Select<int, Point[]>(_ =>
             [
-                .. Enumerable.Range(0, columnNumber).Select(_ => Point.Empty)
+                .. Enumerable.Range(0, columnNumber).Select(_ => Point.Origin)
             ])
         ];
 
@@ -81,7 +80,7 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
         [
             ..Enumerable.Range(0, rowNumber).Select<int, Point[]>(_ =>
             [
-                .. Enumerable.Range(0, columnNumber).Select(_ => Point.Empty)
+                .. Enumerable.Range(0, columnNumber).Select(_ => Point.Origin)
             ])
         ];
 
@@ -115,11 +114,11 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
                 IdealStageMapItemMatrix[row][column].Column = column;
                 IdealStageMapItemMatrix[row][column].Point = idealPoint;
 
-                var isPointInCircle = idealPoint.IsPointInCircle(centerPointOfCircle, diameter);
+                var isPointInCircle = new Circle(centerPointOfCircle, diameter / 2d).Contains(idealPoint);
                 IdealStageMapItemMatrix[row][column].IsInWafer = isPointInCircle;
 
                 RealMatrix[row][column] = idealPoint;
-                ErrorMatrix[row][column] = Point.Empty;
+                ErrorMatrix[row][column] = Point.Origin;
             }
         }
     }
@@ -152,11 +151,11 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
                 IdealStageMapItemMatrix[row][column].Column = column;
                 IdealStageMapItemMatrix[row][column].Point = idealPoint;
 
-                var isPointInCircle = idealPoint.IsPointInCircle(centerPointOfCircle, diameter);
+                var isPointInCircle = new Circle(centerPointOfCircle, diameter / 2d).Contains(idealPoint);
                 IdealStageMapItemMatrix[row][column].IsInWafer = isPointInCircle;
 
                 RealMatrix[row][column] = idealPoint;
-                ErrorMatrix[row][column] = Point.Empty;
+                ErrorMatrix[row][column] = Point.Origin;
             }
         }
     }
@@ -172,7 +171,7 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
             {
                 IdealStageMapItemMatrix[row][column].Reset();
                 RealMatrix[row][column] = IdealStageMapItemMatrix[row][column].Point;
-                ErrorMatrix[row][column] = Point.Empty;
+                ErrorMatrix[row][column] = Point.Origin;
             }
         }
     }
@@ -431,7 +430,7 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
 
     public Wcf.Models.Chuck.StageMap AdaptTo() => new()
     {
-        IdealBasePoint = (IdealStageMapItemMatrix.ElementAtOrDefault(0)?.ElementAtOrDefault(0)?.Point ?? Point.Empty).ToCgPoint(),
+        IdealBasePoint = (IdealStageMapItemMatrix.ElementAtOrDefault(0)?.ElementAtOrDefault(0)?.Point ?? Point.Origin).ToCgPoint(),
         RowNumber = RowNumber,
         ColumnNumber = ColumnNumber,
         ColumnCellWidth = ColumnCellWidth,

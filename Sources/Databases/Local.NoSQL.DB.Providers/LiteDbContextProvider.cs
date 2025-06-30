@@ -4,9 +4,7 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Files;
 using SourceGenerator.InjectHostDI;
 using Yitter.IdGenerator;
 
@@ -14,11 +12,16 @@ namespace Local.NoSQL.DB.Providers;
 
 public static class LiteDbContextProvider
 {
-    public static IServiceCollection AddNoSqlDbContext(this IServiceCollection services, IHostEnvironment hostEnvironment)
+    public static IServiceCollection AddNoSqlDbContext(
+        this IServiceCollection services,
+        Func<IServiceProvider, string> nosqlDbDataSourceProvider,
+        Func<IServiceProvider, ICacheSetting> cacheSettingProvider,
+        IHostEnvironment hostEnvironment)
     {
-        // 注入校准结果和全局参数的liteDbProvider
         services.AddSingleton<ILiteDatabaseProvider>(sp =>
         {
+            var nosqlDbDataSource = nosqlDbDataSourceProvider(sp);
+
             if (YitIdHelper.IdGenInstance is null)
                 YitIdHelper.SetIdGenerator(new IdGeneratorOptions
                 {
@@ -30,14 +33,12 @@ public static class LiteDbContextProvider
             BsonMapper.Global.EmptyStringToNull = false;
             BsonMapper.Global.SerializeNullValues = true;
             BsonMapper.Global.EnumAsInteger = true;
-
+            BsonMapper.Global.IncludeFields = true;
             // 原生Datetime Truncate了 Truncate DateTime in milliseconds
-
-            var appSettingOptions = sp.GetRequiredService<IOptions<ApplicationSetting>>().Value;
             var logger = sp.GetRequiredService<ILogger<LiteDbCacheProviderImpl>>();
 
-            DirectoryHelper.CreateFileDirectoryIfNotExists(appSettingOptions.NosqlDbDataSource);
-            var liteDatabase = new LiteDatabase(new ConnectionString(appSettingOptions.NosqlDbDataSource) { Connection = ConnectionType.Direct, Collation = new Collation("en-US/IgnoreCase") });
+            DirectoryHelper.CreateFileDirectoryIfNotExists(nosqlDbDataSource);
+            var liteDatabase = new LiteDatabase(new ConnectionString(nosqlDbDataSource) { Connection = ConnectionType.Direct, Collation = new Collation("en-US/IgnoreCase") });
 
             // 将未提交的-log文件写入主数据库
             liteDatabase.Checkpoint();
@@ -47,26 +48,29 @@ public static class LiteDbContextProvider
                 LiteDatabase = liteDatabase
             };
         });
-        services.AddLocalNoSQLDBProvidersInjectHostDI(hostEnvironment);
 
-        // 注入校准结果和全局参数的cacheProvider
         services.AddSingleton<ICacheProvider>(sp =>
         {
-            var appSettingOptions = sp.GetRequiredService<IOptions<ApplicationSetting>>();
+            var cacheSetting = cacheSettingProvider(sp);
+
             var logger = sp.GetRequiredService<ILogger<LiteDbCacheProviderImpl>>();
 
             var liteDbProvider = sp.GetRequiredService<ILiteDatabaseProvider>();
-            return new LiteDbCacheProviderImpl(liteDbProvider!, appSettingOptions, logger);
+            return new LiteDbCacheProviderImpl(liteDbProvider, cacheSetting, logger);
         });
+
         services.AddLocalNoSQLDBProvidersInjectHostDI(hostEnvironment);
 
         return services;
     }
 
-    public static IServiceCollection AddKeyedNoSqlDbContext(this IServiceCollection services, IHostEnvironment hostEnvironment, string key)
+    public static IServiceCollection AddKeyedNoSqlDbContext(
+        this IServiceCollection services,
+        string serviceKey,
+        Func<IServiceProvider, ICacheSetting> cacheSettingProvider,
+        IHostEnvironment hostEnvironment)
     {
-        // 注入配方和校准参数的liteDbProvider
-        services.AddKeyedSingleton<ILiteDatabaseProvider>(key, (sp, _) =>
+        services.AddKeyedSingleton<ILiteDatabaseProvider>(serviceKey, (sp, _) =>
         {
             if (YitIdHelper.IdGenInstance is null)
                 YitIdHelper.SetIdGenerator(new IdGeneratorOptions
@@ -79,26 +83,22 @@ public static class LiteDbContextProvider
             BsonMapper.Global.EmptyStringToNull = false;
             BsonMapper.Global.SerializeNullValues = true;
             BsonMapper.Global.EnumAsInteger = true;
-
-            // 原生Datetime Truncate了 Truncate DateTime in milliseconds
-
-            var appSettingOptions = sp.GetRequiredService<IOptions<ApplicationSetting>>().Value;
+            BsonMapper.Global.IncludeFields = true;
             var logger = sp.GetRequiredService<ILogger<LiteDbCacheProviderImpl>>();
 
             return new LiteDatabaseProviderImpl(logger);
         });
-        services.AddLocalNoSQLDBProvidersInjectHostDI(hostEnvironment);
 
-        // 注入配方和校准参数的cacheProvider
-        services.AddKeyedSingleton<ICacheProvider>(key, (sp, _) =>
+        services.AddKeyedSingleton<ICacheProvider>(serviceKey, (sp, _) =>
         {
-            var appSettingOptions = sp.GetRequiredService<IOptions<ApplicationSetting>>();
+            var cacheSetting = cacheSettingProvider(sp);
+
             var logger = sp.GetRequiredService<ILogger<LiteDbCacheProviderImpl>>();
 
-            var liteDbProvider = sp.GetKeyedService<ILiteDatabaseProvider>(key);
-            return new LiteDbCacheProviderImpl(liteDbProvider!, appSettingOptions, logger);
+            var liteDbProvider = sp.GetRequiredKeyedService<ILiteDatabaseProvider>(serviceKey);
+
+            return new LiteDbCacheProviderImpl(liteDbProvider, cacheSetting, logger);
         });
-        services.AddLocalNoSQLDBProvidersInjectHostDI(hostEnvironment);
 
         return services;
     }

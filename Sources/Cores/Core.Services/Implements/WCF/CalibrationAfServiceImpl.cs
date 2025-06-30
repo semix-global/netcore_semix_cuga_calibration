@@ -8,7 +8,7 @@ using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.WCF;
@@ -433,6 +433,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
     {
-        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Empty], 1d));
+        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));
     }
 }

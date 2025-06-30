@@ -6,7 +6,7 @@ using Core.Models.Events;
 using CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.IOC.Providers;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Windows.Controls;

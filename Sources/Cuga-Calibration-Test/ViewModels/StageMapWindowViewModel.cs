@@ -9,15 +9,16 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.MathNet.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Extensions;
@@ -34,8 +35,9 @@ using System.Numerics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
+using Vector = Net.Utilities.Models.Geometries.Vector;
 
 namespace CugaCalibrationTest.ViewModels;
 
@@ -130,7 +132,7 @@ public sealed partial class StageMapWindowViewModel(
     #region 测试算法
 
     [ObservableProperty]
-    private Point _startPoint = Point.Empty;
+    private Point _startPoint = Point.Origin;
 
     [ObservableProperty]
     private int _rowCount = 5;
@@ -145,7 +147,7 @@ public sealed partial class StageMapWindowViewModel(
     private double _columnWidth = 15300;
 
     [ObservableProperty]
-    private Point _searchPoint = Point.Empty;
+    private Point _searchPoint = Point.Origin;
 
     [ObservableProperty]
     private bool _isContainError;
@@ -174,7 +176,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         if (value == false) return;
 
-        StartPoint = Point.Empty;
+        StartPoint = Point.Origin;
         RowCount = ColumnCount = 2;
         RowHeight = 20;
         ColumnWidth = 10;
@@ -191,7 +193,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         _currentStageMapDto = new StageMapDto(RowCount, ColumnCount, RowHeight, ColumnWidth);
 
-        var errors = (Point[]) [new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
+        var errors = (Point[])[new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
 
         // 生成矩阵数据，使用起始点作为偏移
         var index = 0;
@@ -210,7 +212,7 @@ public sealed partial class StageMapWindowViewModel(
                 _currentStageMapDto.IdealStageMapItemMatrix[row][column].Point = idealPoint;
                 _currentStageMapDto.IdealStageMapItemMatrix[row][column].IsInWafer = true;
 
-                _currentStageMapDto.RealMatrix[row][column] = idealPoint + errors[index % errors.Length];
+                _currentStageMapDto.RealMatrix[row][column] = idealPoint + (Vector)errors[index % errors.Length];
                 _currentStageMapDto.ErrorMatrix[row][column] = errors[index % errors.Length];
                 index++;
             }
@@ -245,12 +247,12 @@ public sealed partial class StageMapWindowViewModel(
             var (idealMatrix, valueIsOkMatrix, valueMatrix) = _currentStageMapDto.GetStageMapBilinearArray();
 
             var xResult = BinarySearch.TryValueIndexRange(
-                [.. MatrixHelper.Row(idealMatrix, 0).Select(tt => tt.X)],
+                [.. MatrixUtils.Row(idealMatrix, 0).Select(tt => tt.X)],
                 SearchPoint.X,
                 out var startColumnIndex,
                 out var endColumnIndex); // x方向寻找行
             var yResult = BinarySearch.TryValueIndexRange(
-                [.. MatrixHelper.Column(idealMatrix, 0).Select(tt => tt.Y)],
+                [.. MatrixUtils.Column(idealMatrix, 0).Select(tt => tt.Y)],
                 SearchPoint.Y,
                 out var startRowIndex,
                 out var endRowIndex); // y方向寻找列
@@ -298,7 +300,7 @@ public sealed partial class StageMapWindowViewModel(
                 var pt = new Coordinates(SearchPoint.X, SearchPoint.Y);
                 var v = new Vector2((float)valueX, (float)valueY);
 
-                if (StartPoint == Point.Empty
+                if (StartPoint == Point.Origin
                     && RowCount == 2
                     && ColumnCount == 2
                     && RowHeight - 20 == 0
@@ -337,7 +339,7 @@ public sealed partial class StageMapWindowViewModel(
                 rootedCoordinateVectors.Add(new RootedCoordinateVector(pt, v));
             }
 
-            foreach (var point in (Point[]) [leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
+            foreach (var point in (Point[])[leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
             {
                 var marker = WpfPlot.Plot.Add.Marker(point.X, point.Y, shape: MarkerShape.FilledCircle);
                 marker.MarkerFillColor = Colors.Red;
@@ -411,7 +413,7 @@ public sealed partial class StageMapWindowViewModel(
         bool isContainError = true,
         bool isShowDetails = false)
     {
-        var temp = mapErrorMatrix.SelectMany(t => t).Select(t => t.DistanceToZero()).ToList();
+        var temp = mapErrorMatrix.SelectMany(t => t).Select(t => t.ToOriginLength).ToList();
         var errorLengthMin = temp.Min();
         var errorLengthMax = temp.Max();
 

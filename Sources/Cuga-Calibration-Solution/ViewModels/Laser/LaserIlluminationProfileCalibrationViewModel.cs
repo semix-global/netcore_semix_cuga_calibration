@@ -18,6 +18,7 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
+using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using Humanizer;
 using MathNet.Numerics.LinearAlgebra;
@@ -25,16 +26,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.Struct;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
@@ -67,7 +67,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         new() { StepName = "Illumination" }
     ];
 
-    public string PrescanFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Prescan", nameof(LaserIlluminationProfileCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(ConstantHelper.ShortFileDateTimeFormat));
+    public string PrescanFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Prescan", nameof(LaserIlluminationProfileCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     #region 界面相关
 
@@ -477,7 +477,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 {
                     PmtId = i,
                     ChannelId = Cache.ChannelId,
-                    PmtIdPosition = Cache.FindPosition - new Point(0, 320 * (8 - i)),
+                    PmtIdPosition = Cache.FindPosition - (Vector)new Point(0, 320 * (8 - i)),
                 };
                 Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Add(pmt);
             }
@@ -489,7 +489,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 {
                     PmtId = i,
                     ChannelId = Cache.ChannelId,
-                    PmtIdPosition = Cache.FindPosition + new Point(0, 320 * (i - 8)),
+                    PmtIdPosition = Cache.FindPosition + (Vector)new Point(0, 320 * (i - 8)),
                 };
                 Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Add(pmt);
             }
@@ -1390,7 +1390,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             async Task<bool> GetResultAsync()
             {
                 SelectCalibrateItemDto = CalibrationLaserIlluminationProfileDtoList
-                    .Select(t => (Judge: new Point(t.DarkFieldImageListRateMin - thresholdDarkFieldImageListRateMin, t.DarkFieldImageListRateMax - thresholdDarkFieldImageListRateMax).DistanceToZero(), Result: t))
+                    .Select(t => (Judge: new Point(t.DarkFieldImageListRateMin - thresholdDarkFieldImageListRateMin, t.DarkFieldImageListRateMax - thresholdDarkFieldImageListRateMax).ToOriginLength, Result: t))
                     .OrderBy(t => t.Judge)
                     .First().Result;
 
@@ -1585,7 +1585,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             using var _3 = channel3DarkFieldImageDto;
             if (isSuccess == false) return false;
 
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             laserIlluminationProfileItemDto.Channel1DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.ProjectionYs]);
             laserIlluminationProfileItemDto.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtItem.PmtId}_Channel1_{laserIlluminationProfileItemDto.Index}).jpg";
             HalconHelper.Save(channel1DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel1ImageFilePath);
@@ -1597,9 +1597,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             //是否需要进行反转
             if (Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan)
             {
-                _ = channel1DarkFieldImageDto.ProjectionYs.Reverse();
-                _ = channel2DarkFieldImageDto.ProjectionYs.Reverse();
-                _ = channel3DarkFieldImageDto.ProjectionYs.Reverse();
+                channel1DarkFieldImageDto.ProjectionYs.Reverse();
+                channel2DarkFieldImageDto.ProjectionYs.Reverse();
+                channel3DarkFieldImageDto.ProjectionYs.Reverse();
             }
 
             Logger.LogHtmlInformation($"PmtId: {pmtItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new

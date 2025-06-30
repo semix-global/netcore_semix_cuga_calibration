@@ -16,7 +16,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -136,14 +136,14 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
-        Cache.FindWaferCenterOffset1 = Point.Empty;
-        Cache.FindWaferCenterOffset2 = Point.Empty;
-        Cache.FindWaferCenterOffset3 = Point.Empty;
-        Cache.FindWaferCenterOffset4 = Point.Empty;
-        Cache.FindWaferCenterOffset5 = Point.Empty;
-        Cache.FindWaferCenterOffset6 = Point.Empty;
-        Cache.FindWaferCenterOffset7 = Point.Empty;
-        Cache.FindWaferCenterOffset8 = Point.Empty;
+        Cache.FindWaferCenterOffset1 = Point.Origin;
+        Cache.FindWaferCenterOffset2 = Point.Origin;
+        Cache.FindWaferCenterOffset3 = Point.Origin;
+        Cache.FindWaferCenterOffset4 = Point.Origin;
+        Cache.FindWaferCenterOffset5 = Point.Origin;
+        Cache.FindWaferCenterOffset6 = Point.Origin;
+        Cache.FindWaferCenterOffset7 = Point.Origin;
+        Cache.FindWaferCenterOffset8 = Point.Origin;
         Cache.WaferCenterThumb1 = [];
         Cache.WaferCenterThumb2 = [];
         Cache.WaferCenterThumb3 = [];
@@ -172,7 +172,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         ReviewDto = Calibration.Clone();
         var waferCenterPosition = ReviewDto.OffsetPosition;
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
         MicroscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum.Magnification5X);
         return true;
@@ -324,7 +324,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var reslut = true;
         await InvokeCalibrateAsync(async () =>
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             List<Point> waferEdgeOffsets =
             [
                 Cache.FindWaferCenterOffset1,
@@ -340,7 +340,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             {
                 Cache.PositionErrorThreshold
             }), HtmlLogUniqueId.LoggingHtml());
-            var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Empty, waferEdgeOffsets);
+            var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin, waferEdgeOffsets);
             Cache.OffsetPosition = offsetPosition;
 
             if (bitmapMemoryBytes is not null && bitmapMemoryBytes.Count > 0)
@@ -378,17 +378,17 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition = new Point(efemLoadWaferStagePosition.X - xDirection * Cache.OffsetPosition.X, efemLoadWaferStagePosition.Y - yDirection * Cache.OffsetPosition.Y);
             Logger.LogHtmlInformation("Init center result OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                OffsetPosition = ChuckPrealignerObjDto.OffsetPosition.ToShortString(),
-                EfemLoadWaferStagePosition = ChuckPrealignerObjDto.EfemLoadWaferStagePosition.ToShortString(),
-                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition.ToShortString(),
-                FindWaferCenterOffset1 = Cache.FindWaferCenterOffset1.ToShortString(),
-                FindWaferCenterOffset2 = Cache.FindWaferCenterOffset2.ToShortString(),
-                FindWaferCenterOffset3 = Cache.FindWaferCenterOffset3.ToShortString(),
-                FindWaferCenterOffset4 = Cache.FindWaferCenterOffset4.ToShortString(),
-                FindWaferCenterOffset5 = Cache.FindWaferCenterOffset5.ToShortString(),
-                FindWaferCenterOffset6 = Cache.FindWaferCenterOffset6.ToShortString(),
-                FindWaferCenterOffset7 = Cache.FindWaferCenterOffset7.ToShortString(),
-                FindWaferCenterOffset8 = Cache.FindWaferCenterOffset8.ToShortString()
+                ChuckPrealignerObjDto.OffsetPosition,
+                ChuckPrealignerObjDto.EfemLoadWaferStagePosition,
+                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
+                Cache.FindWaferCenterOffset1,
+                Cache.FindWaferCenterOffset2,
+                Cache.FindWaferCenterOffset3,
+                Cache.FindWaferCenterOffset4,
+                Cache.FindWaferCenterOffset5,
+                Cache.FindWaferCenterOffset6,
+                Cache.FindWaferCenterOffset7,
+                Cache.FindWaferCenterOffset8
             }), HtmlLogUniqueId.LoggingHtml());
             StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
             return reslut;
@@ -461,11 +461,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle = efemLoadWaferChuckAngle + Cache.OffsetAngle;
             Logger.LogHtmlInformation("Result Ok", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                OffsetPosition = ChuckPrealignerObjDto.OffsetPosition.ToShortString(),
-                OffsetAngle = Cache.OffsetAngle,
-                EfemLoadWaferStagePosition = ChuckPrealignerObjDto.EfemLoadWaferStagePosition.ToShortString(),
+                ChuckPrealignerObjDto.OffsetPosition,
+                Cache.OffsetAngle,
+                ChuckPrealignerObjDto.EfemLoadWaferStagePosition,
                 ChuckPrealignerObjDto.EfemLoadWaferChuckAngle,
-                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition.ToShortString(),
+                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
                 OffsetAngleCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle,
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -542,9 +542,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     return result;
                 }
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
-                var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Empty);
+                var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin);
                 Cache.OffsetPosition = offsetPosition;
 
                 Logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -557,10 +557,10 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                     {
-                        PositionThreshold = Cache.PositionThreshold,
-                        AngleThreshold = Cache.AngleThreshold,
-                        OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition.ToShortString(),
-                        VerifyOffsetPosition = offsetPosition.ToShortString(),
+                        Cache.PositionThreshold,
+                        Cache.AngleThreshold,
+                        OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
+                        VerifyOffsetPosition = offsetPosition,
                         OldOffsetAngle = selectChuckPrealignerObjDto.OffsetAngle,
                         VerifyOffsetAngle = Cache.OffsetAngle,
                     }), HtmlLogUniqueId.LoggingHtml());
@@ -581,10 +581,10 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                 Logger.LogHtmlInformation("Verify Chuck Prealigner calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    PositionThreshold = Cache.PositionThreshold,
-                    AngleThreshold = Cache.AngleThreshold,
-                    OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition.ToShortString(),
-                    VerifyOffsetPosition = offsetPosition.ToShortString(),
+                    Cache.PositionThreshold,
+                    Cache.AngleThreshold,
+                    OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
+                    VerifyOffsetPosition = offsetPosition,
                     OldOffsetAngle = selectChuckPrealignerObjDto.OffsetAngle,
                     VerifyOffsetAngle = Cache.OffsetAngle,
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -607,10 +607,10 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.LowMicroscopeMagnificationEnum,
                 Cache.HighMicroscopeMagnificationEnum,
                 Cache.AlgorithmWaferTypeEnum,
-                LowLocation1 = Cache.LowSite1.Location.ToShortString(),
-                LowLocation2 = Cache.LowSite2.Location.ToShortString(),
-                HighLocation1 = Cache.HighSite1.Location.ToShortString(),
-                HighLocation2 = Cache.HighSite2.Location.ToShortString(),
+                LowLocation1 = Cache.LowSite1.Location,
+                LowLocation2 = Cache.LowSite2.Location,
+                HighLocation1 = Cache.HighSite1.Location,
+                HighLocation2 = Cache.HighSite2.Location,
                 HtmlTab = new HtmlTab(new
                 {
                     LowTemplate = new HtmlImage(Cache.LowTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -644,30 +644,28 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
 
             if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionThreshold || !isReviewLoadWafer)
-                efemWindowViewModel.OffsetPoint = Point.Empty;
+                efemWindowViewModel.OffsetPoint = Point.Origin;
             else
             {
-                var point = new Point(Cache.OffsetPosition);
                 var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
-                point.X = -xDirection * point.X;
-                point.Y = -yDirection * point.Y;
+                var point = new Point(-xDirection * Cache.OffsetPosition.X, -yDirection * Cache.OffsetPosition.Y);
                 efemWindowViewModel.OffsetPoint = point;
             }
 
             Logger.LogHtmlInformation("ReloadWafert", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                AngleThreshold = Cache.AngleThreshold,
-                PositionThreshold = Cache.PositionThreshold,
-                OffsetAngle = efemWindowViewModel.OffsetAngle,
-                OffsetPoint = efemWindowViewModel.OffsetPoint.ToShortString()
+                Cache.AngleThreshold,
+                Cache.PositionThreshold,
+                efemWindowViewModel.OffsetAngle,
+                efemWindowViewModel.OffsetPoint
             }), HtmlLogUniqueId.LoggingHtml());
             WindowManagerService.ShowDialog(efemWindowViewModel);
             efemWindowViewModel.IsPrealigner = false;
             result = (efemWindowViewModel.PrealignerIsOk && efemWindowViewModel.SelectedFoupItem != null && efemWindowViewModel.SelectedFoupItem.IsLoadWafer);
             Logger.LogHtmlInformation(result ? "ReloadWafert OK" : "ReloadWafert Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                OffsetAngle = efemWindowViewModel.OffsetAngle,
-                OffsetPoint = efemWindowViewModel.OffsetPoint.ToShortString()
+                efemWindowViewModel.OffsetAngle,
+                efemWindowViewModel.OffsetPoint
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         }).ConfigureAwait(false);
@@ -718,17 +716,17 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition = new Point(efemLoadWaferStagePosition.X - xDirection * Cache.OffsetPosition.X, efemLoadWaferStagePosition.Y - yDirection * Cache.OffsetPosition.Y);
             Logger.LogHtmlInformation(result ? "find wafer center result OK" : "find wafer center result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                OffsetPosition = Cache.OffsetPosition.ToShortString(),
-                EfemLoadWaferStagePosition = ChuckPrealignerObjDto.EfemLoadWaferStagePosition.ToShortString(),
-                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition.ToShortString(),
-                FindWaferCenterOffset1 = Cache.FindWaferCenterOffset1.ToShortString(),
-                FindWaferCenterOffset2 = Cache.FindWaferCenterOffset2.ToShortString(),
-                FindWaferCenterOffset3 = Cache.FindWaferCenterOffset3.ToShortString(),
-                FindWaferCenterOffset4 = Cache.FindWaferCenterOffset4.ToShortString(),
-                FindWaferCenterOffset5 = Cache.FindWaferCenterOffset5.ToShortString(),
-                FindWaferCenterOffset6 = Cache.FindWaferCenterOffset6.ToShortString(),
-                FindWaferCenterOffset7 = Cache.FindWaferCenterOffset7.ToShortString(),
-                FindWaferCenterOffset8 = Cache.FindWaferCenterOffset8.ToShortString()
+                Cache.OffsetPosition,
+                ChuckPrealignerObjDto.EfemLoadWaferStagePosition,
+                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
+                Cache.FindWaferCenterOffset1,
+                Cache.FindWaferCenterOffset2,
+                Cache.FindWaferCenterOffset3,
+                Cache.FindWaferCenterOffset4,
+                Cache.FindWaferCenterOffset5,
+                Cache.FindWaferCenterOffset6,
+                Cache.FindWaferCenterOffset7,
+                Cache.FindWaferCenterOffset8
             }), HtmlLogUniqueId.LoggingHtml());
             if (!result) Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find wafer center Offset Position failed!"), HtmlLogUniqueId.LoggingHtml());
             return result;

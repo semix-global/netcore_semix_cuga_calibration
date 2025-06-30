@@ -16,11 +16,10 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.Struct;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -368,7 +367,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
 
             GetStageMap(ResultChuckBrightFieldStageMapDto.CalibrationStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckBrightFieldStageMapDto)), cancellationToken);
 
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             ResultChuckBrightFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
             ResultChuckBrightFieldStageMapDto.CalibrationStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
             ResultChuckBrightFieldStageMapDto.CalibrationStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -484,7 +483,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
 
                 GetStageMap(ReviewDto.VerifyStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyStageMap)), cancellationToken);
 
-                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.MiddleFileDateTimeFormat);
+                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 ReviewDto.VerifyStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Review\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Review\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Review\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
@@ -532,7 +531,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
 
                 var result = ReviewDto.VerifyStageMap.ErrorMatrix
                     .SelectMany(t => t)
-                    .All(t => t.DistanceToZero() < Cache.Threshold.DistanceToZero());
+                    .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
                 ReviewDto.IsVerified = result;
 
                 if (Save(ReviewDto, cancellationToken) == false)
@@ -643,7 +642,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                     stageMapItem.IsMatchOk = true;
 
                     realMatrix[row][column] = result;
-                    errorItemList[row][column] = result - stageMapItem.Point;
+                    errorItemList[row][column] = result - (Vector)stageMapItem.Point;
                 }
 
                 stageMapItem.TemplateScore = resultScore;

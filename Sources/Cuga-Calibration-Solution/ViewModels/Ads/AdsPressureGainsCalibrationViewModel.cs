@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -153,7 +153,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                FindPosition = Cache.FindPosition.ToShortString()
+                Cache.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -186,7 +186,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
             Logger.LogHtmlInformation("Ok", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                FindPosition = ResultAdsPressureGainsDto.FindPosition.ToShortString(),
+                ResultAdsPressureGainsDto.FindPosition,
                 ResultAdsPressureGainsDto.PressureValue1,
                 ResultAdsPressureGainsDto.PressureValue2,
                 ResultAdsPressureGainsDto.PressureValue3,
@@ -240,7 +240,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             Thread.Sleep(1000);
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                FindPosition = Cache.FindPosition.ToShortString()
+                Cache.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation($"{Name} Start", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Get Sensor Height, Roll, Pitch Trans Buffer Value Start! "), HtmlLogUniqueId.LoggingHtml());

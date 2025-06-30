@@ -4,7 +4,7 @@ using Core.Models.Models;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -166,10 +166,10 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                     CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
                     Logger.LogHtmlError("Beam Stabilizer calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1.ToShortString(),
-                        CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2.ToShortString(),
-                        OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1.ToShortString(),
-                        OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2.ToShortString(),
+                        FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
+                        FirstLaserBeamStabilizerObjDto.CurrentPDPosition2,
+                        FirstLaserBeamStabilizerObjDto.OriginPosition1,
+                        FirstLaserBeamStabilizerObjDto.OriginPosition2,
                         Interval = FirstLaserBeamStabilizerObjDto.Interval.ToString()
                     }), HtmlLogUniqueId.LoggingHtml());
                     DialogWindowProvider.ShowDialog("Beam Stabilizer calibration failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -179,10 +179,10 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
             Logger.LogHtmlInformation("Beam Stabilizer calibration result OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1.ToShortString(),
-                CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2.ToShortString(),
-                OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1.ToShortString(),
-                OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2.ToShortString(),
+                FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
+                FirstLaserBeamStabilizerObjDto.CurrentPDPosition2,
+                FirstLaserBeamStabilizerObjDto.OriginPosition1,
+                FirstLaserBeamStabilizerObjDto.OriginPosition2,
                 Interval = FirstLaserBeamStabilizerObjDto.Interval.ToString()
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -227,10 +227,10 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
                     Logger.LogHtmlError("Verify Beam Stabilizer calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1.ToShortString(),
-                        CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2.ToShortString(),
-                        OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1.ToShortString(),
-                        OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2.ToShortString(),
+                        FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
+                        FirstLaserBeamStabilizerObjDto.CurrentPDPosition2,
+                        FirstLaserBeamStabilizerObjDto.OriginPosition1,
+                        FirstLaserBeamStabilizerObjDto.OriginPosition2,
                         Interval = FirstLaserBeamStabilizerObjDto.Interval.ToString()
                     }), HtmlLogUniqueId.LoggingHtml());
                     DialogWindowProvider.ShowDialog("Verify Beam Stabilizer calibration failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -248,10 +248,10 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
             Logger.LogHtmlInformation(" Verify Beam Stabilizer calibration result OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1.ToShortString(),
-                CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2.ToShortString(),
-                OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1.ToShortString(),
-                OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2.ToShortString(),
+                FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
+                FirstLaserBeamStabilizerObjDto.CurrentPDPosition2,
+                FirstLaserBeamStabilizerObjDto.OriginPosition1,
+                FirstLaserBeamStabilizerObjDto.OriginPosition2,
                 Interval = FirstLaserBeamStabilizerObjDto.Interval.ToString()
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -286,10 +286,10 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
             Logger.LogHtmlInformation($"Check the laser beam stabilizer position offset. The {laserBeamStabilizerObjDto.Index} time.", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
-                CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1.ToShortString(),
-                CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2.ToShortString(),
-                OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1.ToShortString(),
-                OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2.ToShortString()
+                FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
+                FirstLaserBeamStabilizerObjDto.CurrentPDPosition2,
+                FirstLaserBeamStabilizerObjDto.OriginPosition1,
+                FirstLaserBeamStabilizerObjDto.OriginPosition2
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (!isCheckOffsetSuccess)

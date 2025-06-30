@@ -6,18 +6,21 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.YGains;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using static Core.Models.Models.Ads.YGains.AdsYGainsCache;
+
+#if NETFRAMEWORK
+using MoreLinq;
+#endif
 
 namespace CugaCalibration.ViewModels.Ads;
 
@@ -216,7 +219,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     protected override async Task<bool> CancelingAsync()
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        var point = StageViewModel.BrightFieldToMachinePosition(Point.Empty);
+        var point = StageViewModel.BrightFieldToMachinePosition(Point.Origin);
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(point);
         return true;
     }
@@ -299,12 +302,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Y1 = Cache.Y1,
-                Y2 = Cache.Y2,
-                Y3 = Cache.Y3,
-                Y4 = Cache.Y4,
-                Y5 = Cache.Y5,
-                Y6 = Cache.Y6,
+                Cache.Y1,
+                Cache.Y2,
+                Cache.Y3,
+                Cache.Y4,
+                Cache.Y5,
+                Cache.Y6,
                 YPositiveStartPosition = Cache.PositiveStartPosition,
                 YPositiveEndPosition = Cache.PositiveEndPosition,
                 YNegativeStartPosition = Cache.NegativeStartPosition,
@@ -360,7 +363,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     adsYGainsCacheItem.SetAdsY3(Cache.FindMinY);
                     Logger.LogHtmlInformation($"Param_V{speedvalue}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        IsPositive = Cache.IsPositive,
+                        Cache.IsPositive,
                         StartPosition = Cache.GetStartPosition(),
                         EndPosition = Cache.GetEndPosition(),
                         SpeedXValue = speedvalue
@@ -470,7 +473,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Logger.LogHtmlInformation("SpeedBestYValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        Threshold = Cache.Threshold,
+                        Cache.Threshold,
                         SpeedXPositiveTable = new HtmlTable([.. AdsYGainsDichotomySpeedCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -478,7 +481,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Logger.LogHtmlInformation("SpeedBestYValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        Threshold = Cache.Threshold,
+                        Cache.Threshold,
                         SpeedXNegativeTable = new HtmlTable([.. AdsYGainsDichotomySpeedCacheItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -570,7 +573,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Logger.LogHtmlInformation("SpeedBestXValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        Threshold = Cache.Threshold,
+                        Cache.Threshold,
                         SpeedXPositiveTable = new HtmlTable([.. ResultAdsYGainsHrpCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -578,7 +581,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Logger.LogHtmlInformation("SpeedBestXValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        Threshold = Cache.Threshold,
+                        Cache.Threshold,
                         SpeedXNegativeTable = new HtmlTable([.. ResultAdsYGainsHrpCacheItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }

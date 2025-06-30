@@ -24,17 +24,17 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -663,7 +663,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
                 Logger.LogHtmlInformation($"3. Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 // 获得自动聚焦AutoEcs下的AutoEcs
-                Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + SelectFocusShiftDto.BrightFiedlToDarkFieldOffset;
+                Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + (Vector)SelectFocusShiftDto.BrightFiedlToDarkFieldOffset;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.IdeaDarkFieldMachinePosition);
 
                 var isAutoFocus = AfViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, Cache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
@@ -927,7 +927,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     ResultRtfcDto.BrightFieldFindPosition = brightFieldMachinePosition;
                     ResultRtfcDto.DarkFieldFindPosition = matchMachinePosition;
                     ResultRtfcDto.DarkFieldImageFilePath = resultImageFilePath;
-                    ResultRtfcDto.DarkFieldMatchOffset = matchMachinePosition - Cache.IdeaDarkFieldMachinePosition;
+                    ResultRtfcDto.DarkFieldMatchOffset = matchMachinePosition - (Vector)Cache.IdeaDarkFieldMachinePosition;
                     var result = Math.Abs(ResultRtfcDto.DarkFieldMatchOffset.X) < Cache.OffsetThreshold;
                     SynchronizationContextProvider.Send(() => { RtfcDtoIterationItems.Add(ResultRtfcDto); });
 
@@ -1000,7 +1000,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
             if (await FocusShiftCalibrationViewModel.CalibrationAsync(settingDarkFieldAutoFocusParam, cancellationToken) == false) return false;
 
-            ResultRtfcDto.DarkFieldMatchOffset = FocusShiftCalibrationViewModel.ResultFocusShiftDto.DarkFieldFindPosition - SelectReviewDto.DarkFieldFindPosition;
+            ResultRtfcDto.DarkFieldMatchOffset = FocusShiftCalibrationViewModel.ResultFocusShiftDto.DarkFieldFindPosition - (Vector)SelectReviewDto.DarkFieldFindPosition;
             var afEcs = FocusShiftCalibrationViewModel.ResultFocusShiftDto.BrightFieldEcsValue;
             var idealEcs = afEcs + selectFocusShiftDto.EcsOffset;
             var afShift = FocusShiftCalibrationViewModel.ResultFocusShiftDto.AutoFocusEcs - idealEcs;
@@ -1117,7 +1117,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             FileHelper.Save(darkFieldImageDto.Bytes, rtfcItemDto.DarkFieldOriginImageFilePath);
             HalconHelper.Save(darkFieldImageDto.Image, rtfcItemDto.DarkFieldImageFilePath);
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header7, new HtmlBullet(new
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 rtfcItemDto.EcsValue,
                 ImageQuality = rtfcItemDto.Quality,

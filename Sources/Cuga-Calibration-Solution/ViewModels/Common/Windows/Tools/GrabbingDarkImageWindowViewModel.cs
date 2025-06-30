@@ -3,15 +3,16 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
+using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.IOC.Providers;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
@@ -120,8 +121,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                                                         {nameof(StageCoordinateSystemEnum)}: {StageCoordinateSystemEnum}
                                                         {(IsPtp
                                                             ? $"""
-                                                               {nameof(StartPosition)}: {StartPosition.ToShortString()}
-                                                               {nameof(EndPosition)}: {EndPosition.ToShortString()}
+                                                               {nameof(StartPosition)}: {StartPosition}
+                                                               {nameof(EndPosition)}: {EndPosition}
                                                                """
                                                             : $"{nameof(XWidth)}: {XWidth}")}
                                                         {nameof(PmtId)}: {PmtId}
@@ -232,8 +233,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                     IsEnableAutoGain = IsEnableAutoGain,
                     IsForward = IsForward,
                     XWidth = IsPtp ? string.Empty : XWidth.ToString(),
-                    StartPosition = IsPtp ? StartPosition.ToShortString() : string.Empty,
-                    EndPosition = IsPtp ? EndPosition.ToShortString() : string.Empty,
+                    StartPosition = IsPtp ? StartPosition.ToString() : string.Empty,
+                    EndPosition = IsPtp ? EndPosition.ToString() : string.Empty,
                     PrescanFilePath = PrescanFilePath,
                     ChirpFilePath = ChirpFilePath,
                     DarkFieldImageList = darkFieldImageList,

@@ -15,7 +15,7 @@ using System.ComponentModel;
 using System.Numerics;
 using System.Windows;
 using System.Windows.Input;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
 using Text = ScottPlot.Plottables.Text;
 
@@ -202,7 +202,7 @@ public sealed partial class DarkFieldMapView
         {
             if (isRemoveAll) wpfPlot.Plot.PlottableList.RemoveAll(t => t is Crosshair or Annotation == false);
             if (mapErrorMatrix.ElementAtOrDefault(0)?.ElementAtOrDefault(0) is null) return;
-            var temp = mapErrorMatrix.SelectMany(t => t).Select(t => t.DistanceToZero()).ToList();
+            var temp = mapErrorMatrix.SelectMany(t => t).Select(t => t.ToOriginLength).ToList();
             var errorLengthMin = temp.Min();
             var errorLengthMax = temp.Max();
 

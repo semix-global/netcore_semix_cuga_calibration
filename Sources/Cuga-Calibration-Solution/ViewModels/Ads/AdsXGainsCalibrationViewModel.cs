@@ -10,12 +10,12 @@ using Core.Models.Models.Common.Status;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.MathNet.Modules;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
@@ -220,7 +220,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     protected override async Task<bool> CancelingAsync()
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        var point = StageViewModel.BrightFieldToMachinePosition(Point.Empty);
+        var point = StageViewModel.BrightFieldToMachinePosition(Point.Origin);
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(point);
         return true;
     }

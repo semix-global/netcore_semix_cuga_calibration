@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net480;net8.0-windows</TargetFrameworks>
+        <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>CugaCalibrationUnitTest</RootNamespace>
         <IsPackable>false</IsPackable>
@@ -25,14 +25,14 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Cuga-Calibration-Test\Cuga-Calibration-Test.csproj" />
-    </ItemGroup>
-
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
         <Reference Include="Cuga.Data.DataStruct">
             <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Cuga-Calibration-Test\Cuga-Calibration-Test.csproj" />
     </ItemGroup>
 
 </Project>

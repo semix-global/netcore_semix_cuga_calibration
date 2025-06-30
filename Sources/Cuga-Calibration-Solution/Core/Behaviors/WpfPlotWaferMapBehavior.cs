@@ -8,7 +8,7 @@ using ScottPlot.Interactivity.UserActionResponses;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Windows;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.Core.Behaviors;
 
@@ -54,7 +54,7 @@ public sealed class WpfPlotWaferMapBehavior : Behavior<WpfPlot>
         nameof(BrightPosition),
         typeof(Point),
         typeof(WpfPlotWaferMapBehavior),
-        new PropertyMetadata(Point.Empty, PropertyChangedCallback)
+        new PropertyMetadata(Point.Origin, PropertyChangedCallback)
     );
 
     public Point DarkPosition
@@ -67,7 +67,7 @@ public sealed class WpfPlotWaferMapBehavior : Behavior<WpfPlot>
         nameof(DarkPosition),
         typeof(Point),
         typeof(WpfPlotWaferMapBehavior),
-        new PropertyMetadata(Point.Empty, PropertyChangedCallback)
+        new PropertyMetadata(Point.Origin, PropertyChangedCallback)
     );
 
     public Point StagePosition
@@ -80,7 +80,7 @@ public sealed class WpfPlotWaferMapBehavior : Behavior<WpfPlot>
         nameof(StagePosition),
         typeof(Point),
         typeof(WpfPlotWaferMapBehavior),
-        new PropertyMetadata(Point.Empty, PropertyChangedCallback)
+        new PropertyMetadata(Point.Origin, PropertyChangedCallback)
     );
 
     public double Theta
@@ -224,9 +224,9 @@ public sealed class WpfPlotWaferMapBehavior : Behavior<WpfPlot>
             if (_positionAnnotation is not null)
             {
                 _positionAnnotation.LabelText = $"""
-                                                 Bright(um) : {BrightPosition.ToShortString(),-25}
-                                                 Dark(um)   : {DarkPosition.ToShortString(),-25}
-                                                 Stage(um)  : {StagePosition.ToShortString(),-25}
+                                                 Bright(um) : {BrightPosition.ToString(),-25}
+                                                 Dark(um)   : {DarkPosition.ToString(),-25}
+                                                 Stage(um)  : {StagePosition.ToString(),-25}
                                                  Theta(°)   : {Theta,-25:f4}
                                                  """;
             }

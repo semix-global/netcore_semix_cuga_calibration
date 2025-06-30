@@ -1,6 +1,6 @@
 ﻿using Core.Models.Enums.EFEM;
 using Core.Models.Models.Common.EFEM;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;

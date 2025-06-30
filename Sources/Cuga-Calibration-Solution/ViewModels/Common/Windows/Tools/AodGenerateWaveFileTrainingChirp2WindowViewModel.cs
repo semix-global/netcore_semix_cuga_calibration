@@ -7,20 +7,20 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithm.Halcon.Helper;
-using Net.Utilities.Algorithm.MathNet.Helper;
+using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
-using Net.Utilities.Constants;
 using Net.Utilities.Enums;
-using Net.Utilities.Enums.Maths;
-using Net.Utilities.Extensions;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Helper.Struct;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -30,6 +30,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.IO;
 using Complex = System.Numerics.Complex;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -47,9 +48,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     CalibrationSetting calibrationSetting,
     ILogger<AodGenerateWaveFileTrainingChirp2WindowViewModel> logger) : ViewModelBase
 {
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
-    public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(ConstantHelper.MiddleFileDateTimeFormat));
+    public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     #region 0. 确认生成波形参数
 
@@ -145,7 +146,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 var detectImageDirectory = ImageDirectory;
                 using var _ = darkFieldImageDto;
 
-                var filePath = $"{detectImageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat)}.jpg";
+                var filePath = $"{detectImageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg";
                 HalconHelper.Save(darkFieldImageDto.Image, filePath);
                 createRoiWindowViewModel.ImageFilePath = filePath;
 
@@ -356,7 +357,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         pmtId: PmtId,
                         channelId: ChannelId);
 
-                    var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, ConstantHelper.LongFileDateTimeFormat)}" +
+                    var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}" +
                                    $"_{item.DeltaKs}" +
                                    $".jpg";
                     filePath = FileHelper.GetEnsureLongPathSupport(filePath);
@@ -544,7 +545,7 @@ public static class GenerateChirpAodWave
             double bandWidth,
             double centerFrequency,
             double soundPacketLength,
-            MonotonicTypeEnum monotonicTypeEnum,
+            FunctionMonotonicTypeEnum monotonicTypeEnum,
             double sampleRate,
             double amplitude,
             string aodWaveDirectory,
@@ -568,8 +569,8 @@ public static class GenerateChirpAodWave
         Guard.IsGreaterThanOrEqualTo(endpointSampleCount, 0, nameof(endpointSampleCount));
         Guard.IsGreaterThan(generateRetryTimes, 0, nameof(generateRetryTimes));
 
-        if (monotonicTypeEnum is MonotonicTypeEnum.Flatness && bandWidth != 0) ThrowHelper.ThrowArgumentException(nameof(bandWidth), "if monotonic is flatness then band Width is must 0");
-        if (bandWidth == 0 && monotonicTypeEnum is not MonotonicTypeEnum.Flatness) ThrowHelper.ThrowArgumentException(nameof(monotonicTypeEnum), "if band Width is must 0 then monotonic is flatness and band");
+        if (monotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness && bandWidth != 0) ThrowHelper.ThrowArgumentException(nameof(bandWidth), "if monotonic is flatness then band Width is must 0");
+        if (bandWidth == 0 && monotonicTypeEnum is not FunctionMonotonicTypeEnum.Flatness) ThrowHelper.ThrowArgumentException(nameof(monotonicTypeEnum), "if band Width is must 0 then monotonic is flatness and band");
 
         var flatnessTime = Math.Round(soundPacketLength / chirpAodSoundSpeed * 1000d, MidpointRounding.AwayFromZero); // (ns): mm/(mm/us) * 1000 = us * 1000 = ns
 
@@ -579,14 +580,14 @@ public static class GenerateChirpAodWave
 
         var lowFrequency = monotonicTypeEnum switch // 低频
         {
-            MonotonicTypeEnum.Increasing or MonotonicTypeEnum.Deceasing => centerFrequency - bandWidth / 2d,
-            MonotonicTypeEnum.Flatness => centerFrequency,
+            FunctionMonotonicTypeEnum.Increasing or FunctionMonotonicTypeEnum.Deceasing => centerFrequency - bandWidth / 2d,
+            FunctionMonotonicTypeEnum.Flatness => centerFrequency,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
         };
         var highFrequency = monotonicTypeEnum switch // 高频
         {
-            MonotonicTypeEnum.Increasing or MonotonicTypeEnum.Deceasing => centerFrequency + bandWidth / 2d,
-            MonotonicTypeEnum.Flatness => centerFrequency,
+            FunctionMonotonicTypeEnum.Increasing or FunctionMonotonicTypeEnum.Deceasing => centerFrequency + bandWidth / 2d,
+            FunctionMonotonicTypeEnum.Flatness => centerFrequency,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(monotonicTypeEnum))
         };
 
@@ -603,9 +604,9 @@ public static class GenerateChirpAodWave
 
         var frequencyFileName = monotonicTypeEnum switch
         {
-            MonotonicTypeEnum.Increasing => $"{readonlyLowFrequency:0.###}Mhz_{readonlyHighFrequency:0.###}Mhz",
-            MonotonicTypeEnum.Deceasing => $"{readonlyHighFrequency:0.###}Mhz_{readonlyLowFrequency:0.###}Mhz",
-            MonotonicTypeEnum.Flatness => $"{readonlyCenterFrequency:0.###}Mhz_{readonlyCenterFrequency:0.###}Mhz",
+            FunctionMonotonicTypeEnum.Increasing => $"{readonlyLowFrequency:0.###}Mhz_{readonlyHighFrequency:0.###}Mhz",
+            FunctionMonotonicTypeEnum.Deceasing => $"{readonlyHighFrequency:0.###}Mhz_{readonlyLowFrequency:0.###}Mhz",
+            FunctionMonotonicTypeEnum.Flatness => $"{readonlyCenterFrequency:0.###}Mhz_{readonlyCenterFrequency:0.###}Mhz",
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(monotonicTypeEnum))
         };
         // $总byte长度$补零个数$不知道含义$下发寄存器号（02prescan，03chirp）
@@ -625,10 +626,10 @@ public static class GenerateChirpAodWave
 
         var dt = 1d / sampleRate; // 每个采样点的时间间隔 (us/sa): 1 / (Msa/s) = 10^-6s/sa = us/sa
 
-        var allSampleIndices = GenerateHelper.LinearIndexRange(0, numberOfSamples - 1);
-        var headerSampleIndices = GenerateHelper.LinearIndexRange(0, endpointSampleCount - 1);
-        var flatnessSampleIndices = GenerateHelper.LinearIndexRange(endpointSampleCount, numberOfSamples - endpointSampleCount - 1);
-        var footerSampleIndices = GenerateHelper.LinearIndexRange(numberOfSamples - endpointSampleCount, numberOfSamples - 1);
+        var allSampleIndices = GenerateUtils.LinearIndexRange(0, numberOfSamples - 1);
+        var headerSampleIndices = GenerateUtils.LinearIndexRange(0, endpointSampleCount - 1);
+        var flatnessSampleIndices = GenerateUtils.LinearIndexRange(endpointSampleCount, numberOfSamples - endpointSampleCount - 1);
+        var footerSampleIndices = GenerateUtils.LinearIndexRange(numberOfSamples - endpointSampleCount, numberOfSamples - 1);
 
         var aodWaveSignals = Vector<double>.Build.Dense(numberOfSamples);
 
@@ -652,8 +653,8 @@ public static class GenerateChirpAodWave
 
         switch (monotonicTypeEnum)
         {
-            case MonotonicTypeEnum.Increasing:
-            case MonotonicTypeEnum.Deceasing:
+            case FunctionMonotonicTypeEnum.Increasing:
+            case FunctionMonotonicTypeEnum.Deceasing:
                 var kSegments = Vector<double>.Build.Dense(flatnessSampleIndices.Length, bandWidth / flatnessSampleIndices.Length);
                 if (deltaKs?.Length > 0)
                 {
@@ -665,7 +666,7 @@ public static class GenerateChirpAodWave
                         var endIndex = (i + 1) * segmentLength - 1;
                         if (i == deltaKs.Length - 1 && (endIndex >= flatnessSampleIndices.Length || endIndex < flatnessSampleIndices.Length - 1)) endIndex = flatnessSampleIndices.Length - 1;
 
-                        kSegments.SetSubVectorRange(startIndex, endIndex, kSegments.GetByIndices(GenerateHelper.LinearIndexRange(startIndex, endIndex)) + deltaKs[i]);
+                        kSegments.SetSubVectorRange(startIndex, endIndex, kSegments.GetByIndices(GenerateUtils.LinearIndexRange(startIndex, endIndex)) + deltaKs[i]);
                     }
                 }
 
@@ -673,7 +674,7 @@ public static class GenerateChirpAodWave
 
                 break;
 
-            case MonotonicTypeEnum.Flatness:
+            case FunctionMonotonicTypeEnum.Flatness:
             default:
                 dLinearFrequencies = Vector<double>.Build.Dense(flatnessSampleIndices.Length, 0);
 
@@ -682,25 +683,25 @@ public static class GenerateChirpAodWave
 
         var dHeaderFrequencies = monotonicTypeEnum switch
         {
-            MonotonicTypeEnum.Increasing => Vector<double>.Build.Dense(headerSampleIndices.Length, lowFrequency),
-            MonotonicTypeEnum.Deceasing => Vector<double>.Build.Dense(headerSampleIndices.Length, highFrequency),
-            MonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(headerSampleIndices.Length, centerFrequency),
+            FunctionMonotonicTypeEnum.Increasing => Vector<double>.Build.Dense(headerSampleIndices.Length, lowFrequency),
+            FunctionMonotonicTypeEnum.Deceasing => Vector<double>.Build.Dense(headerSampleIndices.Length, highFrequency),
+            FunctionMonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(headerSampleIndices.Length, centerFrequency),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(monotonicTypeEnum))
         };
 
         var dFooterFrequencies = monotonicTypeEnum switch
         {
-            MonotonicTypeEnum.Increasing => Vector<double>.Build.Dense(footerSampleIndices.Length, highFrequency),
-            MonotonicTypeEnum.Deceasing => Vector<double>.Build.Dense(footerSampleIndices.Length, lowFrequency),
-            MonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(footerSampleIndices.Length, centerFrequency),
+            FunctionMonotonicTypeEnum.Increasing => Vector<double>.Build.Dense(footerSampleIndices.Length, highFrequency),
+            FunctionMonotonicTypeEnum.Deceasing => Vector<double>.Build.Dense(footerSampleIndices.Length, lowFrequency),
+            FunctionMonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(footerSampleIndices.Length, centerFrequency),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(monotonicTypeEnum))
         };
 
         dFlatnessFrequencies = monotonicTypeEnum switch
         {
-            MonotonicTypeEnum.Increasing => lowFrequency + dLinearFrequencies,
-            MonotonicTypeEnum.Deceasing => highFrequency - dLinearFrequencies,
-            MonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(flatnessSampleIndices.Length, centerFrequency),
+            FunctionMonotonicTypeEnum.Increasing => lowFrequency + dLinearFrequencies,
+            FunctionMonotonicTypeEnum.Deceasing => highFrequency - dLinearFrequencies,
+            FunctionMonotonicTypeEnum.Flatness => Vector<double>.Build.Dense(flatnessSampleIndices.Length, centerFrequency),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(monotonicTypeEnum))
         };
 
@@ -775,12 +776,12 @@ public static class GenerateChirpAodWave
 
         switch (monotonicTypeEnum)
         {
-            case MonotonicTypeEnum.Flatness:
-                if (Math.Abs(minFlatnessFrequency - maxFlatnessFrequency) > ConstantHelper.Tolerance) ThrowHelper.ThrowArgumentException("leftFreq != rightFreq");
+            case FunctionMonotonicTypeEnum.Flatness:
+                if (Math.Abs(minFlatnessFrequency - maxFlatnessFrequency) > Constants.Tolerance) ThrowHelper.ThrowArgumentException("leftFreq != rightFreq");
                 break;
 
-            case MonotonicTypeEnum.Deceasing:
-            case MonotonicTypeEnum.Increasing:
+            case FunctionMonotonicTypeEnum.Deceasing:
+            case FunctionMonotonicTypeEnum.Increasing:
                 var leftIndex = fftInflectionPointFrequencies.Find(d => d < readonlyMinFrequency);
                 var rightIndex = fftInflectionPointFrequencies.FindLast(d => d > readonlyMaxFrequency);
 
@@ -799,7 +800,7 @@ public static class GenerateChirpAodWave
 
         #region 修正
 
-        if (monotonicTypeEnum == MonotonicTypeEnum.Flatness)
+        if (monotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
         {
             if (Math.Abs(centerFrequency - readonlyCenterFrequency) < sampleRate / flatnessSampleIndices.Length) break;
             if (centerFrequency < readonlyCenterFrequency)
@@ -811,7 +812,7 @@ public static class GenerateChirpAodWave
                 centerFrequency -= sampleRate / (2d * flatnessSampleIndices.Length);
             }
         }
-        else if (monotonicTypeEnum == MonotonicTypeEnum.Increasing)
+        else if (monotonicTypeEnum == FunctionMonotonicTypeEnum.Increasing)
         {
             if (Math.Abs(minFlatnessFrequency - readonlyLowFrequency) < sampleRate / flatnessSampleIndices.Length)
             {
@@ -826,7 +827,7 @@ public static class GenerateChirpAodWave
             else
                 lowFrequency -= sampleRate / (2d * flatnessSampleIndices.Length);
         }
-        else if (monotonicTypeEnum == MonotonicTypeEnum.Deceasing)
+        else if (monotonicTypeEnum == FunctionMonotonicTypeEnum.Deceasing)
         {
             if (Math.Abs(maxFlatnessFrequency - readonlyHighFrequency) < sampleRate / flatnessSampleIndices.Length)
             {
@@ -872,7 +873,7 @@ public static class GenerateChirpAodWave
 
         // 将结果转换为16位整数并保存到文件
         var aodWaveSignalResult = aodWaveSignals
-            .Select(t => ConvertHelper.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
+            .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .Select(Convert.ToInt64)
             .Select(t => t < 0 ? t + (long)Math.Pow(2, 32) : t)
             .ToArray();

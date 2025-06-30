@@ -19,12 +19,12 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithm.Halcon.Helper;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helper.Enum;
-using Net.Utilities.Helper.File;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -174,7 +174,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = Cache.FindPosition.DistanceToZero() >= Cache.ChuckRadius
+        Cache.FindPosition = Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius
             ? new Point(0, 0)
             : Cache.FindPosition;
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
@@ -186,7 +186,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (Cache.FindPosition.DistanceToZero() >= Cache.ChuckRadius)
+        if (Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius)
         {
             DialogWindowProvider.ShowDialog("The Bright Field Cache Position Out Of The Wafer!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -215,7 +215,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 return await AutomationRecipeInformationAsync(string.Empty);
 
             case 1:
-                if (Cache.FindPosition.DistanceToZero() >= Cache.ChuckRadius)
+                if (Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header2, new HtmlComment("The Bright Field Position Out Of The Wafer!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -332,7 +332,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             {
                 Cache.OpticsMagTypeEnum,
                 Cache.PmtInterval,
-                FindPosition = Cache.FindPosition.ToShortString(),
+                Cache.FindPosition,
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -356,7 +356,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition - new Point(0, Cache.PmtInterval * (8 - i)),
+                    FindPosition = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i)),
                     FilePath = detectImageDirectory,
                     OriginFilePath = detectImageDirectory
                 };
@@ -370,7 +370,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition + new Point(0, Cache.PmtInterval * (i - 8)),
+                    FindPosition = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8)),
                     FilePath = detectImageDirectory,
                     OriginFilePath = detectImageDirectory
                 };
@@ -427,7 +427,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
-            FindPosition = Cache.FindPosition.ToShortString(),
+            Cache.FindPosition,
             ImageFileDirectory = detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -516,7 +516,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             darkFieldImageDto.ChannelId,
             darkFieldImageDto.Width,
             laserPixelSizeItemDto.OpticsMagTypeEnum,
-            FindPosition = laserPixelSizeItemDto.FindPosition.ToShortString(),
+            laserPixelSizeItemDto.FindPosition,
             laserPixelSizeItemDto.YPixelSize,
             HtmlTab = new HtmlTab(new
             {
@@ -687,11 +687,11 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             return false;
         }
 
-        OriginReticleDieDto = CalibrationRecipeDto.WaferDto.WaferMapDto.OriginReticleDto;
+        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
         if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum.Grid_10um, Cache.MicroscopeMagnificationEnum, null, null, out var maskInfo) == false)
             return false;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(OriginReticleDieDto, maskInfo, out var maskPosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var maskPosition);
 
         Cache.FindPosition = maskPosition;
 
@@ -716,7 +716,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
     {
         await Task.Run(() =>
         {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName.ToString();
+            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
             AutoCalibrationStepIndex++;
         }, cancellationToken);
         return true;

@@ -1,7 +1,7 @@
 using LiteDB;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Helper.File;
+using Net.Utilities.Helpers.Helpers.Files;
 
 namespace Local.NoSQL.DB.Providers.Implements;
 

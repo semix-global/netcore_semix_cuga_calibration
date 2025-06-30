@@ -9,7 +9,8 @@ using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Collections.ObjectModel;
 using System.Windows;
-using Point = Net.Utilities.Models.Point;
+using Point = Net.Utilities.Models.Geometries.Point;
+using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.Core.Behaviors;
 
@@ -30,30 +31,17 @@ public sealed class WpfPlotReticleMaskBehavior : Behavior<WpfPlot>
         new PropertyMetadata(new Point(), PropertyChangedCallback)
     );
 
-    public double ReticleWidth
+    public Size DieSize
     {
-        get => (double)GetValue(ReticleWidthProperty);
-        set => SetValue(ReticleWidthProperty, value);
+        get => (Size)GetValue(DieSizeProperty);
+        set => SetValue(DieSizeProperty, value);
     }
 
-    public static readonly DependencyProperty ReticleWidthProperty = DependencyProperty.Register(
-        nameof(ReticleWidth),
-        typeof(double),
+    public static readonly DependencyProperty DieSizeProperty = DependencyProperty.Register(
+        nameof(DieSize),
+        typeof(Size),
         typeof(WpfPlotReticleMaskBehavior),
-        new PropertyMetadata(0d, PropertyChangedCallback)
-    );
-
-    public double ReticleHeight
-    {
-        get => (double)GetValue(ReticleHeightProperty);
-        set => SetValue(ReticleHeightProperty, value);
-    }
-
-    public static readonly DependencyProperty ReticleHeightProperty = DependencyProperty.Register(
-        nameof(ReticleHeight),
-        typeof(double),
-        typeof(WpfPlotReticleMaskBehavior),
-        new PropertyMetadata(0d, PropertyChangedCallback)
+        new PropertyMetadata(Size.Empty, PropertyChangedCallback)
     );
 
     public ObservableCollection<ReticleMarkItemDto> ReticleMaskList
@@ -113,8 +101,8 @@ public sealed class WpfPlotReticleMaskBehavior : Behavior<WpfPlot>
 
             const float originMaxLengthPixel = 30;
 
-            AssociatedObject.Plot.Axes.SetLimits(-ReticleWidth * 1.1, ReticleWidth * 1.1, -ReticleHeight * 1.1, ReticleHeight * 1.1);
-            _reticleRectangle = AssociatedObject.Plot.Add.Rectangle(new CoordinateRect(new Coordinates(0, 0), new CoordinateSize(ReticleWidth, ReticleHeight)));
+            AssociatedObject.Plot.Axes.SetLimits(-DieSize.Width * 1.1, DieSize.Width * 1.1, -DieSize.Height * 1.1, DieSize.Height * 1.1);
+            _reticleRectangle = AssociatedObject.Plot.Add.Rectangle(new CoordinateRect(new Coordinates(0, 0), new CoordinateSize(DieSize.Width, DieSize.Height)));
             _reticleRectangle.LineColor = Colors.Transparent;
             _reticleRectangle.FillColor = Color.FromHex("#F0F0F0");
 
