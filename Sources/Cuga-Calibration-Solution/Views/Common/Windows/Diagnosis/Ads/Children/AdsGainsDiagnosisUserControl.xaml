@@ -102,52 +102,6 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.Title="Optics Mag: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="110"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                        <hc:ComboBox.Style>
-                            <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxExtend}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IsX}" Value="True">
-                                        <Setter Property="SelectedItem" Value="{Binding XGainCache.OpticsMagTypeEnum}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IsX}" Value="False">
-                                        <Setter Property="SelectedItem" Value="{Binding YGainCache.OpticsMagTypeEnum}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:ComboBox.Style>
-                    </hc:ComboBox>
-                    <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="110"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Stage Speed: "
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageSpeedEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                        <hc:ComboBox.Style>
-                            <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxExtend}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IsX}" Value="True">
-                                        <Setter Property="SelectedItem" Value="{Binding XGainCache.StageSpeedEnum}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IsX}" Value="False">
-                                        <Setter Property="SelectedItem" Value="{Binding YGainCache.StageSpeedEnum}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:ComboBox.Style>
-                    </hc:ComboBox>
                     <hc:NumericUpDown x:Name="WaitTimeNumeric"
                                       Width="275"
                                       hc:TitleElement.TitleWidth="110"
@@ -158,6 +112,129 @@
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding WaitTime}" />
+                </hc:UniformSpacingPanel>
+            </Border>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical">
+                    <StackPanel>
+                        <TextBlock Text="Handle Test"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:NumericUpDown Width="100"
+                                      Margin="2"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.Title="Speed"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding SingleDiagnosisSpeed}" />
+                    <hc:UniformSpacingPanel Orientation="Vertical"
+                                            Spacing="2"
+                                            Visibility="{Binding IsX, Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <hc:NumericUpDown Width="100"
+                                          Margin="2"
+                                          hc:InfoElement.TitlePlacement="Left">
+                            <hc:NumericUpDown.Style>
+                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="True">
+                                            <Setter Property="Value" Value="{Binding Path=XGainCache.X1}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="X1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="False">
+                                            <Setter Property="Value" Value="{Binding Path=XGainCache.X3}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="X3" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
+                        <hc:NumericUpDown Width="100"
+                                          Margin="2"
+                                          hc:InfoElement.TitlePlacement="Left">
+                            <hc:NumericUpDown.Style>
+                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="True">
+                                            <Setter Property="Value" Value="{Binding Path=XGainCache.X2}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="X2" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="False">
+                                            <Setter Property="Value" Value="{Binding Path=XGainCache.X4}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="X4" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
+                    </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel Orientation="Vertical"
+                                            Spacing="2"
+                                            Visibility="{Binding IsX, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                        <hc:NumericUpDown Width="100"
+                                          Margin="2"
+                                          hc:InfoElement.TitlePlacement="Left">
+                            <hc:NumericUpDown.Style>
+                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="True">
+                                            <Setter Property="Value" Value="{Binding Path=YGainCache.Y1}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="Y1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="False">
+                                            <Setter Property="Value" Value="{Binding Path=YGainCache.Y4}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="Y4" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
+                        <hc:NumericUpDown Width="100"
+                                          Margin="2"
+                                          hc:InfoElement.TitlePlacement="Left">
+                            <hc:NumericUpDown.Style>
+                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="True">
+                                            <Setter Property="Value" Value="{Binding Path=YGainCache.Y2}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="Y2" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="False">
+                                            <Setter Property="Value" Value="{Binding Path=YGainCache.Y5}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="Y5" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
+                        <hc:NumericUpDown Width="100"
+                                          Margin="2"
+                                          hc:InfoElement.TitlePlacement="Left">
+                            <hc:NumericUpDown.Style>
+                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="True">
+                                            <Setter Property="Value" Value="{Binding Path=YGainCache.Y3}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="Y3" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=IsPositive}" Value="False">
+                                            <Setter Property="Value" Value="{Binding Path=YGainCache.Y6}" />
+                                            <Setter Property="hc:InfoElement.Title" Value="Y6" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </hc:NumericUpDown.Style>
+                        </hc:NumericUpDown>
+                    </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <hc:SimplePanel>
+                            <Button Content="Once Diagnosis"
+                                    Command="{Binding OnceDianosisActionCommand}"
+                                    HorizontalAlignment="Center"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                        </hc:SimplePanel>
+                    </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>

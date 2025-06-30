@@ -111,6 +111,16 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
         else AdsXGainsNegativeList = adsXGainsCacheItemList;
     }
 
+    public double GetX1()
+    {
+        return IsPositive ? X1 : X3;
+    }
+
+    public double GetX2()
+    {
+        return IsPositive ? X2 : X4;
+    }
+
     /// <summary>
     /// 负向集合
     /// </summary>

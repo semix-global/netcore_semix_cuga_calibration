@@ -112,6 +112,21 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
         else NegativeEndPosition = position;
     }
 
+    public double GetY1()
+    {
+        return IsPositive ? Y1 : Y4;
+    }
+
+    public double GetY2()
+    {
+        return IsPositive ? Y2 : Y5;
+    }
+
+    public double GetY3()
+    {
+        return IsPositive ? Y3 : Y6;
+    }
+
     public sealed partial class AdsYGainsCacheItem : CalibrationCacheBase
     {
         [ObservableProperty]
