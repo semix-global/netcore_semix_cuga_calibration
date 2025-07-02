@@ -401,7 +401,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 var tryShowSaveFilePathDialog = DialogWindowProvider.TryShowSaveFilePathDialog(".txt", out var saveFilePath);
                 if (tryShowSaveFilePathDialog == false) return;
 
-                var prescanDto = LaserViewModel.ReadPrescanByFile(laserIlluminationProfileItemDto.PrescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
+                var prescanDto = LaserViewModel.ReadPrescanByFile(laserIlluminationProfileItemDto.PrescanFilePath, Cache.Coefficient);
 
                 var hexStrings = prescanDto.PrescanList
                     .Select((value, i) => (short)(value * laserIlluminationProfileItemDto.PrescanRateList[i]))
@@ -513,7 +513,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             foreach (var pmtItem in PmtIdItemList)
             {
-                (var isSuccess, var gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, pmtItem.ChannelId).ConfigureAwait(false);
+                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, pmtItem.ChannelId).ConfigureAwait(false);
                 if ((isSuccess) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -603,15 +603,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 return false;
             }
 
-            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
-
-            (var isSuccess, _) = await DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.AutoPmtGainAsync(CalibrationSetting.SettingCommonParam.MainCoefficient, Cache.FindPosition,
-                CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, Cache.PmtId, Cache.ChannelId).ConfigureAwait(false);
-            if (isSuccess == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
+            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, Cache.Coefficient);
 
             LaserViewModel.SetGain(PmtIdItemList.Single(t => t.PmtId == Cache.PmtId).Gain);
 
@@ -621,7 +613,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             var (prescanByteList, windowPrescanList) = SetPrescanByteListByWindow(maxWindowStartIndex, windowToMinAmount);
             var temp = prescanDto.Clone();
             temp.PrescanByteList = prescanByteList;
-            (isSuccess, var channel1DarkFieldImageDto, var channel2DarkFieldImageDto, var channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(temp, Cache.PmtId, Cache.FindPosition);
+            var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(temp, Cache.PmtId, Cache.FindPosition);
             using var _1 = channel1DarkFieldImageDto;
             using var _2 = channel2DarkFieldImageDto;
             using var _3 = channel3DarkFieldImageDto;
@@ -734,7 +726,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
 
-                var coefficient = CalibrationSetting.SettingCommonParam.MainCoefficient;
+                var coefficient = Cache.Coefficient;
                 var resultPrescanByteList = new List<byte>();
                 var resultPrescanWindowList = new List<double>();
 
@@ -786,7 +778,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             itemCache.ServingToPrescanListIndicesList.Clear();
             itemCache.ServingToDarkFieldImageListIndicesList.Clear();
             var prescanFilePath = itemCache.PrescanFilePath;
-            var coefficient = CalibrationSetting.SettingCommonParam.MainCoefficient;
+            var coefficient = Cache.Coefficient;
             var resultPrescanByteList = new List<byte>();
             var resultPrescanWindowList = new List<double>();
             var prescanCount = itemCache.PrescanEndIndex - itemCache.PrescanStartIndex;
@@ -1117,7 +1109,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             item.Reset();
             PlotList = [];
 
-            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, Cache.Coefficient);
 
             // 从0.5开始,每次递增0.05,直到1, 循环11次
             foreach (var c in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.Coefficient + t * 0.05 * Cache.Coefficient))
@@ -1218,7 +1210,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, Cache.Coefficient);
 
             var prescanRateList = Vector<double>.Build.Dense(prescanDto.PrescanList.Count, Cache.Coefficient);
             var illuminationIntensityConsistentDto = new LaserIlluminationProfileItemDto
@@ -1524,7 +1516,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             LaserViewModel.ToggleOpticsPolarization(OpticsPolarizationTypeEnum.P);
             LaserViewModel.SetGain(PmtIdItemList.Single(t => t.PmtId == Cache.PmtId).Gain);
 
-            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, SelectReviewItemDto.Coefficient);
 
             if (TryCheckIlluminationIsOk(detectImageDirectory, prescanDto, in temp, out var result, isCalibrate: false) == false) return false;
 

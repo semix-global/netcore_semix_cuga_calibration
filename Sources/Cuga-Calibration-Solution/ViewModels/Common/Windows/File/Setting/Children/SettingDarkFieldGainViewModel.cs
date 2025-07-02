@@ -179,7 +179,6 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     await Task.Delay(100, cancellationToken).ConfigureAwait(false);
 
                     var result = laserViewModel.GetPmtDataList(pmtId, channelId);
-                    if (isSuccess == false) return (false, 0);
                     PlotList = [.. PlotList, new WpfPlotModel($"Gain: {gain}", result.ToPoints(), (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, gain))];
                     var gainAverage = result.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
 
@@ -219,7 +218,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
 
                 gainCoefficientsParam.Gain = targetGain;
                 var resultTargetGain = laserViewModel.GetPmtDataList(pmtId, channelId);
-                if (isSuccess == false) return (false, 0);
+                //if (isSuccess == false) return (false, 0);
                 PlotList = [.. PlotList, new WpfPlotModel($"{coefficient:f3} OK: {targetGain}", resultTargetGain.ToPoints(), (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, targetGain))];
 
                 gainCoefficientsParam.TargetPmtAverageValue = resultTargetGain.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
