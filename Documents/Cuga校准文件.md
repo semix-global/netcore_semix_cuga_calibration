@@ -814,6 +814,12 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserXTCCalibrationItem[] CalibrationLaserXtcCalibrationItemList { get; set; } = Array.Empty<CalibrationLaserXTCCalibrationItem>();
 
     /// <summary>
+    /// AGC延迟时间校准对象列表
+    /// </summary>
+    [Description(WcfConstantHelper.LaserAgcDelayCalibrationName)]
+    public CalibrationLaserPmtAgcDelayItem[] CalibrationLaserPmtAgcDelayItemList { get; set; } = Array.Empty<CalibrationLaserPmtAgcDelayItem>();
+
+    /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
     [Description(WcfConstantHelper.LaserPixelSizeCalibrationName)]
@@ -857,6 +863,16 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
     /// B路灯的电流值(绝对电流值), **需要下发AF硬件**
     /// </summary>
     public double CurrentB { get; set; }
+
+    /// <summary>
+    /// Nsc 偏置NSC原始数据, **需要下发AF硬件**
+    /// </summary>
+    public double NscOffset { get; set; }
+
+    /// <summary>
+    /// Nsc 增益归一化, **需要下发AF硬件** 【需要 * 1000下发】
+    /// </summary>
+    public double NscGain { get; set; }
 }
 ```
 
@@ -1136,3 +1152,43 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 ```
 
 ## 4.10. 待定 Pmt Gain
+
+## 4.11. PMT AGC Delay
+
+> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
+>
+> 个数： 3 * 15 = 45
+
+```cs
+/// <summary>
+/// Pmt Agc Delay
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
+{
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 暗场相机ID
+    /// </summary>
+    public int PmtId { get; set; }
+
+    /// <summary>
+    /// 当前暗场Mag和PmtId下的通道1 AGC延迟时间, **需要下发Laser硬件**
+    /// </summary>
+    public double Channel1AgcDelay { get; set; }
+
+    /// <summary>
+    /// 当前暗场Mag和PmtId下的通道2 AGC延迟时间, **需要下发Laser硬件**
+    /// </summary>
+    public double Channel2AgcDelay { get; set; }
+
+    /// <summary>
+    /// 当前暗场Mag和PmtId下的通道3 AGC延迟时间, **需要下发Laser硬件**
+    /// </summary>
+    public double Channel3AgcDelay { get; set; }
+}
+```

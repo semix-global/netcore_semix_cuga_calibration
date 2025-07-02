@@ -172,10 +172,6 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
                     <wpf:WpfPlot Margin="5">
                         <i:Interaction.Behaviors>
                             <behaviors:WpfPlotMultiBehavior Title="Dark Field Image List of Window"
@@ -203,13 +199,6 @@
                                                             Plot1Title="Max"
                                                             Plot1Color="{x:Static scottPlot:Colors.DarkRed}"
                                                             Plot1="{Binding Cache.CurrentDarkFieldImageListToPrescanListCacheItem.MaxWindowPrescanList, Converter={StaticResource DoublesToPointsConverter}}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                    <wpf:WpfPlot Grid.Row="1" Grid.Column="0"
-                                 Grid.ColumnSpan="2"
-                                 Margin="5">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotListBehavior Title="Auto Pmt Gain" PlotList="{Binding DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.PlotList, Mode=OneWay}" />
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
                 </Grid>

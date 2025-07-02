@@ -115,3 +115,10 @@
 >   1.   诊断：焦点飘逸RTFC
 >   2.   自动化校准：ADS Y gain、Laser Pixel Size X、Chuck Prealigner
 >   3.   设置：初始化报警自检
+
+## 2.1.0.0523
+
+>   1.   诊断：ADS 手动
+>   2.   自动化校准：stagemap
+>   3.   Laser校准：auto focus 2.0、agc delay1.0
+>   4.   设置：配方数据库分离 标准库替换 

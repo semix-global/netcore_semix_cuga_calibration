@@ -76,6 +76,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SendOpticsMagType(OpticsMagTypeEnum yOpticsMagTypeEnum)
     {
         var sxExecuteRet = Invoke(() => Service!.RefreshMag(Convert.ToInt32(yOpticsMagTypeEnum.ToCgMagTypeEnum())));
+        
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
@@ -83,11 +84,16 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SendPrescanByCoefficient(OpticsMagTypeEnum yOpticsMagTypeEnum, double coefficient)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetPrescan(Convert.ToInt32(yOpticsMagTypeEnum.ToCgMagTypeEnum()), coefficient));
+        var prescanFilePathRet = calibrationConfigService.GetPrescanFilePath(yOpticsMagTypeEnum);
+        if (prescanFilePathRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(prescanFilePathRet.Msg, false);
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        var darkFieldPrescanDtoRet = ReadPrescanByFile(prescanFilePathRet.Anything, coefficient);
+        if (darkFieldPrescanDtoRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(darkFieldPrescanDtoRet.Msg, false);
+
+        var sendPrescanByListRet = SendPrescanByList(darkFieldPrescanDtoRet.Anything);
+        if (sendPrescanByListRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sendPrescanByListRet.Msg, false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SendSaturationValue(double val)
@@ -102,6 +108,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
     {
         var sxExecuteRet = Invoke(() => Service!.SendPrescanFile_Illumination(darkFieldPrescanDto.RegNum, darkFieldPrescanDto.ZeroNum, darkFieldPrescanDto.PrescanByteList));
+        
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
@@ -110,6 +117,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SendChirpAodByList(DarkFieldChirpAodWaveDto darkFieldChirpAodWaveDto)
     {
         var sxExecuteRet = Invoke(() => Service!.SetChirp_Calibration(darkFieldChirpAodWaveDto.ChirpAodWaveByteList, darkFieldChirpAodWaveDto.RegNum, darkFieldChirpAodWaveDto.ZeroNum));
+        
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -315,8 +323,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(errorMessage, []);
+        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(errorMessage, []);
 
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
@@ -340,6 +347,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
             _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
         };
+        
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
 
@@ -381,6 +389,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
             _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
         };
+        
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
 

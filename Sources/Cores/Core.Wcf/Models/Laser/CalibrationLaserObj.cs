@@ -103,7 +103,7 @@ namespace Core.Wcf.Models.Laser
         public double NscOffset { get; set; }
 
         /// <summary>
-        /// Nsc 增益归一化, **需要下发AF硬件**
+        /// Nsc 增益归一化, **需要下发AF硬件** 【需要 * 1000下发】
         /// </summary>
         public double NscGain { get; set; }
     }
