@@ -371,23 +371,23 @@ public sealed partial class StageMapWindowViewModel(
             var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
             if (cacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
             var tryCalculateStageMapError = calibrationAlgorithmService.CalculateChuckStageMapError(
-                   brightFieldStageMapDto,
-                   htmlLogUniqueId,
-                   cache.CalculateContainRowMinCout,
-                   cache.CalculateContainColumnMinCount,
-                   cache.CalibrationAlignmentThreshold,
-                   cache.CalibrationGantryThreshold,
-                   cache.CalibrationScaleThreshold,
-                   cache.WaferDiameter);
+                brightFieldStageMapDto,
+                htmlLogUniqueId,
+                cache.CalculateContainRowMinCout,
+                cache.CalculateContainColumnMinCount,
+                cache.CalibrationAlignmentThreshold,
+                cache.CalibrationGantryThreshold,
+                cache.CalibrationScaleThreshold,
+                cache.WaferDiameter);
             tryCalculateStageMapError = calibrationAlgorithmService.CalculateChuckStageMapError(
-                  darkFieldStageMapDto,
-                  htmlLogUniqueId,
-                  cache.CalculateContainRowMinCout,
-                  cache.CalculateContainColumnMinCount,
-                  cache.CalibrationAlignmentThreshold,
-                  cache.CalibrationGantryThreshold,
-                  cache.CalibrationScaleThreshold,
-                  cache.WaferDiameter);
+                darkFieldStageMapDto,
+                htmlLogUniqueId,
+                cache.CalculateContainRowMinCout,
+                cache.CalculateContainColumnMinCount,
+                cache.CalibrationAlignmentThreshold,
+                cache.CalibrationGantryThreshold,
+                cache.CalibrationScaleThreshold,
+                cache.WaferDiameter);
         }
         catch (Exception ex)
         {

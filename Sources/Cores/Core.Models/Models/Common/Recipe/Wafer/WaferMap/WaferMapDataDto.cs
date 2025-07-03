@@ -16,7 +16,7 @@ public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<Wa
     [ObservableProperty]
     private double _edgeReduceDiePiichNumber;
 
-    #region Die 
+    #region Die
 
     [ObservableProperty]
     private Point _waferOriginalDiePoint;
@@ -46,7 +46,7 @@ public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<Wa
 
     public int CellDiePitchColumnNumber => (int)(WaferDiameter / DiePitchWidth);
 
-    #endregion Die 
+    #endregion Die
 
     #region Reticle
 
@@ -101,5 +101,4 @@ public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<Wa
         ReferenceDieRowNumber = ReferenceDieRowNumber,
         ReferenceDieColumnNumber = ReferenceDieColumnNumber,
     };
-
 }

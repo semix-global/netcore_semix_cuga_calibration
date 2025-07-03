@@ -203,20 +203,6 @@
             <param name="position">1-上手臂，2-下手臂，3-校准台，4-chuck台</param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.C2MBFToStage(Semix.WcfTransfer.DTO.SxPointD)">
-            <summary>
-            明场坐标系转机械坐标系
-            </summary>
-            <param name="loc"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.C2MDFToStage(Semix.WcfTransfer.DTO.SxPointD)">
-            <summary>
-            明场坐标系转机械坐标系
-            </summary>
-            <param name="loc"></param>
-            <returns></returns>
-        </member>
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ToLoadWafer">
             <summary>
             移动到上料位置(基于chuck中心)
@@ -565,11 +551,121 @@
             <param name="ch"></param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetFFAllHome">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_Home">
             <summary>
             设置傅里叶所有回原
             </summary>
             <param name="ch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_StopFF(Semix.WcfTransfer.DTO.FFCH)">
+            <summary>
+            停止傅里叶
+            </summary>
+            <param name="channel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_GetConfig">
+            <summary>
+            获取傅里叶配置
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_SetLPOS_CH12_MAX">
+            <summary>
+            设置12通道傅里叶杆到最大位置
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_SetRPOS(Semix.WcfTransfer.DTO.FFCH,System.Int32)">
+            <summary>
+            Ch3 MARK角度目标位置设置，只有CH3有 
+            </summary>
+            <param name="channel"></param>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_SetLPOS_CH3(Semix.WcfTransfer.DTO.FFCH,System.Double)">
+            <summary>
+            Ch3 挡杆目标位置设置
+            </summary>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_SetLPOS_CH12(Semix.WcfTransfer.DTO.FFCH,System.Collections.Generic.List{System.ValueTuple{System.Int32,System.Double}})">
+            <summary>
+            Ch12 挡杆目标位置设置
+            </summary>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_GetRACT(Semix.WcfTransfer.DTO.FFCH)">
+            <summary>
+            获取MARK实时位置 只有CH3有
+            </summary>
+            <param name="channel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_GetLACT(Semix.WcfTransfer.DTO.FFCH)">
+            <summary>
+            获取挡杆实时位置 只有CH3有
+            </summary>
+            <param name="channel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_RES(Semix.WcfTransfer.DTO.FFCH,System.Boolean)">
+            <summary>
+            复位
+            </summary>
+            <param name="channel"></param>
+            <param name="res"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_SetPPOS(Semix.WcfTransfer.DTO.FFCH,System.Double)">
+            <summary>
+            设置推杆目标位置 只有CH3X有
+            </summary>
+            <param name="channel"></param>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_GetPACT(Semix.WcfTransfer.DTO.FFCH)">
+            <summary>
+            获取推杆目标位置 只有CH3X有
+            </summary>
+            <param name="channel"></param>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Move_FF(Semix.WcfTransfer.DTO.FFCH)">
+            <summary>
+            傅里叶移动指令
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_Move_CH12(Semix.WcfTransfer.DTO.FFCH,System.Collections.Generic.List{System.ValueTuple{System.Int32,System.Double}})">
+            <summary>
+             Ch12 挡杆目标位置设置
+            </summary>
+            <param name="channel">通道号</param>
+            <param name="pos">位置（杆号,位置）</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_Move_CH3X(System.Int32,System.Double,System.Double)">
+            <summary>
+            傅里叶CH3X移动
+            </summary>
+            <param name="rpos">转盘角度(0,1,2,3,4,5)</param>
+            <param name="lpos">转盘位置</param>
+            <param name="ppos">推杆位置</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.FF_Move_CH3Y(System.Int32,System.Double)">
+            <summary>
+            傅里叶CH3X移动
+            </summary>
+            <param name="rpos">转盘角度(0,1,2,3,4,5)</param>
+            <param name="lpos">转盘位置</param>
             <returns></returns>
         </member>
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAOD(Semix.WcfTransfer.DTO.SxMAGEnum,System.Double)">
@@ -617,6 +713,107 @@
             </summary>
             <param name="channel"></param>
             <param name="rod"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetCH1FFBox(System.Collections.Generic.List{Semix.WcfTransfer.DTO.C2MFFMulitBox})">
+            <summary>
+            部署CH1傅里叶
+            </summary>
+            <param name="box"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetCH2FFBox(System.Collections.Generic.List{Semix.WcfTransfer.DTO.C2MFFMulitBox})">
+            <summary>
+            部署CH2傅里叶
+            </summary>
+            <param name="box"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetCH3FFBox(System.Collections.Generic.List{Semix.WcfTransfer.DTO.C2MFFBlockBox})">
+            <summary>
+            部署通道3傅里叶
+            </summary>
+            <param name="box"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Cylinder_StatusPV(Semix.WcfTransfer.DTO.SxOpticCylinderEnum)">
+            <summary>
+            气缸到位信号
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Cylinder_StatusEV(Semix.WcfTransfer.DTO.SxOpticCylinderEnum)">
+            <summary>
+            气缸原位信号
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Cylinder_EXC(Semix.WcfTransfer.DTO.SxOpticCylinderEnum,System.Boolean)">
+            <summary>
+            气缸触发动作
+            </summary>
+            <param name="type"></param>
+            <param name="status"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.APO_SetType(Semix.WcfTransfer.DTO.SxAPOTypeEnum)">
+            <summary>
+            设置APO类型
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Mag_SetType(Semix.WcfTransfer.DTO.SxMagTypeEnum)">
+            <summary>
+            设置MAG类型
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Polarization_SetType(Semix.WcfTransfer.DTO.SxPolarizationTypeEnum)">
+            <summary>
+            设置照明偏振类型
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.NDF_SetType(Semix.WcfTransfer.DTO.SxNDFCHEnum,Semix.WcfTransfer.DTO.SxNDFTypeEnum)">
+            <summary>
+            设置NDF类型
+            </summary>
+            <param name="channel"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Common_Move(Semix.WcfTransfer.DTO.SxCommonType,System.Double)">
+            <summary>
+            通用电机移动指定位置
+            </summary>
+            <param name="type"></param>
+            <param name="pos"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Common_Home(Semix.WcfTransfer.DTO.SxCommonType)">
+            <summary>
+            设置Mag类型
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CommonReadPos(Semix.WcfTransfer.DTO.SxCommonType)">
+            <summary>
+            设置照明偏振类型
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CommonStop(Semix.WcfTransfer.DTO.SxCommonType)">
+            <summary>
+            通用电机停止
+            </summary>
+            <param name="type"></param>
             <returns></returns>
         </member>
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ReadAutofocusData">
@@ -726,6 +923,12 @@
             实时聚焦校准
             </summary>
             <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ReadFFBOXSetting">
+            <summary>
+            读取FFBOX设置
+            </summary>
             <returns></returns>
         </member>
         <member name="T:Semix.WcfTransfer.Interfaces.IM2CAlarmUploadService">

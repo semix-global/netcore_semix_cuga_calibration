@@ -54,6 +54,20 @@ public interface ICalibrationLaserService
     #region 扫描线功率文件读取和设置
 
     /// <summary>
+    /// 功率等级和功率系数互转
+    /// </summary>
+    /// <param name="level">功率等级</param>
+    /// <returns>功率系数</returns>
+    SxExecuteRet<double> LightLevelToLightCoefficient(double level);
+
+    /// <summary>
+    /// 功率等级和功率系数互转
+    /// </summary>
+    /// <param name="coefficient">功率系数</param>
+    /// <returns>功率等级</returns>
+    SxExecuteRet<double> LightCoefficientToLightLevel(double coefficient);
+
+    /// <summary>
     /// 读取(寄存器数量, 补0个数, 波形幅值列表)
     /// </summary>
     /// <param name="filePath">波形幅值文件</param>
@@ -164,11 +178,11 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 读取任意PMT Sense Channel 数据
     /// </summary>
+    /// <param name="count">同一个PMT Sense Channel数据的数量</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
-    /// <param name="count">同一个PMT Sense Channel数据的数量</param>
     /// <returns>PMT Sense Channel 多次数据</returns>
-    SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count);
+    SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId);
 
     /// <summary>
     /// 获取第1到15号光斑的CH1,CH2,CH3的CIB采样值
@@ -229,18 +243,29 @@ public interface ICalibrationLaserService
     /// 切换Mark模式
     /// </summary>
     /// <param name="enable">是否Mark模式</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableMarkMode(bool enable);
+    SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId);
 
     /// <summary>
-    /// 切换自动增益
+    /// 切换所有PMT自动增益
     /// </summary>
     /// <param name="enable">是否自动增益</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> ToggleEnableAutoGain(bool enable);
 
     /// <summary>
-    /// 切换L0K
+    /// 切换自动增益
+    /// </summary>
+    /// <param name="enable">是否自动增益</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId);
+
+    /// <summary>
+    /// 切换所有PMT L0K
     /// </summary>
     /// <param name="enable">是否自动L0k</param>
     /// <returns>是否成功</returns>
@@ -341,6 +366,15 @@ public interface ICalibrationLaserService
         bool isAutoFocus,
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod);
+
+    /// <summary>
+    /// 自动聚焦
+    /// </summary>
+    /// <param name="position">位置</param>
+    /// <param name="offset">af电机位置</param>
+    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient);
 
     #endregion 暗场采图
 }

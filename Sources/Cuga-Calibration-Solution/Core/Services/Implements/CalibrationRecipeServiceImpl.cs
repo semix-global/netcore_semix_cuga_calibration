@@ -88,9 +88,9 @@ public class CalibrationRecipeServiceImpl(
                 return false;
             var offset = (Vector)waferCenterBrightFieldPosition + (Vector)offsetPosition;
             waferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint
-                                                                        + offset;
+                                                                          + offset;
             waferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint
-                                                                         + offset;
+                                                                              + offset;
             waferDto.WaferMapCanvasDocumentToWaferMapData();
 
             applicationCookie.CalibrationReviseRecipeDto = applicationCookie.CalibrationRecipeDto!.Clone();
@@ -111,10 +111,10 @@ public class CalibrationRecipeServiceImpl(
         {
             var reticleMaskDto = GetReticleMark();
             maskInfo = reticleMaskDto.MicrosocpeReticleMarkItemList
-                                   .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                                               && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                                               && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
-                                   );
+                .First(t => t.ReticleMaskTypeEnum == waferMaskType
+                            && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                );
             return true;
         }
         catch (Exception ex)
@@ -131,10 +131,10 @@ public class CalibrationRecipeServiceImpl(
         {
             var reticleMaskDto = GetReticleMark();
             maskInfo = reticleMaskDto.ChuckReticleMarkItemList
-                                    .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                                                && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                                                && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
-                                    );
+                .First(t => t.ReticleMaskTypeEnum == waferMaskType
+                            && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                );
             return true;
         }
         catch (Exception ex)
@@ -177,8 +177,8 @@ public class CalibrationRecipeServiceImpl(
             var diePitchHeight = waferMapDocument.DieBuilder.DiePitchSize.Height;
             var scribeSize = waferMapDocument.DieBuilder.DieScribeSize;
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
-                                                        + ((Vector)waferPosition
-                                                             - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
+                                                     + ((Vector)waferPosition
+                                                        - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
             position = realReticleMaskBrightFieldPosition;
             return true;
         }
@@ -199,8 +199,8 @@ public class CalibrationRecipeServiceImpl(
             var diePitchHeight = waferMapDocument.ReticleBuilder.DiePitchSize.Height;
             var scribeSize = waferMapDocument.ReticleBuilder.DieScribeSize;
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
-                                                        + ((Vector)waferPosition
-                                                             - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
+                                                     + ((Vector)waferPosition
+                                                        - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
             position = realReticleMaskBrightFieldPosition;
             return true;
         }

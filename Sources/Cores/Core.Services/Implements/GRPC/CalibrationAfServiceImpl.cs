@@ -14,7 +14,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using Semix.GRPC.DTO;
 
 namespace Core.Services.Implements.GRPC;
 
@@ -274,33 +273,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<(double Ecs, double Score)> CalChipDswAfRtfc(Point position)
-    {
-        var sxExecuteRet = Invoke(() => Service?.RunRealTimeAutofocusCalibration(new SxParamObj<(CgPoint position, uint type)>((position.ToCgPoint(), 0))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.ecs, sxExecuteRet.Anything.score));
-    }
-
-    public SxExecuteRet<(double Ecs, double Score)> CalChipHazeAfRtfc(Point position)
-    {
-        var sxExecuteRet = Invoke(() => Service?.RunRealTimeAutofocusCalibration(new SxParamObj<(CgPoint position, uint type)>((position.ToCgPoint(), 1))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.ecs, sxExecuteRet.Anything.score));
-    }
-
-    public SxExecuteRet<(double Ecs, double Height)> ChuckAfRtfc(Point position)
-    {
-        var sxExecuteRet = Invoke(() => Service3?.RTFC(new SxParamObj<SxPointD>(position.ToSxPointD())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Height)>((sxExecuteRet.Anything.ECS, sxExecuteRet.Anything.Offset));
     }
 
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()

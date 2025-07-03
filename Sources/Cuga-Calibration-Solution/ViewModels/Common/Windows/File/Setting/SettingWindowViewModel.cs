@@ -162,8 +162,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
             return;
         }
 
-        _calibrationSetting.AdaptIn(_cacheProvider.GetOrDefault<CalibrationSetting>());
-
         CloseView(true);
     }
 

@@ -46,7 +46,6 @@ public sealed partial class WaferDto : ObservableCacheBase, ICloneable<WaferDto>
         ReticleMarkDto = ReticleMarkDto.Clone(),
         WaferMapData = WaferMapData.Clone()
         // todo: 实现document.clone()
-
     };
 
     public void WaferMapCanvasDocumentToWaferMapData()
@@ -67,6 +66,7 @@ public sealed partial class WaferDto : ObservableCacheBase, ICloneable<WaferDto>
         WaferMapData.ReferenceDieRowNumber = WaferMapCanvasDocument.ReticleBuilder.ReticleDieCount.XCount;
         WaferMapData.ReferenceDieColumnNumber = WaferMapCanvasDocument.ReticleBuilder.ReticleDieCount.YCount;
     }
+
     public void WaferMapDataToWaferMapCanvasDocument()
     {
         WaferMapCanvasDocument.WaferBuilder.Circle = new Circle(Point.Origin, WaferMapData.WaferDiameter / 2d);
@@ -79,5 +79,4 @@ public sealed partial class WaferDto : ObservableCacheBase, ICloneable<WaferDto>
         WaferMapCanvasDocument.ReticleBuilder.DieScribeSize = new Size(WaferMapData.ReticleScribeWidth, WaferMapData.ReticleScribeHeight);
         WaferMapCanvasDocument.ReticleBuilder.ReticleDieCount = WaferMapCanvasDocument.ReticleBuilder.ReticleDieCount with { XCount = WaferMapData.ReferenceDieRowNumber, YCount = WaferMapData.ReferenceDieColumnNumber };
     }
-
 }

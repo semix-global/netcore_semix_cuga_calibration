@@ -7,6 +7,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
+using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
@@ -26,6 +27,8 @@ public sealed partial class CalibrationLaserServiceImpl(
     CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
+    private List<CgLightConfig>? _cgLightConfigList;
+
     public SxExecuteRet<bool> Connect()
     {
         if (IsConnected) return SxExecuteRetHelper.CreateSuccess(true);
@@ -73,10 +76,30 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
+    public SxExecuteRet<double> LightLevelToLightCoefficient(double level)
+    {
+        var sxExecuteRet = GetLightConfigList();
+        var cgLightConfig = sxExecuteRet.Anything.SingleOrDefault(m => Math.Abs(m.LightProp - level) < Constants.Tolerance);
+
+        return sxExecuteRet.IsSuccess == false || cgLightConfig is null
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
+            : SxExecuteRetHelper.CreateSuccess(cgLightConfig.LightCoeff);
+    }
+
+    public SxExecuteRet<double> LightCoefficientToLightLevel(double coefficient)
+    {
+        var sxExecuteRet = GetLightConfigList();
+        var cgLightConfig = sxExecuteRet.Anything.SingleOrDefault(m => Math.Abs(m.LightCoeff - coefficient) < Constants.Tolerance);
+
+        return sxExecuteRet.IsSuccess == false || cgLightConfig is null
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
+            : SxExecuteRetHelper.CreateSuccess(cgLightConfig.LightProp);
+    }
+
     public SxExecuteRet<bool> SendOpticsMagType(OpticsMagTypeEnum yOpticsMagTypeEnum)
     {
         var sxExecuteRet = Invoke(() => Service!.RefreshMag(Convert.ToInt32(yOpticsMagTypeEnum.ToCgMagTypeEnum())));
-        
+
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
@@ -108,7 +131,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
     {
         var sxExecuteRet = Invoke(() => Service!.SendPrescanFile_Illumination(darkFieldPrescanDto.RegNum, darkFieldPrescanDto.ZeroNum, darkFieldPrescanDto.PrescanByteList));
-        
+
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
@@ -117,7 +140,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SendChirpAodByList(DarkFieldChirpAodWaveDto darkFieldChirpAodWaveDto)
     {
         var sxExecuteRet = Invoke(() => Service!.SetChirp_Calibration(darkFieldChirpAodWaveDto.ChirpAodWaveByteList, darkFieldChirpAodWaveDto.RegNum, darkFieldChirpAodWaveDto.ZeroNum));
-        
+
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -160,7 +183,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count)
+    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId)
     {
         var sxExecuteRet = Invoke(() => Service!.GetSenseData(count, pmtId, channelId));
 
@@ -267,9 +290,9 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable)
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetMarkMode(enable));
+        var sxExecuteRet = Invoke(() => Service!.SetMarkMode(enable, pmtId, channelId));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -279,6 +302,15 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable)
     {
         var sxExecuteRet = Invoke(() => Service!.SetAGC(enable));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetAgcCalibration(enable, pmtId, channelId));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -327,7 +359,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
-            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service!.GetImg_Mag(
+            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service!.LoadRawImg_Mag_Calibration(
                 yOpticsMagTypeEnum.ToSxMagEnum(),
                 xStageSpeedEnum.ToSxSpeedEnum(),
                 xWidthPixel,
@@ -347,7 +379,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
             _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
         };
-        
+
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
 
@@ -389,7 +421,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
             _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
         };
-        
+
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
 
@@ -500,5 +532,30 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
+    }
+
+    public SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient)
+    {
+        var executeRet = LightCoefficientToLightLevel(coefficient);
+        if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(executeRet.ErrorMsg);
+
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(position.ToSxPointD(), offset, Convert.ToUInt16(executeRet.Anything)));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Score));
+    }
+
+    private SxExecuteRet<List<CgLightConfig>> GetLightConfigList()
+    {
+        if (_cgLightConfigList is not null) return SxExecuteRetHelper.CreateSuccess(_cgLightConfigList);
+
+        var sxExecuteRet = Invoke(() => Service!.GetLightConfig());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, new List<CgLightConfig>());
+        if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<List<CgLightConfig>>("Lens List is empty", []);
+
+        _cgLightConfigList = [.. sxExecuteRet.Anything];
+
+        return SxExecuteRetHelper.CreateSuccess(_cgLightConfigList);
     }
 }

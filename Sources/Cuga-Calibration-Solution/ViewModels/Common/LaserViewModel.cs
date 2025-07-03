@@ -166,9 +166,18 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<List<double>> GetPmtSenseDataList(int pmtId, int channelId, int count)
+    public async Task<List<List<List<double>>>> GetPmtSenseDataListAsync(int count, int pmtId)
     {
-        var ret = calibrationLaserService.GetPmtSenseDataList(pmtId, channelId, count);
+        var result = new List<List<List<double>>>(CalibrationConstantsHelper.ChannelIds.Length);
+
+        await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select((channelId, index) => Task.Run(() => result[index] = GetPmtSenseDataList(count, pmtId, channelId))));
+
+        return result;
+    }
+
+    public List<List<double>> GetPmtSenseDataList(int count, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.GetPmtSenseDataList(count, pmtId, channelId);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -222,9 +231,11 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableMarkMode(bool enable)
+    public async Task ToggleEnableMarkModeAsync(bool enable, int pmtId) => await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select(channelId => Task.Run(() => ToggleEnableMarkMode(enable, pmtId, channelId))));
+
+    public void ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
     {
-        var ret = calibrationLaserService.ToggleEnableMarkMode(enable);
+        var ret = calibrationLaserService.ToggleEnableMarkMode(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -232,6 +243,15 @@ public sealed class LaserViewModel(
     public void ToggleEnableAutoGain(bool enable)
     {
         var ret = calibrationLaserService.ToggleEnableAutoGain(enable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public async Task ToggleEnableAutoGainAsync(bool enable, int pmtId) => await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select(channelId => Task.Run(() => ToggleEnableAutoGain(enable, pmtId, channelId))));
+
+    public void ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.ToggleEnableAutoGain(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -542,6 +562,20 @@ public sealed class LaserViewModel(
         }
 
         return result.Count > 0 ? result : throw new CugaException("Get Dark Field Line Scan Image failed");
+    }
+
+    public (double Ecs, double Height) ChuckRuntimeAfCalibration(Point position)
+    {
+        var ret = calibrationLaserService.RuntimeAfCalibration(position, 0, calibrationSetting.SettingCommonParam.MainCoefficient);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public (double Ecs, double Height) DswRuntimeAfCalibration(Point position, double offset)
+    {
+        var ret = calibrationLaserService.RuntimeAfCalibration(position, offset, calibrationSetting.SettingCommonParam.MainCoefficient);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     #region 模板匹配

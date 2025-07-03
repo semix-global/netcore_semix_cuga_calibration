@@ -925,11 +925,11 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.LowMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
 
         var reticleRows = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
-                                             .Where(t => t.Index.X == 0)
-                                             .OrderBy(t => t.Index.Y).ToList();
+            .Where(t => t.Index.X == 0)
+            .OrderBy(t => t.Index.Y).ToList();
         var reticleCols = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
-                                            .Where(t => t.Index.Y == 0)
-                                            .OrderBy(t => t.Index.X).ToList();
+            .Where(t => t.Index.Y == 0)
+            .OrderBy(t => t.Index.X).ToList();
 
         #region 上低倍
 
@@ -947,7 +947,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 右边低倍
 
-        var reticleRight = reticleCols.ElementAt(reticleRows.Count - 1);
+        var reticleRight = reticleCols.ElementAt(reticleCols.Count - 2);
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, maskInfo5, out var lowPosition2);
         Cache.LowRightPosition = lowPosition2;
         Cache.LowRightTemplateFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;

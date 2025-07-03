@@ -25,7 +25,7 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     private double _footerFrequency;
 
     [ObservableProperty]
-    private FunctionMonotonicTypeEnum _monotonicTypeEnum;
+    private FunctionMonotonicTypeEnum _functionMonotonicTypeEnum;
 
     [ObservableProperty]
     private double _sampleRate = 1064d;
@@ -94,19 +94,19 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     {
         if (IsHeaderAndFooter) return;
 
-        HeaderFrequency = MonotonicTypeEnum switch
+        HeaderFrequency = FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing => CenterFrequency - value / 2d,
             FunctionMonotonicTypeEnum.Deceasing => CenterFrequency + value / 2d,
             FunctionMonotonicTypeEnum.Flatness => CenterFrequency,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Net.Utilities.Models.Enums.Maths.FunctionMonotonicTypeEnum))
         };
-        FooterFrequency = MonotonicTypeEnum switch
+        FooterFrequency = FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing => CenterFrequency + value / 2d,
             FunctionMonotonicTypeEnum.Deceasing => CenterFrequency - value / 2d,
             FunctionMonotonicTypeEnum.Flatness => CenterFrequency,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Net.Utilities.Models.Enums.Maths.FunctionMonotonicTypeEnum))
         };
     }
 
@@ -114,23 +114,23 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     {
         if (IsHeaderAndFooter) return;
 
-        HeaderFrequency = MonotonicTypeEnum switch
+        HeaderFrequency = FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing => value - BandWidth / 2d,
             FunctionMonotonicTypeEnum.Deceasing => value + BandWidth / 2d,
             FunctionMonotonicTypeEnum.Flatness => value,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Net.Utilities.Models.Enums.Maths.FunctionMonotonicTypeEnum))
         };
-        FooterFrequency = MonotonicTypeEnum switch
+        FooterFrequency = FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing => value + BandWidth / 2d,
             FunctionMonotonicTypeEnum.Deceasing => value - BandWidth / 2d,
             FunctionMonotonicTypeEnum.Flatness => value,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Net.Utilities.Models.Enums.Maths.FunctionMonotonicTypeEnum))
         };
     }
 
-    partial void OnMonotonicTypeEnumChanged(FunctionMonotonicTypeEnum value)
+    partial void OnFunctionMonotonicTypeEnumChanged(FunctionMonotonicTypeEnum value)
     {
         if (IsHeaderAndFooter) return;
 
@@ -139,14 +139,14 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
             FunctionMonotonicTypeEnum.Increasing => CenterFrequency - BandWidth / 2d,
             FunctionMonotonicTypeEnum.Deceasing => CenterFrequency + BandWidth / 2d,
             FunctionMonotonicTypeEnum.Flatness => CenterFrequency,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Net.Utilities.Models.Enums.Maths.FunctionMonotonicTypeEnum))
         };
-        FooterFrequency = MonotonicTypeEnum switch
+        FooterFrequency = FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing => CenterFrequency + BandWidth / 2d,
             FunctionMonotonicTypeEnum.Deceasing => CenterFrequency - BandWidth / 2d,
             FunctionMonotonicTypeEnum.Flatness => CenterFrequency,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Net.Utilities.Models.Enums.Maths.FunctionMonotonicTypeEnum))
         };
         BandWidth = value == FunctionMonotonicTypeEnum.Flatness ? 0d : BandWidth;
     }
@@ -157,7 +157,7 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
 
         BandWidth = Math.Abs(FooterFrequency - value);
         CenterFrequency = (FooterFrequency + value) / 2d;
-        MonotonicTypeEnum = FooterFrequency - value == 0
+        FunctionMonotonicTypeEnum = FooterFrequency - value == 0
             ? FunctionMonotonicTypeEnum.Flatness
             : FooterFrequency > value
                 ? FunctionMonotonicTypeEnum.Increasing
@@ -170,7 +170,7 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
 
         BandWidth = Math.Abs(value - HeaderFrequency);
         CenterFrequency = (value + HeaderFrequency) / 2d;
-        MonotonicTypeEnum = value - HeaderFrequency == 0
+        FunctionMonotonicTypeEnum = value - HeaderFrequency == 0
             ? FunctionMonotonicTypeEnum.Flatness
             : value > HeaderFrequency
                 ? FunctionMonotonicTypeEnum.Increasing
