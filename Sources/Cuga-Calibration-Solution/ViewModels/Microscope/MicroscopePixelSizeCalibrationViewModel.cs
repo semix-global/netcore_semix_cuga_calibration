@@ -667,6 +667,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             if (CalibrationRecipeService.GetCorrectWaferMapByOffset(false) == false)
                 return false;
         }
+
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
         switch (microscopeName)

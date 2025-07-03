@@ -63,7 +63,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
     {
         using var roiImage = HalconHelper.ToRoi(image, roiRect);
 
-        _algorithm.WuMTF(roiImage, out var mtfY, out var mtfX);
+        _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
 
         using var _1 = mtfX;
         using var _2 = mtfY;
@@ -389,7 +389,10 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
             return isSuccess;
         }
-        catch (Exception ex) { return false; }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)

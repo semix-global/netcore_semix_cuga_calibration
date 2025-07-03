@@ -42,5 +42,4 @@ public interface ICalibrationRecipeService
     /// <param name="position"></param>
     /// <returns></returns>
     bool GetReticleMaskBrightFieldPosition(WaferMapReticle waferMapReticle, ReticleMarkItemDto maskDto, out Point position);
-
 }

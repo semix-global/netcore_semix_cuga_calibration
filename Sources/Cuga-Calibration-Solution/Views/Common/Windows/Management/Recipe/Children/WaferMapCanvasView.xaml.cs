@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Vector = Net.Utilities.Models.Geometries.Vector;
+
 namespace CugaCalibration.Views.Common.Windows.Management.Recipe.Children;
 
 public partial class WaferMapCanvasView
@@ -13,6 +14,7 @@ public partial class WaferMapCanvasView
     private readonly ILogger<WaferMapCanvasView> _logger;
     private ContextMenu _waferMapContextMenu;
     private bool _isLoaded;
+
     public WaferMapCanvasView()
     {
         InitializeComponent();
@@ -59,10 +61,9 @@ public partial class WaferMapCanvasView
         var index = viewModel._selectionDies.ElementAt(0).Index;
         var centerPosition = viewModel.CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!;
         var waferPosition = new Point(document.OriginalDie.Rect.X + index.X * document.DieBuilder.DieSize.Width,
-                                      document.OriginalDie.Rect.Y + index.Y * document.DieBuilder.DieSize.Height);
+            document.OriginalDie.Rect.Y + index.Y * document.DieBuilder.DieSize.Height);
         var position = centerPosition.Value + (Vector)waferPosition;
 
         viewModel.StageViewModel.SetBrightFieldAbsoluteStageXy(position);
     }
-
 }

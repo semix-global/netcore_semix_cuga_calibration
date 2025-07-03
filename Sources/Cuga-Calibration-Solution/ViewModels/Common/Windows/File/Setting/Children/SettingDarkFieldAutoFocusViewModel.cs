@@ -15,7 +15,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 [IOCAppService(ServiceType = typeof(SettingDarkFieldAutoFocusViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
 public sealed partial class SettingDarkFieldAutoFocusViewModel(
     ILogger<SettingDarkFieldAutoFocusViewModel> logger,
-    AfViewModel afViewModel,
+    LaserViewModel laserViewModel,
     StageViewModel stageViewModel) : SettingWindowViewModelBase
 {
     [ObservableProperty]
@@ -44,7 +44,7 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
 
                 stageViewModel.SetBrightFieldAbsoluteStageXy(position);
 
-                var (ecs, height) = afViewModel.ChuckAfRtfc(position);
+                var (ecs, height) = laserViewModel.ChuckRuntimeAfCalibration(position);
 
                 SettingDarkFieldAutoFocusParam.ChuckEcsValue = ecs;
                 SettingDarkFieldAutoFocusParam.ChuckMotorValue = height;

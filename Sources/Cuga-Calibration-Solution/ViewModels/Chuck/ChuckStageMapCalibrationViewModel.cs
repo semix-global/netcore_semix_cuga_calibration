@@ -51,6 +51,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
 {
     private bool _isSkipStep = false;
+
     #region 属性
 
     public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.HighMagnificationEnum)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
@@ -59,15 +60,15 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "BF P5",StepIndex=1},
-        new() { StepName = "BF Find Start Point" ,StepIndex=2},
-        new() { StepName = "BF Param" ,StepIndex=3},
-        new() { StepName = "BF Stage Map" , StepIndex = 4},
-        new() { StepName = "DF P5" , StepIndex = 5},
-        new() { StepName = "DF Find Start Point" , StepIndex = 6},
-        new() { StepName = "DF Param" , StepIndex = 7},
-        new() { StepName = "DF Stage Map" , StepIndex = 8},
-        new() { StepName = "Expand To BF" , StepIndex = 9}
+        new() { StepName = "BF P5", StepIndex = 1 },
+        new() { StepName = "BF Find Start Point", StepIndex = 2 },
+        new() { StepName = "BF Param", StepIndex = 3 },
+        new() { StepName = "BF Stage Map", StepIndex = 4 },
+        new() { StepName = "DF P5", StepIndex = 5 },
+        new() { StepName = "DF Find Start Point", StepIndex = 6 },
+        new() { StepName = "DF Param", StepIndex = 7 },
+        new() { StepName = "DF Stage Map", StepIndex = 8 },
+        new() { StepName = "Expand To BF", StepIndex = 9 }
     ];
 
     #region 界面相关
@@ -238,6 +239,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         LaserXPixelSizeItems = laserXPixelSizeItems;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizeItems, out errorMessage) == false)
@@ -322,6 +324,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Logger.LogError("{@Name} Error:Please Calibration Bright Field Calibration !", Name);
                     return false;
                 }
+
                 return true;
             case 8:
                 ResultChuckStageMapDto.IsCalibrated = true;
@@ -373,6 +376,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     #endregion 控制校准业务
 
     #region 校准
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -481,7 +485,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             if (await AutomationRecipeInformationAsync("0") == false) return false;
             var findPosition = StageViewModel.MachineToBrightFieldPosition(Cache.BrightFieldFirstStageMapPosition);
             if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMagnificationEnum, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
-                           out _, out _, out _, out _, out _) == false) return false;
+                    out _, out _, out _, out _, out _) == false) return false;
         }
         else
         {
@@ -492,13 +496,14 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             Cache.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         }
 
         var centerPosition = StageViewModel.GetMachineStagePosition();
         Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
-           ? ChuckCenter.NewBFCenterStagePosition
-           : centerPosition;
+            ? ChuckCenter.NewBFCenterStagePosition
+            : centerPosition;
 
         return true;
     }
@@ -511,8 +516,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             if (await AutomationRecipeInformationAsync("1") == false) return false;
             var findPosition = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
             if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMagnificationEnum, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
-                           out _, out _, out _, out _, out _) == false) return false;
+                    out _, out _, out _, out _, out _) == false) return false;
         }
+
         var brightFieldPosition = StageViewModel.GetBrightFieldStagePosition();
         var centerPosition = StageViewModel.DarkFieldToMachinePosition(brightFieldPosition);
 
@@ -560,10 +566,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 return false;
             }
         }
+
         Cache.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
-           ? laserLineCentricityItemDto.ForwardDarkMachineCenterPosition
-           : centerPosition;
+            ? laserLineCentricityItemDto.ForwardDarkMachineCenterPosition
+            : centerPosition;
         return true;
     }
 
@@ -660,6 +667,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -704,12 +712,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 //    RtfcHeight = height,
                 //}), HtmlLogUniqueId.LoggingHtml());
                 DarkFieldGetStageMap(ResultChuckStageMapDto.CalibrationDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap)), cancellationToken);
-
             }
 
             var calibrationStageMap = Cache.IsDarkField == false
-                                    ? ResultChuckStageMapDto.CalibrationBrightFieldStageMap
-                                    : ResultChuckStageMapDto.CalibrationDarkFieldStageMap;
+                ? ResultChuckStageMapDto.CalibrationBrightFieldStageMap
+                : ResultChuckStageMapDto.CalibrationDarkFieldStageMap;
 
             var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
             calibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
@@ -834,6 +841,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogIconEnum.Warning);
             return;
         }
+
         var (isSuccess, errorMessage) = Cache.Verify();
         if (isSuccess == false)
         {
@@ -852,221 +860,224 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private async Task<bool> VerifyCalibrationAsync(CancellationToken cancellationToken, bool isAutoReview = false)
     {
         await Task.Run(async () =>
-         {
-             try
-             {
-                 var detectImageDirectory = ImageFileDirectory;
+        {
+            try
+            {
+                var detectImageDirectory = ImageFileDirectory;
 
-                 var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
-                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                 {
-                     xAxisTemperature,
-                     yAxisTemperature,
-                     reviewCamTemperature,
-                     cibTemperature,
-                     Cache.P5Angle,
-                     Cache.HighMagnificationEnum,
-                     Cache.AlgorithmTemplateTypeEnum,
-                     Cache.CalculateContainRowMinCout,
-                     Cache.CalculateContainColumnMinCount,
-                     Cache.VerifyAlignmentThreshold,
-                     Cache.VerifyGantryThreshold,
-                     Cache.VerifyScaleThreshold,
-                     Cache.BrightFieldFirstStageMapPosition,
-                     Cache.DarkFieldFirstStageMapPosition
-                 }), HtmlLogUniqueId.LoggingHtml());
+                var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                {
+                    xAxisTemperature,
+                    yAxisTemperature,
+                    reviewCamTemperature,
+                    cibTemperature,
+                    Cache.P5Angle,
+                    Cache.HighMagnificationEnum,
+                    Cache.AlgorithmTemplateTypeEnum,
+                    Cache.CalculateContainRowMinCout,
+                    Cache.CalculateContainColumnMinCount,
+                    Cache.VerifyAlignmentThreshold,
+                    Cache.VerifyGantryThreshold,
+                    Cache.VerifyScaleThreshold,
+                    Cache.BrightFieldFirstStageMapPosition,
+                    Cache.DarkFieldFirstStageMapPosition
+                }), HtmlLogUniqueId.LoggingHtml());
 
-                 StageViewModel.SetStageMap(ReviewDto!.ExpandStageMapDto);
-                 StageViewModel.SetEnableStageMap(true);
+                StageViewModel.SetStageMap(ReviewDto!.ExpandStageMapDto);
+                StageViewModel.SetEnableStageMap(true);
 
-                 ReviewDto.IsVerifyBrightField = false;
-                 ReviewDto.IsVerified = false;
-                 ReviewDto.VerifyBrightFieldStageMap.Reset();
-                 OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap));
+                ReviewDto.IsVerifyBrightField = false;
+                ReviewDto.IsVerified = false;
+                ReviewDto.VerifyBrightFieldStageMap.Reset();
+                OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap));
 
-                 ReviewDto.IsVerifyDarkField = false;
-                 ReviewDto.VerifyDarkFieldStageMap.Reset();
-                 OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap));
+                ReviewDto.IsVerifyDarkField = false;
+                ReviewDto.VerifyDarkFieldStageMap.Reset();
+                OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap));
 
-                 #region 暗场验证
-                 Cache.IsDarkField = true;
-                 Cache.GetParam();
+                #region 暗场验证
 
-                 Logger.LogHtmlInformation("Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                 if (IsRecipeCalibrate)
-                 {
-                     if (await DarkFieldStep1ActionAsync() == false) return false;
-                     DarkFieldStep2Action();
-                     ReviewDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
-                 }
-                 else
-                 {
-                     StageViewModel.Alignment(
-                         AlignmentCacheBrightField.LowSite1,
-                         AlignmentCacheBrightField.LowSite2,
-                         AlignmentCacheBrightField.HighSite1,
-                         AlignmentCacheBrightField.HighSite2,
-                         AlignmentCacheBrightField.LowMag,
-                         AlignmentCacheBrightField.HighMag,
-                         AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-                 }
+                Cache.IsDarkField = true;
+                Cache.GetParam();
 
-                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                 DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken);
+                Logger.LogHtmlInformation("Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                if (IsRecipeCalibrate)
+                {
+                    if (await DarkFieldStep1ActionAsync() == false) return false;
+                    DarkFieldStep2Action();
+                    ReviewDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
+                }
+                else
+                {
+                    StageViewModel.Alignment(
+                        AlignmentCacheBrightField.LowSite1,
+                        AlignmentCacheBrightField.LowSite2,
+                        AlignmentCacheBrightField.HighSite1,
+                        AlignmentCacheBrightField.HighSite2,
+                        AlignmentCacheBrightField.LowMag,
+                        AlignmentCacheBrightField.HighMag,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+                }
 
-                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-                 ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyDarkFieldStageMap.SaveIdealCsv(ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath);
-                 ReviewDto.VerifyDarkFieldStageMap.SaveRealCsv(ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath);
-                 ReviewDto.VerifyDarkFieldStageMap.SaveIsInWaferOkCsv(ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath);
-                 ReviewDto.VerifyDarkFieldStageMap.SaveIsMatchOkCsv(ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath);
+                Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken);
 
-                 (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
+                var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
+                ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.SaveIdealCsv(ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath);
+                ReviewDto.VerifyDarkFieldStageMap.SaveRealCsv(ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath);
+                ReviewDto.VerifyDarkFieldStageMap.SaveIsInWaferOkCsv(ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath);
+                ReviewDto.VerifyDarkFieldStageMap.SaveIsMatchOkCsv(ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath);
 
-                 var htmlQuoteList = new HtmlQuote(new
-                 {
-                     xAxisTemperature,
-                     yAxisTemperature,
-                     reviewCamTemperature,
-                     cibTemperature,
-                     Cache.HighMagnificationEnum,
-                     Cache.AlgorithmTemplateTypeEnum,
-                     ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath,
-                     ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath,
-                     ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath,
-                     ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath,
-                     ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath
-                 });
+                (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
 
-                 var tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
-                     ReviewDto.VerifyDarkFieldStageMap,
-                     HtmlLogUniqueId,
-                     Cache.CalculateContainRowMinCout,
-                     Cache.CalculateContainColumnMinCount,
-                     Cache.VerifyAlignmentThreshold,
-                     Cache.VerifyGantryThreshold,
-                     Cache.VerifyScaleThreshold,
-                     Cache.WaferDiameter);
+                var htmlQuoteList = new HtmlQuote(new
+                {
+                    xAxisTemperature,
+                    yAxisTemperature,
+                    reviewCamTemperature,
+                    cibTemperature,
+                    Cache.HighMagnificationEnum,
+                    Cache.AlgorithmTemplateTypeEnum,
+                    ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath,
+                    ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath,
+                    ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath,
+                    ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath,
+                    ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath
+                });
 
-                 OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap));
-                 ReviewDto.VerifyDarkFieldStageMap.SaveErrorCsv(ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath);
-                 if (tryCalculateStageMapError == false)
-                 {
-                     Logger.LogHtmlInformation("Calculate Stage Map Error Failed!", HtmlHeaderLevelEnum.Header4, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
-                 }
+                var tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
+                    ReviewDto.VerifyDarkFieldStageMap,
+                    HtmlLogUniqueId,
+                    Cache.CalculateContainRowMinCout,
+                    Cache.CalculateContainColumnMinCount,
+                    Cache.VerifyAlignmentThreshold,
+                    Cache.VerifyGantryThreshold,
+                    Cache.VerifyScaleThreshold,
+                    Cache.WaferDiameter);
 
-                 var result = ReviewDto.VerifyDarkFieldStageMap.ErrorMatrix
-                     .SelectMany(t => t)
-                     .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
-                 ReviewDto.IsVerifyDarkField = result;
+                OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap));
+                ReviewDto.VerifyDarkFieldStageMap.SaveErrorCsv(ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath);
+                if (tryCalculateStageMapError == false)
+                {
+                    Logger.LogHtmlInformation("Calculate Stage Map Error Failed!", HtmlHeaderLevelEnum.Header4, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
+                }
 
-                 Logger.LogHtmlInformation($"Dark Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
+                var result = ReviewDto.VerifyDarkFieldStageMap.ErrorMatrix
+                    .SelectMany(t => t)
+                    .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
+                ReviewDto.IsVerifyDarkField = result;
 
-                 if (IsAutoCalibrate == false)
-                     DialogWindowProvider.ShowDialog($"Verify Dark Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                Logger.LogHtmlInformation($"Dark Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
 
-                 if (Save(ReviewDto, cancellationToken) == false)
-                 {
-                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Dark Field Failed!"), HtmlLogUniqueId.LoggingHtml());
-                     return false;
-                 }
-                 #endregion 暗场验证
+                if (IsAutoCalibrate == false)
+                    DialogWindowProvider.ShowDialog($"Verify Dark Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-                 #region 明场验证
-                 Cache.IsDarkField = false;
-                 Cache.GetParam();
+                if (Save(ReviewDto, cancellationToken) == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Dark Field Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
 
-                 Logger.LogHtmlInformation("Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                 if (isAutoReview)
-                 {
-                     if (await BrightFieldStep1ActionAsync() == false) return false;
-                     BrightFieldStep2Action();
-                     ReviewDto!.VerifyBrightFieldStageMap = ResultChuckStageMapDto.CalibrationBrightFieldStageMap.Clone();
-                 }
+                #endregion 暗场验证
 
-                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                 BrightFieldGetStageMap(ReviewDto.VerifyBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap)), cancellationToken);
+                #region 明场验证
 
-                 middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-                 ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
-                 ReviewDto.VerifyBrightFieldStageMap.SaveIdealCsv(ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath);
-                 ReviewDto.VerifyBrightFieldStageMap.SaveRealCsv(ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath);
-                 ReviewDto.VerifyBrightFieldStageMap.SaveIsInWaferOkCsv(ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath);
-                 ReviewDto.VerifyBrightFieldStageMap.SaveIsMatchOkCsv(ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath);
+                Cache.IsDarkField = false;
+                Cache.GetParam();
 
-                 (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
+                Logger.LogHtmlInformation("Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                if (isAutoReview)
+                {
+                    if (await BrightFieldStep1ActionAsync() == false) return false;
+                    BrightFieldStep2Action();
+                    ReviewDto!.VerifyBrightFieldStageMap = ResultChuckStageMapDto.CalibrationBrightFieldStageMap.Clone();
+                }
 
-                 htmlQuoteList = new HtmlQuote(new
-                 {
-                     xAxisTemperature,
-                     yAxisTemperature,
-                     reviewCamTemperature,
-                     cibTemperature,
-                     Cache.HighMagnificationEnum,
-                     Cache.AlgorithmTemplateTypeEnum,
-                     ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath,
-                     ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath,
-                     ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath,
-                     ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath,
-                     ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath
-                 });
+                Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                BrightFieldGetStageMap(ReviewDto.VerifyBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap)), cancellationToken);
 
-                 tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
-                     ReviewDto.VerifyBrightFieldStageMap,
-                     HtmlLogUniqueId,
-                     Cache.CalculateContainRowMinCout,
-                     Cache.CalculateContainColumnMinCount,
-                     Cache.VerifyAlignmentThreshold,
-                     Cache.VerifyGantryThreshold,
-                     Cache.VerifyScaleThreshold,
-                     Cache.WaferDiameter);
+                middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
+                ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.SaveIdealCsv(ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath);
+                ReviewDto.VerifyBrightFieldStageMap.SaveRealCsv(ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath);
+                ReviewDto.VerifyBrightFieldStageMap.SaveIsInWaferOkCsv(ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath);
+                ReviewDto.VerifyBrightFieldStageMap.SaveIsMatchOkCsv(ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath);
 
-                 OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap));
+                (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
 
-                 ReviewDto.VerifyBrightFieldStageMap.SaveErrorCsv(ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath);
-                 if (tryCalculateStageMapError == false)
-                 {
-                     Logger.LogHtmlInformation("Calculate Stage Map Error Failed!", HtmlHeaderLevelEnum.Header4, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
-                 }
+                htmlQuoteList = new HtmlQuote(new
+                {
+                    xAxisTemperature,
+                    yAxisTemperature,
+                    reviewCamTemperature,
+                    cibTemperature,
+                    Cache.HighMagnificationEnum,
+                    Cache.AlgorithmTemplateTypeEnum,
+                    ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath,
+                    ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath,
+                    ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath,
+                    ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath,
+                    ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath
+                });
 
-                 result = ReviewDto.VerifyBrightFieldStageMap.ErrorMatrix
-                     .SelectMany(t => t)
-                     .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
-                 ReviewDto.IsVerifyBrightField = result;
+                tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
+                    ReviewDto.VerifyBrightFieldStageMap,
+                    HtmlLogUniqueId,
+                    Cache.CalculateContainRowMinCout,
+                    Cache.CalculateContainColumnMinCount,
+                    Cache.VerifyAlignmentThreshold,
+                    Cache.VerifyGantryThreshold,
+                    Cache.VerifyScaleThreshold,
+                    Cache.WaferDiameter);
 
-                 Logger.LogHtmlInformation($"Bright Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
+                OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap));
 
-                 if (IsAutoCalibrate == false)
-                     DialogWindowProvider.ShowDialog($"Verify Bright Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                ReviewDto.VerifyBrightFieldStageMap.SaveErrorCsv(ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath);
+                if (tryCalculateStageMapError == false)
+                {
+                    Logger.LogHtmlInformation("Calculate Stage Map Error Failed!", HtmlHeaderLevelEnum.Header4, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
+                }
 
-                 #endregion 明场验证
+                result = ReviewDto.VerifyBrightFieldStageMap.ErrorMatrix
+                    .SelectMany(t => t)
+                    .All(t => t.ToOriginLength < Cache.Threshold.ToOriginLength);
+                ReviewDto.IsVerifyBrightField = result;
 
-                 ReviewDto.IsVerified = ReviewDto.IsVerifyDarkField && ReviewDto.IsVerifyBrightField;
-                 if (Save(ReviewDto, cancellationToken) == false)
-                 {
-                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                     ReviewDto.IsVerified = false;
-                     return false;
-                 }
+                Logger.LogHtmlInformation($"Bright Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
 
-                 if (IsAutoCalibrate == false)
-                     DialogWindowProvider.ShowDialog($"Verify {(ReviewDto.IsVerified ? "OK" : "Failed")}!", DialogButtonsEnum.OK, ReviewDto.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                if (IsAutoCalibrate == false)
+                    DialogWindowProvider.ShowDialog($"Verify Bright Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-                 return ReviewDto.IsVerified;
-             }
-             finally
-             {
-                 StageViewModel.SetEnableStageMap(false);
-             }
-         }, cancellationToken);
+                #endregion 明场验证
+
+                ReviewDto.IsVerified = ReviewDto.IsVerifyDarkField && ReviewDto.IsVerifyBrightField;
+                if (Save(ReviewDto, cancellationToken) == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    ReviewDto.IsVerified = false;
+                    return false;
+                }
+
+                if (IsAutoCalibrate == false)
+                    DialogWindowProvider.ShowDialog($"Verify {(ReviewDto.IsVerified ? "OK" : "Failed")}!", DialogButtonsEnum.OK, ReviewDto.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+                return ReviewDto.IsVerified;
+            }
+            finally
+            {
+                StageViewModel.SetEnableStageMap(false);
+            }
+        }, cancellationToken);
         return ReviewDto!.IsVerified;
     }
 
@@ -1414,6 +1425,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
             return false;
         }
+
         if (CalibrationStatusService.EnableDependDarkStageMapCalibrations(false, cancellationToken, out errorMsg) == false)
         {
             Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
@@ -1431,17 +1443,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         AutoCalibrationStepList =
         [
-             new() { StepName = "loading",StepIndex= 0},
-             new() { StepName = "BF P5" ,StepIndex= 1},
-             new() { StepName = "BF Find Start Point" ,StepIndex= 2},
-             new() { StepName = "BF Param" ,StepIndex= 3},
-             new() { StepName = "BF Stage Map", StepIndex = 4},
-             new() { StepName = "DF P5" ,StepIndex= 5},
-             new() { StepName = "DF Find Start Point", StepIndex = 6},
-             new() { StepName = "DF Param", StepIndex = 7},
-             new() { StepName = "DF Stage Map", StepIndex = 8},
-             new() { StepName = "Expand To BF", StepIndex = 9},
-             new() { StepName = "Review", StepIndex = 10 }
+            new() { StepName = "loading", StepIndex = 0 },
+            new() { StepName = "BF P5", StepIndex = 1 },
+            new() { StepName = "BF Find Start Point", StepIndex = 2 },
+            new() { StepName = "BF Param", StepIndex = 3 },
+            new() { StepName = "BF Stage Map", StepIndex = 4 },
+            new() { StepName = "DF P5", StepIndex = 5 },
+            new() { StepName = "DF Find Start Point", StepIndex = 6 },
+            new() { StepName = "DF Param", StepIndex = 7 },
+            new() { StepName = "DF Stage Map", StepIndex = 8 },
+            new() { StepName = "Expand To BF", StepIndex = 9 },
+            new() { StepName = "Review", StepIndex = 10 }
         ];
     }
 
@@ -1493,11 +1505,13 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             return await VerifyCalibrationAsync(cancellationToken);
                         });
                 }
+
                 await Task.Delay(2000, cancellationToken);
                 if (await AutoNextingAsync(cancellationToken) == false) return false;
                 if (await NextingAsync(cancellationToken) == false) return false;
                 CalibrationStepIndex++;
             }
+
             return true;
         }
         catch (Exception ex)
@@ -1566,6 +1580,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         var result = await InvokeVerifyAsync(async () =>
         {
             if (await VerifyCalibrationAsync(cancellationToken, true) == false)
@@ -1573,10 +1588,12 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             return true;
         });
         AutoCalibrationProgress = (AutoCalibrationStepIndex + 1) / (double)AutoCalibrationStepList.Count * 100;
         return result;
     }
+
     #endregion
 }

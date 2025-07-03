@@ -17,22 +17,28 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
 
     [ObservableProperty]
     private double _scanLineXPixelSizeLowMagLowSpeed = 0.3334390881;
+
     [ObservableProperty]
     private double _scanLineXPixelSizeLowMagMiddleSpeed = 0.3334390881;
+
     [ObservableProperty]
     private double _scanLineXPixelSizeLowMagHighSpeed = 0.3334390881;
 
     [ObservableProperty]
     private double _scanLineXPixelSizeMiddleMagLowSpeed = 0.3334390881;
+
     [ObservableProperty]
     private double _scanLineXPixelSizeMiddleMagMiddleSpeed = 0.3334390881;
+
     [ObservableProperty]
     private double _scanLineXPixelSizeMiddleMagHighSpeed = 0.3334390881;
 
     [ObservableProperty]
     private double _scanLineXPixelSizeHighMagLowSpeed = 0.3334390881;
+
     [ObservableProperty]
     private double _scanLineXPixelSizeHighMagMiddleSpeed = 0.3334390881;
+
     [ObservableProperty]
     private double _scanLineXPixelSizeHighMagHighSpeed = 0.3334390881;
 

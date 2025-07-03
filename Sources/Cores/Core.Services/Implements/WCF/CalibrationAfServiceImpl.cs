@@ -404,33 +404,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double Score)> CalChipDswAfRtfc(Point position)
-    {
-        var sxExecuteRet = Invoke(() => Service!.RuntimEcsCalibration(position.ToSxPointD(), 0));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Score));
-    }
-
-    public SxExecuteRet<(double Ecs, double Score)> CalChipHazeAfRtfc(Point position)
-    {
-        var sxExecuteRet = Invoke(() => Service!.RuntimEcsCalibration(position.ToSxPointD(), 1));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Score));
-    }
-
-    public SxExecuteRet<(double Ecs, double Height)> ChuckAfRtfc(Point position)
-    {
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(position.ToSxPointD()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Score));
-    }
-
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
     {
         return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));

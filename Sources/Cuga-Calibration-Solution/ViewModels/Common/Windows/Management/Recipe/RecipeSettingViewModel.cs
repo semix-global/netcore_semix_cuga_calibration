@@ -83,6 +83,7 @@ public sealed partial class RecipeSettingViewModel(
     private string TemplateFileDirectory => Path.Combine(_appHomeDirectory, "Template", "Recipe", EditRecipeTypeName, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public SelectionSet<WaferMapDie>? _selectionDies;
+
     #endregion 字段
 
     #region 界面显示
@@ -281,6 +282,7 @@ public sealed partial class RecipeSettingViewModel(
             RefreshToken();
             Task.Run(() => SelectionDiesAsync(_cancellationTokenSource.Token));
         }
+
         WaferMapCanvasViewModel.Document = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument;
         NotifyWaferMapSetting();
     }
@@ -400,8 +402,10 @@ public sealed partial class RecipeSettingViewModel(
                     waferMapDie.IsSelected = true;
                 }
             }
+
             _selectionDies = inputResult.Output;
         }
+
         WaferMapCanvasViewModel.IsToggleSelection = true;
     }
 
@@ -572,6 +576,7 @@ public sealed partial class RecipeSettingViewModel(
             logger.LogError(ex, "Get Mask Reticle Position Failed!");
         }
     }
+
     // todo:增加die模式
     [RelayCommand]
     private void GotoMaskReticlePosition(object? obj)

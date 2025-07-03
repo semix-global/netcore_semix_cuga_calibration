@@ -1078,7 +1078,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             .Where(t => t.Index.Y == 0)
             .OrderBy(t => t.Index.X).ToList();
         var reticleTop = reticleRows.ElementAt(reticleRows.Count - 2);
-        var reticleRight = reticleCols.ElementAt(reticleRows.Count - 1);
+        var reticleRight = reticleCols.ElementAt(reticleCols.Count - 2);
         var reticleBottom = reticleRows.ElementAt(1);
         var reticleLeft = reticleCols.ElementAt(1);
 

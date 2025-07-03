@@ -1,8 +1,8 @@
-using System.Text;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Nlog.Entities;
 using NLog;
 using NLog.LayoutRenderers;
+using System.Text;
 
 namespace Core.Utilities;
 

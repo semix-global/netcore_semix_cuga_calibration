@@ -207,34 +207,9 @@ public interface ICalibrationAfService
 
     #endregion 自动聚焦下发参数
 
-    #region RTFC
-
-    /// <summary>
-    /// Chip DSW自动聚焦
-    /// </summary>
-    /// <param name="position">位置</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<(double Ecs, double Score)> CalChipDswAfRtfc(Point position);
-
-    /// <summary>
-    /// Chip Haze自动聚焦
-    /// </summary>
-    /// <param name="position">位置</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<(double Ecs, double Score)> CalChipHazeAfRtfc(Point position);
-
-    /// <summary>
-    /// Chuck自动聚焦
-    /// </summary>
-    /// <param name="position">位置</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<(double Ecs, double Height)> ChuckAfRtfc(Point position);
-
     /// <summary>
     /// Nsc 诊断
     /// </summary>
     /// <returns>Ecs-Nsc traceBuffer</returns>
     SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis();
-
-    #endregion RTFC
 }

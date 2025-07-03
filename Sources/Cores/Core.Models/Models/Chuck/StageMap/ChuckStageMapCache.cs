@@ -178,6 +178,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private Point _threshold;
 
     #region Method
+
     public void GetParam()
     {
         RowNumber = IsDarkField == false ? BrightFieldRowNumber : DarkFieldRowNumber;
@@ -212,6 +213,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
             DarkFieldCalculateContainColumnMinCount = CalculateContainColumnMinCount;
         }
     }
+
     #endregion
 
     #region Validators

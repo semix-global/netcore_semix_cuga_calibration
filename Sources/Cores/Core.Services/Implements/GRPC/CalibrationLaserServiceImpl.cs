@@ -6,6 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Cuga.Agent.Facade.Service.MachineFacade;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Interface.Calibration;
@@ -24,7 +25,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICalibrationStageService calibrationStageService,
     ICalibrationConfigService calibrationConfigService,
-    CalibrationSetting calibrationSetting) : BaseService<ICgCalibLaserService, ICgDiagIlluminationOpticsService>, ICalibrationLaserService
+    CalibrationSetting calibrationSetting) : BaseService<ICgCalibLaserService, ICgDiagIlluminationOpticsService, ICgFacadeSwathService>, ICalibrationLaserService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -71,6 +72,16 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<double> LightLevelToLightCoefficient(double level)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<double> LightCoefficientToLightLevel(double coefficient)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SendOpticsMagType(OpticsMagTypeEnum yOpticsMagTypeEnum)
@@ -142,7 +153,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count)
+    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
@@ -210,7 +221,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable)
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
@@ -222,6 +233,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable)
@@ -446,5 +462,14 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
+    }
+
+    public SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient)
+    {
+        var sxExecuteRet = Invoke(() => Service3?.RTFC(new SxParamObj<SxPointD>(position.ToSxPointD())));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Height)>((sxExecuteRet.Anything.ECS, sxExecuteRet.Anything.Offset));
     }
 }

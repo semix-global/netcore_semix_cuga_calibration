@@ -15,6 +15,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
 {
     [ObservableProperty]
     private MicroscopeMagnificationEnum _lowMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+
     [ObservableProperty]
     private MicroscopeMagnificationEnum _highMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
 

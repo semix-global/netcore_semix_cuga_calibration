@@ -218,27 +218,6 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double Score)> CalChipDswAfRtfc(Point position)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
-    }
-
-    public SxExecuteRet<(double Ecs, double Score)> CalChipHazeAfRtfc(Point position)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
-    }
-
-    public SxExecuteRet<(double Ecs, double Height)> ChuckAfRtfc(Point position)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
-    }
-
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
     {
         return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));

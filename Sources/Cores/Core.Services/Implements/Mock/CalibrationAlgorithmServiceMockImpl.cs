@@ -256,7 +256,10 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
             return isSuccess;
         }
-        catch (Exception ex) { return false; }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)

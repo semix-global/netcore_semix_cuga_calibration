@@ -236,18 +236,17 @@ public sealed class AfViewModel(
         switch (calChipSiteModelEnum)
         {
             case CalChipSiteModelEnum.ChuckModel:
+                if (darkAutoFocusParam.IsEnableChuck)
                 {
-                    if (darkAutoFocusParam.IsEnableChuck)
-                    {
-                        SetSensorDarkFieldChuckStandardEcsValue(darkAutoFocusParam.ChuckEcsValue);
-                        SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.ChuckMotorValue);
-                    }
-                    else
-                    {
-                        ToggleBrightFieldEnable(false);
-                        SetSensorEcsValue(darkAutoFocusParam.ChuckEcsValue);
-                    }
+                    SetSensorDarkFieldChuckStandardEcsValue(darkAutoFocusParam.ChuckEcsValue);
+                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.ChuckMotorValue);
                 }
+                else
+                {
+                    ToggleBrightFieldEnable(false);
+                    SetSensorEcsValue(darkAutoFocusParam.ChuckEcsValue);
+                }
+
                 break;
 
             case CalChipSiteModelEnum.DswModel:
@@ -316,27 +315,6 @@ public sealed class AfViewModel(
             CalChipSiteModelEnum.ShinyWaferModel => darkAutoFocusParam.IsEnableShinyWafer,
             _ => throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null)
         };
-    }
-
-    public (double Ecs, double Score) CalChipDswAfRtfc(Point position)
-    {
-        var ret = calibrationAfService.CalChipDswAfRtfc(position);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (double Ecs, double Score) CalChipHazeAfRtfc(Point position)
-    {
-        var ret = calibrationAfService.CalChipHazeAfRtfc(position);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (double Ecs, double Height) ChuckAfRtfc(Point position)
-    {
-        var ret = calibrationAfService.ChuckAfRtfc(position);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public (Point[] traceBuffer, double k) NscDiagnosis(double afEcs, CalChipSiteModelEnum calChipSiteModelEnum)

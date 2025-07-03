@@ -10,10 +10,8 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Core.Models.Models.Setting;
 
-
 #if NET
 using Core.Services.Implements.GRPC;
-
 #else
 using Core.Services.Implements.WCF;
 
@@ -71,6 +69,16 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
         return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+    }
+
+    public SxExecuteRet<double> LightLevelToLightCoefficient(double level)
+    {
+        return SxExecuteRetHelper.CreateSuccess(level / 200);
+    }
+
+    public SxExecuteRet<double> LightCoefficientToLightLevel(double coefficient)
+    {
+        return SxExecuteRetHelper.CreateSuccess(coefficient * 200);
     }
 
     public SxExecuteRet<DarkFieldPrescanDto> ReadPrescanByFile(string filePath, double coefficient)
@@ -146,7 +154,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList());
     }
 
-    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int pmtId, int channelId, int count)
+    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -243,7 +251,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable)
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -251,6 +259,13 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -353,6 +368,14 @@ public sealed class CalibrationLaserServiceMockImpl(
 
             result.Add(temp);
         }
+
         return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
     }
 }
