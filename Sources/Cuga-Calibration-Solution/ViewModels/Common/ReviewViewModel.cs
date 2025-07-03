@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
@@ -218,7 +217,7 @@ public sealed partial class ReviewViewModel(
                 logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Read Template Failed!"), logGuid.Value.LoggingHtml());
             else logger.LogError("{@Name}: Read Template Failed!", nameof(ReviewViewModel));
 
-            throw new AlgorithmException("Read Template Failed");
+            return false;
         }
 
         try
@@ -252,7 +251,7 @@ public sealed partial class ReviewViewModel(
                     }), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Error: Try Math Template To Offset Failed", nameof(ReviewViewModel));
 
-                throw new AlgorithmException("Template Match To Offset Failed");
+                return false;
             }
 
             var actualOffset = new Point(offset.X * size.PixelSize.Width, offset.Y * size.PixelSize.Height);
@@ -297,8 +296,6 @@ public sealed partial class ReviewViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Clean Template Failed."), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Clean Template Failed", nameof(ReviewViewModel));
-
-                ThrowHelper.ThrowInvalidOperationException("Try Clean Template Failed!", new AlgorithmException());
             }
         }
     }

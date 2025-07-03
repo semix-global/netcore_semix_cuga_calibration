@@ -327,11 +327,6 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                     return;
                 }
 
-                _dialogWindowProvider.TryShowDialog("Do you need to back up to the default path?", out DialogResultEnum dialogResultEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-                if (dialogResultEnum == DialogResultEnum.Yes)
-                    // 更新db架构后备份现有配方中的db到默认db路径，确认设备都备份后可以删除该操作
-                    System.IO.File.Copy(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource, Path.Combine(Path.GetDirectoryName(_options.Value.NosqlDbDataSource)!, "Cache_Backup.db"), overwrite: true);
-
                 if (_liteDatabaseProvider.ModifyLiteDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource) == false)
                 {
                     _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);

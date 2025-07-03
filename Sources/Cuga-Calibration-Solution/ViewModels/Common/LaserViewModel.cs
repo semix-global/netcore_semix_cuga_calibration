@@ -657,7 +657,7 @@ public sealed class LaserViewModel(
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Read Template Failed!"), logGuid.Value.LoggingHtml());
             else logger.LogError("{@Name}: Read Template Failed!", nameof(ReviewViewModel));
 
-            throw new AlgorithmException("Read Template Failed!");
+            return false;
         }
 
         try
@@ -705,7 +705,7 @@ public sealed class LaserViewModel(
                     }), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Error: Try Math Template To Offset Failed", nameof(ReviewViewModel));
 
-                throw new AlgorithmException("Try Template Match To Offset Error");
+                return false;
             }
 
             if (saveResultImageFileDirectory is not null)
@@ -714,8 +714,6 @@ public sealed class LaserViewModel(
                 HalconHelper.Save(darkFieldImageDto.Image, originImageFilePath);
                 File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(originImageFilePath), darkFieldImageDto.Bytes);
             }
-
-            //if (isForward == false) offset.X = -offset.X;
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
             {
@@ -775,8 +773,6 @@ public sealed class LaserViewModel(
             {
                 if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Clean Template Failed."), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Clean Template Failed", nameof(ReviewViewModel));
-
-                ThrowHelper.ThrowInvalidOperationException("Try Clean Template Failed!", new AlgorithmException());
             }
         }
     }
@@ -854,7 +850,7 @@ public sealed class LaserViewModel(
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Read Template Failed!"), logGuid.Value.LoggingHtml());
             else logger.LogError("{@Name}: Read Template Failed!", nameof(ReviewViewModel));
 
-            throw new AlgorithmException("Read Template Failed!");
+            return false;
         }
 
         try
@@ -900,7 +896,7 @@ public sealed class LaserViewModel(
                     }), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Error: Try Math Template To Offset Failed", nameof(ReviewViewModel));
 
-                throw new AlgorithmException("Try Template Match To Offset Error");
+                return false;
             }
 
             if (saveResultImageFileDirectory is not null)
@@ -969,7 +965,6 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Clean Template Failed."), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Clean Template Failed", nameof(ReviewViewModel));
 
-                ThrowHelper.ThrowInvalidOperationException("Try Clean Template Failed!", new AlgorithmException());
             }
         }
     }
