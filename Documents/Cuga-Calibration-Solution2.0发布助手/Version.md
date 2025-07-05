@@ -116,7 +116,7 @@
 >   2.   自动化校准：ADS Y gain、Laser Pixel Size X、Chuck Prealigner
 >   3.   设置：初始化报警自检
 
-## 2.1.0.0523
+## 2.1.0.0705
 
 >   1.   诊断：ADS 手动
 >   2.   自动化校准：stagemap

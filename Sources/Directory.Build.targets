@@ -1,3 +1,5 @@
 <Project>
 
+    <Import Project="$(BuildToolsDirectory)\Common.Build.targets" />
+
 </Project>

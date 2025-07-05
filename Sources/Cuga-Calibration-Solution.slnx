@@ -6,6 +6,7 @@
     </Folder>
     <Folder Name="/00. Solution Items/00. Build/">
         <File Path="../Build/Common.Build.props" />
+        <File Path="../Build/Common.Build.targets" />
         <File Path="../Build/Common.Packages.props" />
     </Folder>
     <Folder Name="/00. Solution Items/01. Format/">
