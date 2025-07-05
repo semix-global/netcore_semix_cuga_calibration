@@ -17,10 +17,13 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
+using Net.Utilities.Models.Enums.Loggings;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using SourceGenerator.AssemblyMetadata;
 using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -345,118 +348,158 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         {
             lockToken = await semaphore.WaitAsync(int.MaxValue, cancellationToken);
 
-            Logger.LogHtmlInformation($"Pmt ID: {item.PmtId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+            var htmlElementList = new List<HtmlHeader>();
 
-            var height = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
+            Logger.LogInformation("Pmt ID: {ItemPmtId}", item.PmtId);
 
-            // 从1开始
-            var baseIndex = (height + 1) / 2d;
-
-            var count = 1;
-            while (true)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                ch1Delay.AgcDelay = item.Channel1AgcDelay;
-                ch2Delay.AgcDelay = item.Channel2AgcDelay;
-                ch3Delay.AgcDelay = item.Channel3AgcDelay;
-
-                await LaserViewModel.ToggleEnableAutoGainAsync(false, item.PmtId);
-                await LaserViewModel.ToggleEnableMarkModeAsync(false, item.PmtId);
-
-                LaserViewModel.SetPmtDelayList([ch1Delay, ch2Delay, ch3Delay]);
-
-                await LaserViewModel.ToggleEnableAutoGainAsync(true, item.PmtId);
-                await LaserViewModel.ToggleEnableMarkModeAsync(true, item.PmtId);
-
-                await Task.Delay(3000, cancellationToken);
-
-                var result = await LaserViewModel.GetPmtSenseDataListAsync(Cache.CatchCount, item.PmtId);
-                item.Channel1SenseData = result[0];
-                item.Channel2SenseData = result[1];
-                item.Channel3SenseData = result[2];
-
+                var height = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
                 // 从1开始
-                var channel1Index = item.Channel1SenseData.Select(GetMiddleIndex).Average() + 1;
-                var channel2Index = item.Channel2SenseData.Select(GetMiddleIndex).Average() + 1;
-                var channel3Index = item.Channel3SenseData.Select(GetMiddleIndex).Average() + 1;
+                var baseIndex = (height + 1) / 2d;
 
-                item.Channel1AgcOffset = baseIndex - channel1Index;
-                item.Channel2AgcOffset = baseIndex - channel2Index;
-                item.Channel3AgcOffset = baseIndex - channel3Index;
-
-                var channel1IsOk = Math.Abs(item.Channel1AgcOffset) <= Cache.Threshold;
-                var channel2IsOk = Math.Abs(item.Channel2AgcOffset) <= Cache.Threshold;
-                var channel3IsOk = Math.Abs(item.Channel3AgcOffset) <= Cache.Threshold;
-                var isOk = channel1IsOk && channel2IsOk && channel3IsOk;
-
-                var htmlBullet = new HtmlBullet(new
+                var count = 1;
+                while (true)
                 {
-                    item.PmtId,
-                    ch1DelayCurrentPmtDelay = ch1DelayClone.PmtDelay,
-                    ch1DelayCurrentSenseDelay = ch1DelayClone.SenseDelay,
-                    ch1DelayOldAgcDelay = ch1DelayClone.AgcDelay,
-                    ch1DelayCurrentAgcDelay = item.Channel1AgcDelay,
-                    ch2DelayCurrentPmtDelay = ch2DelayClone.PmtDelay,
-                    ch2DelayCurrentSenseDelay = ch2DelayClone.SenseDelay,
-                    ch2DelayOldAgcDelay = ch2DelayClone.AgcDelay,
-                    ch2DelayCurrentAgcDelay = item.Channel2AgcDelay,
-                    ch3DelayCurrentPmtDelay = ch3DelayClone.PmtDelay,
-                    ch3DelayCurrentSenseDelay = ch3DelayClone.SenseDelay,
-                    ch3DelayOldAgcDelay = ch3DelayClone.AgcDelay,
-                    ch3DelayCurrentAgcDelay = item.Channel3AgcDelay,
-                    baseIndex,
-                    channel1Index,
-                    channel2Index,
-                    channel3Index,
-                    item.Channel1AgcOffset,
-                    channel1IsOk,
-                    item.Channel2AgcOffset,
-                    channel2IsOk,
-                    item.Channel3AgcOffset,
-                    channel3IsOk,
-                    Channel1SenseData = new HtmlPlot2DLinesChart([.. item.Channel1SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 1 Sense Data"),
-                    Channel2SenseData = new HtmlPlot2DLinesChart([.. item.Channel2SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 2 Sense Data"),
-                    Channel3SenseData = new HtmlPlot2DLinesChart([.. item.Channel3SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 3 Sense Data")
-                });
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                if (isReview)
-                {
+                    ch1Delay.AgcDelay = item.Channel1AgcDelay;
+                    ch2Delay.AgcDelay = item.Channel2AgcDelay;
+                    ch3Delay.AgcDelay = item.Channel3AgcDelay;
+
+                    await LaserViewModel.ToggleEnableAutoGainAsync(false, item.PmtId);
+                    await LaserViewModel.ToggleEnableMarkModeAsync(false, item.PmtId);
+
+                    LaserViewModel.SetPmtDelayList([ch1Delay, ch2Delay, ch3Delay]);
+
+                    await LaserViewModel.ToggleEnableAutoGainAsync(true, item.PmtId);
+                    await LaserViewModel.ToggleEnableMarkModeAsync(true, item.PmtId);
+
+                    await Task.Delay(3000, cancellationToken);
+
+                    var result = await LaserViewModel.GetPmtSenseDataListAsync(Cache.CatchCount, item.PmtId);
+                    item.Channel1SenseData = result[0];
+                    item.Channel2SenseData = result[1];
+                    item.Channel3SenseData = result[2];
+
+                    // 从1开始
+                    var channel1Index = item.Channel1SenseData.Select(GetMiddleIndex).Average() + 1;
+                    var channel2Index = item.Channel2SenseData.Select(GetMiddleIndex).Average() + 1;
+                    var channel3Index = item.Channel3SenseData.Select(GetMiddleIndex).Average() + 1;
+
+                    item.Channel1AgcOffset = baseIndex - channel1Index;
+                    item.Channel2AgcOffset = baseIndex - channel2Index;
+                    item.Channel3AgcOffset = baseIndex - channel3Index;
+
+                    var channel1IsOk = Math.Abs(item.Channel1AgcOffset) <= Cache.Threshold;
+                    var channel2IsOk = Math.Abs(item.Channel2AgcOffset) <= Cache.Threshold;
+                    var channel3IsOk = Math.Abs(item.Channel3AgcOffset) <= Cache.Threshold;
+                    var isOk = channel1IsOk && channel2IsOk && channel3IsOk;
+
+                    var htmlLog = new HtmlLog(
+                        isOk ? LogLevelEnum.Info : LogLevelEnum.Error,
+                        DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat),
+                        CugaCalibrationCoreWcfAssemblyMetadata.Version,
+                        [
+                            new HtmlBullet(new
+                            {
+                                item.PmtId,
+                                ch1DelayCurrentPmtDelay = ch1DelayClone.PmtDelay,
+                                ch1DelayCurrentSenseDelay = ch1DelayClone.SenseDelay,
+                                ch1DelayOldAgcDelay = ch1DelayClone.AgcDelay,
+                                ch1DelayCurrentAgcDelay = item.Channel1AgcDelay,
+                                ch2DelayCurrentPmtDelay = ch2DelayClone.PmtDelay,
+                                ch2DelayCurrentSenseDelay = ch2DelayClone.SenseDelay,
+                                ch2DelayOldAgcDelay = ch2DelayClone.AgcDelay,
+                                ch2DelayCurrentAgcDelay = item.Channel2AgcDelay,
+                                ch3DelayCurrentPmtDelay = ch3DelayClone.PmtDelay,
+                                ch3DelayCurrentSenseDelay = ch3DelayClone.SenseDelay,
+                                ch3DelayOldAgcDelay = ch3DelayClone.AgcDelay,
+                                ch3DelayCurrentAgcDelay = item.Channel3AgcDelay,
+                                baseIndex,
+                                channel1Index,
+                                channel2Index,
+                                channel3Index,
+                                item.Channel1AgcOffset,
+                                channel1IsOk,
+                                item.Channel2AgcOffset,
+                                channel2IsOk,
+                                item.Channel3AgcOffset,
+                                channel3IsOk,
+                                Channel1SenseData = new HtmlPlot2DLinesChart([.. item.Channel1SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 1 Sense Data"),
+                                Channel2SenseData = new HtmlPlot2DLinesChart([.. item.Channel2SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 2 Sense Data"),
+                                Channel3SenseData = new HtmlPlot2DLinesChart([.. item.Channel3SenseData.Select((t, i) => (i.ToString(), t.ToPoints()))], "Channel 3 Sense Data")
+                            })
+                        ]);
+
+                    if (isReview)
+                    {
+                        var endHeader = new HtmlHeader(
+                            isOk ? "OK" : "Failed",
+                            HtmlHeaderLevelEnum.Header5,
+                            htmlLog.LogLevelEnum,
+                            htmlLog);
+                        htmlElementList.Add(endHeader);
+
+                        if (isOk)
+                        {
+                            Logger.LogInformation($"{{{nameof(endHeader)}}}", endHeader.ToViewString());
+                        }
+                        else
+                        {
+                            Logger.LogError($"{{{nameof(endHeader)}}}", endHeader.ToViewString());
+                        }
+
+                        return isOk;
+                    }
+
+                    if (channel1IsOk == false)
+                    {
+                        item.Channel1AgcDelay += item.Channel1AgcOffset;
+                        if (item.Channel1AgcDelay < 0) item.Channel1AgcDelay += height;
+                    }
+
+                    if (channel2IsOk == false)
+                    {
+                        item.Channel2AgcDelay += item.Channel2AgcOffset;
+                        if (item.Channel2AgcDelay < 0) item.Channel2AgcDelay += height;
+                    }
+
+                    if (channel3IsOk == false)
+                    {
+                        item.Channel3AgcDelay += item.Channel3AgcOffset;
+                        if (item.Channel3AgcDelay < 0) item.Channel3AgcDelay += height;
+                    }
+
                     if (isOk)
-                        Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                    else
-                        Logger.LogHtmlError("Failed", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    {
+                        var endHeader = new HtmlHeader(
+                            $"time: {count} OK",
+                            HtmlHeaderLevelEnum.Header5,
+                            htmlLog.LogLevelEnum,
+                            htmlLog);
+                        htmlElementList.Add(endHeader);
 
-                    return isOk;
+                        Logger.LogInformation($"{{{nameof(endHeader)}}}", endHeader.ToViewString());
+
+                        return true;
+                    }
+
+                    var elementHtmlHeader = new HtmlHeader(
+                        $"time: {count}",
+                        HtmlHeaderLevelEnum.Header5,
+                        htmlLog.LogLevelEnum,
+                        htmlLog);
+                    htmlElementList.Add(elementHtmlHeader);
+
+                    Logger.LogInformation($"{{{nameof(elementHtmlHeader)}}}", elementHtmlHeader.ToViewString());
+
+                    if (++count > Cache.RetryCount) ThrowHelper.ThrowInvalidOperationException("Pmt Delay Retry Limit Exceeded");
                 }
-
-                if (channel1IsOk == false)
-                {
-                    item.Channel1AgcDelay += item.Channel1AgcOffset;
-                    if (item.Channel1AgcDelay < 0) item.Channel1AgcDelay += height;
-                }
-
-                if (channel2IsOk == false)
-                {
-                    item.Channel2AgcDelay += item.Channel2AgcOffset;
-                    if (item.Channel2AgcDelay < 0) item.Channel2AgcDelay += height;
-                }
-
-                if (channel3IsOk == false)
-                {
-                    item.Channel3AgcDelay += item.Channel3AgcOffset;
-                    if (item.Channel3AgcDelay < 0) item.Channel3AgcDelay += height;
-                }
-
-                if (isOk)
-                {
-                    Logger.LogHtmlInformation($"time: {count} OK", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                    return true;
-                }
-
-                Logger.LogHtmlInformation($"time: {count}", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-
-                if (++count > Cache.RetryCount) ThrowHelper.ThrowInvalidOperationException("Pmt Delay Retry Limit Exceeded");
+            }
+            finally
+            {
+                Logger.LogHtmlInformation($"Pmt ID: {item.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. htmlElementList]), HtmlLogUniqueId.LoggingHtml());
             }
         }
         finally

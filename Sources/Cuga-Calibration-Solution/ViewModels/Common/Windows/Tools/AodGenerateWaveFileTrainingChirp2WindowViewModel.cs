@@ -358,7 +358,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         channelId: ChannelId);
 
                     var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}" +
-                                   $"_{item.DeltaKs}" +
+                                   $"_{(item.DeltaKs is null ? string.Empty : string.Join(",", item.DeltaKs))}" +
                                    $".jpg";
                     filePath = FileHelper.GetEnsureLongPathSupport(filePath);
 

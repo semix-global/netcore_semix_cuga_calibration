@@ -168,11 +168,11 @@ public sealed class LaserViewModel(
 
     public async Task<List<List<List<double>>>> GetPmtSenseDataListAsync(int count, int pmtId)
     {
-        var result = new List<List<List<double>>>(CalibrationConstantsHelper.ChannelIds.Length);
+        var result = new List<List<double>>[CalibrationConstantsHelper.ChannelIds.Length];
 
         await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select((channelId, index) => Task.Run(() => result[index] = GetPmtSenseDataList(count, pmtId, channelId))));
 
-        return result;
+        return [.. result];
     }
 
     public List<List<double>> GetPmtSenseDataList(int count, int pmtId, int channelId)
@@ -964,7 +964,6 @@ public sealed class LaserViewModel(
             {
                 if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Clean Template Failed."), logGuid.Value.LoggingHtml());
                 else logger.LogError("{@Name}: Clean Template Failed", nameof(ReviewViewModel));
-
             }
         }
     }

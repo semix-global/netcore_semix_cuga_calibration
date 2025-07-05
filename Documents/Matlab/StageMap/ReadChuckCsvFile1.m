@@ -8,8 +8,8 @@ function [xArray, yArray] = ReadChuckCsvFile1(file)
         error('Failed to open file.');
     end
 
-    data_rows1=7;
-    data_cols1=7;
+    data_rows1=17;
+    data_cols1=21;
     data1= textscan(fid, repmat('%s',[1,data_cols1]),data_rows1,'delimiter', ',');
     fclose(fid);
     
