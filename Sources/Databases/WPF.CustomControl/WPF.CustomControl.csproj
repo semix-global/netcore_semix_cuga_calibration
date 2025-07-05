@@ -11,7 +11,17 @@
     </ItemGroup>
 
     <ItemGroup>
-		<ProjectReference Include="..\..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
-	</ItemGroup>
+        <PackageReference Include="SkiaSharp.HarfBuzz" />
+        <PackageReference Include="SkiaSharp.NativeAssets.macOS" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+        <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" />
+        <PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" />
+        <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
+    </ItemGroup>
 
 </Project>
