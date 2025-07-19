@@ -324,6 +324,42 @@
                                             </DataTemplate>
                                         </hc:ComboBox.ItemTemplate>
                                     </hc:ComboBox>
+                                    <Border Margin="-5,0"
+                                            Padding="5,2"
+                                            Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <hc:NumericUpDown hc:InfoElement.Title="X Pixel Size(um): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="150"
+                                                              Minimum="0"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding XPixelSize}" />
+                                            <hc:NumericUpDown hc:InfoElement.Title="Y Pixel Size(um): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="150"
+                                                              Minimum="0"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding YPixelSize}" />
+                                            <hc:NumericUpDown hc:InfoElement.Title="Pot Diameter(um): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="150"
+                                                              Minimum="0"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding PotDiameter}" />
+                                            <hc:NumericUpDown hc:InfoElement.Title="X Point Diameter(um): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="150"
+                                                              Minimum="0"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding XPointDiameter}" />
+                                            <hc:NumericUpDown hc:InfoElement.Title="Y Point Diameter(um): "
+                                                              hc:InfoElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="150"
+                                                              Minimum="0"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding YPointDiameter}" />
+                                        </hc:UniformSpacingPanel>
+                                    </Border>
                                     <hc:ComboBox HorizontalAlignment="Left"
                                                  hc:InfoElement.Title="Prescan Coefficient: "
                                                  hc:InfoElement.TitlePlacement="Left"

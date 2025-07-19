@@ -30,9 +30,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         }, false);
     }
 
-    public SxExecuteRet<bool> ToggleBrightFieldEnable(bool enable)
+    public SxExecuteRet<bool> ToggleBrightFieldEnable(bool isEnable)
     {
-        var sxExecuteRet = enable ? Invoke(() => Service!.OpenReviewMode()) : Invoke(() => Service!.OpenEcsTestMode());
+        var sxExecuteRet = isEnable ? Invoke(() => Service!.OpenReviewMode()) : Invoke(() => Service!.OpenEcsTestMode());
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -57,6 +57,16 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(bool IsEnable, CalChipSiteModelEnum CalChipSiteModelEnum)> GetBrightFieldStatus()
+    {
+        Thread.Sleep(120);
+        var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<(bool IsReview, CalChipSiteModelEnum CalChipSiteModelEnum)>(sxExecuteRet.Msg, default)
+            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == AutofocusMode.Review, CalChipSiteModelEnum.ChuckModel));
+    }
+
     public SxExecuteRet<double> GetSensorEcsValue()
     {
         Thread.Sleep(120);
@@ -75,16 +85,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0.0d)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(sxExecuteRet.Anything.ECSAVG));
-    }
-
-    public SxExecuteRet<(bool IsReview, double CurrentEcsValue)> GetSensorIsReviewValue()
-    {
-        Thread.Sleep(120);
-        var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(bool IsReview, double EcsValue)>(sxExecuteRet.Msg, default)
-            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == AutofocusMode.Review, Convert.ToDouble(sxExecuteRet.Anything.Ecs)));
     }
 
     public SxExecuteRet<bool> SetSensorEcsValue(double ecs)

@@ -32,10 +32,12 @@ public sealed class AfViewModel(
     {
         if (isEnable)
         {
+            var (_, calChipSiteModelEnum) = GetBrightFieldStatus();
+
             var isChuckLoadedWaferRet = calibrationEFEMService.IsChuckLoadedWafer();
             if (isChuckLoadedWaferRet.IsSuccess == false) throw new CugaException(isChuckLoadedWaferRet.ErrorMsg);
 
-            if (isChuckLoadedWaferRet.Anything == false)
+            if (isChuckLoadedWaferRet.Anything == false && calChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel)
             {
                 logger.LogWarning("Chuck hasn't loaded a wafer. so toggle ecs model!");
                 isEnable = false;
@@ -61,6 +63,13 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public (bool IsReview, CalChipSiteModelEnum CalChipSiteModelEnum) GetBrightFieldStatus()
+    {
+        var ret = calibrationAfService.GetBrightFieldStatus();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public double GetSensorEcsValue()
     {
         var ret = calibrationAfService.GetSensorEcsValue();
@@ -71,13 +80,6 @@ public sealed class AfViewModel(
     public double GetSensorAverageEcsValue()
     {
         var ret = calibrationAfService.GetSensorAverageEcsValue();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (bool IsReview, double CurrentEcsValue) GetSensorIsReviewValue()
-    {
-        var ret = calibrationAfService.GetSensorIsReviewValue();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

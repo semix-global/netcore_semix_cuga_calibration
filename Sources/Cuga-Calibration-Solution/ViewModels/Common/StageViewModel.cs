@@ -185,7 +185,7 @@ public sealed partial class StageViewModel(
 
     public void SetCalChipBrightFieldAbsoluteStageXy(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
     {
-        var (isReview, _) = afViewModel.GetSensorIsReviewValue();
+        var (isReview, _) = afViewModel.GetBrightFieldStatus();
         if (isReview == false)
         {
             afViewModel.ToggleBrightFieldEnable(false);

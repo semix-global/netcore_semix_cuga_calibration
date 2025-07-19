@@ -14,6 +14,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 {
     private static readonly Random Random = new();
 
+    private CalChipSiteModelEnum _calChipSiteModelEnum;
     private double _ecsValue;
     private double _currentAValue;
     private double _currentBValue;
@@ -27,7 +28,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleBrightFieldEnable(bool enable)
+    public SxExecuteRet<bool> ToggleBrightFieldEnable(bool isEnable)
     {
         Thread.Sleep(100);
 
@@ -44,8 +45,16 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     public SxExecuteRet<bool> ToggleCalChipSiteModelEnum(CalChipSiteModelEnum calChipSiteModelEnum)
     {
         Thread.Sleep(100);
+        _calChipSiteModelEnum = calChipSiteModelEnum;
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(bool IsEnable, CalChipSiteModelEnum CalChipSiteModelEnum)> GetBrightFieldStatus()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((true, _calChipSiteModelEnum));
     }
 
     public SxExecuteRet<double> GetSensorEcsValue()
@@ -62,13 +71,6 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         _ecsValue = Random.NextDouble() * 1000;
 
         return SxExecuteRetHelper.CreateSuccess(_ecsValue);
-    }
-
-    public SxExecuteRet<(bool IsReview, double CurrentEcsValue)> GetSensorIsReviewValue()
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess((true, _ecsValue));
     }
 
     public SxExecuteRet<bool> SetSensorEcsValue(double ecs)
