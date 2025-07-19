@@ -43,6 +43,12 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     private int _endpointSampleCount;
 
     [ObservableProperty]
+    private double _offsetFrequency;
+
+    [ObservableProperty]
+    private double _offsetFrequencyPeriodMultiple;
+
+    [ObservableProperty]
     private double _sincCoefficient;
 
     [ObservableProperty]

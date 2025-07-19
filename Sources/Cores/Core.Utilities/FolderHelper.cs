@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Core.Utilities;
 
@@ -53,7 +53,7 @@ public static class FolderHelper
         var newFilePath = Path.Combine(targetDirectory, newFileName);
 
         // 冲突检测
-        if (System.IO.File.Exists(newFilePath))
+        if (File.Exists(newFilePath))
             throw new InvalidOperationException("The destination file already exists!");
 
         return newFilePath;

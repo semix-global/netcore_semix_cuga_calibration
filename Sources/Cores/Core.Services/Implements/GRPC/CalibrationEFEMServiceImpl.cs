@@ -30,6 +30,11 @@ public sealed class CalibrationEFEMServiceImpl : BaseService<ICgCalibMWHService>
         });
     }
 
+    public SxExecuteRet<bool> IsChuckLoadedWafer()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> LoadFoup(EFEMStationEnum stationEnum)
     {
         var sxExecuteRetState = Invoke(() => Service?.GetLoadPortSTA(new SxParamObj<ESxStation>(stationEnum.ToESxStation())));

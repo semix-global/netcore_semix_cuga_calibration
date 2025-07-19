@@ -153,36 +153,132 @@ public interface ICalibrationLaserService
 
     #endregion Chirp AOD
 
+    #region 任意波形发生器Arbitrary Waveform Generator
+
+    /// <summary>
+    /// 切换扫描模式
+    /// </summary>
+    /// <param name="opticsAodWorkingModeEnum">扫描模式</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum);
+
+    /// <summary>
+    /// 切换偏振
+    /// </summary>
+    /// <param name="opticsPolarizationTypeEnum">偏振</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum);
+
+    /// <summary>
+    /// 设置AOD延迟的值, 并切换Mag
+    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="prescanAodDelay">Prescan AOD延迟</param>
+    /// <param name="chirpAodDelay">Chirp AOD延迟</param>
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay);
+
+    #endregion 任意波形发生器Arbitrary Waveform Generator
+
     #region 暗场相机PMT CIB
 
-    /// <summary>
-    /// 获取可以使用的PMT ID列表
-    /// </summary>
-    /// <returns>PMT ID列表</returns>
-    SxExecuteRet<List<int>> GetUsedPmtIdList();
+    #region Control
 
     /// <summary>
-    /// 读取任意PMT Channel 数据
+    /// 切换自动增益<br/>
+    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
+    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
+    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
     /// </summary>
+    /// <param name="enable">是否自动增益</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId);
+
+    /// <summary>
+    /// 切换Log反差模式<br/>
+    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
+    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
+    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="enable">是否Log反差模式</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId);
+
+    /// <summary>
+    /// 切换Mark模式<br/>
+    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
+    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
+    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="enable">是否Mark模式</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId);
+
+    /// <summary>
+    /// 切换所有PMT L0K<br/>
+    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
+    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
+    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="enable">是否自动L0k</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId);
+
+    /// <summary>
+    /// 设置增益<br/>
+    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
+    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
+    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="gain">增益</param>
+    /// <param name="pmtId">PMT ID</param>
+    /// <param name="channelId">Channel ID</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId);
+
+    #endregion Control
+
+    #region CIB 数据
+
+    /// <summary>
+    /// 获取PMT ID列表
+    /// </summary>
+    /// <returns>PMT ID列表</returns>
+    SxExecuteRet<List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>> GetPmtConfigList();
+
+    /// <summary>
+    /// 读取任意PMT Channel 数据, 不支持群发
+    /// </summary>
+    /// <param name="count">同一个PMT Sense Channel数据的数量</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
     /// <returns>PMT Channel 数据</returns>
-    SxExecuteRet<List<double>> GetPmtDataList(int pmtId, int channelId);
+    SxExecuteRet<List<List<double>>> GetPmtDataList(int count, int pmtId, int channelId);
 
     /// <summary>
-    /// 获取PMT数值
+    /// 获取PMT数值, 不支持群发
     /// </summary>
     /// <returns>获取PMT数值</returns>
     SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList();
 
     /// <summary>
-    /// 读取任意PMT Sense Channel 数据
+    /// 读取任意PMT Sense Channel 数据, 不支持群发
     /// </summary>
     /// <param name="count">同一个PMT Sense Channel数据的数量</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
     /// <returns>PMT Sense Channel 多次数据</returns>
     SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId);
+
+    #endregion CIB 数据
 
     /// <summary>
     /// 获取第1到15号光斑的CH1,CH2,CH3的CIB采样值
@@ -216,78 +312,26 @@ public interface ICalibrationLaserService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId);
 
-    /// <summary>
-    /// 切换偏振
-    /// </summary>
-    /// <param name="opticsPolarizationTypeEnum">偏振</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum);
-
-    /// <summary>
-    /// 切换扫描模式
-    /// </summary>
-    /// <param name="opticsAodWorkingModeEnum">扫描模式</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum);
-
-    /// <summary>
-    /// 设置AOD延迟的值, 并切换Mag
-    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="prescanAodDelay">Prescan AOD延迟</param>
-    /// <param name="chirpAodDelay">Chirp AOD延迟</param>
-    /// </summary>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay);
-
-    /// <summary>
-    /// 切换Mark模式
-    /// </summary>
-    /// <param name="enable">是否Mark模式</param>
-    /// <param name="pmtId">PMT ID</param>
-    /// <param name="channelId">Channel ID</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId);
-
-    /// <summary>
-    /// 切换所有PMT自动增益
-    /// </summary>
-    /// <param name="enable">是否自动增益</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableAutoGain(bool enable);
-
-    /// <summary>
-    /// 切换自动增益
-    /// </summary>
-    /// <param name="enable">是否自动增益</param>
-    /// <param name="pmtId">PMT ID</param>
-    /// <param name="channelId">Channel ID</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId);
-
-    /// <summary>
-    /// 切换所有PMT L0K
-    /// </summary>
-    /// <param name="enable">是否自动L0k</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableL0K(bool enable);
-
-    /// <summary>
-    /// 设置增益
-    /// </summary>
-    /// <param name="gain">增益</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetGain(double gain);
-
     #endregion 暗场相机PMT CIB
 
     #region 暗场采图
 
     /// <summary>
+    /// 自动聚焦
+    /// </summary>
+    /// <param name="position">位置</param>
+    /// <param name="offset">af电机位置</param>
+    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<(double Ecs, double Offset)> RuntimeAfCalibration(Point position, double offset, double coefficient);
+
+    /// <summary>
     /// 获取暗场图片的Y像素高度
     /// </summary>
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
     /// <returns>图片的Y像素高度</returns>
-    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum);
+    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight);
 
     /// <summary>
     /// 获取暗场图片列表
@@ -329,7 +373,7 @@ public interface ICalibrationLaserService
     /// <param name="customPrescanAod">(是否自定义PrescanAOD波形,波形功率系数(1表示100%, 0表示0%))</param>
     /// <param name="isCustomChirpAod">是否自定义ChirpAOD波形</param>
     /// <returns>暗场图片列表</returns>
-    SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -366,15 +410,6 @@ public interface ICalibrationLaserService
         bool isAutoFocus,
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod);
-
-    /// <summary>
-    /// 自动聚焦
-    /// </summary>
-    /// <param name="position">位置</param>
-    /// <param name="offset">af电机位置</param>
-    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient);
 
     #endregion 暗场采图
 }

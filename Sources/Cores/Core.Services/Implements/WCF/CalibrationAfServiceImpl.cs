@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
@@ -49,7 +50,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> ToggleCalChipSiteModelEnum(CalChipSiteModelEnum calChipSiteModelEnum)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetCalChip(calChipSiteModelEnum.ToCgCalChipModel()));
+        var sxExecuteRet = Invoke(() => Service!.SetCalChip(calChipSiteModelEnum.ToCgCalChipType()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -231,30 +232,30 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> SetSensorBrightFieldCalChipCenterMachinePositionValue(CalChipSiteModelEnum calChipSiteModelEnum, Point position)
     {
-        switch (calChipSiteModelEnum.ToCgCalChipModel())
+        switch (calChipSiteModelEnum)
         {
-            case 1:
+            case CalChipSiteModelEnum.UndefinedModel:
                 var sxExecuteRet1 = Invoke(() => Service!.SetAFBFCalChipLULoaction(position.ToCgPoint()));
 
                 return sxExecuteRet1.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet1.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 2:
+            case CalChipSiteModelEnum.DswModel:
                 var sxExecuteRet2 = Invoke(() => Service!.SetAFBFCalChipRULoaction(position.ToCgPoint()));
 
                 return sxExecuteRet2.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet2.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 3:
+            case CalChipSiteModelEnum.ShinyWaferModel:
                 var sxExecuteRet3 = Invoke(() => Service!.SetAFBFCalChipRDLoaction(position.ToCgPoint()));
 
                 return sxExecuteRet3.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet3.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 4:
+            case CalChipSiteModelEnum.HazeModel:
                 var sxExecuteRet4 = Invoke(() => Service!.SetAFBFCalChipLDLoaction(position.ToCgPoint()));
 
                 return sxExecuteRet4.IsSuccess == false
@@ -262,36 +263,36 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
                     : SxExecuteRetHelper.CreateSuccess(true);
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null);
+                return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(calChipSiteModelEnum));
         }
     }
 
     public SxExecuteRet<bool> SetSensorBrightFieldCalChipStandardEcsValue(CalChipSiteModelEnum calChipSiteModelEnum, double standardEcsValue)
     {
-        switch (calChipSiteModelEnum.ToCgCalChipModel())
+        switch (calChipSiteModelEnum)
         {
-            case 1:
+            case CalChipSiteModelEnum.UndefinedModel:
                 var sxExecuteRet1 = Invoke(() => Service!.SetAFBFCalChipLUHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet1.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet1.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 2:
+            case CalChipSiteModelEnum.DswModel:
                 var sxExecuteRet2 = Invoke(() => Service!.SetAFBFCalChipRUHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet2.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet2.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 3:
+            case CalChipSiteModelEnum.ShinyWaferModel:
                 var sxExecuteRet3 = Invoke(() => Service!.SetAFBFCalChipRDHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet3.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet3.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 4:
+            case CalChipSiteModelEnum.HazeModel:
                 var sxExecuteRet4 = Invoke(() => Service!.SetAFBFCalChipLDHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet4.IsSuccess == false
@@ -299,7 +300,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
                     : SxExecuteRetHelper.CreateSuccess(true);
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null);
+                return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(calChipSiteModelEnum));
         }
     }
 
@@ -314,30 +315,30 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> SetSensorDarkFieldCalChipCenterMachinePositionValue(CalChipSiteModelEnum calChipSiteModelEnum, Point position)
     {
-        switch (calChipSiteModelEnum.ToCgCalChipModel())
+        switch (calChipSiteModelEnum)
         {
-            case 1:
+            case CalChipSiteModelEnum.UndefinedModel:
                 var sxExecuteRet1 = Invoke(() => Service!.SetAFDFCalChipLULoaction(position.ToCgPoint()));
 
                 return sxExecuteRet1.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet1.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 2:
+            case CalChipSiteModelEnum.DswModel:
                 var sxExecuteRet2 = Invoke(() => Service!.SetAFDFCalChipRULoaction(position.ToCgPoint()));
 
                 return sxExecuteRet2.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet2.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 3:
+            case CalChipSiteModelEnum.ShinyWaferModel:
                 var sxExecuteRet3 = Invoke(() => Service!.SetAFDFCalChipRDLoaction(position.ToCgPoint()));
 
                 return sxExecuteRet3.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet3.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 4:
+            case CalChipSiteModelEnum.HazeModel:
                 var sxExecuteRet4 = Invoke(() => Service!.SetAFDFCalChipLDLoaction(position.ToCgPoint()));
 
                 return sxExecuteRet4.IsSuccess == false
@@ -345,7 +346,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
                     : SxExecuteRetHelper.CreateSuccess(true);
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null);
+                return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(calChipSiteModelEnum));
         }
     }
 
@@ -360,30 +361,30 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> SetSensorDarkFieldCalChipStandardEcsValue(CalChipSiteModelEnum calChipSiteModelEnum, double standardEcsValue)
     {
-        switch (calChipSiteModelEnum.ToCgCalChipModel())
+        switch (calChipSiteModelEnum)
         {
-            case 1:
+            case CalChipSiteModelEnum.UndefinedModel:
                 var sxExecuteRet1 = Invoke(() => Service!.SetAFDFCalChipLUHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet1.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet1.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 2:
+            case CalChipSiteModelEnum.DswModel:
                 var sxExecuteRet2 = Invoke(() => Service!.SetAFDFCalChipRUHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet2.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet2.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 3:
+            case CalChipSiteModelEnum.ShinyWaferModel:
                 var sxExecuteRet3 = Invoke(() => Service!.SetAFDFCalChipRDHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet3.IsSuccess == false
                     ? SxExecuteRetHelper.CreateError(sxExecuteRet3.Msg, false)
                     : SxExecuteRetHelper.CreateSuccess(true);
 
-            case 4:
+            case CalChipSiteModelEnum.HazeModel:
                 var sxExecuteRet4 = Invoke(() => Service!.SetAFDFCalChipLDHeight(Convert.ToUInt16(standardEcsValue)));
 
                 return sxExecuteRet4.IsSuccess == false
@@ -391,7 +392,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
                     : SxExecuteRetHelper.CreateSuccess(true);
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null);
+                return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(calChipSiteModelEnum));
         }
     }
 

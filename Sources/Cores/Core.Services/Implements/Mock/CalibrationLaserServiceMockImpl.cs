@@ -12,6 +12,7 @@ using Core.Models.Models.Setting;
 
 #if NET
 using Core.Services.Implements.GRPC;
+
 #else
 using Core.Services.Implements.WCF;
 
@@ -140,23 +141,100 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<int>> GetUsedPmtIdList()
+    public SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<List<int>>([.. Enumerable.Range(1, 15)]);
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<double>> GetPmtDataList(int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList());
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>> GetPmtConfigList()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>>([.. Enumerable.Range(1, 15).Select(t => (t, true, (List<int>)[1, 2, 3]))]);
+    }
+
+    public SxExecuteRet<List<List<double>>> GetPmtDataList(int count, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(new List<List<double>> { Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList() });
+    }
+
+    public SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList()
+    {
+        var result = new List<DarkFieldPmtDataDto>();
+        for (var i = 1; i < 16; i++)
+        {
+            for (var j = 1; j < 4; j++)
+            {
+                var pmtDataDto = new DarkFieldPmtDataDto
+                {
+                    PmtId = i,
+                    Channel = j,
+                    LineCount = 800,
+                    Data = [.. Enumerable.Range(1, 800).Select(_ => Random.NextDouble())]
+                };
+                result.Add(pmtDataDto);
+            }
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
     }
 
     public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId)
     {
-        Thread.Sleep(100);
+        Thread.Sleep(2000);
 
         var result = new List<List<double>>(count);
 
@@ -188,25 +266,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(pmtDelayDtoList);
     }
 
-    public SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList()
+    public SxExecuteRet<bool> SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
     {
-        var result = new List<DarkFieldPmtDataDto>();
-        for (var i = 1; i < 16; i++)
-        {
-            for (var j = 1; j < 4; j++)
-            {
-                var pmtDataDto = new DarkFieldPmtDataDto
-                {
-                    PmtId = i,
-                    Channel = j,
-                    LineCount = 800,
-                    Data = [.. Enumerable.Range(1, 800).Select(_ => Random.NextDouble())]
-                };
-                result.Add(pmtDataDto);
-            }
-        }
+        Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(result);
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SendPmtGain(double[] gains, int pmtId, int channelId)
@@ -223,70 +287,14 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    public SxExecuteRet<(double Ecs, double Offset)> RuntimeAfCalibration(Point position, double offset, double coefficient)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(true);
+        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
     }
 
-    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableL0K(bool enable)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetGain(double gain)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum)
+    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight)
     {
         Thread.Sleep(100);
 
@@ -317,7 +325,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -329,14 +337,13 @@ public sealed class CalibrationLaserServiceMockImpl(
         (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
         bool isCustomChirpAod)
     {
-        var bytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.raw"));
+        var uri = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.raw");
 
-        var result = new List<DarkFieldImageDto>(3);
+        var result = new List<DarkFieldRawScanImageDto>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Url = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -370,12 +377,5 @@ public sealed class CalibrationLaserServiceMockImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
-    }
-
-    public SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
     }
 }

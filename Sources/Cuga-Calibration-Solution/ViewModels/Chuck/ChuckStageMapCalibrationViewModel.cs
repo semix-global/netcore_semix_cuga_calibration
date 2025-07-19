@@ -992,7 +992,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.GetParam();
 
                 Logger.LogHtmlInformation("Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                if (isAutoReview)
+                if (IsRecipeCalibrate)
                 {
                     if (await BrightFieldStep1ActionAsync() == false) return false;
                     BrightFieldStep2Action();

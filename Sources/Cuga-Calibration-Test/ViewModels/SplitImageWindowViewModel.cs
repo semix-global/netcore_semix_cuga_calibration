@@ -15,6 +15,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using System.Text;
 
 namespace CugaCalibrationTest.ViewModels;
 
@@ -24,34 +25,34 @@ public sealed partial class SplitImageWindowViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService) : ViewModelBase
 {
     [ObservableProperty]
-    private string _templateFilePath = @"C:\Users\DELL\Documents\1_Magnification5X_56f9f947-fbcd-4e38-891e-24e368cf63c7.ncc";
+    private string _templateFilePath = @"J:\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\20250705\1_Magnification5X_a5b9d58c-9cb7-42d0-9cdd-2c2cb14e0d41.ncc";
 
     [ObservableProperty]
-    private string _templateImageFilePath = @"C:\Users\DELL\Documents\1_Magnification5X_56f9f947-fbcd-4e38-891e-24e368cf63c7.jpg";
+    private string _templateImageFilePath = @"J:\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\20250705\1_Magnification5X_a5b9d58c-9cb7-42d0-9cdd-2c2cb14e0d41.jpg";
 
     [ObservableProperty]
-    private double _dieWidthUm = 5100;
+    private double _dieWidthUm = 15300;
 
     [ObservableProperty]
-    private double _idealUmPerPixel = 0.334;
+    private double _idealUmPerPixel = 0.167;
 
     [ObservableProperty]
-    private string _calUmPerPixelRawImageFilePath = @"C:\Users\DELL\Documents\20250430_42_0_0_1_short_519624_PMT08-CH3_8.raw";
+    private string _calUmPerPixelRawImageFilePath = @"J:\20250705_772_0_0_1_short_1467868_PMT08-CH3_8.raw";
 
     [ObservableProperty]
-    private int _calUmPerPixelImageCount = 15;
+    private int _calUmPerPixelImageCount = 16;
 
     [ObservableProperty]
     private double _realUmPerPixel;
 
     [ObservableProperty]
-    private string _splitRawImageFilePath = @"C:\Users\DELL\Documents\20250430_42_0_0_1_short_519624_PMT08-CH3_8.raw";
+    private string _splitRawImageFilePath = @"J:\20250705_772_0_0_1_short_1467868_PMT08-CH3_8.raw";
 
     [ObservableProperty]
     private int _splitWidthPixel = 1000;
 
     [ObservableProperty]
-    private int _splitImageCount = 15;
+    private int _splitImageCount = 16;
 
     [RelayCommand]
     private async Task SplitImageAsync()
@@ -78,8 +79,10 @@ public sealed partial class SplitImageWindowViewModel(
                     TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 }), guid.LoggingHtml());
 
-                var calUmPerPixelRawBytes = File.ReadAllBytes(CalUmPerPixelRawImageFilePath);
-                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = calibrationAlgorithmService.GetSize(calUmPerPixelRawBytes);
+                using var fileSteam = File.OpenRead(CalUmPerPixelRawImageFilePath);
+                using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
+
+                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageHelper.GetSize(binaryReader);
                 var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
 
                 var calUmPerPixelDieWidthPixel = DieWidthUm / IdealUmPerPixel;
@@ -87,36 +90,40 @@ public sealed partial class SplitImageWindowViewModel(
                 var calUmPerPixelHeightPixelByteLength = calUmPerPixelHeightPixel * 2;
                 var calUmPerPixelSplitImageAllPixelByteLength = calUmPerPixelSplitImageWidthPixel * calUmPerPixelHeightPixelByteLength;
 
-                ReadOnlySpan<byte> calUmPerPixelSpan = calUmPerPixelRawBytes.AsSpan().Slice(calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength);
-
                 var calUmPerPixelMatchPoint = new List<Point>();
 
                 var calUmPerPixelPointerList = Enumerable
                     .Range(0, CalUmPerPixelImageCount)
-                    .Select(t => 0 + t * calUmPerPixelDieWidthPixel * calUmPerPixelHeightPixelByteLength)
-                    .Select(Convert.ToInt32)
+                    .Select(t => t * calUmPerPixelDieWidthPixel * calUmPerPixelHeightPixelByteLength)
+                    .Select(Convert.ToInt64)
                     .ToList(); // 分割指针集合
                 foreach (var (index, pointer) in calUmPerPixelPointerList.Select((t, i) => (Index: i, Pointer: t)))
                 {
                     var pointerTemp = pointer - pointer % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+
                     if (index > 0)
                     {
                         pointerTemp -= calUmPerPixelSplitImageAllPixelByteLength / 2;
+                        pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
                     }
 
                     byte[] array;
-                    if (pointerTemp + calUmPerPixelSplitImageAllPixelByteLength > calUmPerPixelSpan.Length)
+                    if (pointerTemp + calUmPerPixelSplitImageAllPixelByteLength > calUmPerPixelBodyBytesLength)
                     {
                         if (index != calUmPerPixelPointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
 
-                        var offset = calUmPerPixelSplitImageWidthPixel - (calUmPerPixelSpan.Length - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
+                        var offset = calUmPerPixelSplitImageWidthPixel - (calUmPerPixelBodyBytesLength - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
 
                         pointerTemp += offset * calUmPerPixelHeightPixelByteLength; // 那么左边也去掉这么多像素
-                        array = calUmPerPixelSpan[pointerTemp..].ToArray();
+                        pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+
+                        fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes();
                     }
                     else
                     {
-                        array = calUmPerPixelSpan.Slice(pointerTemp, calUmPerPixelSplitImageAllPixelByteLength).ToArray();
+                        fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes(calUmPerPixelSplitImageAllPixelByteLength);
                     }
 
                     var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
@@ -170,11 +177,8 @@ public sealed partial class SplitImageWindowViewModel(
                     TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 }), guid.LoggingHtml());
 
-                var rawBytes = File.ReadAllBytes(SplitRawImageFilePath);
-                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
+                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = RawImageHelper.GetSize(binaryReader);
                 var (_, heightPixel) = bodyBytesSize.DeconstructToInt32();
-
-                ReadOnlySpan<byte> span = rawBytes.AsSpan().Slice(bodyBytesStartIndex, bodyBytesLength);
 
                 var dieWidthPixel = DieWidthUm / RealUmPerPixel;
                 var heightPixelByteLength = heightPixel * 2;
@@ -185,24 +189,28 @@ public sealed partial class SplitImageWindowViewModel(
                 var pointerList = Enumerable
                     .Range(0, SplitImageCount)
                     .Select((count, index) => index == 0 ? 0 : count * dieWidthPixel * heightPixelByteLength)
-                    .Select(Convert.ToInt32)
+                    .Select(Convert.ToInt64)
                     .ToList();
                 foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))
                 {
                     var pointerTemp = pointer - pointer % heightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
                     byte[] array;
-                    if (pointerTemp + splitImageAllPixelByteLength > rawBytes.Length)
+                    if (pointerTemp + splitImageAllPixelByteLength > bodyBytesLength)
                     {
                         if (index != pointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
 
-                        var offset = SplitWidthPixel - (rawBytes.Length - pointerTemp) / heightPixelByteLength;
+                        var offset = SplitWidthPixel - (bodyBytesLength - pointerTemp) / heightPixelByteLength;
 
                         pointerTemp += offset * heightPixelByteLength;
-                        array = span[pointerTemp..].ToArray();
+                        pointerTemp -= pointerTemp % heightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+
+                        fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes();
                     }
                     else
                     {
-                        array = span.Slice(pointerTemp, splitImageAllPixelByteLength).ToArray();
+                        fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes(splitImageAllPixelByteLength);
                     }
 
                     var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;

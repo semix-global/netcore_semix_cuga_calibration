@@ -479,7 +479,7 @@ public sealed partial class MainWindowViewModel(
             case ".raw":
                 // 取反
                 var (image1, matrix) = calibrationAlgorithmService.ToImageInfo(File.ReadAllBytes(openFileDialog.FileName));
-                var convertToDoubleMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>.Build.DenseOfArray(matrix);
+                var convertToDoubleMatrix = Matrix<double>.Build.DenseOfArray(matrix);
                 image = image1;
                 y = [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.RowCount).Select(t => -t)];
                 break;
@@ -528,10 +528,10 @@ public sealed partial class MainWindowViewModel(
         };
 
         // 添加噪声信号
-        var scatter = wpfPlot.Plot.Add.Scatter((double[])[.. x], [.. y], category20.GetColor(0));
+        var scatter = wpfPlot.Plot.Add.Scatter((double[]) [.. x], [.. y], category20.GetColor(0));
         scatter.LegendText = "Noisy";
 
-        var markers = wpfPlot.Plot.Add.Markers((double[])[.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
+        var markers = wpfPlot.Plot.Add.Markers((double[]) [.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
         markers.LegendText = "Peaks";
 
         wpfPlot.Plot.Title("AutomaticMPeakDetection");
@@ -552,7 +552,6 @@ public sealed partial class MainWindowViewModel(
 
         window.ShowDialog();
         return;
-
 
         static Matrix<double> ImageToMatrix(string imagePath)
         {
@@ -582,6 +581,7 @@ public sealed partial class MainWindowViewModel(
         }
     }
 
+
     [RelayCommand]
     private void SetLiteDbData()
     {
@@ -599,5 +599,62 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<LaserIlluminationProfileItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXTCCalibrationItemDto>([], CancellationToken.None);
         cacheProvider.Set<LaserPmtGainDto>(new(), CancellationToken.None);
+    }
+
+    [RelayCommand]
+    private void ReadRawImageProjectionY()
+    {
+        var category20 = new Category10();
+        var wpfPlot = new WpfPlot();
+        var crossHair = wpfPlot.Plot.Add.Crosshair(0, 0);
+        crossHair.LineColor = Colors.Red;
+        crossHair.TextColor = Colors.White;
+        crossHair.TextBackgroundColor = Colors.Red;
+        wpfPlot.MouseMove += (senderTemp, eTemp) =>
+        {
+            if (senderTemp is not WpfPlot tempWpfPlot) return;
+            var position = eTemp.GetPosition(wpfPlot);
+            var mousePixel = new Pixel(position.X, position.Y);
+            var mouseCoordinates = tempWpfPlot.Plot.GetCoordinates(mousePixel);
+
+            crossHair.Position = mouseCoordinates;
+            crossHair.VerticalLine.Text = $"{mouseCoordinates.X:f3}";
+            crossHair.HorizontalLine.Text = $"{mouseCoordinates.Y:f3}";
+            wpfPlot.Refresh();
+        };
+
+        foreach (var (index, file) in Directory.GetFiles("I:\\Nano\\Cuga-Calibration\\xkz\\SamePointImgs").Select((t, i) => (i, t)))
+        {
+            if (Path.GetExtension(file) != ".raw") continue;
+
+            var strings = file.Split(["PMT", "Channel"], StringSplitOptions.RemoveEmptyEntries);
+
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(File.ReadAllBytes(file));
+            using var _ = image;
+            var convertToDoubleMatrix = Matrix<double>.Build.DenseOfArray(matrix);
+
+            double[] y = [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.RowCount)];
+            var x = Enumerable.Range(0, y.Length).Select(t => (double)t).ToArray();
+            var scatter = wpfPlot.Plot.Add.Scatter((double[]) [.. x], [.. y], category20.GetColor(int.TryParse(strings[1], out var result) ? result : index));
+            scatter.LegendText = Path.GetFileName(file);
+        }
+
+        wpfPlot.Plot.Title("images");
+        wpfPlot.Plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
+        wpfPlot.Plot.Axes.AutoScale();
+        wpfPlot.Refresh();
+
+        var window = new Window
+        {
+            Title = "images",
+            Content = wpfPlot,
+            Width = 800,
+            Height = 800,
+            Padding = new Thickness(5, 5, 5, 5),
+            WindowState = WindowState.Maximized,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen
+        };
+
+        window.ShowDialog();
     }
 }

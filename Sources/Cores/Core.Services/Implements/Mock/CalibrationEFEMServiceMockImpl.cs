@@ -25,6 +25,11 @@ public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> IsChuckLoadedWafer()
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> LoadFoup(EFEMStationEnum stationEnum)
     {
         Thread.Sleep(2000);

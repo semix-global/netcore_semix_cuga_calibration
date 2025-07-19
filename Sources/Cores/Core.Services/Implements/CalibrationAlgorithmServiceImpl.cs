@@ -71,6 +71,18 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (mtfX.D, mtfY.D);
     }
 
+    public (double Width, double Height) GetLightQuality(HObject image, Rect roiRect)
+    {
+        using var roiImage = HalconHelper.ToRoi(image, roiRect);
+
+        _algorithm.LightQuality(roiImage, out var width, out var height);
+
+        using var _1 = width;
+        using var _2 = height;
+
+        return (width.D, height.D);
+    }
+
     public Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle)
     {
         _algorithm.CalculatePixSize(image, out drawingImage, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
@@ -280,7 +292,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public (Size Size, int BodyBytesStartIndex, int BodyBytesLength) GetSize(byte[] rawBytes)
+    public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes)
     {
         return RawImageHelper.GetSize(rawBytes);
     }

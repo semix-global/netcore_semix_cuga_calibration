@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
+using Core.Models.Models.Common.DarkField;
+using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -28,6 +30,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     IOptions<ApplicationSetting> options,
     ISynchronizationContextProvider contextProvider,
     ILogger<GrabbingDarkImageWindowViewModel> logger)
@@ -182,7 +185,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                         StageCoordinateSystemEnum,
                         (isCustomPrescanAod, isCustomPrescanAod ? null : Coefficient),
                         isCustomChirpAod,
-                        IsForward)
+                        IsForward).Select(ToDarkFieldImageDto).ToList()
                     : laserViewModel.GetDarkFieldLineScanImageList(
                         CalChipSiteModelEnum,
                         resultPosition,
@@ -272,6 +275,21 @@ public partial class GrabbingDarkImageWindowViewModel(
             {
                 logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(
                     $"Mag({EnumHelper.ToDescriptionString(OpticsMagTypeEnum)})_CalChip({EnumHelper.ToDescriptionString(CalChipSiteModelEnum)})__GainVoltage({GainVoltage}){(isSuccess ? "OK" : "Failed")}"));
+            }
+
+            return;
+
+            DarkFieldImageDto ToDarkFieldImageDto(DarkFieldRawScanImageDto origin)
+            {
+                var rawBytes = System.IO.File.ReadAllBytes(origin.Url);
+                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
+
+                return new DarkFieldImageDto
+                {
+                    Image = image,
+                    Matrix = matrix,
+                    Bytes = rawBytes
+                }.AdaptIn(origin);
             }
         });
     }

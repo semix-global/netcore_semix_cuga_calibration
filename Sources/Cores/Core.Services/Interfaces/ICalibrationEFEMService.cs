@@ -1,4 +1,4 @@
-﻿using Core.Models.Enums.EFEM;
+using Core.Models.Enums.EFEM;
 using Core.Models.Models.Common.EFEM;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
@@ -13,6 +13,12 @@ public interface ICalibrationEFEMService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> Connect();
+
+    /// <summary>
+    /// Chuck是否晶圆
+    /// </summary>
+    /// <returns>是否有晶圆</returns>
+    SxExecuteRet<bool> IsChuckLoadedWafer();
 
     /// <summary>
     /// 载入FOUP盒: FOUP 是用于半导体晶圆的封装和传输的标准化载体

@@ -99,6 +99,7 @@
                 <ListView d:SelectedIndex="0"
                           ItemsSource="{Binding LaserPmtAgcDelayItemDtoList}"
                           Style="{StaticResource ListView.Small}"
+                          SelectedItem="{Binding SelectCalibrationLaserPmtAgcDelayItemDto, Mode=OneWay}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
