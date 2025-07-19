@@ -60,6 +60,11 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(bool IsEnable, CalChipSiteModelEnum CalChipSiteModelEnum)> GetBrightFieldStatus()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<double> GetSensorEcsValue()
     {
         Thread.Sleep(120);
@@ -78,16 +83,6 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0.0d)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(sxExecuteRet.Anything.ECSAVG));
-    }
-
-    public SxExecuteRet<(bool IsReview, double CurrentEcsValue)> GetSensorIsReviewValue()
-    {
-        Thread.Sleep(120);
-        var sxExecuteRet = Invoke(() => Service2?.ReadData());
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(bool IsReview, double EcsValue)>(sxExecuteRet.Msg, default)
-            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == CgAutofocusModeType.Review, Convert.ToDouble(sxExecuteRet.Anything.Ecs)));
     }
 
     public SxExecuteRet<bool> SetSensorEcsValue(double ecs)

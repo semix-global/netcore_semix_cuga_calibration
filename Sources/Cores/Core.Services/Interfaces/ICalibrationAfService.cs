@@ -19,9 +19,9 @@ public interface ICalibrationAfService
     /// <summary>
     /// 明场启用(工作模式)/禁用(ECS模式)
     /// </summary>
-    /// <param name="enable">是否启用</param>
+    /// <param name="isEnable">是否启用</param>
     /// <returns>启用是否成功</returns>
-    SxExecuteRet<bool> ToggleBrightFieldEnable(bool enable);
+    SxExecuteRet<bool> ToggleBrightFieldEnable(bool isEnable);
 
     /// <summary>
     /// 暗场启用(工作模式)/禁用(NSC模式)
@@ -38,6 +38,12 @@ public interface ICalibrationAfService
     SxExecuteRet<bool> ToggleCalChipSiteModelEnum(CalChipSiteModelEnum calChipSiteModelEnum);
 
     /// <summary>
+    /// 获取明场状态
+    /// </summary>
+    /// <returns>是否开启明场自动聚焦, CalChip模式</returns>
+    SxExecuteRet<(bool IsEnable, CalChipSiteModelEnum CalChipSiteModelEnum)> GetBrightFieldStatus();
+
+    /// <summary>
     /// 获取ECS当前值
     /// </summary>
     /// <returns>ECS当前值</returns>
@@ -48,12 +54,6 @@ public interface ICalibrationAfService
     /// </summary>
     /// <returns>ECS当前值</returns>
     SxExecuteRet<double> GetSensorAverageEcsValue();
-
-    /// <summary>
-    /// 获取是否是复查状态
-    /// </summary>
-    /// <returns>是否是复查状态, Ecs值</returns>
-    SxExecuteRet<(bool IsReview, double CurrentEcsValue)> GetSensorIsReviewValue();
 
     /// <summary>
     /// 移动ECS

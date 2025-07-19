@@ -17,40 +17,9 @@ using Cuga.Data.DataStruct.Stage;
 
 namespace Core.Models.Extensions;
 
-#if NET
-public enum CgCalChipType
-{
-    None,
-    Shape,
-    DSW,
-    Shiny,
-    Haze
-}
-#endif
-
 public static class EnumStageExtension
 {
     #region CalChipMode
-
-    public static CgCalChipType ToCgCalChipType(this CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.ChuckModel => CgCalChipType.None,
-        CalChipSiteModelEnum.UndefinedModel => CgCalChipType.Shape,
-        CalChipSiteModelEnum.DswModel => CgCalChipType.DSW,
-        CalChipSiteModelEnum.ShinyWaferModel => CgCalChipType.Shiny,
-        CalChipSiteModelEnum.HazeModel => CgCalChipType.Haze,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCalChipType>(nameof(calChipSiteModelEnum))
-    };
-
-    public static CalChipSiteModelEnum ToCalChipModelEnum(this CgCalChipType cgCalChipType) => cgCalChipType switch
-    {
-        CgCalChipType.None => CalChipSiteModelEnum.ChuckModel,
-        CgCalChipType.Shape => CalChipSiteModelEnum.UndefinedModel,
-        CgCalChipType.DSW => CalChipSiteModelEnum.DswModel,
-        CgCalChipType.Shiny => CalChipSiteModelEnum.ShinyWaferModel,
-        CgCalChipType.Haze => CalChipSiteModelEnum.HazeModel,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CalChipSiteModelEnum>(nameof(cgCalChipType))
-    };
 
 #if NET
     public static CgCalChipEnum ToCgCalChipEnum(this CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
@@ -71,6 +40,28 @@ public static class EnumStageExtension
         CgCalChipEnum.SHINY => CalChipSiteModelEnum.ShinyWaferModel,
         CgCalChipEnum.HAZE => CalChipSiteModelEnum.HazeModel,
         _ => throw new ArgumentOutOfRangeException(nameof(cgCalChipEnum), cgCalChipEnum, null)
+    };
+
+#else
+
+    public static CgCalChipType ToCgCalChipType(this CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.ChuckModel => CgCalChipType.None,
+        CalChipSiteModelEnum.UndefinedModel => CgCalChipType.Shape,
+        CalChipSiteModelEnum.DswModel => CgCalChipType.DSW,
+        CalChipSiteModelEnum.ShinyWaferModel => CgCalChipType.Shiny,
+        CalChipSiteModelEnum.HazeModel => CgCalChipType.Haze,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCalChipType>(nameof(calChipSiteModelEnum))
+    };
+
+    public static CalChipSiteModelEnum ToCalChipModelEnum(this CgCalChipType cgCalChipType) => cgCalChipType switch
+    {
+        CgCalChipType.None => CalChipSiteModelEnum.ChuckModel,
+        CgCalChipType.Shape => CalChipSiteModelEnum.UndefinedModel,
+        CgCalChipType.DSW => CalChipSiteModelEnum.DswModel,
+        CgCalChipType.Shiny => CalChipSiteModelEnum.ShinyWaferModel,
+        CgCalChipType.Haze => CalChipSiteModelEnum.HazeModel,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CalChipSiteModelEnum>(nameof(cgCalChipType))
     };
 
 #endif

@@ -528,10 +528,10 @@ public sealed partial class MainWindowViewModel(
         };
 
         // 添加噪声信号
-        var scatter = wpfPlot.Plot.Add.Scatter((double[]) [.. x], [.. y], category20.GetColor(0));
+        var scatter = wpfPlot.Plot.Add.Scatter((double[])[.. x], [.. y], category20.GetColor(0));
         scatter.LegendText = "Noisy";
 
-        var markers = wpfPlot.Plot.Add.Markers((double[]) [.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
+        var markers = wpfPlot.Plot.Add.Markers((double[])[.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
         markers.LegendText = "Peaks";
 
         wpfPlot.Plot.Title("AutomaticMPeakDetection");
@@ -635,7 +635,7 @@ public sealed partial class MainWindowViewModel(
 
             double[] y = [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.RowCount)];
             var x = Enumerable.Range(0, y.Length).Select(t => (double)t).ToArray();
-            var scatter = wpfPlot.Plot.Add.Scatter((double[]) [.. x], [.. y], category20.GetColor(int.TryParse(strings[1], out var result) ? result : index));
+            var scatter = wpfPlot.Plot.Add.Scatter((double[])[.. x], [.. y], category20.GetColor(int.TryParse(strings[1], out var result) ? result : index));
             scatter.LegendText = Path.GetFileName(file);
         }
 

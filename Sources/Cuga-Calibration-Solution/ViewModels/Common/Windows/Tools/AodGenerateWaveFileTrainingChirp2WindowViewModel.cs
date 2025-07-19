@@ -16,6 +16,7 @@ using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -93,6 +94,21 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
 
     [ObservableProperty]
     public partial TrainingAlgorithmEnum TrainingAlgorithmEnum { get; set; } = TrainingAlgorithmEnum.Mtf;
+
+    [ObservableProperty]
+    public partial double XPixelSize { get; set; }
+
+    [ObservableProperty]
+    public partial double YPixelSize { get; set; }
+
+    [ObservableProperty]
+    public partial double PotDiameter { get; set; }
+
+    [ObservableProperty]
+    public partial double XPointDiameter { get; set; }
+
+    [ObservableProperty]
+    public partial double YPointDiameter { get; set; }
 
     [ObservableProperty]
     public partial double PrescanCoefficient { get; set; } = calibrationSetting.SettingCommonParam.MainCoefficient;
@@ -270,7 +286,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 {
                     TrainingAlgorithmEnum.Mtf => Items.OrderByDescending(t => t.TargetValueY).First(),
                     TrainingAlgorithmEnum.LightQuality => Items.OrderBy(t => t.TargetValueY).First(),
-                    TrainingAlgorithmEnum.StrehlRatio => Items.OrderBy(t => t.TargetValueY).First(),
+                    TrainingAlgorithmEnum.StrehlRatio => Items.OrderByDescending(t => t.TargetValueY).First(),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<AodGenerateWaveFileTrainingChirp2>(nameof(TrainingAlgorithmEnum))
                 };
 
@@ -384,6 +400,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         break;
 
                     case TrainingAlgorithmEnum.StrehlRatio:
+                        var ((xStrehlRatio, xLine, xFitLine), (yStrehlRatio, yLine, yFitLine)) = StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Matrix, RoiRect, XPixelSize, YPixelSize, PotDiameter, XPointDiameter, YPointDiameter);
+                        item.TargetValueX = xStrehlRatio;
+                        item.TargetValueY = yStrehlRatio;
+                        logger.LogHtmlInformation("StrehlRatio", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                        {
+                            xFitLine = new HtmlPlot2DLinesChart([(nameof(xFitLine), xFitLine.ToPoints()), (nameof(xLine), xLine.ToPoints())], string.Empty),
+                            yFitLine = new HtmlPlot2DLinesChart([(nameof(yFitLine), yFitLine.ToPoints()), (nameof(yLine), yLine.ToPoints())], string.Empty)
+                        }), htmlGuid.LoggingHtml());
+
                         break;
 
                     default:
@@ -391,7 +416,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         break;
                 }
 
-                logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     OpticsMagTypeEnum,
                     PrescanCoefficient,
