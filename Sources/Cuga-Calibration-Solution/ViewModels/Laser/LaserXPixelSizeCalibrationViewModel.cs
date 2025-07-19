@@ -8,13 +8,11 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
@@ -520,7 +518,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     templateImageFilePath = Cache.TemplateImageFilePath
                 }), HtmlLogUniqueId.LoggingHtml());
 
-
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(laserXPixelSizeItem.FindStartPosition, CalChipSiteModelEnum.ChuckModel);
                 var startMachinePosition = StageViewModel.GetMachineStagePosition();
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(laserXPixelSizeItem.FindEndPosition, CalChipSiteModelEnum.ChuckModel);
@@ -546,13 +543,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 );
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindTemplatePosition);
-                var detectImageDirectory = $"{ImageFileDirectory}\\{Cache.OpticsMagTypeEnum}\\PmtId(8)_Guid({guid}).jpg";
-                var originFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(detectImageDirectory);
-                FileHelper.Save(resultImage[2].Bytes, originFilePath);
-
+                var originFilePath = resultImage[2].Url;
                 laserXPixelSizeItem.OriginalFilePath = originFilePath;
 
-                var isSplitImage = SplitLongImage(resultImage[2], Cache.IdealUmPerPixel, guid, out var matchPoint);
+                var isSplitImage = SplitLongImage(originFilePath, Cache.IdealUmPerPixel, guid, out var matchPoint);
                 if (isSplitImage == false)
                 {
                     while (!isSplitImage)
@@ -576,7 +570,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                 {
                                     XPixelSize = umPerPixel,
                                 }), HtmlLogUniqueId.LoggingHtml());
-                                isSplitImage = SplitLongImage(resultImage[2], umPerPixel, Guid.NewGuid(), out matchPoint);
+                                isSplitImage = SplitLongImage(originFilePath, umPerPixel, Guid.NewGuid(), out matchPoint);
                             }
                             else
                             {
@@ -601,128 +595,74 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         });
     }
 
-    private bool SplitLongImage(DarkFieldImageDto darkFieldImage, double xPixelSize, Guid guid, out List<Point> matchPoint)
+    private bool SplitLongImage(string uri, double xPixelSize, Guid guid, out List<Point> matchPoint)
     {
         SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Clear());
-        var calUmPerPixelRawBytes = darkFieldImage.Bytes;
+
+        using var fileSteam = File.OpenRead(uri);
+        using var binaryReader = new BinaryReader(fileSteam);
+
         var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.TemplateImageFilePath);
         using var templateId = HalconHelper.ReadNccTemplate(Cache.TemplateFilePath);
         var detectImageDirectory = $"{ImageFileDirectory}\\{Cache.OpticsMagTypeEnum}\\PmtId(8)_Guid({guid}).jpg";
         matchPoint = new List<Point>();
 
-        if (HostEnvironment.IsDevelopment())
-        {
-            var random = new Random();
-            var x = 0;
-            var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelRawBytes);
+        var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageHelper.GetSize(binaryReader);
+        var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
 
-            for (int i = 0; i < Cache.SplitImageCount; i++)
+        var calUmPerPixelDieWidthPixel = Cache.DieWidthUm / xPixelSize;
+        var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
+        var calUmPerPixelHeightPixelByteLength = calUmPerPixelHeightPixel * 2;
+        var calUmPerPixelSplitImageAllPixelByteLength = calUmPerPixelSplitImageWidthPixel * calUmPerPixelHeightPixelByteLength;
+
+        // ReadOnlySpan<byte> calUmPerPixelSpan = ((byte[])[1,2,3]).AsSpan().Slice(calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength);
+        var calUmPerPixelPointerList = Enumerable
+            .Range(0, Cache.SplitImageCount)
+            .Select(t => 0 + t * calUmPerPixelDieWidthPixel * calUmPerPixelHeightPixelByteLength)
+            .Select(Convert.ToInt64)
+            .ToList(); // 分割指针集合
+        foreach (var (index, pointer) in calUmPerPixelPointerList.Select((t, i) => (Index: i, Pointer: t)))
+        {
+            var pointerTemp = pointer - pointer % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+            if (index > 0)
             {
-                var originImageFilePath = Path.Combine(ImageFileDirectory, Path.GetFileNameWithoutExtension(detectImageDirectory), $"calUmPerPixelImage_{i + 1}.jpg");
-                HalconHelper.Save(image, originImageFilePath);
-                var x1 = random.Next(45900, 45910);
-                x = x + x1;
-                var y = random.Next(460, 465);
-                HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
-                var point = new Point(x, y);
-                var darkFieldCropImage = new DarkFieldXPixelSizeICropImage()
-                {
-                    Position = point,
-                    Width = 800,
-                    Height = 800,
-                    FilePath = originImageFilePath
-                };
-                SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Add(darkFieldCropImage));
-                Logger.LogHtmlInformation($"{i + 1}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    Score = score,
-                    Point = point,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(result, templateImageSize), new HtmlImageRectangleOverlay(result, templateImageSize)]),
-                        TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                    })
-                }), HtmlLogUniqueId.LoggingHtml());
-                matchPoint.Add(point);
+                pointerTemp -= calUmPerPixelSplitImageAllPixelByteLength / 2;
+                pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
             }
-        }
-        else
-        {
-            var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = CalibrationAlgorithmService.GetSize(calUmPerPixelRawBytes);
-            var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
 
-            var calUmPerPixelDieWidthPixel = Cache.DieWidthUm / xPixelSize;
-            var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
-            var calUmPerPixelHeightPixelByteLength = calUmPerPixelHeightPixel * 2;
-            var calUmPerPixelSplitImageAllPixelByteLength = calUmPerPixelSplitImageWidthPixel * calUmPerPixelHeightPixelByteLength;
-
-            ReadOnlySpan<byte> calUmPerPixelSpan = calUmPerPixelRawBytes.AsSpan().Slice(calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength);
-            var calUmPerPixelPointerList = Enumerable
-                .Range(0, Cache.SplitImageCount)
-                .Select(t => 0 + t * calUmPerPixelDieWidthPixel * calUmPerPixelHeightPixelByteLength)
-                .Select(Convert.ToInt32)
-                .ToList(); // 分割指针集合
-            foreach (var (index, pointer) in calUmPerPixelPointerList.Select((t, i) => (Index: i, Pointer: t)))
+            byte[] array;
+            if (pointerTemp + calUmPerPixelSplitImageAllPixelByteLength > calUmPerPixelBodyBytesLength)
             {
-                var pointerTemp = pointer - pointer % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
-                if (index > 0)
-                {
-                    pointerTemp -= calUmPerPixelSplitImageAllPixelByteLength / 2;
-                }
+                if (index != calUmPerPixelPointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
 
-                byte[] array;
-                if (pointerTemp + calUmPerPixelSplitImageAllPixelByteLength > calUmPerPixelSpan.Length)
-                {
-                    if (index != calUmPerPixelPointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
+                var offset = calUmPerPixelSplitImageWidthPixel - (calUmPerPixelBodyBytesLength - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
 
-                    var offset = calUmPerPixelSplitImageWidthPixel - (calUmPerPixelSpan.Length - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
+                pointerTemp += offset * calUmPerPixelHeightPixelByteLength; // 那么左边也去掉这么多像素
+                pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
 
-                    pointerTemp += offset * calUmPerPixelHeightPixelByteLength; // 那么左边也去掉这么多像素
-                    array = calUmPerPixelSpan[pointerTemp..].ToArray();
-                }
-                else
-                {
-                    array = calUmPerPixelSpan.Slice(pointerTemp, calUmPerPixelSplitImageAllPixelByteLength).ToArray();
-                }
+                fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                array = binaryReader.ReadBytes();
+            }
+            else
+            {
+                fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                array = binaryReader.ReadBytes(calUmPerPixelSplitImageAllPixelByteLength);
+            }
 
-                var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
-                var calUmPerPixelSplitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(array, new Size(currentWidthPixel, calUmPerPixelHeightPixel));
-                var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelSplitImageRawBytes);
-                var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
-                using var _ = image;
-                var originImageFilePath = Path.Combine(ImageFileDirectory, Path.GetFileNameWithoutExtension(detectImageDirectory), $"calUmPerPixelImage_{index + 1}.jpg");
-                HalconHelper.Save(image, originImageFilePath);
-                //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
-                var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
-                if (!isSuccess && resultScore < Cache.NccScoreThreshold)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        Score = resultScore,
-                        RawImageFile = new HtmlDownload(calUmPerPixelSplitImageRawBytes, $"calUmPerPixelImage_{index + 1}.raw"),
-                        HtmlTab = new HtmlTab(new
-                        {
-                            OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(result, templateImageSize), new HtmlImageRectangleOverlay(result, templateImageSize)]),
-                            TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                        })
-                    }), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
-
-                var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
-                var darkFieldCropImage = new DarkFieldXPixelSizeICropImage()
-                {
-                    Position = point,
-                    Width = currentWidthPixel,
-                    Height = calUmPerPixelHeightPixel,
-                    FilePath = originImageFilePath
-                };
-                SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Add(darkFieldCropImage));
-                Logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
+            var calUmPerPixelSplitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(array, new Size(currentWidthPixel, calUmPerPixelHeightPixel));
+            var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelSplitImageRawBytes);
+            var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
+            using var _ = image;
+            var originImageFilePath = Path.Combine(ImageFileDirectory, Path.GetFileNameWithoutExtension(detectImageDirectory), $"calUmPerPixelImage_{index + 1}.jpg");
+            HalconHelper.Save(image, originImageFilePath);
+            //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
+            var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
+            if (!isSuccess && resultScore < Cache.NccScoreThreshold)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     Score = resultScore,
-                    LeftPixel = calUmPerPixelImageLeftPixel,
-                    Point = point,
                     RawImageFile = new HtmlDownload(calUmPerPixelSplitImageRawBytes, $"calUmPerPixelImage_{index + 1}.raw"),
                     HtmlTab = new HtmlTab(new
                     {
@@ -730,8 +670,31 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                         TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
-                matchPoint.Add(point);
+                return false;
             }
+
+            var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
+            var darkFieldCropImage = new DarkFieldXPixelSizeICropImage()
+            {
+                Position = point,
+                Width = currentWidthPixel,
+                Height = calUmPerPixelHeightPixel,
+                FilePath = originImageFilePath
+            };
+            SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Add(darkFieldCropImage));
+            Logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                Score = resultScore,
+                LeftPixel = calUmPerPixelImageLeftPixel,
+                Point = point,
+                RawImageFile = new HtmlDownload(calUmPerPixelSplitImageRawBytes, $"calUmPerPixelImage_{index + 1}.raw"),
+                HtmlTab = new HtmlTab(new
+                {
+                    OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(result, templateImageSize), new HtmlImageRectangleOverlay(result, templateImageSize)]),
+                    TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+            matchPoint.Add(point);
         }
 
         return true;
@@ -812,7 +775,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 return true;
             });
             if (await AutoNextingAsync(cancellationToken) == false) return false;
-
 
             foreach (var opticsMagStageSpeed in _opticsMagStageSpeedList)
             {
@@ -943,5 +905,5 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         }
     }
 
-    #endregion
+    #endregion 自动化校准
 }

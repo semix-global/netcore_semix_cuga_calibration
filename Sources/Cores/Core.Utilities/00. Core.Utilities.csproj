@@ -17,12 +17,10 @@
 
         <PackageReference Include="Net.Utilities.Nlog" />
 
-		<PackageReference Include="Net.Utilities.Graphics" />
-	</ItemGroup>
+        <PackageReference Include="Net.Utilities.Graphics" />
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\Databases\Local.NoSQL.DB.Providers\Local.NoSQL.DB.Providers.csproj" />
-        <ProjectReference Include="..\..\Databases\Local.SQL.DB.Providers\Local.SQL.DB.Providers.csproj" />
+        <PackageReference Include="Local.NoSQL.DB.Providers" />
+        <PackageReference Include="Local.SQL.DB.Providers" />
     </ItemGroup>
 
 </Project>

@@ -28,6 +28,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using Complex = System.Numerics.Complex;
 using Constants = Net.Utilities.Models.Constants;
@@ -55,7 +56,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #region 0. 确认生成波形参数
 
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _generateChirpAodWaveParamDto = new()
+    public partial GenerateChirpAodWaveParamDto GenerateChirpAodWaveParamDto { get; set; } = new()
     {
         HeaderFrequency = 275,
         FooterFrequency = 155
@@ -66,59 +67,52 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #region 1. 确认ROI范围用来寻找最大灰阶值
 
     [ObservableProperty]
-    private int _pmtId = 8;
+    public partial int PmtId { get; set; } = 8;
 
     [ObservableProperty]
-    private int _channelId = 3;
+    public partial int ChannelId { get; set; } = 3;
 
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    private int _xWidthPixel = 800;
+    public partial int XWidthPixel { get; set; } = 800;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
+    public partial OpticsMagTypeEnum OpticsMagTypeEnum { get; set; } = OpticsMagTypeEnum.High;
 
     [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
+    public partial StageSpeedEnum StageSpeedEnum { get; set; } = StageSpeedEnum.Low;
 
     [ObservableProperty]
-    private Rect _roiRect = new(0, 0, 256, 256);
+    public partial Rect RoiRect { get; set; } = new(0, 0, 256, 256);
 
     #endregion 1. 确认ROI范围用来寻找最大灰阶值
 
-    #region 2. RTFC
+    #region 2. 补偿训练
 
     [ObservableProperty]
-    private double _ecsMin = 5000;
+    public partial TrainingAlgorithmEnum TrainingAlgorithmEnum { get; set; } = TrainingAlgorithmEnum.Mtf;
 
     [ObservableProperty]
-    private double _ecsMax = 5100;
+    public partial double PrescanCoefficient { get; set; } = calibrationSetting.SettingCommonParam.MainCoefficient;
 
     [ObservableProperty]
-    private double _ecsStep = 10;
+    public partial ObservableCollection<DeltaKItem> DeltaKItems { get; set; } = [];
 
-    #endregion 2. RTFC
-
-    #region 3. 补偿训练
+    #endregion 2. 补偿训练
 
     [ObservableProperty]
-    private double _prescanCoefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
+    public partial AodGenerateWaveFileTrainingChirp2? SelectItem { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<DeltaKItem> _deltaKItems = [];
-
-    #endregion 3. 补偿训练
+    public partial AodGenerateWaveFileTrainingChirp2[] Items { get; set; } = [];
 
     [ObservableProperty]
-    private AodGenerateWaveFileTrainingChirp2? _selectItem;
+    public partial Point[] ItemsXPoints { get; set; } = [];
 
     [ObservableProperty]
-    private AodGenerateWaveFileTrainingChirp2[] _items = [];
-
-    [ObservableProperty]
-    private Point[] _itemsPoints = [];
+    public partial Point[] ItemsYPoints { get; set; } = [];
 
     [RelayCommand]
     private async Task Step1Async()
@@ -130,6 +124,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
             await Task.Run(() =>
             {
                 FindPosition = stageViewModel.GetBrightFieldStagePosition();
+                if (calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.IsEnableChuck == false) ThrowHelper.ThrowInvalidOperationException("Dark Field Auto Focus is not enabled for Chuck model");
+                if (calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.IsEnableDsw == false) ThrowHelper.ThrowInvalidOperationException("Dark Field Auto Focus is not enabled for DSW model");
+
+                afViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.DswModel);
+
+                var offset = calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue - calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.ChuckMotorValue;
+                var (ecs, height) = laserViewModel.DswRuntimeAfCalibration(FindPosition, offset);
+                calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswEcsValue = ecs;
+                calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue = height;
 
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.DswModel,
@@ -162,6 +165,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
 
                 logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
                 {
+                    RTFCECS = ecs,
+                    RTFAfMotorHeight = height,
                     calibrationSetting.SettingCommonParam.MainCoefficient,
                     FindPosition,
                     XWidthPixel,
@@ -226,7 +231,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
 
             logger.LogHtmlInformation("Training", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new { DefaultDeltaKs = deltaKs }), htmlGuid.LoggingHtml());
 
-            foreach (var (i, deltaKItem) in DeltaKItems.Select((t, i) => (i, t)))
+            foreach (var (index, deltaKItem) in DeltaKItems.Select((deltaKItem, index) => (index, deltaKItem)))
             {
                 if (deltaKItem.IsOk) continue;
 
@@ -236,24 +241,19 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 [
                     .. Generate.LinearRange(deltaKItem.DeltaKMin, deltaKItem.DeltaKStep, deltaKItem.DeltaKMax).Select(t =>
                     {
-                        deltaKs[i] = t;
+                        deltaKs[index] = t;
                         return new AodGenerateWaveFileTrainingChirp2
                         {
-                            DeltaKs = [.. deltaKs],
-                            ChirpAodWaveFilePath = string.Empty,
-                            AodWaveFlatnessTotalFrequencySignals = [],
-                            AodWaveSignals = [],
-                            AodWaveSignalsFourier = [],
-                            Items = [],
-                            IsOk = false
+                            DeltaKs = [.. deltaKs]
                         };
                     })
                 ];
 
                 await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
-                logger.LogHtmlInformation($"segmentation: {i + 1}", HtmlHeaderLevelEnum.Header2, htmlGuid.LoggingHtml());
+                logger.LogHtmlInformation($"segmentation: {index + 1}", HtmlHeaderLevelEnum.Header2, htmlGuid.LoggingHtml());
 
-                ItemsPoints = [];
+                ItemsXPoints = [];
+                ItemsYPoints = [];
                 foreach (var item in Items)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -261,29 +261,37 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     if (await CatchImagesAsync(item, imageDirectory, aodWaveDirectory, htmlGuid, cancellationToken).ConfigureAwait(false) == false) continue;
 
                     item.IsOk = true;
-                    ItemsPoints = [.. ItemsPoints, new Point(item.DeltaKs[i], item.MaxItem?.MaxValue ?? 0d)];
+                    ItemsXPoints = [.. ItemsXPoints, new Point(item.DeltaKs[index], item.TargetValueY)];
+                    ItemsYPoints = [.. ItemsYPoints, new Point(item.DeltaKs[index], item.TargetValueY)];
                     await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
                 }
 
-                var maxItem = Items.OrderByDescending(t => t.MaxItem?.MaxValue ?? 0).First();
+                var maxItem = TrainingAlgorithmEnum switch
+                {
+                    TrainingAlgorithmEnum.Mtf => Items.OrderByDescending(t => t.TargetValueY).First(),
+                    TrainingAlgorithmEnum.LightQuality => Items.OrderBy(t => t.TargetValueY).First(),
+                    TrainingAlgorithmEnum.StrehlRatio => Items.OrderBy(t => t.TargetValueY).First(),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<AodGenerateWaveFileTrainingChirp2>(nameof(TrainingAlgorithmEnum))
+                };
 
-                DeltaKItems[i].DeltaKValue = deltaKs[i] = maxItem.DeltaKs[i];
+                DeltaKItems[index].DeltaKValue = deltaKs[index] = maxItem.DeltaKs[index];
 
                 logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    MaxDeltaKs = deltaKs[i],
-                    MaxItemAstigmatismCompensationEcs = maxItem.MaxItem?.Ecs,
-                    MaxItemAstigmatismCompensationImageMaxValue = maxItem.MaxItem?.MaxValue,
+                    BestDeltaKs = deltaKs[index],
+                    BestTargetValueY = maxItem.TargetValueY,
+                    BestTargetValueX = maxItem.TargetValueX,
                     Table = new HtmlTable([
                         ..Items.Select(t => new
                         {
-                            MaxDeltaKs = t.DeltaKs[i],
+                            MaxDeltaKs = t.DeltaKs[index],
                             t.ChirpAodWaveFilePath,
                             Signals = new HtmlPlot2DLinesChart([(string.Empty, t.AodWaveSignals)], string.Empty),
                             Fouriers = new HtmlPlot2DLinesChart([(string.Empty, t.AodWaveSignalsFourier)], string.Empty)
                         })
                     ]),
-                    Plot = new HtmlPlot2DLinesChart([(string.Empty, ItemsPoints)], string.Empty)
+                    ItemsXPoints = new HtmlPlot2DLinesChart([(string.Empty, ItemsXPoints)], string.Empty),
+                    ItemsYPoints = new HtmlPlot2DLinesChart([(string.Empty, ItemsYPoints)], string.Empty)
                 }), htmlGuid.LoggingHtml());
             }
 
@@ -310,7 +318,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     {
         try
         {
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
                 if (GenerateChirpAodWaveFile() == false) return false;
 
@@ -334,69 +342,68 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                         AodWaveFlatnessTotalFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessTotalFrequencySignals)], string.Empty)
                     })
                 }), htmlGuid.LoggingHtml());
-                logger.LogHtmlInformation($"ECS: [{EcsMin}, {EcsMax}] STEP: {EcsStep}", HtmlHeaderLevelEnum.Header4, htmlGuid.LoggingHtml());
 
-                foreach (var (index, ecs) in Generate.LinearRange(EcsMin, EcsStep, EcsMax).Select((t, i) => (Index: i, Ecs: t)))
+                cancellationToken.ThrowIfCancellationRequested();
+                laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum), PrescanCoefficient));
+                laserViewModel.SendChirpAodByList(laserViewModel.ReadChirpAodByConfigFile(item.ChirpAodWaveFilePath));
+
+                using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
+                    CalChipSiteModelEnum.DswModel,
+                    FindPosition,
+                    (true, null),
+                    true,
+                    null,
+                    XWidthPixel,
+                    OpticsMagTypeEnum,
+                    StageSpeedEnum,
+                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
+                    pmtId: PmtId,
+                    channelId: ChannelId);
+                var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}" +
+                               $"_{string.Join(",", item.DeltaKs)}" +
+                               $".jpg";
+                filePath = FileHelper.GetEnsureLongPathSupport(filePath);
+                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+
+                item.ImageFilePath = filePath;
+
+                switch (TrainingAlgorithmEnum)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum), PrescanCoefficient));
-                    laserViewModel.SendChirpAodByList(laserViewModel.ReadChirpAodByConfigFile(item.ChirpAodWaveFilePath));
+                    case TrainingAlgorithmEnum.Mtf:
+                        var (mtfX, mtfY) = calibrationAlgorithmService.ModulationTransferFunction(darkFieldImageDto.Image, RoiRect);
+                        item.TargetValueX = mtfX;
+                        item.TargetValueY = mtfY;
 
-                    afViewModel.ToggleBrightFieldEnable(false);
-                    afViewModel.SetSensorEcsValue(ecs);
-                    if (index == 0) await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
+                        break;
 
-                    using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
-                        FindPosition,
-                        (true, null),
-                        true,
-                        XWidthPixel,
-                        OpticsMagTypeEnum,
-                        StageSpeedEnum,
-                        stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
-                        pmtId: PmtId,
-                        channelId: ChannelId);
+                    case TrainingAlgorithmEnum.LightQuality:
+                        var (width, height) = calibrationAlgorithmService.GetLightQuality(darkFieldImageDto.Image, RoiRect);
+                        item.TargetValueX = width;
+                        item.TargetValueY = height;
 
-                    var filePath = $"{imageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}" +
-                                   $"_{(item.DeltaKs is null ? string.Empty : string.Join(",", item.DeltaKs))}" +
-                                   $".jpg";
-                    filePath = FileHelper.GetEnsureLongPathSupport(filePath);
+                        break;
 
-                    HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                    case TrainingAlgorithmEnum.StrehlRatio:
+                        break;
 
-                    var (mtfX, mtfY) = calibrationAlgorithmService.ModulationTransferFunction(darkFieldImageDto.Image, RoiRect);
-
-                    item.Items =
-                    [
-                        .. item.Items,
-                        new AodGenerateWaveFileTrainingChirpItem2
-                        {
-                            Ecs = ecs,
-                            FilePath = filePath,
-                            MaxValue = mtfY
-                        }
-                    ];
-                    logger.LogHtmlInformation($"{ecs}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                    {
-                        OpticsMagTypeEnum,
-                        PrescanCoefficient,
-                        item.ChirpAodWaveFilePath,
-                        FindPosition,
-                        XWidthPixel,
-                        StageSpeedEnum,
-                        ecs,
-                        Image = new HtmlImage(filePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect)]),
-                        RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(filePath)}.raw"),
-                        mtfX,
-                        mtfY
-                    }), htmlGuid.LoggingHtml());
+                    default:
+                        ThrowHelper.ThrowArgumentOutOfRangeException(nameof(TrainingAlgorithmEnum));
+                        break;
                 }
 
-                logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    ECSOfGray = new HtmlPlot2DLinesChart([(string.Empty, item.EcsPoints)], string.Empty),
-                    MaxItemEcs = item.MaxItem?.Ecs,
-                    item.MaxItem?.MaxValue
+                    OpticsMagTypeEnum,
+                    PrescanCoefficient,
+                    FindPosition,
+                    XWidthPixel,
+                    StageSpeedEnum,
+                    TrainingAlgorithmEnum = EnumHelper.ToDescriptionString(TrainingAlgorithmEnum),
+                    item.ChirpAodWaveFilePath,
+                    item.TargetValueX,
+                    item.TargetValueY,
+                    Image = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect)]),
+                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(item.ImageFilePath)}.raw"),
                 }), htmlGuid.LoggingHtml());
 
                 return true;
@@ -406,7 +413,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
         {
             if (ex is OperationCanceledException) throw;
 
-            logger.LogError(ex, "Catch Images");
+            logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, htmlGuid.LoggingHtml());
 
             return false;
         }
@@ -415,8 +422,6 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
         {
             try
             {
-                item.Items = [];
-
                 var (aodWaveFilePath,
                     aodWaveFlatnessTotalFrequencySignals,
                     aodWaveSignals,
@@ -453,86 +458,67 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     }
 
     [RelayCommand]
-    private async Task SavePictureAsync(AodGenerateWaveFileTrainingChirpItem2 aodGenerateWaveFileTrainingChirpItem)
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var tryShowSaveFilePathDialog = dialogWindowProvider.TryShowSaveFilePathDialog(".jpg", out var saveFilePath);
-                if (tryShowSaveFilePathDialog == false) return;
-
-                System.IO.File.Copy(aodGenerateWaveFileTrainingChirpItem.FilePath, saveFilePath, true);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{@Name}: Grabbing Image Failed", nameof(GrabbingDarkImagePointToPointWindowViewModel));
-        }
-    }
-
-    [RelayCommand]
     private void Close() => CloseView(true);
+}
+
+public enum TrainingAlgorithmEnum
+{
+    [Description("MTF(X, Y)")]
+    Mtf,
+
+    [Description("LightQuality(Width, Height)")]
+    LightQuality,
+
+    [Description("StrehlRatio(X, Y)")]
+    StrehlRatio
 }
 
 public sealed partial class DeltaKItem : ObservableObject
 {
     [ObservableProperty]
-    private double _deltaKMin;
+    public partial double DeltaKMin { get; set; }
 
     [ObservableProperty]
-    private double _deltaKMax;
+    public partial double DeltaKMax { get; set; }
 
     [ObservableProperty]
-    private double _deltaKStep;
+    public partial double DeltaKStep { get; set; }
 
     [ObservableProperty]
-    private bool _isOk = true;
+    public partial bool IsOk { get; set; } = true;
 
     [ObservableProperty]
-    private double _deltaKValue;
+    public partial double DeltaKValue { get; set; }
 }
 
 public sealed partial class AodGenerateWaveFileTrainingChirp2 : ObservableObject
 {
     [ObservableProperty]
-    private string _chirpAodWaveFilePath = string.Empty;
+    public partial string ChirpAodWaveFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double[] _deltaKs = [];
+    public partial double[] DeltaKs { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveFlatnessTotalFrequencySignals = [];
+    public partial Point[] AodWaveFlatnessTotalFrequencySignals { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveSignals = [];
+    public partial Point[] AodWaveSignals { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _aodWaveSignalsFourier = [];
+    public partial Point[] AodWaveSignalsFourier { get; set; } = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(MaxItem))]
-    [NotifyPropertyChangedFor(nameof(EcsPoints))]
-    private AodGenerateWaveFileTrainingChirpItem2[] _items = [];
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _isOk;
-
-    public AodGenerateWaveFileTrainingChirpItem2? MaxItem => Items.Length > 0 ? Items.OrderByDescending(t => t.MaxValue).First() : null;
-
-    public Point[] EcsPoints => [.. Items.Select(t => new Point(t.Ecs, t.MaxValue))];
-}
-
-public sealed partial class AodGenerateWaveFileTrainingChirpItem2 : ObservableObject
-{
-    [ObservableProperty]
-    private double _ecs;
+    public partial double TargetValueX { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial double TargetValueY { get; set; }
 
     [ObservableProperty]
-    private double _maxValue;
+    public partial bool IsOk { get; set; }
 }
 
 public static class GenerateChirpAodWave

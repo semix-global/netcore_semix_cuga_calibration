@@ -147,16 +147,16 @@ public sealed class LaserViewModel(
 
     public List<int> GetUsedPmtIdList()
     {
-        var ret = calibrationLaserService.GetUsedPmtIdList();
+        var ret = calibrationLaserService.GetPmtConfigList();
 
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? ret.Anything.Where(t => t.IsUsed).Select(t => t.PmtId).ToList() : throw new CugaException(ret.ErrorMsg);
     }
 
     public List<double> GetPmtDataList(int pmtId, int channel)
     {
-        var ret = calibrationLaserService.GetPmtDataList(pmtId, channel);
+        var ret = calibrationLaserService.GetPmtDataList(1, pmtId, channel);
 
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? ret.Anything[0] : throw new CugaException(ret.ErrorMsg);
     }
 
     public List<DarkFieldPmtDataDto> GetPmtDataList()
@@ -231,48 +231,44 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public async Task ToggleEnableMarkModeAsync(bool enable, int pmtId) => await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select(channelId => Task.Run(() => ToggleEnableMarkMode(enable, pmtId, channelId))));
+    public void ToggleEnableAutoGain(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    {
+        var ret = calibrationLaserService.ToggleEnableAutoGainControl(enable, pmtId, channelId);
 
-    public void ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ToggleEnableLogMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    {
+        var ret = calibrationLaserService.ToggleEnableLogMode(enable, pmtId, channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ToggleEnableMarkMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableMarkMode(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableAutoGain(bool enable)
+    public void ToggleEnableL0K(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
-        var ret = calibrationLaserService.ToggleEnableAutoGain(enable);
+        var ret = calibrationLaserService.ToggleEnableL0K(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public async Task ToggleEnableAutoGainAsync(bool enable, int pmtId) => await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select(channelId => Task.Run(() => ToggleEnableAutoGain(enable, pmtId, channelId))));
-
-    public void ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
+    public void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
-        var ret = calibrationLaserService.ToggleEnableAutoGain(enable, pmtId, channelId);
+        var ret = calibrationLaserService.SetGain(gain, Constants.NegInt32Value, Constants.NegInt32Value);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableL0K(bool enable)
+    public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight = true)
     {
-        var ret = calibrationLaserService.ToggleEnableL0K(enable);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetGain(double gain)
-    {
-        var ret = calibrationLaserService.SetGain(gain);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum)
-    {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum);
+        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum, isCuttingPixelHeight);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -448,7 +444,7 @@ public sealed class LaserViewModel(
         return darkFieldImageDto;
     }
 
-    public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,

@@ -11,6 +11,7 @@ using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
@@ -49,6 +50,9 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
 
     [ObservableProperty]
     private LaserPmtAgcDelayItemDto[] _laserPmtAgcDelayItemDtoList = [];
+
+    [ObservableProperty]
+    private LaserPmtAgcDelayItemDto? _selectCalibrationLaserPmtAgcDelayItemDto;
 
     [ObservableProperty]
     private ObservableCollection<OpticsMagTypeEnumCalibrationStatus> _calibrationStatusList =
@@ -150,6 +154,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
             .. Calibrations
                 .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsMagTypeEnum)
+                .ThenBy(t => t.PmtId)
         ];
 
         if (ReviewList.All(t => t.IsCalibrated == false))
@@ -216,8 +221,6 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         {
             LaserPmtAgcDelayItemDtoList = [];
 
-            using var semaphore = new SemaphoreSlim(Cache.ConcurrentCount, Cache.ConcurrentCount);
-
             var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
             Cache.PmtIdList = LaserViewModel.GetUsedPmtIdList();
@@ -250,17 +253,26 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                 LaserPmtAgcDelayItemDtoList = [.. LaserPmtAgcDelayItemDtoList, laserPmtAgcDelayItemDto];
             }
 
-            return (await Task.WhenAll(LaserPmtAgcDelayItemDtoList.Select(item => Task.Run(async () =>
+            var results = new List<bool>();
+
+            foreach (var agcDelayItemList in LaserPmtAgcDelayItemDtoList
+                         .OrderBy(t => t.PmtId)
+                         .Batch(Cache.ConcurrentCount))
             {
-                return await GetPmtAgcDelayAsync(
-                    item,
-                    darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 1),
-                    darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 2),
-                    darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 3),
-                    // ReSharper disable once AccessToDisposedClosure
-                    semaphore,
-                    cancellationToken);
-            }, cancellationToken)))).All(b => b);
+                SelectCalibrationLaserPmtAgcDelayItemDto = agcDelayItemList.FirstOrDefault();
+
+                results.AddRange(await Task.WhenAll(agcDelayItemList.Select(item => Task.Run(async () =>
+                {
+                    return await GetPmtAgcDelayAsync(
+                        item,
+                        darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 1),
+                        darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 2),
+                        darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 3),
+                        cancellationToken);
+                }, cancellationToken))));
+            }
+
+            return results.All(b => b);
         });
     }
 
@@ -269,7 +281,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
     {
         await InvokeVerifyAsync(async () =>
         {
-            if (SelectReviewList.Count == 0)
+            if (SelectReviewList.Any(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum) == false)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -277,8 +289,6 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
 
             try
             {
-                using var semaphore = new SemaphoreSlim(Cache.ConcurrentCount, Cache.ConcurrentCount);
-
                 var darkFieldPmtDelayDtos = LaserViewModel.GetPmtDelayList();
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -295,22 +305,27 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
 
                 Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var result = (await Task.WhenAll(SelectReviewList.Select(item => Task.Run(async () =>
-                {
-                    item.IsVerified = false;
-                    var isOk = await GetPmtAgcDelayAsync(
-                        item,
-                        darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 1),
-                        darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 2),
-                        darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 3),
-                        // ReSharper disable once AccessToDisposedClosure
-                        semaphore,
-                        cancellationToken,
-                        true);
-                    item.IsVerified = isOk;
+                var results = new List<bool>();
 
-                    return isOk;
-                }, cancellationToken)))).All(b => b);
+                foreach (var agcDelayItemList in SelectReviewList
+                             .Where(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum)
+                             .OrderBy(t => t.PmtId)
+                             .Batch(Cache.ConcurrentCount))
+                {
+                    SelectCalibrationLaserPmtAgcDelayItemDto = agcDelayItemList.FirstOrDefault();
+
+                    results.AddRange(await Task.WhenAll(agcDelayItemList.Select(item => Task.Run(async () =>
+                    {
+                        return await GetPmtAgcDelayAsync(
+                            item,
+                            darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 1),
+                            darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 2),
+                            darkFieldPmtDelayDtos.Single(t => t.PmtId == item.PmtId && t.ChannelId == 3),
+                            cancellationToken);
+                    }, cancellationToken))));
+                }
+
+                var result = results.All(b => b);
 
                 if (Save([.. SelectReviewList], cancellationToken) == false)
                 {
@@ -336,27 +351,29 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         DarkFieldPmtDelayDto ch1Delay,
         DarkFieldPmtDelayDto ch2Delay,
         DarkFieldPmtDelayDto ch3Delay,
-        SemaphoreSlim semaphore,
         CancellationToken cancellationToken,
         bool isReview = false)
     {
-        var lockToken = false;
         var ch1DelayClone = ch1Delay.Clone();
         var ch2DelayClone = ch2Delay.Clone();
         var ch3DelayClone = ch3Delay.Clone();
         try
         {
-            lockToken = await semaphore.WaitAsync(int.MaxValue, cancellationToken);
-
             var htmlElementList = new List<HtmlHeader>();
 
             Logger.LogInformation("Pmt ID: {ItemPmtId}", item.PmtId);
 
             try
             {
-                var height = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
+                var height = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum, false);
                 // 从1开始
                 var baseIndex = (height + 1) / 2d;
+                if (isReview == false)
+                {
+                    item.Channel1AgcDelay = baseIndex;
+                    item.Channel2AgcDelay = baseIndex;
+                    item.Channel3AgcDelay = baseIndex;
+                }
 
                 var count = 1;
                 while (true)
@@ -367,13 +384,13 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                     ch2Delay.AgcDelay = item.Channel2AgcDelay;
                     ch3Delay.AgcDelay = item.Channel3AgcDelay;
 
-                    await LaserViewModel.ToggleEnableAutoGainAsync(false, item.PmtId);
-                    await LaserViewModel.ToggleEnableMarkModeAsync(false, item.PmtId);
+                    LaserViewModel.ToggleEnableAutoGain(false, item.PmtId);
+                    LaserViewModel.ToggleEnableMarkMode(false, item.PmtId);
 
                     LaserViewModel.SetPmtDelayList([ch1Delay, ch2Delay, ch3Delay]);
 
-                    await LaserViewModel.ToggleEnableAutoGainAsync(true, item.PmtId);
-                    await LaserViewModel.ToggleEnableMarkModeAsync(true, item.PmtId);
+                    LaserViewModel.ToggleEnableAutoGain(true, item.PmtId);
+                    LaserViewModel.ToggleEnableMarkMode(true, item.PmtId);
 
                     await Task.Delay(3000, cancellationToken);
 
@@ -403,6 +420,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                         [
                             new HtmlBullet(new
                             {
+                                item.OpticsMagTypeEnum,
                                 item.PmtId,
                                 ch1DelayCurrentPmtDelay = ch1DelayClone.PmtDelay,
                                 ch1DelayCurrentSenseDelay = ch1DelayClone.SenseDelay,
@@ -499,20 +517,20 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
             }
             finally
             {
-                Logger.LogHtmlInformation($"Pmt ID: {item.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. htmlElementList]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation([.. htmlElementList], HtmlLogUniqueId.LoggingHtml());
             }
         }
         finally
         {
-            if (lockToken) semaphore.Release();
-
-            await LaserViewModel.ToggleEnableAutoGainAsync(false, item.PmtId);
-            await LaserViewModel.ToggleEnableMarkModeAsync(false, item.PmtId);
+            LaserViewModel.ToggleEnableAutoGain(false, item.PmtId);
+            LaserViewModel.ToggleEnableMarkMode(false, item.PmtId);
             LaserViewModel.SetPmtDelayList([ch1DelayClone, ch2DelayClone, ch3DelayClone]);
         }
 
         int GetMiddleIndex(List<double> values)
         {
+            if (HostEnvironment.IsDevelopment()) return 10;
+
             var targetValue = values.Min() + (values.Max() - values.Min()) * 2d / 3d;
             var changedList = values.ToPoints().Where(t => t.Y < targetValue).ToList();
 

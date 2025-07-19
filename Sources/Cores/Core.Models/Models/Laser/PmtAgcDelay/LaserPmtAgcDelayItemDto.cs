@@ -50,6 +50,9 @@ public sealed partial class LaserPmtAgcDelayItemDto : CalibrationDtoBase, IClone
         Channel1AgcDelay = Channel1AgcDelay,
         Channel2AgcDelay = Channel2AgcDelay,
         Channel3AgcDelay = Channel3AgcDelay,
+        Channel1AgcOffset = Channel1AgcOffset,
+        Channel2AgcOffset = Channel2AgcOffset,
+        Channel3AgcOffset = Channel3AgcOffset,
         Channel1SenseData =
         [
             .. Channel1SenseData.Select<List<double>, List<double>>(t =>

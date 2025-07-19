@@ -2,14 +2,4 @@
 
     <Import Project="$(BuildToolsDirectory)\Common.Packages.props" />
 
-    <ItemGroup>
-        <PackageVersion Include="SkiaSharp.HarfBuzz" Version="3.119.0" />
-        <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
-        <PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="3.119.0" />
-        <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0" />
-        <PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.1" />
-        <PackageVersion Include="HarfBuzzSharp.NativeAssets.Win32" Version="8.3.1.1" />
-        <PackageVersion Include="HarfBuzzSharp.NativeAssets.macOS" Version="8.3.1.1" />
-    </ItemGroup>
-
 </Project>

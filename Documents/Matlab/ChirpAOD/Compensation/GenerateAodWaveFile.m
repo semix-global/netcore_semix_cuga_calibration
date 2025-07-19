@@ -9,6 +9,8 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
         flatnessTime, ... % 平坦时间 (ns), -1 启用chirp
         soundPacketLength, ... % 音包长度 (mm)
         endpointNumberOfSamples, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
+        offsetFrequency, ... % 偏移的频率
+        offsetFrequencyPeriodMultiple, ... % 偏移的频率的2π周期的倍率
         sincCoefficient, ... % sinc系数
         astigmatismCompensationCoefficient, ... % 二次补偿系数t^2 散光
         sphericalAberrationCompensationCoefficient, ... % 三次补偿系数t^3 球差
@@ -112,11 +114,13 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
 
     if soundPacketLength == -1
         aodWaveFilePath = fullfile(aodWaveDirectory, ...
-            sprintf('prescan_%0.3fBWMhz_%s_%0.3fns_%0.3fAMP_%0.3fastigmatism_%0.3fsphericalAberration_%0.3fsecondaryAstigmatism_%0.3fcomaCompensationCoefficient_%dCount_$%d$%d$600$02$.txt', ...
+            sprintf('prescan_%0.3fBWMhz_%s_%0.3fns_%0.3fAMP_%0.3foffsetFrequency_%0.3foffsetFrequencyPeriodMultiple_%0.3fastigmatism_%0.3fsphericalAberration_%0.3fsecondaryAstigmatism_%0.3fcomaCompensationCoefficient_%dCount_$%d$%d$600$02$.txt', ...
             readonlyBandWidth, ...
             frequencyFileName, ...
             flatnessTime, ...
             amplitude, ...
+            offsetFrequency, ...
+            offsetFrequencyPeriodMultiple, ...
             astigmatismCompensationCoefficient, ...
             sphericalAberrationCompensationCoefficient, ...
             secondaryAstigmatismCompensationCoefficient, ...
@@ -126,12 +130,14 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
             zeroSampleCount));
     else
         aodWaveFilePath = fullfile(aodWaveDirectory, ...
-            sprintf('chirp_%0.3fmm_%0.3fBWMhz_%s_%0.3fns_%0.3fAMP_%0.3fastigmatism_%0.3fsphericalAberration_%0.3fsecondaryAstigmatism_%0.3fcomaCompensationCoefficient%dCount_$%d$%d$600$03$.txt', ...
+            sprintf('chirp_%0.3fmm_%0.3fBWMhz_%s_%0.3fns_%0.3fAMP_%0.3foffsetFrequency_%0.3foffsetFrequencyPeriodMultiple_%0.3fastigmatism_%0.3fsphericalAberration_%0.3fsecondaryAstigmatism_%0.3fcomaCompensationCoefficient%dCount_$%d$%d$600$03$.txt', ...
             soundPacketLength, ...
             readonlyBandWidth, ...
             frequencyFileName, ...
             flatnessTime, ...
             amplitude, ...
+            offsetFrequency, ...
+            offsetFrequencyPeriodMultiple, ...
             astigmatismCompensationCoefficient, ...
             sphericalAberrationCompensationCoefficient, ...
             secondaryAstigmatismCompensationCoefficient, ...
@@ -144,7 +150,7 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
     %% 波形生成
 
     isOk = 0;
-    count = 0;
+    count = 1;
 
     while isOk == 0
 
@@ -230,11 +236,11 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
         dHeaderPhases = 2 * pi * dHeaderFrequencies * dt;
         headerPhases = cumsum(dHeaderPhases);
 
-        dFooterPhases = 2 * pi * dFooterFrequencies * dt;
-        footerPhases = cumsum(dFooterPhases);
-
         dFlatnessPhases = 2 * pi * dFlatnessFrequencies * dt;
         flatnessPhases = cumsum(dFlatnessPhases);
+
+        dFooterPhases = 2 * pi * dFooterFrequencies * dt;
+        footerPhases = cumsum(dFooterPhases);
 
         %% 波形
 
@@ -430,6 +436,32 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
 
         %% 画图
         if isOk == 1
+            %% 相位
+
+            dHeaderPhases = 2 * pi * dHeaderFrequencies * dt;
+            headerPhases = cumsum(dHeaderPhases);
+
+            dFlatnessPhases = 2 * pi * dFlatnessFrequencies * dt;
+            flatnessPhases = cumsum(dFlatnessPhases) + 2 * pi * dFlatnessFrequencies * offsetFrequencyPeriodMultiple * 1 / offsetFrequency;
+
+            dFooterPhases = 2 * pi * dFooterFrequencies * dt;
+            footerPhases = cumsum(dFooterPhases);
+
+            %% 波形
+
+            aodWaveSignals(headerSampleIndices) = cos(headerPhases) .* ((headerSampleIndices - min(headerSampleIndices)) / length(headerSampleIndices)) * amplitude;
+            aodWaveSignals(flatnessSampleIndices) = cos(flatnessPhases) * amplitude;
+            aodWaveSignals(footerSampleIndices) = cos(footerPhases) .* (1 - (footerSampleIndices - min(footerSampleIndices) + 1) / length(footerSampleIndices)) * amplitude;
+
+            %% 傅里叶
+            flatnessAodWaveSignals = aodWaveSignals(flatnessSampleIndices);
+            fftResult = fft(flatnessAodWaveSignals);
+
+            % 取前一半正频率
+            % fftFrequencies = (0:length(flatnessAodWaveSignals) / 2)' * samplingFrequency / length(flatnessAodWaveSignals);
+            fftFrequencies = HalfFrequencyScale(length(flatnessAodWaveSignals), sampleRate)';
+            fftMagnitudes = abs(fftResult(1:length(flatnessAodWaveSignals) / 2 + 1));
+
             % fftShiftFrequencies = (-length(flatnessAodWaveSignals) / 2:length(flatnessAodWaveSignals) / 2 - 1)' * samplingFrequency / length(flatnessAodWaveSignals);
             % fftShiftFrequencies = fftshift(FrequencyScale(length(flatnessAodWaveSignals), samplingFrequency));
             fftShiftFrequencies = FrequencyScale(length(flatnessAodWaveSignals), sampleRate)';
@@ -577,6 +609,32 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
         count = count + 1;
 
         if count > generateRetryTimes
+            %% 相位
+
+            dHeaderPhases = 2 * pi * dHeaderFrequencies * dt;
+            headerPhases = cumsum(dHeaderPhases);
+
+            dFlatnessPhases = 2 * pi * dFlatnessFrequencies * dt;
+            flatnessPhases = cumsum(dFlatnessPhases) + 2 * pi * dFlatnessFrequencies * offsetFrequencyPeriodMultiple * 1 / offsetFrequency;
+
+            dFooterPhases = 2 * pi * dFooterFrequencies * dt;
+            footerPhases = cumsum(dFooterPhases);
+
+            %% 波形
+
+            aodWaveSignals(headerSampleIndices) = cos(headerPhases) .* ((headerSampleIndices - min(headerSampleIndices)) / length(headerSampleIndices)) * amplitude;
+            aodWaveSignals(flatnessSampleIndices) = cos(flatnessPhases) * amplitude;
+            aodWaveSignals(footerSampleIndices) = cos(footerPhases) .* (1 - (footerSampleIndices - min(footerSampleIndices) + 1) / length(footerSampleIndices)) * amplitude;
+
+            %% 傅里叶
+            flatnessAodWaveSignals = aodWaveSignals(flatnessSampleIndices);
+            fftResult = fft(flatnessAodWaveSignals);
+
+            % 取前一半正频率
+            % fftFrequencies = (0:length(flatnessAodWaveSignals) / 2)' * samplingFrequency / length(flatnessAodWaveSignals);
+            fftFrequencies = HalfFrequencyScale(length(flatnessAodWaveSignals), sampleRate)';
+            fftMagnitudes = abs(fftResult(1:length(flatnessAodWaveSignals) / 2 + 1));
+
             PlotAodWaveAnalysis( ...
                 flatnessSampleIndices, ...
                 dLinearFrequencies, ...
@@ -610,7 +668,8 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
                 fftSecondDerivativeFrequencies, ...
                 fftSecondDerivative, ...
                 aodWaveFilePath);
-            error('Failed to generate valid AOD wave after %d retries', generateRetryTimes);
+            warning('Failed to generate valid AOD wave after %d retries', generateRetryTimes);
+            break;
         end
 
     end

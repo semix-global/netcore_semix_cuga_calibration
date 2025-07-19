@@ -309,36 +309,21 @@
                             </Border>
                         </Expander>
                         <Expander ExpandDirection="Down"
-                                  Header="2. RTFC"
+                                  Header="2. Training"
                                   IsExpanded="False">
                             <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:NumericUpDown hc:InfoElement.Title="Ecs Min: "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="100"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding EcsMin}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Ecs Max: "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="100"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding EcsMax}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Ecs Step: "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="100"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding EcsStep}" />
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </Expander>
-                        <Expander ExpandDirection="Down"
-                                  Header="3. Training"
-                                  IsExpanded="False">
-                            <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:ComboBox hc:InfoElement.TitleWidth="150"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.Title="Training Algorithm: "
+                                                 SelectedItem="{Binding TrainingAlgorithmEnum}"
+                                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:TrainingAlgorithmEnum}}}">
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
                                     <hc:ComboBox HorizontalAlignment="Left"
                                                  hc:InfoElement.Title="Prescan Coefficient: "
                                                  hc:InfoElement.TitlePlacement="Left"
@@ -473,64 +458,16 @@
                         <GridSplitter Grid.Row="1" Height="5" />
                         <TabControl Grid.Row="2">
                             <TabItem Header="Select Details">
-                                <TabControl Margin="2">
-                                    <TabItem Header="Picture">
-                                        <ListBox Margin="2" ItemsSource="{Binding SelectItem.Items}">
-                                            <ListBox.Resources>
-                                                <attachedHelper:BindingProxy x:Key="BindingProxy" Value="{Binding}" />
-                                                <ContextMenu x:Key="ContextMenu" Placement="Left">
-                                                    <MenuItem Command="{Binding Path=Value.(viewModels:AodGenerateWaveFileTrainingChirp2WindowViewModel.SavePictureCommand), Source={StaticResource BindingProxy}}"
-                                                              CommandParameter="{Binding Path=PlacementTarget.(ContextMenu.Tag), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
-                                                              Header="Save" />
-                                                </ContextMenu>
-                                            </ListBox.Resources>
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:ListBoxScrollToCurrentBehavior />
-                                            </i:Interaction.Behaviors>
-                                            <ListBox.ItemContainerStyle>
-                                                <Style TargetType="ListBoxItem">
-                                                    <Setter Property="Margin" Value="5" />
-                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                                </Style>
-                                            </ListBox.ItemContainerStyle>
-                                            <ListBox.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
-                                                </ItemsPanelTemplate>
-                                            </ListBox.ItemsPanel>
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <hc:SimplePanel>
-                                                        <view:CanvasView Width="400"
-                                                                         Height="400"
-                                                                         AxisColor="Red"
-                                                                         BackgroundColor="#0A0A0A"
-                                                                         BackgroundImage="{Binding FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                         ContextMenu="{StaticResource ContextMenu}"
-                                                                         Interactive="True"
-                                                                         ShowAxes="True"
-                                                                         ShowCursor="False"
-                                                                         ShowGrid="False"
-                                                                         Tag="{Binding .}" />
-                                                        <TextBlock Text="{Binding Ecs, StringFormat='ECS: {0:f0}'}"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Top"
-                                                                   FontSize="14"
-                                                                   Foreground="Yellow" />
-                                                    </hc:SimplePanel>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
-                                    </TabItem>
-                                    <TabItem Header="Ecs">
-                                        <wpf:WpfPlot>
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:WpfPlotMultiBehavior Plot0="{Binding SelectItem.EcsPoints}" />
-                                            </i:Interaction.Behaviors>
-                                        </wpf:WpfPlot>
-                                    </TabItem>
-                                </TabControl>
+                                <view:CanvasView Width="400"
+                                                 Height="400"
+                                                 AxisColor="Red"
+                                                 BackgroundColor="#0A0A0A"
+                                                 BackgroundImage="{Binding SelectItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 Interactive="True"
+                                                 ShowAxes="True"
+                                                 ShowCursor="False"
+                                                 ShowGrid="False"
+                                                 Tag="{Binding .}" />
                             </TabItem>
                             <TabItem Header="Select Aod Wave">
                                 <TabControl>
@@ -561,10 +498,17 @@
                                     </TabItem>
                                 </TabControl>
                             </TabItem>
-                            <TabItem Header="Current Compensation Result">
+                            <TabItem Header="Current Compensation Y Result">
                                 <wpf:WpfPlot>
                                     <i:Interaction.Behaviors>
-                                        <behaviors:WpfPlotMultiBehavior Plot0="{Binding ItemsPoints}" />
+                                        <behaviors:WpfPlotMultiBehavior Plot0="{Binding ItemsYPoints}" />
+                                    </i:Interaction.Behaviors>
+                                </wpf:WpfPlot>
+                            </TabItem>
+                            <TabItem Header="Current Compensation X Result">
+                                <wpf:WpfPlot>
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:WpfPlotMultiBehavior Plot0="{Binding ItemsXPoints}" />
                                     </i:Interaction.Behaviors>
                                 </wpf:WpfPlot>
                             </TabItem>

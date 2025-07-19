@@ -15,6 +15,7 @@ namespace CugaCalibration.ViewModels.Common;
 [IOCAppService(ServiceType = typeof(AfViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class AfViewModel(
     ICalibrationAfService calibrationAfService,
+    ICalibrationEFEMService calibrationEFEMService,
     ILogger<AfViewModel> logger,
     CalibrationSetting calibrationSetting) : ViewModelBase
 {
@@ -29,6 +30,18 @@ public sealed class AfViewModel(
 
     public void ToggleBrightFieldEnable(bool isEnable)
     {
+        if (isEnable)
+        {
+            var isChuckLoadedWaferRet = calibrationEFEMService.IsChuckLoadedWafer();
+            if (isChuckLoadedWaferRet.IsSuccess == false) throw new CugaException(isChuckLoadedWaferRet.ErrorMsg);
+
+            if (isChuckLoadedWaferRet.Anything == false)
+            {
+                logger.LogWarning("Chuck hasn't loaded a wafer. so toggle ecs model!");
+                isEnable = false;
+            }
+        }
+
         var ret = calibrationAfService.ToggleBrightFieldEnable(isEnable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);

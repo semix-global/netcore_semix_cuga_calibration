@@ -36,6 +36,9 @@
         <Reference Include="Cuga.Data.DataStruct">
             <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>
+        <Reference Include="Semix.WcfTransfer.DTO">
+            <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>

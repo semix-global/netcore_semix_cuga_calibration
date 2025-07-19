@@ -41,6 +41,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return (Random.Next(100, 1000), Random.Next(100, 1000));
     }
 
+    public (double Width, double Height) GetLightQuality(HObject image, Rect roiRect)
+    {
+        return (Random.Next(100, 1000), Random.Next(100, 1000));
+    }
+
     public Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Next(1, 10), Random.Next(1, 10));
@@ -151,7 +156,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return true;
     }
 
-    public (Size Size, int BodyBytesStartIndex, int BodyBytesLength) GetSize(byte[] rawBytes)
+    public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes)
     {
         return RawImageHelper.GetSize(rawBytes);
     }

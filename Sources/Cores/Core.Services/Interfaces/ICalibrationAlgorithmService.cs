@@ -47,6 +47,14 @@ public interface ICalibrationAlgorithmService
     /// <returns>MTF</returns>
     (double MtfX, double MtfY) ModulationTransferFunction(HObject image, Rect roiRect);
 
+    /// <summary>
+    /// 获得暗场图片光斑大小
+    /// </summary>
+    /// <param name="image">图片</param>
+    /// <param name="roiRect">ROI</param>
+    /// <returns>光斑大小</returns>
+    (double Width, double Height) GetLightQuality(HObject image, Rect roiRect);
+
     #endregion 清晰度
 
     #region 尺寸
@@ -164,7 +172,7 @@ public interface ICalibrationAlgorithmService
     /// </summary>
     /// <param name="rawBytes">raw bytes</param>
     /// <returns>尺寸</returns>
-    public (Size Size, int BodyBytesStartIndex, int BodyBytesLength) GetSize(byte[] rawBytes);
+    public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes);
 
     /// <summary>
     /// raw body bytes add header and footer

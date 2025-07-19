@@ -10,12 +10,16 @@ using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
+using System.Net;
+using System.Text;
 
 namespace Core.Services.Implements.WCF;
 
@@ -28,6 +32,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
     private List<CgLightConfig>? _cgLightConfigList;
+    private List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>? _pmtConfigList;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -139,36 +144,134 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SendChirpAodByList(DarkFieldChirpAodWaveDto darkFieldChirpAodWaveDto)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetChirp_Calibration(darkFieldChirpAodWaveDto.ChirpAodWaveByteList, darkFieldChirpAodWaveDto.RegNum, darkFieldChirpAodWaveDto.ZeroNum));
-
+        var sxExecuteRet = Invoke(() => Service!.SetChirpCalibration(darkFieldChirpAodWaveDto.ChirpAodWaveByteList, darkFieldChirpAodWaveDto.RegNum, darkFieldChirpAodWaveDto.ZeroNum));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<int>> GetUsedPmtIdList()
+    public SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetPMTUsedID());
+        var sxExecuteRet = Invoke(() => Service!.SetAOD_NO(opticsAodWorkingModeEnum.ToOpticsAodWorkingMode()));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<int>>(sxExecuteRet.Msg, []);
-
-        return SxExecuteRetHelper.CreateSuccess<List<int>>([
-            .. sxExecuteRet.Anything
-                .GroupBy(t => t.id)
-                .Where(t => t.Distinct().Count() == 3)
-                .Select(t => t.Key)
-        ]);
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<double>> GetPmtDataList(int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetPolarization(opticsPolarizationTypeEnum.ToCgPolarizationTypeEnum()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetMagAndWaveZero(yOpticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId)
+    {
+        var sxExecuteRet = SetPmtValue(PMTRegEnum.DcAgc, BitConverter.ToInt32(enable ? [0, 0, 1, 0] : [0, 0, 0, 0], 0), pmtId, channelId);
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            // 防止波形模式不是为DC模式(防呆)
+            : SetPmtValue(PMTRegEnum.DcMode, 2 /*波形数据模式 1.chirp 2.dc 3.single*/, pmtId, channelId);
+    }
+
+    public SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.CibProfile, enable ? 4 : 2 /*"Profile_PMT", "PMT_Volt", "Profile_Log", "PMT_Log" , "Sense_Volt"*/, pmtId, channelId);
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.MarkMode, enable ? 1 : 0, pmtId, channelId);
+
+    public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.L0k, enable ? 1 : 0, pmtId, channelId);
+
+    public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
+    {
+        var bytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(-(short)(gain / 14d * short.MaxValue)));
+        bytes[1] = 0;
+
+        return SetPmtValue(PMTRegEnum.DcMode, BitConverter.ToInt32(bytes, 0), pmtId, channelId);
+    }
+
+    public SxExecuteRet<bool> SetPmtValue(PMTRegEnum pmtRegEnum, int value, int pmtId, int channelId)
+    {
+        var pmtConfigListSxExecuteRet = GetPmtConfigList();
+        if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(pmtConfigListSxExecuteRet.Msg, false);
+
+        var pmtConfigList = pmtConfigListSxExecuteRet.Anything.Where(t => t.IsUsed).ToList();
+        var sendData = new List<(int data, int id, int channel)>();
+
+        switch (pmtId, channelId)
+        {
+            case (Constants.NegInt32Value, Constants.NegInt32Value):
+                foreach (var (currentPmtId, _, channelIdList) in pmtConfigList) sendData.AddRange(channelIdList.Select(t => (currentPmtId, t, value)));
+
+                break;
+
+            case ( > 0, > 0):
+                Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
+                sendData.Add((pmtId, channelId, value));
+
+                break;
+
+            case ( > 0, Constants.NegInt32Value):
+                sendData.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (pmtId, t, value)));
+                break;
+
+            default:
+                return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(pmtId), nameof(channelId));
+        }
+
+        var sxExecuteRetAll = Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, sendData));
+
+        return sxExecuteRetAll.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetAll.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>> GetPmtConfigList()
+    {
+        if (_pmtConfigList is not null) return SxExecuteRetHelper.CreateSuccess(_pmtConfigList);
+
+        var sxExecuteRet = Invoke(() => Service!.GetPmtState());
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>>(sxExecuteRet.Msg, []);
+        var result = (
+            from item in sxExecuteRet.Anything
+            group item by item.id
+            into g
+            select (
+                PmtId: g.Key,
+                IsUsed: g.All(x => x.used),
+                ChannelIdList: g.Select(x => x.chl).ToList()
+            )
+        ).ToList();
+
+        Guard.IsTrue(result.All(item => item.ChannelIdList.SequenceEqual(result.First().ChannelIdList)), "Channel Id is not equal");
+        Guard.IsTrue(result.Any(item => item.IsUsed), "Pmt Config List is not used");
+
+        _pmtConfigList = result;
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<List<List<double>>> GetPmtDataList(int count, int pmtId, int channelId)
     {
         var sxExecuteRet = Invoke(() => Service!.GetPMTData_Appoint(pmtId, channelId));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Pmt Value List is empty", []);
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<double>>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<List<List<double>>>("Pmt Value List is empty", []);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+        return SxExecuteRetHelper.CreateSuccess(new List<List<double>> { sxExecuteRet.Anything });
     }
 
     public SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList()
@@ -263,88 +366,40 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
+    public SxExecuteRet<(double Ecs, double Offset)> RuntimeAfCalibration(Point position, double offset, double coefficient)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetPolarization(opticsPolarizationTypeEnum.ToCgPolarizationTypeEnum()));
+        var executeRet = LightCoefficientToLightLevel(coefficient);
+        if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(executeRet.ErrorMsg);
+
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(position.ToSxPointD(), offset, Convert.ToUInt16(executeRet.Anything)));
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
     }
 
-    public SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
+    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetAOD_NO(opticsAodWorkingModeEnum.ToOpticsAodWorkingMode()));
+        if (isCuttingPixelHeight)
+        {
+            var sxExecuteRet = Invoke(() => Service!.GetSpeedInfo(yOpticsMagTypeEnum.ToSxMagEnum()));
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
+                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
+        }
+        else
+        {
+            var sxExecuteRet = Invoke(() => Service!.GetPmtDataLineHeight(yOpticsMagTypeEnum.ToCgMagTypeEnum()));
+
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
+                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything));
+        }
     }
 
-    public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetMagAndWaveZero(yOpticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetMarkMode(enable, pmtId, channelId));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetAGC(enable));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableAutoGain(bool enable, int pmtId, int channelId)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetAgcCalibration(enable, pmtId, channelId));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableL0K(bool enable)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetL0K(enable));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetGain(double gain)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SendDC(false, gain));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum)
-    {
-        var sxExecuteRet = Invoke(() => Service!.GetSpeedInfo(yOpticsMagTypeEnum.ToSxMagEnum()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-    }
-
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+        Point position,
         int xWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
@@ -394,7 +449,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -407,7 +462,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         bool isCustomChirpAod)
     {
         if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(errorMessage, []);
+            return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(errorMessage, []);
 
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
@@ -422,16 +477,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
         };
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
 
         foreach (var c2MImgModel in darkFieldImagesRet.Anything)
         {
-            var rawBytes = File.ReadAllBytes(c2MImgModel.Url);
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix, Bytes = rawBytes }.AdaptIn(c2MImgModel));
+            result.Add(new DarkFieldRawScanImageDto().AdaptIn(c2MImgModel));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -461,7 +514,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (directionRect.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRect.ErrorMsg, []);
         var directionX = directionRect.Anything.XDirection;
 
-        var picturePixelHeightRet = GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum);
+        var picturePixelHeightRet = GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum, true);
         if (picturePixelHeightRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(picturePixelHeightRet.ErrorMsg, []);
         var height = picturePixelHeightRet.Anything;
 
@@ -492,33 +545,38 @@ public sealed partial class CalibrationLaserServiceImpl(
         var pointerList = Enumerable
             .Range(0, machinePositionList.Count)
             .Select((count, index) => index == 0 ? 0 : count * (machinePositionList[1].X - machinePositionList[0].X) / xPixelSize * heightPixelOfByte)
-            .Select(Convert.ToInt32)
+            .Select(Convert.ToInt64)
             .ToList();
 
         var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
         foreach (var channelId in Enumerable.Range(0, 3))
         {
-            var rawBytes = File.ReadAllBytes(darkFieldImagesRet.Anything[channelId].Url);
-            var (_, bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
-            ReadOnlySpan<byte> span = rawBytes.AsSpan().Slice(bodyBytesStartIndex, bodyBytesLength);
+            using var fileSteam = File.OpenRead(darkFieldImagesRet.Anything[channelId].Url);
+            using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, false);
+
+            var (_, bodyBytesStartIndex, bodyBytesLength) = RawImageHelper.GetSize(binaryReader);
 
             var splitImages = new List<DarkFieldImageDto>();
             foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))
             {
                 var pointerTemp = pointer - pointer % heightPixelOfByte; // dieWidthPixel不是整数倍, 需要对齐
                 byte[] array;
-                if (pointerTemp + splitImageLength > rawBytes.Length)
+                if (pointerTemp + splitImageLength > bodyBytesLength)
                 {
                     if (index != pointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
 
-                    var offset = xWidthPixel - (rawBytes.Length - pointerTemp) / heightPixelOfByte;
+                    var offset = xWidthPixel - (bodyBytesLength - pointerTemp) / heightPixelOfByte;
 
                     pointerTemp += offset * heightPixelOfByte;
-                    array = span[pointerTemp..].ToArray();
+                    pointerTemp -= pointerTemp % heightPixelOfByte; // dieWidthPixel不是整数倍, 需要对齐
+
+                    fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                    array = binaryReader.ReadBytes();
                 }
                 else
                 {
-                    array = span.Slice(pointerTemp, splitImageLength).ToArray();
+                    fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                    array = binaryReader.ReadBytes(splitImageLength);
                 }
 
                 var splitRawBytes = calibrationAlgorithmService.ToRawBytes(array, new Size(xWidthPixel, height));
@@ -532,18 +590,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
-    }
-
-    public SxExecuteRet<(double Ecs, double Height)> RuntimeAfCalibration(Point position, double offset, double coefficient)
-    {
-        var executeRet = LightCoefficientToLightLevel(coefficient);
-        if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(executeRet.ErrorMsg);
-
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(position.ToSxPointD(), offset, Convert.ToUInt16(executeRet.Anything)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Score));
     }
 
     private SxExecuteRet<List<CgLightConfig>> GetLightConfigList()

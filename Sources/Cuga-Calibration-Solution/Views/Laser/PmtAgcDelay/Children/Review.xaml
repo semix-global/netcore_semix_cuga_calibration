@@ -35,6 +35,36 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <ItemsControl HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{Binding CalibrationStatusList}">
+                        <i:Interaction.Behaviors>
+                            <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsMagTypeEnum, Mode=TwoWay}" />
+                        </i:Interaction.Behaviors>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                                             Tag="{Binding .OpticsMagTypeEnum}"
+                                             GroupName="ec3f36a4-6cbc-4d85-981e-b17e9446fa4b">
+                                    <RadioButton.Style>
+                                        <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                                    <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                                    <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </RadioButton.Style>
+                                </RadioButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="Threshold: "
                                       hc:TitleElement.TitleWidth="100"
@@ -100,6 +130,9 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="100"
+                                            Header="Mag"
+                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Width="100"
                                             Header="Pmt Id"
                                             DisplayMemberBinding="{Binding PmtId}" />
                             <GridViewColumn Width="150" Header="Offset">
@@ -150,7 +183,7 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Width="150" Header="Delay">
+                            <GridViewColumn Width="400" Header="Delay">
                                 <GridViewColumn.DisplayMemberBinding>
                                     <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}" Mode="OneWay">
                                         <Binding Path="Channel1AgcDelay" />

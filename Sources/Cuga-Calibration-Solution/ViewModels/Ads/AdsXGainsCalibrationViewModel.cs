@@ -1101,9 +1101,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     private static (List<Point> pointZ, List<Point> pointSmoothZ, List<double> smoothZ) GetadsXGainsValue(List<double> PonitZ, int startIndex)
     {
-        var sgolayfiltListZ = SavitzkyGolayFilter.Smooth(3, 51, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(PonitZ));
+        var sgolayfiltListZ = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(PonitZ));
 
-        var x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
+        var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
 
         var (p0, p1, p2, p3, p4, p5, _, yPredictedZ) = PolyFit.Poly5Fit(x, sgolayfiltListZ);
 

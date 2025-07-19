@@ -2,9 +2,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.DarkField;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.ModulesTest;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -96,7 +97,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 ChirpAodWaveFilePath = string.Empty;
                 Clear();
 
-                var (aodWaveFilePath,
+                var (isSuccess,
+                    aodWaveFilePath,
                     aodWaveFlatnessLinearFrequencySignals,
                     aodWaveFlatnessTotalFrequencySignals,
                     aodWaveFlatnessAstigmatismCompensationSignals,
@@ -108,7 +110,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveFlatnessAlphaOrderCompensationSignals,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    aodWaveFrequencyAmplitudes) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                    aodWaveFrequencyAmplitudes,
+                    exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
                     GenerateChirpAodWaveParamDto.BandWidth,
                     GenerateChirpAodWaveParamDto.CenterFrequency,
                     GenerateChirpAodWaveParamDto.SoundPackageLength,
@@ -118,6 +121,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     GenerateChirpAodWaveParamDto.AodWaveDirectory,
                     zeroSampleCount: GenerateChirpAodWaveParamDto.ZeroSampleCount,
                     endpointSampleCount: GenerateChirpAodWaveParamDto.EndpointSampleCount,
+                    offsetFrequency: GenerateChirpAodWaveParamDto.OffsetFrequency,
+                    offsetFrequencyPeriodMultiple: GenerateChirpAodWaveParamDto.OffsetFrequencyPeriodMultiple,
                     sincCoefficient: GenerateChirpAodWaveParamDto.SincCoefficient,
                     astigmatismCompensationCoefficient: GenerateChirpAodWaveParamDto.AstigmatismCompensationCoefficient,
                     sphericalAberrationCompensationCoefficient: GenerateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient,
@@ -144,7 +149,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 AodWaveSignalsFourier = aodWaveSignalsFourier;
                 AodWaveFrequencyAmplitudes = aodWaveFrequencyAmplitudes;
 
-                dialogWindowProvider.ShowDialog("Generate Chirp Aod Wave File Success!");
+                if (isSuccess) dialogWindowProvider.ShowDialog("Generate Chirp Aod Wave File Success!");
+                else throw GuardUtils.IsNotNullAndReturn(exception);
             }
             catch (Exception ex)
             {
@@ -217,7 +223,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 PrescanAodWaveFilePath = string.Empty;
                 Clear();
 
-                var (aodWaveFilePath,
+                var (isSuccess,
+                    aodWaveFilePath,
                     aodWaveFlatnessLinearFrequencySignals,
                     aodWaveFlatnessTotalFrequencySignals,
                     aodWaveFlatnessAstigmatismCompensationSignals,
@@ -229,7 +236,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveFlatnessAlphaOrderCompensationSignals,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    aodWaveFrequencyAmplitudes) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                    aodWaveFrequencyAmplitudes,
+                    exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
                     GeneratePrescanAodWaveParamDto.BandWidth,
                     GeneratePrescanAodWaveParamDto.CenterFrequency,
                     GeneratePrescanAodWaveParamDto.FlatnessTime,
@@ -239,6 +247,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     GeneratePrescanAodWaveParamDto.AodWaveDirectory,
                     zeroSampleCount: GeneratePrescanAodWaveParamDto.ZeroSampleCount,
                     endpointSampleCount: GeneratePrescanAodWaveParamDto.EndpointSampleCount,
+                    offsetFrequency: GeneratePrescanAodWaveParamDto.OffsetFrequency,
+                    offsetFrequencyPeriodMultiple: GeneratePrescanAodWaveParamDto.OffsetFrequencyPeriodMultiple,
                     sincCoefficient: GeneratePrescanAodWaveParamDto.SincCoefficient,
                     astigmatismCompensationCoefficient: GeneratePrescanAodWaveParamDto.AstigmatismCompensationCoefficient,
                     sphericalAberrationCompensationCoefficient: GeneratePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient,
@@ -265,7 +275,8 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                 AodWaveSignalsFourier = aodWaveSignalsFourier;
                 AodWaveFrequencyAmplitudes = aodWaveFrequencyAmplitudes;
 
-                dialogWindowProvider.ShowDialog("Generate Prescan Aod Wave File Success!");
+                if (isSuccess) dialogWindowProvider.ShowDialog("Generate Prescan Aod Wave File Success!");
+                else throw GuardUtils.IsNotNullAndReturn(exception);
             }
             catch (Exception ex)
             {
