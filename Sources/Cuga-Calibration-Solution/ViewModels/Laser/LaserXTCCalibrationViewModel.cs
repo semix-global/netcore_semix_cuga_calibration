@@ -104,6 +104,9 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     private LaserXTCCalibrationCache _cache = new();
 
     [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
     private LaserXTCCalibrationItemDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -180,6 +183,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXTCCalibrationItemDto>();
 
         MicroscopeCalChip = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
+        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
         if (MicroscopeCalChip.IsOk(out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -199,7 +203,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        Cache.FindPosition = MicroscopeCalChip.HazePosition;
+        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
         //MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
         return true;

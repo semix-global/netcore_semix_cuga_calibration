@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Microscope.CalChip.Children.StepCommonNextView"
+﻿<UserControl x:Class="CugaCalibration.Views.Microscope.CalChip.Children.Step2View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -24,30 +24,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Color="{StaticResource InfoBrush}">
-                    <hc:Shield.Style>
-                        <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="0">
-                                    <Setter Property="Subject" Value="Microscope Cal Chip Step 1:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[0].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="1">
-                                    <Setter Property="Subject" Value="Microscope Cal Chip Step 2:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[1].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="2">
-                                    <Setter Property="Subject" Value="Microscope Cal Chip Step 3:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[2].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="3">
-                                    <Setter Property="Subject" Value="Microscope Cal Chip Step 4:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[3].StepName}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </hc:Shield.Style>
-                </hc:Shield>
+                <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat='Cal Chip Step {0}'}" Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
                            Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
@@ -156,7 +133,7 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="1. Find Ecs Position"
+                        <TextBlock Text="2. Ecs Center Position"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
@@ -165,21 +142,22 @@
                     <TextBox x:Name="PositionTextbox"
                              hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left">
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswPosition, Converter={StaticResource PointToStringConverter}}" />
+                                        <Setter Property="Text" Value="{Binding Cache.DswPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.UndefinedPosition, Converter={StaticResource PointToStringConverter}}" />
+                                        <Setter Property="Text" Value="{Binding Cache.UndefinedPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazePosition, Converter={StaticResource PointToStringConverter}}" />
+                                        <Setter Property="Text" Value="{Binding Cache.HazePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.ShinyWaferPosition, Converter={StaticResource PointToStringConverter}}" />
+                                        <Setter Property="Text" Value="{Binding Cache.ShinyWaferPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -188,7 +166,8 @@
                     <TextBox x:Name="BrightMachinePositionTextbox"
                              hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.Title="Bright Machine Position(um): "
-                             hc:InfoElement.TitlePlacement="Left">
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
@@ -211,7 +190,8 @@
                     <TextBox x:Name="DarkMachinePositionTextbox"
                              hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.Title="Dark Machine Position(um): "
-                             hc:InfoElement.TitlePlacement="Left">
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
@@ -231,27 +211,12 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <UniformGrid Columns="2">
-                        <Button x:Name="GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="4,0,0,4"
-                                Style="{StaticResource ButtonDefault}" />
-                        <Button x:Name="GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                Margin="-1,0,0,0"
-                                HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="0,4,4,0"
-                                Style="{StaticResource ButtonDefault}" />
-                    </UniformGrid>
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text="2. Find Esc"
+                        <TextBlock Text="3. Find Esc"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
@@ -298,6 +263,52 @@
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
                                         <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.ShinyWaferEcsValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <TextBox hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Rtfc Af Ecs: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True">
+                        <TextBox.Style>
+                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <TextBox hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Rtfc Af Motor: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True">
+                        <TextBox.Style>
+                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

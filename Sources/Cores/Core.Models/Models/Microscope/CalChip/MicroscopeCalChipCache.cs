@@ -3,6 +3,7 @@ using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
@@ -21,6 +22,8 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private double _findFocusIntervalHaze = 1;
     private double _findFocusIntervalShinyWafer = 1;
     private double _threshold = 1;
+    private double _afEcsErrorThreshold = 1;
+    private double _afMotorErrorThreshold = 0.1;
 
     [ObservableProperty]
     private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
@@ -126,6 +129,74 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
         set => SetProperty(ref _threshold, value, validate: true);
     }
 
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Ecs Error Threshold: ")]
+    public double AfEcsErrorThreshold
+    {
+        get => _afEcsErrorThreshold;
+        set => SetProperty(ref _afEcsErrorThreshold, value, validate: true);
+    }
+
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Motor Error Threshold: ")]
+    public double AfMotorErrorThreshold
+    {
+        get => _afMotorErrorThreshold;
+        set => SetProperty(ref _afMotorErrorThreshold, value, validate: true);
+    }
+
+    #region Position
+
+    [ObservableProperty]
+    private Point _chuckPosition = Point.Origin;
+
+    #region DSW
+
+    [ObservableProperty]
+    private Point _dswLeftTopPosition = new(122000, 128000);
+
+    [ObservableProperty]
+    private Point _dswRightBottomPosition = new Point(122000, 128000);
+
+    public Point DswPosition => (DswLeftTopPosition + (Vector)DswRightBottomPosition) / 2;
+
+    #endregion
+
+    #region Undefined
+
+    [ObservableProperty]
+    private Point _undefinedLeftTopPosition = new(-122000, 128000);
+
+    [ObservableProperty]
+    private Point _undefinedRightBottomPosition = new(-122000, 128000);
+
+    public Point UndefinedPosition => (UndefinedLeftTopPosition + (Vector)UndefinedRightBottomPosition) / 2;
+
+    #endregion
+
+    #region Haze
+
+    [ObservableProperty]
+    private Point _hazeLeftTopPosition = new(-122000, -128000);
+
+    [ObservableProperty]
+    private Point _hazeRightBottomPosition = new(-122000, -128000);
+
+    public Point HazePosition => (HazeLeftTopPosition + (Vector)HazeRightBottomPosition) / 2;
+
+    #endregion
+
+    #region ShinyWafer
+
+    [ObservableProperty]
+    private Point _shinyWaferLeftTopPosition = new(122000, -128000);
+
+    [ObservableProperty]
+    private Point _shinyWaferRightBottomPosition = new(122000, -128000);
+
+    public Point ShinyWaferPosition => (ShinyWaferLeftTopPosition + (Vector)ShinyWaferRightBottomPosition) / 2;
+    #endregion
+
+    #endregion
+
     public double GetFindFocusMin() => CalChipSiteModelEnum switch
     {
         CalChipSiteModelEnum.DswModel => FindFocusMinDsw,
@@ -150,6 +221,33 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
         CalChipSiteModelEnum.UndefinedModel => FindFocusIntervalUndefined,
         CalChipSiteModelEnum.HazeModel => FindFocusIntervalHaze,
         CalChipSiteModelEnum.ShinyWaferModel => FindFocusIntervalShinyWafer,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public Point GetFindPosition() => CalChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.DswModel => DswPosition,
+        CalChipSiteModelEnum.UndefinedModel => UndefinedPosition,
+        CalChipSiteModelEnum.HazeModel => HazePosition,
+        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferPosition,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public Point GetLeftTopPosition() => CalChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.DswModel => DswLeftTopPosition,
+        CalChipSiteModelEnum.UndefinedModel => UndefinedLeftTopPosition,
+        CalChipSiteModelEnum.HazeModel => HazeLeftTopPosition,
+        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferLeftTopPosition,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public Point GetRightBottomPosition() => CalChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.DswModel => DswRightBottomPosition,
+        CalChipSiteModelEnum.UndefinedModel => UndefinedRightBottomPosition,
+        CalChipSiteModelEnum.HazeModel => HazeRightBottomPosition,
+        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferRightBottomPosition,
         _ => throw new ArgumentOutOfRangeException()
     };
 }

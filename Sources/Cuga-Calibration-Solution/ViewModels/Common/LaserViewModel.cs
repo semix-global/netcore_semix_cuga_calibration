@@ -261,7 +261,7 @@ public sealed class LaserViewModel(
 
     public void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
-        var ret = calibrationLaserService.SetGain(gain, Constants.NegInt32Value, Constants.NegInt32Value);
+        var ret = calibrationLaserService.SetGain(gain, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -560,16 +560,11 @@ public sealed class LaserViewModel(
         return result.Count > 0 ? result : throw new CugaException("Get Dark Field Line Scan Image failed");
     }
 
-    public (double Ecs, double Height) ChuckRuntimeAfCalibration(Point position)
+    public (double Ecs, double AfMotor) RuntimeAfCalibration(Point position, double? lightCoefficient, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
-        var ret = calibrationLaserService.RuntimeAfCalibration(position, 0, calibrationSetting.SettingCommonParam.MainCoefficient);
+        var coefficient = lightCoefficient is not null ? lightCoefficient.Value : calibrationSetting.SettingCommonParam.MainCoefficient;
 
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (double Ecs, double Height) DswRuntimeAfCalibration(Point position, double offset)
-    {
-        var ret = calibrationLaserService.RuntimeAfCalibration(position, offset, calibrationSetting.SettingCommonParam.MainCoefficient);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, position, coefficient);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

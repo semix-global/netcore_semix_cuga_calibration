@@ -183,9 +183,9 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = SetPmtValue(PMTRegEnum.DcAgc, BitConverter.ToInt32(enable ? [0, 0, 1, 0] : [0, 0, 0, 0], 0), pmtId, channelId);
 
         return sxExecuteRet.IsSuccess
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             // 防止波形模式不是为DC模式(防呆)
-            : SetPmtValue(PMTRegEnum.DcMode, 2 /*波形数据模式 1.chirp 2.dc 3.single*/, pmtId, channelId);
+            ? SetPmtValue(PMTRegEnum.DcMode, 2 /*波形数据模式 1.chirp 2.dc 3.single*/, pmtId, channelId)
+            : SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
     }
 
     public SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.CibProfile, enable ? 4 : 2 /*"Profile_PMT", "PMT_Volt", "Profile_Log", "PMT_Log" , "Sense_Volt"*/, pmtId, channelId);
@@ -202,8 +202,9 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SetPmtValue(PMTRegEnum.DcMode, BitConverter.ToInt32(bytes, 0), pmtId, channelId);
     }
 
-    public SxExecuteRet<bool> SetPmtValue(PMTRegEnum pmtRegEnum, int value, int pmtId, int channelId)
+    private SxExecuteRet<bool> SetPmtValue(PMTRegEnum pmtRegEnum, int value, int pmtId, int channelId)
     {
+        return SxExecuteRetHelper.CreateSuccess(true);
         var pmtConfigListSxExecuteRet = GetPmtConfigList();
         if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(pmtConfigListSxExecuteRet.Msg, false);
 
@@ -213,7 +214,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         switch (pmtId, channelId)
         {
             case (Constants.NegInt32Value, Constants.NegInt32Value):
-                foreach (var (currentPmtId, _, channelIdList) in pmtConfigList) sendData.AddRange(channelIdList.Select(t => (currentPmtId, t, value)));
+                foreach (var (currentPmtId, _, channelIdList) in pmtConfigList) sendData.AddRange(channelIdList.Select(t => (value, currentPmtId, t)));
 
                 break;
 
@@ -231,7 +232,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(pmtId), nameof(channelId));
         }
 
-        var sxExecuteRetAll = Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, sendData));
+        var sxExecuteRetAll = Invoke(() => Service!.SetPmtDiffDataCommon(pmtRegEnum, sendData));
 
         return sxExecuteRetAll.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetAll.Msg, false)
@@ -366,16 +367,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double Offset)> RuntimeAfCalibration(Point position, double offset, double coefficient)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, Point position, double coefficient)
     {
         var executeRet = LightCoefficientToLightLevel(coefficient);
-        if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double Height)>(executeRet.ErrorMsg);
+        if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(executeRet.ErrorMsg);
 
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(position.ToSxPointD(), offset, Convert.ToUInt16(executeRet.Anything)));
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), position.ToCgPoint(), Convert.ToUInt16(executeRet.Anything)));
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double Score)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double Score)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
+            ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
     }
 
     public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight)

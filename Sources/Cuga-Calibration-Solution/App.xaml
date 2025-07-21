@@ -62,6 +62,14 @@
                 <valueConverters:IntegerToBoolConverter TrueValue="10" FalseValue="-999" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
             </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs11ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="11" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs12ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="12" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
             <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsLoadingToVisibilityConverter">
                 <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Review}" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />

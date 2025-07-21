@@ -141,6 +141,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     private LaserIlluminationProfileCache _cache = new();
 
     [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
     private LaserIlluminationProfileItemDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -217,6 +220,8 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             return false;
         }
 
+        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserIlluminationProfileCache>();
         Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Reset();
         Cache.CurrentCalibrationCacheItem.Reset();
@@ -237,7 +242,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChip.HazePosition;
+        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
         return true;

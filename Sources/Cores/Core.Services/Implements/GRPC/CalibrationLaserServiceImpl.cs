@@ -264,7 +264,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double Offset)> RuntimeAfCalibration(Point position, double offset, double coefficient)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, Point position, double coefficient)
     {
         throw new NotImplementedException();
     }
