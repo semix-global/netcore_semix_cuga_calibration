@@ -8,6 +8,7 @@
              xmlns:children="clr-namespace:CugaCalibration.Views.Laser.AutoFocus.Children"
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:children1="clr-namespace:CugaCalibration.Views.Microscope.CalChip.Children"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserAutoFocusCalibrationViewModel}"
              d:DesignHeight="900"
@@ -42,7 +43,7 @@
                         <TextBlock Text="Welcome to calibration!" Style="{StaticResource TextBlockLargeBold}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
-                        <children:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
+                        <children1:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
                         <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
                         <children:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
                     </Grid>

@@ -73,6 +73,9 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
     private LaserAodDelayCache _cache = new();
 
     [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
     private LaserAodDelayItemDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -120,6 +123,8 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
             return false;
         }
 
+        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAodDelayCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAodDelayItemDto>();
 
@@ -137,7 +142,7 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChip.HazePosition;
+        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
         StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
         return true;
     }

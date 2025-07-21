@@ -146,9 +146,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 afViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.DswModel);
 
                 var offset = calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue - calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.ChuckMotorValue;
-                var (ecs, height) = laserViewModel.DswRuntimeAfCalibration(FindPosition, offset);
+                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(FindPosition, null, CalChipSiteModelEnum.DswModel);
                 calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswEcsValue = ecs;
-                calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue = height;
+                calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue = afMotor;
 
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.DswModel,
@@ -182,7 +182,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
                 {
                     RTFCECS = ecs,
-                    RTFAfMotorHeight = height,
+                    RTFAfMotorHeight = afMotor,
                     calibrationSetting.SettingCommonParam.MainCoefficient,
                     FindPosition,
                     XWidthPixel,

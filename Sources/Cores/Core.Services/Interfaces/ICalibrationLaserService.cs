@@ -319,11 +319,11 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 自动聚焦
     /// </summary>
+    /// <param name="calChipSiteModelEnum">CalChip模式</param>
     /// <param name="position">位置</param>
-    /// <param name="offset">af电机位置</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<(double Ecs, double Offset)> RuntimeAfCalibration(Point position, double offset, double coefficient);
+    /// <returns>RTFC返回AfEcs和Af电机值</returns>
+    SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, Point position, double coefficient);
 
     /// <summary>
     /// 获取暗场图片的Y像素高度

@@ -81,6 +81,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
     private LaserPrescanChirpAodAlignmentCache _cache = new();
 
     [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
     private LaserPrescanChirpAodAlignmentDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -134,6 +137,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             return false;
         }
 
+        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserPrescanChirpAodAlignmentCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserPrescanChirpAodAlignmentDto>();
 
@@ -151,7 +156,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChip.HazePosition;
+        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
 

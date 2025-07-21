@@ -33,15 +33,26 @@
                     </StackPanel>
                     <hc:NumericUpDown x:Name="ThresholdNumeric"
                                       Width="275"
-                                      hc:InfoElement.Title="Threshold: "
-                                      hc:TitleElement.TitleWidth="100"
+                                      hc:InfoElement.Title="Quality Threshold: "
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Threshold}" />
+                    <hc:NumericUpDown Width="275"
+                                      hc:InfoElement.Title="Rtfc Af Ecs Threshold: "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.AfEcsErrorThreshold}" />
+                    <hc:NumericUpDown Width="275"
+                                      hc:InfoElement.Title="Rtfc Af Motor Threshold: "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.AfMotorErrorThreshold}" />
                     <TextBox Text="{Binding Cache.VerifyResultQuality}"
                              Width="275"
-                             hc:InfoElement.Title="Result Position: "
+                             hc:InfoElement.Title="Result Quality: "
                              hc:TitleElement.TitleWidth="100"
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
@@ -53,6 +64,19 @@
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.ChuckAfEcsValue}"
+                             Width="275"
+                             hc:InfoElement.Title="Chuck Af Ecs: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.ChuckAfMotorValue}"
+                             Width="275"
+                             hc:InfoElement.Title="Chuck Af Motor: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -92,7 +116,7 @@
                             <TextBlock Text="DSW" />
                         </StackPanel>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding ReviewDto.DswPosition, Converter={StaticResource PointToStringConverter}}"
+                            <TextBox Text="{Binding Cache.DswPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Position(um): "
                                      hc:InfoElement.TitlePlacement="Left"
@@ -122,17 +146,29 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.DswToChuckAfEcsValue, Mode=OneWay}"
+                                     hc:TitleElement.TitleWidth="180"
+                                     hc:InfoElement.Title="Rtfc Af Ecs Error: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.DswToChuckAfMotorValue, Mode=OneWay}"
+                                     hc:TitleElement.TitleWidth="180"
+                                     hc:InfoElement.Title="Rtfc Af Motor Error: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                         <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
                             <Button x:Name="DswBrightFieldGotoButton"
                                     Content="Goto Bright Field"
                                     Command="{Binding StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding ReviewDto.DswPosition}"
+                                    CommandParameter="{Binding Cache.DswPosition}"
                                     Width="120" />
                             <Button x:Name="DswDarkFieldGotoButton"
                                     Content="Goto Dark Field"
                                     Command="{Binding StageViewModel.SetCalChipDswDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding ReviewDto.DswPosition}"
+                                    CommandParameter="{Binding Cache.DswPosition}"
                                     Width="120" />
                             <Button x:Name="DswReviewButton"
                                     Content="Review"
@@ -148,7 +184,7 @@
                             <TextBlock Text="Undefined" />
                         </StackPanel>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding ReviewDto.UndefinedPosition, Converter={StaticResource PointToStringConverter}}"
+                            <TextBox Text="{Binding Cache.UndefinedPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Position(um): "
                                      hc:InfoElement.TitlePlacement="Left"
@@ -183,12 +219,12 @@
                             <Button x:Name="UndefinedBrightFieldGotoButton"
                                     Content="Goto Bright Field"
                                     Command="{Binding StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding ReviewDto.UndefinedPosition}"
+                                    CommandParameter="{Binding Cache.UndefinedPosition}"
                                     Width="120" />
                             <Button x:Name="UndefinedDarkFieldGotoButton"
                                     Content="Goto Dark Field"
                                     Command="{Binding StageViewModel.SetCalChipUndefinedDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding ReviewDto.UndefinedPosition}"
+                                    CommandParameter="{Binding Cache.UndefinedPosition}"
                                     Width="120" />
                             <Button x:Name="UndefinedReviewButton"
                                     Content="Review"
@@ -204,7 +240,7 @@
                             <TextBlock Text="Haze" />
                         </StackPanel>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding ReviewDto.HazePosition, Converter={StaticResource PointToStringConverter}}"
+                            <TextBox Text="{Binding Cache.HazePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Position(um): "
                                      hc:InfoElement.TitlePlacement="Left"
@@ -234,17 +270,29 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue, Mode=OneWay}"
+                                     hc:TitleElement.TitleWidth="180"
+                                     hc:InfoElement.Title="Rtfc Af Ecs Error: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue, Mode=OneWay}"
+                                     hc:TitleElement.TitleWidth="180"
+                                     hc:InfoElement.Title="Rtfc Af Motor Error: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                         <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
                             <Button x:Name="HazeBrightFieldGotoButton"
                                     Content="Goto Bright Field"
                                     Command="{Binding StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding ReviewDto.HazePosition}"
+                                    CommandParameter="{Binding Cache.HazePosition}"
                                     Width="120" />
                             <Button x:Name="HazeDarkFieldGotoButton"
                                     Content="Goto Dark Field"
                                     Command="{Binding StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding ReviewDto.HazePosition}"
+                                    CommandParameter="{Binding Cache.HazePosition}"
                                     Width="120" />
                             <Button x:Name="HazeReviewButton"
                                     Content="Review"
@@ -260,7 +308,7 @@
                             <TextBlock Text="Shiny Wafer" />
                         </StackPanel>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding ReviewDto.ShinyWaferPosition, Converter={StaticResource PointToStringConverter}}"
+                            <TextBox Text="{Binding Cache.ShinyWaferPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Position(um): "
                                      hc:InfoElement.TitlePlacement="Left"
@@ -295,12 +343,12 @@
                             <Button x:Name="ShinyBrightFieldGotoButton"
                                     Content="Goto Bright Field"
                                     Command="{Binding StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding ReviewDto.ShinyWaferPosition}"
+                                    CommandParameter="{Binding Cache.ShinyWaferPosition}"
                                     Width="120" />
                             <Button x:Name="ShinyDarkFieldGotoButton"
                                     Content="Goto Dark Field"
                                     Command="{Binding StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding ReviewDto.ShinyWaferPosition}"
+                                    CommandParameter="{Binding Cache.ShinyWaferPosition}"
                                     Width="120" />
                             <Button x:Name="ShinyReviewButton"
                                     Content="Review"

@@ -44,10 +44,10 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
 
                 stageViewModel.SetBrightFieldAbsoluteStageXy(position);
 
-                var (ecs, height) = laserViewModel.ChuckRuntimeAfCalibration(position);
+                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(position, null);
 
                 SettingDarkFieldAutoFocusParam.ChuckEcsValue = ecs;
-                SettingDarkFieldAutoFocusParam.ChuckMotorValue = height;
+                SettingDarkFieldAutoFocusParam.ChuckMotorValue = afMotor;
                 SettingDarkFieldAutoFocusParam.IsEnableChuck = true;
 
                 logger.LogHtmlInformation("Ok", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -57,7 +57,7 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
                 }), htmlLogUniqueId.LoggingHtml());
 
                 isSuccess = true;
-                return (isSuccess, (ecs, height));
+                return (isSuccess, (ecs, afMotor));
             }
             finally
             {

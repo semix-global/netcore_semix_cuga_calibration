@@ -16,8 +16,17 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
 
+    #region Chuck
+
     [ObservableProperty]
-    private Point _dswPosition;
+    private double _chuckAfEcsValue;
+
+    [ObservableProperty]
+    private double _chuckAfMotorValue;
+
+    #endregion
+
+    #region Dsw
 
     [ObservableProperty]
     private Point _dswBrightFieldMachinePosition;
@@ -26,7 +35,23 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     private Point _dswDarkFieldMachinePosition;
 
     [ObservableProperty]
-    private Point _undefinedPosition;
+    private double _dswEcsValue;
+
+    [ObservableProperty]
+    private double _dswQuality;
+
+    [ObservableProperty]
+    private string _dswFilePath = string.Empty;
+
+    [ObservableProperty]
+    private double _dswAfEcsValue;
+
+    [ObservableProperty]
+    private double _dswAfMotorValue;
+
+    #endregion
+
+    #region Undefined
 
     [ObservableProperty]
     private Point _undefinedBrightFieldMachinePosition;
@@ -35,7 +60,17 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     private Point _undefinedDarkFieldMachinePosition;
 
     [ObservableProperty]
-    private Point _hazePosition;
+    private double _undefinedEcsValue;
+
+    [ObservableProperty]
+    private string _undefinedFilePath = string.Empty;
+
+    [ObservableProperty]
+    private double _undefinedQuality;
+
+    #endregion
+
+    #region Haze
 
     [ObservableProperty]
     private Point _hazeBrightFieldMachinePosition;
@@ -44,7 +79,23 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     private Point _hazeDarkFieldMachinePosition;
 
     [ObservableProperty]
-    private Point _shinyWaferPosition;
+    private double _hazeEcsValue;
+
+    [ObservableProperty]
+    private string _hazeFilePath = string.Empty;
+
+    [ObservableProperty]
+    private double _hazeAfEcsValue;
+
+    [ObservableProperty]
+    private double _hazeAfMotorValue;
+
+    [ObservableProperty]
+    private double _hazeQuality;
+
+    #endregion
+
+    #region ShinyWafer
 
     [ObservableProperty]
     private Point _shinyWaferBrightFieldMachinePosition;
@@ -53,49 +104,24 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     private Point _shinyWaferDarkFieldMachinePosition;
 
     [ObservableProperty]
-    private double _dswEcsValue;
-
-    [ObservableProperty]
-    private double _undefinedEcsValue;
-
-    [ObservableProperty]
-    private double _hazeEcsValue;
-
-    [ObservableProperty]
     private double _shinyWaferEcsValue;
-
-    [ObservableProperty]
-    private double _dswQuality;
-
-    [ObservableProperty]
-    private double _undefinedQuality;
-
-    [ObservableProperty]
-    private double _hazeQuality;
 
     [ObservableProperty]
     private double _shinyWaferQuality;
 
     [ObservableProperty]
-    private string _dswFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _undefinedFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _hazeFilePath = string.Empty;
-
-    [ObservableProperty]
     private string _shinyWaferFilePath = string.Empty;
 
-    public Point GetFindFocusPosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswPosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedPosition,
-        CalChipSiteModelEnum.HazeModel => HazePosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferPosition,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(calChipSiteModelEnum))
-    };
+    #endregion
+
+    public double DswToChuckAfEcsValue => DswEcsValue - ChuckAfEcsValue;
+
+    public double DswToChuckAfMotorValue => DswAfMotorValue - ChuckAfMotorValue;
+
+    public double HazeToChuckAfEcsValue => HazeEcsValue - ChuckAfEcsValue;
+
+    public double HazeToChuckAfMotorValue => HazeAfMotorValue - ChuckAfMotorValue;
+
 
     public Point GetBrightFieldMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
     {
@@ -131,6 +157,22 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         CalChipSiteModelEnum.HazeModel => HazeQuality,
         CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferQuality,
         _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(calChipSiteModelEnum))
+    };
+
+    public double GetAfEcsValue(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.ChuckModel => ChuckAfEcsValue,
+        CalChipSiteModelEnum.DswModel => DswAfEcsValue,
+        CalChipSiteModelEnum.HazeModel => HazeAfEcsValue,
+        _ => 0d
+    };
+
+    public double GetAfMotorValue(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.ChuckModel => ChuckAfMotorValue,
+        CalChipSiteModelEnum.DswModel => DswAfMotorValue,
+        CalChipSiteModelEnum.HazeModel => HazeAfMotorValue,
+        _ => 0d
     };
 
     public string GetFilePath(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
@@ -194,6 +236,34 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         }
     }
 
+    public void SetAfEcsValue(CalChipSiteModelEnum calChipSiteModelEnum, double value)
+    {
+        switch (calChipSiteModelEnum)
+        {
+            case CalChipSiteModelEnum.DswModel:
+                DswEcsValue = value;
+                break;
+
+            case CalChipSiteModelEnum.HazeModel:
+                HazeEcsValue = value;
+                break;
+        }
+    }
+
+    public void SetAfMotorValue(CalChipSiteModelEnum calChipSiteModelEnum, double value)
+    {
+        switch (calChipSiteModelEnum)
+        {
+            case CalChipSiteModelEnum.DswModel:
+                DswAfMotorValue = value;
+                break;
+
+            case CalChipSiteModelEnum.HazeModel:
+                HazeAfMotorValue = value;
+                break;
+        }
+    }
+
     public void SetFilePath(CalChipSiteModelEnum calChipSiteModelEnum, string filePath)
     {
         switch (calChipSiteModelEnum)
@@ -225,21 +295,23 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     public MicroscopeCalChipDto Clone() => new()
     {
         MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
-        DswPosition = DswPosition,
         DswBrightFieldMachinePosition = DswBrightFieldMachinePosition,
         DswDarkFieldMachinePosition = DswDarkFieldMachinePosition,
-        UndefinedPosition = UndefinedPosition,
         UndefinedBrightFieldMachinePosition = UndefinedBrightFieldMachinePosition,
         UndefinedDarkFieldMachinePosition = UndefinedDarkFieldMachinePosition,
-        HazePosition = HazePosition,
         HazeBrightFieldMachinePosition = HazeBrightFieldMachinePosition,
         HazeDarkFieldMachinePosition = HazeDarkFieldMachinePosition,
-        ShinyWaferPosition = ShinyWaferPosition,
         ShinyWaferBrightFieldMachinePosition = ShinyWaferBrightFieldMachinePosition,
         ShinyWaferDarkFieldMachinePosition = ShinyWaferDarkFieldMachinePosition,
+        ChuckAfEcsValue = ChuckAfEcsValue,
+        ChuckAfMotorValue = ChuckAfMotorValue,
         DswEcsValue = DswEcsValue,
+        DswAfEcsValue = DswAfEcsValue,
+        DswAfMotorValue = DswAfMotorValue,
         UndefinedEcsValue = UndefinedEcsValue,
         HazeEcsValue = HazeEcsValue,
+        HazeAfEcsValue = HazeAfEcsValue,
+        HazeAfMotorValue = HazeAfMotorValue,
         ShinyWaferEcsValue = ShinyWaferEcsValue,
         DswQuality = DswQuality,
         UndefinedQuality = UndefinedQuality,
@@ -259,15 +331,21 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     public CalibrationMicroscopeCalChip AdaptTo() => new()
     {
         CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(MicroscopeMagnificationEnum),
+        ChuckAfEcsValue = ChuckAfEcsValue,
+        ChuckAfMotorValue = ChuckAfMotorValue,
         DswBrightFieldMachinePosition = DswBrightFieldMachinePosition.ToCgPoint(),
         DswDarkFieldMachinePosition = DswDarkFieldMachinePosition.ToCgPoint(),
         DswEcsValue = DswEcsValue,
+        DswAfEcsValue = DswAfEcsValue,
+        DswAfMotorValue = DswAfMotorValue,
         UndefinedBrightFieldMachinePosition = UndefinedBrightFieldMachinePosition.ToCgPoint(),
         UndefinedDarkFieldMachinePosition = UndefinedDarkFieldMachinePosition.ToCgPoint(),
         UndefinedEcsValue = UndefinedEcsValue,
         HazeBrightFieldMachinePosition = HazeBrightFieldMachinePosition.ToCgPoint(),
         HazeDarkFieldMachinePosition = HazeDarkFieldMachinePosition.ToCgPoint(),
         HazeEcsValue = HazeEcsValue,
+        HazeAfEcsValue = HazeAfEcsValue,
+        HazeAfMotorValue = HazeAfMotorValue,
         ShinyWaferBrightFieldMachinePosition = ShinyWaferBrightFieldMachinePosition.ToCgPoint(),
         ShinyWaferDarkFieldMachinePosition = ShinyWaferDarkFieldMachinePosition.ToCgPoint(),
         ShinyWaferEcsValue = ShinyWaferEcsValue,
