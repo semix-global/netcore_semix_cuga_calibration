@@ -226,11 +226,11 @@
                                         <hc:ButtonGroup>
                                             <Button Content="Image"
                                                     Command="{Binding Path=DataContext.ReviewImageCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding ChannelImageFilePathList}"
+                                                    CommandParameter="{Binding ChannelImageFilePath}"
                                                     d:DataContext="{d:DesignInstance Type=illuminationProfile:LaserIlluminationProfileItemDto}" />
                                             <Button Content="Image List"
                                                     Command="{Binding Path=DataContext.ReviewPlotCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding ChannelDarkFieldPmtList}"
+                                                    CommandParameter="{Binding ChannelDarkFieldProjectYsList}"
                                                     d:DataContext="{d:DesignInstance Type=illuminationProfile:LaserIlluminationProfileItemDto}" />
                                             <Button Content="Prescan Rate"
                                                     Command="{Binding Path=DataContext.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
@@ -249,7 +249,7 @@
                 </ListView>
             </GroupBox>
             <GridSplitter Grid.Row="1" />
-            <TabControl x:Name="tabControl" Grid.Row="2"
+            <TabControl x:Name="TabControl" Grid.Row="2"
                         TabStripPlacement="Bottom">
                 <TabItem Header="Average Plot">
                     <Border Padding="0"
