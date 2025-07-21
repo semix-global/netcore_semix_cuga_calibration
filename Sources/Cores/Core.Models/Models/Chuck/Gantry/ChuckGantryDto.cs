@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -11,10 +11,10 @@ namespace Core.Models.Models.Chuck.Gantry;
 public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMicroscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMicroscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private Point _position1;
@@ -64,8 +64,8 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public ChuckGantryDto Clone() => new()
     {
-        LowMicroscopeMagnificationEnum = LowMicroscopeMagnificationEnum,
-        HighMicroscopeMagnificationEnum = HighMicroscopeMagnificationEnum,
+        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
+        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         Position1 = Position1,
         FilePath1 = FilePath1,
         LowTemplateFilePath = LowTemplateFilePath,
@@ -89,7 +89,7 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public CalibrationChuckGantry AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(HighMicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         Offset = Offset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

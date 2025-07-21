@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
-using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -166,6 +165,9 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+
         Cache.PmtInterval = calibrationSetting.SettingCommonParam.PmtInterval;
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
@@ -177,7 +179,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         Cache.FindPosition = Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius
             ? new Point(0, 0)
             : Cache.FindPosition;
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
         return true;
     }
@@ -534,7 +536,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum;
+        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
         Calibrations =
         [
             .. Calibrations
@@ -601,7 +603,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
                                 Cache.OpticsMagTypeEnum,
-                                Cache.MicroscopeMagnificationEnum
+                                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });
@@ -689,7 +691,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum.Grid_10um, Cache.MicroscopeMagnificationEnum, null, null, out var maskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, null, out var maskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var maskPosition);
 

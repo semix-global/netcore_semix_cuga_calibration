@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _magnificationInfo = new();
 
     [ObservableProperty]
     private Point _findPosition;
@@ -30,7 +30,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
 
     public MicroscopePixelSizeItemDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MagnificationInfo = MagnificationInfo,
         FindPosition = FindPosition,
         PixelSize = PixelSize,
         OriginFilePath = OriginFilePath,
@@ -44,7 +44,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
 
     public CalibrationMicroscopePixelSizeItem AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(MicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
         PixelSize = PixelSize.ToCgSize(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

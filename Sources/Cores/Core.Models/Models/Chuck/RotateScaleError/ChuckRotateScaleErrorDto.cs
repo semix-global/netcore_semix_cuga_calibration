@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.RotateScaleError;
 public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckRotateScaleErrorDto>, IAdaptTo<CalibrationChuckRotateScaleError>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private bool _isPositive;
@@ -47,7 +47,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
     /// 四个预设点位正反向旋转后的实际角度差值的均值
     /// </summary>
     [ObservableProperty]
-    private double _realAngleErrorsAverage = 0d;
+    private double _realAngleErrorsAverage;
 
     /// <summary>
     /// wafer左端点实际坐标-正向
@@ -187,8 +187,6 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
-            default:
-                break;
         }
     }
 
@@ -218,7 +216,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckRotateScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(HighMicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -227,8 +225,8 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
 
     public ChuckRotateScaleErrorDto Clone() => new()
     {
-        LowMicroscopeMagnificationEnum = LowMicroscopeMagnificationEnum,
-        HighMicroscopeMagnificationEnum = HighMicroscopeMagnificationEnum,
+        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
+        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         IsPositive = IsPositive,
         ChuckCenterBrightFieldPosition = ChuckCenterBrightFieldPosition,
         AppliedScaleT = AppliedScaleT,

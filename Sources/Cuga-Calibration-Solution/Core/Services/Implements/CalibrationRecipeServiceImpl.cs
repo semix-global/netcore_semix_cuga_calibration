@@ -1,9 +1,9 @@
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
+using Core.Models.Models.Pattern;
 using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
@@ -59,9 +59,9 @@ public class CalibrationRecipeServiceImpl(
 
             // 当前对准与配方对准结果的偏移量（waferMap偏移值）
             var offsetX = ((alignmentResult.MarkPoint1.X - recipeAlignmentResult!.MarkPoint1.X) +
-                           (alignmentResult.MarkPoint2.X - recipeAlignmentResult!.MarkPoint2.X)) / 2;
-            var offsetY = ((alignmentResult.MarkPoint1.Y - recipeAlignmentResult!.MarkPoint1.Y) +
-                           (alignmentResult.MarkPoint2.Y - recipeAlignmentResult!.MarkPoint2.Y)) / 2;
+                           (alignmentResult.MarkPoint2.X - recipeAlignmentResult.MarkPoint2.X)) / 2;
+            var offsetY = ((alignmentResult.MarkPoint1.Y - recipeAlignmentResult.MarkPoint1.Y) +
+                           (alignmentResult.MarkPoint2.Y - recipeAlignmentResult.MarkPoint2.Y)) / 2;
             offset = new Point(offsetX, offsetY);
 
             return true;
@@ -105,14 +105,14 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationEnum? magnificationType, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationInfo? magnificationInfo, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
         {
             var reticleMaskDto = GetReticleMark();
             maskInfo = reticleMaskDto.MicrosocpeReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                            && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (magnificationInfo is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo == magnificationInfo && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
                             && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
                 );
             return true;
@@ -125,14 +125,14 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationEnum? magnificationType, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationInfo? magnificationInfo, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
         {
             var reticleMaskDto = GetReticleMark();
             maskInfo = reticleMaskDto.ChuckReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                            && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (magnificationInfo is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo == magnificationInfo && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
                             && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
                 );
             return true;
@@ -145,14 +145,14 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationEnum? magnificationType, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
+    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationInfo? magnificationInfo, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
     {
         try
         {
             var reticleMaskDto = GetReticleMark();
             maskInfo = reticleMaskDto.LaserReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                            && (magnificationType is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum == magnificationType && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (magnificationInfo is null || (t.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo == magnificationInfo && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
                             && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType
                                                           && (stageSpeedEnum is null || t.RecipeDarkFieldTemplateDto.StageSpeedEnum == stageSpeedEnum)
                                                           && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))

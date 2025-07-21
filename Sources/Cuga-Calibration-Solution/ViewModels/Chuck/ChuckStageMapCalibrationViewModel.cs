@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -27,6 +26,7 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
@@ -54,9 +54,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.HighMagnificationEnum)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.HighMagnificationEnum)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -263,6 +263,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         Cache.IsDarkField = false;
+
+        if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -292,7 +297,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 return true;
             case 1 or 5:
@@ -315,7 +320,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
             case 4:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.FirstStageMapPosition);
                 return true;
             case 7:
@@ -353,7 +358,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 2 or 3:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.BrightFieldFirstStageMapPosition);
                 return true;
             case 4:
@@ -364,7 +369,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 return true;
             case 6 or 7:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 var position = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(position);
                 return true;
@@ -376,6 +381,23 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     #endregion 控制校准业务
 
     #region 校准
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
@@ -443,7 +465,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.P5Angle,
-                Cache.HighMagnificationEnum
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -481,15 +503,15 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         if (IsRecipeCalibrate)
         {
-            MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
+            MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
             if (await AutomationRecipeInformationAsync("0") == false) return false;
             var findPosition = StageViewModel.MachineToBrightFieldPosition(Cache.BrightFieldFirstStageMapPosition);
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMagnificationEnum, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMicroscopeMagnificationInfo, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
                     out _, out _, out _, out _, out _) == false) return false;
         }
         else
         {
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMagnificationEnum}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
             if (generateTemplate == false)
             {
@@ -512,10 +534,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         if (IsRecipeCalibrate)
         {
-            MicroscopeViewModel.SwitchMagnification(Cache.HighMagnificationEnum);
+            MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
             if (await AutomationRecipeInformationAsync("1") == false) return false;
             var findPosition = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMagnificationEnum, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMicroscopeMagnificationInfo, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
                     out _, out _, out _, out _, out _) == false) return false;
         }
 
@@ -542,7 +564,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var detectImageDirectory = ImageFileDirectory;
         using var image = darkFieldImageDto;
 
-        Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMagnificationEnum}_{Guid.NewGuid()}";
+        Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
         if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
         {
             if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -677,7 +699,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 cibTemperature,
                 Cache.P5Angle,
                 OpticsMode = Cache.IsDarkField ? "DarkField" : "BrightField",
-                Cache.HighMagnificationEnum,
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.CalculateContainRowMinCout,
                 Cache.CalculateContainColumnMinCount,
                 Cache.CalibrationAlignmentThreshold,
@@ -751,7 +773,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.HighMagnificationEnum,
+                    Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     calibrationStageMap.IdealCsvFilePath,
                     calibrationStageMap.RealCsvFilePath,
@@ -767,7 +789,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 yAxisTemperature,
                 cibTemperature,
                 OpticsMode = Cache.IsDarkField ? "DarkField" : "BrightField",
-                Cache.HighMagnificationEnum,
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
                 calibrationStageMap.IdealCsvFilePath,
                 calibrationStageMap.RealCsvFilePath,
@@ -873,7 +895,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     reviewCamTemperature,
                     cibTemperature,
                     Cache.P5Angle,
-                    Cache.HighMagnificationEnum,
+                    Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.CalculateContainRowMinCout,
                     Cache.CalculateContainColumnMinCount,
@@ -942,7 +964,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.HighMagnificationEnum,
+                    Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath,
@@ -1021,7 +1043,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.HighMagnificationEnum,
+                    Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath,
@@ -1148,7 +1170,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         Cache.AlgorithmTemplateTypeEnum,
                         MicroscopePixelSizeItems,
                         tempPosition,
-                        Cache.HighMagnificationEnum,
+                        Cache.HighMicroscopeMagnificationInfo,
                         Cache.TemplateFilePath,
                         $"{detectImageDirectory}\\row({row})_column({column})",
                         HtmlLogUniqueId,
@@ -1407,7 +1429,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         update(dto);
         update(Cache);
 
-        dto.HighMagnificationEnum = Cache.HighMagnificationEnum;
+        dto.HighMicroscopeMagnificationInfo = Cache.HighMicroscopeMagnificationInfo;
         dto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         dto.StageSpeedEnum = Cache.StageSpeedEnum;
 
@@ -1475,7 +1497,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
                                 Cache.AlgorithmTemplateTypeEnum,
-                                Cache.HighMagnificationEnum,
+                                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                                 Cache.OpticsMagTypeEnum
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
@@ -1538,7 +1560,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         switch (stepName)
         {
             case "0":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMagnificationEnum, Cache.OpticsMagTypeEnum, out var maskInfoBrightField) == false)
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeMagnificationInfo, Cache.OpticsMagTypeEnum, out var maskInfoBrightField) == false)
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoBrightField, out var positionBright);
                 Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = StageViewModel.BrightFieldToMachinePosition(positionBright);
@@ -1547,7 +1569,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 break;
 
             case "1":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMagnificationEnum, Cache.OpticsMagTypeEnum, out var maskInfoDarkField) == false)
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeMagnificationInfo, Cache.OpticsMagTypeEnum, out var maskInfoDarkField) == false)
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoDarkField, out var positionDark);
                 Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = StageViewModel.DarkFieldToMachinePosition(positionDark);

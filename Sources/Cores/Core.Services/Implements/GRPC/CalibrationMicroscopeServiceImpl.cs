@@ -1,6 +1,6 @@
-using Core.Models.Enums.Microscope;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
@@ -32,53 +32,55 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
         });
     }
 
-    public SxExecuteRet<CgMicroscopeLens> MicroscopeMagnificationEnumToCgMicroscopeLens(MicroscopeMagnificationEnum microscopeMagnificationEnum)
+    public SxExecuteRet<CgMicroscopeLens> MicroscopeMagnificationInfoToCgMicroscopeLens(MicroscopeMagnificationInfo microscopeMagnificationInfo)
     {
         var sxExecuteRet = GetLensList();
-        var cgMicroscopeInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.Lens == microscopeMagnificationEnum.ToCgLens());
+        var cgMicroscopeInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.Lens == microscopeMagnificationInfo.Magnification);
 
         return sxExecuteRet.IsSuccess == false || cgMicroscopeInfo is null
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default(CgMicroscopeLens))
             : SxExecuteRetHelper.CreateSuccess(cgMicroscopeInfo.LensCode);
     }
 
-    public SxExecuteRet<MicroscopeMagnificationEnum> CgMicroscopeLensToMicroscopeMagnificationEnum(CgMicroscopeLens cgMicroscopeLens)
+    public SxExecuteRet<MicroscopeMagnificationInfo> CgMicroscopeLensToMicroscopeMagnificationInfo(CgMicroscopeLens cgMicroscopeLens)
     {
         var sxExecuteRet = GetLensList();
-        var cgMicroscopeInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.LensCode == cgMicroscopeLens);
+        var cgLens = sxExecuteRet.Anything.SingleOrDefault(m => m.LensCode == cgMicroscopeLens);
+        if (cgLens is null) SxExecuteRetHelper.CreateError("cgLens is null", default(MicroscopeMagnificationInfo));
+        var cgMicroscopeInfo = new MicroscopeMagnificationInfo();
 
-        return sxExecuteRet.IsSuccess == false || cgMicroscopeInfo is null
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default(MicroscopeMagnificationEnum))
-            : SxExecuteRetHelper.CreateSuccess(cgMicroscopeInfo.Lens.ToMicroscopeMagnificationEnum());
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, cgMicroscopeInfo)
+            : SxExecuteRetHelper.CreateSuccess(cgMicroscopeInfo.AdaptIn(cgLens!));
     }
 
-    public SxExecuteRet<MicroscopeMagnificationEnum> GetMagnification()
+    public SxExecuteRet<MicroscopeMagnificationInfo> GetMagnification()
     {
         var sxExecuteRet = Invoke(() => Service?.GetMagnification());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default(MicroscopeMagnificationEnum))
-            : CgMicroscopeLensToMicroscopeMagnificationEnum(sxExecuteRet.Anything);
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new MicroscopeMagnificationInfo())
+            : CgMicroscopeLensToMicroscopeMagnificationInfo(sxExecuteRet.Anything);
     }
 
-    public SxExecuteRet<bool> SwitchMagnification(MicroscopeMagnificationEnum microscopeMagnificationEnum)
+    public SxExecuteRet<bool> SwitchMagnification(MicroscopeMagnificationInfo microscopeMagnificationInfo)
     {
-        var microscopeMagnificationEnumToCgMicroscopeLens = MicroscopeMagnificationEnumToCgMicroscopeLens(microscopeMagnificationEnum);
-        if (microscopeMagnificationEnumToCgMicroscopeLens.IsSuccess == false) return SxExecuteRetHelper.CreateError(microscopeMagnificationEnumToCgMicroscopeLens.Msg, false);
+        var microscopeMagnificationInfoToCgMicroscopeLens = MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
+        if (microscopeMagnificationInfoToCgMicroscopeLens.IsSuccess == false) return SxExecuteRetHelper.CreateError(microscopeMagnificationInfoToCgMicroscopeLens.Msg, false);
 
-        var sxExecuteRet = Invoke(() => Service3?.SwitchMicroscopeLensNoCorrection(new SxParamObj<ESxMicroscopelens>(microscopeMagnificationEnumToCgMicroscopeLens.Anything.ToESxMicroscopeLens())));
+        var sxExecuteRet = Invoke(() => Service3?.SwitchMicroscopeLensNoCorrection(new SxParamObj<ESxMicroscopelens>(microscopeMagnificationInfoToCgMicroscopeLens.Anything.ToESxMicroscopeLens())));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SwitchMagnificationNotAutoFocus(MicroscopeMagnificationEnum microscopeMagnificationEnum)
+    public SxExecuteRet<bool> SwitchMagnificationNotAutoFocus(MicroscopeMagnificationInfo microscopeMagnificationInfo)
     {
-        var microscopeMagnificationEnumToCgMicroscopeLens = MicroscopeMagnificationEnumToCgMicroscopeLens(microscopeMagnificationEnum);
-        if (microscopeMagnificationEnumToCgMicroscopeLens.IsSuccess == false) return SxExecuteRetHelper.CreateError(microscopeMagnificationEnumToCgMicroscopeLens.Msg, false);
+        var microscopeMagnificationInfoToCgMicroscopeLens = MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
+        if (microscopeMagnificationInfoToCgMicroscopeLens.IsSuccess == false) return SxExecuteRetHelper.CreateError(microscopeMagnificationInfoToCgMicroscopeLens.Msg, false);
 
-        var sxExecuteRet = Invoke(() => Service?.SwitchMagnification(new SxParamObj<CgMicroscopeLens>(microscopeMagnificationEnumToCgMicroscopeLens.Anything)));
+        var sxExecuteRet = Invoke(() => Service?.SwitchMagnification(new SxParamObj<CgMicroscopeLens>(microscopeMagnificationInfoToCgMicroscopeLens.Anything)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -112,7 +114,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
             : SxExecuteRetHelper.CreateSuccess((Convert.ToDouble(sxExecuteRet.Anything.Lower), Convert.ToDouble(sxExecuteRet.Anything.Upper)));
     }
 
-    private SxExecuteRet<List<CgMicroscopeInfo>> GetLensList()
+    public SxExecuteRet<List<CgMicroscopeInfo>> GetLensList()
     {
         if (_cgMicroscopeInfoList is not null) return SxExecuteRetHelper.CreateSuccess(_cgMicroscopeInfoList);
 

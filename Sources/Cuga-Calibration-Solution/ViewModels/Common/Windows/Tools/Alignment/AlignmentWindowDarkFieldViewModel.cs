@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Setting;
+using CugaCalibration.Core.Models;
 using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     private readonly IWindowManagerService _windowManagerService;
     private readonly ICacheProvider _recipeCacheProvider;
     private readonly CalibrationSetting _calibrationSetting;
+    private readonly ApplicationCookie _applicationCookie;
 
     private CancellationTokenSource? _cancellationTokenSource;
 
@@ -112,7 +114,8 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         ISynchronizationContextProvider contextProvider,
         AlignmentParamWindowDarkFieldViewModel alignmentParamWindowDarkFieldViewModel,
         IWindowManagerService windowManagerService,
-        CalibrationSetting calibrationSetting)
+        CalibrationSetting calibrationSetting,
+        ApplicationCookie applicationCookie)
     {
         _dialogWindowProvider = dialogWindowProvider;
         _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
@@ -121,6 +124,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         _alignmentParamWindowDarkFieldViewModel = alignmentParamWindowDarkFieldViewModel;
         _windowManagerService = windowManagerService;
         _calibrationSetting = calibrationSetting;
+        _applicationCookie = applicationCookie;
         _reviewViewModel = reviewViewModel;
         _stageViewModel = stageViewModel;
         _microscopeViewModel = microscopeViewModel;
@@ -142,7 +146,24 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache = _recipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
                 Cache.IsVerified = false;
                 Cache.IsOk = false;
-                _contextProvider.Send(() => StepIndex = 0);
+
+                if (_applicationCookie.MicroscopeMagnificationInfoList.Contains(Cache.LowMag) == false ||
+                    _applicationCookie.MicroscopeMagnificationInfoList.Contains(Cache.HighMag) == false)
+                {
+                    Cache = new();
+                    Cache.LowMag = _applicationCookie.MicroscopeMagnificationInfoList[0];
+                    Cache.HighMag = _applicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                        ? _applicationCookie.MicroscopeMagnificationInfoList[^1]
+                        : _applicationCookie.MicroscopeMagnificationInfoList[2];
+                    _recipeCacheProvider.Set(Cache, cancellationToken);
+                }
+
+                _contextProvider.Send(() =>
+                {
+                    AlignmentParamWindowDarkFieldViewModel.MicroscopeMagnificationInfoList = [.. _applicationCookie.MicroscopeMagnificationInfoList];
+                    StepIndex = 0;
+                });
+
                 StepList.ForEach(x => x.StepIsNextEnable = x.DefaultIsNextEnable);
 
                 Cache.LowSite1.Location = Cache.LowSite2.Location = Cache.HighSite1.Location = Cache.HighSite2.Location = Point.Origin;

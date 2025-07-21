@@ -6,6 +6,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:children="clr-namespace:CugaCalibration.Views.Chuck.AutoFocus.Children"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckAutoFocusCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -34,6 +35,24 @@
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                            <hc:ComboBox x:Name="LowMagCombobox"
+                                         HorizontalAlignment="Left"
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         hc:InfoElement.Title="Low Magnification: "
+                                         hc:InfoElement.Necessary="True"
+                                         SelectedItem="{Binding Cache.LowMicroscopeMagnificationInfo}"
+                                         ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                                <b:Interaction.Triggers>
+                                    <b:EventTrigger EventName="SelectionChanged">
+                                        <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />
+                                    </b:EventTrigger>
+                                </b:Interaction.Triggers>
+                            </hc:ComboBox>
                             <hc:NumericUpDown Margin="0,0,0,5"
                                               hc:InfoElement.Title="Row Number: "
                                               hc:TitleElement.TitleWidth="180"

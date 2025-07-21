@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.PrescanChirpAodAlignment;
@@ -9,7 +9,7 @@ namespace Core.Models.Models.Laser.PrescanChirpAodAlignment;
 public sealed partial class LaserPrescanChirpAodAlignmentCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private StageSpeedEnum _xSpeed = StageSpeedEnum.Low;

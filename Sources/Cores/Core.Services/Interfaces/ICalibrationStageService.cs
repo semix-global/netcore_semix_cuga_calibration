@@ -1,9 +1,9 @@
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
@@ -248,17 +248,17 @@ public interface ICalibrationStageService
     /// <param name="lowSite2">低倍镜下手动设置标记点2</param>
     /// <param name="highSite1">高倍镜下手动设置标记点1</param>
     /// <param name="highSite2">高倍镜下手动设置标记点2</param>
-    /// <param name="lowMicroscopeMagnificationEnum">对准使用的低倍镜</param>
-    /// <param name="highMicroscopeMagnificationEnum">对准使用的高倍镜</param>
+    /// <param name="highMicroscopeMagnificationInfo"></param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
+    /// <param name="lowMicroscopeMagnificationInfo"></param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> Alignment(
         AlignmentSiteDto lowSite1,
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     );
 
@@ -269,8 +269,8 @@ public interface ICalibrationStageService
     /// <param name="lowSite2">低倍镜下手动设置标记点2</param>
     /// <param name="highSite1">高倍镜下手动设置标记点1</param>
     /// <param name="highSite2">高倍镜下手动设置标记点2</param>
-    /// <param name="lowMicroscopeMagnificationEnum">对准使用的低倍镜</param>
-    /// <param name="highMicroscopeMagnificationEnum">对准使用的高倍镜</param>
+    /// <param name="lowMicroscopeMagnificationInfo">对准使用的低倍镜</param>
+    /// <param name="highMicroscopeMagnificationInfo">对准使用的高倍镜</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> AlignmentVerify(
@@ -278,8 +278,8 @@ public interface ICalibrationStageService
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     );
 
@@ -325,7 +325,7 @@ public interface ICalibrationStageService
     /// <param name="darkFieldHighSite2">暗场标记点2的坐标和模板</param>
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
-    /// <param name="lowMicroscopeMagnificationEnum">对准使用的低倍镜</param>
+    /// <param name="lowMicroscopeMagnificationInfo">对准使用的低倍镜</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> AlignmentDarkField(
@@ -335,7 +335,7 @@ public interface ICalibrationStageService
         AlignmentSiteDto darkFieldHighSite2,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     );
 

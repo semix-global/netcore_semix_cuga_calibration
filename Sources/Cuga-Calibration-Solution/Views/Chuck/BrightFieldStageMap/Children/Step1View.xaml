@@ -24,7 +24,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Low Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

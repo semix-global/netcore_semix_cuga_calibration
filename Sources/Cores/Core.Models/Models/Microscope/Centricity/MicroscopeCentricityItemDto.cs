@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _magnificationInfo = new();
 
     [ObservableProperty]
     private Point _centricityPosition;
@@ -39,7 +39,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
 
     public MicroscopeCentricityItemDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MagnificationInfo = MagnificationInfo,
         CentricityPosition = CentricityPosition,
         Offset = Offset,
         FilePath = FilePath,
@@ -56,7 +56,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
 
     public CalibrationMicroscopeCentricityItem AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(MicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
         Offset = Offset.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

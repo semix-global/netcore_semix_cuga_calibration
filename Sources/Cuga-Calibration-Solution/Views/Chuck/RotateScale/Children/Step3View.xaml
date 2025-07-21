@@ -81,7 +81,7 @@
 
         <!--#region Right-->
         <Grid Grid.Column="2">
-            <GroupBox Grid.Row="2" Header="Calibration Data">
+            <GroupBox Header="Calibration Data">
                 <UniformGrid Columns="2" Rows="2">
                     <UniformGrid.Resources>
                         <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">

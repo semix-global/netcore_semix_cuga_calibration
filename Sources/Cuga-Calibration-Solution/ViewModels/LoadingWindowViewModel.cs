@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Microscope;
+using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using CugaCalibration.Core.Models;
 using CugaCalibration.ViewModels.Common;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -9,6 +11,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.Mapper;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
@@ -63,12 +66,17 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Wcf Service", 8).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Wcf Service", 9).ConfigureAwait(false) == false) return;
 
-            CustomerAdaptToMapper.RegisterType<MicroscopeMagnificationEnum, CgMicroscopeLens>(
-                microscopeViewModel.MicroscopeMagnificationEnumToCgMicroscopeLens,
-                microscopeViewModel.CgMicroscopeLensToMicroscopeMagnificationEnum
+            CustomerAdaptToMapper.RegisterType<MicroscopeMagnificationInfo, CgMicroscopeLens>(
+                microscopeViewModel.MicroscopeMagnificationInfoToCgMicroscopeLens,
+                microscopeViewModel.CgMicroscopeLensToMicroscopeMagnificationInfo
             );
 
             Message = "Connected OK!!!";
+
+            var magnificationList = microscopeViewModel.GetMagnificationList();
+            var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+            applicationCookie.MicroscopeMagnificationInfoList = [.. magnificationList.Select(t => t.Clone())];
+            CoreWcfModelsExtension.Initialize(() => applicationCookie.MicroscopeMagnificationInfoList);
 
             contextProvider.Send(() => CloseView(true));
 

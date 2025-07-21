@@ -22,6 +22,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -204,7 +205,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
         LaserPixelSizeItems = laserPixelSizeItems;
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out var laserLineCentricityItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -220,13 +221,19 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         LaserViewModel.ToggleEnableL0K(false);
 
         StageViewModel.SetAbsoluteStageTheta(0);
-        MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationEnum);
+        MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
 
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<FocusShiftCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<FocusShiftDto>();
+
+        if (Cache.LowMicroscopeMagnificationInfo.MagnificationCode == -1) Cache.LowMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
 
         foreach (var calibrationStatus in Calibrations)
         {
@@ -258,11 +265,11 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
                 return true;
             case 1 or 2 or 3:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.HighSiteFindPosition);
                 return true;
             case 4:
@@ -304,11 +311,11 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         switch (CalibrationStepIndex)
         {
             case 2:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
                 return true;
             case 3 or 4:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.HighSiteFindPosition);
                 return true;
             default:
@@ -338,7 +345,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                             Cache.LowSiteFindPosition = result;
                             Cache.HighSiteFindPosition = result;
 
-                            Cache.LowSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.LowMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                            Cache.LowSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                             var generateTemplateLow = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
                             if (generateTemplateLow == false) DialogWindowProvider.ShowDialog("Generate Low Site Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             else Cache.LowSiteTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowSiteTemplateFilePath);
@@ -350,7 +357,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                                 Logger.LogHtmlInformation("Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
                                 Cache.HighSiteFindPosition = result;
-                                Cache.HighSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.HighMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                                Cache.HighSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                                 var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
                                 if (generateTemplateHigh == false)
                                 {
@@ -381,6 +388,23 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
     }
 
     [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
     private Task<bool> Step0CalibrateActionAsync()
     {
         return InvokeCalibrateAsync(() =>
@@ -400,7 +424,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.LowMicroscopeMagnificationEnum,
+                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.LowSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
@@ -418,7 +442,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HighMicroscopeMagnificationEnum,
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.HighSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
@@ -609,18 +633,18 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             #region Bright Field
 
             Logger.LogHtmlInformation("2. Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.LowMicroscopeMagnificationEnum, Cache.LowSiteTemplateFilePath, ImageFileDirectory,
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.LowMicroscopeMagnificationInfo, Cache.LowSiteTemplateFilePath, ImageFileDirectory,
                     HtmlLogUniqueId, Name,
-                    "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
+                    "Low Magnification", out var lowResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
             }
 
             Cache.LowSiteFindPosition = lowResultPosition;
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.HighMicroscopeMagnificationEnum, Cache.HighSiteTemplateFilePath, ImageFileDirectory,
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.HighMicroscopeMagnificationInfo, Cache.HighSiteTemplateFilePath, ImageFileDirectory,
                     HtmlLogUniqueId, Name,
-                    "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
+                    "High Magnification", out var highResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
@@ -660,7 +684,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     out var darkFieldResultPosition,
                     out _,
                     out _,
-                    out var resultImageFilePath,
+                    out _,
                     true,
                     800,
                     Cache.OpticsMagTypeEnum,
@@ -801,7 +825,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     out var resultPosition,
                     out _,
                     out _,
-                    out resultImageFilePath,
+                    out _,
                     true,
                     800,
                     Cache.OpticsMagTypeEnum,
@@ -818,7 +842,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             {
                 ResultFocusShiftDto.BrightFieldFindPosition,
                 ResultFocusShiftDto.DarkFieldFindPosition,
-                ResultFocusShiftDto.BrightFiedlToDarkFieldOffset,
+                BrightFiedlToDarkFieldOffset = ResultFocusShiftDto.BrightFieldToDarkFieldOffset,
                 RealNscEcs = ResultFocusShiftDto.DarkFieldEcsValue,
                 RealNsc = ResultFocusShiftDto.NscValue,
                 NscTraceBuffers = new HtmlPlot2DLinesChart([
@@ -856,7 +880,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 ResultFocusShiftDto.AutoFocusNsc,
                 RealEcs = ResultFocusShiftDto.DarkFieldEcsValue,
                 RealEcsNsc = ResultFocusShiftDto.NscValue,
-                ResultFocusShiftDto.BrightFiedlToDarkFieldOffset,
+                BrightFiedlToDarkFieldOffset = ResultFocusShiftDto.BrightFieldToDarkFieldOffset,
                 ResultFocusShiftDto.EcsOffset,
                 ResultFocusShiftDto.FocusShiftOffset,
                 ResultFocusShiftDto.AfMotorOffset,

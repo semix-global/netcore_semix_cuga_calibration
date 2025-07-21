@@ -15,7 +15,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis"
              xmlns:coreModels="clr-namespace:Core.Models.Models.Laser.Rtfc;assembly=Core.Models"
              xmlns:focusShiftCoreModels="clr-namespace:Core.Models.Models.Laser.FocusShift;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:AfFocusDiagnosisViewModel}"
+             xmlns:rtfcDiagnosis="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis"
+             d:DataContext="{d:DesignInstance Type=rtfcDiagnosis:AfFocusDiagnosisViewModel}"
              d:DesignHeight="1600"
              d:DesignWidth="1300"
              mc:Ignorable="d">
@@ -339,7 +340,7 @@
                                      hc:InfoElement.Title="Af Motor Offset: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultFocusShiftDto.BrightFiedlToDarkFieldOffset, Mode=OneWay}"
+                            <TextBox Text="{Binding ResultFocusShiftDto.BrightFieldToDarkFieldOffset, Mode=OneWay}"
                                      Width="275"
                                      hc:InfoElement.Title="BF To DF Machine Offset: "
                                      hc:InfoElement.TitlePlacement="Left"

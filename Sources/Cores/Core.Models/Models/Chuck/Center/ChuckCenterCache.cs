@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
+using Core.Models.Enums.Recipe.Wafer;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -13,86 +13,16 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
     private int _threshold = 50;
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private ChuckCenterCacheItem _lowChuckCenterCacheItem = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
+    private ChuckCenterCacheItem _highChuckCenterCacheItem = new();
 
     [ObservableProperty]
-    private Point _lowTopPosition = new(150, 0);
-
-    [ObservableProperty]
-    private Point _lowLeftPosition = new(0, 150);
-
-    [ObservableProperty]
-    private Point _lowBottomPosition = new(-150, 0);
-
-    [ObservableProperty]
-    private Point _lowRightPosition = new(0, -150);
-
-    [ObservableProperty]
-    private Point _highTopPosition = new(150, 0);
-
-    [ObservableProperty]
-    private Point _highLeftPosition = new(0, 150);
-
-    [ObservableProperty]
-    private Point _highBottomPosition = new(-150, 0);
-
-    [ObservableProperty]
-    private Point _highRightPosition = new(0, -150);
-
-    [ObservableProperty]
-    private string _lowTopTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowTopTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowRightTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowRightTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowBottomTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowBottomTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowLeftTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowLeftTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTopTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTopTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highRightTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highRightTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highBottomTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highBottomTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highLeftTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highLeftTemplateImageFilePath = string.Empty;
+    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftBottom;
 
     [ObservableProperty]
     private double _p5Angle;
-
 
     [ComparisonRange(0, 50, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Threshold: ")]
     public int Threshold
@@ -119,13 +49,13 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
         set => SetProperty(ref _negativeAngle, value, true);
     }
 
-    public Point LowToHighPointTop => HighTopPosition - (Vector)LowTopPosition;
+    public Point LowToHighPointTop => HighChuckCenterCacheItem.TopPosition - (Vector)LowChuckCenterCacheItem.TopPosition;
 
-    public Point LowToHighPointRight => HighRightPosition - (Vector)LowRightPosition;
+    public Point LowToHighPointRight => HighChuckCenterCacheItem.RightPosition - (Vector)LowChuckCenterCacheItem.RightPosition;
 
-    public Point LowToHighPointBottom => HighBottomPosition - (Vector)LowBottomPosition;
+    public Point LowToHighPointBottom => HighChuckCenterCacheItem.BottomPosition - (Vector)LowChuckCenterCacheItem.BottomPosition;
 
-    public Point LowToHighPointLeft => HighLeftPosition - (Vector)LowLeftPosition;
+    public Point LowToHighPointLeft => HighChuckCenterCacheItem.LeftPosition - (Vector)LowChuckCenterCacheItem.LeftPosition;
 
     #region Verify
 

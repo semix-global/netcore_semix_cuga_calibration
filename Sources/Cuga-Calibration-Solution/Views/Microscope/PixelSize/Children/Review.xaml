@@ -43,6 +43,11 @@
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="{Binding IsAutoCalibrate}"
                              Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding SelectMicroscopePixelSizeCacheItem.AlgorithmStandardMaskSquareSizeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                             hc:InfoElement.Title="StandardMaskSquareSize: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -104,7 +109,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="200"
                                         Header="FindPosition"
                                         DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

@@ -1,8 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Core.Models.Enums.Microscope;
 using Core.Models.Helper;
+using Core.Models.Models.Pattern;
+using CugaCalibration.Core.Models;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -15,15 +16,19 @@ namespace CugaCalibration.ViewModels.Common.Windows.View;
 public sealed partial class MicroscopeWindowViewModel(
     MicroscopeViewModel microscopeViewModel,
     IMessenger messenger,
-    ILogger<MicroscopeWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
+    ILogger<MicroscopeWindowViewModel> logger,
+    ApplicationCookie applicationCookie) : PopupWindowViewModelBase(messenger, logger)
 {
+    [ObservableProperty]
+    private ApplicationCookie _applicationCookie = applicationCookie;
+
     /// <summary>
     /// 1: Running, 0: Not running
     /// </summary>
     private int _isRunning;
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {
@@ -34,9 +39,8 @@ public sealed partial class MicroscopeWindowViewModel(
             try
             {
                 if (_isRunning == 1) return;
-
                 var result = microscopeViewModel.GetMagnification();
-                MicroscopeMagnificationEnum = result;
+                MicroscopeMagnificationInfo = result;
             }
             catch (Exception ex)
             {
@@ -57,9 +61,9 @@ public sealed partial class MicroscopeWindowViewModel(
 
             try
             {
-                microscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum, true);
+                microscopeViewModel.SwitchMagnification(MicroscopeMagnificationInfo, true);
                 var result = microscopeViewModel.GetMagnification();
-                MicroscopeMagnificationEnum = result;
+                MicroscopeMagnificationInfo = result;
             }
             catch (Exception ex)
             {

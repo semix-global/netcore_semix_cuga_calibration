@@ -27,7 +27,7 @@
                 <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat='Cal Chip Step {0}'}" Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -371,7 +371,7 @@
                                             DisplayMemberBinding="{Binding Index}" />
                             <GridViewColumn Width="200"
                                             Header="Magnification"
-                                            DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="200"
                                             Header="FindPosition"
                                             DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
+using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -72,10 +73,10 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private bool _isDarkField;
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
+    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftTop;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;

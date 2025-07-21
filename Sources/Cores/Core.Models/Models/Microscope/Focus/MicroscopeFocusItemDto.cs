@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -14,7 +14,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
     private int _index;
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _magnificationInfo = new();
 
     [ObservableProperty]
     private Point _findPosition;
@@ -39,7 +39,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
     public MicroscopeFocusItemDto Clone() => new()
     {
         Index = Index,
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MagnificationInfo = MagnificationInfo,
         FindPosition = FindPosition,
         EcsValue = EcsValue,
         TransBufferAfErrorValue = TransBufferAfErrorValue,
@@ -55,7 +55,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationMicroscopeFocusItem AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(MicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
         EcsValue = EcsValue,
         MicroscopeVoltage = MicroscopeVoltage,
         IsCalibrated = IsCalibrated,

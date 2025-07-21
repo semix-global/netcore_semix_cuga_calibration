@@ -1,11 +1,11 @@
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -289,8 +289,8 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
@@ -301,10 +301,10 @@ public sealed class CalibrationStageServiceImpl(
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var lowRet = calibrationMicroscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(lowMicroscopeMagnificationEnum);
+        var lowRet = calibrationMicroscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(lowMicroscopeMagnificationInfo);
         if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
 
-        var highRet = calibrationMicroscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(highMicroscopeMagnificationEnum);
+        var highRet = calibrationMicroscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(highMicroscopeMagnificationInfo);
         if (highRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(highRet.Msg, new AlignmentResultDto());
 
         var sxExecuteRet = Invoke(() => Service2?.BFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((lowSite1.AdaptTo(), lowSite2.AdaptTo(), highSite1.AdaptTo(), highSite2.AdaptTo(), lowRet.Anything.ToUshort(), highRet.Anything.ToUshort(), C2MAlignTypeDTO.Mid))));
@@ -314,8 +314,8 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
     }
 
-    public SxExecuteRet<AlignmentResultDto> AlignmentVerify(AlignmentSiteDto lowSite1, AlignmentSiteDto lowSite2, AlignmentSiteDto highSite1, AlignmentSiteDto highSite2, MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public SxExecuteRet<AlignmentResultDto> AlignmentVerify(AlignmentSiteDto lowSite1, AlignmentSiteDto lowSite2, AlignmentSiteDto highSite1, AlignmentSiteDto highSite2, MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
@@ -325,10 +325,10 @@ public sealed class CalibrationStageServiceImpl(
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var lowRet = calibrationMicroscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(lowMicroscopeMagnificationEnum);
+        var lowRet = calibrationMicroscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(lowMicroscopeMagnificationInfo);
         if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
 
-        var highRet = calibrationMicroscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(highMicroscopeMagnificationEnum);
+        var highRet = calibrationMicroscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(highMicroscopeMagnificationInfo);
         if (highRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(highRet.Msg, new AlignmentResultDto());
 
         var sxExecuteRet = Invoke(() => Service2?.BFAlignmentVerify(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((lowSite1.AdaptTo(), lowSite2.AdaptTo(), highSite1.AdaptTo(), highSite2.AdaptTo(), lowRet.Anything.ToUshort(), highRet.Anything.ToUshort(), C2MAlignTypeDTO.Mid))));
@@ -377,7 +377,7 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto darkFieldHighSite2,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
@@ -388,7 +388,7 @@ public sealed class CalibrationStageServiceImpl(
         darkFieldHighSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         darkFieldHighSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var lowRet = calibrationMicroscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(lowMicroscopeMagnificationEnum);
+        var lowRet = calibrationMicroscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(lowMicroscopeMagnificationInfo);
         if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
 
         var sxExecuteRet = Invoke(() => Service2?.DFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ESxLevelEnum mag, ESxLevelEnum speed, ushort ll)>

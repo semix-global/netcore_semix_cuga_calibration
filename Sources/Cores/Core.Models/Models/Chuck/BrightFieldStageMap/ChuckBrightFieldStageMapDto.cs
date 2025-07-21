@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.BrightFieldStageMap;
@@ -8,7 +8,7 @@ namespace Core.Models.Models.Chuck.BrightFieldStageMap;
 public sealed partial class ChuckBrightFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckBrightFieldStageMapDto>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private StageMapDto _calibrationStageMap = new();
@@ -20,7 +20,7 @@ public sealed partial class ChuckBrightFieldStageMapDto : CalibrationDtoBase, IC
 
     public ChuckBrightFieldStageMapDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
         CalibrationStageMap = CalibrationStageMap.Clone(),
         VerifyStageMap = VerifyStageMap.Clone(),
         IsCalibrated = IsCalibrated,

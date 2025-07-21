@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Microscope;
-using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -10,8 +8,10 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -28,9 +28,9 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationEnum);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationEnum);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -113,6 +113,11 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         Calibration = CacheProvider.GetOrDefault<ChuckGantryDto>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
+        if (Cache.LowMicroscopeMagnificationInfo.MagnificationCode == -1) Cache.LowMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -162,12 +167,12 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return true;
 
@@ -183,12 +188,12 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetGantryOffset(0);
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowTemplateFilePath))
                        && File.Exists(Cache.LowTemplateImageFilePath);
@@ -236,7 +241,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                         Cache.HighFindPosition1 = result;
                         Cache.LowFindPosition2 = new Point(result.X, -result.Y);
 
-                        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                         var generateTemplateLow1 = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
                         if (generateTemplateLow1 == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                         else Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
@@ -246,7 +251,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                         break;
 
                     case nameof(Cache.LowFindPosition2):
-                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.LowMicroscopeMagnificationEnum, Cache.LowTemplateFilePath, out var lowPosition) == false) return;
+                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.LowMicroscopeMagnificationInfo, Cache.LowTemplateFilePath, out var lowPosition) == false) return;
 
                         Cache.LowFindPosition2 = lowPosition;
                         Cache.HighFindPosition2 = lowPosition;
@@ -256,7 +261,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                     case nameof(Cache.HighFindPosition1):
                         Cache.HighFindPosition1 = result;
 
-                        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                         var generateTemplateHigh1 = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
                         if (generateTemplateHigh1 == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                         else Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
@@ -266,7 +271,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                         break;
 
                     case nameof(Cache.HighFindPosition2):
-                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.HighMicroscopeMagnificationEnum, Cache.HighTemplateFilePath, out var highPosition) == false) return;
+                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.HighMicroscopeMagnificationInfo, Cache.HighTemplateFilePath, out var highPosition) == false) return;
 
                         Cache.HighFindPosition2 = highPosition;
 
@@ -286,6 +291,23 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         try
         {
             await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy((Point)Cache.GetType().GetProperty(name)!.GetValue(Cache))).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -326,7 +348,8 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                Cache.LowMicroscopeMagnificationEnum,
+                Cache.WaferMaskTypeEnum,
+                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.LowFindPosition1,
                 Cache.LowFindPosition2
             }), HtmlLogUniqueId.LoggingHtml());
@@ -339,9 +362,15 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
     {
         return InvokeCalibrateAsync(() =>
         {
+            if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode <= Cache.LowMicroscopeMagnificationInfo.MagnificationCode)
+            {
+                DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HighMicroscopeMagnificationEnum,
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.HighFindPosition1,
                 Cache.HighFindPosition2
             }), HtmlLogUniqueId.LoggingHtml());
@@ -397,7 +426,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 yAxisTemperature,
                 reviewCamTemperature,
                 cibTemperature,
-                MicroscopeMagnification = Cache.HighMicroscopeMagnificationEnum,
+                MicroscopeMagnification = Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 ResultChuckGantryDto.Position1,
                 ResultChuckGantryDto.Position2,
                 Score1 = ResultChuckGantryDto.TemplateScore1,
@@ -458,8 +487,8 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 yAxisTemperature,
                 reviewCamTemperature,
                 cibTemperature,
-                Cache.LowMicroscopeMagnificationEnum,
-                Cache.HighMicroscopeMagnificationEnum,
+                LowMagnification = Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                HighMagnification = Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
                 Cache.LowFindPosition1,
                 Cache.LowFindPosition2,
@@ -513,7 +542,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 NewOffset = chuckGantryObjDto.Offset,
                 OldOffset = selectReviewItemDto.Offset,
                 Cache.Threshold,
-                MicroscopeMagnification = Cache.HighMicroscopeMagnificationEnum,
+                MicroscopeMagnification = Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 chuckGantryObjDto.Position1,
                 chuckGantryObjDto.Position2,
                 Score1 = chuckGantryObjDto.TemplateScore1,
@@ -559,13 +588,13 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         chuckGantryDto.HighTemplateFilePath = Cache.HighTemplateFilePath;
         chuckGantryDto.HighTemplateImageFilePath = Cache.HighTemplateImageFilePath;
 
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowFindPosition1, Cache.LowMicroscopeMagnificationEnum, Cache.LowTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowFindPosition1, Cache.LowMicroscopeMagnificationInfo, Cache.LowTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
                 "Low Magnification 1", out var lowPosition1, out _, out _, out _, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint1, Cache.HighMicroscopeMagnificationEnum, Cache.HighTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint1, Cache.HighMicroscopeMagnificationInfo, Cache.HighTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
                 "High Magnification 1", out var highPosition1, out var highScore1, out var highAngle1, out var highImageFilePath1, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowFindPosition2, Cache.LowMicroscopeMagnificationEnum, Cache.LowTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowFindPosition2, Cache.LowMicroscopeMagnificationInfo, Cache.LowTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
                 "Low Magnification 2", out var lowPosition2, out _, out _, out _, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint2, Cache.HighMicroscopeMagnificationEnum, Cache.HighTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint2, Cache.HighMicroscopeMagnificationInfo, Cache.HighTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
                 "High Magnification 2", out var highPosition2, out var highScore2, out var highAngle2, out var highImageFilePath2, out _) == false) return false;
 
         chuckGantryDto.Position1 = highPosition1;
@@ -588,8 +617,8 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         update(dto);
         update(Cache);
 
-        dto.LowMicroscopeMagnificationEnum = Cache.LowMicroscopeMagnificationEnum;
-        dto.HighMicroscopeMagnificationEnum = Cache.HighMicroscopeMagnificationEnum;
+        dto.LowMicroscopeMagnificationInfo = Cache.LowMicroscopeMagnificationInfo;
+        dto.HighMicroscopeMagnificationInfo = Cache.HighMicroscopeMagnificationInfo;
 
         Calibration = dto.Clone();
 
@@ -618,7 +647,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         AutoCalibrationStepList =
         [
             new() { StepName = "loading" },
-            new() { StepName = "P5" },
             new() { StepName = "Low Position" },
             new() { StepName = "High Position" },
             new() { StepName = "Calibration" },
@@ -637,7 +665,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
             {
                 case 0:
                     if (await LoadedingAsync(cancellationToken) == false) return false;
-                    if (await NextingAsync(cancellationToken) == false) return false;
                     await InvokeCalibrateAsync(() =>
                     {
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -646,22 +673,19 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                         }), HtmlLogUniqueId.LoggingHtml());
                         return true;
                     });
+                    CalibrationStepIndex = 0;
+                    if (await NextingAsync(cancellationToken) == false) return false;
                     if (await AutoNextingAsync(cancellationToken) == false) return false;
                     break;
 
                 case 1:
-                    if (await Step0CalibrateActionAsync(cancellationToken) == false) return false;
-                    if (await AutoNextingAsync(cancellationToken) == false) return false;
-                    break;
-
-                case 2:
                     if (await AutomationRecipeInformationAsync("0") == false) return false;
                     await InvokeCalibrateAsync(() =>
                     {
                         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                         {
                             Cache.AlgorithmTemplateTypeEnum,
-                            Cache.LowMicroscopeMagnificationEnum,
+                            Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                             Cache.LowFindPosition1,
                             Cache.LowFindPosition2,
                             HtmlTab = new HtmlTab(new
@@ -676,14 +700,14 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                     if (await AutoNextingAsync(cancellationToken) == false) return false;
                     break;
 
-                case 3:
+                case 2:
                     if (await AutomationRecipeInformationAsync("1") == false) return false;
                     await InvokeCalibrateAsync(() =>
                     {
                         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                         {
                             Cache.AlgorithmTemplateTypeEnum,
-                            Cache.HighMicroscopeMagnificationEnum,
+                            Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                             Cache.HighFindPosition1,
                             Cache.HighFindPosition2,
                             HtmlTab = new HtmlTab(new
@@ -698,15 +722,14 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                     if (await AutoNextingAsync(cancellationToken) == false) return false;
                     break;
 
-                case 4:
+                case 3:
                     if (await Step3CalibrateActionAsync(cancellationToken) == false) return false;
                     CalibrationStepIndex = 3;
                     if (await NextingAsync(cancellationToken) == false) return false;
                     if (await AutoNextingAsync(cancellationToken) == false) return false;
                     break;
 
-                case 5:
-                    AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
+                case 4:
                     if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
                     await InvokeCalibrateAsync(async () =>
                     {
@@ -744,30 +767,28 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         switch (chuckName)
         {
             case "0":
-                Cache.LowMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.LowMicroscopeMagnificationEnum, null, out var maskInfo5) == false)
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeMagnificationInfo, null, out var maskInfoLow) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfo5, out var lowPosition1);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfoLow, out var lowPosition1);
                 Cache.LowFindPosition1 = lowPosition1;
 
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfo5, out var lowPosition2);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfoLow, out var lowPosition2);
                 Cache.LowFindPosition2 = lowPosition2;
-                Cache.LowTemplateFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.LowTemplateImageFilePath = maskInfo5.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+                Cache.LowTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
+                Cache.LowTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
 
                 break;
 
             case "1":
-                Cache.HighMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.HighMicroscopeMagnificationEnum, null, out var maskInfo50) == false)
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeMagnificationInfo, null, out var maskInfoHigh) == false)
                     return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfo50, out var highPosition1);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfoHigh, out var highPosition1);
                 Cache.HighFindPosition1 = highPosition1;
 
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfo50, out var highPosition2);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfoHigh, out var highPosition2);
                 Cache.HighFindPosition2 = highPosition2;
-                Cache.HighTemplateFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.HighTemplateImageFilePath = maskInfo50.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+                Cache.HighTemplateFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateFilePath;
+                Cache.HighTemplateImageFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
 
                 break;
         }

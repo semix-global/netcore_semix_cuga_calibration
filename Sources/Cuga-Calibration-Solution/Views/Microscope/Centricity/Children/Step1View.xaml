@@ -9,7 +9,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:microscope="clr-namespace:Core.Models.Enums.Microscope;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCentricityCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -57,11 +56,11 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding SelectMicroscopeCentricityCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
@@ -76,32 +75,12 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Width="275"
+                    <TextBox Text="{Binding SelectMicroscopeCentricityCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
                              hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="{Binding IsAutoCalibrate}">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Text" Value="{Binding Cache.TemplateFindPosition5X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Text" Value="{Binding Cache.TemplateFindPosition10X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Text" Value="{Binding Cache.TemplateFindPosition50X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Text" Value="{Binding Cache.TemplateFindPosition100X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Text" Value="{Binding Cache.TemplateFindPosition150X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                             IsReadOnly="{Binding IsAutoCalibrate}"
+                             Style="{StaticResource TextBoxExtend}" />
                     <UniformGrid Width="275"
                                  Columns="2"
                                  IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource BoolToBoolConverter}}">
@@ -109,57 +88,13 @@
                                 Content="Get"
                                 Command="{Binding GetPointCommand}"
                                 HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="4,0,0,4">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition5X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition10X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition50X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition100X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition150X" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                                hc:BorderElement.CornerRadius="4,0,0,4" />
                         <Button x:Name="GotoButton"
                                 Content="Goto"
                                 Command="{Binding GotoPointCommand}"
                                 Margin="-1,0,0,0"
                                 HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="0,4,4,0">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition5X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition10X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition50X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition100X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                            <Setter Property="CommandParameter" Value="TemplateFindPosition150X" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                                hc:BorderElement.CornerRadius="0,4,4,0" />
                     </UniformGrid>
                     <view:CanvasView Width="100"
                                      Height="100"
@@ -168,30 +103,8 @@
                                      Interactive="True"
                                      ShowAxes="True"
                                      ShowCursor="False"
-                                     ShowGrid="False">
-                        <view:CanvasView.Style>
-                            <Style TargetType="view:CanvasView">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.TemplateImageFilePath5X, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.TemplateImageFilePath10X, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.TemplateImageFilePath50X, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.TemplateImageFilePath100X, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <!--<Setter Property="ImageSource" Value="{Binding Cache.TemplateImageFilePath150X, Converter={StaticResource StringToBitmapFrameConverter}}" />-->
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </view:CanvasView.Style>
-                    </view:CanvasView>
+                                     ShowGrid="False"
+                                     BackgroundImage="{Binding SelectMicroscopeCentricityCacheItem.TemplateImageFilePath}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -272,7 +185,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="120"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="200"
                                         Header="Centricity"
                                         DisplayMemberBinding="{Binding CentricityPosition, Converter={StaticResource PointToStringConverter}}" />
@@ -297,33 +210,13 @@
                                                 Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                                 CommandParameter="{Binding FilePath}"
                                                 HorizontalAlignment="Center"
-                                                d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeCentricityItemDto}">
-                                            <Button.Style>
-                                                <Style BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                                            <Setter Property="Grid.ColumnSpan" Value="2" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
+                                                d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeCentricityItemDto}" />
                                         <Button Grid.Column="1"
                                                 Content="Template"
                                                 Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                                 CommandParameter="{Binding TemplateImageFilePath}"
                                                 HorizontalAlignment="Center"
-                                                d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeCentricityItemDto}">
-                                            <Button.Style>
-                                                <Style BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
+                                                d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeCentricityItemDto}" />
                                     </Grid>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>

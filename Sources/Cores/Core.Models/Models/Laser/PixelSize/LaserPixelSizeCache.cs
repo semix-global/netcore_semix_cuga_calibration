@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
+using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.PixelSize;
@@ -9,7 +10,10 @@ namespace Core.Models.Models.Laser.PixelSize;
 public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+
+    [ObservableProperty]
+    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_10um;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

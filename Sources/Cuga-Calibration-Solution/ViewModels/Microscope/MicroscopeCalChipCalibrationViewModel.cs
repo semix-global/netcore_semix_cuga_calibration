@@ -6,6 +6,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -23,9 +24,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationEnum);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationEnum);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -106,6 +107,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
 
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
@@ -116,7 +119,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationEnum) == false)
+        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -134,7 +137,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         if (ReviewDto.IsCalibrated == false) return false;
 
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationEnum) == false)
+        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -149,7 +152,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         AfViewModel.ToggleBrightFieldEnable(false);
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationEnum) == false)
+        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -377,7 +380,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
-            if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationEnum) == false)
+            if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -388,7 +391,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.CalChipSiteModelEnum,
-                MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
+                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 CurrentEcsValue = ecsValue,
                 FindFocusPosition = findFocusPosition,
                 FindFocusLimitMin = findFocusMin,
@@ -405,7 +408,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 ecsList.Add(new MicroscopeFocusItemDto
                 {
                     Index = index + 1,
-                    MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum,
+                    MagnificationInfo = Cache.MicroscopeMagnificationInfo,
                     FindPosition = findFocusPosition,
                     Quality = 0,
                     EcsValue = ecsValueTemp,
@@ -446,7 +449,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.CalChipSiteModelEnum,
-                MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
+                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 EcsValue = ResultMicroscopeCalChipDto.GetEcsValue(Cache.CalChipSiteModelEnum),
                 ImageQuality = ResultMicroscopeCalChipDto.GetQuality(Cache.CalChipSiteModelEnum),
                 HtmlTab = new HtmlTab(new
@@ -492,7 +495,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.CalChipSiteModelEnum,
-                    MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
+                    MicroscopeMagnification = Cache.MicroscopeMagnificationInfo,
                     FindFocusPosition = findFocusPosition,
                     FindFocusLimitMin = findFocusMin,
                     FindFocusLimitMax = findFocusMax,
@@ -503,7 +506,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
-                if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationEnum) == false)
+                if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -517,7 +520,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 var microscopeFocusItemDto = new MicroscopeFocusItemDto
                 {
                     Index = 0,
-                    MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum,
+                    MagnificationInfo = Cache.MicroscopeMagnificationInfo,
                     FindPosition = findFocusPosition,
                     Quality = 0,
                     EcsValue = ReviewDto.GetEcsValue(Cache.CalChipSiteModelEnum),
@@ -554,7 +557,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
             {
-                MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
+                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo,
                 NewOffset = Cache.VerifyResultQuality,
                 OldOffset = string.Join(", ", oldQualityList),
                 Error = Cache.VerifyResultError,
@@ -601,7 +604,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         {
             microscopeFocusItemDto.EcsValue,
             ImageQuality = microscopeFocusItemDto.Quality,
-            MicroscopeMagnification = microscopeFocusItemDto.MicroscopeMagnificationEnum,
+            MicroscopeMagnification = microscopeFocusItemDto.MagnificationInfo.MicroscopeMagnificationName,
             HtmlTab = new HtmlTab(new
             {
                 Image = new HtmlImage(microscopeFocusItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])

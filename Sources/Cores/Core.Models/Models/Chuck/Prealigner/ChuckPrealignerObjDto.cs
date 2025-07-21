@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.Prealigner;
 public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneable<ChuckPrealignerObjDto>, IAdaptTo<CalibrationPrealignerObj>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMicroscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMicroscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private Point _offsetPosition;
@@ -69,8 +69,8 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
 
     public ChuckPrealignerObjDto Clone() => new()
     {
-        LowMicroscopeMagnificationEnum = LowMicroscopeMagnificationEnum,
-        HighMicroscopeMagnificationEnum = HighMicroscopeMagnificationEnum,
+        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
+        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         OffsetPosition = OffsetPosition,
         OffsetAngle = OffsetAngle,
         EfemLoadWaferStagePosition = EfemLoadWaferStagePosition,
@@ -96,7 +96,7 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
 
     public CalibrationPrealignerObj AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(HighMicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         NewEfemLoadWaferStagePosition = NewEfemLoadWaferStagePosition.ToCgPoint(),
         NewEfemLoadWaferChuckAngle = NewEfemLoadWaferChuckAngle,
         IsCalibrated = IsCalibrated,

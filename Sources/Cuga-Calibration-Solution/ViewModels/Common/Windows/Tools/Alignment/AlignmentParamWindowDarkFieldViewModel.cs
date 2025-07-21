@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
@@ -12,6 +14,9 @@ public sealed partial class AlignmentParamWindowDarkFieldViewModel : ViewModelBa
 {
     [ObservableProperty]
     private AlignmentCacheDarkField _cache = new();
+
+    [ObservableProperty]
+    private ObservableCollection<MicroscopeMagnificationInfo> _microscopeMagnificationInfoList = [];
 
     [RelayCommand]
     private void Close()

@@ -5,6 +5,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -43,6 +46,37 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox Width="275"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.MicroscopeMagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=MagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
+                    <hc:ComboBox Width="275"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Template Mask Type: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.WaferMaskTypeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                     <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Position(um): "

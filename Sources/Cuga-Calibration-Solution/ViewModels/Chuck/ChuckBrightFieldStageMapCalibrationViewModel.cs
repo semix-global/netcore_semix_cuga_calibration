@@ -12,6 +12,7 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -31,9 +32,9 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationEnum);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationEnum);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -147,6 +148,11 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
         Calibration = CacheProvider.GetOrDefault<ChuckBrightFieldStageMapDto>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
+
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -189,7 +195,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
                 return true;
 
             case 1:
@@ -219,6 +225,23 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
     #endregion 控制校准业务
 
     #region 校准
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
@@ -305,7 +328,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
             if (generateTemplate == false)
             {
@@ -355,7 +378,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                 yAxisTemperature,
                 reviewCamTemperature,
                 cibTemperature,
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.CalculateContainRowMinCout,
                 Cache.CalculateContainColumnMinCount,
                 Cache.CalibrationAlignmentThreshold,
@@ -402,7 +425,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ResultChuckBrightFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath,
                     ResultChuckBrightFieldStageMapDto.CalibrationStageMap.RealCsvFilePath,
@@ -416,7 +439,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                 xAxisTemperature,
                 yAxisTemperature,
                 reviewCamTemperature,
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
                 ResultChuckBrightFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath,
                 ResultChuckBrightFieldStageMapDto.CalibrationStageMap.RealCsvFilePath,
@@ -458,7 +481,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.CalculateContainRowMinCout,
                     Cache.CalculateContainColumnMinCount,
@@ -502,7 +525,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyStageMap.RealCsvFilePath,
@@ -626,7 +649,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
                         Cache.AlgorithmTemplateTypeEnum,
                         MicroscopePixelSizeItems,
                         tempPosition,
-                        Cache.MicroscopeMagnificationEnum,
+                        Cache.MicroscopeMagnificationInfo,
                         Cache.TemplateFilePath,
                         $"{detectImageDirectory}\\row({row})_column({column})",
                         HtmlLogUniqueId,
@@ -670,7 +693,7 @@ public sealed partial class ChuckBrightFieldStageMapCalibrationViewModel(Alignme
         update(dto);
         update(Cache);
 
-        dto.MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum;
+        dto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
 
         Calibration = dto.Clone();
 

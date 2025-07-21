@@ -10,6 +10,7 @@ using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Windows.Controls;
+using AfFocusDiagnosisViewModel = CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis.AfFocusDiagnosisViewModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 

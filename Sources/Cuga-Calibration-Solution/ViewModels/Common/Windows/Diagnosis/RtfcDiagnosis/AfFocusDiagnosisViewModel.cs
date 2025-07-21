@@ -17,6 +17,7 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
+using CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
@@ -35,7 +36,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis;
+namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis;
 
 [IOCAppService(ServiceType = typeof(AfFocusDiagnosisViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : RtfcDiagnosisViewModelBase
@@ -240,7 +241,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                             FocusShiftCache.LowSiteFindPosition = result;
                             FocusShiftCache.HighSiteFindPosition = result;
 
-                            FocusShiftCache.LowSiteTemplateFilePath = $"{TemplateFileDirectory}\\{FocusShiftCache.LowMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                            FocusShiftCache.LowSiteTemplateFilePath = $"{TemplateFileDirectory}\\{FocusShiftCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                             var generateTemplateLow = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, FocusShiftCache.LowSiteTemplateFilePath, FocusShiftCache.AlgorithmTemplateSizeEnum);
                             if (generateTemplateLow == false) DialogWindowProvider.ShowDialog("Generate Low Site Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             else FocusShiftCache.LowSiteTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(FocusShiftCache.LowSiteTemplateFilePath);
@@ -254,7 +255,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                 IsEnableWindow = false;
 
                                 FocusShiftCache.HighSiteFindPosition = result;
-                                FocusShiftCache.HighSiteTemplateFilePath = $"{TemplateFileDirectory}\\{FocusShiftCache.HighMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                                FocusShiftCache.HighSiteTemplateFilePath = $"{TemplateFileDirectory}\\{FocusShiftCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                                 var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(FocusShiftCache.AlgorithmTemplateTypeEnum, FocusShiftCache.HighSiteTemplateFilePath, FocusShiftCache.AlgorithmTemplateSizeEnum);
                                 if (generateTemplateHigh == false)
                                 {
@@ -358,8 +359,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     FocusShiftCache.CalChipSiteModelEnum,
                     FocusShiftCache.AlgorithmTemplateSizeEnum,
                     FocusShiftCache.AlgorithmTemplateTypeEnum,
-                    FocusShiftCache.LowMicroscopeMagnificationEnum,
-                    FocusShiftCache.HighMicroscopeMagnificationEnum,
+                    LowMagnification = FocusShiftCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    HighMagnification = FocusShiftCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     FocusShiftCache.OpticsMagTypeEnum,
                     FocusShiftCache.StageSpeedEnum,
                     Pmt = 8,
@@ -379,17 +380,17 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
                 // Bright Field Match
                 Logger.LogHtmlInformation($"2. Bright Field Match Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, FocusShiftCache.LowSiteFindPosition, FocusShiftCache.LowMicroscopeMagnificationEnum, FocusShiftCache.LowSiteTemplateFilePath, ImageFileDirectory,
+                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, FocusShiftCache.LowSiteFindPosition, FocusShiftCache.LowMicroscopeMagnificationInfo, FocusShiftCache.LowSiteTemplateFilePath, ImageFileDirectory,
                         HtmlLogUniqueId, Name,
-                        "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
+                        "Low Magnification", out var lowResultPosition, out _, out _, out _, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
                 }
 
-                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowResultPosition, FocusShiftCache.HighMicroscopeMagnificationEnum, FocusShiftCache.HighSiteTemplateFilePath, ImageFileDirectory,
+                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowResultPosition, FocusShiftCache.HighMicroscopeMagnificationInfo, FocusShiftCache.HighSiteTemplateFilePath, ImageFileDirectory,
                         HtmlLogUniqueId, Name,
-                        "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
+                        "High Magnification", out var highResultPosition, out _, out _, out _, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
@@ -424,7 +425,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         out var darkFieldResultPosition,
                         out _,
                         out _,
-                        out var resultImageFilePath,
+                        out _,
                         true,
                         800,
                         FocusShiftCache.OpticsMagTypeEnum,
@@ -532,7 +533,9 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 10)) break; // 连续10个下降说明已经到了最低点
                 }
 
-                ResultFocusShiftDto = FocusShiftDtoItems.Select(s => s.Clone()).Maxima(s => s.DarkFieldQuality).Single();
+                ResultFocusShiftDto = FocusShiftDtoItems.Select(s => s.Clone())
+                    .Maxima(s => s.DarkFieldQuality)
+                    .Single();
                 ResultFocusShiftDto.EcsOffset = ResultFocusShiftDto.DarkFieldEcsValue - afEcs;
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
@@ -570,7 +573,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         out var resultPosition,
                         out _,
                         out _,
-                        out resultImageFilePath,
+                        out _,
                         true,
                         800,
                         FocusShiftCache.OpticsMagTypeEnum,
@@ -609,7 +612,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     ResultFocusShiftDto.AutoFocusNsc,
                     ResultEcs = ResultFocusShiftDto.DarkFieldEcsValue,
                     ResultEcsNsc = ResultFocusShiftDto.NscValue,
-                    ResultFocusShiftDto.BrightFiedlToDarkFieldOffset,
+                    BrightFiedlToDarkFieldOffset = ResultFocusShiftDto.BrightFieldToDarkFieldOffset,
                     ResultFocusShiftDto.EcsOffset,
                     ResultFocusShiftDto.FocusShiftOffset,
                     ResultFocusShiftDto.AfMotorOffset,
@@ -718,8 +721,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     cibTemperature,
                     FocusShiftCache.AlgorithmTemplateSizeEnum,
                     FocusShiftCache.AlgorithmTemplateTypeEnum,
-                    FocusShiftCache.LowMicroscopeMagnificationEnum,
-                    FocusShiftCache.HighMicroscopeMagnificationEnum,
+                    LowMagnification = FocusShiftCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    HighMagnification = FocusShiftCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     FocusShiftCache.CalChipSiteModelEnum,
                     FocusShiftCache.OpticsMagTypeEnum,
                     FocusShiftCache.StageSpeedEnum,
@@ -745,17 +748,17 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
                 // Bright Field Match
                 Logger.LogHtmlInformation($"2. Bright Field Match Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, FocusShiftCache.LowSiteFindPosition, FocusShiftCache.LowMicroscopeMagnificationEnum, FocusShiftCache.LowSiteTemplateFilePath, ImageFileDirectory,
+                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, FocusShiftCache.LowSiteFindPosition, FocusShiftCache.LowMicroscopeMagnificationInfo, FocusShiftCache.LowSiteTemplateFilePath, ImageFileDirectory,
                         HtmlLogUniqueId, Name,
-                        "Low Magnification", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
+                        "Low Magnification", out var lowResultPosition, out _, out _, out _, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
                 }
 
-                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowResultPosition, FocusShiftCache.HighMicroscopeMagnificationEnum, FocusShiftCache.HighSiteTemplateFilePath, ImageFileDirectory,
+                if (ReviewViewModel.TryGetMatchPosition(FocusShiftCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowResultPosition, FocusShiftCache.HighMicroscopeMagnificationInfo, FocusShiftCache.HighSiteTemplateFilePath, ImageFileDirectory,
                         HtmlLogUniqueId, Name,
-                        "High Magnification", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
+                        "High Magnification", out var highResultPosition, out _, out _, out _, out _, FocusShiftCache.CalChipSiteModelEnum) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
@@ -773,7 +776,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 获得NSC模式下的ECS、NSC值
-                Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + (Vector)ResultFocusShiftDto.BrightFiedlToDarkFieldOffset;
+                Cache.IdeaDarkFieldMachinePosition = brightFieldMachinePosition + (Vector)ResultFocusShiftDto.BrightFieldToDarkFieldOffset;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.IdeaDarkFieldMachinePosition);
 
                 var isAutoFocus = AfViewModel.SetDarkFieldAutoFocus(ResultFocusShiftDto.SettingDarkFieldAutoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
@@ -805,7 +808,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     8,
                     3,
                     StageCoordinateSystemEnum.Machine);
-                var path = $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
                 var nscDarkFieldImageFilePath =
                     $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
                 HalconHelper.Save(darkFieldImageDto.Image, nscDarkFieldImageFilePath);
@@ -958,7 +960,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
             using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
-            var path = $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).hobj";
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
             rtfcItemDto.DarkFieldImageFilePath =
@@ -1262,7 +1263,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 $"{settingDarkFieldAutoFocusParam.DswEcsValue}," +
                 $"{settingDarkFieldAutoFocusParam.DswMotorValue}," +
                 $"{ResultFocusShiftDto.EcsOffset}," +
-                $"{ResultFocusShiftDto.BrightFiedlToDarkFieldOffset.X}," +
+                $"{ResultFocusShiftDto.BrightFieldToDarkFieldOffset.X}," +
                 $"{ResultRtfcDto.DarkFieldMatchOffset.X.ToString(CultureInfo.InvariantCulture)}," +
                 $"{ResultRtfcDto.AutoFocusEcs}," +
                 $"{ResultRtfcDto.AutoFocusNsc}," +

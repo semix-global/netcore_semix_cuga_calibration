@@ -36,6 +36,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
@@ -539,7 +540,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         {
             try
             {
+                if (IsLoadingOk == false) return;
+                var (magnificationChanged, magnififactionList) = CoreWcfModelsExtension.IsMagnificationChanged();
+                if (magnificationChanged)
+                {
+                    CalibrationSetting.MicroscopeMagnificationInfoItems = new ObservableCollection<MicroscopeMagnificationInfo>(magnififactionList.Select(t => t.Clone()));
+                    _cacheProvider.Set(CalibrationSetting, CancellationToken.None);
+                }
+
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
+                var microscopeFocusItemDto = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCalChipCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<MicroscopeCalChipDto>().IsOk(out _);
@@ -604,6 +614,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<RtfcDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPmtAgcDelayCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPmtAgcDelayItemDto>().IsOk(out _);
+
+
             }
             catch (Exception ex)
             {

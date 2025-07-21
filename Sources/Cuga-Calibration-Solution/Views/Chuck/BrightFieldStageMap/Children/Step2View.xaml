@@ -9,6 +9,7 @@
              xmlns:children="clr-namespace:CugaCalibration.Views.Chuck.BrightFieldStageMap.Children"
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckBrightFieldStageMapCalibrationViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="800"
@@ -27,7 +28,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="High Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
@@ -40,6 +41,24 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="High Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.MicroscopeMagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
                     <hc:ComboBox x:Name="TemplateTypeComboBox"
                                  HorizontalAlignment="Left"
                                  hc:InfoElement.TitleWidth="140"

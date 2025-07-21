@@ -1,61 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
+using Core.Models.Models.Pattern;
+using MoreLinq;
 using Net.Utilities.Models.Geometries;
+using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
 public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private Point _findPosition;
-
-    [ObservableProperty]
-    private Point _templateFindPosition150X;
-
-    [ObservableProperty]
-    private Point _templateFindPosition100X;
-
-    [ObservableProperty]
-    private Point _templateFindPosition50X;
-
-    [ObservableProperty]
-    private Point _templateFindPosition10X;
-
-    [ObservableProperty]
-    private Point _templateFindPosition5X;
-
-    [ObservableProperty]
-    private string _templateFilePath150X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateFilePath100X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateFilePath50X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateFilePath10X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateFilePath5X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateImageFilePath150X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateImageFilePath100X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateImageFilePath50X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateImageFilePath10X = string.Empty;
-
-    [ObservableProperty]
-    private string _templateImageFilePath5X = string.Empty;
+    private ObservableCollection<MicroscopeCentricityCacheItem> _microscopeCentricityCacheItem = [];
 
     [ObservableProperty]
     private Point _verifyResultPosition;
@@ -69,33 +26,57 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
     [ObservableProperty]
     private double _concentricThreshold;
 
-    public Point GetTemplateFindPosition() => MicroscopeMagnificationEnum switch
+    public void SetFindPosition(Point position)
     {
-        MicroscopeMagnificationEnum.Magnification5X => TemplateFindPosition5X,
-        MicroscopeMagnificationEnum.Magnification10X => TemplateFindPosition10X,
-        MicroscopeMagnificationEnum.Magnification50X => TemplateFindPosition50X,
-        MicroscopeMagnificationEnum.Magnification100X => TemplateFindPosition100X,
-        MicroscopeMagnificationEnum.Magnification150X => TemplateFindPosition150X,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetFindPosition));
+        info.FindPosition = position;
+    }
 
-    public string GetTemplateFilePath() => MicroscopeMagnificationEnum switch
+    public void SetTemplateFilePath(string templateFilePath)
     {
-        MicroscopeMagnificationEnum.Magnification5X => TemplateFilePath5X,
-        MicroscopeMagnificationEnum.Magnification10X => TemplateFilePath10X,
-        MicroscopeMagnificationEnum.Magnification50X => TemplateFilePath50X,
-        MicroscopeMagnificationEnum.Magnification100X => TemplateFilePath100X,
-        MicroscopeMagnificationEnum.Magnification150X => TemplateFilePath150X,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateFilePath));
+        info.TemplateFilePath = templateFilePath;
+    }
 
-    public string GetTemplateImageFilePath() => MicroscopeMagnificationEnum switch
+    public void SetTemplateImageFilePath(string templateImageFilePath)
     {
-        MicroscopeMagnificationEnum.Magnification5X => TemplateImageFilePath5X,
-        MicroscopeMagnificationEnum.Magnification10X => TemplateImageFilePath10X,
-        MicroscopeMagnificationEnum.Magnification50X => TemplateImageFilePath50X,
-        MicroscopeMagnificationEnum.Magnification100X => TemplateImageFilePath100X,
-        MicroscopeMagnificationEnum.Magnification150X => TemplateImageFilePath150X,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateImageFilePath));
+        info.TemplateImageFilePath = templateImageFilePath;
+    }
+
+    public Point GetFindPosition(MicroscopeMagnificationInfo magnificationInfo)
+    {
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == magnificationInfo) ?? throw new ArgumentNullException(nameof(SetFindPosition));
+        return info.FindPosition;
+    }
+
+    public string GetTemplateFilePath(MicroscopeMagnificationInfo magnificationInfo)
+    {
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == magnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateFilePath));
+        return info.TemplateFilePath;
+    }
+
+    public string SetTemplateImageFilePath(MicroscopeMagnificationInfo magnificationInfo)
+    {
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == magnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateImageFilePath));
+        return info.TemplateImageFilePath;
+    }
+
+    public MicroscopeCentricityCacheItem GetSelectedCacheItem()
+    {
+        return MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
+    }
+
+    public bool InitializeCacheList(List<MicroscopeMagnificationInfo> microscopeMagnificationInfoList)
+    {
+        if (microscopeMagnificationInfoList.Count == 0) return false;
+        var isInitialized = MicroscopeCentricityCacheItem.Count == microscopeMagnificationInfoList.Count
+                            && MicroscopeCentricityCacheItem.Select((item, index) => (index, item))
+                                .All(t => t.item.MagnificationInfo == microscopeMagnificationInfoList[t.index]);
+        if (isInitialized) return true;
+        MicroscopeCentricityCacheItem = new ObservableCollection<MicroscopeCentricityCacheItem>(
+            microscopeMagnificationInfoList.Select(t => new MicroscopeCentricityCacheItem() { MagnificationInfo = t.Clone() }));
+        MicroscopeMagnificationInfo = MicroscopeCentricityCacheItem.Minima(t => t.MagnificationInfo.MagnificationCode).Single().MagnificationInfo;
+        return true;
+    }
 }

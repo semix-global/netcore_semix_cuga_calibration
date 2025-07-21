@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -11,10 +11,10 @@ namespace Core.Models.Models.Chuck.GlobalScaleError;
 public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     /// <summary>
     /// X轴比例误差系数
@@ -121,8 +121,8 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public ChuckGlobalScaleErrorDto Clone() => new()
     {
-        LowMicroscopeMagnificationEnum = LowMicroscopeMagnificationEnum,
-        HighMicroscopeMagnificationEnum = HighMicroscopeMagnificationEnum,
+        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
+        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         ScaleX = ScaleX,
         ScaleY = ScaleY,
         ScaleErrorValue = ScaleErrorValue,
@@ -152,7 +152,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckGlobalScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(HighMicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         ScaleX = ScaleX,
         ScaleY = ScaleY,
         IsCalibrated = IsCalibrated,

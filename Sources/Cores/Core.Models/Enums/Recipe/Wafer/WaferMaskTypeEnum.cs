@@ -25,6 +25,9 @@ public enum WaferMaskTypeEnum
     [Description("50umGridCorner")]
     GridConrner_50um,
 
+    [Description("100umGridCorner")]
+    GridConrner_100um,
+
     [Description("Caliper")]
     Caliper,
 
@@ -33,4 +36,13 @@ public enum WaferMaskTypeEnum
 
     [Description("DieCorner")]
     DieCorner,
+
+    [Description("DieCorner_LeftTop")]
+    DieCorner_LeftTop,
+
+    [Description("DieCorner_LeftBottom")]
+    DieCorner_LeftBottom,
+
+    [Description("Undefined")]
+    Undefined,
 }

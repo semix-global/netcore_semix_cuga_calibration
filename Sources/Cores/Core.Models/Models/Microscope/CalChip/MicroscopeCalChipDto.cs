@@ -1,8 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -14,7 +14,7 @@ namespace Core.Models.Models.Microscope.CalChip;
 public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneable<MicroscopeCalChipDto>, IAdaptTo<CalibrationMicroscopeCalChip>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     #region Chuck
 
@@ -241,11 +241,11 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         switch (calChipSiteModelEnum)
         {
             case CalChipSiteModelEnum.DswModel:
-                DswEcsValue = value;
+                DswAfEcsValue = value;
                 break;
 
             case CalChipSiteModelEnum.HazeModel:
-                HazeEcsValue = value;
+                HazeAfEcsValue = value;
                 break;
         }
     }
@@ -294,7 +294,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
 
     public MicroscopeCalChipDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo.Clone(),
         DswBrightFieldMachinePosition = DswBrightFieldMachinePosition,
         DswDarkFieldMachinePosition = DswDarkFieldMachinePosition,
         UndefinedBrightFieldMachinePosition = UndefinedBrightFieldMachinePosition,
@@ -330,7 +330,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
 
     public CalibrationMicroscopeCalChip AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(MicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MicroscopeMagnificationInfo),
         ChuckAfEcsValue = ChuckAfEcsValue,
         ChuckAfMotorValue = ChuckAfMotorValue,
         DswBrightFieldMachinePosition = DswBrightFieldMachinePosition.ToCgPoint(),

@@ -193,11 +193,11 @@
                                                              hc:InfoElement.TitlePlacement="Left"
                                                              hc:InfoElement.Title="Microscope Type: "
                                                              IsEnabled="False"
-                                                             SelectedItem="{Binding RecipeBrightFieldTemplateDto.MicroscopeMagnificationEnum}"
-                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type microscopeEnum:MicroscopeMagnificationEnum}}}">
+                                                             SelectedItem="{Binding RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo}"
+                                                             ItemsSource="{Binding DataContext.ApplicationCookie.MicroscopeMagnificationInfoList, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                     <hc:ComboBox.ItemTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                            <TextBlock Text="{Binding MicroscopeMagnificationName}" />
                                                         </DataTemplate>
                                                     </hc:ComboBox.ItemTemplate>
                                                 </hc:ComboBox>
