@@ -1,4 +1,5 @@
 using System.IO;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -105,12 +106,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendSaturationValue(double coefficient)
-    {
-        Thread.Sleep(100);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
     {
         Thread.Sleep(100);
@@ -168,7 +163,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -193,6 +188,12 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetSaturation(double saturation)
+    {
+        Thread.Sleep(100);
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 

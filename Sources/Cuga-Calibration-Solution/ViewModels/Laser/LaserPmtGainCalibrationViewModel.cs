@@ -376,7 +376,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                 //设置mag
                 LaserViewModel.SendOpticsMagType(Cache.OpticsMagTypeEnum);
                 //设置饱和值
-                LaserViewModel.SendSaturationValue(Cache.PmtProtectValue);
+                LaserViewModel.SetSaturation(Cache.PmtProtectValue);
 
                 if (GetPmtGain(laserPmtGainItemDto, laserPmtGainList, cancellationToken) == false) return false;
             }

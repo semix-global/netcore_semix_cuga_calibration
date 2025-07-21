@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
@@ -16,6 +17,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Newtonsoft.Json.Linq;
 using Semix.CoreLib;
 using System.IO;
 using System.Net;
@@ -124,15 +126,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendSaturationValue(double val)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetDCSaturation(val));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
     {
         var sxExecuteRet = Invoke(() => Service!.SendPrescanFile_Illumination(darkFieldPrescanDto.RegNum, darkFieldPrescanDto.ZeroNum, darkFieldPrescanDto.PrescanByteList));
@@ -178,61 +171,55 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId)
-    {
-        var sxExecuteRet = SetPmtValue(PMTRegEnum.DcAgc, BitConverter.ToInt32(enable ? [0, 0, 1, 0] : [0, 0, 0, 0], 0), pmtId, channelId);
+    public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 0x00_00_01_00 : 0x00_00_00_00, pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, sendDataList)));
 
-        return sxExecuteRet.IsSuccess
-            // 防止波形模式不是为DC模式(防呆)
-            ? SetPmtValue(PMTRegEnum.DcMode, 2 /*波形数据模式 1.chirp 2.dc 3.single*/, pmtId, channelId)
-            : SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+    public SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId) => SetCIBControlValue(cibProfileTypeEnum.ToCIBProfile(), pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, sendDataList)));
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.MarkMode, sendDataList)));
+
+    public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.L0k, sendDataList)));
+
+    public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId) => SetCIBControlValue(gain, pmtId, channelId, sendDataList => Invoke(() => /* direct current */Service!.SendDc(sendDataList)));
+
+    public SxExecuteRet<bool> SetSaturation(double saturation)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetDCSaturation(saturation));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.CibProfile, enable ? 4 : 2 /*"Profile_PMT", "PMT_Volt", "Profile_Log", "PMT_Log" , "Sense_Volt"*/, pmtId, channelId);
-
-    public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.MarkMode, enable ? 1 : 0, pmtId, channelId);
-
-    public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetPmtValue(PMTRegEnum.L0k, enable ? 1 : 0, pmtId, channelId);
-
-    public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
+    private SxExecuteRet<bool> SetCIBControlValue<T>(T value, int pmtId, int channelId, Func<List<(T Data, int PMTId, int ChannelId)>, SxExecuteRet> func)
     {
-        var bytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(-(short)(gain / 14d * short.MaxValue)));
-        bytes[1] = 0;
-
-        return SetPmtValue(PMTRegEnum.DcMode, BitConverter.ToInt32(bytes, 0), pmtId, channelId);
-    }
-
-    private SxExecuteRet<bool> SetPmtValue(PMTRegEnum pmtRegEnum, int value, int pmtId, int channelId)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
         var pmtConfigListSxExecuteRet = GetPmtConfigList();
         if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(pmtConfigListSxExecuteRet.Msg, false);
 
         var pmtConfigList = pmtConfigListSxExecuteRet.Anything.Where(t => t.IsUsed).ToList();
-        var sendData = new List<(int data, int id, int channel)>();
+        var sendDataList = new List<(T Data, int PMTId, int ChannelId)>();
 
         switch (pmtId, channelId)
         {
             case (Constants.NegInt32Value, Constants.NegInt32Value):
-                foreach (var (currentPmtId, _, channelIdList) in pmtConfigList) sendData.AddRange(channelIdList.Select(t => (value, currentPmtId, t)));
+                foreach (var (currentPmtId, _, channelIdList) in pmtConfigList) sendDataList.AddRange(channelIdList.Select(t => (value, currentPmtId, t)));
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
-                sendData.Add((pmtId, channelId, value));
+                sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
-                sendData.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (pmtId, t, value)));
+            case (> 0, Constants.NegInt32Value):
+                sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
             default:
                 return ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<bool>>(nameof(pmtId), nameof(channelId));
         }
 
-        var sxExecuteRetAll = Invoke(() => Service!.SetPmtDiffDataCommon(pmtRegEnum, sendData));
+        var sxExecuteRetAll = func.Invoke(sendDataList);
 
         return sxExecuteRetAll.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetAll.Msg, false)
