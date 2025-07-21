@@ -107,12 +107,6 @@
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                             </Trigger>
-                            <DataTrigger Binding="{Binding IsCalibrated}" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
-                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>

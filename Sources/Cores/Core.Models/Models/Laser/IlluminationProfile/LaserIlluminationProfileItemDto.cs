@@ -44,58 +44,52 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     private Point _findPosition;
 
     /// <summary>
-    /// 图片
+    /// ch1图片
     /// </summary>
     [ObservableProperty]
     private string _channel1ImageFilePath = string.Empty;
 
     /// <summary>
-    /// 暗场图片向y方向投影的列表
+    /// ch1暗场图片向y方向投影的列表
     /// </summary>
     [ObservableProperty]
     private List<double> _channel1DarkFieldImageList = [];
 
     /// <summary>
-    /// 图片
+    /// ch2图片
     /// </summary>
     [ObservableProperty]
     private string _channel2ImageFilePath = string.Empty;
 
     /// <summary>
-    /// 暗场图片向y方向投影的列表
+    /// ch2暗场图片向y方向投影的列表
     /// </summary>
     [ObservableProperty]
     private List<double> _channel2DarkFieldImageList = [];
 
     /// <summary>
-    /// 图片
+    /// ch3图片
     /// </summary>
     [ObservableProperty]
     private string _channel3ImageFilePath = string.Empty;
 
     /// <summary>
-    /// 图片
-    /// </summary>
-    [ObservableProperty]
-    private List<string> _channelImageFilePathList = [];
-
-    /// <summary>
-    /// 暗场图片向y方向投影的列表
+    /// ch3暗场图片向y方向投影的列表
     /// </summary>
     [ObservableProperty]
     private List<double> _channel3DarkFieldImageList = [];
 
     /// <summary>
-    /// 暗场图片向y方向投影的列表
+    /// 指定通道暗场图片
     /// </summary>
     [ObservableProperty]
-    private List<double> _channelDarkFieldImageList = [];
+    private string _channelImageFilePath = string.Empty;
 
     /// <summary>
-    /// 暗场图片向y方向投影的列表
+    /// 指定通道暗场图片向y方向投影的列表 [原始组成：所有光斑的指定通道投影，所有光斑通道像素对应的投影均值]
     /// </summary>
     [ObservableProperty]
-    private List<List<double>> _channelDarkFieldPmtList = [];
+    private List<double> _channelDarkFieldProjectYsList = [];
 
     /// <summary>
     /// 比值最小值

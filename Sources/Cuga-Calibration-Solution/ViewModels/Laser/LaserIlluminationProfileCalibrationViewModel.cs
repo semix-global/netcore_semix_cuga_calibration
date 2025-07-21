@@ -95,6 +95,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     private LaserIlluminationProfileItemDto? _selectCalibrateItemDto;
 
     [ObservableProperty]
+    private ObservableCollection<LaserIlluminationProfileCalibrationPmtIdItem> _pmtIdItemList = [];
+
+    [ObservableProperty]
     private List<WpfPlotModel> _plotList = [];
 
     [ObservableProperty]
@@ -114,9 +117,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
     [ObservableProperty]
     private double _tValue;
-
-    [ObservableProperty]
-    private List<LaserIlluminationProfileCalibrationPmtIdItem> _pmtIdItemList = [];
 
     [ObservableProperty]
     private ObservableCollection<int> _channelIdList = [1, 2, 3];
@@ -223,7 +223,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserIlluminationProfileCache>();
-        Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Reset();
         Cache.CurrentCalibrationCacheItem.Reset();
         Clear();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserIlluminationProfileItemDto>();
@@ -242,7 +241,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
+        Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Reset();
+
+        Cache.FindPosition = MicroscopeCalChip.HazePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
         return true;
@@ -368,23 +369,16 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     }
 
     [RelayCommand]
-    private void ReviewImage(List<string> filePaths)
+    private void ReviewImage(string filePaths)
     {
-        if (filePaths.Count == 0 && filePaths.Count != PmtIdItemList.Count) return;
-        var filePathList = new List<(string, string)>();
-        for (var i = 0; i < PmtIdItemList.Count; i++)
-        {
-            var filePath = (filePaths[i], PmtIdItemList[i].PmtId.ToString());
-            filePathList.Add(filePath);
-        }
-
-        DialogWindowProvider.ShowImage(filePathList);
+        if (string.IsNullOrEmpty(filePaths)) return;
+        DialogWindowProvider.ShowImage([(filePaths, Cache.PmtId.ToString())]);
     }
 
     [RelayCommand]
-    private void ReviewPlot(List<List<double>> list)
+    private void ReviewPlot(List<double> list)
     {
-        if (list.Count == 0 && list.Count != PmtIdItemList.Count + 1) return;
+        if (list.Count == 0) return;
         DialogWindowProvider.ShowPlot(GetChannelDarkFieldImageList(list));
     }
 
@@ -467,43 +461,27 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     {
         return InvokeCalibrateAsync(async () =>
         {
-            PmtIdItemList.Clear();
-            Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Clear();
-            var pmt8 = new LaserIlluminationProfileCalibrationPmtIdItem
+            var mainPmtCacheItem = new LaserIlluminationProfileCalibrationPmtIdItem
             {
-                PmtId = 8,
+                PmtId = CalibrationConstantsHelper.MainPmtId,
                 ChannelId = Cache.ChannelId,
                 PmtIdPosition = Cache.FindPosition,
             };
-            Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Add(pmt8);
-            for (var i = 7; i >= 1; i--)
-            {
-                var pmt = new LaserIlluminationProfileCalibrationPmtIdItem
-                {
-                    PmtId = i,
-                    ChannelId = Cache.ChannelId,
-                    PmtIdPosition = Cache.FindPosition - (Vector)new Point(0, 320 * (8 - i)),
-                };
-                Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Add(pmt);
-            }
 
-            //// 后7正序计算
-            for (var i = 9; i <= 15; i++)
-            {
-                var pmt = new LaserIlluminationProfileCalibrationPmtIdItem
-                {
-                    PmtId = i,
-                    ChannelId = Cache.ChannelId,
-                    PmtIdPosition = Cache.FindPosition + (Vector)new Point(0, 320 * (i - 8)),
-                };
-                Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Add(pmt);
-            }
+            Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt = mainPmtCacheItem;
 
             var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
-            if (pmtConfig.Count > 0)
+            if (pmtConfig.Single((t => t.Id == CalibrationConstantsHelper.MainPmtId)).Enabled == false)
             {
-                PmtIdItemList = [.. Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmtList.Where(t => pmtConfig[t.PmtId - 1].Enabled)];
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Config pmt8 setting is enable!"), HtmlLogUniqueId.LoggingHtml());
+                return false;
             }
+
+            SynchronizationContextProvider.Send(() =>
+            {
+                PmtIdItemList.Clear();
+                PmtIdItemList.Add(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt);
+            });
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -516,29 +494,26 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             LaserViewModel.ToggleOpticsPolarization(OpticsPolarizationTypeEnum.P);
 
-            foreach (var pmtItem in PmtIdItemList)
+            var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, Cache.PmtId, Cache.ChannelId).ConfigureAwait(false);
+            if ((isSuccess) == false)
             {
-                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, pmtItem.ChannelId).ConfigureAwait(false);
-                if ((isSuccess) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
-
-                LaserViewModel.SetGain(gain);
-
-                await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
-
-                pmtItem.Gain = gain;
-
-                Logger.LogHtmlInformation($"PmtId: {pmtItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    pmtItem.PmtId,
-                    pmtItem.ChannelId,
-                    Findposition = pmtItem.PmtIdPosition,
-                    Gain = gain
-                }), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
+                return false;
             }
+
+            LaserViewModel.SetGain(gain);
+
+            await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
+
+            mainPmtCacheItem.Gain = gain;
+
+            Logger.LogHtmlInformation($"PmtId: {mainPmtCacheItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                mainPmtCacheItem.PmtId,
+                mainPmtCacheItem.ChannelId,
+                Findposition = mainPmtCacheItem.PmtIdPosition,
+                Gain = gain
+            }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
         });
@@ -610,7 +585,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, Cache.Coefficient);
 
-            LaserViewModel.SetGain(PmtIdItemList.Single(t => t.PmtId == Cache.PmtId).Gain);
+            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             #region Max窗口
 
@@ -684,7 +659,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             #endregion DarkFieldImage <=> Prescan 对应关系
 
-            LaserViewModel.SetGain(PmtIdItemList.SingleOrDefault(t => t.PmtId == Cache.PmtId).Gain);
+            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
@@ -788,7 +763,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             var resultPrescanWindowList = new List<double>();
             var prescanCount = itemCache.PrescanEndIndex - itemCache.PrescanStartIndex;
             var minPrescanIndexList = new List<int>();
-            ///按照波形幅值可以分成几份
+            // 按照波形幅值可以分成几份
             var waveFormCount = prescanCount / itemCache.WaveFormVInterval / 3;
             var k = 1d / itemCache.WaveFormVInterval;
             var waveFormVStartIndex = itemCache.PrescanStartIndex;
@@ -1101,7 +1076,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 servings
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.SetGain(PmtIdItemList.SingleOrDefault(t => t.PmtId == Cache.PmtId).Gain);
+            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
@@ -1251,7 +1226,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
                 if (isOk) return await GetResultAsync().ConfigureAwait(false);
 
-                var darkFieldImageList = tempIlluminationProfileDto.ChannelDarkFieldImageList;
+                var darkFieldImageList = tempIlluminationProfileDto.ChannelDarkFieldProjectYsList;
                 PlotAverageList = [.. PlotAverageList, new WpfPlotModel(index.ToString(), darkFieldImageList.ToPoints(), (1, Cache.CurrentCalibrationCacheItem.RepeatCount, index))];
                 var servingToDarkFieldImageListAverageList = darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList
                     .Select(t => t.Average(tt => darkFieldImageList[tt]))
@@ -1263,6 +1238,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
                 var skipList = servingToDarkFieldImageListAverageList.Skip(ceiling).SkipLast(ceiling).ToList();
                 var targetAverage = skipList.Average();
+                // 光强=1时只能往最小的拉
                 targetServing ??= Cache.Coefficient < targetCoefficient
                     ? ceiling + Vector<double>.Build.DenseOfEnumerable(skipList.Select(t => Math.Abs(t - targetAverage))).MinimumIndex()
                     : ceiling + Vector<double>.Build.DenseOfEnumerable(skipList).MinimumIndex();
@@ -1328,7 +1304,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
                 if (resultList.Count == servingToDarkFieldImageListAverageList.Count - ceiling * 2 && resultList.All(t => t)) return await GetResultAsync().ConfigureAwait(false);
 
-                if (tempIlluminationProfileDto.ChannelDarkFieldPmtList.Count == 0 && tempIlluminationProfileDto.ChannelDarkFieldPmtList.Count != PmtIdItemList.Count + 1) return false;
+                if (tempIlluminationProfileDto.ChannelDarkFieldProjectYsList.Count == 0) return false;
 
                 PlotPrescanList = [.. PlotPrescanList, new WpfPlotModel(index.ToString(), GetPrescan1080List(tempIlluminationProfileDto.PrescanRateList).ToPoints(), (1, Cache.CurrentCalibrationCacheItem.RepeatCount, index))];
 
@@ -1347,7 +1323,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                     PrescanRateList = new HtmlPlot2DLinesChart([
                         (nameof(tempIlluminationProfileDto.PrescanRateList), GetPrescan1080List(tempIlluminationProfileDto.PrescanRateList).ToPoints())
                     ], "PrescanRateList"),
-                    DarkFieldImageCh3List = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(tempIlluminationProfileDto.ChannelDarkFieldPmtList).ToArray(), "DarkFieldImageCh3List"),
+                    DarkFieldImageCh3List = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(tempIlluminationProfileDto.ChannelDarkFieldProjectYsList).ToArray(), "DarkFieldImageCh3List"),
                     HtmlTab = new HtmlTab(new
                     {
                         CH1 = new HtmlImage(tempIlluminationProfileDto.Channel1ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -1443,7 +1419,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                     PrescanRateList = new HtmlPlot2DLinesChart([
                         (nameof(SelectCalibrateItemDto.PrescanRateList), GetPrescan1080List(SelectCalibrateItemDto.PrescanRateList).ToPoints())
                     ], "PrescanRateList"),
-                    DarkFieldImageList = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(SelectCalibrateItemDto.ChannelDarkFieldPmtList).ToArray(), "DarkFieldImageList"),
+                    DarkFieldImageList = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(SelectCalibrateItemDto.ChannelDarkFieldProjectYsList).ToArray(), "DarkFieldImageList"),
                     HtmlTab = new HtmlTab(new
                     {
                         CH1 = new HtmlImage(SelectCalibrateItemDto.Channel1ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -1519,7 +1495,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             var temp = SelectReviewItemDto.Clone();
 
             LaserViewModel.ToggleOpticsPolarization(OpticsPolarizationTypeEnum.P);
-            LaserViewModel.SetGain(PmtIdItemList.Single(t => t.PmtId == Cache.PmtId).Gain);
+            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, SelectReviewItemDto.Coefficient);
 
@@ -1565,102 +1541,84 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     {
         var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
         var judgeDarkFieldImageListRateSkipCout = Cache.CurrentCalibrationCacheItem.JudgeDarkFieldImageListRateSkipCout;
-
+        var pmtCacheItem = Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt;
         isOk = false;
         var prescanDtoTemp = LaserViewModel.SetUploadPrescanListByRate(prescanDto, laserIlluminationProfileItemDto.PrescanRateList);
 
-        var channelList = new List<List<double>>();
-        var channelDarkFieldImageList = new List<string>();
-        foreach (var pmtItem in PmtIdItemList)
+        LaserViewModel.SetGain(pmtCacheItem.Gain);
+
+        Thread.Sleep(1000);
+        var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDtoTemp, pmtCacheItem.PmtId, pmtCacheItem.PmtIdPosition);
+        using var _1 = channel1DarkFieldImageDto;
+        using var _2 = channel2DarkFieldImageDto;
+        using var _3 = channel3DarkFieldImageDto;
+        if (isSuccess == false) return false;
+
+        var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
+        laserIlluminationProfileItemDto.Channel1DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.ProjectionYs]);
+        laserIlluminationProfileItemDto.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel1_{laserIlluminationProfileItemDto.Index}).jpg";
+        HalconHelper.Save(channel1DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel1ImageFilePath);
+        laserIlluminationProfileItemDto.Channel2DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.ProjectionYs]);
+        laserIlluminationProfileItemDto.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel2_{laserIlluminationProfileItemDto.Index}).jpg";
+        HalconHelper.Save(channel2DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel2ImageFilePath);
+        laserIlluminationProfileItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel3_{laserIlluminationProfileItemDto.Index}).jpg";
+        HalconHelper.Save(channel3DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel3ImageFilePath);
+        //是否需要进行反转
+        if (Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan)
         {
-            LaserViewModel.SetGain(pmtItem.Gain);
-
-            Thread.Sleep(1000);
-            var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDtoTemp, pmtItem.PmtId, pmtItem.PmtIdPosition);
-            using var _1 = channel1DarkFieldImageDto;
-            using var _2 = channel2DarkFieldImageDto;
-            using var _3 = channel3DarkFieldImageDto;
-            if (isSuccess == false) return false;
-
-            var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-            laserIlluminationProfileItemDto.Channel1DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.ProjectionYs]);
-            laserIlluminationProfileItemDto.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtItem.PmtId}_Channel1_{laserIlluminationProfileItemDto.Index}).jpg";
-            HalconHelper.Save(channel1DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel1ImageFilePath);
-            laserIlluminationProfileItemDto.Channel2DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.ProjectionYs]);
-            laserIlluminationProfileItemDto.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtItem.PmtId}_Channel2_{laserIlluminationProfileItemDto.Index}).jpg";
-            HalconHelper.Save(channel2DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel2ImageFilePath);
-            laserIlluminationProfileItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtItem.PmtId}_Channel3_{laserIlluminationProfileItemDto.Index}).jpg";
-            HalconHelper.Save(channel3DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel3ImageFilePath);
-            //是否需要进行反转
-            if (Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan)
-            {
-                channel1DarkFieldImageDto.ProjectionYs.Reverse();
-                channel2DarkFieldImageDto.ProjectionYs.Reverse();
-                channel3DarkFieldImageDto.ProjectionYs.Reverse();
-            }
-
-            Logger.LogHtmlInformation($"PmtId: {pmtItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-            {
-                Cache.MicroscopeMagnificationEnum,
-                Cache.OpticsMagTypeEnum,
-                Cache.Coefficient,
-                pmtItem.PmtId,
-                pmtItem.ChannelId,
-                pmtItem.PmtIdPosition,
-                pmtItem.Gain,
-                DarkFieldImageList = new HtmlPlot2DLinesChart([
-                    ("ch1", channel1DarkFieldImageDto.ProjectionYs.ToPoints()), ("ch2", channel2DarkFieldImageDto.ProjectionYs.ToPoints()),
-                    ("ch3", channel3DarkFieldImageDto.ProjectionYs.ToPoints())
-                ], "DarkFieldImageList"),
-                HtmlTab = new HtmlTab(new
-                {
-                    CH1 = new HtmlImage(laserIlluminationProfileItemDto.Channel1ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    CH2 = new HtmlImage(laserIlluminationProfileItemDto.Channel2ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    CH3 = new HtmlImage(laserIlluminationProfileItemDto.Channel3ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-            if (Cache.ChannelId == 1)
-            {
-                channelDarkFieldImageList.Add(laserIlluminationProfileItemDto.Channel1ImageFilePath);
-                channelList.Add([.. channel1DarkFieldImageDto.ProjectionYs]);
-            }
-
-            if (Cache.ChannelId == 2)
-            {
-                channelDarkFieldImageList.Add(laserIlluminationProfileItemDto.Channel2ImageFilePath);
-                channelList.Add([.. channel2DarkFieldImageDto.ProjectionYs]);
-            }
-
-            if (Cache.ChannelId == 3)
-            {
-                channelDarkFieldImageList.Add(laserIlluminationProfileItemDto.Channel3ImageFilePath);
-                channelList.Add([.. channel3DarkFieldImageDto.ProjectionYs]);
-            }
+            channel1DarkFieldImageDto.ProjectionYs.Reverse();
+            channel2DarkFieldImageDto.ProjectionYs.Reverse();
+            channel3DarkFieldImageDto.ProjectionYs.Reverse();
         }
 
-        laserIlluminationProfileItemDto.ChannelImageFilePathList = channelDarkFieldImageList;
-        laserIlluminationProfileItemDto.ChannelDarkFieldPmtList = channelList;
-
-        var averageMaxChannelList = new List<double>();
-        for (var i = 0; i < channelList[0].Count; i++)
+        Logger.LogHtmlInformation($"PmtId: {pmtCacheItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
-            double sumNum = 0;
-            foreach (var channelPlot in channelList)
+            Cache.MicroscopeMagnificationEnum,
+            Cache.OpticsMagTypeEnum,
+            Cache.Coefficient,
+            pmtCacheItem.PmtId,
+            pmtCacheItem.ChannelId,
+            pmtCacheItem.PmtIdPosition,
+            pmtCacheItem.Gain,
+            DarkFieldImageList = new HtmlPlot2DLinesChart([
+                ("ch1", channel1DarkFieldImageDto.ProjectionYs.ToPoints()),
+                ("ch2", channel2DarkFieldImageDto.ProjectionYs.ToPoints()),
+                ("ch3", channel3DarkFieldImageDto.ProjectionYs.ToPoints())
+            ], "DarkFieldImageList"),
+            HtmlTab = new HtmlTab(new
             {
-                sumNum += channelPlot[i];
-            }
+                CH1 = new HtmlImage(laserIlluminationProfileItemDto.Channel1ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                CH2 = new HtmlImage(laserIlluminationProfileItemDto.Channel2ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                CH3 = new HtmlImage(laserIlluminationProfileItemDto.Channel3ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+            })
+        }), HtmlLogUniqueId.LoggingHtml());
 
-            averageMaxChannelList.Add(sumNum / channelList.Count);
-        }
+        var channelDarkFieldImage = (Cache.ChannelId switch
+        {
+            1 => laserIlluminationProfileItemDto.Channel1ImageFilePath,
+            2 => laserIlluminationProfileItemDto.Channel2ImageFilePath,
+            3 => laserIlluminationProfileItemDto.Channel3ImageFilePath,
+            _ => throw new ArgumentOutOfRangeException()
+        });
 
-        laserIlluminationProfileItemDto.ChannelDarkFieldPmtList.Add(averageMaxChannelList);
-        laserIlluminationProfileItemDto.ChannelDarkFieldImageList = Cache.GetDarkFieldImageList(averageMaxChannelList);
-        var darkFieldImageList = laserIlluminationProfileItemDto.ChannelDarkFieldImageList;
+        List<double> channelProjectionYsList = Cache.ChannelId switch
+        {
+            1 => [.. channel1DarkFieldImageDto.ProjectionYs],
+            2 => [.. channel2DarkFieldImageDto.ProjectionYs],
+            3 => [.. channel3DarkFieldImageDto.ProjectionYs],
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        laserIlluminationProfileItemDto.ChannelImageFilePath = channelDarkFieldImage;
+        laserIlluminationProfileItemDto.ChannelDarkFieldProjectYsList = Cache.GetDarkFieldImageList(channelProjectionYsList); // 方向
+
+        var darkFieldImageList = laserIlluminationProfileItemDto.ChannelDarkFieldProjectYsList;
         var darkFieldImageListOfServing = darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList
-            .Select(t => t.Average(tt => darkFieldImageList[tt]))
-            .ToList();
-        var ceiling = (int)Math.Ceiling((double)judgeDarkFieldImageListRateSkipCout / darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList[0].Length);
+            .Select(t => t.Average(tt => darkFieldImageList[tt])) // 每份 指定通道投影的均值的集合做平均
+            .ToList(); // 每份投影单独平均后的集合，索引是份数
 
+        // 份数去头去尾
+        var ceiling = (int)Math.Ceiling((double)judgeDarkFieldImageListRateSkipCout / darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList[0].Length);
         var skipList = darkFieldImageListOfServing.Skip(ceiling).SkipLast(ceiling).ToList();
         if (Math.Abs(skipList.Max() - skipList.Min()) > Cache.DarkImageListRangeThreshold)
         {
@@ -1671,7 +1629,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         var average = skipList.Average();
         var averageRateList = skipList
             .Select(yValue => yValue / average)
-            .ToList();
+            .ToList(); // 每份均值和总投影均值的比值集合
         laserIlluminationProfileItemDto.DarkFieldImageListRateMin = averageRateList.Min();
         laserIlluminationProfileItemDto.DarkFieldImageListRateMax = averageRateList.Max();
 
@@ -1718,18 +1676,8 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         );
     }
 
-    private List<(string, Point[])> GetChannelDarkFieldImageList(List<List<double>> result)
-    {
-        var plotLists = new List<(string, Point[])>();
-        for (var i = 0; i < PmtIdItemList.Count; i++)
-        {
-            var plot = (PmtIdItemList[i].PmtId.ToString(), Cache.GetDarkFieldImageList(result[i]).ToPoints());
-            plotLists.Add(plot);
-        }
-
-        plotLists.Add(("Average", Cache.GetDarkFieldImageList(result[PmtIdItemList.Count]).ToPoints()));
-        return plotLists;
-    }
+    private List<(string, Point[])> GetChannelDarkFieldImageList(List<double> result)
+        => [("Average", Cache.GetDarkFieldImageList(result).ToPoints())];
 
     private List<double> GetPrescan1080List(List<double> result)
     {

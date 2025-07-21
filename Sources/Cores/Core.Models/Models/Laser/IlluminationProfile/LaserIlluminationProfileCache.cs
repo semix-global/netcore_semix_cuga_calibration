@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
@@ -17,7 +18,7 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
     private StageSpeedEnum _xSpeed = StageSpeedEnum.Low;
 
     [ObservableProperty]
-    private int _pmtId = 8;
+    private int _pmtId = CalibrationConstantsHelper.MainPmtId;
 
     [ObservableProperty]
     private int _channelId = 3;
@@ -153,7 +154,7 @@ public sealed partial class LaserIlluminationProfileCalibrationCacheItem : Calib
     #endregion 参数
 
     [ObservableProperty]
-    private List<LaserIlluminationProfileCalibrationPmtIdItem> _LaserIlluminationProfileCalibrationPmtList = [];
+    private LaserIlluminationProfileCalibrationPmtIdItem _laserIlluminationProfileCalibrationPmt = new();
 
     #region 份数 与 最大功率值 对应关系
 
@@ -164,13 +165,13 @@ public sealed partial class LaserIlluminationProfileCalibrationCacheItem : Calib
     private bool _isOk;
 
     /// <summary>
-    /// (功率, (索引代表份数, DarkFieldImageListAverage)[])
+    /// (功率, (索引代表份数, DarkFieldImageListAverage)[]) 每份 公路系数和像素点的光强值 集合
     /// </summary>
     [ObservableProperty]
     private List<(double Coefficient, double[] ServingToDarkFieldImageListAverages)> _coefficientToServingToDarkFieldImageListAveragesList = [];
 
     /// <summary>
-    /// (索引代表份数, 最大功率值)
+    /// (索引代表份数, 最大功率值) 对应份数中最大功率值的集合
     /// </summary>
     [ObservableProperty]
     private List<double> _servingToMaxCoefficientList = [];
@@ -193,14 +194,11 @@ public sealed partial class LaserIlluminationProfileCalibrationPmtIdItem : Calib
     /// Pmt
     /// </summary>
     [ObservableProperty]
-    private int _pmtId = 8;
+    private int _pmtId = CalibrationConstantsHelper.MainPmtId;
 
     [ObservableProperty]
     private int _channelId = 3;
 
-    /// <summary>
-    /// 重复次数
-    /// </summary>
     [ObservableProperty]
     private Point _pmtIdPosition;
 
