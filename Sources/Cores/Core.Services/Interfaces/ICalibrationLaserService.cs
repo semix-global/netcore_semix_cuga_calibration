@@ -1,3 +1,4 @@
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
@@ -103,13 +104,6 @@ public interface ICalibrationLaserService
     SxExecuteRet<bool> SendPrescanByCoefficient(OpticsMagTypeEnum yOpticsMagTypeEnum, double coefficient);
 
     /// <summary>
-    /// 设置饱和值
-    /// </summary>
-    /// <param name="val">饱和值</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SendSaturationValue(double val);
-
-    /// <summary>
     /// 下发扫描线功率给cuga
     /// </summary>
     /// <param name="darkFieldPrescanDto">扫描线功率</param>
@@ -202,11 +196,11 @@ public interface ICalibrationLaserService
     /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
     /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
     /// </summary>
-    /// <param name="enable">是否Log反差模式</param>
+    /// <param name="cibProfileTypeEnum">数据显示模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId);
+    SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId);
 
     /// <summary>
     /// 切换Mark模式<br/>
@@ -243,6 +237,13 @@ public interface ICalibrationLaserService
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId);
+
+    /// <summary>
+    /// 设置饱和值
+    /// </summary>
+    /// <param name="saturation">饱和值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetSaturation(double saturation);
 
     #endregion Control
 

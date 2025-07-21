@@ -243,8 +243,8 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Reset();
 
-        Cache.FindPosition = MicroscopeCalChip.HazePosition;
-        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
+        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
+        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
         return true;
     }

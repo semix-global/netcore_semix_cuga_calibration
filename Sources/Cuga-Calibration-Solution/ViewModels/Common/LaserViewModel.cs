@@ -22,6 +22,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Models.Enums.CIB;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -99,13 +100,6 @@ public sealed class LaserViewModel(
     public void SendPrescanByCoefficient(OpticsMagTypeEnum yOpticsMagTypeEnum, double coefficient)
     {
         var ret = calibrationLaserService.SendPrescanByCoefficient(yOpticsMagTypeEnum, coefficient);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendSaturationValue(double val)
-    {
-        var ret = calibrationLaserService.SendSaturationValue(val);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -238,9 +232,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableLogMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    public void ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
-        var ret = calibrationLaserService.ToggleEnableLogMode(enable, pmtId, channelId);
+        var ret = calibrationLaserService.ToggleProfileType(cibProfileTypeEnum, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -262,6 +256,13 @@ public sealed class LaserViewModel(
     public void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.SetGain(gain, pmtId, channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetSaturation(double saturation)
+    {
+        var ret = calibrationLaserService.SetSaturation(saturation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

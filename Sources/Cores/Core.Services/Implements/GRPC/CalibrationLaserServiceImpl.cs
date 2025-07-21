@@ -19,6 +19,7 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.GRPC.DTO;
 using System.IO;
+using Core.Models.Enums.CIB;
 
 namespace Core.Services.Implements.GRPC;
 
@@ -103,15 +104,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendSaturationValue(double val)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetDCSaturation(new SxParamObj<double>(val)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
     {
         var sxExecuteRet = Invoke(() => Service?.SendPrescanFileIllumination(new SxParamObj<(short regNum, short zeroNum, List<byte> sendData)>((darkFieldPrescanDto.RegNum, darkFieldPrescanDto.ZeroNum, darkFieldPrescanDto.PrescanByteList))));
@@ -159,14 +151,9 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId)
     {
         throw new NotImplementedException();
-        var sxExecuteRet = Invoke(() => Service?.SetAGC(new SxParamObj<bool>(enable)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableLogMode(bool enable, int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
@@ -179,17 +166,16 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId)
     {
         throw new NotImplementedException();
-        var sxExecuteRet = Invoke(() => Service?.SetL0K(new SxParamObj<bool>(enable)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
     {
         throw new NotImplementedException();
-        var sxExecuteRet = Invoke(() => Service?.SendDC(new SxParamObj<(bool, double)>((false, gain))));
+    }
+
+    public SxExecuteRet<bool> SetSaturation(double saturation)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetDCSaturation(new SxParamObj<double>(saturation)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -204,12 +190,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<List<List<double>>> GetPmtDataList(int count, int pmtId, int channelId)
     {
         throw new NotImplementedException();
-        var sxExecuteRet = Invoke(() => Service?.GetPMTDataAppoint(new SxParamObj<(int pmtId, int channel)>((pmtId, channelId))));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<double>>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<List<List<double>>>("Pmt Value List is empty", []);
-
-        return SxExecuteRetHelper.CreateSuccess(new List<List<double>> { sxExecuteRet.Anything });
     }
 
     public SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList()
