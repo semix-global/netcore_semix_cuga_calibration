@@ -74,9 +74,9 @@
             <ItemsControl Grid.Row="2"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
-                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type microscope:MicroscopeMagnificationEnum}}}">
+                          ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
                 <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding MicroscopeMagnificationEnum, Mode=TwoWay}" />
+                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding MicroscopeMagnificationInfo, Mode=TwoWay}" />
                 </i:Interaction.Behaviors>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -85,7 +85,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Content="{Binding Converter={StaticResource EnumDescriptionConverter}}"
+                        <RadioButton Content="{Binding MicroscopeMagnificationName}"
                                      Command="{Binding DataContext.SwitchMagnificationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                      CommandParameter="{Binding}"
                                      FontSize="15"

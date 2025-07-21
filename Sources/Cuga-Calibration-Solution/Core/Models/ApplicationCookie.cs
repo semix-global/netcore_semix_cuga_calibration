@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Recipe;
+using Core.Models.Models.Pattern;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
 namespace CugaCalibration.Core.Models;
@@ -47,6 +48,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     [ObservableProperty]
     private List<SystemManageMenu> _systemManageMenuList = [];
+
+    /// <summary>
+    /// 倍镜列表
+    /// </summary>
+    [ObservableProperty]
+    private List<MicroscopeMagnificationInfo> _microscopeMagnificationInfoList = [];
 
     /// <summary>
     /// 校准当前应用配方

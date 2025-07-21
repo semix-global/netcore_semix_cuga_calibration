@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace Core.Models.Enums.Microscope;
 
@@ -21,4 +21,6 @@ public enum MicroscopeMagnificationEnum
 
     [Description("150X")]
     Magnification150X
+
+
 }

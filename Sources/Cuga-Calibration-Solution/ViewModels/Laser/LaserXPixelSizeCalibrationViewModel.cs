@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
-using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -130,6 +129,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == calibrationStatus.XStageSpeedEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
+
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
 
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
@@ -435,7 +436,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var detectImageDirectory = ImageFileDirectory;
             using var _ = darkFieldImageDto;
 
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
             {
                 if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -705,7 +706,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum;
+        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
 
         Calibrations =
         [
@@ -770,7 +771,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             {
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    Cache.MicroscopeMagnificationEnum
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
                 }), HtmlLogUniqueId.LoggingHtml());
                 return true;
             });
@@ -831,7 +832,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         // Bright Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum.Caliper, Cache.MicroscopeMagnificationEnum, null, null, out var brightFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, null, out var brightFieldMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, brightFieldMaskInfo, out var brightFieldMaskPosition);
         Cache.FindTemplatePosition = brightFieldMaskPosition;
@@ -840,7 +841,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         Cache.SplitImageCount = Cache.ColumnNumber * 2;
 
         // Dark Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum.Caliper, null, Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum, out var darkFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum, out var darkFieldMaskInfo) == false)
             return false;
         Cache.TemplateFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateFilePath;
         Cache.TemplateImageFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateImageFilePath;

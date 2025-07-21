@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using System.Collections.ObjectModel;
@@ -66,6 +67,12 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     /// </summary>
     [ObservableProperty]
     private SettingRequiredCalibrationParam _settingRequiredCalibrationParam = new();
+
+    /// <summary>
+    /// 高倍暗场增益参数
+    /// </summary>
+    [ObservableProperty]
+    private ObservableCollection<MicroscopeMagnificationInfo> _microscopeMagnificationInfoItems = [];
 
     #region Mapper
 

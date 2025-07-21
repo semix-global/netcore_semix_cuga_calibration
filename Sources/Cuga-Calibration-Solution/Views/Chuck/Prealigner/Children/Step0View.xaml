@@ -71,9 +71,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <Grid Grid.Column="2">
-            <GroupBox Grid.Row="4"
-                      Header="Find Wafer Center Image"
-                      IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+            <GroupBox Header="Find Wafer Center Image" IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
                 <UniformGrid Columns="4" Rows="2">
                     <UniformGrid.Resources>
                         <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">

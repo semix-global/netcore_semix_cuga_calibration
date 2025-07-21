@@ -121,6 +121,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<LaserAutoFocusDto>();
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -128,7 +130,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
         Cache.FindPosition = MicroscopeCalChip.ShinyWaferBrightFieldMachinePosition;
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
@@ -143,7 +145,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         if (ReviewDto.IsCalibrated == false) return false;
 
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
         return true;

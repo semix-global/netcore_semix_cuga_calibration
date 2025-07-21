@@ -84,8 +84,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <!--#region Right-->
-        <GroupBox Grid.Row="2" Grid.Column="2"
-                  Header="Calibration Data">
+        <GroupBox Grid.Column="2" Header="Calibration Data">
             <ListView d:SelectedIndex="0"
                       ItemsSource="{Binding ReviewList}"
                       Style="{StaticResource ListView.Small}"
@@ -122,7 +121,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName}" />
                         <GridViewColumn Width="200"
                                         Header="FindPosition"
                                         DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

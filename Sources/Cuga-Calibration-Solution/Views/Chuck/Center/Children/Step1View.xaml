@@ -8,6 +8,8 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckCenterCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -35,8 +37,55 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox x:Name="LowMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Low Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.LowChuckCenterCacheItem.MagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="High Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.HighChuckCenterCacheItem.MagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagMagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
                     <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="80"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Template Mask Type: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.WaferMaskTypeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:ComboBox HorizontalAlignment="Left"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Template Type: "
                                  hc:InfoElement.Necessary="True"
@@ -77,7 +126,7 @@
 
         <!--#region Right-->
         <Grid Grid.Column="2">
-            <GroupBox Grid.Row="2" Header="Calibration Data">
+            <GroupBox Header="Calibration Data">
                 <UniformGrid Columns="2" Rows="2">
                     <UniformGrid.Resources>
                         <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
@@ -96,7 +145,7 @@
                                 <TextBlock Text="Top-LowSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.LowTopPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.LowChuckCenterCacheItem.TopPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -116,7 +165,7 @@
                                 <TextBlock Text="Top-HighSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.HighTopPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighChuckCenterCacheItem.TopPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -136,7 +185,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.LowTopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.LowChuckCenterCacheItem.TopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -146,7 +195,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.HighTopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.HighChuckCenterCacheItem.TopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -161,7 +210,7 @@
                                 <TextBlock Text="Right-LowSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.LowRightPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.LowChuckCenterCacheItem.RightPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -181,7 +230,7 @@
                                 <TextBlock Text="Right-HighSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.HighRightPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighChuckCenterCacheItem.RightPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -201,7 +250,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.LowRightTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.LowChuckCenterCacheItem.RightTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -211,7 +260,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.HighRightTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.HighChuckCenterCacheItem.RightTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -226,7 +275,7 @@
                                 <TextBlock Text="Bottom-LowSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.LowBottomPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.LowChuckCenterCacheItem.BottomPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -246,7 +295,7 @@
                                 <TextBlock Text="Bottom-HighSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.HighBottomPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighChuckCenterCacheItem.BottomPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -266,7 +315,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.LowBottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.LowChuckCenterCacheItem.BottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -276,7 +325,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.HighBottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.HighChuckCenterCacheItem.BottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -291,7 +340,7 @@
                                 <TextBlock Text="Left-LowSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.LowLeftPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.LowChuckCenterCacheItem.LeftPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -311,7 +360,7 @@
                                 <TextBlock Text="Left-HighSite" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                                <TextBox Text="{Binding Cache.HighLeftPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighChuckCenterCacheItem.LeftPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="245"
                                          hc:TitleElement.TitleWidth="90"
                                          hc:InfoElement.Title="Position(um): "
@@ -331,7 +380,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.LowLeftTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.LowChuckCenterCacheItem.LeftTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"
@@ -341,7 +390,7 @@
                                 <view:CanvasView Width="160"
                                                  Height="160"
                                                  BackgroundColor="#0A0A0A"
-                                                 BackgroundImage="{Binding Cache.HighLeftTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 BackgroundImage="{Binding Cache.HighChuckCenterCacheItem.LeftTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                  AxisColor="Red"
                                                  Interactive="True"
                                                  ShowAxes="True"

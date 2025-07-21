@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.XYAstigmatism;
@@ -8,11 +8,8 @@ namespace Core.Models.Models.Laser.XYAstigmatism;
 // ReSharper disable once InconsistentNaming
 public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCacheBase
 {
-    /// <summary>
-    /// 明场初定位倍率
-    /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     /// <summary>
     /// 采样率

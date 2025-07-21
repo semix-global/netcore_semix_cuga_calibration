@@ -32,8 +32,8 @@
             </hc:UniformSpacingPanel>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Low Microscope Magnification: "
-                           Status="{Binding Cache.HighMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="High Microscope Magnification: "
+                           Status="{Binding Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

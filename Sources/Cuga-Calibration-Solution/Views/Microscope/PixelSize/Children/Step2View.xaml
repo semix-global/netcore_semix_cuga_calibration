@@ -8,6 +8,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopePixelSizeCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -31,11 +33,11 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find Focus Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding SelectMicroscopePixelSizeCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}"
@@ -49,20 +51,23 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Standard Mask Square Size: "
+                                 SelectedItem="{Binding SelectMicroscopePixelSizeCacheItem.AlgorithmStandardMaskSquareSizeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmStandardMaskSquareSizeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                     <hc:NumericUpDown hc:InfoElement.Title="AngleThreshold(°): "
                                       hc:TitleElement.TitleWidth="130"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.AngleThreshold}" />
-                    <TextBox Text="{Binding PixelSizeStandardMaskSquareSize, Converter={StaticResource SizeToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Standard Mask Size: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding ResultMicroscopePixelSizeItemDto.PixelSize, Converter={StaticResource SizeToStringConverter}}"
-                             Width="275"
                              hc:InfoElement.Title="Find Pixel Size: "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
@@ -122,7 +127,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="200"
                                         Header="FindPosition"
                                         DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

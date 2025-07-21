@@ -24,7 +24,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -36,87 +36,25 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Width="275"
+                    <TextBox Text="{Binding SelectMicroscopeFocusCacheItem.FindFocusPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
                              hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindFocusPosition5X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindFocusPosition10X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindFocusPosition50X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindFocusPosition100X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindFocusPosition150X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                             hc:InfoElement.TitlePlacement="Left" />
+
                     <UniformGrid Width="275" Columns="2">
                         <Button x:Name="GetButton"
                                 Content="Get"
                                 Command="{Binding GetPointCommand}"
                                 HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="4,0,0,4">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition5X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition10X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition50X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition100X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition150X" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                                hc:BorderElement.CornerRadius="4,0,0,4"
+                                Style="{StaticResource ButtonDefault}" />
                         <Button x:Name="GotoButton"
                                 Content="Goto"
                                 Command="{Binding GotoPointCommand}"
                                 Margin="-1,0,0,0"
                                 HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="0,4,4,0">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource ButtonDefault}" TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition5X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition10X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition50X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition100X" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                            <Setter Property="CommandParameter" Value="FindFocusPosition150X" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                                hc:BorderElement.CornerRadius="0,4,4,0"
+                                Style="{StaticResource ButtonDefault}" />
                     </UniformGrid>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"

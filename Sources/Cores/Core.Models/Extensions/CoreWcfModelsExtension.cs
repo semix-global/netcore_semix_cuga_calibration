@@ -1,4 +1,3 @@
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Ads.PressureGains;
@@ -32,13 +31,54 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
+using Core.Models.Models.Setting;
 using Core.Wcf.Models;
+using Local.NoSQL.DB.Providers.Interfaces;
+using MoreLinq;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.WPF.MVVM;
 
 namespace Core.Models.Extensions;
 
 public static class CoreWcfModelsExtension
 {
+    #region Initialize
+
+    private static Func<List<MicroscopeMagnificationInfo>> _getMicroscopeMagnificationInfoListFunc;
+
+    // 初始化方法
+    public static void Initialize(Func<List<MicroscopeMagnificationInfo>> getMicroscopeMagnificationInfoListFunc)
+    {
+        _getMicroscopeMagnificationInfoListFunc = getMicroscopeMagnificationInfoListFunc;
+    }
+
+    // 内部使用的获取方法
+    private static List<MicroscopeMagnificationInfo> GetMicroscopeMagnificationInfoList()
+    {
+        if (_getMicroscopeMagnificationInfoListFunc == null)
+        {
+            throw new InvalidOperationException("MicroscopeMagnificationInfoList resolver has not been initialized");
+        }
+
+        return _getMicroscopeMagnificationInfoListFunc();
+    }
+
+    public static (bool isChanged, List<MicroscopeMagnificationInfo> magnificationInfos) IsMagnificationChanged()
+    {
+        var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+
+        var calibrationSetting = cacheProvider.GetOrDefault<CalibrationSetting>();
+        var magnificationInfoList = GetMicroscopeMagnificationInfoList();
+
+        var magnificationChanged = calibrationSetting.MicroscopeMagnificationInfoItems.All(t => magnificationInfoList.Contains(t)) == false
+                                   || calibrationSetting.MicroscopeMagnificationInfoItems.Count != magnificationInfoList.Count;
+
+        return (magnificationChanged, magnificationInfoList);
+    }
+
+    #endregion
+
     #region CalibrationBase
 
     public static bool GetIsOkStatus(this List<CalibrationBase> calibrationItems)
@@ -102,9 +142,20 @@ public static class CoreWcfModelsExtension
     public static bool IsOk(this MicroscopeFocusItemDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
+        var (isMagnificationChanged, magnificationInfoList) = IsMagnificationChanged();
 
-        var isOk = result.Length == EnumHelper.Enums<MicroscopeMagnificationEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Microscope Focus is Empty";
+        var isOk = result.Length == magnificationInfoList.Count
+                   && result.All(t => t.IsOk)
+                   && isMagnificationChanged == false;
+
+        if (isOk == false)
+            errorMessage = "Microscope Focus is Empty";
+
+        if (isMagnificationChanged)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            cacheProvider.SetArray<MicroscopeFocusItemDto>([], CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -112,9 +163,18 @@ public static class CoreWcfModelsExtension
     public static bool IsOk(this MicroscopeCalChipDto result, out string errorMessage)
     {
         errorMessage = string.Empty;
+        var (isMagnificationChanged, magnificationInfoList) = IsMagnificationChanged();
 
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Microscope Cal Chip is Empty";
+        if (isOk == false)
+            errorMessage = "Microscope Cal Chip is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.MicroscopeMagnificationInfo = magnificationInfoList[0];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -123,8 +183,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.Length == EnumHelper.Enums<MicroscopeMagnificationEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Microscope Pixel Size is Empty";
+        var (isMagnificationChanged, magnificationInfoList) = IsMagnificationChanged();
+
+        var isOk = result.Length == magnificationInfoList.Count
+                   && result.All(t => t.IsOk)
+                   && isMagnificationChanged == false;
+
+        if (isOk == false)
+            errorMessage = "Microscope Pixel Size is Empty";
+
+        if (isMagnificationChanged)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            cacheProvider.SetArray<MicroscopePixelSizeItemDto>([], CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -133,8 +205,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.Length == EnumHelper.Enums<MicroscopeMagnificationEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Microscope Centricity is Empty";
+        var (isMagnificationChanged, magnificationInfoList) = IsMagnificationChanged();
+
+        var isOk = result.Length == magnificationInfoList.Count
+                   && result.All(t => t.IsOk)
+                   && isMagnificationChanged == false;
+
+        if (isOk == false)
+            errorMessage = "Microscope Centricity is Empty";
+
+        if (isMagnificationChanged)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            cacheProvider.SetArray<MicroscopeCentricityItemDto>([], CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -147,8 +231,21 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Gantry is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Gantry is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.LowMicroscopeMagnificationInfo = magnificationInfos[0];
+            result.HighMicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -157,8 +254,21 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Center is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Center is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.LowMicroscopeMagnificationInfo = magnificationInfos[0];
+            result.HighMicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -167,8 +277,21 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Prealigner is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Prealigner is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.LowMicroscopeMagnificationInfo = magnificationInfos[0];
+            result.HighMicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -177,8 +300,18 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Auto Focus is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Auto Focus is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.MicroscopeMagnificationInfo = magnificationInfos[0];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -187,8 +320,21 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Global Scale is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Global Scale is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.LowMicroscopeMagnificationInfo = magnificationInfos[0];
+            result.HighMicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -197,8 +343,21 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Rotate Scale is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Rotate Scale is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.LowMicroscopeMagnificationInfo = magnificationInfos[0];
+            result.HighMicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -207,8 +366,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Bright Field Stage Map is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Bright Field Stage Map is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.MicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -217,8 +388,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Dark Field Stage Map is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Dark Field Stage Map is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.MicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -227,8 +410,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Chuck Stage Map is Empty";
+
+        if (isOk == false)
+            errorMessage = "Chuck Stage Map is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.HighMicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2];
+            cacheProvider.Set(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -281,8 +476,18 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length * 14 && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Illumination Profile is Empty";
+
+        if (isOk == false)
+            errorMessage = "Laser Illumination Profile is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.ForEach(t => t.MicroscopeMagnificationInfo = magnificationInfos[0]);
+            cacheProvider.SetArray(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -291,8 +496,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.SingleOrDefault(t => t is { PmtId: 8, OpticsMagTypeEnum: OpticsMagTypeEnum.High, StageSpeedEnum: StageSpeedEnum.Low })?.IsOk == true;
-        if (isOk == false) errorMessage = "Laser Line Centricity is Empty";
+
+        if (isOk == false)
+            errorMessage = "Laser Line Centricity is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.ForEach(t => t.MicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2]);
+            cacheProvider.SetArray(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -311,8 +528,20 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
-        if (isOk == false) errorMessage = "Laser Pixel Size is Empty";
+
+        if (isOk == false)
+            errorMessage = "Laser Pixel Size is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.ForEach(t => t.MicroscopeMagnificationInfo = magnificationInfos.Count <= 2
+                ? magnificationInfos[^1]
+                : magnificationInfos[2]);
+            cacheProvider.SetArray(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -321,8 +550,18 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High && t.XStageSpeedEnum == StageSpeedEnum.Low)?.IsOk == true;
-        if (isOk == false) errorMessage = "Laser X Pixel Size is Empty";
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
+        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t is { OpticsMagTypeEnum: OpticsMagTypeEnum.High, XStageSpeedEnum: StageSpeedEnum.Low })?.IsOk == true;
+
+        if (isOk == false)
+            errorMessage = "Laser X Pixel Size is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.ForEach(t => t.MicroscopeMagnificationInfo = magnificationInfos[0]);
+            cacheProvider.SetArray(result, CancellationToken.None);
+        }
 
         return isOk;
     }
@@ -341,8 +580,18 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
+        var (isMagnificationChanged, magnificationInfos) = IsMagnificationChanged();
         var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser XY Astigmatism is Empty";
+
+        if (isOk == false)
+            errorMessage = "Laser XY Astigmatism is Empty";
+
+        if (isMagnificationChanged && isOk)
+        {
+            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+            result.ForEach(t => t.MicroscopeMagnificationInfo = magnificationInfos[0]);
+            cacheProvider.SetArray(result, CancellationToken.None);
+        }
 
         return isOk;
     }

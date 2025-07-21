@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.DarkFieldStageMap;
@@ -10,7 +10,7 @@ namespace Core.Models.Models.Chuck.DarkFieldStageMap;
 public sealed partial class ChuckDarkFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckDarkFieldStageMapDto>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -40,7 +40,7 @@ public sealed partial class ChuckDarkFieldStageMapDto : CalibrationDtoBase, IClo
 
     public ChuckDarkFieldStageMapDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         StageSpeedEnum = StageSpeedEnum,
         CalibrationStageMap = CalibrationStageMap.Clone(),

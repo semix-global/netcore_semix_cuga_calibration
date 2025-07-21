@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -13,11 +13,8 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     [ObservableProperty]
     private int _index;
 
-    /// <summary>
-    /// 明场初定位倍率
-    /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -60,7 +57,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     public LaserXYAstigmatismCalibrationItemDto Clone() => new()
     {
         Index = Index,
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         FrequenceIncrease = FrequenceIncrease,
         EcsX = EcsX,

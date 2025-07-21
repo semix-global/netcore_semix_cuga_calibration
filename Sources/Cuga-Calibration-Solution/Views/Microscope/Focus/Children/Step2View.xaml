@@ -4,7 +4,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:microscope="clr-namespace:Core.Models.Enums.Microscope;assembly=Core.Models"
              xmlns:coreModels="clr-namespace:Core.Models.Models.Microscope.Focus;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
@@ -30,33 +29,12 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find Focus Position: "
-                           Color="{StaticResource SuccessBrush}">
-                    <hc:Shield.Style>
-                        <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                    <Setter Property="Status" Value="{Binding Cache.FindFocusPosition5X, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                    <Setter Property="Status" Value="{Binding Cache.FindFocusPosition10X, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                    <Setter Property="Status" Value="{Binding Cache.FindFocusPosition50X, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                    <Setter Property="Status" Value="{Binding Cache.FindFocusPosition100X, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                    <Setter Property="Status" Value="{Binding Cache.FindFocusPosition150X, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </hc:Shield.Style>
-                </hc:Shield>
+                           Status="{Binding SelectMicroscopeFocusCacheItem.FindFocusPosition, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -82,29 +60,9 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.Placeholder="Input Find Focus Offset"
                                       hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMin5X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMin10X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMin50X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMin100X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMin150X}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding SelectMicroscopeFocusCacheItem.FindFocusMin}" />
                     <hc:NumericUpDown x:Name="ZLimitMaxNumeric"
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.Title="Z Limit Max: "
@@ -112,29 +70,9 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.Placeholder="Input Find Focus Offset"
                                       hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMax5X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMax10X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMax50X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMax100X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMax150X}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding SelectMicroscopeFocusCacheItem.FindFocusMax}" />
                     <hc:NumericUpDown x:Name="IntervalNumeric"
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.Title="Z Interval: "
@@ -143,29 +81,9 @@
                                       hc:InfoElement.Placeholder="Input Find Focus Offset"
                                       hc:InfoElement.ShowClearButton="True"
                                       Minimum="1"
-                                      Maximum="100">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusInterval5X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusInterval10X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusInterval50X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusInterval100X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusInterval150X}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
+                                      Maximum="100"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding SelectMicroscopeFocusCacheItem.FindFocusInterval}" />
                     <hc:NumericUpDown x:Name="VoltageAfErrorThresholdNumeric"
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.Title="Voltage Af Error Threshold: "
@@ -173,29 +91,9 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.Placeholder="Input Find Focus Offset"
                                       hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Value" Value="{Binding Cache.SetVoltageAfErrorThreshold5X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Value" Value="{Binding Cache.SetVoltageAfErrorThreshold10X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Value" Value="{Binding Cache.SetVoltageAfErrorThreshold50X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Value" Value="{Binding Cache.SetVoltageAfErrorThreshold100X}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Value" Value="{Binding Cache.SetVoltageAfErrorThreshold150X}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding SelectMicroscopeFocusCacheItem.SetVoltageAfErrorThreshold}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -290,7 +188,7 @@
                                             DisplayMemberBinding="{Binding Index}" />
                             <GridViewColumn Width="200"
                                             Header="Magnification"
-                                            DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName}" />
                             <GridViewColumn Width="200"
                                             Header="FindPosition"
                                             DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -14,10 +14,7 @@ namespace Core.Models.Models.Chuck.StageMap;
 public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
-
-    [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMagnificationEnum = MicroscopeMagnificationEnum.Magnification50X;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -41,19 +38,19 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
     private StageMapDto _verifyBrightFieldStageMap = new();
 
     [ObservableProperty]
-    private bool _isCalibrationBrightField = false;
+    private bool _isCalibrationBrightField;
 
     [ObservableProperty]
-    private bool _isVerifyDarkField = false;
+    private bool _isVerifyDarkField;
 
     [ObservableProperty]
-    private bool _isVerifyBrightField = false;
+    private bool _isVerifyBrightField;
 
     #region Mapper
 
     public ChuckStageMapDto Clone() => new()
     {
-        HighMagnificationEnum = HighMagnificationEnum,
+        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         StageSpeedEnum = StageSpeedEnum,
         CalibrationBrightFieldStageMap = CalibrationBrightFieldStageMap.Clone(),
@@ -73,7 +70,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
 
     public CalibrationChuckStageMap AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(HighMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
         Speed = StageSpeedEnum.ToAdsSpeedEnum(),
         ExpandStageMap = ExpandStageMapDto.AdaptTo(),

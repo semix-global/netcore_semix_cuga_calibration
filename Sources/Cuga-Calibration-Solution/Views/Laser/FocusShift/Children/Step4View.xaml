@@ -175,7 +175,7 @@
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultFocusShiftDto.BrightFiedlToDarkFieldOffset, Converter={StaticResource PointToStringConverter}, Mode=OneWay}"
+                    <TextBox Text="{Binding ResultFocusShiftDto.BrightFieldToDarkFieldOffset, Converter={StaticResource PointToStringConverter}, Mode=OneWay}"
                              hc:InfoElement.Title="BF To DF Offset: "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"

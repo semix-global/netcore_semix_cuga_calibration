@@ -1,8 +1,8 @@
 using CommunityToolkit.Diagnostics;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Autofocus;
 using Cuga.Data.DataStruct.Basic;
@@ -96,9 +96,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationEnum microscopeMagnificationEnum)
+    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationInfo microscopeMagnificationInfo)
     {
-        var ret = microscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(microscopeMagnificationEnum);
+        var ret = microscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
         if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
 
         var sxExecuteRet = Invoke(() => Service!.SetAFMicroscopeObj(ret.Anything));
@@ -209,9 +209,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return SxExecuteRetHelper.CreateSuccess<List<(double Ecs, double Nsc, double Lvdt)>>([.. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.Lvdt[i]))]);
     }
 
-    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationEnum microscopeMagnificationEnum, double standardEcsValue)
+    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationInfo microscopeMagnificationInfo, double standardEcsValue)
     {
-        var ret = microscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(microscopeMagnificationEnum);
+        var ret = microscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
         if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
 
         var sxExecuteRet = Invoke(() => Service!.WriteMicroscopeEcs(ret.Anything, Convert.ToUInt16(standardEcsValue)));

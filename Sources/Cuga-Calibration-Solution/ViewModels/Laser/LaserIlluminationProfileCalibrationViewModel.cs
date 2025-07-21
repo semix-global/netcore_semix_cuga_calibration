@@ -141,9 +141,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     private LaserIlluminationProfileCache _cache = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
-
-    [ObservableProperty]
     private LaserIlluminationProfileItemDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -220,8 +217,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             return false;
         }
 
-        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserIlluminationProfileCache>();
         Cache.CurrentCalibrationCacheItem.Reset();
         Clear();
@@ -234,6 +229,8 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -245,7 +242,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
         return true;
     }
 
@@ -287,10 +284,10 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                     OpticsMagTypeEnum.High => calibrationSetting.HighMagSettingDarkFieldGainParam,
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<ObservableCollection<SettingDarkFieldGainParam>>(nameof(Cache.OpticsMagTypeEnum))
                 };
-                AutoGainSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t.PmtId == 8 && t.ChannelId == 3);
+                AutoGainSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t is { PmtId: 8, ChannelId: 3 });
                 AutoGainSettingDarkFieldGainViewModel.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
 
-                DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t.PmtId == 8 && t.ChannelId == 3);
+                DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t is { PmtId: 8, ChannelId: 3 });
                 DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
 
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
@@ -428,7 +425,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition,
@@ -445,7 +442,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
@@ -485,7 +482,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -542,7 +539,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
@@ -861,7 +858,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                     valueCount = sgolayfiltList.Count - startIndexValue;
                 }
 
-                ;
                 var minIndex = startIndexValue + sgolayfiltList.SubVector(startIndexValue, valueCount).MinimumIndex();
                 minIndexList.Add(minIndex);
                 startIndexValue += Convert.ToInt32(itemCache.WaveFormVInterval * 3 / TValue);
@@ -1067,7 +1063,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -1169,7 +1165,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -1473,7 +1469,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
@@ -1573,7 +1569,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         Logger.LogHtmlInformation($"PmtId: {pmtCacheItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
-            Cache.MicroscopeMagnificationEnum,
+            Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
             Cache.OpticsMagTypeEnum,
             Cache.Coefficient,
             pmtCacheItem.PmtId,
@@ -1705,7 +1701,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum;
+        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
 
         Calibrations =
         [

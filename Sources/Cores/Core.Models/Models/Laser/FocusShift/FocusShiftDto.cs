@@ -15,10 +15,10 @@ public sealed partial class FocusShiftDto : CalibrationDtoBase, ICloneable<Focus
     private int _index;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(BrightFiedlToDarkFieldOffset))]
+    [NotifyPropertyChangedFor(nameof(BrightFieldToDarkFieldOffset))]
     private Point _brightFieldFindPosition;
 
-    [NotifyPropertyChangedFor(nameof(BrightFiedlToDarkFieldOffset))]
+    [NotifyPropertyChangedFor(nameof(BrightFieldToDarkFieldOffset))]
     [ObservableProperty]
     private Point _darkFieldFindPosition;
 
@@ -65,7 +65,7 @@ public sealed partial class FocusShiftDto : CalibrationDtoBase, ICloneable<Focus
     /// </summary>
     public double FocusShiftOffset => DarkFieldEcsValue - AutoFocusEcs;
 
-    public Point BrightFiedlToDarkFieldOffset => DarkFieldFindPosition - (Vector)BrightFieldFindPosition;
+    public Point BrightFieldToDarkFieldOffset => DarkFieldFindPosition - (Vector)BrightFieldFindPosition;
 
 
     public FocusShiftDto Clone() => new()

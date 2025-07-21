@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Microscope;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.Center;
@@ -12,6 +11,7 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -45,7 +45,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
 
     [ObservableProperty]
-    private bool _isReviewLoadWafer = false;
+    private bool _isReviewLoadWafer;
 
     #endregion 界面相关
 
@@ -131,6 +131,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         Calibration = CacheProvider.GetOrDefault<ChuckPrealignerObjDto>();
         CalibrationStepList[0].StepIsNextEnable = false;
 
+        if (Cache.LowMicroscopeMagnificationInfo.MagnificationCode == -1) Cache.LowMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -153,9 +158,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         Cache.WaferCenterThumb7 = [];
         Cache.WaferCenterThumb8 = [];
         IsReviewLoadWafer = false;
-        if (await ReloadWafertAsync(IsReviewLoadWafer) == false)
+        if (await ReloadWaferAsync(IsReviewLoadWafer) == false)
         {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafert!"), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafer!"), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
@@ -170,11 +175,10 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         await Task.CompletedTask.ConfigureAwait(false);
 
         ReviewDto = Calibration.Clone();
-        var waferCenterPosition = ReviewDto.OffsetPosition;
 
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
-        MicroscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum.Magnification5X);
+        MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
         return true;
     }
 
@@ -185,10 +189,10 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
                 return true;
             case 1:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 Cache.HighFindPosition1 = Cache.LowFindPosition1;
                 Cache.HighFindPosition2 = Cache.LowFindPosition2;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
@@ -230,7 +234,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     case nameof(Cache.LowFindPosition1):
                         Cache.LowFindPosition1 = result;
                         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
-                        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                         Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
                         Cache.LowSite1.Location = Cache.LowFindPosition1;
                         var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -254,7 +258,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                     case nameof(Cache.HighFindPosition1):
                         Cache.HighFindPosition1 = result;
-                        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+                        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
                         Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
                         Cache.HighSite1.Location = Cache.HighFindPosition1;
                         var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -317,12 +321,28 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         }
     }
 
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     public async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var reslut = true;
-        await InvokeCalibrateAsync(async () =>
+        var result = true;
+        await InvokeCalibrateAsync(() =>
         {
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             List<Point> waferEdgeOffsets =
@@ -367,8 +387,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 DialogWindowProvider.ShowDialog(" Chuck Prealigner calibration failed, please manually adjust EFEM.", DialogButtonsEnum.OK, DialogIconEnum.Error);
-                reslut = false;
-                return reslut;
+                result = false;
+                return result;
             }
 
             ChuckPrealignerObjDto.OffsetPosition = Cache.OffsetPosition;
@@ -391,9 +411,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.FindWaferCenterOffset8
             }), HtmlLogUniqueId.LoggingHtml());
             StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
-            return reslut;
+            return result;
         });
-        return reslut;
+        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -405,7 +425,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                Cache.LowMicroscopeMagnificationEnum,
+                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.LowFindPosition1,
                 Cache.LowFindPosition2,
                 HtmlTab = new HtmlTab(new
@@ -424,9 +444,14 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var result = true;
         await InvokeCalibrateAsync(() =>
         {
+            if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode <= Cache.LowMicroscopeMagnificationInfo.MagnificationCode)
+            {
+                DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HighMicroscopeMagnificationEnum,
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.HighFindPosition1,
                 Cache.HighFindPosition2,
                 HtmlTab = new HtmlTab(new
@@ -493,15 +518,15 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             if (!Calibration.IsOk)
             {
-                if (await ReloadWafertAsync(IsReviewLoadWafer) == false)
+                if (await ReloadWaferAsync(IsReviewLoadWafer) == false)
                 {
-                    DialogWindowProvider.ShowDialog("Please Reload Wafert!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafert!"), HtmlLogUniqueId.LoggingHtml());
+                    DialogWindowProvider.ShowDialog("Please Reload Wafer!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafer!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
             }
 
-            result = await VerifyCaibrationAsync(ReviewDto, cancellationToken);
+            result = await VerifyCalibrationAsync(ReviewDto, cancellationToken);
             if (IsAutoCalibrate == false)
                 DialogWindowProvider.ShowDialog($"Chuck Prealigner Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
             return result;
@@ -509,7 +534,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return result;
     }
 
-    private async Task<bool> VerifyCaibrationAsync(ChuckPrealignerObjDto selectChuckPrealignerObjDto, CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(ChuckPrealignerObjDto selectChuckPrealignerObjDto, CancellationToken cancellationToken)
     {
         var result = true;
         await Task.Run(async () =>
@@ -519,7 +544,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please select a review item!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
-                return result;
+                return false;
             }
             else
             {
@@ -532,7 +557,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     DialogWindowProvider.ShowDialog("P5 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: P5 Failed!"), HtmlLogUniqueId.LoggingHtml());
                     result = false;
-                    return result;
+                    return false;
                 }
 
                 if (RecipeCacheProvider.Set(Cache, cancellationToken) == false)
@@ -544,7 +569,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
-                var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin);
+                var (offsetPosition, _) = StageViewModel.FindWaferCenterByManually(Point.Origin);
                 Cache.OffsetPosition = offsetPosition;
 
                 Logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -604,8 +629,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("P5 Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.AngleErrorThreshold,
-                Cache.LowMicroscopeMagnificationEnum,
-                Cache.HighMicroscopeMagnificationEnum,
+                LowMagnification = Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                HighMagnification = Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmWaferTypeEnum,
                 LowLocation1 = Cache.LowSite1.Location,
                 LowLocation2 = Cache.LowSite2.Location,
@@ -622,8 +647,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.LowSite2,
                 Cache.HighSite1,
                 Cache.HighSite2,
-                Cache.LowMicroscopeMagnificationEnum,
-                Cache.HighMicroscopeMagnificationEnum,
+                Cache.LowMicroscopeMagnificationInfo,
+                Cache.HighMicroscopeMagnificationInfo,
                 Cache.AlgorithmWaferTypeEnum);
             Cache.OffsetAngle = alignmentResultDto.Degrees;
             result = Math.Abs(Cache.OffsetAngle) <= Cache.AngleErrorThreshold;
@@ -632,7 +657,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return result;
     }
 
-    private async Task<bool> ReloadWafertAsync(bool isReviewLoadWafer)
+    private async Task<bool> ReloadWaferAsync(bool isReviewLoadWafer)
     {
         var result = false;
         await Task.Run(() =>
@@ -652,7 +677,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 efemWindowViewModel.OffsetPoint = point;
             }
 
-            Logger.LogHtmlInformation("ReloadWafert", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlInformation("ReloadWafer", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AngleThreshold,
                 Cache.PositionThreshold,
@@ -660,9 +685,13 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 efemWindowViewModel.OffsetPoint
             }), HtmlLogUniqueId.LoggingHtml());
             WindowManagerService.ShowDialog(efemWindowViewModel);
+
             efemWindowViewModel.IsPrealigner = false;
-            result = (efemWindowViewModel.PrealignerIsOk && efemWindowViewModel.SelectedFoupItem != null && efemWindowViewModel.SelectedFoupItem.IsLoadWafer);
-            Logger.LogHtmlInformation(result ? "ReloadWafert OK" : "ReloadWafert Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+
+            result = efemWindowViewModel.SelectedFoupItem != null
+                && efemWindowViewModel is { PrealignerIsOk: true, SelectedFoupItem.IsLoadWafer: true };
+
+            Logger.LogHtmlInformation(result ? "ReloadWafer OK" : "ReloadWafer Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 efemWindowViewModel.OffsetAngle,
                 efemWindowViewModel.OffsetPoint
@@ -686,20 +715,22 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb7 = Cache.WaferCenterThumb7;
             findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb8 = Cache.WaferCenterThumb8;
             findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.OffsetPosition = Cache.OffsetPosition;
-            ;
+
             findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.PositionErrorThreshold = Cache.PositionErrorThreshold;
             WindowManagerService.ShowDialog(findWaferCenterWindowFieldViewModel);
             result = findWaferCenterWindowFieldViewModel.IsFindWaferCenterOffsetPositionEnabled;
-            var WaferCenterThumbList = new List<byte[]>();
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb1);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb2);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb3);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb4);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb5);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb6);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb7);
-            WaferCenterThumbList.Add(findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb8);
-            SaveWaferCenterThumbImages(WaferCenterThumbList);
+            var waferCenterThumbList = new List<byte[]>
+            {
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb1,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb2,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb3,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb4,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb5,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb6,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb7,
+                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb8
+            };
+            SaveWaferCenterThumbImages(waferCenterThumbList);
             Cache.FindWaferCenterOffset1 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset1;
             Cache.FindWaferCenterOffset2 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset2;
             Cache.FindWaferCenterOffset3 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset3;
@@ -757,8 +788,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         update(dto);
         update(Cache);
 
-        dto.LowMicroscopeMagnificationEnum = Cache.LowMicroscopeMagnificationEnum;
-        dto.HighMicroscopeMagnificationEnum = Cache.HighMicroscopeMagnificationEnum;
+        dto.LowMicroscopeMagnificationInfo = Cache.LowMicroscopeMagnificationInfo;
+        dto.HighMicroscopeMagnificationInfo = Cache.HighMicroscopeMagnificationInfo;
 
         Calibration = dto.Clone();
 
@@ -790,7 +821,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             new() { StepName = "Init offset" },
             new() { StepName = "Find offset" },
             new() { StepName = "Calibration Result" },
-            new() { StepName = "Reload Wafert" },
+            new() { StepName = "Reload Wafer" },
             new() { StepName = "Review" }
         ];
     }
@@ -818,9 +849,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                                 return result;
                             }) == false) return false;
                         IsReviewLoadWafer = false;
-                        if (await ReloadWafertAsync(IsReviewLoadWafer) == false)
+                        if (await ReloadWaferAsync(IsReviewLoadWafer) == false)
                         {
-                            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafert!"), HtmlLogUniqueId.LoggingHtml());
+                            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafer!"), HtmlLogUniqueId.LoggingHtml());
                             return false;
                         }
 
@@ -845,10 +876,10 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                         if (await InvokeCalibrateAsync(async () =>
                             {
                                 IsReviewLoadWafer = true;
-                                if (await ReloadWafertAsync(IsReviewLoadWafer) == false)
+                                if (await ReloadWaferAsync(IsReviewLoadWafer) == false)
                                 {
-                                    DialogWindowProvider.ShowDialog("Please Reload Wafert!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafert!"), HtmlLogUniqueId.LoggingHtml());
+                                    DialogWindowProvider.ShowDialog("Please Reload Wafer!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Reload Wafer!"), HtmlLogUniqueId.LoggingHtml());
                                     return false;
                                 }
 
@@ -860,7 +891,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                         await InvokeCalibrateAsync(async () =>
                         {
                             ReviewDto = Calibration.Clone();
-                            if (await VerifyCaibrationAsync(ReviewDto, cancellationToken) == false) return false;
+                            if (await VerifyCalibrationAsync(ReviewDto, cancellationToken) == false) return false;
                             return result;
                         });
                         break;
@@ -884,11 +915,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         await Task.CompletedTask.ConfigureAwait(false);
         if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
             return false;
-        Cache.LowMicroscopeMagnificationEnum = AlignmentCacheBrightField.LowMag;
-        Cache.HighMicroscopeMagnificationEnum = AlignmentCacheBrightField.HighMag;
-        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+        Cache.LowMicroscopeMagnificationInfo = AlignmentCacheBrightField.LowMag;
+        Cache.HighMicroscopeMagnificationInfo = AlignmentCacheBrightField.HighMag;
+        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
         Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
-        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
         Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
         Cache.LowFindPosition1 = AlignmentCacheBrightField.LowSite1.Location;
         Cache.LowFindPosition2 = AlignmentCacheBrightField.LowSite2.Location;
@@ -938,7 +969,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 IsReviewLoadWafer = true;
                 ReviewDto = Calibration.Clone();
                 if (await AutomationRecipeInformationAsync() == false) return false;
-                if (await VerifyCaibrationAsync(ReviewDto!, cancellationToken) == false)
+                if (await VerifyCalibrationAsync(ReviewDto!, cancellationToken) == false)
                 {
                     DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;

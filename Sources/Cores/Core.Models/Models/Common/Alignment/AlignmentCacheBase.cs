@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Microscope;
+using Core.Models.Models.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Alignment;
@@ -23,7 +23,7 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     /// 对准低倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMag = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _lowMag = new();
 
     /// <summary>
     /// 对准低倍率模板尺寸
@@ -35,7 +35,7 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     /// 对准高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMag = MicroscopeMagnificationEnum.Magnification50X;
+    private MicroscopeMagnificationInfo _highMag = new();
 
     /// <summary>
     /// 对准高倍率模板尺寸

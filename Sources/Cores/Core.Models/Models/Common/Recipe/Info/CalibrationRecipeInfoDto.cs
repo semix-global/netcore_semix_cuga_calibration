@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Recipe.Wafer;
+using Core.Models.Models.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Mapper.Interfaces;
@@ -25,27 +25,27 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
     private AlgorithmWaferTypeEnum _waferTypeEnum = AlgorithmWaferTypeEnum.D300;
 
     [ObservableProperty]
-    private NotchDirectionTypeEnum _notchDirectionEnum = NotchDirectionTypeEnum.Up;
+    private NotchDirectionTypeEnum _notchDirectionEnum = NotchDirectionTypeEnum.Down;
 
     /// <summary>
     /// 低倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeLowMag = MicroscopeMagnificationEnum.Magnification5X;
+    private MicroscopeMagnificationInfo _microscopeLowMag = new();
 
     /// <summary>
     /// 高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeHighMag = MicroscopeMagnificationEnum.Magnification50X;
+    private MicroscopeMagnificationInfo _microscopeHighMag = new();
 
     public CalibrationRecipeInfoDto Clone() => new()
     {
         RecipeName = RecipeName,
         DescribeName = DescribeName,
         NotchDirectionEnum = NotchDirectionEnum,
-        MicroscopeLowMag = MicroscopeLowMag,
-        MicroscopeHighMag = MicroscopeHighMag,
+        MicroscopeLowMag = MicroscopeLowMag.Clone(),
+        MicroscopeHighMag = MicroscopeHighMag.Clone(),
         RecipeNosqlRecipeDbDataSource = RecipeNosqlRecipeDbDataSource,
         Id = Id
     };

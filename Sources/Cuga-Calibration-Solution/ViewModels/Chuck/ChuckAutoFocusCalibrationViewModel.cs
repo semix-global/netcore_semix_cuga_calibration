@@ -3,7 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Prealigner;
+using Core.Models.Models.Pattern;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -81,6 +83,10 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckAutoFocusDto>();
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
 
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
@@ -102,7 +108,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
         {
             case 0:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
                 return true;
 
             case 1:
@@ -134,6 +140,23 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
     #region 校准
 
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -141,7 +164,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.RowNumber,
                 Cache.ColumnNumber,
                 Cache.ChuckDiameter,
@@ -227,7 +250,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
                 CurrentRowColumn = (chuckAutoFocusItemDto.Row, chuckAutoFocusItemDto.Column);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(chuckAutoFocusItemDto.Position);
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -327,7 +350,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.RowNumber,
                 Cache.ColumnNumber,
                 Cache.ChuckDiameter,
@@ -357,7 +380,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
                 CurrentRowColumn = (chuckAutoFocusItemDto.Row, chuckAutoFocusItemDto.Column);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(chuckAutoFocusItemDto.Position);
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -430,7 +453,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
         update(dto);
         update(Cache);
 
-        dto.MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum;
+        dto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
 
         Calibration = dto.Clone();
 

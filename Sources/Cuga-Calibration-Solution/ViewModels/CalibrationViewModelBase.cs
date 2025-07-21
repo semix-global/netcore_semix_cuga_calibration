@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums;
-using Core.Models.Enums.Microscope;
 using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Common.Recipe;
@@ -53,7 +52,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     protected readonly ICacheProvider RecipeCacheProvider;
     protected readonly ICalibrationStatusService CalibrationStatusService;
     protected readonly ICalibrationRecipeService CalibrationRecipeService;
-    protected readonly ApplicationCookie ApplicationCookie;
     protected readonly CalibrationSetting CalibrationSetting;
     protected readonly string AppHomeDirectory;
 
@@ -63,6 +61,8 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     private CancellationTokenSource? _cancellationTokenSource;
 
     #region 属性
+    [ObservableProperty]
+    private ApplicationCookie _applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
     #region ViewModels
 
@@ -122,7 +122,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// </summary>
     /// 
     [ObservableProperty]
-    public ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
+    private ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
 
     #endregion 重载只读属性
 
@@ -179,7 +179,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         };
 
     [ObservableProperty]
-    public double _autoCalibrationProgress = 0d;
+    private double _autoCalibrationProgress;
 
     /// <summary>
     /// 日志唯一标识
@@ -190,18 +190,18 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// <summary>
     /// 是否应用配方
     /// </summary>
-    public bool IsRecipeCalibrate { get; set; } = false;
+    public bool IsRecipeCalibrate { get; set; }
 
     /// <summary>
     /// 是否正在编辑配方
     /// </summary>
-    public bool IsRecipeEditing { get; set; } = false;
+    public bool IsRecipeEditing { get; set; }
 
     /// <summary>
     /// 是否自动化校准
     /// </summary>
     [ObservableProperty]
-    public bool _isAutoCalibrate;
+    private bool _isAutoCalibrate;
 
     #region 校准相关
 
@@ -233,6 +233,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
     private int _autoReviewCalibrationStepIndex = -1;
 
+    /// <summary>
     /// 校准步名称
     /// </summary>
     [ObservableProperty]
@@ -263,11 +264,10 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         SynchronizationContextProvider = HostApplication.GetRequiredService<ISynchronizationContextProvider>();
         CalibrationAlgorithmService = HostApplication.GetRequiredService<ICalibrationAlgorithmService>();
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-        RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
+        RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey);
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
         CalibrationSetting = HostApplication.GetRequiredService<CalibrationSetting>();
-        ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
         Messenger.RegisterAll(this);
     }
@@ -304,14 +304,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             {
                 UpdateAutoCalibrateStatus();
             }
-
-            return;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "{@Name}: Loading Exception", Name);
             UpdateFailedStatus();
-            return;
         }
     }
 
@@ -332,7 +329,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
                 if (IsRecipeEditing == false)
                 {
                     DialogWindowProvider.TryShowDialog("Do you want to enable recipe information!", out var dialogButtonsEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Warning);
-                    IsRecipeCalibrate = dialogButtonsEnum == DialogResultEnum.Yes ? true : false;
+                    IsRecipeCalibrate = dialogButtonsEnum == DialogResultEnum.Yes;
                 }
 
                 if (await CalibratingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
@@ -348,13 +345,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
                 UpdateCalibrateStatus();
                 Logger.LogInformation("{@Name}: Begin Calibrate!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
-            return;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "{@Name}: Calibrate Exception", Name);
             UpdateFailedStatus();
-            return;
         }
     }
 
@@ -383,13 +378,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
                 UpdateReviewStatus();
                 Logger.LogInformation("{@Name}: Begin Review!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
-            return;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "{@Name}: Review Exception", Name);
             UpdateFailedStatus();
-            return;
         }
     }
 
@@ -496,13 +489,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
                 Logger.LogInformation("{@Name}: Next!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
-            return;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "{@Name}: Next Exception", Name);
             UpdateFailedStatus();
-            return;
         }
     }
 
@@ -532,7 +523,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             UpdateAutoCalibrateStatus();
             ViewEnum = CalibrationItemViewEnum.Welcome;
             Logger.LogInformation("{@Name}: Auto Ok!", Name);
-        }, _cancellationTokenSource.Token).ConfigureAwait(false);
+        }, _cancellationTokenSource.Token);
         return result;
     }
 
@@ -604,7 +595,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         return Task.Run(() =>
         {
             if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out _))
-                MicroscopeViewModel.SwitchMagnification(MicroscopeMagnificationEnum.Magnification5X);
+                MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList[0]);
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             return true;
         });
@@ -635,7 +626,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         HtmlLogUniqueId = Guid.NewGuid();
         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
         AutoCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
-        CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName.ToString();
+        CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName;
         AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
 
         return Task.FromResult(true);
@@ -742,9 +733,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             UpdateReviewStatus();
             if (IsAutoCalibrate)
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{CalibrationTypeEnum.AutoVerify.ToString()}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.AutoVerify)}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
             else
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{CalibrationTypeEnum.HandleVerify.ToString()}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
         }
     }
 

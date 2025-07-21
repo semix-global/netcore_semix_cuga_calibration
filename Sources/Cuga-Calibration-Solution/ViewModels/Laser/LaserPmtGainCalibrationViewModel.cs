@@ -83,9 +83,6 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
     private LaserPmtGainCache _cache = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
-
-    [ObservableProperty]
     private LaserPmtGainDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -163,8 +160,6 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
             return false;
         }
 
-        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserPmtGainCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserPmtGainDto>();
 
@@ -175,9 +170,9 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
+        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
 
-        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
+        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
         return true;
     }
 

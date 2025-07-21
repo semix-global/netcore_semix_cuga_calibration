@@ -27,6 +27,7 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -55,9 +56,9 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationEnum)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationEnum)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -284,6 +285,11 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
+            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
+                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
+
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -345,7 +351,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
                 return true;
 
             case 1:
@@ -379,6 +385,23 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
     #endregion 控制校准业务
 
     #region 校准
+    [RelayCommand]
+
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
@@ -419,7 +442,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.P5Angle,
-                Cache.MicroscopeMagnificationEnum
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -503,7 +526,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             var detectImageDirectory = ImageFileDirectory;
             using var _ = darkFieldImageDto;
 
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationEnum}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
             {
                 if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -577,7 +600,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 RtfcEcs = ecs,
                 RtfcHeight = height,
                 Cache.P5Angle,
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
                 Cache.CalculateContainRowMinCout,
                 Cache.CalculateContainColumnMinCount,
@@ -624,7 +647,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ResultChuckDarkFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath,
                     ResultChuckDarkFieldStageMapDto.CalibrationStageMap.RealCsvFilePath,
@@ -639,7 +662,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 xAxisTemperature,
                 yAxisTemperature,
                 cibTemperature,
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
                 ResultChuckDarkFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath,
                 ResultChuckDarkFieldStageMapDto.CalibrationStageMap.RealCsvFilePath,
@@ -733,7 +756,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     reviewCamTemperature,
                     cibTemperature,
                     Cache.P5Angle,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.CalculateContainRowMinCout,
                     Cache.CalculateContainColumnMinCount,
@@ -779,7 +802,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath,
@@ -861,7 +884,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationEnum,
+                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath,
@@ -1134,7 +1157,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         update(dto);
         update(Cache);
 
-        dto.MicroscopeMagnificationEnum = ChuckBrightFieldStageMap.MicroscopeMagnificationEnum;
+        dto.MicroscopeMagnificationInfo = ChuckBrightFieldStageMap.MicroscopeMagnificationInfo;
         dto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         dto.StageSpeedEnum = Cache.StageSpeedEnum;
 

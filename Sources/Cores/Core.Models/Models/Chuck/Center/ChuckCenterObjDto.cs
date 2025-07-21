@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.Center;
 public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<ChuckCenterObjDto>, IAdaptTo<CalibrationCenterObj>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _lowMicroscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _highMicroscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private Point _positiveTopPosition;
@@ -84,8 +84,8 @@ public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<C
 
     public ChuckCenterObjDto Clone() => new()
     {
-        LowMicroscopeMagnificationEnum = LowMicroscopeMagnificationEnum,
-        HighMicroscopeMagnificationEnum = HighMicroscopeMagnificationEnum,
+        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
+        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         PositiveTopPosition = PositiveTopPosition,
         PositiveRightPosition = PositiveRightPosition,
         PositiveBottomPosition = PositiveBottomPosition,
@@ -116,7 +116,7 @@ public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<C
 
     public CalibrationCenterObj AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationEnum, CgMicroscopeLens>(HighMicroscopeMagnificationEnum),
+        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

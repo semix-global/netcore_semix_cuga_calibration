@@ -4,7 +4,6 @@ using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
-using Core.Models.Extensions;
 using Core.Models.Models;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
@@ -104,9 +103,6 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     private LaserXTCCalibrationCache _cache = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
-
-    [ObservableProperty]
     private LaserXTCCalibrationItemDto[] _calibrations = [];
 
     [ObservableProperty]
@@ -137,11 +133,12 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var calChipDto, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+        MicroscopeCalChip = calChipDto;
 
         if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
         {
@@ -182,14 +179,6 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXTCCalibrationCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXTCCalibrationItemDto>();
 
-        MicroscopeCalChip = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
-        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-        if (MicroscopeCalChip.IsOk(out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
         foreach (var calibrationStatus in Calibrations)
         {
             CalibrationStatusList
@@ -203,9 +192,9 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
+        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
         //MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
         return true;
     }
 

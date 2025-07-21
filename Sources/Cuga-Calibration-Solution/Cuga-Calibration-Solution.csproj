@@ -51,6 +51,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Cores\Core.Models\03. Core.Models.csproj" />
         <ProjectReference Include="..\Cores\Core.Services\04. Core.Services.csproj" />
     </ItemGroup>
 

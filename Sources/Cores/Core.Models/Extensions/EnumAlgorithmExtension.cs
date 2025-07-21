@@ -91,4 +91,11 @@ public static class EnumAlgorithmExtension
     };
 
     #endregion WaferType
+
+    #region StandardMaskSquareSize
+
+    public static Size ToSize(this AlgorithmStandardMaskSquareSizeEnum algorithmStandardMaskSquareSizeEnum) => new(Convert.ToInt32(algorithmStandardMaskSquareSizeEnum), Convert.ToInt32(algorithmStandardMaskSquareSizeEnum));
+
+
+    #endregion
 }

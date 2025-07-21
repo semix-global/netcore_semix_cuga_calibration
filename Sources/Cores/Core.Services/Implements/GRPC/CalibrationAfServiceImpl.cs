@@ -1,7 +1,7 @@
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Agent.Facade.Service.MachineFacade;
 using Cuga.Data.DataStruct.Autofocus;
@@ -94,9 +94,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationEnum microscopeMagnificationEnum)
+    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationInfo microscopeMagnificationInfo)
     {
-        var ret = microscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(microscopeMagnificationEnum);
+        var ret = microscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
         if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
 
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeObj(new SxParamObj<CgMicroscopeLens>(ret.Anything)));
@@ -186,9 +186,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationEnum microscopeMagnificationEnum, double standardEcsValue)
+    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationInfo microscopeMagnificationInfo, double standardEcsValue)
     {
-        var ret = microscopeService.MicroscopeMagnificationEnumToCgMicroscopeLens(microscopeMagnificationEnum);
+        var ret = microscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
         if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
 
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeEcs(new SxParamObj<(CgMicroscopeLens lens, ushort ecs)>((ret.Anything, Convert.ToUInt16(standardEcsValue)))));

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -17,7 +17,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     private double _coefficient;
 
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -133,7 +133,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     {
         Index = Index,
         Coefficient = Coefficient,
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         PmtId = PmtId,
         ChannelId = ChannelId,

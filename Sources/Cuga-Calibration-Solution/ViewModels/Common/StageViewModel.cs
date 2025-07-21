@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -260,11 +260,11 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
-        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeMagnificationEnum, highMicroscopeMagnificationEnum, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeMagnificationInfo, highMicroscopeMagnificationInfo, algorithmWaferTypeEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -305,7 +305,7 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto darkFieldHighSite2,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
@@ -316,7 +316,7 @@ public sealed partial class StageViewModel(
             darkFieldHighSite2,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
-            lowMicroscopeMagnificationEnum,
+            lowMicroscopeMagnificationInfo,
             algorithmWaferTypeEnum);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 

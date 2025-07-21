@@ -1,10 +1,10 @@
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -278,8 +278,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
@@ -294,8 +294,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
-        MicroscopeMagnificationEnum highMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
@@ -360,7 +360,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto darkFieldHighSite2,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        MicroscopeMagnificationEnum lowMicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {

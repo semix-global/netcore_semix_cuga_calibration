@@ -80,8 +80,6 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
     [ObservableProperty]
     private LaserPrescanChirpAodAlignmentCache _cache = new();
 
-    [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
 
     [ObservableProperty]
     private LaserPrescanChirpAodAlignmentDto[] _calibrations = [];
@@ -137,8 +135,6 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             return false;
         }
 
-        MicroscopeCalChipCache = CacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserPrescanChirpAodAlignmentCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserPrescanChirpAodAlignmentDto>();
 
@@ -149,6 +145,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -156,9 +154,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChipCache.HazePosition;
-        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
+        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
 
         return true;
     }
@@ -236,7 +234,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
@@ -254,7 +252,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
@@ -287,7 +285,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             var detectImageDirectory = ImageFileDirectory;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
