@@ -45,12 +45,14 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using Net.Utilities.WPF.MVVM.Providers;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
 
 [IOCAppService(ServiceType = typeof(MainWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class MainWindowViewModel(
+    IDialogWindowProvider dialogWindowProvider,
     SplitImageWindowViewModel splitImageWindowViewModel,
     StageMapWindowViewModel stageMapWindowViewModel,
     AodGenerateWaveFileWindowViewModel aodGenerateWaveFileWindowViewModel,
@@ -604,6 +606,9 @@ public sealed partial class MainWindowViewModel(
     [RelayCommand]
     private void ReadRawImageProjectionY()
     {
+        var tryShowSelectDirectoryPathDialog = dialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath);
+        if (tryShowSelectDirectoryPathDialog == false) return;
+
         var category20 = new Category10();
         var wpfPlot = new WpfPlot();
         var crossHair = wpfPlot.Plot.Add.Crosshair(0, 0);
@@ -623,7 +628,7 @@ public sealed partial class MainWindowViewModel(
             wpfPlot.Refresh();
         };
 
-        foreach (var (index, file) in Directory.GetFiles("I:\\Nano\\Cuga-Calibration\\xkz\\SamePointImgs").Select((t, i) => (i, t)))
+        foreach (var (index, file) in Directory.GetFiles(directoryPath).Select((t, i) => (i, t)))
         {
             if (Path.GetExtension(file) != ".raw") continue;
 
