@@ -22,7 +22,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Laser Pixel Size Step 3: "
-                           Status="{Binding CalibrationStepList[2].StepName}"
+                           Status="{Binding CalibrationStepList[3].StepName}"
                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
@@ -35,7 +35,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Need Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "

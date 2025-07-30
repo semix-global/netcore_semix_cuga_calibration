@@ -278,14 +278,8 @@
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
                                         <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeAfEcsValue, StringFormat={}{0:f3}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -301,14 +295,8 @@
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
                                         <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
+                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeAfMotorValue, StringFormat={}{0:f3}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

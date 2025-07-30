@@ -84,9 +84,9 @@
                             </StackPanel>
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                    <ItemsControl ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type models:OpticsAodTypeEnum}}}">
+                                    <ItemsControl ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type models:OpticsAODTypeEnum}}}">
                                         <i:Interaction.Behaviors>
-                                            <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding OpticsAodTypeEnum, Mode=TwoWay}" />
+                                            <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding OpticsAODTypeEnum, Mode=TwoWay}" />
                                         </i:Interaction.Behaviors>
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -117,7 +117,7 @@
                                         <hc:NumericUpDown.Style>
                                             <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding OpticsAodTypeEnum}" Value="{x:Static models:OpticsAodTypeEnum.Prescan}">
+                                                    <DataTrigger Binding="{Binding OpticsAODTypeEnum}" Value="{x:Static models:OpticsAODTypeEnum.Prescan}">
                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -133,7 +133,7 @@
                                         <hc:NumericUpDown.Style>
                                             <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding OpticsAodTypeEnum}" Value="{x:Static models:OpticsAodTypeEnum.Chirp}">
+                                                    <DataTrigger Binding="{Binding OpticsAODTypeEnum}" Value="{x:Static models:OpticsAODTypeEnum.Chirp}">
                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                     </DataTrigger>
                                                 </Style.Triggers>

@@ -17,6 +17,7 @@ using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
@@ -58,6 +59,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag" },
         new() { StepName = "Select a Coefficient" },
         new() { StepName = "Gain", DefaultIsNextEnable = true },
@@ -271,7 +273,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 foreach (var temp in CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).CoefficientList)
                 {
                     CalibrationStatusListItem.Single(t => t.Coefficient - temp.Coefficient == 0).IsCalibrated = temp.IsCalibrated;
@@ -293,18 +295,18 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
 
-            case 1:
+            case 2:
                 AutoGainSettingDarkFieldGainViewModel.PlotList = [];
 
                 return true;
 
-            case 2:
+            case 3:
                 if (Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsOk == false)
                     DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.PlotList = [];
 
                 return true;
 
-            case 3:
+            case 4:
                 if (Cache.CurrentCalibrationCacheItem.IsOk == false)
                     PlotList = [];
                 Cache.CurrentDarkFieldImageListToPrescanListCacheItem.WaveFormVPrescanList = [];
@@ -312,15 +314,15 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 Cache.CurrentDarkFieldImageListToPrescanListCacheItem.WaveFormVSmoothDarkFieldImageList = [];
                 return Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsOk;
 
-            case 4:
+            case 5:
                 return true;
 
-            case 5:
+            case 6:
                 Clear();
 
                 return Cache.CurrentCalibrationCacheItem.IsOk;
 
-            case 6:
+            case 7:
                 if (SelectCalibrateItemDto is null)
                 {
                     DialogWindowProvider.TryShowDialog("Please find Ratio Value!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -348,7 +350,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -412,6 +414,42 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         {
             Logger.LogError(ex, "{@Name}: Grabbing Image Failed", Name);
         }
+    }
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -1656,9 +1694,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             Cache.XSpeed,
             pmtId,
             StageCoordinateSystemEnum.Bright,
+            Cache.CIBConfiguration,
             (true, null),
-            false,
-            null);
+            false);
 
         var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
         var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);

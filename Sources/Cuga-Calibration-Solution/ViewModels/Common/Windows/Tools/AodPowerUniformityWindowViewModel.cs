@@ -37,11 +37,11 @@ public partial class AodPowerUniformityWindowViewModel(
 {
     public const double DefaultCoefficient = 1;
 
-    public string AodWaveFileDirectory => Path.Combine(options.Value.AppHomeDirectory, EnumHelper.ToDescriptionString(OpticsAodTypeEnum), DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodPowerUniformityWindowViewModel)),
+    public string AodWaveFileDirectory => Path.Combine(options.Value.AppHomeDirectory, EnumHelper.ToDescriptionString(OpticsAODTypeEnum), DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodPowerUniformityWindowViewModel)),
         DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     [ObservableProperty]
-    private OpticsAodTypeEnum _opticsAodTypeEnum;
+    private OpticsAODTypeEnum _opticsAODTypeEnum;
 
     [ObservableProperty]
     private double _waitTime = 15;
@@ -103,7 +103,7 @@ public partial class AodPowerUniformityWindowViewModel(
     [ObservableProperty]
     private Point[] _measureCoefficientPowerPoints = [];
 
-    partial void OnOpticsAodTypeEnumChanged(OpticsAodTypeEnum value)
+    partial void OnOpticsAODTypeEnumChanged(OpticsAODTypeEnum value)
     {
         Items = [];
         MeasureCoefficientPowerPoints = [];
@@ -369,7 +369,7 @@ public partial class AodPowerUniformityWindowViewModel(
                     _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    _) = OpticsAodTypeEnum == OpticsAodTypeEnum.Chirp
+                    _) = OpticsAODTypeEnum == OpticsAODTypeEnum.Chirp
                     ? AodWaveGenerator.GenerateChirpAodWaveFile(
                         0,
                         item.CenterFrequency,
@@ -397,7 +397,7 @@ public partial class AodPowerUniformityWindowViewModel(
                 item.AodWaveSignals = aodWaveSignals;
                 item.AodWaveSignalsFourier = aodWaveSignalsFourier;
 
-                if (OpticsAodTypeEnum == OpticsAodTypeEnum.Chirp)
+                if (OpticsAODTypeEnum == OpticsAODTypeEnum.Chirp)
                 {
                     laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum.High), DefaultCoefficient));
                     laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
@@ -427,13 +427,13 @@ public partial class AodPowerUniformityWindowViewModel(
     private void Log(string title)
     {
         var guid = Guid.NewGuid();
-        logger.LogHtmlInformation(OpticsAodTypeEnum.Humanize() + title.Humanize(LetterCasing.Title), HtmlHeaderLevelEnum.Header1, guid.LoggingHtml());
+        logger.LogHtmlInformation(OpticsAODTypeEnum.Humanize() + title.Humanize(LetterCasing.Title), HtmlHeaderLevelEnum.Header1, guid.LoggingHtml());
         logger.LogHtmlInformation("1. Param", HtmlHeaderLevelEnum.Header2, new HtmlQuote(new
         {
-            OpticsAodTypeEnum,
+            OpticsAodTypeEnum = OpticsAODTypeEnum,
             AodWaveFileDirectory,
             DefaultCoefficient,
-            Param = OpticsAodTypeEnum == OpticsAodTypeEnum.Chirp ? $"Sound Packet Length: {ChirpSoundPacketLength}" : $"Flatness Time: {PrescanFlatnessTime}",
+            Param = OpticsAODTypeEnum == OpticsAODTypeEnum.Chirp ? $"Sound Packet Length: {ChirpSoundPacketLength}" : $"Flatness Time: {PrescanFlatnessTime}",
             PrescanFlatnessTime,
             SampleRate,
             ZeroNum
@@ -454,7 +454,7 @@ public partial class AodPowerUniformityWindowViewModel(
             MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, MeasurePowerPoints)], string.Empty),
             CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, CoefficientPoints)], string.Empty)
         }), guid.LoggingHtml());
-        logger.LogHtmlTrace(guid.LoggedEndHtml(EnumHelper.ToDescriptionString(OpticsAodTypeEnum) + title));
+        logger.LogHtmlTrace(guid.LoggedEndHtml(EnumHelper.ToDescriptionString(OpticsAODTypeEnum) + title));
     }
 
     private void Notify()

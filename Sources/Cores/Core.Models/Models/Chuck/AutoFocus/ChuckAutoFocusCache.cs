@@ -21,6 +21,9 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
     [OddEvenNumber(NumberParityTypeEnum.Odd, ErrorMessage = "Row Number: ")]
     public int RowNumber

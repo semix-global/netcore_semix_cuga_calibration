@@ -350,7 +350,10 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         try
         {
             if (obj is not MicroscopeMagnificationInfo)
+            {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
 
             await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
             ).ConfigureAwait(false);

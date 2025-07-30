@@ -2,6 +2,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
@@ -179,11 +180,22 @@ public interface ICalibrationLaserService
     #region Control
 
     /// <summary>
-    /// 切换自动增益<br/>
-    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
-    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
-    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
+    /// 设置CIB采集模式
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
     /// </summary>
+    /// <param name="cIbConfiguration"></param>
+    /// <param name="pmtId"></param>
+    /// <param name="channelId"></param>
+    /// <returns></returns>
+    SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId);
+
+    /// <summary>
+    /// 切换自动增益<br/>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
     /// <param name="enable">是否自动增益</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -192,22 +204,20 @@ public interface ICalibrationLaserService
 
     /// <summary>
     /// 切换Log反差模式<br/>
-    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
-    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
-    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
-    /// </summary>
-    /// <param name="cibProfileTypeEnum">数据显示模式</param>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// <param name="cibProfileModeEnum">数据显示模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId);
+    SxExecuteRet<bool> ToggleProfileType(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId);
 
     /// <summary>
     /// 切换Mark模式<br/>
-    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
-    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
-    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
-    /// </summary>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
     /// <param name="enable">是否Mark模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -216,10 +226,9 @@ public interface ICalibrationLaserService
 
     /// <summary>
     /// 切换所有PMT L0K<br/>
-    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
-    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
-    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
-    /// </summary>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
     /// <param name="enable">是否自动L0k</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -228,10 +237,9 @@ public interface ICalibrationLaserService
 
     /// <summary>
     /// 设置增益<br/>
-    /// 所有PMT ID, 所有通道: (PMT ID: -1, channelId : -1)<br />
-    /// 当前PMT ID, 所有通道: (PMT ID: > 0, channelId : -1)<br />
-    /// 当前PMT ID, 当前通道: (PMT ID: > 0, channelId : > 0)
-    /// </summary>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
     /// <param name="gain">增益</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -345,8 +353,6 @@ public interface ICalibrationLaserService
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
-    /// <param name="customPrescanAod">(是否自定义PrescanAOD波形,波形功率系数(1表示100%, 0表示0%))</param>
-    /// <param name="isCustomChirpAod">是否自定义ChirpAOD波形</param>
     /// <returns>暗场图片列表</returns>
     SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
         Point position,
@@ -356,9 +362,7 @@ public interface ICalibrationLaserService
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod);
+        bool isForward);
 
     /// <summary>
     /// 获取暗场图片列表
@@ -371,8 +375,6 @@ public interface ICalibrationLaserService
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
-    /// <param name="customPrescanAod">(是否自定义PrescanAOD波形,波形功率系数(1表示100%, 0表示0%))</param>
-    /// <param name="isCustomChirpAod">是否自定义ChirpAOD波形</param>
     /// <returns>暗场图片列表</returns>
     SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
@@ -382,9 +384,7 @@ public interface ICalibrationLaserService
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod);
+        bool isForward);
 
     /// <summary>
     ///获得暗场一行长图片对应位置切割后的三个通道图片
@@ -397,8 +397,6 @@ public interface ICalibrationLaserService
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
-    /// <param name="customPrescanAod">(是否自定义PrescanAOD波形,波形功率系数(1表示100%, 0表示0%))</param>
-    /// <param name="isCustomChirpAod">是否自定义ChirpAOD波形</param>
     /// <returns>明场位置，切割后三个通道图片</returns>
     SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
@@ -408,9 +406,7 @@ public interface ICalibrationLaserService
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        bool isAutoFocus,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod);
+        bool isAutoFocus);
 
     #endregion 暗场采图
 }

@@ -62,6 +62,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "P5" },
         new() { StepName = "Param" },
         new() { StepName = "Find Start Point" },
@@ -350,19 +351,19 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
                 return true;
 
-            case 1:
             case 2:
+            case 3:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.FirstStageMapPosition);
                 return true;
 
-            case 3:
+            case 4:
                 return true;
 
-            case 4:
+            case 5:
                 ResultChuckDarkFieldStageMapDto.IsCalibrated = true;
                 ResultChuckDarkFieldStageMapDto.VerifyDarkFieldStageMap = ResultChuckDarkFieldStageMapDto.CalibrationStageMap.Clone();
                 ResultChuckDarkFieldStageMapDto.VerifyBrightFieldStageMap = ChuckBrightFieldStageMap.CalibrationStageMap.Clone();
@@ -378,7 +379,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -392,7 +393,10 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         try
         {
             if (obj is not MicroscopeMagnificationInfo)
+            {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
 
             await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
             ).ConfigureAwait(false);
@@ -401,6 +405,22 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         {
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -518,7 +538,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 Cache.FirstStageMapPosition,
                 (false, 0.85),
                 false,
-                null,
+                Cache.CIBConfiguration,
                 Cache.XWidthPixel,
                 Cache.OpticsMagTypeEnum,
                 Cache.StageSpeedEnum,
@@ -1002,6 +1022,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                         points,
                         (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
                         false,
+                        Cache.CIBConfiguration,
                         Cache.XWidthPixel,
                         Cache.OpticsMagTypeEnum,
                         Cache.StageSpeedEnum,

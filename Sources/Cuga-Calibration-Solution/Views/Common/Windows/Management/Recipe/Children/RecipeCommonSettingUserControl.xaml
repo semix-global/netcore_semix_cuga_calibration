@@ -7,6 +7,7 @@
              xmlns:waferEnum="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
              xmlns:algorithmEnum="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:microscopeEnum="clr-namespace:Core.Models.Enums.Microscope;assembly=Core.Models"
+             xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
              d:DesignHeight="700"
@@ -20,6 +21,7 @@
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -93,6 +95,17 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
+                </hc:UniformSpacingPanel>
+            </GroupBox>
+            <GroupBox Grid.Row="0" Grid.Column="2"
+                      Margin="10"
+                      Header="CIB">
+                <hc:UniformSpacingPanel Orientation="Vertical">
+                    <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
+                                                        hc:InfoElement.TitleWidth="150"
+                                                        hc:InfoElement.TitlePlacement="Left"
+                                                        hc:InfoElement.Title="Cib Grab Mode: "
+                                                        DataContext="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration}" />
                 </hc:UniformSpacingPanel>
             </GroupBox>
         </Grid>

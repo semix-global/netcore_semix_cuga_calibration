@@ -1,5 +1,3 @@
-using CommunityToolkit.Diagnostics;
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Semix.CoreLib;
@@ -153,69 +151,6 @@ public sealed partial class CalibrationLaserServiceImpl
         return aodFilePath is not null
             ? ReadChirpAodByCustomFile(aodFilePath)
             : SxExecuteRetHelper.CreateError("Chirp Aod File Is Not Exists Current Input Params", chirpAodWaveDto);
-    }
-
-    private bool TrySendAodFile(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod,
-        out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        if (customPrescanAod.IsCustomPrescanAod == false)
-        {
-            Guard.IsNotNull(customPrescanAod.Coefficient, nameof(customPrescanAod.Coefficient));
-
-            var prescanFilePathRet = calibrationConfigService.GetPrescanFilePath(yOpticsMagTypeEnum);
-            if (prescanFilePathRet.IsSuccess == false)
-            {
-                errorMessage = prescanFilePathRet.ErrorMsg;
-                return false;
-            }
-
-            var darkFieldPrescanDtoRet = ReadPrescanByFile(prescanFilePathRet.Anything, customPrescanAod.Coefficient.Value);
-            if (darkFieldPrescanDtoRet.IsSuccess == false)
-            {
-                errorMessage = darkFieldPrescanDtoRet.ErrorMsg;
-                return false;
-            }
-
-            var sendPrescanByListRet = SendPrescanByList(darkFieldPrescanDtoRet.Anything);
-            if (sendPrescanByListRet.IsSuccess == false)
-            {
-                errorMessage = sendPrescanByListRet.ErrorMsg;
-                return false;
-            }
-        }
-        else
-            Guard.IsNull(customPrescanAod.Coefficient, nameof(customPrescanAod.Coefficient));
-
-        if (isCustomChirpAod == false)
-        {
-            var chirpFilePathRet = calibrationConfigService.GetChirpFilePath(yOpticsMagTypeEnum);
-            if (chirpFilePathRet.IsSuccess == false)
-            {
-                errorMessage = chirpFilePathRet.ErrorMsg;
-                return false;
-            }
-
-            var darkFieldChirpAodWaveDtoRet = ReadChirpAodByConfigFile(chirpFilePathRet.Anything);
-            if (darkFieldChirpAodWaveDtoRet.IsSuccess == false)
-            {
-                errorMessage = darkFieldChirpAodWaveDtoRet.ErrorMsg;
-                return false;
-            }
-
-            var sendChirpAodByListRet = SendChirpAodByList(darkFieldChirpAodWaveDtoRet.Anything);
-            if (sendChirpAodByListRet.IsSuccess == false)
-            {
-                errorMessage = sendChirpAodByListRet.ErrorMsg;
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private static DarkFieldChirpAodWaveDto ResolveAodFileNameToDarkFieldChirpAodWaveDto(string fileName)

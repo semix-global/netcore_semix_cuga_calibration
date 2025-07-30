@@ -1,9 +1,11 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Agent.Facade.Service.MachineFacade;
@@ -19,7 +21,6 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.GRPC.DTO;
 using System.IO;
-using Core.Models.Enums.CIB;
 
 namespace Core.Services.Implements.GRPC;
 
@@ -148,12 +149,32 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)
+    {
+        var toggleAutoGainRet = ToggleEnableAutoGainControl(cIbConfiguration.IsAutoGain, pmtId, channelId);
+        if (toggleAutoGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleAutoGainRet.ErrorMsg, false);
+
+        if (cIbConfiguration.IsAutoGain == false)
+        {
+            var setGainRet = SetGain(cIbConfiguration.DcGainVoltage, pmtId, channelId);
+            if (setGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setGainRet.ErrorMsg, false);
+        }
+
+        var toggleL0kRet = ToggleEnableL0K(cIbConfiguration.IsL0k, pmtId, channelId);
+        if (toggleL0kRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleL0kRet.ErrorMsg, false);
+
+        var toggleProfileTypeRet = ToggleProfileType(cIbConfiguration.CIBProfileMode, pmtId, channelId);
+        if (toggleProfileTypeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleProfileTypeRet.ErrorMsg, false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleProfileType(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
@@ -267,13 +288,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isForward)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(errorMessage, []);
-
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
             StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service?.GetImg(new SxParamObj<M2CCollectImgParamDTO>(new M2CCollectImgParamDTO
@@ -321,14 +337,9 @@ public sealed partial class CalibrationLaserServiceImpl(
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+       bool isAutoFocus,
+        bool isForward)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(errorMessage, []);
-
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
             StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetImgPTP(new SxParamObj<M2CCollectImgParamDTO>(new M2CCollectImgParamDTO
@@ -364,13 +375,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        bool isAutoFocus,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isAutoFocus)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(errorMessage, []);
-
         if (machinePositionList.Count < 2
             || machinePositionList.Any(t => t.Y - machinePositionList[0].Y == 0) == false // 检查y是否相同
             || machinePositionList.Zip(machinePositionList.Skip(1), (current, next) => current.X <= next.X).All(b => b) == false) // 检查x是否递增

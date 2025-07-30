@@ -15,6 +15,7 @@
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            Width="1240"
            Height="935"
            d:DataContext="{d:DesignInstance Type=viewModels:GrabbingDarkImageWindowViewModel}"
@@ -120,7 +121,7 @@
                                                         DisplayMemberBinding="{Binding Coefficient}" />
                                         <GridViewColumn Width="100"
                                                         Header="GainVoltage"
-                                                        DisplayMemberBinding="{Binding GainVoltage}" />
+                                                        DisplayMemberBinding="{Binding CIBConfiguration.DcGainVoltage}" />
                                         <GridViewColumn Width="100"
                                                         Header="Optics Mag"
                                                         DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
@@ -135,10 +136,10 @@
                                                         DisplayMemberBinding="{Binding StageCoordinateSystemEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                         <GridViewColumn Width="100"
                                                         Header="LOK"
-                                                        DisplayMemberBinding="{Binding IsEnableL0K}" />
+                                                        DisplayMemberBinding="{Binding CIBConfiguration.IsL0k}" />
                                         <GridViewColumn Width="100"
                                                         Header="Auto Gain"
-                                                        DisplayMemberBinding="{Binding IsEnableAutoGain}" />
+                                                        DisplayMemberBinding="{Binding CIBConfiguration.IsAutoGain}" />
                                         <GridViewColumn Width="100"
                                                         Header="Forward"
                                                         DisplayMemberBinding="{Binding IsForward}" />
@@ -253,7 +254,7 @@
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageCoordinateSystemEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
@@ -325,14 +326,6 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <hc:NumericUpDown hc:InfoElement.Title="Gain: "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.ShowClearButton="True"
-                                              hc:TitleElement.TitleWidth="150"
-                                              Minimum="-10"
-                                              Maximum="10"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding GainVoltage}" />
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"
@@ -341,7 +334,7 @@
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
@@ -353,7 +346,7 @@
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageSpeedEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
@@ -365,32 +358,10 @@
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Lok:  "
-                                           Width="150"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding IsEnableL0K}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Background="{StaticResource DangerBrush}"
-                                              Style="{StaticResource ToggleButtonSwitch}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="AutoGain:  "
-                                           Width="150"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding IsEnableAutoGain}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Background="{StaticResource DangerBrush}"
-                                              Style="{StaticResource ToggleButtonSwitch}" />
-                            </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Forward:  "
                                            Width="150"
@@ -420,6 +391,11 @@
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Button Content="Change" Command="{Binding ChangeChirpFileCommand}" />
+                            <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
+                                                                hc:InfoElement.TitleWidth="150"
+                                                                hc:InfoElement.TitlePlacement="Left"
+                                                                hc:InfoElement.Title="Cib Grab Mode: "
+                                                                DataContext="{Binding CIBConfiguration}" />
                             <hc:SimplePanel>
                                 <Button Content="Grabbing"
                                         Command="{Binding GrabbingImageCommand}"

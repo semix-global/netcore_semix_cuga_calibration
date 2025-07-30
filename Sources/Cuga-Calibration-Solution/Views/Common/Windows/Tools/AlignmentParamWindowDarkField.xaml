@@ -11,6 +11,7 @@
            xmlns:microscope="clr-namespace:Core.Models.Enums.Microscope;assembly=Core.Models"
            xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
            xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            d:DataContext="{d:DesignInstance Type=viewModels:AlignmentParamWindowDarkFieldViewModel}"
            SizeToContent="WidthAndHeight"
            WindowStartupLocation="CenterScreen"
@@ -150,6 +151,14 @@
                             </hc:ComboBox>
                         </hc:UniformSpacingPanel>
                     </GroupBox>
+                    <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
+                        <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
+                                                            hc:InfoElement.TitleWidth="150"
+                                                            hc:InfoElement.TitlePlacement="Left"
+                                                            hc:InfoElement.Title="Cib Grab Mode: "
+                                                            DataContext="{Binding CIBConfiguration}" />
+                    </hc:UniformSpacingPanel>
+
                 </hc:UniformSpacingPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>

@@ -39,9 +39,11 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
+using Core.Wcf.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Ads;
 using CugaCalibration.ViewModels.Chuck;
+using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -77,6 +79,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private readonly ICalibrationCacheProvider _calibrationCacheProviderService;
     private readonly IApplicationCookieService _applicationCookieService;
     private readonly ICalibrationRecipeService _calibrationRecipeService;
+    private readonly IGetResultFileService _getResultFileService;
+    private readonly ConfigViewModel _configViewModel;
 
     #region 界面显示属性
 
@@ -162,7 +166,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         ApplicationCookie applicationCookie,
         IApplicationCookieService applicationCookieService,
         ICalibrationRecipeService calibrationRecipeService,
-        ISynchronizationContextProvider synchronizationContextProvider)
+        ISynchronizationContextProvider synchronizationContextProvider,
+        IGetResultFileService getResultFileService,
+        ConfigViewModel _configViewModel)
     {
         _messenger = messenger;
         _logger = logger;
@@ -176,6 +182,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         _applicationCookieService = applicationCookieService;
         _title = applicationCookie.Title;
         _calibrationRecipeService = calibrationRecipeService;
+        _getResultFileService = getResultFileService;
+        this._configViewModel = _configViewModel;
         _messenger.RegisterAll(this);
     }
 
@@ -541,11 +549,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             try
             {
                 if (IsLoadingOk == false) return;
-                var (magnificationChanged, magnififactionList) = CoreWcfModelsExtension.IsMagnificationChanged();
+                var (magnificationChanged, magnificationList) = CoreWcfModelsExtension.IsMagnificationChanged();
                 if (magnificationChanged)
                 {
-                    CalibrationSetting.MicroscopeMagnificationInfoItems = new ObservableCollection<MicroscopeMagnificationInfo>(magnififactionList.Select(t => t.Clone()));
-                    _cacheProvider.Set(CalibrationSetting, CancellationToken.None);
+                    var appliedFilePath = _configViewModel.GetAppliedCalibrateResultFilePath();
+                    _getResultFileService.SetResultFilePath(appliedFilePath);
+                    var isSuccess = _getResultFileService.TryGet<CalibrationObj>(out var microscopeObj);
+                    if (isSuccess == false)
+                    {
+                        _dialogWindowProvider.ShowDialog("Get Microscope Info Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                        return;
+                    }
+
+                    _cacheProvider.SetArray(microscopeObj.CalibrationMicroscopeObj.CalibrationMicroscopeFocusItemList.Select(t => new MicroscopeFocusItemDto().AdaptIn(t)).ToArray(), CancellationToken.None);
+                    _cacheProvider.SetArray(microscopeObj.CalibrationMicroscopeObj.CalibrationMicroscopePixelSizeItemList.Select(t => new MicroscopePixelSizeItemDto().AdaptIn(t)).ToArray(), CancellationToken.None);
+                    _cacheProvider.SetArray(microscopeObj.CalibrationMicroscopeObj.CalibrationMicroscopeCentricityItemList.Select(t => new MicroscopeCentricityItemDto().AdaptIn(t)).ToArray(), CancellationToken.None);
                 }
 
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
@@ -615,6 +633,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPmtAgcDelayCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPmtAgcDelayItemDto>().IsOk(out _);
 
+                if (magnificationChanged)
+                {
+                    CalibrationSetting.MicroscopeMagnificationInfoItems = new ObservableCollection<MicroscopeMagnificationInfo>(magnificationList.Select(t => t.Clone()));
+                    _cacheProvider.Set(CalibrationSetting, CancellationToken.None);
+                }
 
             }
             catch (Exception ex)

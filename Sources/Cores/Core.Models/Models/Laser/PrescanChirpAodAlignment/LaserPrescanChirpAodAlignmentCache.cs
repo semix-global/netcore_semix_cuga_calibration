@@ -12,6 +12,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCache : CalibrationCach
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private StageSpeedEnum _xSpeed = StageSpeedEnum.Low;
 
     [ObservableProperty]

@@ -19,8 +19,8 @@
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-            <hc:Shield Subject="Laser XTC Step 0: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+            <hc:Shield Subject="Laser XTC Step 1: "
+                       Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Chuck;
@@ -54,6 +55,9 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
     [ObservableProperty]
     private ObservableCollection<DarkFieldCropImage> _darkFieldImageList = [];
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     [RelayCommand]
     private async Task GrabbingRowImageAsync()
     {
@@ -74,6 +78,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                     positionList,
                     (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
+                    CIBConfiguration,
                     XWidth,
                     OpticsMagTypeEnum,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum);
@@ -126,7 +131,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                         resultPosition,
                         (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                         false,
-                        null,
+                        CIBConfiguration,
                         XWidth,
                         OpticsMagTypeEnum,
                         stageCoordinateSystemEnum: StageCoordinateSystemEnum);

@@ -11,6 +11,9 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
     [ObservableProperty]
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     /// <summary>
     /// 采样率
     /// </summary>

@@ -21,8 +21,8 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Illumination Profile Step 4: "
-                           Status="{Binding CalibrationStepList[4].StepName}"
+                <hc:Shield Subject="Illumination Profile Step 6: "
+                           Status="{Binding CalibrationStepList[6].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Optics Mag: "

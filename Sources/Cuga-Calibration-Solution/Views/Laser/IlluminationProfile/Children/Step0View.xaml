@@ -20,7 +20,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
             <hc:Shield Subject="Illumination Profile Step 1: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -31,7 +31,8 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox HorizontalAlignment="Left"
+                    <hc:ComboBox x:Name="MagCombobox"
+                                 HorizontalAlignment="Left"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Magnification: "
                                  hc:InfoElement.Necessary="True"

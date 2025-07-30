@@ -44,7 +44,7 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
 
                 stageViewModel.SetBrightFieldAbsoluteStageXy(position);
 
-                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(position, null);
+                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(position);
 
                 SettingDarkFieldAutoFocusParam.ChuckEcsValue = ecs;
                 SettingDarkFieldAutoFocusParam.ChuckMotorValue = afMotor;

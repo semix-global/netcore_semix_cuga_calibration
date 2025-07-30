@@ -15,6 +15,7 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag", DefaultIsNextEnable = true },
         new() { StepName = "Find a Position", DefaultIsNextEnable = true },
         new() { StepName = "Pixel Size" }
@@ -213,10 +215,10 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 return await AutomationRecipeInformationAsync(string.Empty);
 
-            case 1:
+            case 2:
                 if (Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header2, new HtmlComment("The Bright Field Position Out Of The Wafer!"), HtmlLogUniqueId.LoggingHtml());
@@ -226,7 +228,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
 
-            case 2:
+            case 3:
                 if (ResultLaserPixelSizeItemDtoList.Count <= 0)
                 {
                     DialogWindowProvider.TryShowDialog("Please find pixel size!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -256,7 +258,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -293,6 +295,42 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         {
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
+    }
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand]
@@ -490,7 +528,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 laserPixelSizeItemDto.FindPosition,
                 (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
                 false,
-                null,
+                Cache.CIBConfiguration,
                 Cache.XWidthPixel,
                 laserPixelSizeItemDto.OpticsMagTypeEnum,
                 Cache.XStageSpeedEnum,
@@ -597,6 +635,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 {
                     case 0:
                         if (await LoadedingAsync(cancellationToken) == false) return false;
+                        CalibrationStepIndex = 1;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         await InvokeCalibrateAsync(() =>
                         {
@@ -706,7 +745,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         if (_enableOpticsMagList.Single(t => t.mag == Cache.OpticsMagTypeEnum).isEnbale)
         {
             if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
-            CalibrationStepIndex = 2;
+            CalibrationStepIndex = 3;
             if (await NextingAsync(cancellationToken) == false) return false;
         }
 

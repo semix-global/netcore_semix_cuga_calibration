@@ -55,6 +55,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag" },
         new() { StepName = "Find Low Site Position" },
         new() { StepName = "Find High Site Position" },
@@ -102,7 +103,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
     #endregion Review
 
-    public double NscDiagnosisK = 1;
+    public double NscDiagnosisK { get; set; } = 1;
 
     #endregion 界面相关
 
@@ -307,15 +308,15 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 MicroscopeViewModel.SwitchMagnification(FocusShiftCache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.LowSiteFindPosition);
                 return true;
-            case 1 or 2 or 3:
+            case 2 or 3 or 4:
                 MicroscopeViewModel.SwitchMagnification(FocusShiftCache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.HighSiteFindPosition);
                 return true;
-            case 4:
+            case 5:
                 if (ResultRtfcDto is null)
                 {
                     DialogWindowProvider.TryShowDialog("Please find focus shift!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -343,7 +344,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -353,11 +354,11 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
         switch (CalibrationStepIndex)
         {
-            case 2:
+            case 3:
                 MicroscopeViewModel.SwitchMagnification(FocusShiftCache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.LowSiteFindPosition);
                 return true;
-            case 3 or 4:
+            case 4 or 5:
                 MicroscopeViewModel.SwitchMagnification(FocusShiftCache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.HighSiteFindPosition);
                 return true;
@@ -436,7 +437,10 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         try
         {
             if (obj is not MicroscopeMagnificationInfo)
+            {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
 
             await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
             ).ConfigureAwait(false);
@@ -445,6 +449,22 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         {
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                FocusShiftCache.CIBConfiguration.IsAutoGain,
+                FocusShiftCache.CIBConfiguration.DcGainVoltage,
+                FocusShiftCache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = FocusShiftCache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand]
@@ -540,12 +560,13 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 settingDarkFieldAutoFocusParam.DswMotorValue,
             }), HtmlLogUniqueId.LoggingHtml());
 
+            AfViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 FocusShiftCache.HighSiteFindPosition,
                 (false, FocusShiftCache.LightCoefficient),
                 false,
-                settingDarkFieldAutoFocusParam,
+                FocusShiftCache.CIBConfiguration,
                 800,
                 Cache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
@@ -714,10 +735,12 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 AfViewModel.ToggleBrightFieldEnable(false);
                 AfViewModel.SetSensorEcsValue(autoFocusEcs);
                 await Task.Delay(5000, cancellationToken);
-                using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
+                using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
+                    FocusShiftCache.CalChipSiteModelEnum,
                     Cache.IdeaDarkFieldMachinePosition,
                     (false, FocusShiftCache.LightCoefficient),
                     true,
+                    FocusShiftCache.CIBConfiguration,
                     800,
                     Cache.OpticsMagTypeEnum,
                     FocusShiftCache.StageSpeedEnum,
@@ -922,8 +945,9 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     var nscBuffers = AfViewModel.GetSensorNscTraceBufferList(TimeSpan.FromSeconds(2));
                     ResultRtfcDto.NscValue = nscBuffers.Average();
                     // 获得照明焦点偏移量
-                    if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
+                    if (LaserViewModel.TryGetMatchPosition(
                             FocusShiftCache.AlgorithmTemplateTypeEnum,
+                            FocusShiftCache.CalChipSiteModelEnum,
                             8,
                             findDarkFieldPosition,
                             FocusShiftCache.DarkFiledTemplateFilePath,
@@ -931,6 +955,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                             HtmlLogUniqueId,
                             string.Empty,
                             string.Empty,
+                            FocusShiftCache.CIBConfiguration,
                             out var resultPosition,
                             out _,
                             out _,
@@ -1116,10 +1141,12 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             if (rtfcItemDto.Index == 0) Thread.Sleep(2000);
             AfViewModel.SetSensorEcsValue(rtfcItemDto.EcsValue);
             Thread.Sleep(1000);
-            using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
+            using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
+                FocusShiftCache.CalChipSiteModelEnum,
                 rtfcItemDto.BrightFieldFindPosition,
                 (false, FocusShiftCache.LightCoefficient),
                 true,
+                FocusShiftCache.CIBConfiguration,
                 800,
                 Cache.OpticsMagTypeEnum,
                 StageSpeedEnum.Low,

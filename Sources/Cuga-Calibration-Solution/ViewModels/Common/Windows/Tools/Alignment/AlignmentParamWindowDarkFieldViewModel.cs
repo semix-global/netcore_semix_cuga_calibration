@@ -18,6 +18,10 @@ public sealed partial class AlignmentParamWindowDarkFieldViewModel : ViewModelBa
     [ObservableProperty]
     private ObservableCollection<MicroscopeMagnificationInfo> _microscopeMagnificationInfoList = [];
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+
     [RelayCommand]
     private void Close()
     {

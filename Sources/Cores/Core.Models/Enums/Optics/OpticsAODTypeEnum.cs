@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Enums.Optics;
 
-public enum OpticsAodTypeEnum
+public enum OpticsAODTypeEnum
 {
     /// <summary>
     /// prescan AOD

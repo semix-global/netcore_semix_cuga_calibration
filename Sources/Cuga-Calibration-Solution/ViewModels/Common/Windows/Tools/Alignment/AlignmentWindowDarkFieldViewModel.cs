@@ -45,6 +45,9 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     private MicroscopeViewModel _microscopeViewModel;
 
     [ObservableProperty]
+    private LaserViewModel _laserViewModel;
+
+    [ObservableProperty]
     private AlignmentParamWindowDarkFieldViewModel _alignmentParamWindowDarkFieldViewModel;
 
     [ObservableProperty]
@@ -108,6 +111,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         ReviewViewModel reviewViewModel,
         StageViewModel stageViewModel,
         MicroscopeViewModel microscopeViewModel,
+        LaserViewModel laserViewModel,
         IDialogWindowProvider dialogWindowProvider,
         ILogger<AlignmentWindowBrightFieldViewModel> logger,
         IMessenger messenger,
@@ -128,7 +132,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         _reviewViewModel = reviewViewModel;
         _stageViewModel = stageViewModel;
         _microscopeViewModel = microscopeViewModel;
-
+        _laserViewModel = laserViewModel;
         messenger.RegisterAll(this);
     }
 
@@ -224,7 +228,10 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         return InvokeAsync(() =>
         {
             var magnificationEnum = MicroscopeViewModel.GetMagnification();
-
+            if (StepIndex is 2 or 3)
+            {
+                LaserViewModel.ToggleCIBControlModeAndProfileType(AlignmentParamWindowDarkFieldViewModel.CIBConfiguration);
+            }
             switch (StepIndex)
             {
                 case 0:
