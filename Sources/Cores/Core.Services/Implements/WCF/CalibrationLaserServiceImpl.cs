@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -17,10 +18,8 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json.Linq;
 using Semix.CoreLib;
 using System.IO;
-using System.Net;
 using System.Text;
 
 namespace Core.Services.Implements.WCF;
@@ -171,9 +170,29 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)
+    {
+        var toggleAutoGainRet = ToggleEnableAutoGainControl(cIbConfiguration.IsAutoGain, pmtId, channelId);
+        if (toggleAutoGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleAutoGainRet.ErrorMsg, false);
+
+        if (cIbConfiguration.IsAutoGain == false)
+        {
+            var setGainRet = SetGain(cIbConfiguration.DcGainVoltage, pmtId, channelId);
+            if (setGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setGainRet.ErrorMsg, false);
+        }
+
+        var toggleL0kRet = ToggleEnableL0K(cIbConfiguration.IsL0k, pmtId, channelId);
+        if (toggleL0kRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleL0kRet.ErrorMsg, false);
+
+        var toggleProfileTypeRet = ToggleProfileType(cIbConfiguration.CIBProfileMode, pmtId, channelId);
+        if (toggleProfileTypeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleProfileTypeRet.ErrorMsg, false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 0x00_00_01_00 : 0x00_00_00_00, pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, sendDataList)));
 
-    public SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId) => SetCIBControlValue(cibProfileTypeEnum.ToCIBProfile(), pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, sendDataList)));
+    public SxExecuteRet<bool> ToggleProfileType(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId) => SetCIBControlValue(cibProfileModeEnum.ToCIBProfile(), pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, sendDataList)));
 
     public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service!.SetPmtDiffDataCommon(PMTRegEnum.MarkMode, sendDataList)));
 
@@ -205,13 +224,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case (> 0, > 0):
+            case ( > 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case (> 0, Constants.NegInt32Value):
+            case ( > 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -359,7 +378,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var executeRet = LightCoefficientToLightLevel(coefficient);
         if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(executeRet.ErrorMsg);
 
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), position.ToCgPoint(), Convert.ToUInt16(executeRet.Anything)));
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), null, Convert.ToUInt16(executeRet.Anything)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
@@ -394,12 +413,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isForward)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(errorMessage, []);
-
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
             StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service!.LoadRawImg_Mag_Calibration(
@@ -445,13 +460,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isForward)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(errorMessage, []);
-
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
             StageCoordinateSystemEnum.Machine => Invoke(() => Service!.LoadRawImg_Mag_PTP(
@@ -486,12 +496,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        bool isAutoFocus,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isAutoFocus)
     {
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false)
-            return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(errorMessage, []);
 
         if (machinePositionList.Count < 2
             || machinePositionList.Any(t => t.Y - machinePositionList[0].Y == 0) == false // 检查y是否相同

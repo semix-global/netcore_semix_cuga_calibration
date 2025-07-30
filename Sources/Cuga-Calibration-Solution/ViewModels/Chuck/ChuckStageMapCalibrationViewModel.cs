@@ -50,8 +50,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
 {
-    private bool _isSkipStep = false;
-
     #region 属性
 
     public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
@@ -60,6 +58,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "BF P5", StepIndex = 1 },
         new() { StepName = "BF Find Start Point", StepIndex = 2 },
         new() { StepName = "BF Param", StepIndex = 3 },
@@ -296,14 +295,14 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 return true;
-            case 1 or 5:
+            case 2 or 6:
                 Cache.GetParam();
                 return true;
-            case 3:
+            case 4:
                 Cache.SetParam();
                 Cache.IsDarkField = true;
 
@@ -319,11 +318,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
                 IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
-            case 4:
+            case 5:
                 MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.FirstStageMapPosition);
                 return true;
-            case 7:
+            case 8:
                 if (ResultChuckStageMapDto.IsCalibrationBrightField == false)
                 {
                     Logger.LogError("{@Name} Error:Please Calibration Bright Field Calibration !", Name);
@@ -331,7 +330,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 return true;
-            case 8:
+            case 9:
                 ResultChuckStageMapDto.IsCalibrated = true;
                 ResultChuckStageMapDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
                 Cache.SetParam();
@@ -357,18 +356,18 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 2 or 3:
+            case 3 or 4:
                 MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.BrightFieldFirstStageMapPosition);
                 return true;
-            case 4:
+            case 5:
                 Cache.IsDarkField = false;
                 IsDarkFieldAlignment = false;
                 ResultChuckStageMapDto.IsCalibrationBrightField = false;
                 Cache.GetParam();
 
                 return true;
-            case 6 or 7:
+            case 7 or 8:
                 MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
                 var position = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(position);
@@ -388,7 +387,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         try
         {
             if (obj is not MicroscopeMagnificationInfo)
+            {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
 
             await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
             ).ConfigureAwait(false);
@@ -397,6 +399,22 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         {
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -556,7 +574,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             brightFieldPosition,
             (false, 0.85),
             false,
-            null,
+            Cache.CIBConfiguration,
             Cache.XWidthPixel,
             Cache.OpticsMagTypeEnum,
             Cache.StageSpeedEnum,
@@ -1266,6 +1284,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             points,
                             (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
                             false,
+                            Cache.CIBConfiguration,
                             Cache.XWidthPixel,
                             Cache.OpticsMagTypeEnum,
                             Cache.StageSpeedEnum,
@@ -1530,8 +1549,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 await Task.Delay(2000, cancellationToken);
                 if (await AutoNextingAsync(cancellationToken) == false) return false;
-                if (await NextingAsync(cancellationToken) == false) return false;
                 CalibrationStepIndex++;
+                if (await NextingAsync(cancellationToken) == false) return false;
             }
 
             return true;

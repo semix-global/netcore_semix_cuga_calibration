@@ -84,7 +84,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
     [ObservableProperty]
     private RtfcCache _cache = new();
 
-    public double NscDiagnosisK = 1;
+    public double NscDiagnosisK { get; set; } = 1;
 
     #region 界面
 
@@ -211,9 +211,6 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             FocusShiftCache.OpticsMagTypeEnum = OpticsMagTypeEnum.High;
             Cache.OpticsMagTypeEnum = OpticsMagTypeEnum.High;
 
-            LaserViewModel.ToggleEnableAutoGain(true);
-            LaserViewModel.ToggleEnableL0K(false);
-
             return true;
         }
         catch (Exception ex)
@@ -265,12 +262,14 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                 else FocusShiftCache.HighSiteTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(FocusShiftCache.HighSiteTemplateFilePath);
 
                                 var settingDarkFieldAutoFocusParam = FocusShiftCache.GetDarkFieldAutoFocusParam();
+                                AfViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
+
                                 var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                                     FocusShiftCache.CalChipSiteModelEnum,
                                     FocusShiftCache.HighSiteFindPosition,
                                     (false, 0.26),
                                     false,
-                                    settingDarkFieldAutoFocusParam,
+                                    FocusShiftCache.CIBConfiguration,
                                     800,
                                     FocusShiftCache.OpticsMagTypeEnum,
                                     FocusShiftCache.StageSpeedEnum,
@@ -411,6 +410,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 Logger.LogHtmlInformation($"3. Dark Field Match Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
                 var detectImageDirectory = ImageFileDirectory;
                 var originImagePath = $"{detectImageDirectory}\\DarkFieldMatchOriginImage_{Guid.NewGuid()}).jpg";
+
+                AfViewModel.SetDarkFieldAutoFocus(darkFieldAutoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
                 if (LaserViewModel.TryGetMatchPosition(
                         FocusShiftCache.AlgorithmTemplateTypeEnum,
                         FocusShiftCache.CalChipSiteModelEnum,
@@ -421,7 +422,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         HtmlLogUniqueId,
                         string.Empty,
                         string.Empty,
-                        darkFieldAutoFocusParam,
+                        FocusShiftCache.CIBConfiguration,
                         out var darkFieldResultPosition,
                         out _,
                         out _,
@@ -561,8 +562,9 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 ResultFocusShiftDto.AutoFocusEcs = autoFocusEcs;
                 ResultFocusShiftDto.AutoFocusNsc = autoFocusNsc;
                 // 获得照明焦点偏移量
-                if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
+                if (LaserViewModel.TryGetMatchPosition(
                         FocusShiftCache.AlgorithmTemplateTypeEnum,
+                        FocusShiftCache.CalChipSiteModelEnum,
                         8,
                         darkFieldResultPosition,
                         FocusShiftCache.DarkFiledTemplateFilePath,
@@ -570,6 +572,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         HtmlLogUniqueId,
                         string.Empty,
                         string.Empty,
+                        FocusShiftCache.CIBConfiguration,
                         out var resultPosition,
                         out _,
                         out _,
@@ -798,10 +801,12 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 AfViewModel.ToggleBrightFieldEnable(false);
                 AfViewModel.SetSensorEcsValue(autoFocusEcs);
                 await Task.Delay(2000, cancellationToken);
-                using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
+                using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
+                    FocusShiftCache.CalChipSiteModelEnum,
                     Cache.IdeaDarkFieldMachinePosition,
                     (false, FocusShiftCache.LightCoefficient),
                     true,
+                    FocusShiftCache.CIBConfiguration,
                     800,
                     FocusShiftCache.OpticsMagTypeEnum,
                     FocusShiftCache.StageSpeedEnum,
@@ -947,10 +952,12 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             if (rtfcItemDto.Index == 0) Thread.Sleep(5000);
             AfViewModel.SetSensorEcsValue(rtfcItemDto.EcsValue);
             Thread.Sleep(1000);
-            using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
+            using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
+                FocusShiftCache.CalChipSiteModelEnum,
                 rtfcItemDto.BrightFieldFindPosition,
                 (false, FocusShiftCache.LightCoefficient),
                 true,
+                FocusShiftCache.CIBConfiguration,
                 800,
                 FocusShiftCache.OpticsMagTypeEnum,
                 StageSpeedEnum.Low,
@@ -1064,8 +1071,9 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
         Thread.Sleep(5000);
         var nscBuffers = AfViewModel.GetSensorNscTraceBufferList(TimeSpan.FromSeconds(2));
         var notAutoFocusNsc = nscBuffers.Average();
-        if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
+        if (LaserViewModel.TryGetMatchPosition(
                 FocusShiftCache.AlgorithmTemplateTypeEnum,
+                FocusShiftCache.CalChipSiteModelEnum,
                 8,
                 ResultRtfcDto.BrightFieldFindPosition,
                 FocusShiftCache.DarkFiledTemplateFilePath,
@@ -1073,6 +1081,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 HtmlLogUniqueId,
                 string.Empty,
                 string.Empty,
+                FocusShiftCache.CIBConfiguration,
                 out var resultPosition,
                 out _,
                 out _,
@@ -1134,8 +1143,9 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
         string verifyResultImageFilePath;
         if (isAutoFocus == false)
         {
-            if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
+            if (LaserViewModel.TryGetMatchPosition(
                     FocusShiftCache.AlgorithmTemplateTypeEnum,
+                    FocusShiftCache.CalChipSiteModelEnum,
                     8,
                     rtfcDto.BrightFieldFindPosition,
                     FocusShiftCache.DarkFiledTemplateFilePath,
@@ -1143,6 +1153,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     HtmlLogUniqueId,
                     string.Empty,
                     string.Empty,
+                    FocusShiftCache.CIBConfiguration,
                     out resultPosition,
                     out _,
                     out _,
@@ -1164,6 +1175,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 DswEcsValue = rtfcDto.EcsValue,
                 DswMotorValue = cacheAutoFocusParam.DswMotorValue + rtfcDto.AfMotorOffset
             };
+            AfViewModel.SetDarkFieldAutoFocus(autoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
+
             if (LaserViewModel.TryGetMatchPosition(
                     FocusShiftCache.AlgorithmTemplateTypeEnum,
                     FocusShiftCache.CalChipSiteModelEnum,
@@ -1174,7 +1187,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     HtmlLogUniqueId,
                     string.Empty,
                     string.Empty,
-                    autoFocusParam,
+                    FocusShiftCache.CIBConfiguration,
                     out resultPosition,
                     out _,
                     out _,

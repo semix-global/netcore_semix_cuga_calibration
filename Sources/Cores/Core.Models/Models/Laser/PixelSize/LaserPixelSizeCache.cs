@@ -13,6 +13,9 @@ public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_10um;
 
     [ObservableProperty]

@@ -7,6 +7,8 @@ using Core.Models.Models;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Pattern;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -24,6 +26,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Find a Position" },
         new() { StepName = "AB Brightness" },
         new() { StepName = "Gain" }
@@ -157,13 +160,13 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         switch (CalibrationStepIndex)
         {
-            case 0:
-                return true;
-
             case 1:
                 return true;
 
             case 2:
+                return true;
+
+            case 3:
                 if (ResultLaserAutoFocusDto is null)
                 {
                     DialogWindowProvider.TryShowDialog("Please find current!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -185,13 +188,49 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
     #endregion 控制校准业务
 
     #region 校准
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)

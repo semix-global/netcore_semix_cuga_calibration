@@ -11,6 +11,9 @@ namespace Core.Models.Models.Laser.FocusShift;
 public sealed partial class FocusShiftCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private double _lightCoefficient = 0.26;
 
     /// <summary>

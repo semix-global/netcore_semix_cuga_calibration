@@ -22,7 +22,7 @@
 
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
             <hc:Shield Subject="Prescan Chirp Alignment Step 2: "
-                       Status="{Binding CalibrationStepList[1].StepName}"
+                       Status="{Binding CalibrationStepList[2].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Optics Mag: "

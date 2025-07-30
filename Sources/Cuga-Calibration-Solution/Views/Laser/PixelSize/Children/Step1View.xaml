@@ -22,7 +22,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Laser Pixel Size Step 2: "
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                           Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Optics Mag: "
@@ -34,7 +34,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -46,7 +46,8 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox Width="275"
+                    <hc:ComboBox x:Name="MagCombobox"
+                                 Width="275"
                                  HorizontalAlignment="Left"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Magnification: "

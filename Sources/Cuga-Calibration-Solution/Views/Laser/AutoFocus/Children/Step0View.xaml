@@ -15,7 +15,7 @@
                             Spacing="3">
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="Auto Focus Step 1: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
         </hc:UniformSpacingPanel>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

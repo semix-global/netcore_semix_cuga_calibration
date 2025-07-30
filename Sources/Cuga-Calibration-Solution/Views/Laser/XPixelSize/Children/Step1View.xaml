@@ -20,7 +20,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="X Pixel Size Step 1: "
-                       Status="{Binding CalibrationStepList[1].StepName}"
+                       Status="{Binding CalibrationStepList[2].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">

@@ -19,6 +19,7 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
@@ -50,6 +51,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag" },
         new() { StepName = "Select a Speed" },
         new() { StepName = "Find a Position" },
@@ -270,7 +272,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 foreach (var temp in CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).StageSpeedEnumCalibrationStatusList)
                 {
                     CalibrationStatusListItem.Single(t => t.StageSpeedEnum == temp.StageSpeedEnum).IsCalibrated = temp.IsCalibrated;
@@ -278,19 +280,19 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
                 return true;
 
-            case 1:
+            case 2:
                 await AutomationRecipeInformationAsync(string.Empty);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
 
-            case 2:
+            case 3:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
 
-            case 3:
+            case 4:
                 return true;
 
-            case 4:
+            case 5:
                 if (ResultLaserLineCentricityItemDtoList.Count <= 0)
                 {
                     DialogWindowProvider.TryShowDialog("Please find Offset!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -322,7 +324,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -376,6 +378,42 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
             return false;
         }
+    }
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -474,7 +512,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             Cache.FindPosition,
             (false, 0.85),
             false,
-            null,
+            Cache.CIBConfiguration,
             Cache.XWidthPixel,
             Cache.OpticsMagTypeEnum,
             Cache.StageSpeedEnum,
@@ -738,7 +776,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{laserLineCentricityItemDto.PmtId} Forward",
-                null,
+                Cache.CIBConfiguration,
                 out var position,
                 out _,
                 out _,
@@ -769,7 +807,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{laserLineCentricityItemDto.PmtId} Reverse",
-                null,
+                Cache.CIBConfiguration,
                 out position,
                 out _,
                 out _,
@@ -882,6 +920,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 {
                     case 0:
                         if (await LoadedingAsync(cancellationToken) == false) return false;
+                        CalibrationStepIndex = 1;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         await InvokeCalibrateAsync(() =>
                         {
@@ -1026,7 +1065,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
                     Logger.LogHtmlInformation($"{CalibrationStepList[4].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                     if (await Step4CalibrateAsync(cancellationToken) == false) return false;
-                    CalibrationStepIndex = 4;
+                    CalibrationStepIndex = 5;
                     if (await NextingAsync(cancellationToken) == false) return false;
                 }
             }

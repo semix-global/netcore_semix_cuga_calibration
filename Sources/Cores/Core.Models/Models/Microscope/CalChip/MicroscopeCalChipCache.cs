@@ -129,14 +129,14 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
         set => SetProperty(ref _threshold, value, validate: true);
     }
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Ecs Error Threshold: ")]
+    [Comparison(20d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Ecs Error Threshold: ")]
     public double AfEcsErrorThreshold
     {
         get => _afEcsErrorThreshold;
         set => SetProperty(ref _afEcsErrorThreshold, value, validate: true);
     }
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Motor Error Threshold: ")]
+    [Comparison(5d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Motor Error Threshold: ")]
     public double AfMotorErrorThreshold
     {
         get => _afMotorErrorThreshold;

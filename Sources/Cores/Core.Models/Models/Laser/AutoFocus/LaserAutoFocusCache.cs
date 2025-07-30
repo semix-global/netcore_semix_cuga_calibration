@@ -10,6 +10,9 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private Point _findPosition;
 
     [ObservableProperty]

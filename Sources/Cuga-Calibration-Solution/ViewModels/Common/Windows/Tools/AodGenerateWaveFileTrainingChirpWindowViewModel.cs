@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using MathNet.Numerics;
@@ -198,6 +199,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     [ObservableProperty]
     private Point[] _itemsPoints = [];
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     [RelayCommand]
     private async Task Step1Async()
     {
@@ -214,7 +218,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                     FindPosition,
                     (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
-                    null,
+                    CIBConfiguration,
                     XWidthPixel,
                     OpticsMagTypeEnum,
                     StageSpeedEnum,
@@ -648,10 +652,12 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                     afViewModel.SetSensorEcsValue(ecs);
                     if (index == 0) await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-                    using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
+                    using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
+                        CalChipSiteModelEnum.ChuckModel,
                         FindPosition,
                         (true, null),
                         true,
+                        CIBConfiguration,
                         XWidthPixel,
                         OpticsMagTypeEnum,
                         StageSpeedEnum,

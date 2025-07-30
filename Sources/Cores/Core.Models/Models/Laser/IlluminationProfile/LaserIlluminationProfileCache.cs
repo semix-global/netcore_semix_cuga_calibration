@@ -15,6 +15,9 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private StageSpeedEnum _xSpeed = StageSpeedEnum.Low;
 
     [ObservableProperty]

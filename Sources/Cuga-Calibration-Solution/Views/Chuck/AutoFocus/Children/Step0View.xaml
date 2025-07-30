@@ -40,7 +40,7 @@
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="Low Magnification: "
                                          hc:InfoElement.Necessary="True"
-                                         SelectedItem="{Binding Cache.LowMicroscopeMagnificationInfo}"
+                                         SelectedItem="{Binding Cache.MicroscopeMagnificationInfo}"
                                          ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>

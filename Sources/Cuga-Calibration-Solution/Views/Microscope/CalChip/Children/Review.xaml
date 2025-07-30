@@ -64,13 +64,13 @@
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.ChuckAfEcsValue}"
+                    <TextBox Text="{Binding ReviewDto.ChuckAfEcsValue}"
                              Width="275"
                              hc:InfoElement.Title="Chuck Af Ecs: "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.ChuckAfMotorValue}"
+                    <TextBox Text="{Binding ReviewDto.ChuckAfMotorValue}"
                              Width="275"
                              hc:InfoElement.Title="Chuck Af Motor: "
                              hc:InfoElement.TitlePlacement="Left"
@@ -146,13 +146,13 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.DswToChuckAfEcsValue, Mode=OneWay}"
+                            <TextBox Text="{Binding ReviewDto.DswToChuckAfEcsValue, Mode=OneWay}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Rtfc Af Ecs Error: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.DswToChuckAfMotorValue, Mode=OneWay}"
+                            <TextBox Text="{Binding ReviewDto.DswToChuckAfMotorValue, Mode=OneWay}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Rtfc Af Motor Error: "
                                      hc:InfoElement.TitlePlacement="Left"
@@ -162,13 +162,13 @@
                         <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
                             <Button x:Name="DswBrightFieldGotoButton"
                                     Content="Goto Bright Field"
-                                    Command="{Binding StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding Cache.DswPosition}"
+                                    Command="{Binding GotoBrightFieldPositionCommand}"
+                                    CommandParameter="DSW"
                                     Width="120" />
                             <Button x:Name="DswDarkFieldGotoButton"
                                     Content="Goto Dark Field"
-                                    Command="{Binding StageViewModel.SetCalChipDswDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding Cache.DswPosition}"
+                                    Command="{Binding GotoDarkFieldPositionCommand}"
+                                    CommandParameter="DSW"
                                     Width="120" />
                             <Button x:Name="DswReviewButton"
                                     Content="Review"
@@ -218,13 +218,13 @@
                         <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
                             <Button x:Name="UndefinedBrightFieldGotoButton"
                                     Content="Goto Bright Field"
-                                    Command="{Binding StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding Cache.UndefinedPosition}"
+                                    Command="{Binding GotoBrightFieldPositionCommand}"
+                                    CommandParameter="Undefined"
                                     Width="120" />
                             <Button x:Name="UndefinedDarkFieldGotoButton"
                                     Content="Goto Dark Field"
-                                    Command="{Binding StageViewModel.SetCalChipUndefinedDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding Cache.UndefinedPosition}"
+                                    Command="{Binding GotoDarkFieldPositionCommand}"
+                                    CommandParameter="Undefined"
                                     Width="120" />
                             <Button x:Name="UndefinedReviewButton"
                                     Content="Review"
@@ -270,13 +270,13 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue, Mode=OneWay}"
+                            <TextBox Text="{Binding ReviewDto.HazeToChuckAfEcsValue, Mode=OneWay}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Rtfc Af Ecs Error: "
                                      hc:InfoElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue, Mode=OneWay}"
+                            <TextBox Text="{Binding ReviewDto.HazeToChuckAfMotorValue, Mode=OneWay}"
                                      hc:TitleElement.TitleWidth="180"
                                      hc:InfoElement.Title="Rtfc Af Motor Error: "
                                      hc:InfoElement.TitlePlacement="Left"
@@ -286,13 +286,13 @@
                         <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
                             <Button x:Name="HazeBrightFieldGotoButton"
                                     Content="Goto Bright Field"
-                                    Command="{Binding StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding Cache.HazePosition}"
+                                    Command="{Binding GotoBrightFieldPositionCommand}"
+                                    CommandParameter="Haze"
                                     Width="120" />
                             <Button x:Name="HazeDarkFieldGotoButton"
                                     Content="Goto Dark Field"
-                                    Command="{Binding StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding Cache.HazePosition}"
+                                    Command="{Binding GotoDarkFieldPositionCommand}"
+                                    CommandParameter="Haze"
                                     Width="120" />
                             <Button x:Name="HazeReviewButton"
                                     Content="Review"
@@ -342,13 +342,13 @@
                         <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
                             <Button x:Name="ShinyBrightFieldGotoButton"
                                     Content="Goto Bright Field"
-                                    Command="{Binding StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXyCommand}"
-                                    CommandParameter="{Binding Cache.ShinyWaferPosition}"
+                                    Command="{Binding GotoBrightFieldPositionCommand}"
+                                    CommandParameter="ShinyWafer"
                                     Width="120" />
                             <Button x:Name="ShinyDarkFieldGotoButton"
                                     Content="Goto Dark Field"
-                                    Command="{Binding StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocusCommand}"
-                                    CommandParameter="{Binding Cache.ShinyWaferPosition}"
+                                    Command="{Binding GotoDarkFieldPositionCommand}"
+                                    CommandParameter="ShinyWafer"
                                     Width="120" />
                             <Button x:Name="ShinyReviewButton"
                                     Content="Review"

@@ -53,6 +53,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag" },
         new() { StepName = "Find Low Site Position" },
         new() { StepName = "Find High Site Position" },
@@ -300,7 +301,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -393,7 +394,10 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         try
         {
             if (obj is not MicroscopeMagnificationInfo)
+            {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
 
             await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
             ).ConfigureAwait(false);
@@ -402,6 +406,22 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         {
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand]
@@ -480,7 +500,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Cache.HighSiteFindPosition,
                 (false, Cache.LightCoefficient),
                 false,
-                settingDarkFieldAutoFocusParam,
+                Cache.CIBConfiguration,
                 800,
                 Cache.OpticsMagTypeEnum,
                 Cache.StageSpeedEnum,
@@ -680,7 +700,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     HtmlLogUniqueId,
                     string.Empty,
                     string.Empty,
-                    settingDarkFieldAutoFocusParam,
+                    Cache.CIBConfiguration,
                     out var darkFieldResultPosition,
                     out _,
                     out _,
@@ -812,9 +832,11 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             ResultFocusShiftDto.NscValue = nscBuffers.Average();
             ResultFocusShiftDto.AutoFocusEcs = autoFocusEcs;
             ResultFocusShiftDto.AutoFocusNsc = autoFocusNsc;
+
             // 获得照明焦点偏移量
-            if (LaserViewModel.TryGetMatchPositionByNotAutoFocus(
+            if (LaserViewModel.TryGetMatchPosition(
                     Cache.AlgorithmTemplateTypeEnum,
+                    Cache.CalChipSiteModelEnum,
                     8,
                     darkFieldResultPosition,
                     Cache.DarkFiledTemplateFilePath,
@@ -822,6 +844,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     HtmlLogUniqueId,
                     string.Empty,
                     string.Empty,
+                    Cache.CIBConfiguration,
                     out var resultPosition,
                     out _,
                     out _,
@@ -831,7 +854,8 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     Cache.OpticsMagTypeEnum,
                     Cache.StageSpeedEnum,
                     StageCoordinateSystemEnum.Bright,
-                    Cache.LightCoefficient) == false)
+                    Cache.LightCoefficient,
+                    isAutoFocus: false) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -915,16 +939,19 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             AfViewModel.SetSensorEcsValue(focusShiftDto.DarkFieldEcsValue);
             Thread.Sleep(1000);
             var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(focusShiftDto.DarkFieldFindPosition);
-            using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImageByNotAutoFocus(
+            using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
+                Cache.CalChipSiteModelEnum,
                 darkFieldPosition,
                 (false, Cache.LightCoefficient),
                 true,
+                Cache.CIBConfiguration,
                 800,
                 Cache.OpticsMagTypeEnum,
                 StageSpeedEnum.Low,
                 8,
                 3,
-                StageCoordinateSystemEnum.Dark);
+                StageCoordinateSystemEnum.Dark,
+                isAutoFocus: false);
 
             using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);

@@ -713,7 +713,7 @@ public sealed partial class RecipeSettingViewModel(
                 brightPosition,
                 (false, 0.85),
                 false,
-                null,
+                CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration,
                 800,
                 maskDto.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum,
                 maskDto.RecipeDarkFieldTemplateDto.StageSpeedEnum,

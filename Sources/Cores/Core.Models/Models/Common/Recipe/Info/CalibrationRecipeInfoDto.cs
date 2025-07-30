@@ -39,6 +39,9 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
     [ObservableProperty]
     private MicroscopeMagnificationInfo _microscopeHighMag = new();
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     public CalibrationRecipeInfoDto Clone() => new()
     {
         RecipeName = RecipeName,
@@ -46,6 +49,7 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
         NotchDirectionEnum = NotchDirectionEnum,
         MicroscopeLowMag = MicroscopeLowMag.Clone(),
         MicroscopeHighMag = MicroscopeHighMag.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
         RecipeNosqlRecipeDbDataSource = RecipeNosqlRecipeDbDataSource,
         Id = Id
     };

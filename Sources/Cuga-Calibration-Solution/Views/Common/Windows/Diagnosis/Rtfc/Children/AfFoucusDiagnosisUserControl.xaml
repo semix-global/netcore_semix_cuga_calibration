@@ -10,6 +10,7 @@
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+             xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis"
@@ -131,8 +132,13 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.OffsetThreshold}" />
+                        <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
+                                                            hc:InfoElement.TitlePlacement="Left"
+                                                            hc:InfoElement.Title="Cib Grab Mode: "
+                                                            DataContext="{Binding FocusShiftCache.CIBConfiguration}" />
                     </hc:UniformSpacingPanel>
                 </Border>
+
                 <Border Style="{StaticResource BorderRegion}"
                         Effect="{StaticResource EffectShadow1}"
                         IsEnabled="{Binding IsEnableWindow}">

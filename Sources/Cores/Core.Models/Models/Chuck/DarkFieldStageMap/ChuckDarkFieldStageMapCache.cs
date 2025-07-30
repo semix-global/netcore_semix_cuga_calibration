@@ -24,6 +24,9 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
 
     [ObservableProperty]

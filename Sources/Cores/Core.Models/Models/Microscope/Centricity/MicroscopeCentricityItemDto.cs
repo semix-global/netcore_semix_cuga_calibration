@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
-public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
+public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>, IAdaptIn<CalibrationMicroscopeCentricityItem, MicroscopeCentricityItemDto>
 {
     [ObservableProperty]
     private MicroscopeMagnificationInfo _magnificationInfo = new();
@@ -61,6 +61,15 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck
+    };
+
+    public MicroscopeCentricityItemDto AdaptIn(CalibrationMicroscopeCentricityItem obj) => new()
+    {
+        MagnificationInfo = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeMagnificationInfo>(obj.CgMicroscopeLens),
+        Offset = obj.Offset.ToPoint(),
+        IsCalibrated = obj.IsCalibrated,
+        IsVerified = obj.IsVerified,
+        IsRequiredSelfCheck = obj.IsRequiredSelfCheck
     };
 
     #endregion Mapper

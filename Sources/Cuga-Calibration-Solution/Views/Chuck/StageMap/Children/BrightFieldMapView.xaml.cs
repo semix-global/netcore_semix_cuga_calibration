@@ -59,8 +59,8 @@ public sealed partial class BrightFieldMapView
             case nameof(viewModel.ResultChuckStageMapDto.CalibrationBrightFieldStageMap):
                 switch (ChildName)
                 {
-                    case "Step2View" when viewModel.CalibrationStepIndex == 2:
-                    case "Step3View" when viewModel.CalibrationStepIndex is 2 or 3:
+                    case "Step2View" when viewModel.CalibrationStepIndex == 3:
+                    case "Step3View" when viewModel.CalibrationStepIndex is 3 or 4:
                         Dispatcher.Invoke(() =>
                         {
                             ShowVectorField(WpfPlot,

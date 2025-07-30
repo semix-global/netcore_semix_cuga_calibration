@@ -68,8 +68,8 @@ public sealed partial class DarkFieldMapView
             case nameof(viewModel.ResultChuckStageMapDto.CalibrationDarkFieldStageMap):
                 switch (ChildName)
                 {
-                    case "Step2View" when viewModel.CalibrationStepIndex == 6:
-                    case "Step3View" when viewModel.CalibrationStepIndex is 6 or 7:
+                    case "Step2View" when viewModel.CalibrationStepIndex == 7:
+                    case "Step3View" when viewModel.CalibrationStepIndex is 7 or 8:
                         Dispatcher.Invoke(() =>
                         {
                             ShowVectorField(WpfPlot,
@@ -90,7 +90,7 @@ public sealed partial class DarkFieldMapView
             case nameof(viewModel.ResultChuckStageMapDto.ExpandStageMapDto):
                 switch (ChildName)
                 {
-                    case "Step4View" when viewModel.CalibrationStepIndex == 8:
+                    case "Step4View" when viewModel.CalibrationStepIndex == 9:
                         Dispatcher.Invoke(() =>
                         {
                             ShowVectorField(WpfPlot,

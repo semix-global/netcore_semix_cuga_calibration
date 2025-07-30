@@ -25,12 +25,12 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="{Binding CalibrationStepList[1].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                <hc:Shield Subject="{Binding CalibrationStepList[2].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
+                           Status="{Binding CalibrationStepList[2].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="{Binding CalibrationStepList[5].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
-                           Status="{Binding CalibrationStepList[5].StepName}"
+                <hc:Shield Subject="{Binding CalibrationStepList[6].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
+                           Status="{Binding CalibrationStepList[6].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityConverter}}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>

@@ -11,6 +11,7 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Pattern;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -47,6 +48,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag" },
         new() { StepName = "Gain" },
         new() { StepName = "Alignment" }
@@ -185,16 +187,16 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
         switch (CalibrationStepIndex)
         {
-            case 0:
+            case 1:
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
 
-            case 1:
+            case 2:
 
                 ResultCalibrateDto.Clear();
                 return true;
 
-            case 2:
+            case 3:
                 ResultCalibrateDto.IsCalibrated = true;
                 if (Save(ResultCalibrateDto, cancellationToken) == false)
                 {
@@ -212,13 +214,49 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
     #endregion 控制校准业务
 
     #region 校准
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
@@ -506,9 +544,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             Cache.XSpeed,
             Cache.PmtId,
             StageCoordinateSystemEnum.Bright,
+            Cache.CIBConfiguration,
             (true, null),
-            false,
-            null);
+            false);
 
         var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
         var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);

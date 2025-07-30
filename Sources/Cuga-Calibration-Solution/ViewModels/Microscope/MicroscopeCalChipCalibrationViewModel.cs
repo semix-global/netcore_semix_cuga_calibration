@@ -110,6 +110,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
             Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
 
+        StageViewModel.SetAbsoluteStageTheta(0);
+
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -125,7 +127,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             return false;
         }
 
-        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
         return true;
     }
 
@@ -168,21 +170,42 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         switch (CalibrationStepIndex)
         {
+            case 1:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
+                return true;
+            case 2:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
+                return true;
             case 3:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
                 return true;
-
+            case 4:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
+                return true;
+            case 5:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
+                return true;
             case 6:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
                 return true;
-
+            case 7:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
+                return true;
+            case 8:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
+                return true;
             case 9:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
                 return true;
-
+            case 10:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
+                return true;
+            case 11:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
+                return true;
             case 12:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
@@ -196,6 +219,52 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
+                break;
+            case 1:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
+                break;
+            case 2:
+                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
+                break;
+            case 3:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
+                break;
+            case 4:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
+                break;
+            case 5:
+                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
+                break;
+            case 6:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
+                break;
+            case 7:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
+                break;
+            case 8:
+                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
+                break;
+            case 9:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
+                break;
+            case 10:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
+                break;
+            case 11:
+                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ChuckPosition);
+                break;
+            default:
+                break;
+        }
 
         switch (CalibrationStepIndex)
         {
@@ -214,31 +283,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
                 IsCalibrated = isCalibrated;
 
-                switch (CalibrationStepIndex)
-                {
-                    case 2:
-                        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
-                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
-                        return true;
-
-                    case 5:
-                        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
-                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
-                        return true;
-
-                    case 8:
-                        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
-                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
-                        return true;
-
-                    case 12:
-                        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ChuckPosition);
-                        return true;
-
-                    default:
-                        return true;
-                }
+                return true;
 
             default:
                 return true;
@@ -248,6 +293,88 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
     #endregion 控制校准业务
 
     #region 校准
+
+    [RelayCommand]
+    private async Task GotoBrightFieldPositionAsync(string name)
+    {
+        try
+        {
+            if (ReviewDto is null)
+            {
+                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return;
+            }
+            await Task.Run(() =>
+            {
+                switch (name)
+                {
+                    case "DSW":
+                        var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.DswBrightFieldMachinePosition);
+                        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
+                        break;
+                    case "Undefined":
+                        brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.UndefinedBrightFieldMachinePosition);
+                        StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(brightFieldPosition);
+                        break;
+                    case "Haze":
+                        brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.HazeBrightFieldMachinePosition);
+                        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(brightFieldPosition);
+                        break;
+                    case "ShinyWafer":
+                        brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.ShinyWaferBrightFieldMachinePosition);
+                        StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(brightFieldPosition);
+                        break;
+                    default:
+                        break;
+                }
+            }).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private async Task GotoDarkFieldPositionAsync(string name)
+    {
+        try
+        {
+            if (ReviewDto is null)
+            {
+                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return;
+            }
+            await Task.Run(() =>
+            {
+                switch (name)
+                {
+                    case "DSW":
+                        var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.DswDarkFieldMachinePosition);
+                        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(darkFieldPosition);
+                        break;
+                    case "Undefined":
+                        darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.UndefinedDarkFieldMachinePosition);
+                        StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(darkFieldPosition);
+                        break;
+                    case "Haze":
+                        darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.HazeDarkFieldMachinePosition);
+                        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(darkFieldPosition);
+                        break;
+                    case "ShinyWafer":
+                        darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.ShinyWaferDarkFieldMachinePosition);
+                        StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(darkFieldPosition);
+                        break;
+                    default:
+                        break;
+                }
+            }).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(string name, CancellationToken cancellationToken)
@@ -328,6 +455,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Direction = name,
                 Cache.CalChipSiteModelEnum,
                 MachinePosition = resultMachine
             }), HtmlLogUniqueId.LoggingHtml());
@@ -341,10 +469,24 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         return InvokeCalibrateAsync(() =>
         {
             Cache.ChuckPosition = StageViewModel.GetMachineStagePosition();
-            var (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition, null); // todo:传什么坐标
+            var (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition);
             ResultMicroscopeCalChipDto.ChuckAfEcsValue = ecs;
             ResultMicroscopeCalChipDto.ChuckAfMotorValue = afMotor;
 
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.CalChipSiteModelEnum,
+                ChuckAfEcsValue = ecs,
+                ChuckAfMotorValue = afMotor,
+                ResultMicroscopeCalChipDto.DswAfEcsValue,
+                ResultMicroscopeCalChipDto.DswAfMotorValue,
+                ResultMicroscopeCalChipDto.HazeAfEcsValue,
+                ResultMicroscopeCalChipDto.HazeAfMotorValue,
+                ResultMicroscopeCalChipDto.DswToChuckAfEcsValue,
+                ResultMicroscopeCalChipDto.DswToChuckAfMotorValue,
+                ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue,
+                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue,
+            }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
     }
@@ -439,9 +581,11 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.GetBrightFieldMachinePosition(Cache.CalChipSiteModelEnum));
             AfViewModel.SetSensorDarkFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.GetDarkFieldMachinePosition(Cache.CalChipSiteModelEnum));
 
+            double ecs = 0d;
+            double afMotor = 0d;
             if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
             {
-                var (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(findFocusPosition, null, Cache.CalChipSiteModelEnum);
+                (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(findFocusPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
                 ResultMicroscopeCalChipDto.SetAfEcsValue(Cache.CalChipSiteModelEnum, ecs);
                 ResultMicroscopeCalChipDto.SetAfMotorValue(Cache.CalChipSiteModelEnum, afMotor);
             }
@@ -449,6 +593,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.CalChipSiteModelEnum,
+                RtfcAfEcs = ecs,
+                RtfcAfMotor = afMotor,
                 MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 EcsValue = ResultMicroscopeCalChipDto.GetEcsValue(Cache.CalChipSiteModelEnum),
                 ImageQuality = ResultMicroscopeCalChipDto.GetQuality(Cache.CalChipSiteModelEnum),
@@ -481,6 +627,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             var resultList = new List<bool>();
 
             AfViewModel.ToggleBrightFieldEnable(false);
+
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
             foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
             {
@@ -544,14 +692,18 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
             // Rtfc
             var calchipVerifyItemDto = new MicroscopeCalChipDto();
-            (calchipVerifyItemDto.ChuckAfEcsValue, calchipVerifyItemDto.ChuckAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition, null);
-            (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.DswPosition, null, CalChipSiteModelEnum.DswModel);
-            (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition, null);
+            (calchipVerifyItemDto.ChuckAfEcsValue, calchipVerifyItemDto.ChuckAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition);
+            (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.DswPosition, calChipSiteModelEnum: CalChipSiteModelEnum.DswModel);
+            (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.HazePosition, calChipSiteModelEnum: CalChipSiteModelEnum.HazeModel);
 
-            var rtfcResult = Math.Abs(calchipVerifyItemDto.DswToChuckAfEcsValue - ReviewDto.DswToChuckAfEcsValue) < Cache.AfEcsErrorThreshold
-                             && Math.Abs(calchipVerifyItemDto.DswToChuckAfMotorValue - ReviewDto.DswToChuckAfMotorValue) < Cache.AfMotorErrorThreshold
-                             && Math.Abs(calchipVerifyItemDto.HazeToChuckAfEcsValue - ReviewDto.HazeToChuckAfEcsValue) < Cache.AfEcsErrorThreshold
-                             && Math.Abs(calchipVerifyItemDto.HazeToChuckAfMotorValue - ReviewDto.HazeToChuckAfMotorValue) < Cache.AfMotorErrorThreshold;
+            var dswToChuckAfEcsOffset = calchipVerifyItemDto.DswToChuckAfEcsValue - ReviewDto.DswToChuckAfEcsValue;
+            var dswToChuckAfMotorOffset = calchipVerifyItemDto.DswToChuckAfMotorValue - ReviewDto.DswToChuckAfMotorValue;
+            var hazeToChuckAfEcsOffset = calchipVerifyItemDto.HazeToChuckAfEcsValue - ReviewDto.HazeToChuckAfEcsValue;
+            var hazeToChuckAfMotorOffset = calchipVerifyItemDto.HazeToChuckAfMotorValue - ReviewDto.HazeToChuckAfMotorValue;
+            var rtfcResult = Math.Abs(dswToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
+                             && Math.Abs(dswToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold
+                             && Math.Abs(hazeToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
+                             && Math.Abs(hazeToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold;
 
             var result = resultList.All(t => t) && rtfcResult;
 
@@ -561,7 +713,23 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 NewOffset = Cache.VerifyResultQuality,
                 OldOffset = string.Join(", ", oldQualityList),
                 Error = Cache.VerifyResultError,
-                Cache.Threshold
+                QualityThreshold = Cache.Threshold,
+                Cache.AfEcsErrorThreshold,
+                Cache.AfMotorErrorThreshold,
+                calchipVerifyItemDto.ChuckAfEcsValue,
+                calchipVerifyItemDto.ChuckAfMotorValue,
+                calchipVerifyItemDto.DswAfEcsValue,
+                calchipVerifyItemDto.DswAfMotorValue,
+                calchipVerifyItemDto.HazeAfEcsValue,
+                calchipVerifyItemDto.HazeAfMotorValue,
+                calchipVerifyItemDto.DswToChuckAfEcsValue,
+                calchipVerifyItemDto.DswToChuckAfMotorValue,
+                calchipVerifyItemDto.HazeToChuckAfEcsValue,
+                calchipVerifyItemDto.HazeToChuckAfMotorValue,
+                dswToChuckAfEcsOffset,
+                dswToChuckAfMotorOffset,
+                hazeToChuckAfEcsOffset,
+                hazeToChuckAfMotorOffset
             }), HtmlLogUniqueId.LoggingHtml());
 
             ReviewDto.IsVerified = result;
@@ -575,7 +743,11 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
                                             $"New Offset: ({Cache.VerifyResultQuality}){Environment.NewLine}" +
                                             $"New Offset: ({string.Join(", ", oldQualityList)}){Environment.NewLine}" +
-                                            $"Error: ({Cache.VerifyResultError})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                                            $"Error: ({Cache.VerifyResultError})" +
+                                            $"DswToChuckAfEcsOffset:({dswToChuckAfEcsOffset})" +
+                                            $"DswToChuckAfMotorOffset: ({dswToChuckAfMotorOffset})" +
+                                            $"HazeToChuckAfEcsOffset: ({hazeToChuckAfEcsOffset})" +
+                                            $"HazeToChuckAfMotorOffset: ({hazeToChuckAfMotorOffset})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return result;
         }).ConfigureAwait(false);

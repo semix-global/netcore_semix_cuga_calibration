@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.XTCCalibration;
 public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICloneable<LaserXTCCalibrationItemDto>, IAdaptTo<CalibrationLaserXTCCalibrationItem>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationEnum _microscopeMagnificationEnum;
+    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -65,7 +65,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
 
     public LaserXTCCalibrationItemDto Clone() => new()
     {
-        MicroscopeMagnificationEnum = MicroscopeMagnificationEnum,
+        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo.Clone(),
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         PmtId = PmtId,
         CH1Delay = CH1Delay,

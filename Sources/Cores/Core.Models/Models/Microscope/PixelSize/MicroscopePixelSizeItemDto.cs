@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.PixelSize;
 
-public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>
+public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>, IAdaptIn<CalibrationMicroscopePixelSizeItem, MicroscopePixelSizeItemDto>
 {
     [ObservableProperty]
     private MicroscopeMagnificationInfo _magnificationInfo = new();
@@ -51,5 +51,16 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
         IsRequiredSelfCheck = IsRequiredSelfCheck
     };
 
+    public MicroscopePixelSizeItemDto AdaptIn(CalibrationMicroscopePixelSizeItem obj) => new()
+    {
+        MagnificationInfo = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeMagnificationInfo>(obj.CgMicroscopeLens),
+        PixelSize = obj.PixelSize.ToSize(),
+        IsCalibrated = obj.IsCalibrated,
+        IsVerified = obj.IsVerified,
+        IsRequiredSelfCheck = obj.IsRequiredSelfCheck
+    };
+
     #endregion Mapper
+
+
 }

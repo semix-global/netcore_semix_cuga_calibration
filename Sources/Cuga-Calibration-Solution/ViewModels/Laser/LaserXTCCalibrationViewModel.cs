@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
@@ -16,6 +15,7 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using MathNet.Numerics.LinearAlgebra;
@@ -33,6 +33,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
@@ -52,6 +53,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Config"},
         new() { StepName = "Select a Mag" },
         new() { StepName = "Find Gain" },
         new() { StepName = "Is Revise" },
@@ -179,6 +181,8 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXTCCalibrationCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXTCCalibrationItemDto>();
 
+        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+
         foreach (var calibrationStatus in Calibrations)
         {
             CalibrationStatusList
@@ -218,19 +222,18 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
         switch (CalibrationStepIndex)
         {
-            case 0:
-                Cache.MicroscopeMagnificationEnum = MicroscopeMagnificationEnum.Magnification5X;
+            case 1:
                 LaserXTCCalibrationItemDtoList = [];
                 return true;
 
-            case 1:
+            case 2:
                 Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Reset();
                 return true;
 
-            case 2:
+            case 3:
                 return true;
 
-            case 3:
+            case 4:
                 if (ResultLaserXTCCalibrationItemDtoList.Count <= 0)
                 {
                     DialogWindowProvider.TryShowDialog("Please find XTC Cib!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -260,7 +263,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -328,6 +331,42 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         }
     }
 
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeMagnificationInfo)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+        }
+    }
+
+    [RelayCommand]
+    private Task ConfigStepActionAsync()
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.CIBConfiguration.IsAutoGain,
+                Cache.CIBConfiguration.DcGainVoltage,
+                Cache.CIBConfiguration.IsL0k,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -351,7 +390,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -443,7 +482,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationEnum,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -708,7 +747,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         var detectImageDirectory = ImageFileDirectory;
         Logger.LogHtmlInformation($"{laserXTCCalibrationItemDto.PmtId} Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            Cache.MicroscopeMagnificationEnum,
+            Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
             StageSpeedEnum.Low,
             laserXTCCalibrationItemDto.PmtId,
             laserXTCCalibrationItemDto.CH1Delay,
@@ -833,9 +872,9 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             StageSpeedEnum.Low,
             laserXTCCalibrationItem.PmtId,
             StageCoordinateSystemEnum.Bright,
+            Cache.CIBConfiguration,
             (true, null),
-            false,
-            null);
+            false);
 
         var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
         var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);
@@ -854,7 +893,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationEnum = Cache.MicroscopeMagnificationEnum;
+        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
 
         Calibrations =
         [

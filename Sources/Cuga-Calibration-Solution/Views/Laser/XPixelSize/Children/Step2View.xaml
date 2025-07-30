@@ -24,7 +24,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="X Pixel Size Step 3: "
-                           Status="{Binding CalibrationStepList[2].StepName}"
+                           Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="OpticsMagType:"
@@ -44,8 +44,8 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="80"
+                    <hc:ComboBox x:Name="MagCombobox"
+                                 HorizontalAlignment="Left"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Low Magnification: "
                                  hc:InfoElement.Necessary="True"
@@ -63,7 +63,6 @@
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
                     <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="80"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Template Mask Type: "
                                  hc:InfoElement.Necessary="True"

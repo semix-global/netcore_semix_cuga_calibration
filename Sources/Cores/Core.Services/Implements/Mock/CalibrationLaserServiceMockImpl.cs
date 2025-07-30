@@ -10,6 +10,8 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Core.Models.Models.Setting;
+using Core.Models.Models.Pattern;
+
 
 #if NET
 using Core.Services.Implements.GRPC;
@@ -156,6 +158,13 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId)
     {
         Thread.Sleep(100);
@@ -163,7 +172,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleProfileType(CIBProfileTypeEnum cibProfileTypeEnum, int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleProfileType(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -308,9 +317,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isForward)
     {
         var bytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.raw"));
 
@@ -333,9 +340,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isForward)
     {
         var uri = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.raw");
 
@@ -357,9 +362,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        bool isAutoFocus,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
-        bool isCustomChirpAod)
+        bool isAutoFocus)
     {
         var bytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.raw"));
 

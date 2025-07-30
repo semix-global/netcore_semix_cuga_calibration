@@ -76,6 +76,9 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftTop;
 
     [ObservableProperty]

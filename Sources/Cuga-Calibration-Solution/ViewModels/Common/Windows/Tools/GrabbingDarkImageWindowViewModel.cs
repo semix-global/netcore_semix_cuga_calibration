@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -58,9 +59,6 @@ public partial class GrabbingDarkImageWindowViewModel(
     private double _coefficient = 1;
 
     [ObservableProperty]
-    private double _gainVoltage;
-
-    [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
 
     [ObservableProperty]
@@ -68,12 +66,6 @@ public partial class GrabbingDarkImageWindowViewModel(
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-
-    [ObservableProperty]
-    private bool _isEnableL0K;
-
-    [ObservableProperty]
-    private bool _isEnableAutoGain;
 
     [ObservableProperty]
     private bool _isForward = true;
@@ -89,6 +81,9 @@ public partial class GrabbingDarkImageWindowViewModel(
 
     [ObservableProperty]
     private GrabbingDarkImageDto _selectGrabbingDarkImageDto = new();
+
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
 
     [RelayCommand]
     private void ChangePrescanFile()
@@ -130,12 +125,12 @@ public partial class GrabbingDarkImageWindowViewModel(
                                                             : $"{nameof(XWidth)}: {XWidth}")}
                                                         {nameof(PmtId)}: {PmtId}
                                                         {nameof(Coefficient)}: {Coefficient}
-                                                        {nameof(GainVoltage)}: {GainVoltage}
+                                                        {nameof(CIBConfiguration.DcGainVoltage)}: {CIBConfiguration.DcGainVoltage}
                                                         {nameof(OpticsMagTypeEnum)}: {OpticsMagTypeEnum}
                                                         {nameof(StageSpeedEnum)}: {StageSpeedEnum}
                                                         {nameof(CalChipSiteModelEnum)}: {CalChipSiteModelEnum}
-                                                        {nameof(IsEnableL0K)}: {IsEnableL0K}
-                                                        {nameof(IsEnableAutoGain)}: {IsEnableAutoGain}
+                                                        {nameof(CIBConfiguration.IsL0k)}: {CIBConfiguration.IsL0k}
+                                                        {nameof(CIBConfiguration.IsAutoGain)}: {CIBConfiguration.IsAutoGain}
                                                         {nameof(IsForward)}: {IsForward}
                                                         {(string.IsNullOrWhiteSpace(PrescanFilePath) ? string.Empty : $"{nameof(PrescanFilePath)}: {PrescanFilePath}")}
                                                         {(string.IsNullOrWhiteSpace(ChirpFilePath) ? string.Empty : $"{nameof(ChirpFilePath)}: {ChirpFilePath}")}
@@ -155,17 +150,6 @@ public partial class GrabbingDarkImageWindowViewModel(
                     laserViewModel.SendChirpAodByList(prescanDto);
                 }
 
-                if (IsEnableAutoGain)
-                    laserViewModel.ToggleEnableAutoGain(true);
-                else
-                {
-                    laserViewModel.ToggleEnableAutoGain(false);
-                    //下发电压
-                    laserViewModel.SetGain(GainVoltage);
-                }
-
-                laserViewModel.ToggleEnableL0K(IsEnableL0K);
-
                 var resultPosition = StageCoordinateSystemEnum switch
                 {
                     StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
@@ -175,17 +159,17 @@ public partial class GrabbingDarkImageWindowViewModel(
                 };
 
                 var result = IsPtp
-                    ? laserViewModel.GetDarkFieldLineScanImageList(
-                        CalChipSiteModelEnum,
+                    ? [.. laserViewModel.GetDarkFieldLineScanImageList(
                         StartPosition,
                         EndPosition,
                         OpticsMagTypeEnum,
                         StageSpeedEnum,
                         PmtId,
                         StageCoordinateSystemEnum,
+                        CIBConfiguration,
                         (isCustomPrescanAod, isCustomPrescanAod ? null : Coefficient),
                         isCustomChirpAod,
-                        IsForward).Select(ToDarkFieldImageDto).ToList()
+                        IsForward).Select(ToDarkFieldImageDto)]
                     : laserViewModel.GetDarkFieldLineScanImageList(
                         CalChipSiteModelEnum,
                         resultPosition,
@@ -194,9 +178,9 @@ public partial class GrabbingDarkImageWindowViewModel(
                         StageSpeedEnum,
                         PmtId,
                         StageCoordinateSystemEnum,
+                        CIBConfiguration,
                         (isCustomPrescanAod, isCustomPrescanAod ? null : Coefficient),
                         isCustomChirpAod,
-                        null,
                         IsForward);
 
                 var darkFieldImageList = new List<DarkFieldImage>();
@@ -204,7 +188,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 foreach (var (i, darkFieldImageDto) in result.Select((t, i) => (i, t)))
                 {
                     using var _ = darkFieldImageDto;
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{Coefficient}\\{GainVoltage}\\{htmlLogUniqueId}.jpg";
+                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{Coefficient}\\{CIBConfiguration.DcGainVoltage}\\{htmlLogUniqueId}.jpg";
                     HalconHelper.Save(darkFieldImageDto.Image, filePath);
                     var size = HalconHelper.GetSize(darkFieldImageDto.Image);
                     darkFieldImageList.Add(new DarkFieldImage
@@ -227,13 +211,11 @@ public partial class GrabbingDarkImageWindowViewModel(
                 {
                     PmtId = PmtId,
                     Coefficient = Coefficient,
-                    GainVoltage = GainVoltage,
                     OpticsMagTypeEnum = OpticsMagTypeEnum,
                     StageSpeedEnum = StageSpeedEnum,
                     CalChipSiteModelEnum = CalChipSiteModelEnum,
                     StageCoordinateSystemEnum = StageCoordinateSystemEnum,
-                    IsEnableL0K = IsEnableL0K,
-                    IsEnableAutoGain = IsEnableAutoGain,
+                    CIBConfiguration = CIBConfiguration.Clone(),
                     IsForward = IsForward,
                     XWidth = IsPtp ? string.Empty : XWidth.ToString(),
                     StartPosition = IsPtp ? StartPosition.ToString() : string.Empty,
@@ -247,12 +229,12 @@ public partial class GrabbingDarkImageWindowViewModel(
                 SelectGrabbingDarkImageDto = grabbingDarkImageDto;
                 isSuccess = true;
 
-                logger.LogHtmlInformation($"Ok Mag:{OpticsMagTypeEnum};Coefficient: {Coefficient}; Gain: {GainVoltage}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                logger.LogHtmlInformation($"Ok Mag:{OpticsMagTypeEnum};Coefficient: {Coefficient}; Gain: {CIBConfiguration.DcGainVoltage}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     PmtId,
                     OpticsMagTypeEnum,
                     Coefficient,
-                    GainVoltage,
+                    CIBConfiguration.DcGainVoltage,
                     CalChipSiteModelEnum,
                     HtmlTab = new HtmlTab(new
                     {
@@ -274,7 +256,7 @@ public partial class GrabbingDarkImageWindowViewModel(
             finally
             {
                 logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(
-                    $"Mag({EnumHelper.ToDescriptionString(OpticsMagTypeEnum)})_CalChip({EnumHelper.ToDescriptionString(CalChipSiteModelEnum)})__GainVoltage({GainVoltage}){(isSuccess ? "OK" : "Failed")}"));
+                    $"Mag({EnumHelper.ToDescriptionString(OpticsMagTypeEnum)})_CalChip({EnumHelper.ToDescriptionString(CalChipSiteModelEnum)})__GainVoltage({CIBConfiguration.DcGainVoltage}){(isSuccess ? "OK" : "Failed")}"));
             }
 
             return;
@@ -343,13 +325,13 @@ public partial class GrabbingDarkImageWindowViewModel(
     public sealed partial class GrabbingDarkImageDto : ObservableObject
     {
         [ObservableProperty]
+        private CIBConfiguration _cIBConfiguration = new();
+
+        [ObservableProperty]
         private int _pmtId;
 
         [ObservableProperty]
         private double _coefficient;
-
-        [ObservableProperty]
-        private double _gainVoltage;
 
         [ObservableProperty]
         private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -362,12 +344,6 @@ public partial class GrabbingDarkImageWindowViewModel(
 
         [ObservableProperty]
         private StageCoordinateSystemEnum _stageCoordinateSystemEnum;
-
-        [ObservableProperty]
-        private bool _isEnableL0K;
-
-        [ObservableProperty]
-        private bool _isEnableAutoGain;
 
         [ObservableProperty]
         private bool _isForward;

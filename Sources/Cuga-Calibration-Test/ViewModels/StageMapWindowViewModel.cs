@@ -2,9 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
-using Core.Models.Models.Chuck.BrightFieldStageMap;
 using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
@@ -21,7 +19,9 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.Extensions;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
@@ -42,38 +42,64 @@ using Vector = Net.Utilities.Models.Geometries.Vector;
 namespace CugaCalibrationTest.ViewModels;
 
 [IOCAppService(ServiceType = typeof(StageMapWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class StageMapWindowViewModel(
-    ICacheProvider cacheProvider,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
-    ICacheProvider recipeCacheProvider,
-    IDialogWindowProvider dialogWindowProvider,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    ILogger<StageMapWindowViewModel> logger) : ViewModelBase
+public sealed partial class StageMapWindowViewModel : ViewModelBase
 {
     private static readonly Turbo ColorMap = new();
+    private readonly ICacheProvider _cacheProvider;
+    private readonly ICacheProvider _recipeCacheProvider;
+    private readonly IDialogWindowProvider _dialogWindowProvider;
+    private readonly ICalibrationAlgorithmService _calibrationAlgorithmService;
+    private readonly ILogger<StageMapWindowViewModel> _logger;
+
+    private static WrapperErrorText? _lastText;
+    private ILiteDatabaseProvider _liteDatabaseProvider;
+
+    public StageMapWindowViewModel(
+        ICacheProvider cacheProvider,
+        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    ICacheProvider recipeCacheProvider,
+        IDialogWindowProvider dialogWindowProvider,
+        ICalibrationAlgorithmService calibrationAlgorithmService,
+        ILogger<StageMapWindowViewModel> logger)
+    {
+        _cacheProvider = cacheProvider;
+        _recipeCacheProvider = recipeCacheProvider;
+        _dialogWindowProvider = dialogWindowProvider;
+        _calibrationAlgorithmService = calibrationAlgorithmService;
+        _logger = logger;
+        _liteDatabaseProvider = HostApplication.GetKeyedService<ILiteDatabaseProvider>(LiteDbConstantHelper.RecipeDbKey);
+        if (_liteDatabaseProvider.ModifyLiteDatabase("D:\\Nano\\Cuga-Calibration\\Database\\B3\\cache.db") == false)
+        {
+            _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return;
+        }
+    }
+
+    public object HtmlLogUniqueId { get; private set; }
+
 
     [RelayCommand]
     private void MergeStageMapStep0()
     {
-        if (cacheProvider.TryGetOrDefault<ChuckBrightFieldStageMapDto>(out var brightFieldStageMapDto) == false) return;
-        if (cacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapDto>(out var darkFieldStageMapDto) == false) return;
+        if (_cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
+        var brightFieldStageMapDto = stageMapDto.CalibrationBrightFieldStageMap.Clone();
+        var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
 
-        cacheProvider.Set(darkFieldStageMapDto, CancellationToken.None);
-
-        ShowWindow("Step0: Read DF BF Matrix", darkFieldStageMapDto.CalibrationStageMap, brightFieldStageMapDto.CalibrationStageMap);
+        ShowWindow("Step0: Read DF BF Matrix", darkFieldStageMapDto, brightFieldStageMapDto);
     }
 
     [RelayCommand]
     private void MergeStageMapStep1()
     {
-        if (cacheProvider.TryGetOrDefault<ChuckBrightFieldStageMapDto>(out var brightFieldStageMapDto) == false) return;
-        if (cacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapDto>(out var darkFieldStageMapDto) == false) return;
+        if (_cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
+        var brightFieldStageMapDto = stageMapDto.CalibrationBrightFieldStageMap.Clone();
+        var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
 
         var htmlLogUniqueId = Guid.NewGuid();
-        var expandStageMapDto = calibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMapDto.CalibrationStageMap, brightFieldStageMapDto.CalibrationStageMap, htmlLogUniqueId);
-        logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml());
+        var expandStageMapDto = _calibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMapDto, brightFieldStageMapDto, htmlLogUniqueId);
+        _logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml());
 
-        ShowWindow("Step1: Expand Matrix By Bilinear", expandStageMapDto, brightFieldStageMapDto.CalibrationStageMap);
+        ShowWindow("Step1: Expand Matrix By Bilinear", expandStageMapDto, brightFieldStageMapDto);
     }
 
     public void ShowWindow(string title, StageMapDto? df = null, StageMapDto? bf = null, int? width = null)
@@ -81,10 +107,10 @@ public sealed partial class StageMapWindowViewModel(
         var wpfPlot = new WpfPlot();
         ConfigureWpfPlot(wpfPlot);
 
-        if (cacheProvider.TryGetOrDefault<ChuckCenterObjDto>(out var chuckCenter) == false) return;
-        if (recipeCacheProvider.TryGetOrDefault<ChuckBrightFieldStageMapCache>(out var brightFieldCache) == false) return;
-        if (recipeCacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>(out var darkFieldCache) == false) return;
-        if (cacheProvider.TryGetOrDefaultArray<LaserLineCentricityItemDto>(out var laserLineCentricityItems) == false) return;
+        if (_cacheProvider.TryGetOrDefault<ChuckCenterObjDto>(out var chuckCenter) == false) return;
+        if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
+
+        if (_cacheProvider.TryGetOrDefaultArray<LaserLineCentricityItemDto>(out var laserLineCentricityItems) == false) return;
 
         if (df is not null)
         {
@@ -98,7 +124,7 @@ public sealed partial class StageMapWindowViewModel(
             var ellipse = wpfPlot.Plot.Add.Circle(
                 laserLineCentricityItemDto.ForwardDarkMachineCenterPosition.X,
                 laserLineCentricityItemDto.ForwardDarkMachineCenterPosition.Y,
-                darkFieldCache.WaferDiameter / 2d);
+                cache.DarkFieldWaferDiameter / 2d);
             ellipse.LineColor = Colors.DarkRed;
             ellipse.LineWidth = 2;
 
@@ -107,7 +133,7 @@ public sealed partial class StageMapWindowViewModel(
 
         if (bf is not null)
         {
-            var brightFieldEllipse = wpfPlot.Plot.Add.Circle(chuckCenter.NewBFCenterStagePosition.X, chuckCenter.NewBFCenterStagePosition.Y, brightFieldCache.WaferDiameter / 2d);
+            var brightFieldEllipse = wpfPlot.Plot.Add.Circle(chuckCenter.NewBFCenterStagePosition.X, chuckCenter.NewBFCenterStagePosition.Y, cache.BrightFieldWaferDiameter / 2d);
             brightFieldEllipse.LineColor = Colors.DarkRed;
             brightFieldEllipse.LineWidth = 2;
             ShowVectorField(wpfPlot, bf.IdealStageMapItemMatrix, bf.ErrorMatrix, bf.RowNumber, bf.ColumnNumber, Colors.Gray.WithAlpha(0.3));
@@ -258,7 +284,7 @@ public sealed partial class StageMapWindowViewModel(
                 out var endRowIndex); // y方向寻找列
             if (xResult == false || yResult == false)
             {
-                dialogWindowProvider.ShowDialog("Not Get Point");
+                _dialogWindowProvider.ShowDialog("Not Get Point");
                 return;
             }
 
@@ -282,7 +308,7 @@ public sealed partial class StageMapWindowViewModel(
             {
                 if (leftDownValueIsOk == false || rightDownValueIsOk == false || leftUpValueIsOk == false || rightUpValueIsOk == false)
                 {
-                    dialogWindowProvider.ShowDialog("Not Get Point");
+                    _dialogWindowProvider.ShowDialog("Not Get Point");
                     return;
                 }
 
@@ -313,7 +339,7 @@ public sealed partial class StageMapWindowViewModel(
                     Guard.IsEqualTo(valueX, valueY);
                     Guard.IsLessThanOrEqualTo(Math.Abs(valueX - (SearchPoint.X + Error1 + SearchPoint.Y)), 1e-10);
 
-                    logger.LogInformation("SearchPoint True: {@SearchPoint}, Value: {@ValueX}, {@ValueY}", SearchPoint, valueX, valueY);
+                    _logger.LogInformation("SearchPoint True: {@SearchPoint}, Value: {@ValueX}, {@ValueY}", SearchPoint, valueX, valueY);
                 }
 
                 WpfPlot.Plot.PlottableList.Add(new WrapperErrorText
@@ -364,13 +390,14 @@ public sealed partial class StageMapWindowViewModel(
         var htmlLogUniqueId = Guid.NewGuid();
         try
         {
-            logger.LogHtmlInformation($"Test{nameof(CalculateStageMapError)}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            _logger.LogHtmlInformation($"Test{nameof(CalculateStageMapError)}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
 
-            if (cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
+            if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
+
+            if (_cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
             var brightFieldStageMapDto = stageMapDto.CalibrationBrightFieldStageMap.Clone();
             var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
-            if (cacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
-            var tryCalculateStageMapError = calibrationAlgorithmService.CalculateChuckStageMapError(
+            var tryCalculateStageMapError = _calibrationAlgorithmService.CalculateChuckStageMapError(
                 brightFieldStageMapDto,
                 htmlLogUniqueId,
                 cache.CalculateContainRowMinCout,
@@ -379,7 +406,7 @@ public sealed partial class StageMapWindowViewModel(
                 cache.CalibrationGantryThreshold,
                 cache.CalibrationScaleThreshold,
                 cache.WaferDiameter);
-            tryCalculateStageMapError = calibrationAlgorithmService.CalculateChuckStageMapError(
+            tryCalculateStageMapError = _calibrationAlgorithmService.CalculateChuckStageMapError(
                 darkFieldStageMapDto,
                 htmlLogUniqueId,
                 cache.CalculateContainRowMinCout,
@@ -388,16 +415,20 @@ public sealed partial class StageMapWindowViewModel(
                 cache.CalibrationGantryThreshold,
                 cache.CalibrationScaleThreshold,
                 cache.WaferDiameter);
+
+            var expandStageMapDto = _calibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMapDto, brightFieldStageMapDto, htmlLogUniqueId);
+
+
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Calculate Stage Map Error Failed");
-            dialogWindowProvider.ShowDialog("Calculate Stage Map Error Failed", ex.Message);
+            _logger.LogError(ex, "Calculate Stage Map Error Failed");
+            _dialogWindowProvider.ShowDialog("Calculate Stage Map Error Failed", ex.Message);
             return;
         }
         finally
         {
-            logger.LogHtmlInformation(htmlLogUniqueId.LoggingPeekHtml($"{CalibrationTypeEnum.HandleCalibration}"));
+            _logger.LogHtmlInformation(htmlLogUniqueId.LoggingPeekHtml($"{CalibrationTypeEnum.HandleCalibration}"));
         }
     }
 
@@ -488,9 +519,6 @@ public sealed partial class StageMapWindowViewModel(
         vf.Colormap = ColorMap;
     }
 
-    private static WrapperErrorText? _lastText;
-
-    public object HtmlLogUniqueId { get; private set; }
 
     private static void ConfigureWpfPlot(WpfPlot wpfPlot, bool isContainError = true)
     {

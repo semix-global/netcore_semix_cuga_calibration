@@ -114,11 +114,11 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
 
     #endregion
 
-    public double DswToChuckAfEcsValue => DswEcsValue - ChuckAfEcsValue;
+    public double DswToChuckAfEcsValue => DswAfEcsValue - ChuckAfEcsValue;
 
     public double DswToChuckAfMotorValue => DswAfMotorValue - ChuckAfMotorValue;
 
-    public double HazeToChuckAfEcsValue => HazeEcsValue - ChuckAfEcsValue;
+    public double HazeToChuckAfEcsValue => HazeAfEcsValue - ChuckAfEcsValue;
 
     public double HazeToChuckAfMotorValue => HazeAfMotorValue - ChuckAfMotorValue;
 

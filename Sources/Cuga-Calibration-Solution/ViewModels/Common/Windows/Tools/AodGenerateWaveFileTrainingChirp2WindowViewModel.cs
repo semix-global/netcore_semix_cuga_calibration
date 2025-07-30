@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
@@ -130,6 +131,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     [ObservableProperty]
     public partial Point[] ItemsYPoints { get; set; } = [];
 
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     [RelayCommand]
     private async Task Step1Async()
     {
@@ -146,7 +150,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 afViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.DswModel);
 
                 var offset = calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue - calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.ChuckMotorValue;
-                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(FindPosition, null, CalChipSiteModelEnum.DswModel);
+                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(FindPosition, calChipSiteModelEnum: CalChipSiteModelEnum.DswModel);
                 calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswEcsValue = ecs;
                 calibrationSetting.HighMagSettingDarkFieldAutoFocusParam.DswMotorValue = afMotor;
 
@@ -155,7 +159,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     FindPosition,
                     (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                     false,
-                    null,
+                    CIBConfiguration,
                     XWidthPixel,
                     OpticsMagTypeEnum,
                     StageSpeedEnum,
@@ -368,7 +372,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     FindPosition,
                     (true, null),
                     true,
-                    null,
+                    CIBConfiguration,
                     XWidthPixel,
                     OpticsMagTypeEnum,
                     StageSpeedEnum,

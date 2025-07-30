@@ -11,6 +11,7 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters;assembly=Net.Utilities.WPF"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Width="1200"
            Height="935"
@@ -248,6 +249,11 @@
                                               Minimum="1"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding ColumnCellWidth}" />
+                            <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
+                                                                hc:InfoElement.TitleWidth="150"
+                                                                hc:InfoElement.TitlePlacement="Left"
+                                                                hc:InfoElement.Title="Cib Grab Mode: "
+                                                                DataContext="{Binding CIBConfiguration}" />
                             <hc:SimplePanel>
                                 <Button Content="Grabbing"
                                         Command="{Binding GrabbingImageCommand}"

@@ -24,7 +24,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="XY Astigmatism Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Status="{Binding CalibrationStepList[4].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="OpticsMagType: "

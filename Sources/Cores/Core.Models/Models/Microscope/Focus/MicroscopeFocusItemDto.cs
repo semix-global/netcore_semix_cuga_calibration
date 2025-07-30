@@ -8,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Focus;
 
-public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
+public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>, IAdaptIn<CalibrationMicroscopeFocusItem, MicroscopeFocusItemDto>
 {
     [ObservableProperty]
     private int _index;
@@ -61,6 +61,16 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck
+    };
+
+    public MicroscopeFocusItemDto AdaptIn(CalibrationMicroscopeFocusItem obj) => new()
+    {
+        MagnificationInfo = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeMagnificationInfo>(obj.CgMicroscopeLens),
+        EcsValue = obj.EcsValue,
+        MicroscopeVoltage = obj.MicroscopeVoltage,
+        IsCalibrated = obj.IsCalibrated,
+        IsVerified = obj.IsVerified,
+        IsRequiredSelfCheck = obj.IsRequiredSelfCheck
     };
 
     #endregion Mapper

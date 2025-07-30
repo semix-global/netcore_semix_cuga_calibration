@@ -4,6 +4,7 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -81,6 +82,11 @@
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
+                                                            hc:InfoElement.TitleWidth="150"
+                                                            hc:InfoElement.TitlePlacement="Left"
+                                                            hc:InfoElement.Title="Cib Grab Mode: "
+                                                            DataContext="{Binding CIBConfiguration}" />
                         <Expander ExpandDirection="Down"
                                   Header="0. Chirp Aod Wave Param"
                                   IsExpanded="False">
