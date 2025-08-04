@@ -18,9 +18,6 @@ public partial class RecipeTemplateDtoBase : ObservableCacheBase
     private Point _maskReticlePosition;
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner;
-
-    [ObservableProperty]
     private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
 
     [ObservableProperty]

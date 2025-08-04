@@ -5,16 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:wpf="clr-namespace:Net.Utilities.WaferMap.WPF;assembly=Net.Utilities.WaferMap.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
+             xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:RecipeSettingViewModel}"
              d:DesignHeight="1200"
              d:DesignWidth="1200"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <attachedHelper:BindingProxy x:Key="BindingProxy" Value="{Binding}" />
+    </UserControl.Resources>
     <Grid>
         <Border Padding="2"
                 Style="{StaticResource BorderRegion}"
                 Effect="{StaticResource EffectShadow1}">
             <wpf:WaferMapCanvas x:Name="WaferMapCanvas" Grid.Row="2"
-                                DataContext="{Binding WaferMapCanvasViewModel}" />
+                                DataContext="{Binding WaferMapCanvasViewModel}">
+                <wpf:WaferMapCanvas.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{Binding Path=Value.(viewModels:RecipeSettingViewModel.GotoPositionCommand), Source={StaticResource BindingProxy}}" Header="Goto Position" />
+                        <!--  可以根据需要添加更多菜单项  -->
+                    </ContextMenu>
+                </wpf:WaferMapCanvas.ContextMenu>
+            </wpf:WaferMapCanvas>
         </Border>
     </Grid>
 </UserControl>

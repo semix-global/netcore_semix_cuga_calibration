@@ -12,10 +12,10 @@ namespace Core.Models.Models.Common.Recipe.Wafer;
 public sealed partial class WaferDto : ObservableCacheBase, ICloneable<WaferDto>
 {
     /// <summary>
-    /// 晶圆中心实际明场坐标值
+    /// 晶圆中心晶圆坐标
     /// </summary>
     [ObservableProperty]
-    private Point? _waferCenterBrightFieldPosition;
+    private Point? _waferCenterWaferPosition;
 
     /// <summary>
     /// 减掉P8偏移量后的对准结果
@@ -36,12 +36,12 @@ public sealed partial class WaferDto : ObservableCacheBase, ICloneable<WaferDto>
     public bool RequireActionIsOk()
     {
         return AlignmentResultDto != null
-               && WaferCenterBrightFieldPosition != null;
+               && WaferCenterWaferPosition != null;
     }
 
     public WaferDto Clone() => new()
     {
-        WaferCenterBrightFieldPosition = WaferCenterBrightFieldPosition,
+        WaferCenterWaferPosition = WaferCenterWaferPosition,
         AlignmentResultDto = AlignmentResultDto is not null ? AlignmentResultDto!.Clone() : null,
         ReticleMarkDto = ReticleMarkDto.Clone(),
         WaferMapData = WaferMapData.Clone()

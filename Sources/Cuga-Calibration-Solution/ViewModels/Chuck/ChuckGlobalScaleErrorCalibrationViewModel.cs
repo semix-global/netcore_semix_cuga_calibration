@@ -157,7 +157,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         if (IsRecipeCalibrate)
         {
             if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false) return false;
-            for (var i = 0; i < AutoCalibrationStepList.Count; i++)
+            for (var i = 0; i < 3; i++)
             {
                 if (await AutomationRecipeInformationAsync(i.ToString()) == false) return false;
             }
@@ -1067,6 +1067,14 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeMagnificationInfo, null, out var lowMaskInfo) == false)
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, lowMaskInfo, out var lowPosition);
+
+                var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
+
+                //var chuckCenter = CacheProvider.Get<ChuckCenterObjDto>();
+                //var machinePosition = chuckCenter!.NewBFCenterStagePosition
+                //    + (Vector)new Point(xDirection * lowPosition.X, yDirection * lowPosition.Y);
+                //MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+                //StageViewModel.SetMachineAbsoluteStageXy(machinePosition);
 
                 Cache.BaseLowSiteFindPosition = lowPosition;
                 Cache.LowTemplateFilePath = lowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;

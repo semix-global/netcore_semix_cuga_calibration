@@ -15,7 +15,6 @@ public sealed partial class RecipeBrightFieldTemplateDto : RecipeTemplateDtoBase
         TemplateId = TemplateId,
         Remark = Remark,
         MaskReticlePosition = MaskReticlePosition,
-        WaferMaskTypeEnum = WaferMaskTypeEnum,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         TemplateImageFilePath = TemplateImageFilePath,
         TemplateFilePath = TemplateFilePath,

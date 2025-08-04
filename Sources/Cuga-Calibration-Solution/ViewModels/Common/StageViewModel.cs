@@ -266,7 +266,13 @@ public sealed partial class StageViewModel(
     {
         var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeMagnificationInfo, highMicroscopeMagnificationInfo, algorithmWaferTypeEnum);
 
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+        if (ret.IsSuccess == false)
+            throw new CugaException(ret.ErrorMsg);
+
+        var result = ret.Anything;
+        result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
+        result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
+        return result;
     }
 
     public AlignmentSiteDto MarkAlignSite1DarkField(
