@@ -19,7 +19,7 @@
                 <i:Interaction.Behaviors>
                     <behaviorsCore:WpfPlotReticleMaskBehavior DieSize="{Binding WaferMapCanvasViewModel.Document.DieBuilder.DieSize}"
                                                               ReticleMaskList="{Binding ReticleMarkList}"
-                                                              WaferCenterBrightFieldPosition="{Binding CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition}" />
+                                                              WaferCenterBrightFieldPosition="{Binding CalibrationRecipeDto.WaferDto.WaferCenterWaferPosition}" />
                 </i:Interaction.Behaviors>
             </wpf:WpfPlot>
         </Border>

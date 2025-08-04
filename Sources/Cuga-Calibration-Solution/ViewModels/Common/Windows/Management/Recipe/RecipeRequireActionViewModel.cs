@@ -71,8 +71,11 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
 
     #region 结果
 
+    /// <summary>
+    /// wafer中心晶圆坐标
+    /// </summary>
     [ObservableProperty]
-    private Point? _findWaferBrightFieldCenterOffset;
+    private Point? _findWaferCenterOffset;
 
     /// <summary>
     /// 对准结果
@@ -114,7 +117,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
     {
         IsRecipeEditing = true;
         await CalibrateAsync().ConfigureAwait(false);
-        if (FindWaferBrightFieldCenterOffset is not null)
+        if (FindWaferCenterOffset is not null)
         {
             Messenger.Send(ToggleCalibrateEventFactory.UpdateIsNextEnable(CalibrationStepIndex == 0));
         }
@@ -127,7 +130,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
     private async Task PreviousCommandAsync()
     {
         await PreviousAsync().ConfigureAwait(false);
-        if (FindWaferBrightFieldCenterOffset is not null)
+        if (FindWaferCenterOffset is not null)
         {
             Messenger.Send(ToggleCalibrateEventFactory.UpdateIsNextEnable(CalibrationStepIndex == 0));
         }
@@ -139,14 +142,14 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         var calibrationRecipeDto = RecipeCacheProvider.GetOrDefault<CalibrationRecipeDto>();
-        FindWaferBrightFieldCenterOffset = calibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition;
+        FindWaferCenterOffset = calibrationRecipeDto.WaferDto.WaferCenterWaferPosition;
         AlignmentResult = calibrationRecipeDto.WaferDto.AlignmentResultDto;
 
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         await FindWaferCenterByManuallyWindowViewModel.LoadedAsync().ConfigureAwait(false);
         FindWaferCenterCache = FindWaferCenterByManuallyWindowViewModel.Cache;
-        FindWaferBrightFieldCenterOffset = FindWaferCenterCache.OffsetPosition;
+        FindWaferCenterOffset = FindWaferCenterCache.OffsetPosition;
         return true;
     }
 
@@ -160,7 +163,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
     {
         if (IsOk())
         {
-            _recipeSettingViewModel.CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition = new Point(FindWaferBrightFieldCenterOffset!.Value.X, FindWaferBrightFieldCenterOffset!.Value.Y);
+            _recipeSettingViewModel.CalibrationRecipeDto.WaferDto.WaferCenterWaferPosition = new Point(FindWaferCenterOffset!.Value.X, FindWaferCenterOffset!.Value.Y);
             _recipeSettingViewModel.CalibrationRecipeDto.WaferDto.AlignmentResultDto = AlignmentResult!.Clone();
 
             _recipeSettingViewModel.IsEditWaferMapEnable = true;
@@ -179,7 +182,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
         return InvokeCalibrateAsync(async () =>
         {
             var result = await FindWaferCenterByManuallyWindowViewModel.ActionAsync(cancellationToken).ConfigureAwait(false);
-            FindWaferBrightFieldCenterOffset = FindWaferCenterByManuallyWindowViewModel.Cache.OffsetPosition;
+            FindWaferCenterOffset = FindWaferCenterByManuallyWindowViewModel.Cache.OffsetPosition;
             return result;
         });
     }
@@ -212,7 +215,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
 
     public bool IsOk()
     {
-        return FindWaferBrightFieldCenterOffset != null
+        return FindWaferCenterOffset != null
                && AlignmentResult != null;
     }
 

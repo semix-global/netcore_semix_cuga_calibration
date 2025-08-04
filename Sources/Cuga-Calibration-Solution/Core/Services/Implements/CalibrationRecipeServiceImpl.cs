@@ -80,13 +80,15 @@ public class CalibrationRecipeServiceImpl(
         {
             var originalWaferDto = applicationCookie.CalibrationRecipeDto!.WaferDto;
             originalWaferDto.WaferMapDataToWaferMapCanvasDocument();
-            var waferCenterBrightFieldPosition = originalWaferDto.WaferCenterBrightFieldPosition!.Value;
+            var waferCenterBrightFieldPosition = originalWaferDto.WaferCenterWaferPosition!.Value;
             var waferDto = originalWaferDto.Clone();
             waferDto.WaferMapDataToWaferMapCanvasDocument();
             var offsetPosition = Point.Origin;
             if (isAutoAlignment && GetWaferMapOffset(out offsetPosition) == false)
                 return false;
-            var offset = (Vector)waferCenterBrightFieldPosition + (Vector)offsetPosition;
+            var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+            var offset =/* (Vector)waferCenterBrightFieldPosition +*/ (Vector)new Point(xDirection * offsetPosition.X, yDirection * offsetPosition.Y);
+
             waferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint
                                                                           + offset;
             waferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint
@@ -179,6 +181,7 @@ public class CalibrationRecipeServiceImpl(
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
                                                      + ((Vector)waferPosition
                                                         - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
+
             position = realReticleMaskBrightFieldPosition;
             return true;
         }
@@ -200,7 +203,7 @@ public class CalibrationRecipeServiceImpl(
             var scribeSize = waferMapDocument.ReticleBuilder.DieScribeSize;
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
                                                      + ((Vector)waferPosition
-                                                        - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
+                                                     - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
             position = realReticleMaskBrightFieldPosition;
             return true;
         }

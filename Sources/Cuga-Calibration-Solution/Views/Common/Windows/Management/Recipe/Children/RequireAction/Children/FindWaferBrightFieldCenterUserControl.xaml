@@ -38,7 +38,7 @@
                              hc:InfoElement.Title="Position Error Threshold(um):"
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding FindWaferBrightFieldCenterOffset, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding FindWaferCenterOffset, Converter={StaticResource PointToStringConverter}}"
                              hc:InfoElement.Title="Center offset position:"
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />

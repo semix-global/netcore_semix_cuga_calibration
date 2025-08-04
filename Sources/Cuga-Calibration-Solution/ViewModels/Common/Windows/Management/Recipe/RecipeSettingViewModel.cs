@@ -5,6 +5,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Helper;
+using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
@@ -83,6 +84,8 @@ public sealed partial class RecipeSettingViewModel(
 
     public SelectionSet<WaferMapDie>? _selectionDies;
 
+    private Point _stageDirection = Point.Origin;
+
     #endregion 字段
 
     #region 界面显示
@@ -137,6 +140,18 @@ public sealed partial class RecipeSettingViewModel(
     }
 
     #endregion 界面显示
+
+    #region Review字段属性
+
+    private bool _isLoaded = false;
+
+    [ObservableProperty]
+    private bool _isReview;
+
+    [ObservableProperty]
+    private CalibrationRecipeDto? _reviewRecipeDtoBackup;
+
+    #endregion
 
     #region WaferMap属性
 
@@ -260,6 +275,14 @@ public sealed partial class RecipeSettingViewModel(
     [RelayCommand]
     private async Task LoadedAsync()
     {
+        if (_isLoaded) return;
+        _isLoaded = true;
+        if (_stageDirection == Point.Origin)
+        {
+            var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
+            _stageDirection = new Point(xDirection, yDirection);
+        }
+
         SelectRecipeDtoBackup = CalibrationRecipeDto.Clone();
 
         if (CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource == string.Empty) // 新增的配方
@@ -277,15 +300,19 @@ public sealed partial class RecipeSettingViewModel(
         WaferMapCanvasViewModel.Document.Settings.IsCanToggleAxes = true;
         WaferMapCanvasViewModel.Document.Settings.IsCanToggleCursor = true;
         WaferMapCanvasViewModel.Document.Settings.IsCanToggleGrid = true;
-        if (WaferMapCanvasViewModel.IsToggleSelection)
-        {
-            CalibrationRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
-            RefreshToken();
-            Task.Run(() => SelectionDiesAsync(_cancellationTokenSource.Token));
-        }
 
+        CalibrationRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
         WaferMapCanvasViewModel.Document = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument;
+        RefreshToken();
+        _ = Task.Factory.StartNew(() => SelectionDiesAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         NotifyWaferMapSetting();
+
+        if (ApplicationCookie.CalibrationRecipeDto == null)
+        {
+            dialogWindowProvider.ShowDialog("Recipe cache is empty!");
+            return;
+        }
+        ReviewRecipeDtoBackup = ApplicationCookie.CalibrationRecipeDto.Clone();
 
         if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag.MagnificationCode == -1)
             CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = ApplicationCookie.MicroscopeMagnificationInfoList[0];
@@ -370,6 +397,10 @@ public sealed partial class RecipeSettingViewModel(
         CloseView(null);
         messenger.Send(ToggleRecipeEventFactory.RefreshRecipeManagementView(true));
         CancelToken();
+        _isLoaded = false;
+        applicationCookie.CalibrationRecipeDto = ReviewRecipeDtoBackup.CalibrationRecipeInfoDto.RecipeName == CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName
+            ? CalibrationRecipeDto.Clone()
+            : ReviewRecipeDtoBackup!.Clone();
     }
 
     private void CancelToken()
@@ -415,7 +446,7 @@ public sealed partial class RecipeSettingViewModel(
             _selectionDies = inputResult.Output;
         }
 
-        WaferMapCanvasViewModel.IsToggleSelection = true;
+        // WaferMapCanvasViewModel.IsToggleSelection = true;
     }
 
     [RelayCommand]
@@ -441,12 +472,23 @@ public sealed partial class RecipeSettingViewModel(
     {
         try
         {
-            var originDieBrightPosition = StageViewModel.GetBrightFieldStagePosition();
-            var originDieWaferPosition = originDieBrightPosition - (Vector)CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
+            if (CalibrationRecipeDto.WaferDto.WaferCenterWaferPosition is null)
+            {
+                dialogWindowProvider.ShowDialog("The wafer center position is not set!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
+            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterObjDto>();
+            var originDieMachinePosition = StageViewModel.GetMachineStagePosition();
+            var originDieMachineOffset = originDieMachinePosition - chuckCenterMachinePosition.NewBFCenterStagePosition;
+            var originDieWaferPosition = new Point(_stageDirection.X * originDieMachineOffset.X, _stageDirection.Y * originDieMachineOffset.Y)
+                                         - (Vector)CalibrationRecipeDto.WaferDto.WaferCenterWaferPosition!.Value;
+
             WaferMapCanvasViewModel.Document.DieBuilder.OriginalDiePoint = originDieWaferPosition;
             WaferMapCanvasViewModel.Document.ReticleBuilder.OriginalDiePoint = originDieWaferPosition;
 
             NotifyWaferMapView();
+            IsReview = false;
             return true;
         }
         catch (Exception ex)
@@ -479,6 +521,85 @@ public sealed partial class RecipeSettingViewModel(
     }
 
     #endregion wafer Map
+
+    #region Review
+
+    [RelayCommand]
+    private async Task ReviewAsync()
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                RefreshToken();
+                applicationCookie.CalibrationRecipeDto = CalibrationRecipeDto.Clone();
+                if (calibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
+                    dialogWindowProvider.ShowDialog("Get correct wafer map by offset failed!");
+                RefreshReviewWaferMapCanvas(applicationCookie.CalibrationReviseRecipeDto);
+
+                _ = Task.Factory.StartNew(() => SelectionDiesAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+                IsReview = true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Update wafer map failed");
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GotoPositionAsync()
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                var document = WaferMapCanvasViewModel.Document;
+                if (document.ActiveView is null) return;
+
+                if (_selectionDies is null) return;
+
+                var index = _selectionDies.ElementAt(0).Index;
+                var centerPosition = IsReview
+                    ? ApplicationCookie.CalibrationReviseRecipeDto!.WaferDto.WaferCenterWaferPosition
+                    : CalibrationRecipeDto.WaferDto.WaferCenterWaferPosition!;
+                var waferPosition = new Point(document.OriginalDie.Rect.X + index.X * document.DieBuilder.DieSize.Width,
+                    document.OriginalDie.Rect.Y + index.Y * document.DieBuilder.DieSize.Height);
+                var position = centerPosition!.Value + (Vector)waferPosition;
+
+                StageViewModel.SetBrightFieldAbsoluteStageXy(position);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Goto Position failed");
+            }
+        }).ConfigureAwait(false);
+    }
+
+    private bool RefreshReviewWaferMapCanvas(CalibrationRecipeDto? calibrationRecipeDto)
+    {
+        try
+        {
+            if (calibrationRecipeDto is null)
+            {
+                dialogWindowProvider.ShowDialog("The wafer map is not set!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
+            calibrationRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
+            WaferMapCanvasViewModel.Document = calibrationRecipeDto.WaferDto.WaferMapCanvasDocument;
+
+            NotifyWaferMapView();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Generate Wafer Map Failed!");
+            return false;
+        }
+    }
+    #endregion
 
     #region MaskConfig
 
@@ -561,20 +682,21 @@ public sealed partial class RecipeSettingViewModel(
             var (maskDto, _) = GetSelectReticleMaskListInfo(obj.ToString());
             var waferBuilder = WaferMapCanvasViewModel.Document.WaferBuilder;
             var reticleBuilder = WaferMapCanvasViewModel.Document.ReticleBuilder;
-            var brightPosition = StageViewModel.GetBrightFieldStagePosition();
-            if (brightPosition.ToOriginLength >= waferBuilder.Circle.Radius)
+            var machinePosition = StageViewModel.GetMachineStagePosition();
+            if (machinePosition.ToOriginLength >= waferBuilder.Circle.Radius)
             {
                 dialogWindowProvider.ShowDialog("The position out of the wafer range!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
             }
 
-            var waferPosition = brightPosition - (Vector)CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
+            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterObjDto>();
+            var waferPosition = machinePosition - (Vector)chuckCenterMachinePosition.NewBFCenterStagePosition;
 
-            var DiePitchHeight = reticleBuilder.DiePitchSize.Height;
+            var diePitchHeight = reticleBuilder.DiePitchSize.Height;
             var scribeSize = reticleBuilder.DieScribeSize;
 
-            var relativeReticleOriginPosition = waferPosition
-                                                - (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, DiePitchHeight + scribeSize.Height));
+            var relativeReticleOriginPosition = new Point(_stageDirection.X * waferPosition.X, _stageDirection.Y * waferPosition.Y)
+                                                - (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, diePitchHeight + scribeSize.Height));
 
             maskDto.MaskWaferCellPosition = relativeReticleOriginPosition;
             RefreshReticleMaskView();
@@ -597,16 +719,25 @@ public sealed partial class RecipeSettingViewModel(
             var (maskDto, _) = GetSelectReticleMaskListInfo(obj.ToString());
             microscopeViewModel.SwitchMagnification(maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo);
 
-            var waferBuilder = WaferMapCanvasViewModel.Document.WaferBuilder;
             var reticleBuilder = WaferMapCanvasViewModel.Document.ReticleBuilder;
 
             var diePitchHeight = reticleBuilder.DiePitchSize.Height;
             var scribeSize = reticleBuilder.DieScribeSize;
+            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterObjDto>();
 
             var maskWaferPosition = maskDto.MaskWaferCellPosition +
                                     (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, diePitchHeight + scribeSize.Height));
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(maskWaferPosition + (Vector)CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value);
+            var maskMachinePosition = chuckCenterMachinePosition.NewBFCenterStagePosition +
+                                 (Vector)new Point(_stageDirection.X * maskWaferPosition.X, _stageDirection.Y * maskWaferPosition.Y);
+
+            if (IsReview)
+            {
+                var offset = applicationCookie.CalibrationReviseRecipeDto!.WaferDto.WaferCenterWaferPosition
+                     - (Vector)applicationCookie.CalibrationRecipeDto!.WaferDto.WaferCenterWaferPosition!;
+                maskMachinePosition += (Vector)new Point(_stageDirection.X * offset!.Value.X, _stageDirection.Y * offset.Value.Y);
+            }
+            StageViewModel.SetMachineAbsoluteStageXy(maskMachinePosition);
         }
         catch (Exception ex)
         {
@@ -662,7 +793,7 @@ public sealed partial class RecipeSettingViewModel(
     }
 
     [RelayCommand]
-    private async void GenerateBrightTemplate(object? obj)
+    private async Task GenerateBrightTemplateAsync(object? obj)
     {
         try
         {
@@ -676,7 +807,7 @@ public sealed partial class RecipeSettingViewModel(
 
             var (maskDto, directoryName) = GetSelectReticleMaskListInfo(obj.ToString());
 
-            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\BrightField\\Ncc\\{maskDto.Remark}_{maskDto.RecipeDarkFieldTemplateDto.WaferMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\BrightField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             var templateFilePath = maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath;
 
             microscopeViewModel.SwitchMagnification(maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo);
@@ -720,7 +851,7 @@ public sealed partial class RecipeSettingViewModel(
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
             using var _ = darkFieldImageDto;
 
-            var templateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\DarkField\\Ncc\\{maskDto.Remark}_{maskDto.RecipeDarkFieldTemplateDto.WaferMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}_{Guid.NewGuid()}";
+            var templateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\DarkField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}_{Guid.NewGuid()}";
             var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
 
             HalconHelper.Save(darkFieldImageDto.Image, templateImageFilePath);
@@ -840,7 +971,7 @@ public sealed partial class RecipeSettingViewModel(
     [RelayCommand]
     private void Debug()
     {
-        var waferCenterBrightFieldPosition = CalibrationRecipeDto.WaferDto.WaferCenterBrightFieldPosition!.Value;
+        var waferCenterBrightFieldPosition = CalibrationRecipeDto.WaferDto.WaferCenterWaferPosition!.Value;
         var originReticleWaferPosition = WaferMapCanvasViewModel.Document.ReticleBuilder.OriginalDiePoint;
         // 对准缓存
         var alignmentCacheBrightField = recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
