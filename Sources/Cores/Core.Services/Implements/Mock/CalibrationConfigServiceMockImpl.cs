@@ -1,5 +1,6 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Options;
@@ -30,13 +31,23 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         return SxExecuteRetHelper.CreateSuccess(filePath);
     }
 
-    public SxExecuteRet<string> GetPrescanFilePath(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        return SxExecuteRetHelper.CreateSuccess(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\prescan_high$5175$0$600$02$.txt"));
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>([
+            AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt")),
+            AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode2, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt")),
+            AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode3, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt")),
+            AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode4, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt"))
+        ]);
     }
 
-    public SxExecuteRet<string> GetChirpFilePath(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        return SxExecuteRetHelper.CreateSuccess(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\chirp_high$2897$1500$600$03$.txt"));
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>([
+            AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt")),
+            AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode2, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt")),
+            AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode3, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt")),
+            AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode4, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$.txt"))
+        ]);
     }
 }

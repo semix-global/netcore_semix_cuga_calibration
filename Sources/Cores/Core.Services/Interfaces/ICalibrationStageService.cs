@@ -290,13 +290,13 @@ public interface ICalibrationStageService
     /// <summary>
     /// 设置标记点1
     /// </summary>
-    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="algorithmTemplateSizeEnum">标记的模板尺寸大小</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <returns>暗场标记点1的坐标和模板</returns>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
@@ -305,13 +305,13 @@ public interface ICalibrationStageService
     /// <summary>
     /// 设置标记点2
     /// </summary>
-    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="site">MarkAlignSite1的返回值</param>
     /// <returns>暗场标记点2的坐标和模板</returns>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum);
@@ -323,7 +323,7 @@ public interface ICalibrationStageService
     /// <param name="brightFieldLowSite2">低倍镜下手动设置标记点2</param>
     /// <param name="darkFieldHighSite1">暗场标记点1的坐标和模板</param>
     /// <param name="darkFieldHighSite2">暗场标记点2的坐标和模板</param>
-    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="lowMicroscopeMagnificationInfo">对准使用的低倍镜</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
@@ -333,7 +333,7 @@ public interface ICalibrationStageService
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum

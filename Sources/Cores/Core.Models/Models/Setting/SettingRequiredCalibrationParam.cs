@@ -49,7 +49,7 @@ public sealed partial class SettingRequiredCalibrationParam : ObservableCacheBas
 public sealed partial class RequiredCalibrationParam : ObservableCacheBase, IAdaptIn<RequiredCalibrationParam, RequiredCalibrationParam>
 {
     [ObservableProperty]
-    private bool _isRequired = false;
+    private bool _isRequired;
 
     [ObservableProperty]
     private string _calibrationName = string.Empty;

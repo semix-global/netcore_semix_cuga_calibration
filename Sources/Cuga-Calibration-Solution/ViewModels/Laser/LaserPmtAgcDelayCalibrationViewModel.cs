@@ -223,8 +223,8 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
 
             var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
-            Cache.PmtIdList = LaserViewModel.GetUsedPmtIdList();
-            var darkFieldPmtDelayDtos = LaserViewModel.GetPmtDelayList();
+            Cache.PmtIdList = [.. LaserViewModel.GetIsUsedCIBConfigList().Select(t => t.PmtId)];
+            var darkFieldPmtDelayDtos = LaserViewModel.GetCIBDelayList();
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -236,7 +236,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
             }), HtmlLogUniqueId.LoggingHtml());
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            LaserViewModel.SendOpticsMagType(Cache.OpticsMagTypeEnum);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
 
             Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -289,7 +289,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
 
             try
             {
-                var darkFieldPmtDelayDtos = LaserViewModel.GetPmtDelayList();
+                var darkFieldPmtDelayDtos = LaserViewModel.GetCIBDelayList();
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
@@ -301,7 +301,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-                LaserViewModel.SendOpticsMagType(Cache.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
 
                 Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -384,17 +384,17 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
                     ch2Delay.AgcDelay = item.Channel2AgcDelay;
                     ch3Delay.AgcDelay = item.Channel3AgcDelay;
 
-                    LaserViewModel.ToggleEnableAutoGain(false, item.PmtId);
+                    LaserViewModel.ToggleEnableAutoGainControl(false, item.PmtId);
                     LaserViewModel.ToggleEnableMarkMode(false, item.PmtId);
 
-                    LaserViewModel.SetPmtDelayList([ch1Delay, ch2Delay, ch3Delay]);
+                    LaserViewModel.SetCIBDelayList([ch1Delay, ch2Delay, ch3Delay]);
 
-                    LaserViewModel.ToggleEnableAutoGain(true, item.PmtId);
+                    LaserViewModel.ToggleEnableAutoGainControl(true, item.PmtId);
                     LaserViewModel.ToggleEnableMarkMode(true, item.PmtId);
 
                     await Task.Delay(3000, cancellationToken);
 
-                    var result = await LaserViewModel.GetPmtSenseDataListAsync(Cache.CatchCount, item.PmtId);
+                    var result = await LaserViewModel.GetCIBOfSenseDataListAsync(Cache.CatchCount, item.PmtId);
                     item.Channel1SenseData = result[0];
                     item.Channel2SenseData = result[1];
                     item.Channel3SenseData = result[2];
@@ -522,12 +522,12 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         }
         finally
         {
-            LaserViewModel.ToggleEnableAutoGain(false, item.PmtId);
+            LaserViewModel.ToggleEnableAutoGainControl(false, item.PmtId);
             LaserViewModel.ToggleEnableMarkMode(false, item.PmtId);
-            LaserViewModel.SetPmtDelayList([ch1DelayClone, ch2DelayClone, ch3DelayClone]);
+            LaserViewModel.SetCIBDelayList([ch1DelayClone, ch2DelayClone, ch3DelayClone]);
         }
 
-        int GetMiddleIndex(List<double> values)
+        int GetMiddleIndex(IReadOnlyList<double> values)
         {
             if (HostEnvironment.IsDevelopment()) return 10;
 

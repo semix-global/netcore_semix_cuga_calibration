@@ -112,7 +112,7 @@ public sealed partial class EFEMWindowViewModel(
 
             SelectedFoupItem.IsLoadWafer = true;
             GetMapData(SelectedFoupItem.StationEnum);
-            dialogWindowProvider.TryShowDialog("Imformation", "Load wafer success!", out var dialogResult, DialogButtonsEnum.OK, DialogIconEnum.Information);
+            dialogWindowProvider.TryShowDialog("Imformation", "Load wafer success!", out var dialogResult);
         });
     }
 

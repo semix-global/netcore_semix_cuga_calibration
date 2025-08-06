@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
@@ -12,6 +13,7 @@ using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Pattern;
+using Core.Models.Models.Setting;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -36,7 +38,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPrescanChirpAodAlignmentCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -48,7 +50,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Select a Mag" },
         new() { StepName = "Gain" },
         new() { StepName = "Alignment" }
@@ -249,9 +251,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -386,7 +388,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 item.PrescanSignals = aodWaveSignals;
                 item.PrescanFouriers = aodWaveSignalsFourier;
 
-                var prescanDto = LaserViewModel.ReadPrescanByFile(item.PrescanFilePath, 1);
+                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, calibrationSetting.SettingCommonParam.MainCoefficient);
 
                 var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
                 if (isSuccess == false)
@@ -532,9 +534,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         DarkFieldImageDto Channel1DarkFieldImageDto,
         DarkFieldImageDto Channel2DarkFieldImageDto,
         DarkFieldImageDto Channel3DarkFieldImageDto)
-        GetDarkFieldLineScanImage(DarkFieldPrescanDto darkFieldPrescanDto)
+        GetDarkFieldLineScanImage(PrescanAODWaveformProfile aodWaveformProfile)
     {
-        LaserViewModel.SendPrescanByList(darkFieldPrescanDto);
+        LaserViewModel.SetPrescanAODWaveProfileList([aodWaveformProfile]);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,

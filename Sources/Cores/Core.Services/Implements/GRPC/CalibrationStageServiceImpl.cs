@@ -339,7 +339,7 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
@@ -347,7 +347,7 @@ public sealed class CalibrationStageServiceImpl(
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite1(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, SxSizeD size)>((yOpticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), algorithmTemplateSizeEnum.ToSize().ToSxSizeD()))));
+        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite1(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, SxSizeD size)>((opticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), algorithmTemplateSizeEnum.ToSize().ToSxSizeD()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
@@ -355,7 +355,7 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
@@ -363,7 +363,7 @@ public sealed class CalibrationStageServiceImpl(
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite2(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, C2MSiteDTO site)>((yOpticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), site.AdaptTo()))));
+        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite2(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, C2MSiteDTO site)>((opticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), site.AdaptTo()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
@@ -375,7 +375,7 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
@@ -392,7 +392,7 @@ public sealed class CalibrationStageServiceImpl(
         if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
 
         var sxExecuteRet = Invoke(() => Service2?.DFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ESxLevelEnum mag, ESxLevelEnum speed, ushort ll)>
-            ((brightFieldLowSite1.AdaptTo(), brightFieldLowSite2.AdaptTo(), darkFieldHighSite1.AdaptTo(), darkFieldHighSite2.AdaptTo(), yOpticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), lowRet.Anything.ToUshort()))));
+            ((brightFieldLowSite1.AdaptTo(), brightFieldLowSite2.AdaptTo(), darkFieldHighSite1.AdaptTo(), darkFieldHighSite2.AdaptTo(), opticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), lowRet.Anything.ToUshort()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())

@@ -1,5 +1,6 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -26,16 +27,16 @@ public sealed class ConfigViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public string GetPrescanFilePath(OpticsMagTypeEnum opticsMagTypeEnum)
+    public IReadOnlyList<AODWaveformProfile> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var ret = calibrationConfigService.GetPrescanFilePath(opticsMagTypeEnum);
+        var ret = calibrationConfigService.GetPrescanAODWaveProfileList(opticsMagTypeEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public string GetChirpFilePath(OpticsMagTypeEnum opticsMagTypeEnum)
+    public IReadOnlyList<AODWaveformProfile> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var ret = calibrationConfigService.GetChirpFilePath(opticsMagTypeEnum);
+        var ret = calibrationConfigService.GetChirpAODWaveProfileList(opticsMagTypeEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

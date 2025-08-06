@@ -18,7 +18,7 @@ public sealed partial class ChuckRotateScaleErrorCache : CalibrationCacheBase
     /// 对准后chuck此时的角度
     /// </summary>
     [ObservableProperty]
-    private double _p5ResultAngle = 0d;
+    private double _p5ResultAngle;
 
     [ComparisonRange(0d, 1d, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Rotate Angle: ")]
     public double RotateAngle

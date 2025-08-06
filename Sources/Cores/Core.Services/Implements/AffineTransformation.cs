@@ -29,7 +29,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
     /// <param name="isInWaferMatrix">是否在wafer内</param>
     /// <param name="templateMathIsOkMatrix">模板匹配是否成功矩阵</param>
     /// <param name="htmlLogUniqueId">html记录日志的Id</param>
-    /// <param name="calculateContainRowMinCout">算法行数包含最少行数</param>
+    /// <param name="calculateContainRowMinCount">算法行数包含最少行数</param>
     /// <param name="calculateContainColumnMinCount">算法列数包含最少列数</param>
     /// <param name="diameter">chuck直径</param>
     /// <param name="alignmentThreshold">对准精度</param>
@@ -44,7 +44,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         Matrix<double> isInWaferMatrix,
         Matrix<double> templateMathIsOkMatrix,
         Guid htmlLogUniqueId,
-        int calculateContainRowMinCout = 8,
+        int calculateContainRowMinCount = 8,
         int calculateContainColumnMinCount = 8,
         double diameter = 300000d,
         double alignmentThreshold = 1.466d,
@@ -56,12 +56,12 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var columnCount = idealXMatrix.ColumnCount;
         if (rowCount != idealYMatrix.RowCount || rowCount != realXMatrix.RowCount || rowCount != realYMatrix.RowCount || columnCount != idealYMatrix.ColumnCount || columnCount != realXMatrix.ColumnCount || columnCount != realYMatrix.ColumnCount)
             ThrowHelper.ThrowArgumentException("The matrix dimensions are inconsistent");
-        if (calculateContainRowMinCout < 1 || rowCount < calculateContainRowMinCout)
-            ThrowHelper.ThrowArgumentException("The calculateContainRowMinCout must be greater than 0 and less than or equal to rowCount");
+        if (calculateContainRowMinCount < 1 || rowCount < calculateContainRowMinCount)
+            ThrowHelper.ThrowArgumentException("The calculateContainRowMinCount must be greater than 0 and less than or equal to rowCount");
         if (calculateContainColumnMinCount < 1 || columnCount < calculateContainColumnMinCount)
             ThrowHelper.ThrowArgumentException("The calculateContainColumnMinCount must be greater than 0 and less than or equal to columnCount");
 
-        // isInWaferMatrix转换每一个数据bool类型，根据 calculateContainRowMinCout calculateContainColumnMinCount 计算满足的行数[minRow, MaxRow] 列数[minCol, MaxCol]
+        // isInWaferMatrix转换每一个数据bool类型，根据 calculateContainRowMinCount calculateContainColumnMinCount 计算满足的行数[minRow, MaxRow] 列数[minCol, MaxCol]
         var okRowIndexList = new List<int>();
         for (var row = 0; row < rowCount; row++)
         {
@@ -72,7 +72,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var okColumnIndexList = new List<int>();
         for (var column = 0; column < columnCount; column++)
         {
-            if (isInWaferMatrix.Column(column).Select(Convert.ToBoolean).Count(t => t) < calculateContainRowMinCout) continue;
+            if (isInWaferMatrix.Column(column).Select(Convert.ToBoolean).Count(t => t) < calculateContainRowMinCount) continue;
             okColumnIndexList.Add(column);
         }
 
@@ -89,7 +89,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var maxColumnIndex = okColumnIndexList[^1];
         logger.LogHtmlInformation("Error Map Start", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            calculateRowMinCout = calculateContainRowMinCout,
+            calculateRowMinCout = calculateContainRowMinCount,
             calculateColumnMinCount = calculateContainColumnMinCount,
             rowCount,
             columnCount,
@@ -513,14 +513,20 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 
-        /*var mapMatrix = Matrix<double>.Build.Dense(rowCount, columnCount);
+        var mapMatrix = Matrix<double>.Build.Dense(rowCount, columnCount);
+
+        var centerRow = (int)Math.Floor((rowCount - 1 + 0) / 2d);
         for (var row = 0; row < rowCount; row++)
         {
             for (var column = 0; column < columnCount; column++)
             {
                 if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
 
-                mapMatrix[row, column] = (idealYMatrix[row, column] - idealYMatrix[0, column]) * Math.Tan(meanGantryTheta);
+                var columnIndex = column - minColumnIndex;
+                mapMatrix[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
+                                         * (columnIndex < 0 || columnIndex >= thetaGantryVector.Count
+                                             ? Math.Tan(meanGantryTheta)
+                                             : Math.Tan(thetaGantryVector[columnIndex]));
             }
         }
 
@@ -530,12 +536,21 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             {
                 if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
 
-                if (idealXMatrix[row, column] > 0)
-                    idealXMatrix[row, column] -= mapMatrix[row, column];
-                else
-                    idealXMatrix[row, column] += mapMatrix[row, column];
+                idealXMatrix[row, column] += mapMatrix[row, column];
             }
-        }*/
+        }
+
+        logger.LogHtmlInformation(
+            "4.2. Result",
+            HtmlHeaderLevelEnum.Header5,
+            new HtmlBullet(new
+            {
+                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, realXMatrix - idealXMatrix, realYMatrix - idealYMatrix, "Rotate Map"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Rotate error X"),
+                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Rotate error Y")
+            }),
+            htmlLogUniqueId.LoggingHtml()
+        );
 
         #endregion 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 
@@ -728,7 +743,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             htmlLogUniqueId.LoggingHtml()
         );
 
-        errorX += errorScaleX;
+        /*errorX += errorScaleX;
         errorY += errorScaleY;
 
         logger.LogHtmlInformation(
@@ -741,7 +756,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                 ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorY, "error Y")
             }),
             htmlLogUniqueId.LoggingHtml()
-        );
+        );*/
 
         #endregion 六.一. 误差矩阵平移坐标修正
 

@@ -1,15 +1,12 @@
-using System.Windows.Controls;
+namespace CugaCalibration.Views.Chuck.StageMap.Children;
 
-namespace CugaCalibration.Views.Chuck.StageMap.Children
+/// <summary>
+/// ConfigView.xaml 的交互逻辑
+/// </summary>
+public partial class ConfigView
 {
-    /// <summary>
-    /// ConfigView.xaml 的交互逻辑
-    /// </summary>
-    public partial class ConfigView
+    public ConfigView()
     {
-        public ConfigView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

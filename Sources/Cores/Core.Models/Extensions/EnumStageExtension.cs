@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.ADS;
 using Core.Models.Enums.Stage;
 using Cuga.Data.DataStruct.ADS;
@@ -12,7 +11,7 @@ using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
 using Cuga.Data.DataStruct.Stage;
-
+using CommunityToolkit.Diagnostics;
 #endif
 
 namespace Core.Models.Extensions;
@@ -43,7 +42,6 @@ public static class EnumStageExtension
     };
 
 #else
-
     public static CgCalChipType ToCgCalChipType(this CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
     {
         CalChipSiteModelEnum.ChuckModel => CgCalChipType.None,
@@ -64,6 +62,15 @@ public static class EnumStageExtension
         _ => ThrowHelper.ThrowArgumentOutOfRangeException<CalChipSiteModelEnum>(nameof(cgCalChipType))
     };
 
+    public static CalChipSiteModelEnum ToCalChipModelEnum(this int cgCalChipModel) => cgCalChipModel switch
+    {
+        0 => CalChipSiteModelEnum.ChuckModel,
+        1 => CalChipSiteModelEnum.UndefinedModel,
+        2 => CalChipSiteModelEnum.DswModel,
+        3 => CalChipSiteModelEnum.ShinyWaferModel,
+        4 => CalChipSiteModelEnum.HazeModel,
+        _ => throw new ArgumentOutOfRangeException(nameof(cgCalChipModel), cgCalChipModel, null)
+    };
 #endif
 
     #endregion CalChipMode

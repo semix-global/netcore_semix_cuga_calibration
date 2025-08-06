@@ -440,6 +440,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             if (File.Exists(IdeaPositionCache.AlgorithmTemplateTypeEnum.ToFullFilePath(IdeaPositionCache.HighTemplateFilePath)) == false)
             {
                 DialogWindowProvider.ShowDialog("Base position low site template is not exit!");

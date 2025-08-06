@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Humanizer;
@@ -399,19 +400,19 @@ public partial class AodPowerUniformityWindowViewModel(
 
                 if (OpticsAODTypeEnum == OpticsAODTypeEnum.Chirp)
                 {
-                    laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum.High), DefaultCoefficient));
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum.High, DefaultCoefficient);
                     laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-                    laserViewModel.SendChirpAodByList(laserViewModel.ReadChirpAodByConfigFile(item.AodWaveFilePath));
+                    laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.AodWaveFilePath)]);
                 }
                 else
                 {
-                    laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(item.AodWaveFilePath, DefaultCoefficient));
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum.High, DefaultCoefficient);
                     laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(WaitTime), cancellationToken).ConfigureAwait(false);
 
-                var result = laserViewModel.GetLaserPowerMeterLightIntensity();
+                var result = laserViewModel.GetOpticalPowerMeter();
 
                 item.MeasurePower = result;
                 return true;

@@ -276,13 +276,13 @@ public sealed partial class StageViewModel(
     }
 
     public AlignmentSiteDto MarkAlignSite1DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
-        var ret = calibrationStageService.MarkAlignSite1DarkField(yOpticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -291,12 +291,12 @@ public sealed partial class StageViewModel(
     }
 
     public AlignmentSiteDto MarkAlignSite2DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
-        var ret = calibrationStageService.MarkAlignSite2DarkField(yOpticsMagTypeEnum, xStageSpeedEnum, site, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite2DarkField(opticsMagTypeEnum, xStageSpeedEnum, site, algorithmWaferTypeEnum);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -309,7 +309,7 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
@@ -320,7 +320,7 @@ public sealed partial class StageViewModel(
             brightFieldLowSite2,
             darkFieldHighSite1,
             darkFieldHighSite2,
-            yOpticsMagTypeEnum,
+            opticsMagTypeEnum,
             xStageSpeedEnum,
             lowMicroscopeMagnificationInfo,
             algorithmWaferTypeEnum);

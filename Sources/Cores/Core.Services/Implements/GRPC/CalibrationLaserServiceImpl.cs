@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
@@ -44,7 +45,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         });
     }
 
-    public SxExecuteRet<(Point PD1, Point PD2)> GetLaserBeamPosition()
+    public SxExecuteRet<(Point PD1Point, Point PD2Point)> GetLaserBeamPoint()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadLaserBeamPos());
         return sxExecuteRet.IsSuccess == false
@@ -52,15 +53,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess((new Point(sxExecuteRet.Anything.PD_X_1_FPOS, sxExecuteRet.Anything.PD_Y_1_FPOS) * 1000, new Point(sxExecuteRet.Anything.PD_X_2_FPOS, sxExecuteRet.Anything.PD_Y_2_FPOS) * 1000));
     }
 
-    public SxExecuteRet<(Point PD1, Point PD2)> GetLaserOriginPosition()
+    public SxExecuteRet<(Point PD1Point, Point PD2Point)> GetLaserBeamOriginPoint()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadLaserBeamOriginPos());
+
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (Point.Origin, Point.Origin))
             : SxExecuteRetHelper.CreateSuccess((new Point(sxExecuteRet.Anything.PD_X_1_FPOS, sxExecuteRet.Anything.PD_Y_1_FPOS) * 1000, new Point(sxExecuteRet.Anything.PD_X_2_FPOS, sxExecuteRet.Anything.PD_Y_2_FPOS) * 1000));
     }
 
-    public SxExecuteRet<bool> AdjustmentOfReflector(bool isEnable)
+    public SxExecuteRet<bool> AdjustBeamStabilizer(bool isEnable)
     {
         var sxExecuteRet = Invoke(() => Service?.LaserBeamAdjust(new SxParamObj<bool>(isEnable)));
 
@@ -69,7 +71,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<double> GetLaserPowerMeterLightIntensity()
+    public SxExecuteRet<double> GetOpticalPowerMeter()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
 
@@ -78,51 +80,26 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
-    public SxExecuteRet<double> LightLevelToLightCoefficient(double level)
+    public SxExecuteRet<double> LevelToCoefficient(double level)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<double> LightCoefficientToLightLevel(double coefficient)
+    public SxExecuteRet<double> CoefficientToLevel(double coefficient)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SendOpticsMagType(OpticsMagTypeEnum yOpticsMagTypeEnum)
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.RefreshMag(new SxParamObj<CgMagTypeEnum>(yOpticsMagTypeEnum.ToCgMagTypeEnum())));
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SendPrescanByCoefficient(OpticsMagTypeEnum yOpticsMagTypeEnum, double coefficient)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetPrescan(new SxParamObj<(CgMagTypeEnum yOpticsMagTypeEnum, double coefficient)>((yOpticsMagTypeEnum.ToCgMagTypeEnum(), coefficient))));
+        var sxExecuteRet = Invoke(() => Service?.RefreshMag(new SxParamObj<CgMagTypeEnum>(opticsMagTypeEnum.ToCgMagTypeEnum())));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SendPrescanFileIllumination(new SxParamObj<(short regNum, short zeroNum, List<byte> sendData)>((darkFieldPrescanDto.RegNum, darkFieldPrescanDto.ZeroNum, darkFieldPrescanDto.PrescanByteList))));
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SendChirpAodByList(DarkFieldChirpAodWaveDto darkFieldChirpAodWaveDto)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetChirpCalibration(new SxParamObj<(List<byte> sendData, int totalNum, int zeronum)>((darkFieldChirpAodWaveDto.ChirpAodWaveByteList, darkFieldChirpAodWaveDto.RegNum, darkFieldChirpAodWaveDto.ZeroNum))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
+    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
     {
         var sxExecuteRet = Invoke(() => Service?.SetAODNO(new SxParamObj<int>(opticsAodWorkingModeEnum.ToOpticsAodWorkingMode())));
 
@@ -140,30 +117,50 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(new SxParamObj<(CgMagTypeEnum yOpticsMagTypeEnum, int? chirpAodDelay, int? prescanAodDelay)>((yOpticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)))));
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(new SxParamObj<(CgMagTypeEnum OpticsMagTypeEnum, int? chirpAodDelay, int? prescanAodDelay)>((opticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetPrescanAODWaveProfileList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfileList)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetChirpAODWaveProfileList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfileList)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)
     {
-        var toggleAutoGainRet = ToggleEnableAutoGainControl(cIbConfiguration.IsAutoGain, pmtId, channelId);
+        var toggleAutoGainRet = ToggleEnableAutoGainControl(cIbConfiguration.IsAutoGainControl, pmtId, channelId);
         if (toggleAutoGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleAutoGainRet.ErrorMsg, false);
 
-        if (cIbConfiguration.IsAutoGain == false)
+        if (cIbConfiguration.IsAutoGainControl == false)
         {
-            var setGainRet = SetGain(cIbConfiguration.DcGainVoltage, pmtId, channelId);
+            var setGainRet = SetGain(cIbConfiguration.Gain, pmtId, channelId);
             if (setGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setGainRet.ErrorMsg, false);
         }
 
-        var toggleL0kRet = ToggleEnableL0K(cIbConfiguration.IsL0k, pmtId, channelId);
+        var toggleL0kRet = ToggleEnableL0K(cIbConfiguration.IsL0K, pmtId, channelId);
         if (toggleL0kRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleL0kRet.ErrorMsg, false);
 
-        var toggleProfileTypeRet = ToggleProfileType(cIbConfiguration.CIBProfileMode, pmtId, channelId);
+        var toggleProfileTypeRet = ToggleProfileMode(cIbConfiguration.CIBProfileMode, pmtId, channelId);
         if (toggleProfileTypeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleProfileTypeRet.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
@@ -174,7 +171,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ToggleProfileType(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId)
+    public SxExecuteRet<bool> ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
@@ -203,44 +200,44 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<(int PmtId, bool IsUsed, List<int> ChannelIdList)>> GetPmtConfigList()
+    public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<List<double>>> GetPmtDataList(int count, int pmtId, int channelId)
+    public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfPMTDataList(int count, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<DarkFieldPmtDataDto>> GetPmtDataList()
+    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDataALL());
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldPmtDataDto>>(pmtRet.ErrorMsg, []);
+        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDataDto>>(pmtRet.ErrorMsg, []);
 
         var result = new List<DarkFieldPmtDataDto>(pmtRet.Anything.Count);
         result.AddRange(pmtRet.Anything.Select(pmtDataModel => new DarkFieldPmtDataDto().AdaptIn(pmtDataModel)));
 
-        return SxExecuteRetHelper.CreateSuccess(result);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDataDto>>(result);
     }
 
-    public SxExecuteRet<List<List<double>>> GetPmtSenseDataList(int count, int pmtId, int channelId)
+    public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<DarkFieldPmtDelayDto>> GetPmtDelayList()
+    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDelay());
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldPmtDelayDto>>(pmtRet.ErrorMsg, []);
+        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDelayDto>>(pmtRet.ErrorMsg, []);
 
         var result = new List<DarkFieldPmtDelayDto>(pmtRet.Anything.Count);
         result.AddRange(pmtRet.Anything.Select(pmtDelayModel => new DarkFieldPmtDelayDto().AdaptIn(pmtDelayModel)));
 
-        return SxExecuteRetHelper.CreateSuccess(result);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDelayDto>>(result);
     }
 
-    public SxExecuteRet<bool> SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
     {
         var pmtDelayModel = darkFieldPmtDelayDtoList.Select(item => item.AdaptTo()).ToList();
 
@@ -251,14 +248,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendPmtGain(double[] gains, int pmtId, int channelId)
+    public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channel)
+    public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
     {
-        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(new SxParamObj<(List<string> pmtData, List<string> igData, int pmtId, int channel)>((pmtData, igData, pmtId, channel))));
+        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(new SxParamObj<(List<string> pmtData, List<string> igData, int pmtId, int channel)>((pmtData, igData, pmtId, channelId))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -270,11 +267,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight)
+    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
     {
         if (isCuttingPixelHeight == false) throw new NotImplementedException();
 
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(yOpticsMagTypeEnum.ToCgMagTypeEnum())));
+        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(opticsMagTypeEnum.ToCgMagTypeEnum())));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
@@ -283,7 +280,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
@@ -294,7 +291,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         {
             StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service?.GetImg(new SxParamObj<M2CCollectImgParamDTO>(new M2CCollectImgParamDTO
             {
-                Mag = yOpticsMagTypeEnum.ToSxMagEnum(),
+                Mag = opticsMagTypeEnum.ToSxMagEnum(),
                 Speed = xStageSpeedEnum.ToSxSpeedEnum(),
                 Width = xWidthPixel,
                 Pos = position.ToSxPointD(),
@@ -305,7 +302,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             }))),
             StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetImgStage(new SxParamObj<M2CCollectImgParamDTO>(new M2CCollectImgParamDTO
             {
-                Mag = yOpticsMagTypeEnum.ToSxMagEnum(),
+                Mag = opticsMagTypeEnum.ToSxMagEnum(),
                 Speed = xStageSpeedEnum.ToSxSpeedEnum(),
                 Width = xWidthPixel,
                 Pos = position.ToSxPointD(),
@@ -333,18 +330,18 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-       bool isAutoFocus,
+        bool isAutoFocus,
         bool isForward)
     {
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
             StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetImgPTP(new SxParamObj<M2CCollectImgParamDTO>(new M2CCollectImgParamDTO
             {
-                Mag = yOpticsMagTypeEnum.ToSxMagEnum(),
+                Mag = opticsMagTypeEnum.ToSxMagEnum(),
                 Speed = xStageSpeedEnum.ToSxSpeedEnum(),
                 Pos = isForward ? startPosition.ToSxPointD() : endPosition.ToSxPointD(),
                 Pos2 = isForward ? endPosition.ToSxPointD() : startPosition.ToSxPointD(),
@@ -371,7 +368,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
@@ -386,11 +383,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (directionRect.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRect.ErrorMsg, []);
         var directionX = directionRect.Anything.XDirection;
 
-        var picturePixelHeightRet = GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum, true);
+        var picturePixelHeightRet = GetDarkFieldLineScanImageYPixelHeight(opticsMagTypeEnum, true);
         if (picturePixelHeightRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(picturePixelHeightRet.ErrorMsg, []);
         var height = picturePixelHeightRet.Anything;
 
-        var scanLineXPixelSize = calibrationSetting.SettingCommonParam.GetScanLineXPixelSize(yOpticsMagTypeEnum, xStageSpeedEnum);
+        var scanLineXPixelSize = calibrationSetting.SettingCommonParam.GetScanLineXPixelSize(opticsMagTypeEnum, xStageSpeedEnum);
         var extendWidth = xWidthPixel * scanLineXPixelSize / 2.0;
 
         // 计算采图的起点终点机械坐标
@@ -402,7 +399,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         {
             StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetImgPTP(new SxParamObj<M2CCollectImgParamDTO>(new M2CCollectImgParamDTO
             {
-                Mag = yOpticsMagTypeEnum.ToSxMagEnum(),
+                Mag = opticsMagTypeEnum.ToSxMagEnum(),
                 Speed = xStageSpeedEnum.ToSxSpeedEnum(),
                 Pos = startPoint.ToSxPointD(),
                 Pos2 = endPoint.ToSxPointD(),

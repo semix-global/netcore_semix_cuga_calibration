@@ -33,13 +33,13 @@ public sealed partial class LaserPmtAgcDelayItemDto : CalibrationDtoBase, IClone
     private double _channel3AgcOffset;
 
     [ObservableProperty]
-    private List<List<double>> _channel1SenseData = [];
+    private IReadOnlyList<IReadOnlyList<double>> _channel1SenseData = [];
 
     [ObservableProperty]
-    private List<List<double>> _channel2SenseData = [];
+    private IReadOnlyList<IReadOnlyList<double>> _channel2SenseData = [];
 
     [ObservableProperty]
-    private List<List<double>> _channel3SenseData = [];
+    private IReadOnlyList<IReadOnlyList<double>> _channel3SenseData = [];
 
     #region Mapper
 
@@ -55,21 +55,21 @@ public sealed partial class LaserPmtAgcDelayItemDto : CalibrationDtoBase, IClone
         Channel3AgcOffset = Channel3AgcOffset,
         Channel1SenseData =
         [
-            .. Channel1SenseData.Select<List<double>, List<double>>(t =>
+            .. Channel1SenseData.Select<IReadOnlyList<double>, IReadOnlyList<double>>(t =>
             [
                 .. t
             ])
         ],
         Channel2SenseData =
         [
-            .. Channel2SenseData.Select<List<double>, List<double>>(t =>
+            .. Channel2SenseData.Select<IReadOnlyList<double>, IReadOnlyList<double>>(t =>
             [
                 .. t
             ])
         ],
         Channel3SenseData =
         [
-            .. Channel3SenseData.Select<List<double>, List<double>>(t =>
+            .. Channel3SenseData.Select<IReadOnlyList<double>, IReadOnlyList<double>>(t =>
             [
                 .. t
             ])

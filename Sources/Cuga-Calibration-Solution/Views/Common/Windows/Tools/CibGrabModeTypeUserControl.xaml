@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB;assembly=Core.Models"
@@ -27,7 +26,7 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center" />
                         <ToggleButton x:Name="IsAutoGain"
-                                      IsChecked="{Binding IsAutoGain}"
+                                      IsChecked="{Binding IsAutoGainControl}"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       Background="{StaticResource DangerBrush}"
@@ -40,13 +39,13 @@
                                       Maximum="10"
                                       Visibility="{Binding Path=IsChecked, ElementName=IsAutoGain, Converter={StaticResource Boolean2VisibilityReConverter}}"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding DcGainVoltage}" />
+                                      Value="{Binding Gain}" />
                     <StackPanel Margin="2" Orientation="Horizontal">
                         <TextBlock Text="L0k:  "
                                    Width="150"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center" />
-                        <ToggleButton IsChecked="{Binding IsL0k}"
+                        <ToggleButton IsChecked="{Binding IsL0K}"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       Background="{StaticResource DangerBrush}"

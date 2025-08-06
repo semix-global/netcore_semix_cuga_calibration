@@ -17,5 +17,4 @@ public sealed partial class MicroscopeCentricityCacheItem : CalibrationDtoBase
 
     [ObservableProperty]
     private string _templateImageFilePath = string.Empty;
-
 }

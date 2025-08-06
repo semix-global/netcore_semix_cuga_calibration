@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
@@ -34,7 +35,6 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     CreateRoiWindowViewModel createRoiWindowViewModel,
     StageViewModel stageViewModel,
     LaserViewModel laserViewModel,
-    ConfigViewModel configViewModel,
     AfViewModel afViewModel,
     CalibrationSetting calibrationSetting,
     IOptions<ApplicationSetting> options,
@@ -645,8 +645,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 foreach (var (index, ecs) in Generate.LinearRange(EcsMin, EcsStep, EcsMax).Select((t, i) => (Index: i, Ecs: t)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum), PrescanCoefficient));
-                    laserViewModel.SendChirpAodByList(laserViewModel.ReadChirpAodByConfigFile(item.ChirpAodWaveFilePath));
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanCoefficient);
+                    laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.ChirpAodWaveFilePath)]);
 
                     afViewModel.ToggleBrightFieldEnable(false);
                     afViewModel.SetSensorEcsValue(ecs);

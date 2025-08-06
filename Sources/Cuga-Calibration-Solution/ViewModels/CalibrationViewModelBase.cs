@@ -61,6 +61,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     private CancellationTokenSource? _cancellationTokenSource;
 
     #region 属性
+
     [ObservableProperty]
     private ApplicationCookie _applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 

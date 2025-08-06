@@ -6,7 +6,6 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:waferEnum="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
              xmlns:algorithmEnum="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
-             xmlns:microscopeEnum="clr-namespace:Core.Models.Enums.Microscope;assembly=Core.Models"
              xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"

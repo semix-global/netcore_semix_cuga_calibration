@@ -452,6 +452,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
@@ -692,7 +693,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             efemWindowViewModel.IsPrealigner = false;
 
             result = efemWindowViewModel.SelectedFoupItem != null
-                && efemWindowViewModel is { PrealignerIsOk: true, SelectedFoupItem.IsLoadWafer: true };
+                     && efemWindowViewModel is { PrealignerIsOk: true, SelectedFoupItem.IsLoadWafer: true };
 
             Logger.LogHtmlInformation(result ? "ReloadWafer OK" : "ReloadWafer Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {

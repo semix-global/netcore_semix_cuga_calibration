@@ -92,7 +92,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
         switch (CalibrationStepIndex)
         {
             case 0:
-                var (originPoint1, originPoint2) = LaserViewModel.GetLaserOriginPosition();
+                var (originPoint1, originPoint2) = LaserViewModel.GetLaserBeamOriginPoint();
                 Cache.OriginPosition1 = originPoint1;
                 Cache.OriginPosition2 = originPoint2;
                 return true;
@@ -150,7 +150,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
             if (!isFirstCalibrateSuccess)
             {
                 // 打开反射镜自动校准
-                LaserViewModel.AdjustmentOfReflector(true);
+                LaserViewModel.AdjustBeamStabilizer(true);
                 var isSecondCalibrateSuccess = false;
                 for (var i = 0; i < Cache.RepeatNumber; i++)
                 {
@@ -160,7 +160,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                 }
 
                 //关闭反射镜自动校准
-                LaserViewModel.AdjustmentOfReflector(false);
+                LaserViewModel.AdjustBeamStabilizer(false);
                 if (!isSecondCalibrateSuccess)
                 {
                     CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
@@ -216,10 +216,10 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
             if (!isFirstCalibrateSuccess)
             {
                 //打开反射镜自动校准
-                LaserViewModel.AdjustmentOfReflector(true);
+                LaserViewModel.AdjustBeamStabilizer(true);
                 var isSecondCalibrateSuccess = ExecuteBeamStabilizerCalibrate(cancellationToken);
                 //关闭反射镜自动校准
-                LaserViewModel.AdjustmentOfReflector(false);
+                LaserViewModel.AdjustBeamStabilizer(false);
 
                 if (!isSecondCalibrateSuccess)
                 {
@@ -263,7 +263,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
     private bool ExecuteBeamStabilizerCalibrate(CancellationToken cancellationToken)
     {
         var checkSuccess = true;
-        var (originPoint1, originPoint2) = LaserViewModel.GetLaserOriginPosition();
+        var (originPoint1, originPoint2) = LaserViewModel.GetLaserBeamOriginPoint();
 
         Cache.OriginPosition1 = originPoint1;
         Cache.OriginPosition2 = originPoint2;
@@ -304,7 +304,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
     private bool CheckLaserBeamStabilizerOffsetPosition(Point originPoint1, Point originPoint2)
     {
-        var (currentPdPoint1, currentPdPoint2) = LaserViewModel.GetLaserBeamPosition();
+        var (currentPdPoint1, currentPdPoint2) = LaserViewModel.GetLaserBeamPoint();
 
         FirstLaserBeamStabilizerObjDto.CurrentPDPosition1 = currentPdPoint1;
         FirstLaserBeamStabilizerObjDto.CurrentPDPosition2 = currentPdPoint2;

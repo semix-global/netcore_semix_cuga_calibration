@@ -147,7 +147,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private bool _isAutoCalibrate;
 
     [ObservableProperty]
-    private double _autoCalibrationProgress = 0d;
+    private double _autoCalibrationProgress;
 
     [ObservableProperty]
     private bool _autoCalibrationIsRunning = true;
@@ -638,7 +638,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                     CalibrationSetting.MicroscopeMagnificationInfoItems = new ObservableCollection<MicroscopeMagnificationInfo>(magnificationList.Select(t => t.Clone()));
                     _cacheProvider.Set(CalibrationSetting, CancellationToken.None);
                 }
-
             }
             catch (Exception ex)
             {

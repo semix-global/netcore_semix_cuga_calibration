@@ -17,7 +17,7 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
     private double _columnCellWidth = 15300;
     private double _rowCellHeight = 16600;
     private double _waferDiameter = 300_000;
-    private int _calculateContainRowMinCout = 8;
+    private int _calculateContainRowMinCount = 8;
     private int _calculateContainColumnMinCount = 8;
 
     [ObservableProperty]
@@ -114,10 +114,10 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
 
     [CustomValidation(typeof(ChuckDarkFieldStageMapCache), nameof(ValidateIsOutOfRowNumberRange))]
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Row MinCout: ")]
-    public int CalculateContainRowMinCout
+    public int CalculateContainRowMinCount
     {
-        get => _calculateContainRowMinCout;
-        set => SetProperty(ref _calculateContainRowMinCout, value, true);
+        get => _calculateContainRowMinCount;
+        set => SetProperty(ref _calculateContainRowMinCount, value, true);
     }
 
 
@@ -171,7 +171,7 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
     {
         ClearErrors();
         ValidateProperty(RepeatCount, nameof(RepeatCount));
-        ValidateProperty(CalculateContainRowMinCout, nameof(CalculateContainRowMinCout));
+        ValidateProperty(CalculateContainRowMinCount, nameof(CalculateContainRowMinCount));
         ValidateProperty(CalculateContainColumnMinCount, nameof(CalculateContainColumnMinCount));
 
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);

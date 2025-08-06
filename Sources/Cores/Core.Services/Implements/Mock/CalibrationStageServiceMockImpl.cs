@@ -224,7 +224,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     public SxExecuteRet<Point> FindWaferCenterByManually(out List<byte[]> bitmapMemoryBytes, Point offset, List<Point>? waferEdgeOffsets = null)
     {
         _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
-        var tempBitmap = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.txt")));
+        var tempBitmap = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.txt")));
         bitmapMemoryBytes = [tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap];
         Thread.Sleep(100);
 
@@ -248,7 +248,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
                 {
                     Name = "Test",
                     Size = new Size(Convert.ToInt32(algorithmTemplateSizeEnum), Convert.ToInt32(algorithmTemplateSizeEnum)),
-                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.txt")))
+                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.txt")))
                 }
             }
         );
@@ -267,7 +267,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
                 {
                     Name = "Test",
                     Size = site.Template?.Size ?? Size.Empty,
-                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test.txt")))
+                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.txt")))
                 }
             }
         );
@@ -306,7 +306,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
@@ -323,14 +323,14 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
                 {
                     Name = "Test1",
                     Size = new Size(Convert.ToInt32(algorithmTemplateSizeEnum), Convert.ToInt32(algorithmTemplateSizeEnum)),
-                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test1.txt")))
+                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test1.txt")))
                 }
             }
         );
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
@@ -347,7 +347,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
                 {
                     Name = "Test1",
                     Size = site.Template?.Size ?? Size.Empty,
-                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Data\\test1.txt")))
+                    Thumb = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test1.txt")))
                 }
             }
         );
@@ -358,7 +358,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum

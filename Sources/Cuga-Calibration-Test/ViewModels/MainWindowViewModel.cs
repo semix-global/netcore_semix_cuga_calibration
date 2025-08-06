@@ -36,6 +36,7 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
@@ -45,7 +46,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
-using Net.Utilities.WPF.MVVM.Providers;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
@@ -443,7 +443,7 @@ public sealed partial class MainWindowViewModel(
         calibrationAlgorithmService.CalculateChuckStageMapError(
             darkFieldStageMapDto.CalibrationStageMap,
             htmlLogUniqueId,
-            darkFieldCache.CalculateContainRowMinCout,
+            darkFieldCache.CalculateContainRowMinCount,
             darkFieldCache.CalculateContainColumnMinCount,
             darkFieldCache.CalibrationAlignmentThreshold,
             darkFieldCache.CalibrationGantryThreshold,
@@ -533,7 +533,7 @@ public sealed partial class MainWindowViewModel(
         var scatter = wpfPlot.Plot.Add.Scatter((double[])[.. x], [.. y], category20.GetColor(0));
         scatter.LegendText = "Noisy";
 
-        var markers = wpfPlot.Plot.Add.Markers((double[])[.. peaks], peaks.Select(t => y[t]).ToArray(), MarkerShape.FilledDiamond, 10, category20.GetColor(1));
+        var markers = wpfPlot.Plot.Add.Markers((double[])[.. peaks], [.. peaks.Select(t => y[t])], MarkerShape.FilledDiamond, 10, category20.GetColor(1));
         markers.LegendText = "Peaks";
 
         wpfPlot.Plot.Title("AutomaticMPeakDetection");
@@ -660,6 +660,6 @@ public sealed partial class MainWindowViewModel(
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         };
 
-        window.ShowDialog();
+        window.Show();
     }
 }

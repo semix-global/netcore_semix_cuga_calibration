@@ -17,7 +17,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private double _waferDiameter = 300_000;
     private double _columnCellWidth = 15300;
     private double _rowCellHeight = 16600;
-    private int _calculateContainRowMinCout = 8;
+    private int _calculateContainRowMinCount = 8;
     private int _calculateContainColumnMinCount = 8;
     private int _repeatCount = 10;
 
@@ -37,7 +37,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private double _brightFieldRowCellHeight = 16600;
 
     [ObservableProperty]
-    private int _brightFieldCalculateContainRowMinCout = 8;
+    private int _brightFieldCalculateContainRowMinCount = 8;
 
     [ObservableProperty]
     private int _brightFieldCalculateContainColumnMinCount = 8;
@@ -58,7 +58,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private double _darkFieldWaferDiameter = 300_000;
 
     [ObservableProperty]
-    private int _darkFieldCalculateContainRowMinCout = 8;
+    private int _darkFieldCalculateContainRowMinCount = 8;
 
     [ObservableProperty]
     private int _darkFieldCalculateContainColumnMinCount = 8;
@@ -127,10 +127,10 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
 
     [CustomValidation(typeof(ChuckStageMapCache), nameof(ValidateIsOutOfRowNumberRange))]
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Row MinCout: ")]
-    public int CalculateContainRowMinCout
+    public int CalculateContainRowMinCount
     {
-        get => _calculateContainRowMinCout;
-        set => SetProperty(ref _calculateContainRowMinCout, value, true);
+        get => _calculateContainRowMinCount;
+        set => SetProperty(ref _calculateContainRowMinCount, value, true);
     }
 
     [CustomValidation(typeof(ChuckStageMapCache), nameof(ValidateIsOutOfColumnNumberRange))]
@@ -190,7 +190,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
         WaferDiameter = IsDarkField == false ? BrightFieldWaferDiameter : DarkFieldWaferDiameter;
         ColumnCellWidth = IsDarkField == false ? BrightFieldColumnCellWidth : DarkFieldColumnCellWidth;
         RowCellHeight = IsDarkField == false ? BrightFieldRowCellHeight : DarkFieldRowCellHeight;
-        CalculateContainRowMinCout = IsDarkField == false ? BrightFieldCalculateContainRowMinCout : DarkFieldCalculateContainRowMinCout;
+        CalculateContainRowMinCount = IsDarkField == false ? BrightFieldCalculateContainRowMinCount : DarkFieldCalculateContainRowMinCount;
         CalculateContainColumnMinCount = IsDarkField == false ? BrightFieldCalculateContainColumnMinCount : DarkFieldCalculateContainColumnMinCount;
     }
 
@@ -203,7 +203,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
             BrightFieldWaferDiameter = WaferDiameter;
             BrightFieldColumnCellWidth = ColumnCellWidth;
             BrightFieldRowCellHeight = RowCellHeight;
-            BrightFieldCalculateContainRowMinCout = CalculateContainRowMinCout;
+            BrightFieldCalculateContainRowMinCount = CalculateContainRowMinCount;
             BrightFieldCalculateContainColumnMinCount = CalculateContainColumnMinCount;
         }
         else
@@ -213,7 +213,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
             DarkFieldWaferDiameter = WaferDiameter;
             DarkFieldColumnCellWidth = ColumnCellWidth;
             DarkFieldRowCellHeight = RowCellHeight;
-            DarkFieldCalculateContainRowMinCout = CalculateContainRowMinCout;
+            DarkFieldCalculateContainRowMinCount = CalculateContainRowMinCount;
             DarkFieldCalculateContainColumnMinCount = CalculateContainColumnMinCount;
         }
     }
@@ -262,7 +262,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     {
         ClearErrors();
         if (IsDarkField) ValidateProperty(RepeatCount, nameof(RepeatCount));
-        ValidateProperty(CalculateContainRowMinCout, nameof(CalculateContainRowMinCout));
+        ValidateProperty(CalculateContainRowMinCount, nameof(CalculateContainRowMinCount));
         ValidateProperty(CalculateContainColumnMinCount, nameof(CalculateContainColumnMinCount));
 
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);

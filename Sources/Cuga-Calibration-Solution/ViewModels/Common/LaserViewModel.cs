@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XPixelSize;
@@ -32,9 +33,9 @@ public sealed class LaserViewModel(
     ICalibrationLaserService calibrationLaserService,
     ILogger<LaserViewModel> logger,
     ICalibrationAlgorithmService calibrationAlgorithmService,
-    ICalibrationConfigService calibrationConfigService,
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
+    ICalibrationConfigService calibrationConfigService,
     ICacheProvider cacheProvider) : ViewModelBase
 {
     #region 服务
@@ -46,82 +47,42 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public (Point PD1, Point PD2) GetLaserBeamPosition()
+    public (Point PD1Point, Point PD2Point) GetLaserBeamPoint()
     {
-        var ret = calibrationLaserService.GetLaserBeamPosition();
+        var ret = calibrationLaserService.GetLaserBeamPoint();
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-        return (ret.Anything.PD1, ret.Anything.PD2);
+
+        return (ret.Anything.PD1Point, ret.Anything.PD2Point);
     }
 
-    public (Point PD1, Point PD2) GetLaserOriginPosition()
+    public (Point PD1Point, Point PD2Point) GetLaserBeamOriginPoint()
     {
-        var ret = calibrationLaserService.GetLaserOriginPosition();
+        var ret = calibrationLaserService.GetLaserBeamOriginPoint();
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-        return (ret.Anything.PD1, ret.Anything.PD2);
+
+        return (ret.Anything.PD1Point, ret.Anything.PD2Point);
     }
 
-    public void AdjustmentOfReflector(bool isEnable)
+    public void AdjustBeamStabilizer(bool isEnable)
     {
-        var ret = calibrationLaserService.AdjustmentOfReflector(isEnable);
+        var ret = calibrationLaserService.AdjustBeamStabilizer(isEnable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetLaserPowerMeterLightIntensity()
+    public double GetOpticalPowerMeter()
     {
-        var ret = calibrationLaserService.GetLaserPowerMeterLightIntensity();
+        var ret = calibrationLaserService.GetOpticalPowerMeter();
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
         return ret.Anything;
     }
 
-    public DarkFieldPrescanDto ReadPrescanByFile(string filePath, double coefficient)
-    {
-        var ret = calibrationLaserService.ReadPrescanByFile(filePath, coefficient);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public DarkFieldPrescanDto SetUploadPrescanListByRate(DarkFieldPrescanDto darkFieldPrescanDto, List<double> prescanRateList)
-    {
-        var ret = calibrationLaserService.SetPrescanByRate(darkFieldPrescanDto, prescanRateList);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendOpticsMagType(OpticsMagTypeEnum yOpticsMagTypeEnum)
-    {
-        var ret = calibrationLaserService.SendOpticsMagType(yOpticsMagTypeEnum);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendPrescanByCoefficient(OpticsMagTypeEnum yOpticsMagTypeEnum, double coefficient)
-    {
-        var ret = calibrationLaserService.SendPrescanByCoefficient(yOpticsMagTypeEnum, coefficient);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendPrescanByList(DarkFieldPrescanDto darkFieldPrescanDto)
-    {
-        var ret = calibrationLaserService.SendPrescanByList(darkFieldPrescanDto);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
     public DarkFieldChirpAodWaveDto ReadChirpAodByCustomFile(string filePath)
     {
         var ret = calibrationLaserService.ReadChirpAodByCustomFile(filePath);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public DarkFieldChirpAodWaveDto ReadChirpAodByConfigFile(string filePath)
-    {
-        var ret = calibrationLaserService.ReadChirpAodByConfigFile(filePath);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -133,74 +94,16 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SendChirpAodByList(DarkFieldChirpAodWaveDto darkFieldChirpAodDto)
+    public void ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var ret = calibrationLaserService.SendChirpAodByList(darkFieldChirpAodDto);
+        var ret = calibrationLaserService.ToggleOpticsMagType(opticsMagTypeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<int> GetUsedPmtIdList()
+    public void ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
     {
-        var ret = calibrationLaserService.GetPmtConfigList();
-
-        return ret.IsSuccess ? ret.Anything.Where(t => t.IsUsed).Select(t => t.PmtId).ToList() : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public List<double> GetPmtDataList(int pmtId, int channel)
-    {
-        var ret = calibrationLaserService.GetPmtDataList(1, pmtId, channel);
-
-        return ret.IsSuccess ? ret.Anything[0] : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public List<DarkFieldPmtDataDto> GetPmtDataList()
-    {
-        var ret = calibrationLaserService.GetPmtDataList();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public async Task<List<List<List<double>>>> GetPmtSenseDataListAsync(int count, int pmtId)
-    {
-        var result = new List<List<double>>[CalibrationConstantsHelper.ChannelIds.Length];
-
-        await Task.WhenAll(CalibrationConstantsHelper.ChannelIds.Select((channelId, index) => Task.Run(() => result[index] = GetPmtSenseDataList(count, pmtId, channelId))));
-
-        return [.. result];
-    }
-
-    public List<List<double>> GetPmtSenseDataList(int count, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.GetPmtSenseDataList(count, pmtId, channelId);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public List<DarkFieldPmtDelayDto> GetPmtDelayList()
-    {
-        var ret = calibrationLaserService.GetPmtDelayList();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetPmtDelayList(List<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        var ret = calibrationLaserService.SetPmtDelayList(darkFieldPmtDelayDtoList);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendPmtGain(double[] gains, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.SendPmtGain(gains, pmtId, channelId);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.SendPmtGain(pmtData, igData, pmtId, channelId);
+        var ret = calibrationLaserService.ToggleOpticsAODWorkingMode(opticsAodWorkingModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -212,16 +115,37 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
+    public void SetAodDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
     {
-        var ret = calibrationLaserService.ToggleOpticsAodWorkingMode(opticsAodWorkingModeEnum);
+        var ret = calibrationLaserService.SetAODDelayValue(opticsMagTypeEnum, prescanAodDelay, chirpAodDelay);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetAodDelayValue(OpticsMagTypeEnum yOpticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    public void SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        var ret = calibrationLaserService.SetAodDelayValue(yOpticsMagTypeEnum, prescanAodDelay, chirpAodDelay);
+        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, coefficient);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetPrescanAODWaveProfileList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfileList)
+    {
+        var ret = calibrationLaserService.SetPrescanAODWaveProfileList(prescanAODWaveProfileList);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    {
+        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(opticsMagTypeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChirpAODWaveProfileList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfileList)
+    {
+        var ret = calibrationLaserService.SetChirpAODWaveProfileList(chirpAODWaveProfileList);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -233,16 +157,16 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableAutoGain(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    public void ToggleEnableAutoGainControl(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableAutoGainControl(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleProfileType(CIBProfileModeEnum cibProfileModeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    public void ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
-        var ret = calibrationLaserService.ToggleProfileType(cibProfileModeEnum, pmtId, channelId);
+        var ret = calibrationLaserService.ToggleProfileMode(cibProfileModeEnum, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -275,9 +199,92 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum yOpticsMagTypeEnum, bool isCuttingPixelHeight = true)
+    public IReadOnlyList<(int PmtId, IReadOnlyList<int> ChannelIdList)> GetIsUsedCIBConfigList()
     {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(yOpticsMagTypeEnum, isCuttingPixelHeight);
+        var ret = calibrationLaserService.GetCIBConfigList();
+
+        return ret.IsSuccess
+            ? ret.Anything
+                .Where(t => t.IsUsed)
+                .Select(t => (t.PmtId, t.ChannelIdList))
+                .ToList()
+            : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<IReadOnlyList<double>> GetCIBOfPMTDataList(int count, int pmtId, int channel)
+    {
+        var ret = calibrationLaserService.GetCIBOfPMTDataList(count, pmtId, channel);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<DarkFieldPmtDataDto> GetCIBOfPMTDataList()
+    {
+        var ret = calibrationLaserService.GetCIBOfPMTDataList();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public async Task<IReadOnlyList<IReadOnlyList<IReadOnlyList<double>>>> GetCIBOfSenseDataListAsync(int count, int pmtId)
+    {
+        var channelIdList = GetIsUsedCIBConfigList().Single(t => t.PmtId == pmtId).ChannelIdList;
+        var result = new IReadOnlyList<IReadOnlyList<double>>[channelIdList.Count];
+
+        await Task.WhenAll(channelIdList.Select((channelId, index) => Task.Run(() => result[index] = GetCIBOfSenseDataList(count, pmtId, channelId))));
+
+        return [.. result];
+    }
+
+    public IReadOnlyList<IReadOnlyList<double>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.GetCIBOfSenseDataList(count, pmtId, channelId);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<DarkFieldPmtDelayDto> GetCIBDelayList()
+    {
+        var ret = calibrationLaserService.GetCIBDelayList();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    {
+        var ret = calibrationLaserService.SetCIBDelayList(darkFieldPmtDelayDtoList);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SendCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.SetCIBChirp(gainList, pmtId, channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
+    {
+        var ret = calibrationLaserService.SendPMTGain(pmtData, igData, pmtId, channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public (double Ecs, double AfMotor) RuntimeAfCalibration(Point position, double? lightCoefficient = null, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    {
+        var coefficient = lightCoefficient is not null ? lightCoefficient.Value : calibrationSetting.SettingCommonParam.MainCoefficient;
+
+        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
+            position = stageViewModel.MachineToBrightFieldPosition(position);
+
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, position, coefficient);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight = true)
+    {
+        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(opticsMagTypeEnum, isCuttingPixelHeight);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -294,30 +301,14 @@ public sealed class LaserViewModel(
         {
             Guard.IsNotNull(customPrescanAod.Coefficient, nameof(customPrescanAod.Coefficient));
 
-            var prescanFilePathRet = calibrationConfigService.GetPrescanFilePath(yOpticsMagTypeEnum);
-            if (prescanFilePathRet.IsSuccess == false)
-            {
-                errorMessage = prescanFilePathRet.ErrorMsg;
-                return false;
-            }
-
-            var darkFieldPrescanDto = ReadPrescanByFile(prescanFilePathRet.Anything, customPrescanAod.Coefficient.Value);
-            SendPrescanByList(darkFieldPrescanDto);
+            SetPrescanAODWaveProfileByCoefficient(yOpticsMagTypeEnum, customPrescanAod.Coefficient.Value);
         }
         else
             Guard.IsNull(customPrescanAod.Coefficient, nameof(customPrescanAod.Coefficient));
 
         if (isCustomChirpAod == false)
         {
-            var chirpFilePathRet = calibrationConfigService.GetChirpFilePath(yOpticsMagTypeEnum);
-            if (chirpFilePathRet.IsSuccess == false)
-            {
-                errorMessage = chirpFilePathRet.ErrorMsg;
-                return false;
-            }
-
-            var darkFieldChirpAodWaveDto = ReadChirpAodByConfigFile(chirpFilePathRet.Anything);
-            SendChirpAodByList(darkFieldChirpAodWaveDto);
+            SetChirpAODWaveProfile(yOpticsMagTypeEnum);
         }
 
         return true;
@@ -630,20 +621,6 @@ public sealed class LaserViewModel(
 
         return result.Count > 0 ? result : throw new CugaException("Get Dark Field Line Scan Image failed");
     }
-
-    // todo：取消光强
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(Point position, double? lightCoefficient = null, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
-    {
-        var coefficient = lightCoefficient is not null ? lightCoefficient.Value : calibrationSetting.SettingCommonParam.MainCoefficient;
-
-        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
-            position = stageViewModel.MachineToBrightFieldPosition(position);
-
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, position, coefficient);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
 
     #region 模板匹配
 
