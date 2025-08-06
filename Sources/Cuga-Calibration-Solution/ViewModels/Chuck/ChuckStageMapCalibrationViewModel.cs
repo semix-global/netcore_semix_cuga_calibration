@@ -529,7 +529,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
         else
         {
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath =Cache.BrightFieldTemplateFilePath= $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
             if (generateTemplate == false)
             {
@@ -537,7 +537,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 return false;
             }
 
-            Cache.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
+            Cache.TemplateImageFilePath =Cache.BrightFieldTemplateImageFilePath= CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         }
 
         var centerPosition = StageViewModel.GetMachineStagePosition();
@@ -582,7 +582,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var detectImageDirectory = ImageFileDirectory;
         using var image = darkFieldImageDto;
 
-        Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+        Cache.TemplateFilePath =Cache.DarkFieldTemplateFilePath= $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
         if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
         {
             if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -607,7 +607,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             }
         }
 
-        Cache.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
+        Cache.TemplateImageFilePath =Cache.DarkFieldTemplateImageFilePath= CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
             ? laserLineCentricityItemDto.ForwardDarkMachineCenterPosition
             : centerPosition;
@@ -707,7 +707,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
-
+            var opticsMode = Cache.IsDarkField ? "DarkField" : "BrightField";
             var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -716,7 +716,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 reviewCamTemperature,
                 cibTemperature,
                 Cache.P5Angle,
-                OpticsMode = Cache.IsDarkField ? "DarkField" : "BrightField",
+                opticsMode,
                 Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.CalculateContainRowMinCount,
                 Cache.CalculateContainColumnMinCount,
@@ -759,11 +759,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 : ResultChuckStageMapDto.CalibrationDarkFieldStageMap;
 
             var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-            calibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
             calibrationStageMap.SaveIdealCsv(calibrationStageMap.IdealCsvFilePath);
             calibrationStageMap.SaveRealCsv(calibrationStageMap.RealCsvFilePath);
             calibrationStageMap.SaveIsInWaferOkCsv(calibrationStageMap.RealIsInWaferOkCsvFilePath);
@@ -806,7 +806,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 xAxisTemperature,
                 yAxisTemperature,
                 cibTemperature,
-                OpticsMode = Cache.IsDarkField ? "DarkField" : "BrightField",
+                opticsMode,
                 Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
                 calibrationStageMap.IdealCsvFilePath,
@@ -1178,8 +1178,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 stageMapItem.Reset();
-                stageMapItem.TemplateFilePath = Cache.TemplateFilePath;
-                stageMapItem.TemplateImageFilePath = Cache.TemplateImageFilePath;
+                stageMapItem.TemplateFilePath = Cache.BrightFieldTemplateFilePath;
+                stageMapItem.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath;
 
                 StageViewModel.SetMachineAbsoluteStageXy(stageMapItem.Point);
                 Thread.Sleep(500);
@@ -1189,7 +1189,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         MicroscopePixelSizeItems,
                         tempPosition,
                         Cache.HighMicroscopeMagnificationInfo,
-                        Cache.TemplateFilePath,
+                        Cache.BrightFieldTemplateFilePath,
                         $"{detectImageDirectory}\\row({row})_column({column})",
                         HtmlLogUniqueId,
                         Name,
@@ -1235,7 +1235,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
         {
-            if (CalibrationAlgorithmService.TryReadProjectionTemplate(Cache.TemplateFilePath, out templateXId, out templateYId) == false)
+            if (CalibrationAlgorithmService.TryReadProjectionTemplate(Cache.DarkFieldTemplateFilePath, out templateXId, out templateYId) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Read Template Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return;
@@ -1243,7 +1243,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
         else
         {
-            if (CalibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, out templateId) == false)
+            if (CalibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.DarkFieldTemplateFilePath, out templateId) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Read Template Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return;
@@ -1316,8 +1316,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     cancellationToken.ThrowIfCancellationRequested();
 
                     stageMapItem.Reset();
-                    stageMapItem.TemplateFilePath = Cache.TemplateFilePath;
-                    stageMapItem.TemplateImageFilePath = Cache.TemplateImageFilePath;
+                    stageMapItem.TemplateFilePath = Cache.DarkFieldTemplateFilePath;
+                    stageMapItem.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath;
 
                     try
                     {
@@ -1583,8 +1583,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoBrightField, out var positionBright);
                 Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = StageViewModel.BrightFieldToMachinePosition(positionBright);
-                Cache.TemplateFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.TemplateImageFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+                Cache.TemplateFilePath =Cache.BrightFieldTemplateFilePath= maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
+                Cache.TemplateImageFilePath =Cache.BrightFieldTemplateImageFilePath= maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
                 break;
 
             case "1":
@@ -1592,8 +1592,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoDarkField, out var positionDark);
                 Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = StageViewModel.DarkFieldToMachinePosition(positionDark);
-                Cache.TemplateFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.TemplateImageFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+                Cache.TemplateFilePath =Cache.DarkFieldTemplateFilePath= maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
+                Cache.TemplateImageFilePath =Cache.DarkFieldTemplateImageFilePath= maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
                 break;
         }
 
