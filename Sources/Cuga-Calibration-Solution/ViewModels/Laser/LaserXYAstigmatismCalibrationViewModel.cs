@@ -17,6 +17,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Pattern;
 using Core.Utilities;
+using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
@@ -548,7 +549,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
                     return temp;
                 }).ToList();
-                SynchronizationContextProvider.Send(() => { LaserXyAstigmatismItemDtoList.Add(resultList[1]); });
+                SynchronizationContextProvider.Send(() => { LaserXyAstigmatismItemDtoList.Add(resultList[0]); });
             }
 
             // 从结果集合中截掉方向判断的item，用来生成ecsError-changeRate曲线,获得resultItem
@@ -651,7 +652,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 if (!isSuccess)
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(findItemResultF0));
 
-                findItemResult = findItemResultF0[1];
+                findItemResult = findItemResultF0[0];
                 list_iterationResult.Add(findItemResult);
                 circleCount++;
                 var newDelta = Math.Abs(findItemResult.EcsY - optinumEcsX);
@@ -745,9 +746,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 if (isSuccess == false)
                     return false;
 
-                var EcsError = currentResultList[1].EcsErrorValue;
+                var EcsError = currentResultList[0].EcsErrorValue;
                 var result = Math.Abs(EcsError) < setErrorThreshold;
-                ResultReviewItemDto = currentResultList[1].Clone();
+                ResultReviewItemDto = currentResultList[0].Clone();
 
                 Logger.LogHtmlInformation($"Vefify {(isSuccess ? "Success" : "Error")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -859,25 +860,33 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
         if (laserXyAstigmatismCalibrationItemDto.Index == 0) Thread.Sleep(1000);
 
-        using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-            CalChipSiteModelEnum.ChuckModel,
-            Cache.GetFindPosition(),
-            (true, null),
-            true,
-            Cache.CIBConfiguration,
-            500,
-            Cache.OpticsMagTypeEnum,
-            StageSpeedEnum.Low,
-            8,
-            3,
-            StageCoordinateSystemEnum.Dark,
-            isAutoFocus: false,
-            isRtfc: false);
+        var list = LaserViewModel.GetDarkFieldLineScanImageList(
+                    CalChipSiteModelEnum.ChuckModel,
+                    Cache.GetFindPosition(),
+                    800,
+                    Cache.OpticsMagTypeEnum,
+                    StageSpeedEnum.Low,
+                    8,
+                    StageCoordinateSystemEnum.Dark,
+                    Cache.CIBConfiguration,
+                    (true, null),
+                    false,
+                    isAutoFocus: false,
+                    isRtfc: false);
 
-        var (xQuality, yQuality) = CalibrationAlgorithmService.GetXyQuality(darkFieldImageDto.Image);
+        var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
+        var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);
+        var channel3DarkFieldImageDto = list.Single(t => t.ChannelId == 3);
 
-        var qualityX = xQuality;
-        var qualityY = yQuality;
+
+        var size=HalconHelper.GetSize(channel3DarkFieldImageDto.Image);
+        var roi=new Rect(0,0,size.Width, size.Height);
+
+        var (ch3XQuality, _) = CalibrationAlgorithmService.GetXyQuality(channel3DarkFieldImageDto.Image);
+        var (_, ch3YQuality) = CalibrationAlgorithmService.ModulationTransferFunction(channel2DarkFieldImageDto.Image, roi);
+
+        var qualityX = ch3XQuality;
+        var qualityY = ch3YQuality;
 
         laserXyAstigmatismCalibrationItemDto.FilePath =
             $"{ImageFileDirectory}\\ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
@@ -885,8 +894,18 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         laserXyAstigmatismCalibrationItemDto.QualityX = qualityX;
         laserXyAstigmatismCalibrationItemDto.QualityY = qualityY;
 
-        FileHelper.Save(darkFieldImageDto.Bytes, laserXyAstigmatismCalibrationItemDto.OriginFilePath);
-        HalconHelper.Save(darkFieldImageDto.Image, laserXyAstigmatismCalibrationItemDto.FilePath);
+        FileHelper.Save(channel3DarkFieldImageDto.Bytes, laserXyAstigmatismCalibrationItemDto.OriginFilePath);
+        HalconHelper.Save(channel3DarkFieldImageDto.Image, laserXyAstigmatismCalibrationItemDto.FilePath);
+
+        var ch1FilePath =
+           $"{ImageFileDirectory}\\Ch1_ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
+        var ch2FilePath =
+           $"{ImageFileDirectory}\\Ch2_ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
+        HalconHelper.Save(channel1DarkFieldImageDto.Image, ch1FilePath);
+        HalconHelper.Save(channel2DarkFieldImageDto.Image, ch2FilePath);
+
+        HOperatorSet.WriteObject(channel1DarkFieldImageDto.Image, ch1FilePath.Replace(".jpg",".hobj"));
+        HOperatorSet.WriteObject(channel2DarkFieldImageDto.Image, ch2FilePath.Replace(".jpg", ".hobj"));
 
         Logger.LogHtmlInformation($"Get Quality OK, Time: {laserXyAstigmatismCalibrationItemDto.Index}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
@@ -896,7 +915,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
             ImageQualityY = laserXyAstigmatismCalibrationItemDto.QualityY,
             HtmlTab = new HtmlTab(new
             {
-                Image = new HtmlImage(laserXyAstigmatismCalibrationItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                ImageCh1 = new HtmlImage(ch1FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                ImageCh2 = new HtmlImage(ch2FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                ImageCh3 = new HtmlImage(laserXyAstigmatismCalibrationItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
             })
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -915,11 +936,11 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         try
         {
             // xy得分大于100的对象参与结果运算（防止超出景深极端值的干扰）
-            var temp = ecsIncrementXyQualityDtoList.Select(s => s.Clone()).Where(t => t.QualityX > 100 && t.QualityY > 100).ToList();
+            var temp = ecsIncrementXyQualityDtoList.Select(s => s.Clone()).Where(t => t.QualityX > 100).ToList();
 
             // 筛选X、Y得分最低的对象，找出ecs差值最小的两个对象，把y得分最高的ecs值和得分值赋值给x，输出ecsError（根据验证，梯度算法的出来的趋势，分数越小越清晰）
             var qualityXMaxList = temp.Minima(s => s.QualityX).ToList();
-            var qualityYMaxList = temp.Minima(s => s.QualityY).ToList();
+            var qualityYMaxList = temp.Maxima(s => s.QualityY).ToList();
             double res = 1000;
             (int XIndex, int YIndex) index = (0, 0);
             foreach (var itemY in qualityYMaxList)
@@ -957,7 +978,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
             resultQualityMinY.QualityX = resultQualityMinX.QualityX;
             resultQualityMinY.EcsErrorValue = resultQualityMinY.EcsX - resultQualityMinY.EcsY;
 
-            var resultQualityAverage = isFindEcsX ? resultQualityMinX : resultQualityMinY;
+            var resultQualityAverage = isFindEcsX ? resultQualityMinX.Clone() : resultQualityMinY.Clone();
             resultQualityAverage.EcsX = averageEcsX;
             resultQualityAverage.EcsY = averageEcsY;
             resultQualityAverage.EcsErrorValue = resultQualityAverage.EcsX - resultQualityAverage.EcsY;
@@ -1035,8 +1056,8 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
         if (isSuccess)
         {
-            var currentEcs = isFindEcsX ? currentResultItem[1].EcsX : currentResultItem[1].EcsY;
-            var currentQuality = isFindEcsX ? currentResultItem[1].QualityX : currentResultItem[1].QualityY;
+            var currentEcs = isFindEcsX ? currentResultItem[1].EcsX : currentResultItem[0].EcsY;
+            var currentQuality = isFindEcsX ? currentResultItem[1].QualityX : currentResultItem[0].QualityY;
             var ecsError = Math.Abs(currentEcs - ecsInitial);
             Logger.LogHtmlInformation("Get Result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
@@ -1046,7 +1067,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 InitialQualityMax = currentQuality,
                 HtmlTab = new HtmlTab(new
                 {
-                    Image = new HtmlImage(currentResultItem[1].FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    Image = new HtmlImage(currentResultItem[0].FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             if (isAutoSlider)
@@ -1088,9 +1109,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 var bandWidth = chirpAodWaveDto.SoundPackageLength * rateRange;
                 chirpAodChangeDto.BandWidthHigh = chirpAodWaveDto.CenterFrequency + bandWidth / 2d;
                 chirpAodChangeDto.BandWidthLow = chirpAodWaveDto.CenterFrequency - bandWidth / 2d;
-            
+
                 (Cache.AodWaveSignal, Cache.AodWaveSignalFourier) = chirpAodChangeDto.GenerateChirpAodWave();
-                
+
                 //chirpAodChangeDto = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodChangeDto, rateRange);
             }
             else
