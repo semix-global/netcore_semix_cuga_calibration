@@ -161,6 +161,18 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private string _templateImageFilePath = string.Empty;
 
     [ObservableProperty]
+    private string _brightFieldTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _brightFieldTemplateImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _darkFieldTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _darkFieldTemplateImageFilePath = string.Empty;
+
+    [ObservableProperty]
     private double _calibrationAlignmentThreshold = 1.466d;
 
     [ObservableProperty]
