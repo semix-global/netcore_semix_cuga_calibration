@@ -104,7 +104,7 @@ public partial class Step3View
                         color);
                     scatter.LegendText = name!;
 
-                    Refresh(1, 0);
+                    Refresh(1);
 
                     break;
 
@@ -142,7 +142,7 @@ public partial class Step3View
                         color);
                     scatter.LegendText = name!;
 
-                    Refresh(0, 0);
+                    Refresh(0);
 
                     break;
             }

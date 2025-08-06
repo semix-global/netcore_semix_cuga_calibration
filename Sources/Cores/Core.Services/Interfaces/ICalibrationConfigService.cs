@@ -1,4 +1,5 @@
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.AODWaveform;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
@@ -18,14 +19,14 @@ public interface ICalibrationConfigService
     SxExecuteRet<string> GetCalibrationFilePath();
 
     /// <summary>
-    /// 获取prescan的文件路径
+    /// 获取prescan波形列表
     /// </summary>
-    /// <returns>prescan的文件路径</returns>
-    SxExecuteRet<string> GetPrescanFilePath(OpticsMagTypeEnum opticsMagTypeEnum);
+    /// <returns>prescan波形列表</returns>
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum);
 
     /// <summary>
-    /// 获取chirp的文件路径
+    /// 获取chirp波形列表
     /// </summary>
-    /// <returns>chirp的文件路径</returns>
-    SxExecuteRet<string> GetChirpFilePath(OpticsMagTypeEnum opticsMagTypeEnum);
+    /// <returns>chirp波形列表</returns>
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum);
 }

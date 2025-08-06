@@ -193,6 +193,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private Point _shinyWaferRightBottomPosition = new(122000, -128000);
 
     public Point ShinyWaferPosition => (ShinyWaferLeftTopPosition + (Vector)ShinyWaferRightBottomPosition) / 2;
+
     #endregion
 
     #endregion

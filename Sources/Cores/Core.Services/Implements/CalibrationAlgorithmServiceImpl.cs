@@ -381,7 +381,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             isInWaferMatrix,
             templateMathIsOkMatrix,
             htmlLogUniqueId,
-            calculateContainRowMinCout: calculateContainRowMinCount,
+            calculateContainRowMinCount: calculateContainRowMinCount,
             calculateContainColumnMinCount: calculateContainColumnMinCount,
             diameter: diameter,
             alignmentThreshold: alignmentThreshold,

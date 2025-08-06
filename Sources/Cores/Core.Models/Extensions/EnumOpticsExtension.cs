@@ -7,7 +7,8 @@ using Semix.GRPC.DTO.Basic;
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
-
+using CommunityToolkit.Diagnostics;
+using Cuga.Data.DataStruct.PMT;
 #endif
 
 namespace Core.Models.Extensions;
@@ -105,4 +106,49 @@ public static class EnumOpticsExtension
     };
 
     #endregion Polarization
+
+
+#if NETFRAMEWORK
+
+    #region OpticsAODTypeEnum
+
+    public static CgWaveType ToCgWaveType(this OpticsAODTypeEnum @this) => @this switch
+    {
+        OpticsAODTypeEnum.Prescan => CgWaveType.Prescan,
+        OpticsAODTypeEnum.Chirp => CgWaveType.Chirp,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgWaveType>(nameof(@this))
+    };
+
+    public static OpticsAODTypeEnum ToOpticsAodTypeEnum(this CgWaveType @this) => @this switch
+    {
+        CgWaveType.Prescan => OpticsAODTypeEnum.Prescan,
+        CgWaveType.Chirp => OpticsAODTypeEnum.Chirp,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsAODTypeEnum>(nameof(@this))
+    };
+
+    #endregion OpticsAODTypeEnum
+
+    #region OpticsAODElectrodeEnum
+
+    public static CgAwgElectrodeEnum ToCgAwgElectrodeEnum(this OpticsAODElectrodeEnum @this) => @this switch
+    {
+        OpticsAODElectrodeEnum.Electrode1 => CgAwgElectrodeEnum.Electrode1,
+        OpticsAODElectrodeEnum.Electrode2 => CgAwgElectrodeEnum.Electrode2,
+        OpticsAODElectrodeEnum.Electrode3 => CgAwgElectrodeEnum.Electrode3,
+        OpticsAODElectrodeEnum.Electrode4 => CgAwgElectrodeEnum.Electrode4,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgAwgElectrodeEnum>(nameof(@this))
+    };
+
+    public static OpticsAODElectrodeEnum ToOpticsAODElectrodeEnum(this CgAwgElectrodeEnum @this) => @this switch
+    {
+        CgAwgElectrodeEnum.Electrode1 => OpticsAODElectrodeEnum.Electrode1,
+        CgAwgElectrodeEnum.Electrode2 => OpticsAODElectrodeEnum.Electrode2,
+        CgAwgElectrodeEnum.Electrode3 => OpticsAODElectrodeEnum.Electrode3,
+        CgAwgElectrodeEnum.Electrode4 => OpticsAODElectrodeEnum.Electrode4,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsAODElectrodeEnum>(nameof(@this))
+    };
+
+    #endregion OpticsAODElectrodeEnum
+
+#endif
 }

@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
@@ -53,7 +54,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Select a Mag" },
         new() { StepName = "Find Gain" },
         new() { StepName = "Is Revise" },
@@ -108,7 +109,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     private LaserXTCCalibrationItemDto[] _calibrations = [];
 
     [ObservableProperty]
-    private List<DarkFieldPmtDelayDto> _sampleValueList = [];
+    private IReadOnlyList<DarkFieldPmtDelayDto> _sampleValueList = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -140,6 +141,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         MicroscopeCalChip = calChipDto;
 
         if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
@@ -358,9 +360,9 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -441,7 +443,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
             foreach (var pmtItem in LaserXTCCalibrationItemDtoList)
             {
-                (var isSuccess, var gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3, Cache.OpticsMagTypeEnum).ConfigureAwait(false);
+                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3, Cache.OpticsMagTypeEnum).ConfigureAwait(false);
                 if ((isSuccess) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -522,16 +524,16 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 return false;
             }
 
-            var prescanDto = LaserViewModel.ReadPrescanByFile(prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
             LaserViewModel.SetGain(LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8).Gain);
 
             #region Max窗口
 
             cancellationToken.ThrowIfCancellationRequested();
-            var (prescanByteList, windowPrescanList) = SetPrescanByteListByWindow(maxWindowStartIndex, windowToMinAmount);
+            var windowPrescanList = SetPrescanByteListByWindow(maxWindowStartIndex, windowToMinAmount);
             var temp = prescanDto.Clone();
-            temp.PrescanByteList = prescanByteList;
+            temp.ApplyCoefficientWindowList(windowPrescanList);
             var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(temp, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8));
             using var _1 = channel1DarkFieldImageDto;
             using var _2 = channel2DarkFieldImageDto;
@@ -549,9 +551,9 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             #region Min窗口
 
             cancellationToken.ThrowIfCancellationRequested();
-            (prescanByteList, windowPrescanList) = SetPrescanByteListByWindow(minWindowStartIndex, windowToMinAmount);
+            windowPrescanList = SetPrescanByteListByWindow(minWindowStartIndex, windowToMinAmount);
             temp = prescanDto.Clone();
-            temp.PrescanByteList = prescanByteList;
+            temp.ApplyCoefficientWindowList(windowPrescanList);
             (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(temp, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8));
             using var _4 = channel1DarkFieldImageDto;
             using var _5 = channel2DarkFieldImageDto;
@@ -589,53 +591,40 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
-            (List<byte> PrescanByteList, List<double> WindowPrescanList) SetPrescanByteListByWindow(int startIndex, int windowToMinAmountTemp)
+            List<double> SetPrescanByteListByWindow(int startIndex, int windowToMinAmountTemp)
             {
                 var k = 1d / windowToMinAmountTemp;
-                var prescanList = prescanDto.PrescanList;
+                var prescanList = prescanDto.ShortList;
                 var middleIndex = startIndex + windowToMinAmountTemp;
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
 
-                const double coefficient = 1d;
-                var resultPrescanByteList = new List<byte>();
+                var coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
                 var resultPrescanWindowList = new List<double>();
 
                 for (var i = 0; i < startIndex; i++) // 1-1499, 都是按照系数来
                 {
-                    var compArray = BitConverter.GetBytes((short)(prescanList[i] * coefficient));
-                    resultPrescanByteList.Add(compArray[1]);
-                    resultPrescanByteList.Add(compArray[0]);
                     resultPrescanWindowList.Add(coefficient);
                 }
 
                 for (var i = startIndex; i < middleIndex; i++) // 1500-2499,按照斜率为-1/1000, 1500为1下降到0.0001
                 {
                     var rate = (1 - (i - startIndex) * k) * coefficient;
-                    var compArray = BitConverter.GetBytes((short)(prescanList[i] * rate));
-                    resultPrescanByteList.Add(compArray[1]);
-                    resultPrescanByteList.Add(compArray[0]);
                     resultPrescanWindowList.Add(rate);
                 }
 
                 for (var i = middleIndex; i < endIndex; i++) // 2500-3499,按照斜率为1/1000, 1500为0.001上升到1
                 {
                     var rate = ((i - middleIndex) * k + 0.001) * coefficient;
-                    var compArray = BitConverter.GetBytes((short)(prescanList[i] * rate));
-                    resultPrescanByteList.Add(compArray[1]);
-                    resultPrescanByteList.Add(compArray[0]);
                     resultPrescanWindowList.Add(rate);
                 }
 
                 for (var i = endIndex; i < prescanList.Count; i++) // 剩下按照系数来
                 {
-                    var compArray = BitConverter.GetBytes((short)(prescanList[i] * coefficient));
-                    resultPrescanByteList.Add(compArray[1]);
-                    resultPrescanByteList.Add(compArray[0]);
                     resultPrescanWindowList.Add(coefficient);
                 }
 
-                return (resultPrescanByteList, resultPrescanWindowList);
+                return resultPrescanWindowList;
             }
         });
     }
@@ -653,7 +642,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         {
             ClearCalibrationTemp();
             //获取CH1,CH2,CH3的值
-            var sampleValueCH = LaserViewModel.GetPmtDelayList();
+            var sampleValueCH = LaserViewModel.GetCIBDelayList();
             SampleValueList = sampleValueCH;
 
             foreach (var laserXTCCalibrationItemDto in LaserXTCCalibrationItemDtoList)
@@ -687,7 +676,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             }
 
             //把更新后的值返回给 cuga 接口
-            LaserViewModel.SetPmtDelayList(SampleValueList);
+            LaserViewModel.SetCIBDelayList(SampleValueList);
             return true;
         }).ConfigureAwait(false);
     }
@@ -765,46 +754,37 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanDto = LaserViewModel.ReadPrescanByFile(Cache.PrescanFilePath, Cache.Coefficient);
+        var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, Cache.PrescanFilePath, Cache.Coefficient);
         var k = 1d / Cache.PrescanInterval;
-        var resultPrescanByteList = new List<byte>();
+        var resultWindow = new List<double>();
         var startIndex = Cache.PrescanStartIndex;
         var midIndex = startIndex + Cache.PrescanInterval;
         var endIndex = midIndex + Cache.PrescanInterval;
         for (var i = 0; i < startIndex; i++)
         {
-            var compArray = BitConverter.GetBytes((short)(prescanDto.PrescanList[i] * Cache.Coefficient));
-            resultPrescanByteList.Add(compArray[1]);
-            resultPrescanByteList.Add(compArray[0]);
+            resultWindow.Add(Cache.Coefficient);
         }
 
         for (var i = startIndex; i < midIndex; i++)
         {
             var rate = (1 - (i - startIndex) * k) * Cache.Coefficient;
-            var compArray = BitConverter.GetBytes(prescanDto.PrescanList[i] * rate);
-            resultPrescanByteList.Add(compArray[1]);
-            resultPrescanByteList.Add(compArray[0]);
+            resultWindow.Add(rate);
         }
 
         for (var i = midIndex; i < endIndex; i++)
         {
             var rate = ((i - midIndex) * k + k) * Cache.Coefficient;
-            var compArray = BitConverter.GetBytes((short)(prescanDto.PrescanList[i] * rate));
-            resultPrescanByteList.Add(compArray[1]);
-            resultPrescanByteList.Add(compArray[0]);
+            resultWindow.Add(rate);
         }
 
-        for (var i = endIndex; i < prescanDto.PrescanList.Count; i++)
+        for (var i = endIndex; i < prescanDto.ShortList.Count; i++)
         {
-            var compArray = BitConverter.GetBytes((short)(prescanDto.PrescanList[i] * Cache.Coefficient));
-            resultPrescanByteList.Add(compArray[1]);
-            resultPrescanByteList.Add(compArray[0]);
+            resultWindow.Add(Cache.Coefficient);
         }
 
         var temp = prescanDto.Clone();
-        temp.PrescanByteList = resultPrescanByteList;
-        (var isSuccess, var channel1DarkFieldImageDto, var channel2DarkFieldImageDto, var channel3DarkFieldImageDto) =
-            GetDarkFieldLineScanImage(temp, laserXTCCalibrationItemDto);
+        temp.ApplyCoefficientWindowList(resultWindow);
+        var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(temp, laserXTCCalibrationItemDto);
         if (isSuccess == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Get Dark Field Line Scan Image Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -860,9 +840,9 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         DarkFieldImageDto Channel1DarkFieldImageDto,
         DarkFieldImageDto Channel2DarkFieldImageDto,
         DarkFieldImageDto Channel3DarkFieldImageDto)
-        GetDarkFieldLineScanImage(DarkFieldPrescanDto darkFieldPrescanDto, LaserXTCCalibrationItemDto laserXTCCalibrationItem)
+        GetDarkFieldLineScanImage(PrescanAODWaveformProfile darkFieldPrescanDto, LaserXTCCalibrationItemDto laserXTCCalibrationItem)
     {
-        LaserViewModel.SendPrescanByList(darkFieldPrescanDto);
+        LaserViewModel.SetPrescanAODWaveProfileList([darkFieldPrescanDto]);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,

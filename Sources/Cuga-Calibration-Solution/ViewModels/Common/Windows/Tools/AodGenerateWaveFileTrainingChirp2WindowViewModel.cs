@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
@@ -364,8 +365,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 }), htmlGuid.LoggingHtml());
 
                 cancellationToken.ThrowIfCancellationRequested();
-                laserViewModel.SendPrescanByList(laserViewModel.ReadPrescanByFile(configViewModel.GetPrescanFilePath(OpticsMagTypeEnum), PrescanCoefficient));
-                laserViewModel.SendChirpAodByList(laserViewModel.ReadChirpAodByConfigFile(item.ChirpAodWaveFilePath));
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanCoefficient);
+                laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.ChirpAodWaveFilePath)]);
 
                 using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.DswModel,

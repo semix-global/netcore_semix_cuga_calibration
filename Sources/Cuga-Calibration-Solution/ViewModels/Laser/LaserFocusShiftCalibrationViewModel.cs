@@ -53,7 +53,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Select a Mag" },
         new() { StepName = "Find Low Site Position" },
         new() { StepName = "Find High Site Position" },
@@ -218,7 +218,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             return false;
         }
 
-        LaserViewModel.ToggleEnableAutoGain(true);
+        LaserViewModel.ToggleEnableAutoGainControl(true);
         LaserViewModel.ToggleEnableL0K(false);
 
         StageViewModel.SetAbsoluteStageTheta(0);
@@ -415,9 +415,9 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;

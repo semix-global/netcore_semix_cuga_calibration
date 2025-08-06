@@ -112,9 +112,12 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
             Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeMagnificationInfoList.Contains(t.MagnificationInfo))]; // 过滤掉变更静态配置后原来的缓存
             SynchronizationContextProvider.Send(() =>
-                    CalibrationStatusList = [.. ApplicationCookie.MicroscopeMagnificationInfoList
-                        .Select(t => new MicroscopeMagnificationInfoCalibrationStatus { MicroscopeMagnificationInfo = t, IsCalibrated = false })]
-                    );
+                CalibrationStatusList =
+                [
+                    .. ApplicationCookie.MicroscopeMagnificationInfoList
+                        .Select(t => new MicroscopeMagnificationInfoCalibrationStatus { MicroscopeMagnificationInfo = t, IsCalibrated = false })
+                ]
+            );
             foreach (var calibrationStatus in Calibrations)
             {
                 CalibrationStatusList

@@ -11,7 +11,6 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;

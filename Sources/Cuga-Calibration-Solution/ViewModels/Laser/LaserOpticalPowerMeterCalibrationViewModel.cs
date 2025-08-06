@@ -278,11 +278,14 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
                 Map = []
             };
 
+
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
+
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
 
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-            LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
             var repeatCout = 0;
 
@@ -320,7 +323,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                    var result = LaserViewModel.GetLaserPowerMeterLightIntensity();
+                    var result = LaserViewModel.GetOpticalPowerMeter();
 
                     laserOpticalPowerObjItem.MeasurePower = result;
 
@@ -412,9 +415,11 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(ReviewDto.MeasureMaxPowerPosition);
 
+            LaserViewModel.ToggleOpticsMagType(ReviewDto.OpticsMagTypeEnum);
+
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-            LaserViewModel.SendPrescanByCoefficient(ReviewDto.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
             var resultList = new List<double>();
 
@@ -422,7 +427,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
             {
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                var lightIntensity = LaserViewModel.GetLaserPowerMeterLightIntensity();
+                var lightIntensity = LaserViewModel.GetOpticalPowerMeter();
 
                 resultList.Add(lightIntensity);
             }

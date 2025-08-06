@@ -18,7 +18,7 @@ public partial class CalibrationDtoBase : ObservableCacheBase, IEntityAdd
     /// Cuga初始化是否需要自检此项校准结果是否Ok
     /// </summary>
     [ObservableProperty]
-    private bool _isRequiredSelfCheck = false;
+    private bool _isRequiredSelfCheck;
 
     [ObservableProperty]
     private long _createdUserId;

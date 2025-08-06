@@ -34,7 +34,7 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
     private int _findMaxY = 100;
 
     [ObservableProperty]
-    private int _findMinY = 0;
+    private int _findMinY;
 
     [ObservableProperty]
     private int _findInterval1 = 1;

@@ -31,7 +31,7 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
     private int _findMaxX = 100;
 
     [ObservableProperty]
-    private int _findMinX = 0;
+    private int _findMinX;
 
     [ObservableProperty]
     private int _findInterval1 = 1;

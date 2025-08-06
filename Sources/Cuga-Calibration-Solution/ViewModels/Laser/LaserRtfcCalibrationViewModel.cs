@@ -55,7 +55,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Select a Mag" },
         new() { StepName = "Find Low Site Position" },
         new() { StepName = "Find High Site Position" },
@@ -258,7 +258,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             return false;
         }
 
-        LaserViewModel.ToggleEnableAutoGain(true);
+        LaserViewModel.ToggleEnableAutoGainControl(true);
         LaserViewModel.ToggleEnableL0K(false);
 
         StageViewModel.SetAbsoluteStageTheta(0);
@@ -458,9 +458,9 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                FocusShiftCache.CIBConfiguration.IsAutoGain,
-                FocusShiftCache.CIBConfiguration.DcGainVoltage,
-                FocusShiftCache.CIBConfiguration.IsL0k,
+                IsAutoGain = FocusShiftCache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = FocusShiftCache.CIBConfiguration.Gain,
+                IsL0k = FocusShiftCache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = FocusShiftCache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -525,6 +525,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 FocusShiftCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,

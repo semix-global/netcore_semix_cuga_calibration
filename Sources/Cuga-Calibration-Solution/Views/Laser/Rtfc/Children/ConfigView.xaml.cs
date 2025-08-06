@@ -1,5 +1,3 @@
-using System.Windows.Controls;
-
 namespace CugaCalibration.Views.Laser.Rtfc.Children;
 
 /// <summary>

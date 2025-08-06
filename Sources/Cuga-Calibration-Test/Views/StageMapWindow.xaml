@@ -32,6 +32,7 @@
                     </hc:UniformSpacingPanel.Resources>
                     <Button Content="Stage Map Merge 1" Command="{Binding MergeStageMapStep0Command}" />
                     <Button Content="Stage Map Merge 2" Command="{Binding MergeStageMapStep1Command}" />
+                    <Button Content="Calculate Single Error Map" Command="{Binding CalculateSingleStageMapErrorCommand}" />
                     <Button Content="Calculate Error Map" Command="{Binding CalculateStageMapErrorCommand}" />
                     <GroupBox Margin="5" Header="Verify Bilinear Position">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">

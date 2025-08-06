@@ -61,6 +61,4 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
     };
 
     #endregion Mapper
-
-
 }

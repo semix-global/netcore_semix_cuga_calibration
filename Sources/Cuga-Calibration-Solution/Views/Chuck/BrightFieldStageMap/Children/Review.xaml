@@ -55,7 +55,7 @@
                                       hc:TitleElement.TitleWidth="180"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.CalculateContainRowMinCout}" />
+                                      Value="{Binding Cache.CalculateContainRowMinCount}" />
                     <hc:NumericUpDown Margin="0,5,0,5"
                                       hc:InfoElement.Title="Cal Column Min Count: "
                                       hc:InfoElement.TitlePlacement="Left"

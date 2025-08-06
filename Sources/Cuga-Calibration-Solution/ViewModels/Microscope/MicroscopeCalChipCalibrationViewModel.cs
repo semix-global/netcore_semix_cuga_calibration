@@ -6,7 +6,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -304,6 +303,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
             }
+
             await Task.Run(() =>
             {
                 switch (name)
@@ -345,6 +345,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
             }
+
             await Task.Run(() =>
             {
                 switch (name)

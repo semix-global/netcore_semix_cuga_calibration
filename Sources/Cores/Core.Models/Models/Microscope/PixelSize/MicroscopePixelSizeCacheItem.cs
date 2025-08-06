@@ -20,5 +20,4 @@ public sealed partial class MicroscopePixelSizeCacheItem : ObservableCacheBase
 
     [ObservableProperty]
     private Point _findPosition;
-
 }

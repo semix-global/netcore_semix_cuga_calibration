@@ -58,6 +58,12 @@ public sealed partial class SettingDarkFieldGainViewModel(
     [ObservableProperty]
     private int _channelId = 3;
 
+    /// <summary>
+    /// 抓取次数
+    /// </summary>
+    [ObservableProperty]
+    private int _catchCount = 10;
+
     [RelayCommand]
     private void Loaded()
     {
@@ -158,10 +164,10 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 var isAutoFocus = afViewModel.SetDarkFieldAutoFocus(null, opticsMagTypeEnum, calChipSiteModelEnum);
                 if (isAutoFocus)
                     afViewModel.ToggleDarkFieldEnable(true);
-                laserViewModel.SendOpticsMagType(opticsMagTypeEnum);
-                laserViewModel.SendPrescanByCoefficient(opticsMagTypeEnum, coefficient);
+                laserViewModel.ToggleOpticsMagType(opticsMagTypeEnum);
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, coefficient);
                 laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-                laserViewModel.ToggleEnableAutoGain(false);
+                laserViewModel.ToggleEnableAutoGainControl(false);
                 laserViewModel.ToggleEnableL0K(false);
 
                 PlotList = [];
@@ -177,9 +183,12 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     cancellationToken.ThrowIfCancellationRequested();
 
                     laserViewModel.SetGain(gain);
-                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(300, cancellationToken).ConfigureAwait(false);
 
-                    var result = laserViewModel.GetPmtDataList(pmtId, channelId);
+                    var pmtDataList = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId);
+                    var result = Enumerable.Range(0, pmtDataList.First().Count)
+                        .Select(t => pmtDataList.Select(tt => tt[t]).Average())
+                        .ToList();
                     PlotList = [.. PlotList, new WpfPlotModel($"Gain: {gain}", result.ToPoints(), (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, gain))];
                     var gainAverage = result.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
 
@@ -218,7 +227,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 await Task.Delay(100, cancellationToken).ConfigureAwait(false);
 
                 gainCoefficientsParam.Gain = targetGain;
-                var resultTargetGain = laserViewModel.GetPmtDataList(pmtId, channelId);
+                var resultTargetGain = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId).Select(t => t.Average()).ToList();
                 //if (isSuccess == false) return (false, 0);
                 PlotList = [.. PlotList, new WpfPlotModel($"{coefficient:f3} OK: {targetGain}", resultTargetGain.ToPoints(), (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, targetGain))];
 

@@ -243,7 +243,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
                 isInWaferMatrix,
                 templateMathIsOkMatrix,
                 htmlLogUniqueId,
-                calculateContainRowMinCout: calculateContainRowMinCount,
+                calculateContainRowMinCount,
                 calculateContainColumnMinCount: calculateContainColumnMinCount,
                 diameter: diameter,
                 alignmentThreshold: alignmentThreshold,

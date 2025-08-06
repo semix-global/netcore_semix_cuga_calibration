@@ -258,16 +258,17 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         }), HtmlLogUniqueId.LoggingHtml());
 
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(ResultLaserAttenuatorObjDto.StagePosition);
+        LaserViewModel.ToggleOpticsMagType(ResultLaserAttenuatorObjDto.OpticsMagTypeEnum);
         LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-        LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
+        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-        var firstLightIntensity = LaserViewModel.GetLaserPowerMeterLightIntensity();
+        var firstLightIntensity = LaserViewModel.GetOpticalPowerMeter();
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-        var secondLightIntensity = LaserViewModel.GetLaserPowerMeterLightIntensity();
+        var secondLightIntensity = LaserViewModel.GetOpticalPowerMeter();
 
         ResultLaserAttenuatorObjDto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity = (firstLightIntensity + secondLightIntensity) / 2; // 计算平均值。
@@ -292,11 +293,11 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, c);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, c);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-            var lightIntensityC = LaserViewModel.GetLaserPowerMeterLightIntensity();
+            var lightIntensityC = LaserViewModel.GetOpticalPowerMeter();
 
             Logger.LogHtmlInformation($"coefficient : {c}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {

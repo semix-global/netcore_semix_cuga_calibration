@@ -10,6 +10,7 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using CugaCalibration.ViewModels.Common;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -19,11 +20,12 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using System.Threading.Channels;
 
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAodDelayCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class LaserAodDelayCalibrationViewModel(AfViewModel afViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -162,15 +164,16 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+       var darkFieldPosition= StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition);
         switch (CalibrationStepIndex)
         {
             case 0:
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(darkFieldPosition);
                 return true;
 
             case 1:
                 ClearCalibrationTemp();
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(darkFieldPosition);
                 return true;
 
             case 2:
@@ -232,7 +235,7 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
     {
         try
         {
-            await Task.Run(() => StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition)).ConfigureAwait(false);
+            await Task.Run(() => StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition))).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -296,9 +299,11 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
                 RefinedFindInterval = refinedFindInterval
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
-            AfViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, CalChipSiteModelEnum.HazeModel);
+            // 自动聚焦
+            var isAutoFocus = afViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, CalChipSiteModelEnum.HazeModel);
+            if (isAutoFocus) afViewModel.ToggleDarkFieldEnable(true);
 
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
@@ -406,8 +411,12 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
                 return false;
             }
 
-            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
-            AfViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, CalChipSiteModelEnum.HazeModel);
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+
+            // 自动聚焦
+            var isAutoFocus = afViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, CalChipSiteModelEnum.HazeModel);
+            if (isAutoFocus) afViewModel.ToggleDarkFieldEnable(true);
+
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
             var index = 1;
@@ -475,7 +484,10 @@ public sealed partial class LaserAodDelayCalibrationViewModel : CalibrationViewM
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-        var result = LaserViewModel.GetPmtDataList(CalibrationConstantsHelper.MainPmtId, CalibrationConstantsHelper.MainChannelId);
+        var pmtDataList = LaserViewModel.GetCIBOfPMTDataList(10, CalibrationConstantsHelper.MainPmtId, CalibrationConstantsHelper.MainChannelId);
+        var result = Enumerable.Range(0, pmtDataList.First().Count)
+            .Select(t => pmtDataList.Select(tt => tt[t]).Average())
+            .ToList();
 
         laserAodDelayItemDto.PmtDataList = result;
         SynchronizationContextProvider.Send(() =>

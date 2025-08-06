@@ -13,7 +13,6 @@
              xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis"
              xmlns:coreModels="clr-namespace:Core.Models.Models.Laser.Rtfc;assembly=Core.Models"
              xmlns:focusShiftCoreModels="clr-namespace:Core.Models.Models.Laser.FocusShift;assembly=Core.Models"
              xmlns:rtfcDiagnosis="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis"

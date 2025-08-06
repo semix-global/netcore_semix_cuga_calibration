@@ -5,7 +5,6 @@ using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Pattern;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -23,7 +22,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Param" },
         new() { StepName = "Auto Focus Calibration" }
     ];
@@ -168,9 +167,9 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;

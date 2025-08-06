@@ -64,7 +64,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(bool IsReview, CalChipSiteModelEnum CalChipSiteModelEnum)>(sxExecuteRet.Msg, default)
-            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == AutofocusMode.Review, CalChipSiteModelEnum.ChuckModel));
+            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == AutofocusMode.Review, sxExecuteRet.Anything.CalChipType.ToCalChipModelEnum()));
     }
 
     public SxExecuteRet<double> GetSensorEcsValue()

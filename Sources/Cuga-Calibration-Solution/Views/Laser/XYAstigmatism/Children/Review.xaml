@@ -157,9 +157,6 @@
                         <GridViewColumn Width="120"
                                         Header="OpticsMagType"
                                         DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                        <GridViewColumn Width="100"
-                                        Header="Microscope"
-                                        DisplayMemberBinding="{Binding MicroscopeMagnificationEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="150"
                                         Header="Frequence Increment"
                                         DisplayMemberBinding="{Binding FrequenceIncrease, StringFormat={}{0:f3}}" />

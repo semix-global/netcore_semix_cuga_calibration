@@ -59,7 +59,7 @@ public static class StrehlRatioUtility
             throw new Exception("unvalid datas !");
         var maxIndex = MaxInex(datas);
         double start = -maxIndex;
-        return Enumerable.Range((int)start, length).Select(i => (double)i).ToArray();
+        return [.. Enumerable.Range((int)start, length).Select(i => (double)i)];
     }
 
     /// <summary>

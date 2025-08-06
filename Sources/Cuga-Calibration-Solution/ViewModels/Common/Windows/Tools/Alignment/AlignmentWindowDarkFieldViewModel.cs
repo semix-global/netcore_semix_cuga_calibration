@@ -232,6 +232,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             {
                 LaserViewModel.ToggleCIBControlModeAndProfileType(AlignmentParamWindowDarkFieldViewModel.CIBConfiguration);
             }
+
             switch (StepIndex)
             {
                 case 0:

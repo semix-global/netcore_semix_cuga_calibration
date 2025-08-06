@@ -108,10 +108,10 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             CalibrationStepList.Clear();
             CalibrationStepList.AddRange([
                 new() { StepName = "Select a location" },
-            .. ApplicationCookie.MicroscopeMagnificationInfoList
-                .Select(t=>t)
-                .OrderByDescending(t => t.MagnificationCode)
-                .Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName })
+                .. ApplicationCookie.MicroscopeMagnificationInfoList
+                    .Select(t => t)
+                    .OrderByDescending(t => t.MagnificationCode)
+                    .Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName })
             ]);
         });
         MicroscopePixelSizeItems = microscopePixelSizeItems;
@@ -426,7 +426,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 selectReviewItemDto.IsVerified = false;
 
                 var centricityItemMaxDto = ReviewList
-                        .SingleOrDefault(t => t.MagnificationInfo == ApplicationCookie.MicroscopeMagnificationInfoList.Maxima(info => info.MagnificationCode).Single());
+                    .SingleOrDefault(t => t.MagnificationInfo == ApplicationCookie.MicroscopeMagnificationInfoList.Maxima(info => info.MagnificationCode).Single());
 
                 if (IsAutoCalibrate) // 定位最高倍的位置
                 {
@@ -440,7 +440,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         //        out resultPositionLow, out _, out _, out _, out _) == false) return;
 
                         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.MagnificationInfo), centricityItemMaxDto.MagnificationInfo, Cache.GetTemplateFilePath(centricityItemMaxDto.MagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
-                            out var maxMatchResultPosition, out _, out _, out _, out _) == false)
+                                out var maxMatchResultPosition, out _, out _, out _, out _) == false)
                         {
                             result = false;
                             return;
@@ -448,6 +448,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                         Cache.MicroscopeCentricityCacheItem.Single(t => t.MagnificationInfo == centricityItemMaxDto.MagnificationInfo).FindPosition = maxMatchResultPosition;
                     }
+
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItem.Single(t => t.MagnificationInfo == centricityItemMaxDto!.MagnificationInfo).FindPosition);
                 }
                 else
@@ -643,7 +644,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeMagnificationInfoList
-                    .Select(t=>t)
+                    .Select(t => t)
                     .OrderByDescending(t => t.MagnificationCode)
                     .Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName }),
                 new() { StepName = "Review" }
@@ -690,6 +691,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                                     SelectReviewItemDto = itemReview;
                                     if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false) return false;
                                 }
+
                                 return true;
                             }) == false) return false;
                         AutoCalibrationStepIndex++;
@@ -779,6 +781,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         foreach (var item in Cache.MicroscopeCentricityCacheItem)
         {
             if (await AutomationRecipeInformationAsync(item.MagnificationInfo.MicroscopeMagnificationName) == false)

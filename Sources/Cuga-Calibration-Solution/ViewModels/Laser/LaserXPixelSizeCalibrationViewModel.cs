@@ -47,7 +47,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Select a Mag" },
         new() { StepName = "Select a Speed" },
         new() { StepName = "Select a location" },
@@ -306,9 +306,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;

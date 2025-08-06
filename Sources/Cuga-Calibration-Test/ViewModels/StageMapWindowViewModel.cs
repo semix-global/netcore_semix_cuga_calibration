@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,7 +8,6 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,9 +19,7 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.Extensions;
-using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
@@ -35,6 +33,8 @@ using System.Numerics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using Core.Services.Implements;
+using MathNet.Numerics.LinearAlgebra;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
 using Vector = Net.Utilities.Models.Geometries.Vector;
@@ -50,32 +50,31 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly ICalibrationAlgorithmService _calibrationAlgorithmService;
     private readonly ILogger<StageMapWindowViewModel> _logger;
+    private readonly AffineTransformation _affineTransformation;
 
     private static WrapperErrorText? _lastText;
-    private ILiteDatabaseProvider _liteDatabaseProvider;
 
     public StageMapWindowViewModel(
         ICacheProvider cacheProvider,
         [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
-    ICacheProvider recipeCacheProvider,
+        ICacheProvider recipeCacheProvider,
+        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+        ILiteDatabaseProvider recipeLiteDataBaseProvider,
         IDialogWindowProvider dialogWindowProvider,
         ICalibrationAlgorithmService calibrationAlgorithmService,
-        ILogger<StageMapWindowViewModel> logger)
+        ILogger<StageMapWindowViewModel> logger,
+        AffineTransformation affineTransformation)
     {
         _cacheProvider = cacheProvider;
         _recipeCacheProvider = recipeCacheProvider;
+
         _dialogWindowProvider = dialogWindowProvider;
         _calibrationAlgorithmService = calibrationAlgorithmService;
         _logger = logger;
-        _liteDatabaseProvider = HostApplication.GetKeyedService<ILiteDatabaseProvider>(LiteDbConstantHelper.RecipeDbKey);
-        if (_liteDatabaseProvider.ModifyLiteDatabase("D:\\Nano\\Cuga-Calibration\\Database\\B3\\cache.db") == false)
-        {
-            _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return;
-        }
-    }
+        _affineTransformation = affineTransformation;
 
-    public object HtmlLogUniqueId { get; private set; }
+        recipeLiteDataBaseProvider.ModifyLiteDatabase(@"D:\Nano\Cuga-Calibration\Database\DSW\cache.db");
+    }
 
 
     [RelayCommand]
@@ -97,9 +96,99 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
 
         var htmlLogUniqueId = Guid.NewGuid();
         var expandStageMapDto = _calibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMapDto, brightFieldStageMapDto, htmlLogUniqueId);
-        _logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml());
+        _logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(nameof(MergeStageMapStep1)));
 
         ShowWindow("Step1: Expand Matrix By Bilinear", expandStageMapDto, brightFieldStageMapDto);
+    }
+
+    [RelayCommand]
+    private void CalculateSingleStageMapError()
+    {
+        var htmlLogUniqueId = Guid.NewGuid();
+        try
+        {
+            var tryShowSelectDirectoryPathDialog = _dialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath);
+            if (tryShowSelectDirectoryPathDialog == false) return;
+
+            var files = Directory.GetFiles(directoryPath);
+
+            var (idealXMatrix, idealYMatrix) = ReadXYCsv(files.Single(t => t.Contains("Ideal_Guid")));
+            var (realXMatrix, realYMatrix) = ReadXYCsv(files.Single(t => t.Contains("Real_Guid")));
+            var realIsInWaferXMatrix = ReadCsv(files.Single(t => t.Contains("RealIsInWafer_Guid")));
+            var realIsMatchOkXMatrix = ReadCsv(files.Single(t => t.Contains("RealIsMatchOk_Guid")));
+
+            if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
+
+            _affineTransformation.CalculateMatrixError(
+                idealXMatrix,
+                idealYMatrix,
+                realXMatrix,
+                realYMatrix,
+                realIsInWaferXMatrix,
+                realIsMatchOkXMatrix,
+                htmlLogUniqueId,
+                calculateContainRowMinCount: cache.CalculateContainRowMinCount,
+                calculateContainColumnMinCount: cache.CalculateContainColumnMinCount,
+                diameter: cache.WaferDiameter,
+                alignmentThreshold: cache.CalibrationAlignmentThreshold,
+                gantryThreshold: cache.CalibrationGantryThreshold,
+                scaleThreshold: cache.CalibrationScaleThreshold
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Calculate Stage Map Error Failed");
+            _dialogWindowProvider.ShowDialog("Calculate Stage Map Error Failed", ex.Message);
+        }
+        finally
+        {
+            _logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(nameof(CalculateSingleStageMapError)));
+        }
+    }
+
+    [RelayCommand]
+    private void CalculateStageMapError()
+    {
+        var htmlLogUniqueId = Guid.NewGuid();
+        try
+        {
+            _logger.LogHtmlInformation($"Test{nameof(CalculateStageMapError)}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+
+            if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
+
+            if (_cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
+            var brightFieldStageMapDto = stageMapDto.CalibrationBrightFieldStageMap.Clone();
+            var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
+            _calibrationAlgorithmService.CalculateChuckStageMapError(
+                brightFieldStageMapDto,
+                htmlLogUniqueId,
+                cache.CalculateContainRowMinCount,
+                cache.CalculateContainColumnMinCount,
+                cache.CalibrationAlignmentThreshold,
+                cache.CalibrationGantryThreshold,
+                cache.CalibrationScaleThreshold,
+                cache.WaferDiameter);
+            _calibrationAlgorithmService.CalculateChuckStageMapError(
+                darkFieldStageMapDto,
+                htmlLogUniqueId,
+                cache.CalculateContainRowMinCount,
+                cache.CalculateContainColumnMinCount,
+                cache.CalibrationAlignmentThreshold,
+                cache.CalibrationGantryThreshold,
+                cache.CalibrationScaleThreshold,
+                cache.WaferDiameter);
+
+            _calibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMapDto, brightFieldStageMapDto, htmlLogUniqueId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Calculate Stage Map Error Failed");
+            _dialogWindowProvider.ShowDialog("Calculate Stage Map Error Failed", ex.Message);
+        }
+        finally
+        {
+            _logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(nameof(CalculateStageMapError)));
+        }
     }
 
     public void ShowWindow(string title, StageMapDto? df = null, StageMapDto? bf = null, int? width = null)
@@ -219,7 +308,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
     {
         _currentStageMapDto = new StageMapDto(RowCount, ColumnCount, RowHeight, ColumnWidth);
 
-        var errors = (Point[])[new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
+        var errors = (Point[]) [new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
 
         // 生成矩阵数据，使用起始点作为偏移
         var index = 0;
@@ -365,7 +454,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
                 rootedCoordinateVectors.Add(new RootedCoordinateVector(pt, v));
             }
 
-            foreach (var point in (Point[])[leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
+            foreach (var point in (Point[]) [leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
             {
                 var marker = WpfPlot.Plot.Add.Marker(point.X, point.Y, shape: MarkerShape.FilledCircle);
                 marker.MarkerFillColor = Colors.Red;
@@ -381,54 +470,6 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         finally
         {
             WpfPlot.Refresh();
-        }
-    }
-
-    [RelayCommand]
-    private void CalculateStageMapError()
-    {
-        var htmlLogUniqueId = Guid.NewGuid();
-        try
-        {
-            _logger.LogHtmlInformation($"Test{nameof(CalculateStageMapError)}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
-
-            if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
-
-            if (_cacheProvider.TryGetOrDefault<ChuckStageMapDto>(out var stageMapDto) == false) return;
-            var brightFieldStageMapDto = stageMapDto.CalibrationBrightFieldStageMap.Clone();
-            var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
-            var tryCalculateStageMapError = _calibrationAlgorithmService.CalculateChuckStageMapError(
-                brightFieldStageMapDto,
-                htmlLogUniqueId,
-                cache.CalculateContainRowMinCout,
-                cache.CalculateContainColumnMinCount,
-                cache.CalibrationAlignmentThreshold,
-                cache.CalibrationGantryThreshold,
-                cache.CalibrationScaleThreshold,
-                cache.WaferDiameter);
-            tryCalculateStageMapError = _calibrationAlgorithmService.CalculateChuckStageMapError(
-                darkFieldStageMapDto,
-                htmlLogUniqueId,
-                cache.CalculateContainRowMinCout,
-                cache.CalculateContainColumnMinCount,
-                cache.CalibrationAlignmentThreshold,
-                cache.CalibrationGantryThreshold,
-                cache.CalibrationScaleThreshold,
-                cache.WaferDiameter);
-
-            var expandStageMapDto = _calibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMapDto, brightFieldStageMapDto, htmlLogUniqueId);
-
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Calculate Stage Map Error Failed");
-            _dialogWindowProvider.ShowDialog("Calculate Stage Map Error Failed", ex.Message);
-            return;
-        }
-        finally
-        {
-            _logger.LogHtmlInformation(htmlLogUniqueId.LoggingPeekHtml($"{CalibrationTypeEnum.HandleCalibration}"));
         }
     }
 
@@ -519,6 +560,49 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         vf.Colormap = ColorMap;
     }
 
+    private static (Matrix<double> X, Matrix<double> Y) ReadXYCsv(string filePath)
+    {
+        var readAllLines = File.ReadAllText(filePath)
+            .Trim(Environment.NewLine.ToCharArray())
+            .Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        var row = readAllLines.Length;
+        var col = readAllLines[0].Split(',').Length;
+        var matrixX = Matrix<double>.Build.Dense(row, col);
+        var matrixY = Matrix<double>.Build.Dense(row, col);
+
+        for (var i = 0; i < row; i++)
+        {
+            var strings = readAllLines[i].Split(',');
+            for (var j = 0; j < col; j++)
+            {
+                matrixX[i, j] = double.Parse(strings[j].Split('^')[0]);
+                matrixY[i, j] = double.Parse(strings[j].Split('^')[1]);
+            }
+        }
+
+        return (matrixX, matrixY);
+    }
+
+    private static Matrix<double> ReadCsv(string filePath)
+    {
+        var readAllLines = File.ReadAllText(filePath)
+            .Trim(Environment.NewLine.ToCharArray())
+            .Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        var row = readAllLines.Length;
+        var col = readAllLines[0].Split(',').Length;
+        var matrix = Matrix<double>.Build.Dense(row, col);
+
+        for (var i = 0; i < row; i++)
+        {
+            var strings = readAllLines[i].Split(',');
+            for (var j = 0; j < col; j++)
+            {
+                matrix[i, j] = double.Parse(strings[j]);
+            }
+        }
+
+        return matrix;
+    }
 
     private static void ConfigureWpfPlot(WpfPlot wpfPlot, bool isContainError = true)
     {

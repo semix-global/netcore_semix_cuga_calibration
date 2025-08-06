@@ -102,15 +102,19 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeMagnificationInfoList.Contains(t.MagnificationInfo))]; // 过滤掉变更静态配置后原来的缓存
 
         SynchronizationContextProvider.Send(() =>
-                    CalibrationStatusList = [.. ApplicationCookie.MicroscopeMagnificationInfoList
-                        .Select(t => new MicroscopeMagnificationInfoCalibrationStatus { MicroscopeMagnificationInfo = t, IsCalibrated = false })]
-                    );
+            CalibrationStatusList =
+            [
+                .. ApplicationCookie.MicroscopeMagnificationInfoList
+                    .Select(t => new MicroscopeMagnificationInfoCalibrationStatus { MicroscopeMagnificationInfo = t, IsCalibrated = false })
+            ]
+        );
         foreach (var calibrationStatus in Calibrations)
         {
             CalibrationStatusList
                 .Single(t => t.MicroscopeMagnificationInfo == calibrationStatus.MagnificationInfo)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
+
         return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeMagnificationInfoList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -409,6 +413,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
         await InvokeVerifyAsync(() =>
         {
             if (VerifyCalibration(SelectReviewItemDto, cancellationToken) == false) result = false;
@@ -609,8 +614,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
-                    .. ApplicationCookie.MicroscopeMagnificationInfoList.Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName }),
-                    new() { StepName = "Review" }
+                .. ApplicationCookie.MicroscopeMagnificationInfoList.Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName }),
+                new() { StepName = "Review" }
             ]);
         });
     }
@@ -637,7 +642,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                     });
                     if (await AutoStepAsync().ConfigureAwait(false) == false) return false;
                     return await AutoNextingAsync(cancellationToken).ConfigureAwait(false);
-
                 }
                 ,
                 var index when index == AutoCalibrationStepList.Count - 1 => async () =>

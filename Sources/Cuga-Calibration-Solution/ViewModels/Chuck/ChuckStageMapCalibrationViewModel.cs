@@ -58,7 +58,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "BF P5", StepIndex = 1 },
         new() { StepName = "BF Find Start Point", StepIndex = 2 },
         new() { StepName = "BF Param", StepIndex = 3 },
@@ -408,9 +408,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -718,7 +718,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.P5Angle,
                 OpticsMode = Cache.IsDarkField ? "DarkField" : "BrightField",
                 Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                Cache.CalculateContainRowMinCout,
+                Cache.CalculateContainRowMinCount,
                 Cache.CalculateContainColumnMinCount,
                 Cache.CalibrationAlignmentThreshold,
                 Cache.CalibrationGantryThreshold,
@@ -772,7 +772,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             var tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
                 calibrationStageMap,
                 HtmlLogUniqueId,
-                Cache.CalculateContainRowMinCout,
+                Cache.CalculateContainRowMinCount,
                 Cache.CalculateContainColumnMinCount,
                 Cache.CalibrationAlignmentThreshold,
                 Cache.CalibrationGantryThreshold,
@@ -915,7 +915,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Cache.P5Angle,
                     Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                     Cache.AlgorithmTemplateTypeEnum,
-                    Cache.CalculateContainRowMinCout,
+                    Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
                     Cache.VerifyAlignmentThreshold,
                     Cache.VerifyGantryThreshold,
@@ -994,7 +994,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 var tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
                     ReviewDto.VerifyDarkFieldStageMap,
                     HtmlLogUniqueId,
-                    Cache.CalculateContainRowMinCout,
+                    Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
                     Cache.VerifyAlignmentThreshold,
                     Cache.VerifyGantryThreshold,
@@ -1073,7 +1073,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
                     ReviewDto.VerifyBrightFieldStageMap,
                     HtmlLogUniqueId,
-                    Cache.CalculateContainRowMinCout,
+                    Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
                     Cache.VerifyAlignmentThreshold,
                     Cache.VerifyGantryThreshold,

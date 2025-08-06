@@ -33,10 +33,10 @@ public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<Wa
     private double _cellDieHeight = 16600;
 
     [ObservableProperty]
-    private double _dieScribeWidth = 0;
+    private double _dieScribeWidth;
 
     [ObservableProperty]
-    private double _dieScribeHeight = 0;
+    private double _dieScribeHeight;
 
     public double DiePitchWidth => CellDieWidth + DieScribeWidth;
 
@@ -59,10 +59,10 @@ public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<Wa
     private double _reticleHeight = 16600;
 
     [ObservableProperty]
-    private double _reticleScribeWidth = 0;
+    private double _reticleScribeWidth;
 
     [ObservableProperty]
-    private double _reticleScribeHeight = 0;
+    private double _reticleScribeHeight;
 
     [ObservableProperty]
     private int _referenceDieRowNumber = 1;

@@ -5,6 +5,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
@@ -49,7 +50,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Config"},
+        new() { StepName = "Config" },
         new() { StepName = "Select Mag", DefaultIsNextEnable = true },
         new() { StepName = "Select a lens and a location" },
         new() { StepName = "Find EcsX With Chirp AOD Default Wave", DefaultIsNextEnable = true },
@@ -336,9 +337,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.CIBConfiguration.IsAutoGain,
-                Cache.CIBConfiguration.DcGainVoltage,
-                Cache.CIBConfiguration.IsL0k,
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
                 CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -391,11 +392,11 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 var (ecsUpperLimitX, ecsLowerLimitX, ecsLimitIntervalX, ecsXInitial) = Cache.GetEcsXParams();
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
 
-                LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, 0.8);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, 0.8);
 
                 // 默认波形
                 var defaultChirpAodWaveFilePath = Cache.GetChirpAodFilePath();
-                var copyFilePath = defaultChirpAodWaveFilePath.Replace(Directory.GetParent(defaultChirpAodWaveFilePath).FullName, ChirpFileDirectory);
+                var copyFilePath = FileHelper.GetEnsureLongPathSupport(defaultChirpAodWaveFilePath.Replace(Directory.GetParent(defaultChirpAodWaveFilePath).FullName, ChirpFileDirectory));
                 DirectoryHelper.CreateDirectoryIfNotExists(ChirpFileDirectory);
                 if (File.Exists(copyFilePath) == false)
                     File.Copy(defaultChirpAodWaveFilePath, copyFilePath);
@@ -411,7 +412,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 }
 
                 ChirpAodDefaultDto.ZeroNum = Cache.GetChirpAodDefaultWaveZeroNum();
-                (_, var isSuccess) = SendChirpAodWave(ChirpAodDefaultDto, ChirpAodDefaultDto.RateChange);
+                var (_, isSuccess) = SendChirpAodWave(ChirpAodDefaultDto, ChirpAodDefaultDto.RateChange);
                 (var currentResultList, isSuccess) = GetResultDtoByCurrentChirpAodRateChange(ChirpAodDefaultDto, isFindEcsX: true, isAutoSlider: true, cancellationToken: cancellationToken);
                 if (isSuccess == false)
                 {
@@ -701,7 +702,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
 
-                LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, 0.8);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, 0.8);
 
                 var ChirpAodDefaultDto = LaserViewModel.ReadChirpAodByCustomFile(Cache.GetChirpAodFilePath());
 
@@ -736,7 +737,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 Thread.Sleep(1000);
 
                 //下发当前mag的prescan默认波形
-                LaserViewModel.SendPrescanByCoefficient(Cache.OpticsMagTypeEnum, 0.8);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, 0.8);
 
                 // 读取校准缓存记录位置的波形文件并下发采图
                 var (_, isSuccess) = SendChirpAodWave(ChirpAodFindEcsYDto, selectItemFrequenceIncrement);
@@ -869,7 +870,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
             StageSpeedEnum.Low,
             8,
             3,
-            StageCoordinateSystemEnum.Dark);
+            StageCoordinateSystemEnum.Dark,
+            isAutoFocus: false,
+            isRtfc: false);
 
         var (xQuality, yQuality) = CalibrationAlgorithmService.GetXyQuality(darkFieldImageDto.Image);
 
@@ -1025,7 +1028,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
         cancellationToken.ThrowIfCancellationRequested();
         // ECS执行一轮采图
-        (_, var dtoTempListCircle) = GetEcsIncrementXyQualityDtoList(darkFieldChirpAodWaveDto.RateChange, dtoTempList, cancellationToken);
+        var (_, dtoTempListCircle) = GetEcsIncrementXyQualityDtoList(darkFieldChirpAodWaveDto.RateChange, dtoTempList, cancellationToken);
         var (isSuccess, currentResultItem) = GetEcsIncrementQualityDtoResultItem(dtoTempListCircle, isFindEcsX);
         // Log更新结果波形图
         UpdatePlotMarkDown(dtoTempListCircle, currentResultItem);
@@ -1069,11 +1072,34 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
 
     private (DarkFieldChirpAodWaveDto waveDto, bool isSuccess) SendChirpAodWave(DarkFieldChirpAodWaveDto chirpAodWaveDto, double rateRange, bool isAutoGenerate = true)
     {
-        var chirpAodChangeDto = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodWaveDto, rateRange);
+        var chirpAodChangeDto = chirpAodWaveDto.Clone();
         chirpAodChangeDto.SampleRate = Cache.SampleRate;
+
+        try
+        {
+            chirpAodChangeDto = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodWaveDto, rateRange);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(@"The specified waveform file does not exist in the folder.Error:{ex}", ex);
+            // 生成结果chirpAOD波形
+            if (isAutoGenerate)
+            {
+                var bandWidth = chirpAodWaveDto.SoundPackageLength * rateRange;
+                chirpAodChangeDto.BandWidthHigh = chirpAodWaveDto.CenterFrequency + bandWidth / 2d;
+                chirpAodChangeDto.BandWidthLow = chirpAodWaveDto.CenterFrequency - bandWidth / 2d;
+            
+                (Cache.AodWaveSignal, Cache.AodWaveSignalFourier) = chirpAodChangeDto.GenerateChirpAodWave();
+                
+                //chirpAodChangeDto = LaserViewModel.GetChirpAodByChangeRateFromFile(chirpAodChangeDto, rateRange);
+            }
+            else
+                return (chirpAodChangeDto, false);
+        }
+
         chirpAodChangeDto.ZeroNum = chirpAodWaveDto.ZeroNum;
         Cache.SetChirpAodRegNum((short)chirpAodChangeDto.ChirpAodWaveList.Count);
-        LaserViewModel.SendChirpAodByList(chirpAodChangeDto);
+        LaserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, chirpAodChangeDto.IncrementChirpAodFilePath)]);
 
         return (chirpAodChangeDto, true);
     }

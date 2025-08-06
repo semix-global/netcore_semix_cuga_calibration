@@ -4,6 +4,8 @@ namespace Core.Services.Implements.WCF;
 
 public class BaseService<T> where T : ISxWcfService
 {
+    private const string ErrorMessage = "Service is null or Not Connected or Not Init";
+
     /// <summary>
     /// 同一个接口服务, 只创建一次
     /// </summary>
@@ -43,19 +45,12 @@ public class BaseService<T> where T : ISxWcfService
     /// <param name="callback">执行方法</param>
     /// <param name="checkServiceIsNull">是否检查服务是否为空</param>
     /// <returns>返回结果</returns>
-    protected SxExecuteRet<TM> Invoke<TM>(Func<SxExecuteRet<TM>> callback, bool checkServiceIsNull = true)
+    protected SxExecuteRet<TM> Invoke<TM>(Func<SxExecuteRet<TM>?> callback, bool checkServiceIsNull = true)
     {
         var sxExecuteRet = new SxExecuteRet<TM> { Success = false };
         try
         {
-            if (checkServiceIsNull && Service is null && IsConnected == false)
-            {
-                sxExecuteRet.Success = false;
-                sxExecuteRet.Msg = "Service is null or Not Connected or Not Inited";
-                return sxExecuteRet;
-            }
-
-            return callback.Invoke();
+            return callback.Invoke() ?? new SxExecuteRet<TM> { Success = false, Msg = ErrorMessage };
         }
         catch (Exception ex)
         {
@@ -73,19 +68,12 @@ public class BaseService<T> where T : ISxWcfService
     /// <param name="callback">执行方法</param>
     /// <param name="checkServiceIsNull">是否检查服务是否为空</param>
     /// <returns>返回结果</returns>
-    protected SxExecuteRet Invoke(Func<SxExecuteRet> callback, bool checkServiceIsNull = true)
+    protected SxExecuteRet Invoke(Func<SxExecuteRet?> callback, bool checkServiceIsNull = true)
     {
         var sxExecuteRet = new SxExecuteRet { Success = false };
         try
         {
-            if (checkServiceIsNull && Service is null && IsConnected == false)
-            {
-                sxExecuteRet.Success = false;
-                sxExecuteRet.Msg = "Service is null or Not Connected or Not Inited";
-                return sxExecuteRet;
-            }
-
-            return callback.Invoke();
+            return callback.Invoke() ?? new SxExecuteRet { Success = false, Msg = ErrorMessage };
         }
         catch (Exception ex)
         {
