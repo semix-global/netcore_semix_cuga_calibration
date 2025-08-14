@@ -6,6 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Pattern;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
+    CalibrationSetting calibrationSetting,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IOptions<ApplicationSetting> options,
     ISynchronizationContextProvider contextProvider,

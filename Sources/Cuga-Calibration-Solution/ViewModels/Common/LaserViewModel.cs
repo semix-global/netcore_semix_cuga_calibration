@@ -35,6 +35,7 @@ public sealed class LaserViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
+    AfViewModel afViewModel,
     ICalibrationConfigService calibrationConfigService,
     ICacheProvider cacheProvider) : ViewModelBase
 {
@@ -368,13 +369,22 @@ public sealed class LaserViewModel(
                     break;
             }
 
+            var darkAutoFocusParam = yOpticsMagTypeEnum switch
+            {
+                OpticsMagTypeEnum.Low => calibrationSetting.LowMagSettingDarkFieldAutoFocusParam,
+                OpticsMagTypeEnum.Middle => calibrationSetting.MiddleMagSettingDarkFieldAutoFocusParam,
+                OpticsMagTypeEnum.High => calibrationSetting.HighMagSettingDarkFieldAutoFocusParam,
+                _ => throw new ArgumentOutOfRangeException(nameof(yOpticsMagTypeEnum), yOpticsMagTypeEnum, null)
+            };
+            var isAutofocus = afViewModel.SetDarkFieldAutoFocus(darkAutoFocusParam, yOpticsMagTypeEnum, calChipSiteModelEnum);
+
             if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
             var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
             if (toggleCIBModeRet.IsSuccess == false) throw new CugaException(toggleCIBModeRet.ErrorMsg);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutofocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -488,13 +498,22 @@ public sealed class LaserViewModel(
                     break;
             }
 
+            var darkAutoFocusParam = yOpticsMagTypeEnum switch
+            {
+                OpticsMagTypeEnum.Low => calibrationSetting.LowMagSettingDarkFieldAutoFocusParam,
+                OpticsMagTypeEnum.Middle => calibrationSetting.MiddleMagSettingDarkFieldAutoFocusParam,
+                OpticsMagTypeEnum.High => calibrationSetting.HighMagSettingDarkFieldAutoFocusParam,
+                _ => throw new ArgumentOutOfRangeException(nameof(yOpticsMagTypeEnum), yOpticsMagTypeEnum, null)
+            };
+            var isAutofocus = afViewModel.SetDarkFieldAutoFocus(darkAutoFocusParam, yOpticsMagTypeEnum, CalChipSiteModelEnum.ChuckModel);
+
             if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
             var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
             if (toggleCIBModeRet.IsSuccess == false) throw new CugaException(toggleCIBModeRet.ErrorMsg);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startPosition, endPosition, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startPosition, endPosition, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutofocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -553,6 +572,15 @@ public sealed class LaserViewModel(
                 throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null);
         }
 
+        var darkAutoFocusParam = yOpticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low => calibrationSetting.LowMagSettingDarkFieldAutoFocusParam,
+            OpticsMagTypeEnum.Middle => calibrationSetting.MiddleMagSettingDarkFieldAutoFocusParam,
+            OpticsMagTypeEnum.High => calibrationSetting.HighMagSettingDarkFieldAutoFocusParam,
+            _ => throw new ArgumentOutOfRangeException(nameof(yOpticsMagTypeEnum), yOpticsMagTypeEnum, null)
+        };
+        var isAutofocus = afViewModel.SetDarkFieldAutoFocus(darkAutoFocusParam, yOpticsMagTypeEnum, CalChipSiteModelEnum.ChuckModel);
+
         if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
         // 采图模式下发
@@ -567,7 +595,7 @@ public sealed class LaserViewModel(
             xStageSpeedEnum,
             pmtId,
             stageCoordinateSystemEnum,
-            isAutoFocus);
+            isAutofocus);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
