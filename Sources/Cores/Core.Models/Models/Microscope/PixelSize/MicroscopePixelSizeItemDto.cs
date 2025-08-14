@@ -44,7 +44,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
 
     public CalibrationMicroscopePixelSizeItem AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
+        CgMicroscopeLens = MagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
         PixelSize = PixelSize.ToCgSize(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

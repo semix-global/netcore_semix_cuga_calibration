@@ -87,7 +87,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     {
         return new CalibrationLaserLineCentricityItem
         {
-            CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MicroscopeMagnificationInfo),
+            CgMicroscopeLens = MicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MicroscopeMagnificationInfo),
             CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
             Speed = StageSpeedEnum.ToAdsSpeedEnum(),
             PmtId = PmtId,

@@ -52,6 +52,8 @@ public sealed class MicroscopeViewModel(
         var ret = calibrationMicroscopeService.GetLensList();
         var magnificationList = ret.Anything
             .Select(t => CgMicroscopeLensToMicroscopeMagnificationInfo(t.LensCode))
+            .OrderBy(t => t.Magnification)
+            .ThenBy(t => t.MagnificationCode)
             .ToList();
         return ret.IsSuccess ? magnificationList : throw new CugaException(ret.ErrorMsg);
     }

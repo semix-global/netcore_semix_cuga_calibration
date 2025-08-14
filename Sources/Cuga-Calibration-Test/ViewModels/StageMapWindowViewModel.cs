@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,9 +6,11 @@ using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
+using Core.Services.Implements;
 using Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
+using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
@@ -29,12 +30,11 @@ using ScottPlot.Interactivity;
 using ScottPlot.Interactivity.UserActionResponses;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
+using System.IO;
 using System.Numerics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
-using Core.Services.Implements;
-using MathNet.Numerics.LinearAlgebra;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
 using Vector = Net.Utilities.Models.Geometries.Vector;
@@ -308,7 +308,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
     {
         _currentStageMapDto = new StageMapDto(RowCount, ColumnCount, RowHeight, ColumnWidth);
 
-        var errors = (Point[]) [new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
+        var errors = (Point[])[new Point(Error1, Error1), new Point(Error2, Error2), new Point(Error3, Error3), new Point(Error4, Error4)];
 
         // 生成矩阵数据，使用起始点作为偏移
         var index = 0;
@@ -454,7 +454,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
                 rootedCoordinateVectors.Add(new RootedCoordinateVector(pt, v));
             }
 
-            foreach (var point in (Point[]) [leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
+            foreach (var point in (Point[])[leftDownIdeal, rightDownIdeal, leftUpIdeal, rightUpIdeal])
             {
                 var marker = WpfPlot.Plot.Add.Marker(point.X, point.Y, shape: MarkerShape.FilledCircle);
                 marker.MarkerFillColor = Colors.Red;

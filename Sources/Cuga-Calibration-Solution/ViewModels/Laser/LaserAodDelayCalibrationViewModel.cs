@@ -20,7 +20,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using System.Threading.Channels;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -164,7 +163,7 @@ public sealed partial class LaserAodDelayCalibrationViewModel(AfViewModel afView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-       var darkFieldPosition= StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition);
+        var darkFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition);
         switch (CalibrationStepIndex)
         {
             case 0:

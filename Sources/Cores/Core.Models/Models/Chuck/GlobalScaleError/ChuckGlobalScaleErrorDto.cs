@@ -152,7 +152,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckGlobalScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         ScaleX = ScaleX,
         ScaleY = ScaleY,
         IsCalibrated = IsCalibrated,
