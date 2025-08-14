@@ -116,7 +116,7 @@ public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<C
 
     public CalibrationCenterObj AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

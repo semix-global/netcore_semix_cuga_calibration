@@ -89,7 +89,7 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public CalibrationChuckGantry AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         Offset = Offset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

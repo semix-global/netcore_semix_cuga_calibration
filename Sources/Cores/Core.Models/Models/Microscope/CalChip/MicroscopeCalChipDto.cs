@@ -330,7 +330,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
 
     public CalibrationMicroscopeCalChip AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MicroscopeMagnificationInfo),
+        CgMicroscopeLens = MicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MicroscopeMagnificationInfo),
         ChuckAfEcsValue = ChuckAfEcsValue,
         ChuckAfMotorValue = ChuckAfMotorValue,
         DswBrightFieldMachinePosition = DswBrightFieldMachinePosition.ToCgPoint(),

@@ -55,7 +55,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationMicroscopeFocusItem AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
+        CgMicroscopeLens = MagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
         EcsValue = EcsValue,
         MicroscopeVoltage = MicroscopeVoltage,
         IsCalibrated = IsCalibrated,

@@ -33,7 +33,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
     public SxExecuteRet<CgMicroscopeLens> MicroscopeMagnificationInfoToCgMicroscopeLens(MicroscopeMagnificationInfo microscopeMagnificationInfo)
     {
         var sxExecuteRet = GetLensList();
-        var cgMicroscopeInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.Lens == microscopeMagnificationInfo.Magnification);
+        var cgMicroscopeInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.LensCode == (CgMicroscopeLens)microscopeMagnificationInfo.MagnificationCode);
 
         return sxExecuteRet.IsSuccess == false || cgMicroscopeInfo is null
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default(CgMicroscopeLens))
