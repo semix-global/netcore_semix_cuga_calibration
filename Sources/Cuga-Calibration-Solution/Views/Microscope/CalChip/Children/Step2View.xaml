@@ -29,6 +29,10 @@
                            Subject="Microscope Magnification: "
                            Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="CalChip Mode: "
+                           Status="{Binding Cache.CalChipSiteModelEnum}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">

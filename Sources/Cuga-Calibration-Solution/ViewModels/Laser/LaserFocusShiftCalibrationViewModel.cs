@@ -342,7 +342,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
                     switch (parameter)
                     {
-                        case "LowFindPosition":
+                        case "BaseLowFindPosition":
                             Cache.LowSiteFindPosition = result;
                             Cache.HighSiteFindPosition = result;
 
@@ -353,7 +353,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
                             break;
 
-                        case "HighFindPosition":
+                        case "BaseHighFindPosition":
                             {
                                 Logger.LogHtmlInformation("Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 

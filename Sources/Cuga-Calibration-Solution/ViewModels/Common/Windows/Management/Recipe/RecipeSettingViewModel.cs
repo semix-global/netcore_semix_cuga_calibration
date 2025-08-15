@@ -315,7 +315,7 @@ public sealed partial class RecipeSettingViewModel(
         ReviewRecipeDtoBackup = ApplicationCookie.CalibrationRecipeDto.Clone();
 
         if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag.MagnificationCode == -1)
-            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag = ApplicationCookie.MicroscopeMagnificationInfoList[0];
 
         if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag.MagnificationCode == -1)
             CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2

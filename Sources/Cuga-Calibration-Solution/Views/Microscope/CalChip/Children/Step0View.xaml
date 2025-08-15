@@ -15,6 +15,10 @@
                             Spacing="3">
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat='Cal Chip Step {0}'}" Color="{StaticResource InfoBrush}" />
+            <hc:Shield DockPanel.Dock="Bottom"
+                       Subject="CalChip Mode: "
+                       Status="{Binding Cache.CalChipSiteModelEnum}"
+                       Color="{StaticResource SuccessBrush}" />
         </hc:UniformSpacingPanel>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">

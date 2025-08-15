@@ -586,7 +586,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             double afMotor = 0d;
             if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
             {
-                (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(findFocusPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
+                (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
                 ResultMicroscopeCalChipDto.SetAfEcsValue(Cache.CalChipSiteModelEnum, ecs);
                 ResultMicroscopeCalChipDto.SetAfMotorValue(Cache.CalChipSiteModelEnum, afMotor);
             }
@@ -694,8 +694,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             // Rtfc
             var calchipVerifyItemDto = new MicroscopeCalChipDto();
             (calchipVerifyItemDto.ChuckAfEcsValue, calchipVerifyItemDto.ChuckAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition);
-            (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.DswPosition, calChipSiteModelEnum: CalChipSiteModelEnum.DswModel);
-            (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.HazePosition, calChipSiteModelEnum: CalChipSiteModelEnum.HazeModel);
+            (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: CalChipSiteModelEnum.DswModel);
+            (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: CalChipSiteModelEnum.HazeModel);
 
             var dswToChuckAfEcsOffset = calchipVerifyItemDto.DswToChuckAfEcsValue - ReviewDto.DswToChuckAfEcsValue;
             var dswToChuckAfMotorOffset = calchipVerifyItemDto.DswToChuckAfMotorValue - ReviewDto.DswToChuckAfMotorValue;

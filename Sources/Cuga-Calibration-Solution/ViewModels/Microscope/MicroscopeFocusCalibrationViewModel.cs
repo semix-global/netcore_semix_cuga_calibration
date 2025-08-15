@@ -210,37 +210,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GetPointAsync()
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-
-                Cache.SetFindFocusPosition(result);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoPointAsync()
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(SelectMicroscopeFocusCacheItem.FindFocusPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -260,6 +229,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         await InvokeCalibrateAsync(async () =>
         {
+            var result = StageViewModel.GetBrightFieldStagePosition();
+            Cache.SetFindFocusPosition(result);
+
             if (await AutomationRecipeInformationAsync(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName) == false)
                 return false;
 

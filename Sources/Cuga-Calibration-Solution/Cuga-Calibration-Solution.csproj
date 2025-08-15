@@ -72,11 +72,6 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Page Update="Views\Microscope\CalChip\Children\Step1View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-          <XamlRuntime>Wpf</XamlRuntime>
-          <SubType>Designer</SubType>
-        </Page>
     </ItemGroup>
 
     <ItemGroup>
@@ -85,44 +80,5 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Views\Chuck\DarkFieldStageMap\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Chuck\StageMap\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\AutoFocus\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\FocusShift\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\IlluminationProfile\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\LineCentricity\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\PixelSize\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\PrescanChirpAodAlignment\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\Rtfc\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\XPixelSize\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\XTCCalibration\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Laser\XYAstigmatism\Children\ConfigView.xaml.cs">
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-
+    
 </Project>

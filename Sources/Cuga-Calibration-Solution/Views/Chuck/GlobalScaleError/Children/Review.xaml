@@ -199,7 +199,7 @@
                                                  ShowCursor="False"
                                                  ShowGrid="False"
                                                  BackgroundImage="{Binding SelectGlobalScaleErrorDto.TopHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.TopSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.TopPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
@@ -230,7 +230,7 @@
                                                  ShowCursor="False"
                                                  ShowGrid="False"
                                                  BackgroundImage="{Binding SelectGlobalScaleErrorDto.BottomHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.BottomSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.BottomPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
@@ -261,7 +261,7 @@
                                                  ShowCursor="False"
                                                  ShowGrid="False"
                                                  BackgroundImage="{Binding SelectGlobalScaleErrorDto.LeftHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.LeftSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.LeftPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
@@ -292,7 +292,7 @@
                                                  ShowCursor="False"
                                                  ShowGrid="False"
                                                  BackgroundImage="{Binding SelectGlobalScaleErrorDto.RightHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.RightSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.RightPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"

@@ -154,81 +154,75 @@
 
         <!--#region Right-->
         <Grid Grid.Column="2">
-            <GroupBox Header="History">
-                <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding MicroscopeFocusItemDtoList}"
-                          Style="{StaticResource ListView.Small}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedMicroscopeFocusItemDto, Mode=OneWay}">
-                    <i:Interaction.Behaviors>
-                        <behaviors:ListBoxScrollToCurrentBehavior />
-                    </i:Interaction.Behaviors>
-                    <ListView.ItemContainerStyle>
-                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.View>
-                        <GridView>
-                            <GridView.ColumnHeaderContainerStyle>
-                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                </Style>
-                            </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="100"
-                                            Header="Index"
-                                            DisplayMemberBinding="{Binding Index}" />
-                            <GridViewColumn Width="200"
-                                            Header="Magnification"
-                                            DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName}" />
-                            <GridViewColumn Width="200"
-                                            Header="FindPosition"
-                                            DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Ecs"
-                                            DisplayMemberBinding="{Binding EcsValue, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Quality"
-                                            DisplayMemberBinding="{Binding Quality, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="200" Header="Action Review">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <hc:ButtonGroup>
-                                            <Button Content="Image"
-                                                    Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding FilePath}"
-                                                    d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeFocusItemDto}" />
-                                        </hc:ButtonGroup>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </GroupBox>
-            <ToggleButton x:Name="ToggleButton"
-                          Content="Function Image"
-                          Margin="3.5"
-                          HorizontalAlignment="Right"
-                          VerticalAlignment="Top"
-                          hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                          Style="{StaticResource ToggleButtonDefault.Small}" />
-            <Popup StaysOpen="False"
-                   PlacementTarget="{Binding ElementName=ToggleButton}"
-                   Placement="Top"
-                   AllowsTransparency="True"
-                   PopupAnimation="Slide"
-                   IsOpen="{Binding IsChecked, ElementName=ToggleButton, Mode=TwoWay}">
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot Width="500" Height="400">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="6*" />
+                    <RowDefinition Height="4*" />
+                </Grid.RowDefinitions>
+                <GroupBox Header="History">
+                    <ListView d:SelectedIndex="0"
+                              ItemsSource="{Binding MicroscopeFocusItemDtoList}"
+                              Style="{StaticResource ListView.Small}"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              SelectedItem="{Binding SelectedMicroscopeFocusItemDto, Mode=OneWay}">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ListBoxScrollToCurrentBehavior />
+                        </i:Interaction.Behaviors>
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Width="100"
+                                                Header="Index"
+                                                DisplayMemberBinding="{Binding Index}" />
+                                <GridViewColumn Width="200"
+                                                Header="Magnification"
+                                                DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName}" />
+                                <GridViewColumn Width="200"
+                                                Header="FindPosition"
+                                                DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />
+                                <GridViewColumn Width="100"
+                                                Header="Ecs"
+                                                DisplayMemberBinding="{Binding EcsValue, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="Quality"
+                                                DisplayMemberBinding="{Binding Quality, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="200" Header="Action Review">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <hc:ButtonGroup>
+                                                <Button Content="Image"
+                                                        Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding FilePath}"
+                                                        d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeFocusItemDto}" />
+                                            </hc:ButtonGroup>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </GroupBox>
+                <Border Grid.Row="1"
+                        Style="{StaticResource BorderRegion}"
+                        Effect="{StaticResource EffectShadow1}">
+                    <wpf:WpfPlot>
                         <i:Interaction.Behaviors>
                             <behaviors:WpfPlotMultiBehavior Title="Focus"
                                                             Plot0Title="Quality"
@@ -237,7 +231,7 @@
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
                 </Border>
-            </Popup>
+            </Grid>
         </Grid>
         <!--#endregion-->
     </Grid>

@@ -385,7 +385,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
                     switch (parameter)
                     {
-                        case "LowFindPosition":
+                        case "BaseLowFindPosition":
                             FocusShiftCache.LowSiteFindPosition = result;
                             FocusShiftCache.HighSiteFindPosition = result;
 
@@ -396,7 +396,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
                             break;
 
-                        case "HighFindPosition":
+                        case "BaseHighFindPosition":
                             {
                                 Logger.LogHtmlInformation("Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 

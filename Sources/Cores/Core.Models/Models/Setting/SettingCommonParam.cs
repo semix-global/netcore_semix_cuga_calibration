@@ -63,7 +63,7 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
     private bool _prerequisitesEnable;
 
     /// <summary>
-    /// 依赖关系使能
+    /// 是否是Debug环境
     /// </summary>
     [ObservableProperty]
     private bool _isDebugEnvironment;

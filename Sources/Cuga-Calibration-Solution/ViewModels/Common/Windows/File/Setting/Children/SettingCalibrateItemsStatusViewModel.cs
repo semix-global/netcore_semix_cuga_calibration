@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Events;
 using Core.Models.Extensions;
+using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -26,7 +27,10 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Setting;
 using Core.Wcf.Models;
+using Cuga.Data.DataStruct.ADS;
+using Cuga.Data.DataStruct.Optics;
 using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
@@ -39,6 +43,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 
+#if NET
+using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
+#endif
+
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
 [IOCAppService(ServiceType = typeof(SettingCalibrateItemsStatusViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
@@ -50,6 +58,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
     private readonly ILogger<SettingCalibrateItemsStatusViewModel> _logger;
     private readonly ICalibrationCacheProvider _calibrationCacheProviderService;
     private readonly ConfigViewModel _configViewModel;
+    private readonly CalibrationSetting _calibrationSetting;
 
     private bool _isLoadSuccess;
 
@@ -74,8 +83,15 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
     /// </summary>
     private CalibrateStatus? _calibrationStatusBackUp;
 
-    public SettingCalibrateItemsStatusViewModel(IMessenger messenger, IDialogWindowProvider dialogWindowProvider, IGetResultFileService getResultFileService, ILogger<SettingCalibrateItemsStatusViewModel> logger,
-        ICalibrationCacheProvider calibrationCacheProviderService, ConfigViewModel configureViewModel)
+    public SettingCalibrateItemsStatusViewModel
+    (
+        IMessenger messenger,
+        IDialogWindowProvider dialogWindowProvider,
+        IGetResultFileService getResultFileService,
+        ILogger<SettingCalibrateItemsStatusViewModel> logger,
+        ICalibrationCacheProvider calibrationCacheProviderService,
+        ConfigViewModel configureViewModel,
+        CalibrationSetting calibrationSetting)
     {
         _messenger = messenger;
         _dialogWindowProvider = dialogWindowProvider;
@@ -83,6 +99,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
         _logger = logger;
         _calibrationCacheProviderService = calibrationCacheProviderService;
         _configViewModel = configureViewModel;
+        _calibrationSetting = calibrationSetting;
 
         _messenger.RegisterAll(this);
     }
@@ -212,112 +229,122 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
 
                 if (_getResultFileService.TrySave(_calibrationObj) == false) return false;
 
-                if (_calibrationObj.CalibrationAdsObj.CalibrationAdsPressureGains.IsOk)
+                if (_calibrationObj.CalibrationAdsObj.CalibrationAdsPressureGains.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<AdsPressureGainsDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationAdsObj.CalibrationAdsXGains.IsOk)
+                if (_calibrationObj.CalibrationAdsObj.CalibrationAdsXGains.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<AdsXGainsItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationAdsObj.CalibrationAdsYGains.IsOk)
+                if (_calibrationObj.CalibrationAdsObj.CalibrationAdsYGains.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<AdsYGainsItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeFocusItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeFocusItemList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<MicroscopeFocusItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeCalChip.IsOk)
+                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeCalChip.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<MicroscopeCalChipDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopePixelSizeItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopePixelSizeItemList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<MicroscopePixelSizeItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeCentricityItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeCentricityItemList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<MicroscopeCentricityItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckGantry.IsOk)
+                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckGantry.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<ChuckGantryDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationChuckObj.CalibrationCenterObj.IsOk)
+                if (_calibrationObj.CalibrationChuckObj.CalibrationCenterObj.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<ChuckCenterObjDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationChuckObj.CalibrationPrealignerObj.IsOk)
+                if (_calibrationObj.CalibrationChuckObj.CalibrationPrealignerObj.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<ChuckPrealignerObjDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckStageMap.IsOk)
+                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckStageMap.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<ChuckStageMapDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckGlobalScaleError.IsOk)
+                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckGlobalScaleError.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<ChuckGlobalScaleErrorDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckRotateScaleError.IsOk)
+                if (_calibrationObj.CalibrationChuckObj.CalibrationChuckRotateScaleError.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<ChuckRotateScaleErrorDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserAutoFocus.IsOk)
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserAutoFocus.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetDisable<LaserAutoFocusDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserAodDelayItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserAodDelayItemList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserAodDelayItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXtcCalibrationItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXtcCalibrationItemList
+                    .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
+                            && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
+                    .IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserXTCCalibrationItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserPixelSizeItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserPixelSizeItemList
+                    .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
+                                && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
+                    .IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserPixelSizeItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXPixelSizeList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXPixelSizeList.SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High)?.IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserXPixelSizeItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserLineCentricityItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserLineCentricityItemList
+                    .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
+                            && t.Speed == ADSSpeedEnum.Low
+                            && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
+                    .IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserLineCentricityItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserIlluminationProfileItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserIlluminationProfileItemList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserIlluminationProfileItemDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserOpticalPowerList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserOpticalPowerList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserOpticalPowerDto>(cancellationToken) == false) return false;
                 }
 
-                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXYAstigmatismItemList.All(t => t.IsOk))
+                if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXYAstigmatismItemList.All(t => t.IsOk) == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserXYAstigmatismCalibrationItemDto>(cancellationToken) == false) return false;
                 }
@@ -405,6 +432,8 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
     {
         try
         {
+            if (_calibrationSetting.SettingCommonParam.DependencyEnable == false)
+                return true;
             if (originStatus.Equals(currentStatus))
                 return true;
             var changeItems = originStatus.GetType().GetProperties()
@@ -472,8 +501,8 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
     private static List<T> ObjectConvertToList<T>(object listObj)
     {
         var result = new List<T>();
-        if (listObj.GetType().IsGenericType == false)
-            return result;
+        //if (listObj.GetType().IsGenericType == false)
+        //    return result;
         if (listObj is System.Collections.ICollection list)
         {
             if (list.Count > 0)
@@ -564,3 +593,4 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
         }
     }
 }
+

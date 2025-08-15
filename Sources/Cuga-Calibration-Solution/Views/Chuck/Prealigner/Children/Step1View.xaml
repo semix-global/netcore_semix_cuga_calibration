@@ -74,7 +74,7 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="2. Find Low Position Template"
+                        <TextBlock Text="2. Find Low Position1"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
@@ -85,18 +85,9 @@
                              hc:InfoElement.Title="Position1(um): "
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="LowSiteP1GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="LowFindPosition1" />
-                        <Button x:Name="LowSiteP1GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="LowFindPosition1" />
-                    </hc:ButtonGroup>
                     <view:CanvasView Width="100"
                                      Height="100"
+                                     Margin="5"
                                      BackgroundColor="#0A0A0A"
                                      AxisColor="Red"
                                      Interactive="True"
@@ -104,21 +95,6 @@
                                      ShowCursor="False"
                                      ShowGrid="False"
                                      BackgroundImage="{Binding Cache.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                    <TextBox Text="{Binding Cache.LowFindPosition2, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="LowSiteP2GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="LowFindPosition2" />
-                        <Button x:Name="LowSiteP2GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="LowFindPosition2" />
-                    </hc:ButtonGroup>
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -126,13 +102,11 @@
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
+                        <Button Content="Action"
                                 Command="{Binding Step1CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
+                        <Button Content="Cancel"
                                 Command="{Binding Step1CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />

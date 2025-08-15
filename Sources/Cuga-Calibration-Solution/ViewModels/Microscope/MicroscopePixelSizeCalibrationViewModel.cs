@@ -215,37 +215,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GetPointAsync()
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-
-                Cache.SetFindFocusPosition(result);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoPointAsync()
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -273,6 +242,9 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
+            var result = StageViewModel.GetBrightFieldStagePosition();
+            Cache.SetFindFocusPosition(result);
 
             if (IsRecipeCalibrate)
             {
