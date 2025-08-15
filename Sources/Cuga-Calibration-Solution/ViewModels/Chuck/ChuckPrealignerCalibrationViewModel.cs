@@ -31,12 +31,13 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Calibration offset" },
-        new() { StepName = "Low" },
-        new() { StepName = "High" },
+        new() { StepName = "Center offset" },
+        new() { StepName = "Low MarkSite1" },
+        new() { StepName = "Low MarkSite2" },
+        new() { StepName = "High MarkSite1" },
+        new() { StepName = "High MarkSite2" },
         new() { StepName = "Calibration Result" }
     ];
-
 
     #region 界面相关
 
@@ -190,16 +191,23 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         {
             case 0:
                 MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
-                return true;
-            case 1:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
-                Cache.HighFindPosition1 = Cache.LowFindPosition1;
-                Cache.HighFindPosition2 = Cache.LowFindPosition2;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
                 return true;
+            case 1:
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
+                return true;
             case 2:
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
+                Cache.HighFindPosition1 = Cache.LowFindPosition1;
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return true;
             case 3:
+                Cache.HighFindPosition2 = Cache.LowFindPosition2;
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
+                return true;
+            case 4:
+                return true;
+            case 5:
                 ChuckPrealignerObjDto.IsCalibrated = true;
                 if (Save(ChuckPrealignerObjDto, cancellationToken) == false)
                 {
@@ -209,6 +217,31 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 }
 
                 IsCalibrated = true;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 2:
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
+                return true;
+            case 3:
+                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
+                return true;
+            case 4:
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
+                return true;
+            case 5:
+                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
             default:
                 return false;
@@ -290,34 +323,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         catch (Exception ex)
         {
             Logger.LogError(ex, "{@Name}: Get Point Image Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task<bool> GotoPointAsync(string parameter)
-    {
-        try
-        {
-            Logger.LogInformation("{@Name}: Move Point Start", Name);
-            return await Task.Run(() =>
-            {
-                StageViewModel.SetBrightFieldAbsoluteStageXy(parameter switch
-                {
-                    "LowFindPosition1" => Cache.LowFindPosition1,
-                    "LowFindPosition2" => Cache.LowFindPosition2,
-                    "HighFindPosition1" => Cache.HighFindPosition1,
-                    "HighFindPosition2" => Cache.HighFindPosition2,
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(parameter))
-                });
-
-                Logger.LogInformation("{@Name}: Move Point OK!", Name);
-                return true;
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-            return false;
         }
     }
 
@@ -425,12 +430,27 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var result = true;
         await InvokeCalibrateAsync(() =>
         {
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            Cache.LowFindPosition1 = position;
+            Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
+            Cache.LowSite1.Location = Cache.LowFindPosition1;
+            var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+            if (resultLowSite1.Template is null)
+            {
+                result = false;
+                return false;
+            }
+
+            BitmapSourceHelper.Save(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(resultLowSite1.Template.Thumb), Cache.LowTemplateImageFilePath);
+            Cache.LowSite1 = resultLowSite1;
+            Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.LowSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
                 Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.LowFindPosition1,
-                Cache.LowFindPosition2,
                 HtmlTab = new HtmlTab(new
                 {
                     LowTemplate = new HtmlImage(Cache.LowTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
@@ -447,17 +467,58 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var result = true;
         await InvokeCalibrateAsync(() =>
         {
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            Cache.LowFindPosition2 = position;
+            Cache.LowSite2.Location = Cache.LowFindPosition2;
+            var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1, Cache.AlgorithmWaferTypeEnum);
+            Cache.LowSite2 = resultLowSite2;
+            Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.LowSite2.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.AlgorithmTemplateTypeEnum,
+                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.LowFindPosition2,
+            }), HtmlLogUniqueId.LoggingHtml());
+            return result;
+        });
+        return result;
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        var result = true;
+        await InvokeCalibrateAsync(() =>
+        {
             if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode <= Cache.LowMicroscopeMagnificationInfo.MagnificationCode)
             {
                 DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
 
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            Cache.HighFindPosition1 = position;
+            Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
+            Cache.HighSite1.Location = Cache.HighFindPosition1;
+            var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+            if (resultHighSite1.Template is null)
+            {
+                result = false;
+                return false;
+            }
+
+            BitmapSourceHelper.Save(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(resultHighSite1.Template.Thumb), Cache.HighTemplateImageFilePath);
+            Cache.HighSite1 = resultHighSite1;
+            Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.HighSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.HighFindPosition1,
-                Cache.HighFindPosition2,
                 HtmlTab = new HtmlTab(new
                 {
                     HighTemplate = new HtmlImage(Cache.HighTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
@@ -469,7 +530,31 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        var result = true;
+        await InvokeCalibrateAsync(() =>
+        {
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            Cache.HighFindPosition2 = position;
+            Cache.HighSite2.Location = Cache.HighFindPosition2;
+            var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1, Cache.AlgorithmWaferTypeEnum);
+            Cache.HighSite2 = resultHighSite2;
+            Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.HighSite2.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.HighFindPosition2
+            }), HtmlLogUniqueId.LoggingHtml());
+            return result;
+        });
+        return result;
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step5CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var result = true;
         await InvokeCalibrateAsync(async () =>
@@ -872,8 +957,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                         break;
                     case 3:
                         if (await AutomationRecipeInformationAsync() == false) return false;
-                        if (await Step3CalibrateActionAsync(cancellationToken) == false) return false;
-                        CalibrationStepIndex = 3;
+                        if (await Step5CalibrateActionAsync(cancellationToken) == false) return false;
+                        CalibrationStepIndex = 5;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         break;
                     case 4:
@@ -914,7 +999,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         }
     }
 
-    public override async Task<bool> AutomationRecipeInformationAsync(string Position = "")
+    public override async Task<bool> AutomationRecipeInformationAsync(string position = "")
     {
         await Task.CompletedTask.ConfigureAwait(false);
         if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)

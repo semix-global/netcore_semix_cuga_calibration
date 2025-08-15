@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.Centricity;
@@ -137,6 +136,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         }
 
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
         StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition);
 
         return true;
@@ -205,8 +205,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
         MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition);
-
 
         return result;
 
@@ -244,83 +242,19 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GetFindPointAsync()
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-
-                Cache.SetFindPosition(result);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoFindPointAsync()
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.MicroscopeCentricityCacheItem[0].FindPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GetPointAsync(string name)
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-                Cache.SetFindPosition(result);
-
-                Cache.SetTemplateFilePath($"{TemplateFileDirectory}\\{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}");
-
-                var generateTemplateLow1 = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, SelectMicroscopeCentricityCacheItem.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
-
-                if (generateTemplateLow1 == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                else Cache.SetTemplateImageFilePath(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(SelectMicroscopeCentricityCacheItem.TemplateFilePath));
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoPointAsync(string name)
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
         await InvokeCalibrateAsync(() =>
         {
+            var result = StageViewModel.GetBrightFieldStagePosition();
+            Cache.SetFindPosition(result);
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.AlgorithmTemplateTypeEnum,
+                SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum,
                 SelectMicroscopeCentricityCacheItem.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -337,6 +271,17 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             try
             {
                 ClearCalibrationTemp();
+
+                var position = StageViewModel.GetBrightFieldStagePosition();
+                Cache.SetFindPosition(position);
+
+                Cache.SetTemplateFilePath($"{TemplateFileDirectory}\\{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}");
+
+                var generateTemplateLow1 = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, SelectMicroscopeCentricityCacheItem.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+
+                if (generateTemplateLow1 == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                else Cache.SetTemplateImageFilePath(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(SelectMicroscopeCentricityCacheItem.TemplateFilePath));
+
                 var (isSuccess, errorMessage) = Cache.Verify();
                 if (isSuccess == false)
                 {
@@ -748,7 +693,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum.DieCorner, Cache.MicroscopeMagnificationInfo, null, out var maskInfo) == false)
+        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, out var maskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
         Cache.SetFindPosition(position);

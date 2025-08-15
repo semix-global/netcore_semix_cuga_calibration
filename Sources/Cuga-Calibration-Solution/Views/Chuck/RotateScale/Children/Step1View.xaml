@@ -40,13 +40,12 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:ComboBox x:Name="TemplateTypeComboBox"
-                                 Width="275"
                                  HorizontalAlignment="Left"
                                  hc:InfoElement.TitleWidth="140"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Template Type: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding IdeaPositionCache.AlgorithmTemplateTypeEnum}"
+                                 SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
@@ -55,12 +54,11 @@
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:ComboBox x:Name="LowMagCombobox"
-                                 Width="275"
                                  HorizontalAlignment="Left"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Low Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding IdeaPositionCache.LowMicroscopeMagnificationInfo}"
+                                 SelectedItem="{Binding IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
@@ -73,8 +71,25 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="High Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
                     <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="80"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Template Mask Type: "
                                  hc:InfoElement.Necessary="True"
@@ -86,11 +101,32 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Column Cell Width(um): "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding IdeaPositionCache.ColumnCellWidth}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Row Cell Height(um): "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      hc:TitleElement.TitleWidth="180"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding IdeaPositionCache.RowCellHeight}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Wafer Diameter(um): "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      hc:TitleElement.TitleWidth="180"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding IdeaPositionCache.WaferDiameter}" />
                 </hc:UniformSpacingPanel>
             </Border>
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="2. Find Low Position Template"
@@ -101,28 +137,9 @@
                     </StackPanel>
                     <TextBox Text="{Binding IdeaPositionCache.BaseLowSiteFindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position1(um): "
+                             hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="LowSiteGetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="LowFindPosition" />
-                        <Button x:Name="LowSiteP1GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="LowFindPosition" />
-                    </hc:ButtonGroup>
-                    <view:CanvasView Width="100"
-                                     Height="100"
-                                     BackgroundColor="#0A0A0A"
-                                     AxisColor="Red"
-                                     Interactive="True"
-                                     ShowAxes="True"
-                                     ShowCursor="False"
-                                     ShowGrid="False"
-                                     BackgroundImage="{Binding IdeaPositionCache.LowTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10"

@@ -24,78 +24,36 @@
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="High Microscope Magnification: "
-                           Status="{Binding Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                           Subject="Low Microscope Magnification: "
+                           Status="{Binding Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find Position Template"
+                        <TextBlock Text="Find Low Top Position Template"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox x:Name="HighMagCombobox"
-                                 Width="275"
-                                 HorizontalAlignment="Left"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="High Magnification: "
-                                 hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.HighMicroscopeMagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
-                    <TextBox Text="{Binding Cache.HighFindPosition1, Converter={StaticResource PointToStringConverter}}"
+
+                    <TextBox Text="{Binding Cache.LowTopPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position1(um): "
+                             hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="HighSiteP1GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="HighFindPosition1" />
-                        <Button x:Name="HighSiteP1GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="HighFindPosition1" />
-                    </hc:ButtonGroup>
                     <view:CanvasView Width="100"
                                      Height="100"
+                                     Margin="5"
                                      BackgroundColor="#0A0A0A"
                                      AxisColor="Red"
                                      Interactive="True"
                                      ShowAxes="True"
                                      ShowCursor="False"
                                      ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.HighTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                    <TextBox Text="{Binding Cache.HighFindPosition2, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="HighSiteP2GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="HighFindPosition2" />
-                        <Button x:Name="HighSiteP2GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="HighFindPosition2" />
-                    </hc:ButtonGroup>
+                                     BackgroundImage="{Binding Cache.LowTopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

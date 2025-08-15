@@ -271,14 +271,14 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(Point position, double? lightCoefficient = null, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    public (double Ecs, double AfMotor) RuntimeAfCalibration(Point? position = null, double? lightCoefficient = null, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
-        var coefficient = lightCoefficient is not null ? lightCoefficient.Value : calibrationSetting.SettingCommonParam.MainCoefficient;
+        var coefficient = lightCoefficient is null ? lightCoefficient : calibrationSetting.SettingCommonParam.MainCoefficient;
 
-        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
-            position = stageViewModel.MachineToBrightFieldPosition(position);
+        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && position is not null)
+            position = stageViewModel.MachineToBrightFieldPosition(position.Value);
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, position, coefficient);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, coefficient, position);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -326,6 +326,7 @@ public sealed class LaserViewModel(
     /// <param name="xStageSpeedEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
+    /// <param name="cibConfiguration">采图模式</param>
     /// <param name="customPrescanAod"></param>
     /// <param name="isCustomChirpAod"></param>
     /// <param name="isForward"></param>
@@ -418,6 +419,7 @@ public sealed class LaserViewModel(
     /// <param name="position"></param>
     /// <param name="customPrescanAod"></param>
     /// <param name="isCustomChirpAod"></param>
+    /// <param name="cIbConfiguration">采图模式</param>
     /// <param name="xWidthPixel"></param>
     /// <param name="yOpticsMagTypeEnum"></param>
     /// <param name="xStageSpeedEnum"></param>
@@ -466,6 +468,7 @@ public sealed class LaserViewModel(
     /// <param name="xStageSpeedEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
+    /// <param name="cibConfiguration">采图模式</param>
     /// <param name="customPrescanAod"></param>
     /// <param name="isCustomChirpAod"></param>
     /// <param name="isForward"></param>
@@ -541,6 +544,7 @@ public sealed class LaserViewModel(
     /// <param name="xStageSpeedEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
+    /// <param name="cibConfiguration">采图模式</param>
     /// <param name="customPrescanAod"></param>
     /// <param name="isCustomChirpAod"></param>
     /// <param name="isAutoFocus"></param>
@@ -606,6 +610,7 @@ public sealed class LaserViewModel(
     /// <param name="positionList"></param>
     /// <param name="customPrescanAod"></param>
     /// <param name="isCustomChirpAod"></param>
+    /// <param name="cibConfiguration">采图模式</param>
     /// <param name="xWidthPixel"></param>
     /// <param name="yOpticsMagTypeEnum"></param>
     /// <param name="xStageSpeedEnum"></param>
@@ -664,6 +669,7 @@ public sealed class LaserViewModel(
     /// <param name="logGuid">记录日志: id</param>
     /// <param name="logName">记录日志: 名称</param>
     /// <param name="logResultTitle">记录日志: 匹配后成功的[标题]</param>
+    /// <param name="cibConfiguration">采图模式</param>
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="resultScore">匹配后成功的[得分]</param>
     /// <param name="resultAngle">匹配后成功的[角度]</param>
@@ -793,7 +799,7 @@ public sealed class LaserViewModel(
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
             {
-                (var xDirection, _) = stageViewModel.GetMachineDirection();
+                var (xDirection, _) = stageViewModel.GetMachineDirection();
                 offset = new Point(xDirection * offset.X, offset.Y);
             }
 
@@ -862,6 +868,7 @@ public sealed class LaserViewModel(
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">匹配旧的位置</param>
     /// <param name="templateFilePath">匹配的模板</param>
+    /// <param name="cibConfiguration">采图模式</param>
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
@@ -916,6 +923,7 @@ public sealed class LaserViewModel(
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">匹配的位置</param>
     /// <param name="templateFilePath">模板</param>
+    /// <param name="cIbConfiguration">采图模式</param>
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="resultScore">匹配后成功的[得分]</param>
     /// <param name="resultAngle">匹配后成功的[角度]</param>

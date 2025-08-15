@@ -244,7 +244,7 @@
                                          Style="{StaticResource TextBoxExtend}" />
                                 <Button Content="Get"
                                         Command="{Binding GetPointCommand}"
-                                        CommandParameter="LowFindPosition" />
+                                        CommandParameter="BaseLowFindPosition" />
                             </hc:UniformSpacingPanel>
                             <view:CanvasView Width="100"
                                              Height="100"
@@ -291,7 +291,7 @@
                                          Style="{StaticResource TextBoxExtend}" />
                                 <Button Content="Get"
                                         Command="{Binding GetPointCommand}"
-                                        CommandParameter="HighFindPosition"
+                                        CommandParameter="BaseHighFindPosition"
                                         Style="{StaticResource ButtonDefault.Loading}" />
                             </hc:UniformSpacingPanel>
                             <hc:UniformSpacingPanel HorizontalAlignment="Center"

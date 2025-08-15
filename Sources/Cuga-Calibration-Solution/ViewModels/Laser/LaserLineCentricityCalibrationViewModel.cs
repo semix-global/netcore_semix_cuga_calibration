@@ -755,8 +755,9 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         var selectListAllResult = verifyResultList.All(t => t);
 
-        //DialogWindowProvider.ShowDialog($"Verify {(selectListAllResult ? "OK" : "Failed")}", DialogButtonsEnum.OK,
-        //    selectListAllResult ? DialogIconEnum.Information : DialogIconEnum.Warning);
+        if (IsAutoCalibrate == false)
+            DialogWindowProvider.ShowDialog($"Verify {(selectListAllResult ? "OK" : "Failed")}", DialogButtonsEnum.OK,
+                selectListAllResult ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
         return selectListAllResult;
     }

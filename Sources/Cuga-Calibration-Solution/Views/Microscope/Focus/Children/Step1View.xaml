@@ -38,24 +38,10 @@
                     <TextBox Text="{Binding SelectMicroscopeFocusCacheItem.FindFocusPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left" />
-
-                    <UniformGrid Width="275" Columns="2">
-                        <Button x:Name="GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="4,0,0,4"
-                                Style="{StaticResource ButtonDefault}" />
-                        <Button x:Name="GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                Margin="-1,0,0,0"
-                                HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="0,4,4,0"
-                                Style="{StaticResource ButtonDefault}" />
-                    </UniformGrid>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                             hc:InfoElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:UniformSpacingPanel Margin="5"
+                                            HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button x:Name="ActionButton"

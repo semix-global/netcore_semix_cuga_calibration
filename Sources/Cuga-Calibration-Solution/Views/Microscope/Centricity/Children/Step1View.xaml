@@ -9,6 +9,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCentricityCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -81,21 +83,6 @@
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="{Binding IsAutoCalibrate}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <UniformGrid Width="275"
-                                 Columns="2"
-                                 IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource BoolToBoolConverter}}">
-                        <Button x:Name="GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="4,0,0,4" />
-                        <Button x:Name="GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                Margin="-1,0,0,0"
-                                HorizontalAlignment="Stretch"
-                                hc:BorderElement.CornerRadius="0,4,4,0" />
-                    </UniformGrid>
                     <view:CanvasView Width="100"
                                      Height="100"
                                      BackgroundColor="#0A0A0A"
@@ -116,6 +103,17 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox Width="275"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Wafer Mask Type: "
+                                 SelectedItem="{Binding SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                     <TextBox Text="{Binding ResultMicroscopeCentricityItemDto.CentricityPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Centricity: "

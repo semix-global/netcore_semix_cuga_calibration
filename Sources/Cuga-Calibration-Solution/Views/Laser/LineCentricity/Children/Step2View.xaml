@@ -111,11 +111,11 @@
                         <Button x:Name="LowSiteGetButton"
                                 Content="Get"
                                 Command="{Binding GetPointCommand}"
-                                CommandParameter="LowFindPosition" />
+                                CommandParameter="BaseLowFindPosition" />
                         <Button x:Name="LowSiteP1GotoButton"
                                 Content="Goto"
                                 Command="{Binding GotoPointCommand}"
-                                CommandParameter="LowFindPosition" />
+                                CommandParameter="BaseLowFindPosition" />
                     </hc:ButtonGroup>
                     <view:CanvasView Width="100"
                                      Height="100"

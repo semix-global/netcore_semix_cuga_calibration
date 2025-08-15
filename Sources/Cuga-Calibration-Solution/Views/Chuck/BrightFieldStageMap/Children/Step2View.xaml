@@ -115,7 +115,7 @@
                   Header="Calibration Data">
             <children:MapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}"
                               IsEnabled="{Binding Step2CalibrateActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                              ChildName="Step2View" />
+                              ChildName="Step4View" />
         </GroupBox>
         <!--#endregion-->
     </Grid>

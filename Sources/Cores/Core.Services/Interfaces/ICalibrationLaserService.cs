@@ -298,10 +298,10 @@ public interface ICalibrationLaserService
     /// 自动聚焦
     /// </summary>
     /// <param name="calChipSiteModelEnum">CalChip模式</param>
-    /// <param name="position">位置</param>
-    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
+    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%) null表示用cuga配置值</param>
+    /// <param name="position">位置 null表示用cuga配置值</param>
     /// <returns>RTFC返回AfEcs和Af电机值</returns>
-    SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, Point position, double coefficient);
+    SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, double? coefficient = null, Point? position = null);
 
     /// <summary>
     /// 获取暗场图片的Y像素高度

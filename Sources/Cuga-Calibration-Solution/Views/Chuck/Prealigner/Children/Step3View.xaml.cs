@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Chuck.Prealigner.Children;
+﻿namespace CugaCalibration.Views.Chuck.Prealigner.Children;
 
 public sealed partial class Step3View
 {

@@ -63,11 +63,11 @@
                         <Button x:Name="HighSiteGetButton"
                                 Content="Get"
                                 Command="{Binding GetPointCommand}"
-                                CommandParameter="HighFindPosition" />
+                                CommandParameter="BaseHighFindPosition" />
                         <Button x:Name="HighSiteGotoButton"
                                 Content="Goto"
                                 Command="{Binding GotoPointCommand}"
-                                CommandParameter="HighFindPosition" />
+                                CommandParameter="BaseHighFindPosition" />
                     </hc:ButtonGroup>
                     <view:CanvasView Width="100"
                                      Height="100"
