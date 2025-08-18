@@ -648,88 +648,81 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             var lvdt = traceBufferList.Select(t => t.Lvdt).ToList();
             var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
             var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
-            var currentOffset = (nscVector.Maximum() + nscVector.Minimum()) / 2d;
-            if (currentOffset > Cache.ThresholdNscStandardCenterOffset)
-            {
-                Logger.LogHtmlError("Get Nsc Positive Slope Failed", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    startEcs,
-                    endEcs,
-                    averageEcs,
-                    Cache.SpeedEcs,
-                    Cache.ThresholdNscStandardCenterOffset,
-                    currentOffset,
-                    traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                return ThrowHelper.ThrowArgumentException<(bool IsNscUseMaxValue, bool IsNscPositiveSlope)>($"{nameof(currentOffset)}: {currentOffset} > {Cache.ThresholdNscStandardCenterOffset}");
-            }
 
             var nscMaxIndex = nscVector.MaximumIndex();
-            var nscMaxIndexLeftMinIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
-            var nscMaxIndexRightMinIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
-            var nscMaxIndexLeftVector = nscVector.SubVectorRange(nscMaxIndexLeftMinIndex, nscMaxIndex);
-            var nscMaxIndexRightVector = nscVector.SubVectorRange(nscMaxIndex, nscMaxIndexRightMinIndex);
-            var ecsMaxIndexLeftVector = ecsVector.SubVectorRange(nscMaxIndexLeftMinIndex, nscMaxIndex);
-            var ecsMaxIndexRightVector = ecsVector.SubVectorRange(nscMaxIndex, nscMaxIndexRightMinIndex);
-            var isMax = nscMaxIndexLeftVector[0] * nscMaxIndexLeftVector[^1] < 0 && nscMaxIndexRightVector[0] * nscMaxIndexRightVector[^1] < 0;
-            var isMaxLeft = ecsMaxIndexLeftVector[0] < averageEcs && averageEcs < ecsMaxIndexLeftVector[^1];
-            var isMaxRight = ecsMaxIndexRightVector[0] < averageEcs && averageEcs < ecsMaxIndexRightVector[^1];
-            if (isMax)
-            {
-                switch (isMaxLeft, isMaxRight)
-                {
-                    case (true, true):
-                    case (false, false):
-                        result = null;
-
-                        break;
-
-                    case (true, false):
-                        if (result is not null) result = null;
-                        else result = (true, true);
-
-                        break;
-
-                    case (false, true):
-                        if (result is not null) result = null;
-                        else result = (true, false);
-
-                        break;
-                }
-            }
+            var nscMaxPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+            var nscMaxNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+            var nscMaxPositiveVector = nscVector.SubVectorRange(nscMaxPositiveLeftIndex, nscMaxIndex);
+            var nscMaxNegativeVector = nscVector.SubVectorRange(nscMaxIndex, nscMaxNegativeRightIndex);
+            var ecsMaxPositiveVector = ecsVector.SubVectorRange(nscMaxPositiveLeftIndex, nscMaxIndex);
+            var ecsMaxNegativeVector = ecsVector.SubVectorRange(nscMaxIndex, nscMaxNegativeRightIndex);
+            var isMax = nscMaxPositiveVector[0] * nscMaxPositiveVector[^1] < 0 && nscMaxNegativeVector[0] * nscMaxNegativeVector[^1] < 0;
+            var isMaxPositive = ecsMaxPositiveVector[0] < averageEcs && averageEcs < ecsMaxPositiveVector[^1];
+            var isMaxNegative = ecsMaxNegativeVector[0] < averageEcs && averageEcs < ecsMaxNegativeVector[^1];
 
             var nscMinIndex = nscVector.MinimumIndex();
-            var nscMinIndexLeftMaxIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
-            var nscMinIndexRightMaxIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
-            var nscMinIndexLeftVector = nscVector.SubVectorRange(nscMinIndexLeftMaxIndex, nscMinIndex);
-            var nscMinIndexRightVector = nscVector.SubVectorRange(nscMinIndex, nscMinIndexRightMaxIndex);
-            var ecsMinIndexLeftVector = ecsVector.SubVectorRange(nscMinIndexLeftMaxIndex, nscMinIndex);
-            var ecsMinIndexRightVector = ecsVector.SubVectorRange(nscMinIndex, nscMinIndexRightMaxIndex);
-            var isMin = nscMinIndexLeftVector[0] * nscMinIndexLeftVector[^1] < 0 && nscMinIndexRightVector[0] * nscMinIndexRightVector[^1] < 0;
-            var isMinLeft = ecsMinIndexLeftVector[0] < averageEcs && averageEcs < ecsMinIndexLeftVector[^1];
-            var isMinRight = ecsMinIndexRightVector[0] < averageEcs && averageEcs < ecsMinIndexRightVector[^1];
-            if (isMin)
+            var nscMinNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+            var nscMinPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+            var nscMinNegativeVector = nscVector.SubVectorRange(nscMinNegativeLeftIndex, nscMinIndex);
+            var nscMinPositiveVector = nscVector.SubVectorRange(nscMinIndex, nscMinPositiveRightIndex);
+            var ecsMinNegativeVector = ecsVector.SubVectorRange(nscMinNegativeLeftIndex, nscMinIndex);
+            var ecsMinPositiveVector = ecsVector.SubVectorRange(nscMinIndex, nscMinPositiveRightIndex);
+            var isMin = nscMinNegativeVector[0] * nscMinNegativeVector[^1] < 0 && nscMinPositiveVector[0] * nscMinPositiveVector[^1] < 0;
+            var isMinNegative = ecsMinNegativeVector[0] < averageEcs && averageEcs < ecsMinNegativeVector[^1];
+            var isMinPositive = ecsMinPositiveVector[0] < averageEcs && averageEcs < ecsMinPositiveVector[^1];
+
+            switch (isMax, isMin)
             {
-                switch (isMinLeft, isMinRight)
+                case (true, true):
+                    var resultByMax = GetResult(true, isMaxPositive, isMaxNegative);
+                    var resultByMin = GetResult(false, isMinPositive, isMinNegative);
+                    result = (resultByMax, resultByMin) switch
+                    {
+                        (not null, null) => resultByMax,
+                        (null, not null) => resultByMin,
+                        (not null, not null) => Math.Abs(nscVector[nscMaxIndex]) >= Math.Abs(nscVector[nscMinIndex])
+                            ? resultByMax
+                            : resultByMin,
+                        _ => result
+                    };
+
+                    break;
+
+                case (true, false):
+                    result = GetResult(true, isMaxPositive, isMaxNegative);
+                    break;
+
+                case (false, true):
+                    result = GetResult(false, isMinPositive, isMinNegative);
+                    break;
+            }
+
+            if (result is not null)
+            {
+                var vector = result switch
                 {
-                    case (true, true):
-                    case (false, false):
-                        result ??= null;
+                    (true, true) => nscMaxPositiveVector,
+                    (true, false) => nscMaxNegativeVector,
+                    (false, true) => nscMinPositiveVector,
+                    (false, false) => nscMinNegativeVector
+                };
+                var currentOffset = (vector.Maximum() + vector.Minimum()) / 2d;
+                if (currentOffset > Cache.ThresholdNscStandardCenterOffset)
+                {
+                    Logger.LogHtmlError("Get Nsc Positive Slope Failed", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        startEcs,
+                        endEcs,
+                        averageEcs,
+                        Cache.SpeedEcs,
+                        Cache.ThresholdNscStandardCenterOffset,
+                        IsUseMaxValue = result.Value.IsNscUseMaxValue,
+                        IsPositiveSlope = result.Value.IsNscUsePositiveSlope,
+                        currentOffset,
+                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
 
-                        break;
-
-                    case (true, false):
-                        if (result is not null) result = null;
-                        else result = (false, false);
-
-                        break;
-
-                    case (false, true):
-                        if (result is not null) result = null;
-                        else result = (false, true);
-
-                        break;
+                    return ThrowHelper.ThrowArgumentException<(bool IsNscUseMaxValue, bool IsNscPositiveSlope)>($"{nameof(currentOffset)}: {currentOffset} > {Cache.ThresholdNscStandardCenterOffset}");
                 }
             }
 
@@ -740,13 +733,22 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 averageEcs,
                 Cache.SpeedEcs,
                 Cache.ThresholdNscStandardCenterOffset,
-                currentOffset,
                 IsUseMaxValue = result?.IsNscUseMaxValue.ToString() ?? "Error",
                 IsPositiveSlope = result?.IsNscUsePositiveSlope.ToString() ?? "Error",
                 traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
 
             return result ?? ThrowHelper.ThrowArgumentException<(bool IsUseMaxValue, bool IsPositiveSlope)>("nsc slope is not valid");
+
+            (bool IsNscUseMaxValue, bool IsNscUsePositiveSlope)? GetResult(bool isUseMaxValue, bool isPositive, bool isNegative)
+            {
+                return (isPositive, isNegative) switch
+                {
+                    (true, true) or (false, false) => null,
+                    (true, false) => (isUseMaxValue, true),
+                    (false, true) => (isUseMaxValue, false)
+                };
+            }
         }
     }
 
