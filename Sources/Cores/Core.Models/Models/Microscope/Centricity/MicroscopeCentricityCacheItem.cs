@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 
@@ -8,6 +9,10 @@ public sealed partial class MicroscopeCentricityCacheItem : CalibrationDtoBase
 {
     [ObservableProperty]
     private MicroscopeMagnificationInfo _magnificationInfo = new();
+
+    [ObservableProperty]
+    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner;
+
 
     [ObservableProperty]
     private Point _findPosition;

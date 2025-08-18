@@ -23,7 +23,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                     <hc:Shield Subject="Global Scale Error Step 5: "
-                               Status="{Binding CalibrationStepList[4].StepName}"
+                               Status="{Binding CalibrationStepList[10].StepName}"
                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                Color="{StaticResource InfoBrush}" />
                 </hc:UniformSpacingPanel>
@@ -289,7 +289,7 @@
                                                      ShowCursor="False"
                                                      ShowGrid="False"
                                                      BackgroundImage="{Binding SelectGlobalScaleErrorDto.TopHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    <TextBox Text="{Binding Cache.TopSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                    <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.TopPosition, Converter={StaticResource PointToStringConverter}}"
                                              Width="auto"
                                              HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch"
@@ -321,7 +321,7 @@
                                                      ShowCursor="False"
                                                      ShowGrid="False"
                                                      BackgroundImage="{Binding SelectGlobalScaleErrorDto.BottomHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    <TextBox Text="{Binding Cache.BottomSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                    <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.BottomPosition, Converter={StaticResource PointToStringConverter}}"
                                              Width="auto"
                                              HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch"
@@ -353,7 +353,7 @@
                                                      ShowCursor="False"
                                                      ShowGrid="False"
                                                      BackgroundImage="{Binding SelectGlobalScaleErrorDto.LeftHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    <TextBox Text="{Binding Cache.LeftSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                    <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.LeftPosition, Converter={StaticResource PointToStringConverter}}"
                                              Width="auto"
                                              HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch"
@@ -390,7 +390,7 @@
                                                      ShowCursor="False"
                                                      ShowGrid="False"
                                                      BackgroundImage="{Binding SelectGlobalScaleErrorDto.RightHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    <TextBox Text="{Binding Cache.RightSideIdeaPosition, Converter={StaticResource PointToStringConverter}}"
+                                    <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.RightPosition, Converter={StaticResource PointToStringConverter}}"
                                              Width="auto"
                                              HorizontalAlignment="Stretch"
                                              VerticalAlignment="Stretch"

@@ -1,10 +1,11 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Chuck.Center.Children.Step4View"
+<UserControl x:Class="CugaCalibration.Views.Chuck.Center.Children.Step4View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckCenterCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -18,25 +19,29 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Chuck Center Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                <hc:Shield Subject="Chuck Center Step 5: "
+                           Status="{Binding CalibrationStepList[10].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <Border Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}"
+                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text="Find Chuck Center"
+                        <TextBlock Text="Rotate To Theta"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding ChuckCenterObjDto.ChuckCenterPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="ChuckCenterPosition: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
+                        <hc:NumericUpDown x:Name="AngleNumeric"
+                                          Width="220"
+                                          hc:InfoElement.Title="PositiveAngle: "
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.PositiveAngle}" />
+                    </hc:UniformSpacingPanel>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -55,8 +60,139 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                    <StackPanel>
+                        <TextBlock Text="Find Positive Positions"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding ChuckCenterObjDto.PositiveTopPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:InfoElement.Title="PositiveTopPosition: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ChuckCenterObjDto.PositiveRightPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:InfoElement.Title="PositiveRightPosition: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ChuckCenterObjDto.PositiveBottomPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:InfoElement.Title="PositiveBottomPosition: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ChuckCenterObjDto.PositiveLeftPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:InfoElement.Title="PositiveLeftPosition: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                </hc:UniformSpacingPanel>
+            </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
+
         <GridSplitter Grid.Column="1" Width="5" />
+        <!--#region Right-->
+        <Grid Grid.Column="2">
+            <GroupBox Header="Calibration Data">
+                <UniformGrid Columns="2" Rows="2">
+                    <UniformGrid.Resources>
+                        <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
+                            <Setter Property="Margin" Value="5" />
+                        </Style>
+                        <Style BasedOn="{StaticResource TextBlockDefaultInfo}" TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="FontSize" Value="13" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="Foreground" Value="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                        </Style>
+                    </UniformGrid.Resources>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Top-Image" />
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <view:CanvasView Width="200"
+                                                 Height="200"
+                                                 BackgroundColor="#0A0A0A"
+                                                 BackgroundImage="{Binding ChuckCenterObjDto.PositiveTopFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 AxisColor="Red"
+                                                 Interactive="True"
+                                                 ShowAxes="True"
+                                                 ShowCursor="False"
+                                                 ShowGrid="False" />
+                                <Border Width="4" />
+                            </StackPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Right-Image" />
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <view:CanvasView Width="200"
+                                                 Height="200"
+                                                 BackgroundColor="#0A0A0A"
+                                                 BackgroundImage="{Binding ChuckCenterObjDto.PositiveRightFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 AxisColor="Red"
+                                                 Interactive="True"
+                                                 ShowAxes="True"
+                                                 ShowCursor="False"
+                                                 ShowGrid="False" />
+                                <Border Width="4" />
+                            </StackPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Bottom-Image" />
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <view:CanvasView Width="200"
+                                                 Height="200"
+                                                 BackgroundColor="#0A0A0A"
+                                                 BackgroundImage="{Binding ChuckCenterObjDto.PositiveBottomFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 AxisColor="Red"
+                                                 Interactive="True"
+                                                 ShowAxes="True"
+                                                 ShowCursor="False"
+                                                 ShowGrid="False" />
+                                <Border Width="4" />
+                            </StackPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="Left-Image" />
+                            </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <view:CanvasView Width="200"
+                                                 Height="200"
+                                                 BackgroundColor="#0A0A0A"
+                                                 BackgroundImage="{Binding ChuckCenterObjDto.PositiveLeftFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                 AxisColor="Red"
+                                                 Interactive="True"
+                                                 ShowAxes="True"
+                                                 ShowCursor="False"
+                                                 ShowGrid="False" />
+                                <Border Width="4" />
+                            </StackPanel>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </UniformGrid>
+            </GroupBox>
+        </Grid>
+        <!--#endregion-->
     </Grid>
 </UserControl>

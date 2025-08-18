@@ -410,12 +410,17 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, Point position, double coefficient)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, double? coefficient = null, Point? position = null)
     {
-        var executeRet = CoefficientToLevel(coefficient);
-        if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(executeRet.ErrorMsg);
+        ushort? power = null;
+        if (coefficient is not null)
+        {
+            var executeRet = CoefficientToLevel(coefficient.Value);
+            if (executeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(executeRet.ErrorMsg);
+            power = Convert.ToUInt16(executeRet.Anything);
+        }
 
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), Convert.ToUInt16(executeRet.Anything), null));
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), power, position?.ToCgPoint()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)

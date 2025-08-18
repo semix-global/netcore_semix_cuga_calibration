@@ -56,7 +56,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
 
     public CalibrationMicroscopeCentricityItem AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
+        CgMicroscopeLens = MagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
         Offset = Offset.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

@@ -216,7 +216,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckRotateScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

@@ -144,7 +144,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.MagnificationInfo.MagnificationCode)
+                .OrderBy(t => t.MagnificationInfo.Magnification)
+                .ThenBy(t => t.MagnificationInfo.MagnificationCode)
         ];
 
         return ReviewList.Count != 0 && ReviewList.Any(t => t.IsCalibrated);
@@ -214,37 +215,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GetPointAsync()
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-
-                Cache.SetFindFocusPosition(result);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoPointAsync()
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -272,6 +242,9 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
+            var result = StageViewModel.GetBrightFieldStagePosition();
+            Cache.SetFindFocusPosition(result);
 
             if (IsRecipeCalibrate)
             {

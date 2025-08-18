@@ -96,7 +96,7 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
 
     public CalibrationPrealignerObj AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         NewEfemLoadWaferStagePosition = NewEfemLoadWaferStagePosition.ToCgPoint(),
         NewEfemLoadWaferChuckAngle = NewEfemLoadWaferChuckAngle,
         IsCalibrated = IsCalibrated,

@@ -23,12 +23,6 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
     private string _filePath1 = string.Empty;
 
     [ObservableProperty]
-    private string _lowTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
     private double _templateScore1;
 
     [ObservableProperty]
@@ -39,12 +33,6 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     [ObservableProperty]
     private string _filePath2 = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateImageFilePath = string.Empty;
 
     [ObservableProperty]
     private double _templateScore2;
@@ -68,14 +56,10 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
         HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
         Position1 = Position1,
         FilePath1 = FilePath1,
-        LowTemplateFilePath = LowTemplateFilePath,
-        LowTemplateImageFilePath = LowTemplateImageFilePath,
         TemplateScore1 = TemplateScore1,
         TemplateAngle1 = TemplateAngle1,
         Position2 = Position2,
         FilePath2 = FilePath2,
-        HighTemplateFilePath = HighTemplateFilePath,
-        HighTemplateImageFilePath = HighTemplateImageFilePath,
         TemplateScore2 = TemplateScore2,
         TemplateAngle2 = TemplateAngle2,
         Offset = Offset,
@@ -89,7 +73,7 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public CalibrationChuckGantry AdaptTo() => new()
     {
-        CgMicroscopeLens = CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
         Offset = Offset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

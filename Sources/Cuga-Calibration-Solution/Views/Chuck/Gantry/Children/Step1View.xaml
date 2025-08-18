@@ -72,6 +72,24 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="High Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.HighMicroscopeMagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
                     <hc:ComboBox HorizontalAlignment="Left"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Template Mask Type: "
@@ -84,60 +102,35 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Row Cell Height(um): "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.RowCellHeight}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:InfoElement.Title="Wafer Diameter(um): "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.WaferDiameter}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="2. Find Position 、Template"
+                        <TextBlock Text="2. Find Low Base Position"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.LowFindPosition1, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position1(um): "
+                    <TextBox Text="{Binding Cache.BaseLowFindPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="LowSiteP1GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="LowFindPosition1" />
-                        <Button x:Name="LowSiteP1GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="LowFindPosition1" />
-                    </hc:ButtonGroup>
-                    <view:CanvasView Width="100"
-                                     Height="100"
-                                     BackgroundColor="#0A0A0A"
-                                     AxisColor="Red"
-                                     Interactive="True"
-                                     ShowAxes="True"
-                                     ShowCursor="False"
-                                     ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.LowTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                    <TextBox Text="{Binding Cache.LowFindPosition2, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup Width="275">
-                        <Button x:Name="LowSiteP2GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}"
-                                CommandParameter="LowFindPosition2" />
-                        <Button x:Name="LowSiteP2GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}"
-                                CommandParameter="LowFindPosition2" />
-                    </hc:ButtonGroup>
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

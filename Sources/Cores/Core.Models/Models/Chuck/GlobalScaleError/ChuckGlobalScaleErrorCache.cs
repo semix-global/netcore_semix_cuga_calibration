@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
@@ -14,10 +15,13 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     private double _waferDiameter = 300_000;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private ChuckGlobalScaleErrorCacheItem _lowGlobalScaleErrorCacheItem = new();
+
+    [ObservableProperty]
+    private ChuckGlobalScaleErrorCacheItem _highGlobalScaleErrorCacheItem = new();
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftBottom;
@@ -50,70 +54,99 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
         set => SetProperty(ref _waferDiameter, value, true);
     }
 
-    #region Template
+    #region Idea Position low site
 
     [ObservableProperty]
-    private Point _baseLowSiteFindPosition;
-
-    [ObservableProperty]
-    private Point _baseHighSiteFindPosition;
-
-    [ObservableProperty]
-    private Point _baseFindResultPosition;
+    private Point _baseLowSiteFindPosition = Point.Origin;
 
     /// <summary>
     /// 低倍高倍的相对位置误差
     /// </summary>
-    public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - (Vector)BaseLowSiteFindPosition;
-
     [ObservableProperty]
-    private string _lowTemplateFilePath = string.Empty;
+    private Point _lowToHighMagnificationOffset = Point.Origin;
 
-    [ObservableProperty]
-    private string _lowTemplateImageFilePath = string.Empty;
+    public double IdeaWidth => Convert.ToInt32(Math.Abs((HighGlobalScaleErrorCacheItem.LeftPosition - HighGlobalScaleErrorCacheItem.RightPosition).X) / ColumnCellWidth) * ColumnCellWidth;
 
-    [ObservableProperty]
-    private string _highTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateImageFilePath = string.Empty;
-
-    #endregion Template
-
-    #region Idea Position low site
-
-    /// <summary>
-    /// wafer左端点理想坐标
-    /// </summary>
-    [ObservableProperty]
-    private Point _leftSideIdeaPosition;
-
-    /// <summary>
-    /// wafer右端点理想坐标
-    /// </summary>
-    [ObservableProperty]
-    private Point _rightSideIdeaPosition;
-
-    /// <summary>
-    /// wafer顶部端点理想坐标
-    /// </summary>
-    [ObservableProperty]
-    private Point _topSideIdeaPosition;
-
-    /// <summary>
-    /// wafer底部端点理想坐标
-    /// </summary>
-    [ObservableProperty]
-    private Point _bottomSideIdeaPosition;
-
-    public double IdeaWidth => Convert.ToInt32(Math.Abs((LeftSideIdeaPosition - RightSideIdeaPosition).X) / ColumnCellWidth) * ColumnCellWidth;
-
-    public double IdeaHeight => Convert.ToInt32(Math.Abs((TopSideIdeaPosition - BottomSideIdeaPosition).Y) / RowCellHeight) * RowCellHeight;
+    public double IdeaHeight => Convert.ToInt32(Math.Abs((HighGlobalScaleErrorCacheItem.TopPosition - HighGlobalScaleErrorCacheItem.BottomPosition).Y) / RowCellHeight) * RowCellHeight;
 
     #endregion Idea Position low site
 
     public double GetActualWaferDiameter(bool isAxisX)
     {
         return isAxisX ? WaferDiameter - ColumnCellWidth : WaferDiameter - RowCellHeight;
+    }
+
+    public void SetPosition(Point position, MicroscopeMagnificationInfo magnificationInfo, StageDirectionTypeEnum? stageDirection = null)
+    {
+        var chuckCenterCacheItem = magnificationInfo == LowGlobalScaleErrorCacheItem.MagnificationInfo ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
+        switch (stageDirection ?? SiteDirection)
+        {
+            case StageDirectionTypeEnum.Up:
+                chuckCenterCacheItem.TopPosition = position;
+                break;
+            case StageDirectionTypeEnum.Down:
+                chuckCenterCacheItem.BottomPosition = position;
+                break;
+            case StageDirectionTypeEnum.Left:
+                chuckCenterCacheItem.LeftPosition = position;
+                break;
+            case StageDirectionTypeEnum.Right:
+                chuckCenterCacheItem.RightPosition = position;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
+        }
+    }
+
+    public void SetTemplate(string templatePath, string templateImagePath, MicroscopeMagnificationInfo magnificationInfo, StageDirectionTypeEnum? stageDirection = null)
+    {
+        var chuckCenterCacheItem = magnificationInfo == LowGlobalScaleErrorCacheItem.MagnificationInfo ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
+        switch (stageDirection ?? SiteDirection)
+        {
+            case StageDirectionTypeEnum.Up:
+                chuckCenterCacheItem.TopTemplateFilePath = templatePath;
+                chuckCenterCacheItem.TopTemplateImageFilePath = templateImagePath;
+                break;
+            case StageDirectionTypeEnum.Down:
+                chuckCenterCacheItem.BottomTemplateFilePath = templatePath;
+                chuckCenterCacheItem.BottomTemplateImageFilePath = templateImagePath;
+                break;
+            case StageDirectionTypeEnum.Left:
+                chuckCenterCacheItem.LeftTemplateFilePath = templatePath;
+                chuckCenterCacheItem.LeftTemplateImageFilePath = templateImagePath;
+                break;
+            case StageDirectionTypeEnum.Right:
+                chuckCenterCacheItem.RightTemplateFilePath = templatePath;
+                chuckCenterCacheItem.RightTemplateImageFilePath = templateImagePath;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
+        }
+    }
+
+    public Point GetPosition(MicroscopeMagnificationInfo magnificationInfo)
+    {
+        var chuckCenterCacheItem = magnificationInfo == LowGlobalScaleErrorCacheItem.MagnificationInfo ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
+        return SiteDirection switch
+        {
+            StageDirectionTypeEnum.Up => chuckCenterCacheItem.TopPosition,
+            StageDirectionTypeEnum.Down => chuckCenterCacheItem.BottomPosition,
+            StageDirectionTypeEnum.Left => chuckCenterCacheItem.LeftPosition,
+            StageDirectionTypeEnum.Right => chuckCenterCacheItem.RightPosition,
+            _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
+        };
+    }
+
+    public (string templatePath, string templateImagePath) GetTemplate(MicroscopeMagnificationInfo magnificationInfo)
+    {
+        var chuckCenterCacheItem = magnificationInfo == LowGlobalScaleErrorCacheItem.MagnificationInfo ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
+        return SiteDirection switch
+        {
+            StageDirectionTypeEnum.Up => (chuckCenterCacheItem.TopTemplateFilePath, chuckCenterCacheItem.TopTemplateImageFilePath),
+            StageDirectionTypeEnum.Down => (chuckCenterCacheItem.BottomTemplateFilePath, chuckCenterCacheItem.BottomTemplateImageFilePath),
+            StageDirectionTypeEnum.Left => (chuckCenterCacheItem.LeftTemplateFilePath, chuckCenterCacheItem.LeftTemplateImageFilePath),
+            StageDirectionTypeEnum.Right => (chuckCenterCacheItem.RightTemplateFilePath, chuckCenterCacheItem.RightTemplateImageFilePath),
+            _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
+        };
     }
 }

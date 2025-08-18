@@ -879,8 +879,8 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         var channel3DarkFieldImageDto = list.Single(t => t.ChannelId == 3);
 
 
-        var size=HalconHelper.GetSize(channel3DarkFieldImageDto.Image);
-        var roi=new Rect(0,0,size.Width, size.Height);
+        var size = HalconHelper.GetSize(channel3DarkFieldImageDto.Image);
+        var roi = new Rect(0, 0, size.Width, size.Height);
 
         var (ch3XQuality, _) = CalibrationAlgorithmService.GetXyQuality(channel3DarkFieldImageDto.Image);
         var (_, ch3YQuality) = CalibrationAlgorithmService.ModulationTransferFunction(channel2DarkFieldImageDto.Image, roi);
@@ -904,7 +904,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         HalconHelper.Save(channel1DarkFieldImageDto.Image, ch1FilePath);
         HalconHelper.Save(channel2DarkFieldImageDto.Image, ch2FilePath);
 
-        HOperatorSet.WriteObject(channel1DarkFieldImageDto.Image, ch1FilePath.Replace(".jpg",".hobj"));
+        HOperatorSet.WriteObject(channel1DarkFieldImageDto.Image, ch1FilePath.Replace(".jpg", ".hobj"));
         HOperatorSet.WriteObject(channel2DarkFieldImageDto.Image, ch2FilePath.Replace(".jpg", ".hobj"));
 
         Logger.LogHtmlInformation($"Get Quality OK, Time: {laserXyAstigmatismCalibrationItemDto.Index}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new

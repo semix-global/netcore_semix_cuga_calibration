@@ -22,8 +22,6 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private double _findFocusIntervalHaze = 1;
     private double _findFocusIntervalShinyWafer = 1;
     private double _threshold = 1;
-    private double _afEcsErrorThreshold = 1;
-    private double _afMotorErrorThreshold = 0.1;
 
     [ObservableProperty]
     private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
@@ -129,19 +127,11 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
         set => SetProperty(ref _threshold, value, validate: true);
     }
 
-    [Comparison(20d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Ecs Error Threshold: ")]
-    public double AfEcsErrorThreshold
-    {
-        get => _afEcsErrorThreshold;
-        set => SetProperty(ref _afEcsErrorThreshold, value, validate: true);
-    }
+    [ObservableProperty]
+    private double _afEcsErrorThreshold;
 
-    [Comparison(5d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Af Motor Error Threshold: ")]
-    public double AfMotorErrorThreshold
-    {
-        get => _afMotorErrorThreshold;
-        set => SetProperty(ref _afMotorErrorThreshold, value, validate: true);
-    }
+    [ObservableProperty]
+    private double _afMotorErrorThreshold;
 
     #region Position
 
@@ -151,9 +141,11 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     #region DSW
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DswPosition))]
     private Point _dswLeftTopPosition = new(122000, 128000);
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DswPosition))]
     private Point _dswRightBottomPosition = new Point(122000, 128000);
 
     public Point DswPosition => (DswLeftTopPosition + (Vector)DswRightBottomPosition) / 2;
@@ -163,9 +155,11 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     #region Undefined
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UndefinedPosition))]
     private Point _undefinedLeftTopPosition = new(-122000, 128000);
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UndefinedPosition))]
     private Point _undefinedRightBottomPosition = new(-122000, 128000);
 
     public Point UndefinedPosition => (UndefinedLeftTopPosition + (Vector)UndefinedRightBottomPosition) / 2;
@@ -175,9 +169,11 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     #region Haze
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HazePosition))]
     private Point _hazeLeftTopPosition = new(-122000, -128000);
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HazePosition))]
     private Point _hazeRightBottomPosition = new(-122000, -128000);
 
     public Point HazePosition => (HazeLeftTopPosition + (Vector)HazeRightBottomPosition) / 2;
@@ -187,9 +183,11 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     #region ShinyWafer
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShinyWaferPosition))]
     private Point _shinyWaferLeftTopPosition = new(122000, -128000);
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShinyWaferPosition))]
     private Point _shinyWaferRightBottomPosition = new(122000, -128000);
 
     public Point ShinyWaferPosition => (ShinyWaferLeftTopPosition + (Vector)ShinyWaferRightBottomPosition) / 2;

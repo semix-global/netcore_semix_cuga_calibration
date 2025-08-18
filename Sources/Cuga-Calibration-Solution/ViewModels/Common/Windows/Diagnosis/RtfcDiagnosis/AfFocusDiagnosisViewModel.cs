@@ -234,7 +234,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
                     switch (parameter)
                     {
-                        case "LowFindPosition":
+                        case "BaseLowFindPosition":
                             FocusShiftCache.LowSiteFindPosition = result;
                             FocusShiftCache.HighSiteFindPosition = result;
 
@@ -245,7 +245,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
                             break;
 
-                        case "HighFindPosition":
+                        case "BaseHighFindPosition":
                             {
                                 Logger.LogHtmlInformation("Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
                                 Messenger.Send(ToggleCalibrateEventFactory.UpdateWindowEnable(false));

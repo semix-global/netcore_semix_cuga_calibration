@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -24,7 +23,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using System.IO;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
@@ -38,12 +36,17 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "P5" },
-        new() { StepName = "Find Base Position Low Template" },
-        new() { StepName = "Find Base Position High Template" },
-        new() { StepName = "Set Param And Get Ideal Position" },
+        new() { StepName = "Find Low Base Position" },
+        new() { StepName = "Top LowSite" },
+        new() { StepName = "Top HighSite" },
+        new() { StepName = "Bottom LowSite" },
+        new() { StepName = "Bottom HighSite" },
+        new() { StepName = "Left LowSite" },
+        new() { StepName = "Left HighSite" },
+        new() { StepName = "Right LowSite" },
+        new() { StepName = "Right HighSite" },
         new() { StepName = "Calibration" }
     ];
-
 
     #region 界面相关
 
@@ -136,9 +139,9 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         Calibration = CacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        if (IdeaPositionCache.LowMicroscopeMagnificationInfo.MagnificationCode == -1) IdeaPositionCache.LowMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
-        if (IdeaPositionCache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
-            IdeaPositionCache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
+        if (IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MagnificationCode == -1) IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MagnificationCode == -1)
+            IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
                 ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
                 : ApplicationCookie.MicroscopeMagnificationInfoList[2];
 
@@ -165,10 +168,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         if (IsRecipeCalibrate)
         {
             if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false) return false;
-            for (int i = 0; i < AutoCalibrationStepList.Count; i++)
-            {
-                if (await AutomationRecipeInformationAsync(i.ToString()) == false) return false;
-            }
+            if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
         }
 
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
@@ -199,16 +199,47 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 2:
-
-                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowMicroscopeMagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseLowSiteFindPosition);
                 break;
-
             case 3:
-                StageViewModel.SetAbsoluteStageTheta(Cache.P5ResultAngle);
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
 
-                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighMicroscopeMagnificationInfo);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseHighSiteFindPosition);
+            case 4:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Up;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
+            case 5:
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
+
+            case 6:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Down;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
+            case 7:
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
+
+            case 8:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Left;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
+            case 9:
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
+                break;
+
+            case 10:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Right;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo));
                 break;
         }
 
@@ -222,20 +253,37 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseLowSiteFindPosition);
                 return true;
-
+            case 2 or 4 or 6 or 8:
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+                return true;
             case 1:
-                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighMicroscopeMagnificationInfo);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseHighSiteFindPosition);
-
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Up;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
                 return true;
 
-            case 2 or 3:
+            case 3:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Down;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
                 return true;
 
-            case 4:
+            case 5:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Left;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
+                return true;
+
+            case 7:
+                IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Right;
+                MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo));
+                return true;
+
+            case 10:
                 if (ResultRotateScaleErrorDto is null)
                 {
                     DialogWindowProvider.TryShowDialog("Calibration result is Empty!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -259,90 +307,13 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
     #endregion
 
     #region 校准
-
-    [RelayCommand]
-    private async Task GetPointAsync(string parameter)
-    {
-        try
-        {
-            Logger.LogInformation("{@Name}: Get Point Image Start", Name);
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-
-                switch (parameter)
-                {
-                    case "LowFindPosition":
-                        IdeaPositionCache.BaseLowSiteFindPosition = result;
-                        IdeaPositionCache.BaseHighSiteFindPosition = result;
-
-                        IdeaPositionCache.LowTemplateFilePath = $"{TemplateFileDirectory}\\{IdeaPositionCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
-                        var generateTemplateLow = ReviewViewModel.TryGenerateTemplate(IdeaPositionCache.AlgorithmTemplateTypeEnum, IdeaPositionCache.LowTemplateFilePath, IdeaPositionCache.AlgorithmTemplateSizeEnum);
-                        if (generateTemplateLow == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        else IdeaPositionCache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(IdeaPositionCache.LowTemplateFilePath);
-
-                        break;
-
-                    case "HighFindPosition":
-                        IdeaPositionCache.BaseHighSiteFindPosition = result;
-
-                        IdeaPositionCache.HighTemplateFilePath = $"{TemplateFileDirectory}\\{IdeaPositionCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
-                        var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(IdeaPositionCache.AlgorithmTemplateTypeEnum, IdeaPositionCache.HighTemplateFilePath, IdeaPositionCache.AlgorithmTemplateSizeEnum);
-                        if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        else IdeaPositionCache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(IdeaPositionCache.HighTemplateFilePath);
-
-                        break;
-
-                    default:
-                        ThrowHelper.ThrowArgumentOutOfRangeException(nameof(parameter));
-                        break;
-                }
-
-                Logger.LogInformation("{@Name}: Get Point Image OK!", Name);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Image Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task<bool> GotoPointAsync(object parameter)
-    {
-        try
-        {
-            Logger.LogInformation("{@Name}: Move Point Start", Name);
-            return await Task.Run(() =>
-            {
-                StageViewModel.SetBrightFieldAbsoluteStageXy(parameter switch
-                {
-                    StageDirectionTypeEnum.Up => IdeaPositionCache.TopSideIdeaPosition,
-                    StageDirectionTypeEnum.Down => IdeaPositionCache.BottomSideIdeaPosition,
-                    StageDirectionTypeEnum.Left => IdeaPositionCache.LeftSideIdeaPosition,
-                    StageDirectionTypeEnum.Right => IdeaPositionCache.RightSideIdeaPosition,
-                    "LowFindPosition" => IdeaPositionCache.BaseLowSiteFindPosition,
-                    "HighFindPosition" => IdeaPositionCache.BaseHighSiteFindPosition,
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(parameter))
-                });
-
-                Logger.LogInformation("{@Name}: Move Point OK!", Name);
-                return true;
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-            return false;
-        }
-    }
 
     [RelayCommand]
     private async Task MagnificationSelectedAsync(object obj)
@@ -400,89 +371,13 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
+        if (IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MagnificationCode <= IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MagnificationCode)
         {
-            if (File.Exists(IdeaPositionCache.AlgorithmTemplateTypeEnum.ToFullFilePath(IdeaPositionCache.LowTemplateFilePath)) == false)
-            {
-                DialogWindowProvider.ShowDialog("Base position low site template is not exit!");
-                return false;
-            }
+            DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                IdeaPositionCache.AlgorithmTemplateTypeEnum,
-                IdeaPositionCache.WaferMaskTypeEnum,
-                IdeaPositionCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                IdeaPositionCache.BaseLowSiteFindPosition,
-                IdeaPositionCache.LowTemplateFilePath,
-                IdeaPositionCache.LowTemplateImageFilePath,
-                HtmlTab = new HtmlTab(new
-                {
-                    Image = new HtmlImage(IdeaPositionCache.LowTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            result = true;
-            return result;
-        });
-        return result;
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step2CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
-        {
-            if (IdeaPositionCache.HighMicroscopeMagnificationInfo.MagnificationCode <= IdeaPositionCache.LowMicroscopeMagnificationInfo.MagnificationCode)
-            {
-                DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
-
-            if (File.Exists(IdeaPositionCache.AlgorithmTemplateTypeEnum.ToFullFilePath(IdeaPositionCache.HighTemplateFilePath)) == false)
-            {
-                DialogWindowProvider.ShowDialog("Base position low site template is not exit!");
-                return false;
-            }
-
-            MicroscopeViewModel.SwitchMagnification(IdeaPositionCache.HighMicroscopeMagnificationInfo);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseHighSiteFindPosition);
-
-            if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, IdeaPositionCache.BaseHighSiteFindPosition, IdeaPositionCache.HighMicroscopeMagnificationInfo, IdeaPositionCache.HighTemplateFilePath, ImageFileDirectory, null, Name,
-                    "High Magnification Base Matching Position", out var resultPosition, out _, out _, out var highResultImageFilePath, out _) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
-
-            IdeaPositionCache.BaseFindResultPosition = resultPosition;
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                IdeaPositionCache.AlgorithmTemplateTypeEnum,
-                IdeaPositionCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                IdeaPositionCache.BaseHighSiteFindPosition,
-                IdeaPositionCache.BaseFindResultPosition,
-                IdeaPositionCache.HighTemplateFilePath,
-                IdeaPositionCache.HighTemplateImageFilePath,
-                HtmlTab = new HtmlTab(new
-                {
-                    HighTemplateImage = new HtmlImage(IdeaPositionCache.HighTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighMatchImage = new HtmlImage(highResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            result = true;
-            return result;
-        });
-        return result;
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        var (isSuccess, errorMessage) = IdeaPositionCache.Verify();
+        var (isSuccess, errorMessage) = Cache.Verify();
         if (isSuccess == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
@@ -493,8 +388,10 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         var result = false;
         await InvokeCalibrateAsync(() =>
         {
-            var baseBrighFieldPosition = IdeaPositionCache.BaseFindResultPosition;
-            if (baseBrighFieldPosition.ToOriginLength >= IdeaPositionCache.WaferDiameter / 2)
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            var baseBrightFieldPosition = IdeaPositionCache.BaseLowSiteFindPosition = position;
+
+            if (baseBrightFieldPosition.ToOriginLength >= IdeaPositionCache.WaferDiameter / 2)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Base Position is Out of Wafer!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -502,32 +399,41 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                BaseHighSitePosition = baseBrighFieldPosition,
+                Cache.AlgorithmTemplateTypeEnum,
+                IdeaPositionCache.WaferMaskTypeEnum,
+                LowMagnification = IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                HighMagnification = IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
                 IdeaPositionCache.ColumnCellWidth,
-                IdeaPositionCache.RowCellHeight
+                IdeaPositionCache.RowCellHeight,
+                IdeaPositionCache.WaferDiameter
             }), HtmlLogUniqueId.LoggingHtml());
 
-            (isSuccess, IdeaPositionCache.LeftSideIdeaPosition, IdeaPositionCache.RightSideIdeaPosition) = GetIdeaBrightFieldPosition(true, baseBrighFieldPosition.Y);
-            if (isSuccess == false)
+            if (IsRecipeCalibrate == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Get X Axis Idea Position Failed!"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
+                (var isSuccess, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LeftPosition, IdeaPositionCache.LowGlobalScaleErrorCacheItem.RightPosition) = GetIdeaBrightFieldPosition(true, baseBrightFieldPosition.Y);
+                if (isSuccess == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Get X Axis Idea Position Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
 
-            (isSuccess, IdeaPositionCache.BottomSideIdeaPosition, IdeaPositionCache.TopSideIdeaPosition) = GetIdeaBrightFieldPosition(false, baseBrighFieldPosition.X);
-            if (isSuccess == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Get Y Axis Idea Position Failed!"), HtmlLogUniqueId.LoggingHtml());
-                return false;
+                (isSuccess, IdeaPositionCache.LowGlobalScaleErrorCacheItem.BottomPosition, IdeaPositionCache.LowGlobalScaleErrorCacheItem.TopPosition) = GetIdeaBrightFieldPosition(false, baseBrightFieldPosition.X);
+                if (isSuccess == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Get Y Axis Idea Position Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
             }
 
             Logger.LogHtmlInformation("Idea Bright Field Positions", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                IdeaPositionCache.TopSideIdeaPosition,
-                IdeaPositionCache.BottomSideIdeaPosition,
-                IdeaPositionCache.LeftSideIdeaPosition,
-                IdeaPositionCache.RightSideIdeaPosition
+                IdeaPositionCache.BaseLowSiteFindPosition,
+                IdeaPositionCache.LowGlobalScaleErrorCacheItem.TopPosition,
+                IdeaPositionCache.LowGlobalScaleErrorCacheItem.BottomPosition,
+                IdeaPositionCache.LowGlobalScaleErrorCacheItem.LeftPosition,
+                IdeaPositionCache.LowGlobalScaleErrorCacheItem.RightPosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             result = true;
             return result;
 
@@ -538,7 +444,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                     // 靠近边缘位置的理想位置可能拍不全，总长度截去一个die
                     var actualWaferRadius = IdeaPositionCache.GetActualWaferDiameter(isAxisX) / 2;
                     var interval = isAxisX ? IdeaPositionCache.ColumnCellWidth : IdeaPositionCache.RowCellHeight;
-                    var basePositionValue = isAxisX ? baseBrighFieldPosition.X : baseBrighFieldPosition.Y;
+                    var basePositionValue = isAxisX ? baseBrightFieldPosition.X : baseBrightFieldPosition.Y;
 
                     var negativePositionError = (int)((actualWaferRadius + basePositionValue) / interval) * interval;
                     var positivePositionError = (int)((actualWaferRadius - basePositionValue) / interval) * interval;
@@ -558,6 +464,91 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             }
         });
         return result;
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            if (IsRecipeCalibrate == false)
+            {
+                var result = StageViewModel.GetBrightFieldStagePosition();
+                IdeaPositionCache.SetPosition(result, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+
+                var templateFilePath = $"{TemplateFileDirectory}\\{IdeaPositionCache.SiteDirection}Site_{IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+                var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, templateFilePath, Cache.AlgorithmTemplateSizeEnum);
+                if (generateTemplate == false)
+                {
+                    DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return false;
+                }
+
+                var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
+                IdeaPositionCache.SetTemplate(templateFilePath, templateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+            }
+
+            var position = IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+            var (templateFilePathLog, templateImageFilePathLog) = IdeaPositionCache.GetTemplate(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+
+            StageViewModel.SetBrightFieldAbsoluteStageXy(position);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                IdeaPositionCache.SiteDirection,
+                LowSite = position,
+                templateFilePathLog,
+                HtmlTab = new HtmlTab(new
+                {
+                    LowTemplateImage = new HtmlImage(templateImageFilePathLog, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            if (IsRecipeCalibrate == false)
+            {
+                var result = StageViewModel.GetBrightFieldStagePosition();
+                if (IdeaPositionCache.SiteDirection is StageDirectionTypeEnum.Up) IdeaPositionCache.LowToHighMagnificationOffset = result - (Vector)IdeaPositionCache.LowGlobalScaleErrorCacheItem.TopPosition;
+
+                IdeaPositionCache.SetPosition(result, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+
+                var templateFilePath = $"{TemplateFileDirectory}\\{IdeaPositionCache.SiteDirection}Site_{IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+                var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, templateFilePath, Cache.AlgorithmTemplateSizeEnum);
+                if (generateTemplate == false)
+                {
+                    DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return false;
+                }
+
+                var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
+                IdeaPositionCache.SetTemplate(templateFilePath, templateImageFilePath, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+            }
+
+            var position = IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+            var (templateFilePathLog, templateImageFilePathLog) = IdeaPositionCache.GetTemplate(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+
+            StageViewModel.SetBrightFieldAbsoluteStageXy(position);
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                IdeaPositionCache.SiteDirection,
+                HighSite = position,
+                templateFilePathLog,
+                HtmlTab = new HtmlTab(new
+                {
+                    HighTemplateImage = new HtmlImage(templateImageFilePathLog, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -582,20 +573,19 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 {
                     Cache.RotateAngle,
                     Cache.Threshold,
-                    LowMagnification = IdeaPositionCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                    HighMagnification = IdeaPositionCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    LowMagnification = IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                    HighMagnification = IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
                     IdeaPositionCache.AlgorithmTemplateTypeEnum,
                     IdeaPositionCache.BaseLowSiteFindPosition,
-                    IdeaPositionCache.BaseHighSiteFindPosition,
                     IdeaPositionCache.LowToHighMagnificationOffset
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 var idealPositionDictionary = new Dictionary<StageDirectionTypeEnum, Point>
                 {
-                    { StageDirectionTypeEnum.Up, IdeaPositionCache.TopSideIdeaPosition },
-                    { StageDirectionTypeEnum.Left, IdeaPositionCache.LeftSideIdeaPosition },
-                    { StageDirectionTypeEnum.Down, IdeaPositionCache.BottomSideIdeaPosition },
-                    { StageDirectionTypeEnum.Right, IdeaPositionCache.RightSideIdeaPosition }
+                    { StageDirectionTypeEnum.Up, IdeaPositionCache.HighGlobalScaleErrorCacheItem.TopPosition },
+                    { StageDirectionTypeEnum.Left, IdeaPositionCache.HighGlobalScaleErrorCacheItem.LeftPosition },
+                    { StageDirectionTypeEnum.Down, IdeaPositionCache.HighGlobalScaleErrorCacheItem.BottomPosition },
+                    { StageDirectionTypeEnum.Right, IdeaPositionCache.HighGlobalScaleErrorCacheItem.RightPosition }
                 };
 
                 var calibrationResult = false;
@@ -707,11 +697,10 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 {
                     Cache.RotateAngle,
                     Cache.Threshold,
-                    LowMagnification = IdeaPositionCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                    HighMagnification = IdeaPositionCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    LowMagnification = IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                    HighMagnification = IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
                     IdeaPositionCache.AlgorithmTemplateTypeEnum,
                     IdeaPositionCache.BaseLowSiteFindPosition,
-                    IdeaPositionCache.BaseHighSiteFindPosition,
                     IdeaPositionCache.LowToHighMagnificationOffset,
                     ReviewDto.AppliedScaleT,
                     ReviewDto.ResultScaleT,
@@ -721,10 +710,10 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
 
                 var idealPositionDictionary = new Dictionary<StageDirectionTypeEnum, Point>
                 {
-                    { StageDirectionTypeEnum.Up, IdeaPositionCache.TopSideIdeaPosition },
-                    { StageDirectionTypeEnum.Left, IdeaPositionCache.LeftSideIdeaPosition },
-                    { StageDirectionTypeEnum.Down, IdeaPositionCache.BottomSideIdeaPosition },
-                    { StageDirectionTypeEnum.Right, IdeaPositionCache.RightSideIdeaPosition }
+                    { StageDirectionTypeEnum.Up, IdeaPositionCache.HighGlobalScaleErrorCacheItem.TopPosition },
+                    { StageDirectionTypeEnum.Left, IdeaPositionCache.HighGlobalScaleErrorCacheItem.LeftPosition },
+                    { StageDirectionTypeEnum.Down, IdeaPositionCache.HighGlobalScaleErrorCacheItem.BottomPosition },
+                    { StageDirectionTypeEnum.Right, IdeaPositionCache.HighGlobalScaleErrorCacheItem.RightPosition }
                 };
 
                 StageViewModel.SetRotateScaleErrorCoefficient(ReviewDto.AppliedScaleT);
@@ -757,6 +746,9 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 StageViewModel.SetAbsoluteStageTheta(Cache.P5ResultAngle);
 
                 result = ReviewDto.IsVerified;
+
+                if (IsAutoCalibrate == false)
+                    DialogWindowProvider.ShowDialog($"Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
                 return result;
             });
             return result;
@@ -777,8 +769,8 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         update(IdeaPositionCache);
         update(Cache);
 
-        dto.LowMicroscopeMagnificationInfo = IdeaPositionCache.LowMicroscopeMagnificationInfo;
-        dto.HighMicroscopeMagnificationInfo = IdeaPositionCache.HighMicroscopeMagnificationInfo;
+        dto.LowMicroscopeMagnificationInfo = IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo;
+        dto.HighMicroscopeMagnificationInfo = IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo;
 
         Calibration = dto.Clone();
 
@@ -883,9 +875,11 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             resultDto.IsPositive = degreeAngle < 0;
             var affineIdeaPosition = ideaPosition.DegreeAngleByOrigin(degreeAngle);
             var highIdeaPosition = resultDto.GetRealPosition(stageDirection);
+            IdeaPositionCache.SiteDirection = stageDirection;
             if (highIdeaPosition == Point.Origin || _isFastMode == false)
             {
-                if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, affineIdeaPosition - (Vector)IdeaPositionCache.LowToHighMagnificationOffset, IdeaPositionCache.LowMicroscopeMagnificationInfo, IdeaPositionCache.LowTemplateFilePath, ImageFileDirectory,
+                var (lowTemplateFilePath, _) = IdeaPositionCache.GetTemplate(IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo);
+                if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, affineIdeaPosition - (Vector)IdeaPositionCache.LowToHighMagnificationOffset, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, lowTemplateFilePath, ImageFileDirectory,
                         null, Name,
                         $"Low Magnification {stageDirection} Site", out var lowResultPosition, out _, out _, out _, out _) == false)
                 {
@@ -896,7 +890,8 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 highIdeaPosition = lowResultPosition + (Vector)IdeaPositionCache.LowToHighMagnificationOffset;
             }
 
-            if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, highIdeaPosition, IdeaPositionCache.HighMicroscopeMagnificationInfo, IdeaPositionCache.HighTemplateFilePath, ImageFileDirectory,
+            var (highTemplateFilePath, _) = IdeaPositionCache.GetTemplate(IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo);
+            if (ReviewViewModel.TryGetMatchPosition(IdeaPositionCache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, highIdeaPosition, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, highTemplateFilePath, ImageFileDirectory,
                     null, Name,
                     $"High Magnification {stageDirection} Site", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _) == false)
             {
@@ -1002,10 +997,6 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         AutoCalibrationStepList =
         [
             new() { StepName = "loading" },
-            new() { StepName = "P5" },
-            new() { StepName = "Find Base Position Low Template" },
-            new() { StepName = "Find Base Position High Template" },
-            new() { StepName = "Set Param And Get Ideal Position" },
             new() { StepName = "Calibration" },
             new() { StepName = "Review" }
         ];
@@ -1029,8 +1020,8 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                         {
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
-                                LowMagnification = IdeaPositionCache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                                HighMagnification = IdeaPositionCache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName
+                                LowMagnification = IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                                HighMagnification = IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo.MicroscopeMagnificationName
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });
@@ -1038,36 +1029,14 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                         break;
 
                     case 1:
-                        if (await Step0CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 2:
-                        if (await AutomationRecipeInformationAsync("0") == false) return false;
-                        if (await Step1CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 3:
-                        if (await AutomationRecipeInformationAsync("1") == false) return false;
-                        if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 4:
                         if (await AutomationRecipeInformationAsync("2") == false) return false;
-                        if (await Step3CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 5:
                         if (await Step4CalibrateActionAsync(cancellationToken) == false) return false;
                         CalibrationStepIndex = CalibrationStepList.Count - 1;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         if (await AutoNextingAsync(cancellationToken) == false) return false;
                         break;
 
-                    case 6:
+                    case 2:
                         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
                         await InvokeCalibrateAsync(async () =>
@@ -1115,50 +1084,45 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         var reticleBottom = reticleRows.ElementAt(1);
         var reticleLeft = reticleCols.ElementAt(1);
 
-        switch (stepName)
-        {
-            case "0":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.LowMicroscopeMagnificationInfo, null, out var lowMaskInfo) == false)
-                    return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, lowMaskInfo, out var lowPosition);
 
-                IdeaPositionCache.BaseLowSiteFindPosition = lowPosition;
-                IdeaPositionCache.LowTemplateFilePath = lowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                IdeaPositionCache.LowTemplateImageFilePath = lowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, null, out var baseLowMaskInfo) == false)
+            return false;
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, baseLowMaskInfo, out var lowPosition);
+        IdeaPositionCache.BaseLowSiteFindPosition = lowPosition;
 
-                break;
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseLowMaskInfo, out var topLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseLowMaskInfo, out var bottomLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, baseLowMaskInfo, out var leftLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, baseLowMaskInfo, out var rightLowSitePosition);
+        IdeaPositionCache.SetPosition(topLowSitePosition, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Up);
+        IdeaPositionCache.SetPosition(bottomLowSitePosition, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Down);
+        IdeaPositionCache.SetPosition(leftLowSitePosition, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Left);
+        IdeaPositionCache.SetPosition(rightLowSitePosition, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Right);
+        IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Up);
+        IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Down);
+        IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Left);
+        IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Right);
 
-            case "1":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.HighMicroscopeMagnificationInfo, null, out var highMaskInfo) == false)
-                    return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, highMaskInfo, out var highPosition);
-                IdeaPositionCache.BaseHighSiteFindPosition = highPosition;
-                IdeaPositionCache.HighTemplateFilePath = highMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                IdeaPositionCache.HighTemplateImageFilePath = highMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
-                break;
 
-            case "2":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.HighMicroscopeMagnificationInfo, null, out var baseHighMaskInfo) == false)
-                    return false;
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, null, out var baseHighMaskInfo) == false)
+            return false;
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseHighMaskInfo, out var topHighSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseHighMaskInfo, out var bottomHighSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, baseHighMaskInfo, out var leftHighSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, baseHighMaskInfo, out var rightHighSitePosition);
+        IdeaPositionCache.SetPosition(topHighSitePosition, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Up);
+        IdeaPositionCache.SetPosition(bottomHighSitePosition, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Down);
+        IdeaPositionCache.SetPosition(leftHighSitePosition, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Left);
+        IdeaPositionCache.SetPosition(rightHighSitePosition, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Right);
+        IdeaPositionCache.SetTemplate(baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Up);
+        IdeaPositionCache.SetTemplate(baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Down);
+        IdeaPositionCache.SetTemplate(baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Left);
+        IdeaPositionCache.SetTemplate(baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo, StageDirectionTypeEnum.Right);
 
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseHighMaskInfo, out var topHighSitePosition);
-                IdeaPositionCache.TopSideIdeaPosition = topHighSitePosition;
-
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseHighMaskInfo, out var bottomHighSitePosition);
-                IdeaPositionCache.BottomSideIdeaPosition = bottomHighSitePosition;
-
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, baseHighMaskInfo, out var leftHighSitePosition);
-                IdeaPositionCache.LeftSideIdeaPosition = leftHighSitePosition;
-
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, baseHighMaskInfo, out var rightHighSitePosition);
-                IdeaPositionCache.RightSideIdeaPosition = rightHighSitePosition;
-
-                var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.DieBuilder.DiePitchSize;
-                IdeaPositionCache.RowCellHeight = waferMapDataInfo.Height;
-                IdeaPositionCache.ColumnCellWidth = waferMapDataInfo.Width;
-                IdeaPositionCache.WaferDiameter = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.Wafer.Circle.Diameter;
-                break;
-        }
+        var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.DieBuilder.DiePitchSize;
+        IdeaPositionCache.RowCellHeight = waferMapDataInfo.Height;
+        IdeaPositionCache.ColumnCellWidth = waferMapDataInfo.Width;
+        IdeaPositionCache.WaferDiameter = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.Wafer.Circle.Diameter;
 
         return true;
     }
@@ -1189,10 +1153,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         {
             try
             {
-                for (var i = 0; i < AutoCalibrationStepList.Count; i++)
-                {
-                    if (await AutomationRecipeInformationAsync(i.ToString()) == false) return false;
-                }
+                if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
 
                 if (await VerifyCalibrationAsync(cancellationToken) == false)
                 {

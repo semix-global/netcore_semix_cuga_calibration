@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
@@ -29,12 +29,6 @@ public sealed partial class ChuckCenterCacheItem : ObservableCacheBase
     private string _topTemplateImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _rightTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _rightTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
     private string _bottomTemplateFilePath = string.Empty;
 
     [ObservableProperty]
@@ -45,4 +39,11 @@ public sealed partial class ChuckCenterCacheItem : ObservableCacheBase
 
     [ObservableProperty]
     private string _leftTemplateImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _rightTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _rightTemplateImageFilePath = string.Empty;
+
 }

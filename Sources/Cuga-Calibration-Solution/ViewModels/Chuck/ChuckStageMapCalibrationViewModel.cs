@@ -529,7 +529,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
         else
         {
-            Cache.TemplateFilePath =Cache.BrightFieldTemplateFilePath= $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
             var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
             if (generateTemplate == false)
             {
@@ -537,7 +537,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 return false;
             }
 
-            Cache.TemplateImageFilePath =Cache.BrightFieldTemplateImageFilePath= CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
+            Cache.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         }
 
         var centerPosition = StageViewModel.GetMachineStagePosition();
@@ -582,7 +582,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var detectImageDirectory = ImageFileDirectory;
         using var image = darkFieldImageDto;
 
-        Cache.TemplateFilePath =Cache.DarkFieldTemplateFilePath= $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+        Cache.TemplateFilePath = Cache.DarkFieldTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
         if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
         {
             if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -607,7 +607,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             }
         }
 
-        Cache.TemplateImageFilePath =Cache.DarkFieldTemplateImageFilePath= CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
+        Cache.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
             ? laserLineCentricityItemDto.ForwardDarkMachineCenterPosition
             : centerPosition;
@@ -1583,8 +1583,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoBrightField, out var positionBright);
                 Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = StageViewModel.BrightFieldToMachinePosition(positionBright);
-                Cache.TemplateFilePath =Cache.BrightFieldTemplateFilePath= maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.TemplateImageFilePath =Cache.BrightFieldTemplateImageFilePath= maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+                Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
+                Cache.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
                 break;
 
             case "1":
@@ -1592,8 +1592,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoDarkField, out var positionDark);
                 Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = StageViewModel.DarkFieldToMachinePosition(positionDark);
-                Cache.TemplateFilePath =Cache.DarkFieldTemplateFilePath= maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.TemplateImageFilePath =Cache.DarkFieldTemplateImageFilePath= maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+                Cache.TemplateFilePath = Cache.DarkFieldTemplateFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
+                Cache.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
                 break;
         }
 

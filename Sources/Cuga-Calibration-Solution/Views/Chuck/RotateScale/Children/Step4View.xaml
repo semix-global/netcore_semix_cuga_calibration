@@ -23,7 +23,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                     <hc:Shield Subject="Rotate Scale Step 5: "
-                               Status="{Binding CalibrationStepList[4].StepName}"
+                               Status="{Binding CalibrationStepList[10].StepName}"
                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                Color="{StaticResource InfoBrush}" />
                 </hc:UniformSpacingPanel>

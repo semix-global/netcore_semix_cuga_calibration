@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckPrealignerCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -17,100 +18,59 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Chuck Gantry Step 1: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                <hc:Shield Subject="Chuck Prealigner Step 4: "
+                           Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Alignment Setting Param"
+                        <TextBlock Text="Find High Position1"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.LowFindPosition1, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Low Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.LowFindPosition2, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Low Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 Width="275"
+                                 HorizontalAlignment="Left"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="High Magnification: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.HighMicroscopeMagnificationInfo}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:ComboBox>
                     <TextBox Text="{Binding Cache.HighFindPosition1, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="High Site1(um): "
+                             hc:InfoElement.Title="Position1(um): "
                              hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.HighFindPosition2, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="High Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel Spacing="10">
-                        <view:CanvasView Width="100"
-                                         Height="100"
-                                         BackgroundColor="#0A0A0A"
-                                         AxisColor="Red"
-                                         Interactive="True"
-                                         ShowAxes="True"
-                                         ShowCursor="False"
-                                         ShowGrid="False"
-                                         BackgroundImage="{Binding Cache.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                        <view:CanvasView Width="100"
-                                         Height="100"
-                                         BackgroundColor="#0A0A0A"
-                                         AxisColor="Red"
-                                         Interactive="True"
-                                         ShowAxes="True"
-                                         ShowCursor="False"
-                                         ShowGrid="False"
-                                         BackgroundImage="{Binding Cache.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                    </hc:UniformSpacingPanel>
+                    <view:CanvasView Width="100"
+                                     Height="100"
+                                     Margin="5"
+                                     BackgroundColor="#0A0A0A"
+                                     AxisColor="Red"
+                                     Interactive="True"
+                                     ShowAxes="True"
+                                     ShowCursor="False"
+                                     ShowGrid="False"
+                                     BackgroundImage="{Binding Cache.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
-
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                    <StackPanel>
-                        <TextBlock Text=" Calibration Result"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding Cache.OffsetAngle, StringFormat={}{0:f10}}"
-                             Width="275"
-                             hc:InfoElement.Title="Degrees(°): "
-                             hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Center offset position:"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ChuckPrealignerObjDto.OffsetAngle, StringFormat={}{0:f10}}"
-                             Width="275"
-                             hc:InfoElement.Title="Center offset angle:    "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -118,18 +78,18 @@
                                 Content="Action"
                                 Command="{Binding Step3CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step3CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
+
+        <GridSplitter Grid.Column="1" Width="5" />
     </Grid>
 </UserControl>

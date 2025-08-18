@@ -148,7 +148,7 @@
                   VerticalAlignment="Stretch"
                   Header="Calibration Data"
                   Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}">
-            <children:BrightFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}" ChildName="Step3View">
+            <children:BrightFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}" ChildName="Step5View">
                 <children:BrightFieldMapView.IsEnabled>
                     <MultiBinding Converter="{StaticResource MultiValueBooleanConverter}">
                         <Binding Path="Step3CalibrateActionCommand.IsRunning" Converter="{StaticResource BoolNegationConverter}" />
@@ -161,7 +161,7 @@
                   VerticalAlignment="Stretch"
                   Header="Calibration Data"
                   Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityConverter}}">
-            <children:DarkFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}" ChildName="Step3View">
+            <children:DarkFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}" ChildName="Step5View">
                 <children:DarkFieldMapView.IsEnabled>
                     <MultiBinding Converter="{StaticResource MultiValueBooleanConverter}">
                         <Binding Path="Step3CalibrateActionCommand.IsRunning" Converter="{StaticResource BoolNegationConverter}" />

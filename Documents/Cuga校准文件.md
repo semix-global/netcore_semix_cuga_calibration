@@ -403,6 +403,16 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
 
     /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Chuck暗场Af最佳Ecs
+    /// </summary>
+    public double ChuckAfEcsValue { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Chuck暗场Af电机值
+    /// </summary>
+    public double ChuckAfMotorValue { get; set; }
+
+    /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW明场中心的机械位置(绝对位置), **需要下发AF硬件**
     /// </summary>
     public CgPoint DswBrightFieldMachinePosition { get; set; }
@@ -416,6 +426,16 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW最佳清晰高度(绝对ECS), **需要下发AF硬件**
     /// </summary>
     public double DswEcsValue { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Dsw暗场Af最佳Ecs
+    /// </summary>
+    public double DswAfEcsValue { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Dsw暗场Af电机值
+    /// </summary>
+    public double DswAfMotorValue { get; set; }
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Undefined明场中心的机械位置(绝对位置), **需要下发AF硬件**
@@ -446,6 +466,16 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze最佳清晰高度(绝对ECS), **需要下发AF硬件**
     /// </summary>
     public double HazeEcsValue { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze暗场Af最佳Ecs
+    /// </summary>
+    public double HazeAfEcsValue { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze暗场Af电机值
+    /// </summary>
+    public double HazeAfMotorValue { get; set; }
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, ShinyWafer明场中心的机械位置(绝对位置), **需要下发AF硬件**
