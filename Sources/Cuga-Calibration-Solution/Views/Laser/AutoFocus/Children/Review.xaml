@@ -41,7 +41,7 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ThresholdRangeRatio}" />
+                                      Value="{Binding Cache.ReviewThresholdRangeRatio}" />
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="F Min: "
                                       hc:TitleElement.TitleWidth="150"
@@ -65,8 +65,8 @@
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.ThresholdFMin" />
-                                <Binding Path="Cache.ThresholdFMax" />
+                                <Binding Path="Cache.ReviewThresholdFMin" />
+                                <Binding Path="Cache.ReviewThresholdFMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>
@@ -93,8 +93,8 @@
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.ThresholdNMin" />
-                                <Binding Path="Cache.ThresholdNMax" />
+                                <Binding Path="Cache.ReviewThresholdNMin" />
+                                <Binding Path="Cache.ReviewThresholdNMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>

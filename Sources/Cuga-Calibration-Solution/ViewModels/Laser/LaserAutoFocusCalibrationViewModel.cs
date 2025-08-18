@@ -265,18 +265,18 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 originCurrentAValue,
                 originCurrentBValue,
                 Cache.FindPosition,
-                Cache.ThresholdRangeRatio,
                 Cache.ThresholdIdealFMin,
                 Cache.ThresholdIdealFMax,
                 Cache.ThresholdIdealNMin,
                 Cache.ThresholdIdealNMax,
-                Cache.ThresholdFMin,
-                Cache.ThresholdFMax,
-                Cache.ThresholdNMin,
-                Cache.ThresholdNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
-                Cache.FindInterval
+                Cache.FindInterval,
+                Cache.CalibrateThresholdRangeRatio,
+                Cache.CalibrateThresholdFMin,
+                Cache.CalibrateThresholdFMax,
+                Cache.CalibrateThresholdNMin,
+                Cache.CalibrateThresholdNMax,
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (Cache.ThresholdIdealFMin >= Cache.ThresholdIdealFMax || Cache.ThresholdIdealNMin >= Cache.ThresholdIdealNMax)
@@ -325,7 +325,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    if (Cache.ThresholdNMin <= n && n <= Cache.ThresholdNMax && Cache.ThresholdFMin <= f && f <= Cache.ThresholdFMax)
+                    if (Cache.CalibrateThresholdNMin <= n && n <= Cache.CalibrateThresholdNMax && Cache.CalibrateThresholdFMin <= f && f <= Cache.CalibrateThresholdFMax)
                     {
                         ABrightnessSelected = item;
 
@@ -346,11 +346,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         break;
                     }
 
-                    var interval = (n > Cache.ThresholdNMax && f >= Cache.ThresholdFMin) ||
-                                   (f > Cache.ThresholdFMax && n >= Cache.ThresholdNMin)
+                    var interval = (n > Cache.CalibrateThresholdNMax && f >= Cache.CalibrateThresholdFMin) ||
+                                   (f > Cache.CalibrateThresholdFMax && n >= Cache.CalibrateThresholdNMin)
                         ? -Cache.FindInterval
-                        : (n < Cache.ThresholdNMin && f <= Cache.ThresholdFMax) ||
-                          (f < Cache.ThresholdFMin && n <= Cache.ThresholdNMax)
+                        : (n < Cache.CalibrateThresholdNMin && f <= Cache.CalibrateThresholdFMax) ||
+                          (f < Cache.CalibrateThresholdFMin && n <= Cache.CalibrateThresholdNMax)
                             ? Cache.FindInterval
                             : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
@@ -406,7 +406,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    if (Cache.ThresholdNMin <= n && n <= Cache.ThresholdNMax && Cache.ThresholdFMin <= f && f <= Cache.ThresholdFMax)
+                    if (Cache.CalibrateThresholdNMin <= n && n <= Cache.CalibrateThresholdNMax && Cache.CalibrateThresholdFMin <= f && f <= Cache.CalibrateThresholdFMax)
                     {
                         BBrightnessSelected = item;
 
@@ -426,11 +426,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         return true;
                     }
 
-                    var interval = (n > Cache.ThresholdNMax && f >= Cache.ThresholdFMin) ||
-                                   (f > Cache.ThresholdFMax && n >= Cache.ThresholdNMin)
+                    var interval = (n > Cache.CalibrateThresholdNMax && f >= Cache.CalibrateThresholdFMin) ||
+                                   (f > Cache.CalibrateThresholdFMax && n >= Cache.CalibrateThresholdNMin)
                         ? -Cache.FindInterval
-                        : (n < Cache.ThresholdNMin && f <= Cache.ThresholdFMax) ||
-                          (f < Cache.ThresholdFMin && n <= Cache.ThresholdNMax)
+                        : (n < Cache.CalibrateThresholdNMin && f <= Cache.CalibrateThresholdFMax) ||
+                          (f < Cache.CalibrateThresholdFMin && n <= Cache.CalibrateThresholdNMax)
                             ? Cache.FindInterval
                             : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
@@ -623,18 +623,18 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 originCurrentAValue,
                 originCurrentBValue,
                 Cache.FindPosition,
-                Cache.ThresholdRangeRatio,
                 Cache.ThresholdIdealFMin,
                 Cache.ThresholdIdealFMax,
                 Cache.ThresholdIdealNMin,
                 Cache.ThresholdIdealNMax,
-                Cache.ThresholdFMin,
-                Cache.ThresholdFMax,
-                Cache.ThresholdNMin,
-                Cache.ThresholdNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
                 Cache.FindInterval,
+                Cache.ReviewThresholdRangeRatio,
+                Cache.ReviewThresholdFMin,
+                Cache.ReviewThresholdFMax,
+                Cache.ReviewThresholdNMin,
+                Cache.ReviewThresholdNMax,
                 Cache.HalfEcsLength,
                 Cache.SpeedEcs,
                 Cache.NscStandardValue,
@@ -677,10 +677,10 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 var currentMin = nsc.Min();
                 var currentNscOffset = (currentMax + currentMin) / 2;
                 var currentNscGain = Cache.NscStandardValue / (currentMax - currentNscOffset);
-                var abBrightnessResult = Cache.ThresholdNMin < na && na < Cache.ThresholdNMax &&
-                                         Cache.ThresholdNMin < nb && nb < Cache.ThresholdNMax &&
-                                         Cache.ThresholdFMin < fa && fa < Cache.ThresholdFMax &&
-                                         Cache.ThresholdFMin < fb && fb < Cache.ThresholdFMax;
+                var abBrightnessResult = Cache.ReviewThresholdNMin < na && na < Cache.ReviewThresholdNMax &&
+                                         Cache.ReviewThresholdNMin < nb && nb < Cache.ReviewThresholdNMax &&
+                                         Cache.ReviewThresholdFMin < fa && fa < Cache.ReviewThresholdFMax &&
+                                         Cache.ReviewThresholdFMin < fb && fb < Cache.ReviewThresholdFMax;
                 var offsetIsOk = Math.Abs(currentNscOffset) <= Cache.ThresholdNscOffset;
                 var gainIsOk = Math.Abs(currentMax - Cache.NscStandardValue) <= Cache.ThresholdNscGain &&
                                Math.Abs(currentMin + Cache.NscStandardValue) <= Cache.ThresholdNscGain;
