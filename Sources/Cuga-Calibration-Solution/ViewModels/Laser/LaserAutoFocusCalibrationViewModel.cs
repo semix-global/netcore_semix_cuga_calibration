@@ -584,6 +584,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         Cache.FindPosition,
                         startEcs,
                         endEcs,
+                        averageEcs,
                         Cache.SpeedEcs,
                         item.NscOffset,
                         item.NscGain,
@@ -640,6 +641,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             await Task.Delay(100, cancellationToken);
 
             (bool IsNscUseMaxValue, bool IsNscUsePositiveSlope)? result = null;
+
             var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcs, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcs + 2));
             var ecs = traceBufferList.Select(t => t.Ecs).ToList();
             var nsc = traceBufferList.Select(t => t.Nsc).ToList();
@@ -713,7 +715,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 {
                     case (true, true):
                     case (false, false):
-                        result = null;
+                        result ??= null;
 
                         break;
 
