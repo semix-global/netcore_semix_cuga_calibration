@@ -59,7 +59,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #region 0. 确认生成波形参数
 
     [ObservableProperty]
-    public partial GenerateChirpAodWaveParamDto GenerateChirpAodWaveParamDto { get; set; } = new()
+    private GenerateChirpAodWaveParamDto _generateChirpAodWaveParamDto = new()
     {
         HeaderFrequency = 275,
         FooterFrequency = 155
@@ -70,67 +70,67 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #region 1. 确认ROI范围用来寻找最大灰阶值
 
     [ObservableProperty]
-    public partial int PmtId { get; set; } = 8;
+    private int _pmtId = 8;
 
     [ObservableProperty]
-    public partial int ChannelId { get; set; } = 3;
+    private int _channelId = 3;
 
     [ObservableProperty]
-    public partial Point FindPosition { get; set; }
+    private Point _findPosition;
 
     [ObservableProperty]
-    public partial int XWidthPixel { get; set; } = 800;
+    private int _xWidthPixel = 800;
 
     [ObservableProperty]
-    public partial OpticsMagTypeEnum OpticsMagTypeEnum { get; set; } = OpticsMagTypeEnum.High;
+    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
 
     [ObservableProperty]
-    public partial StageSpeedEnum StageSpeedEnum { get; set; } = StageSpeedEnum.Low;
+    private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
 
     [ObservableProperty]
-    public partial Rect RoiRect { get; set; } = new(0, 0, 256, 256);
+    private Rect _roiRect = new(0, 0, 256, 256);
 
     #endregion 1. 确认ROI范围用来寻找最大灰阶值
 
     #region 2. 补偿训练
 
     [ObservableProperty]
-    public partial TrainingAlgorithmEnum TrainingAlgorithmEnum { get; set; } = TrainingAlgorithmEnum.Mtf;
+    private TrainingAlgorithmEnum _trainingAlgorithmEnum = TrainingAlgorithmEnum.Mtf;
 
     [ObservableProperty]
-    public partial double XPixelSize { get; set; }
+    private double _xPixelSize;
 
     [ObservableProperty]
-    public partial double YPixelSize { get; set; }
+    private double _yPixelSize;
 
     [ObservableProperty]
-    public partial double PotDiameter { get; set; }
+    private double _potDiameter;
 
     [ObservableProperty]
-    public partial double XPointDiameter { get; set; }
+    private double _xPointDiameter;
 
     [ObservableProperty]
-    public partial double YPointDiameter { get; set; }
+    private double _yPointDiameter;
 
     [ObservableProperty]
-    public partial double PrescanCoefficient { get; set; } = calibrationSetting.SettingCommonParam.MainCoefficient;
+    private double _prescanCoefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
 
     [ObservableProperty]
-    public partial ObservableCollection<DeltaKItem> DeltaKItems { get; set; } = [];
+    private ObservableCollection<DeltaKItem> _deltaKItems = [];
 
     #endregion 2. 补偿训练
 
     [ObservableProperty]
-    public partial AodGenerateWaveFileTrainingChirp2? SelectItem { get; set; }
+    private AodGenerateWaveFileTrainingChirp2? _selectItem;
 
     [ObservableProperty]
-    public partial AodGenerateWaveFileTrainingChirp2[] Items { get; set; } = [];
+    private AodGenerateWaveFileTrainingChirp2[] _items = [];
 
     [ObservableProperty]
-    public partial Point[] ItemsXPoints { get; set; } = [];
+    private Point[] _itemsXPoints = [];
 
     [ObservableProperty]
-    public partial Point[] ItemsYPoints { get; set; } = [];
+    private Point[] _itemsYPoints = [];
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
@@ -506,49 +506,49 @@ public enum TrainingAlgorithmEnum
 public sealed partial class DeltaKItem : ObservableObject
 {
     [ObservableProperty]
-    public partial double DeltaKMin { get; set; }
+    private double _deltaKMin;
 
     [ObservableProperty]
-    public partial double DeltaKMax { get; set; }
+    private double _deltaKMax;
 
     [ObservableProperty]
-    public partial double DeltaKStep { get; set; }
+    private double _deltaKStep;
 
     [ObservableProperty]
-    public partial bool IsOk { get; set; } = true;
+    private bool _isOk = true;
 
     [ObservableProperty]
-    public partial double DeltaKValue { get; set; }
+    private double _deltaKValue;
 }
 
 public sealed partial class AodGenerateWaveFileTrainingChirp2 : ObservableObject
 {
     [ObservableProperty]
-    public partial string ChirpAodWaveFilePath { get; set; } = string.Empty;
+    private string _chirpAodWaveFilePath = string.Empty;
 
     [ObservableProperty]
-    public partial double[] DeltaKs { get; set; } = [];
+    private double[] _deltaKs = [];
 
     [ObservableProperty]
-    public partial Point[] AodWaveFlatnessTotalFrequencySignals { get; set; } = [];
+    private Point[] _aodWaveFlatnessTotalFrequencySignals = [];
 
     [ObservableProperty]
-    public partial Point[] AodWaveSignals { get; set; } = [];
+    private Point[] _aodWaveSignals = [];
 
     [ObservableProperty]
-    public partial Point[] AodWaveSignalsFourier { get; set; } = [];
+    private Point[] _aodWaveSignalsFourier = [];
 
     [ObservableProperty]
-    public partial string ImageFilePath { get; set; } = string.Empty;
+    private string _imageFilePath = string.Empty;
 
     [ObservableProperty]
-    public partial double TargetValueX { get; set; }
+    private double _targetValueX;
 
     [ObservableProperty]
-    public partial double TargetValueY { get; set; }
+    private double _targetValueY;
 
     [ObservableProperty]
-    public partial bool IsOk { get; set; }
+    private bool _isOk;
 }
 
 public static class GenerateChirpAodWave
