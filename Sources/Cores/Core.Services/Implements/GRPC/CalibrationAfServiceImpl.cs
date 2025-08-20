@@ -65,6 +65,11 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<double> GetEcsToUmRatio()
+    {
+        return SxExecuteRetHelper.CreateSuccess(0.2d);
+    }
+
     public SxExecuteRet<double> GetSensorEcsValue()
     {
         Thread.Sleep(120);

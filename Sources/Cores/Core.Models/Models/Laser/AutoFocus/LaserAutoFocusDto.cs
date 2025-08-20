@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
@@ -6,6 +7,8 @@ namespace Core.Models.Models.Laser.AutoFocus;
 
 public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<LaserAutoFocusDto>, IAdaptTo<CalibrationLaserAutoFocus>
 {
+    #region Current
+
     [ObservableProperty]
     private double _currentA;
 
@@ -24,12 +27,11 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     [ObservableProperty]
     private double _nb;
 
-    [ObservableProperty]
-    private double _nscOffset;
+    #endregion Current
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(NscGainReciprocal))]
-    private double _nscGain;
+    #region NSC
+
+    #region NSC Profile
 
     [ObservableProperty]
     private bool _isNscUseMaxValue;
@@ -37,28 +39,49 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     [ObservableProperty]
     private bool _isNscUsePositiveSlope;
 
-    public double NscGainReciprocal => NscGain == 0 ? 0 : 1 / NscGain;
+    [ObservableProperty]
+    private double _ecsToNmRange;
 
     [ObservableProperty]
-    private double _nscCurrentMax;
+    private double _nscStandard;
 
     [ObservableProperty]
-    private double _nscCurrentMin;
+    private ImmutableArray<double> _originalEcs = [];
 
     [ObservableProperty]
-    private double _nscCurrentOffset;
+    private ImmutableArray<double> _originalNsc = [];
 
     [ObservableProperty]
-    private double _nscCurrentGain;
+    private ImmutableArray<double> _originalLvdt = [];
+
+    #endregion NSC Profile
+
+    #region NscGain
 
     [ObservableProperty]
-    private List<double> _ecsData = [];
+    private double _nscOffset;
 
     [ObservableProperty]
-    private List<double> _nscData = [];
+    private double _nscGain;
 
     [ObservableProperty]
-    private List<double> _lvdtData = [];
+    private double _nscCurrentNscPerNm;
+
+    [ObservableProperty]
+    private double _nscCurrentSymmetryRatio;
+
+    [ObservableProperty]
+    private ImmutableArray<double> _calibrationEcs = [];
+
+    [ObservableProperty]
+    private ImmutableArray<double> _calibrationNsc = [];
+
+    [ObservableProperty]
+    private ImmutableArray<double> _calibrationLvdt = [];
+
+    #endregion NscGain
+
+    #endregion NSC
 
     #region Mapper
 
@@ -70,13 +93,20 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         CurrentB = CurrentB,
         Fb = Fb,
         Nb = Nb,
+        IsNscUseMaxValue = IsNscUseMaxValue,
+        IsNscUsePositiveSlope = IsNscUsePositiveSlope,
+        EcsToNmRange = EcsToNmRange,
+        NscStandard = NscStandard,
+        OriginalEcs = [..OriginalEcs],
+        OriginalNsc = [..OriginalNsc],
+        OriginalLvdt = [..OriginalLvdt],
         NscOffset = NscOffset,
         NscGain = NscGain,
-        NscCurrentMax = NscCurrentMax,
-        NscCurrentMin = NscCurrentMin,
-        EcsData = [.. EcsData],
-        NscData = [.. NscData],
-        LvdtData = [.. LvdtData],
+        NscCurrentNscPerNm = NscCurrentNscPerNm,
+        NscCurrentSymmetryRatio = NscCurrentSymmetryRatio,
+        CalibrationEcs = [..CalibrationEcs],
+        CalibrationNsc = [..CalibrationNsc],
+        CalibrationLvdt = [..CalibrationLvdt],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -88,7 +118,6 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     {
         CurrentA = CurrentA,
         CurrentB = CurrentB,
-        NscOffset = NscOffset,
         NscGain = NscGain,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

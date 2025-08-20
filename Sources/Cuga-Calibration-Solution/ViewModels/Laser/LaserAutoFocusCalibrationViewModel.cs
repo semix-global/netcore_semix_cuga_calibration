@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -31,7 +32,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         new() { StepName = "Config" },
         new() { StepName = "Find a Position" },
         new() { StepName = "AB Brightness" },
-        new() { StepName = "Gain" }
+        new() { StepName = "NSC Profile" },
+        new() { StepName = "Nsc Offset Gain" }
     ];
 
     #region 界面相关
@@ -163,26 +165,19 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         switch (CalibrationStepIndex)
         {
             case 1:
-                return true;
-
             case 2:
+            case 3:
                 return true;
 
-            case 3:
-                if (ResultLaserAutoFocusDto is null)
+            case 4:
+                Guard.IsNotNull(ResultLaserAutoFocusDto);
+
+                ResultLaserAutoFocusDto.IsCalibrated = true;
+                if (Save(ResultLaserAutoFocusDto, cancellationToken) == false)
                 {
-                    DialogWindowProvider.TryShowDialog("Please find current!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                    if (dialogButtonsEnum == DialogResultEnum.Retry) return false;
-                }
-                else
-                {
-                    ResultLaserAutoFocusDto.IsCalibrated = true;
-                    if (Save(ResultLaserAutoFocusDto, cancellationToken) == false)
-                    {
-                        ResultLaserAutoFocusDto.IsCalibrated = false;
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                        return false;
-                    }
+                    ResultLaserAutoFocusDto.IsCalibrated = false;
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
                 }
 
                 IsCalibrated = true;
@@ -273,12 +268,12 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.ThresholdIdealNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
-                Cache.FindInterval,
                 Cache.CalibrationThresholdRangeRation,
                 Cache.CalibrationThresholdFMin,
                 Cache.CalibrationThresholdFMax,
                 Cache.CalibrationThresholdNMin,
                 Cache.CalibrationThresholdNMax,
+                Cache.FindCurrentStep
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (Cache.ThresholdIdealFMin >= Cache.ThresholdIdealFMax || Cache.ThresholdIdealNMin >= Cache.ThresholdIdealNMax)
@@ -350,10 +345,10 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     var interval = (n > Cache.CalibrationThresholdNMax && f >= Cache.CalibrationThresholdFMin) ||
                                    (f > Cache.CalibrationThresholdFMax && n >= Cache.CalibrationThresholdNMin)
-                        ? -Cache.FindInterval
+                        ? -Cache.FindCurrentStep
                         : (n < Cache.CalibrationThresholdNMin && f <= Cache.CalibrationThresholdFMax) ||
                           (f < Cache.CalibrationThresholdFMin && n <= Cache.CalibrationThresholdNMax)
-                            ? Cache.FindInterval
+                            ? Cache.FindCurrentStep
                             : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
                     current += interval;
@@ -430,10 +425,10 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     var interval = (n > Cache.CalibrationThresholdNMax && f >= Cache.CalibrationThresholdFMin) ||
                                    (f > Cache.CalibrationThresholdFMax && n >= Cache.CalibrationThresholdNMin)
-                        ? -Cache.FindInterval
+                        ? -Cache.FindCurrentStep
                         : (n < Cache.CalibrationThresholdNMin && f <= Cache.CalibrationThresholdFMax) ||
                           (f < Cache.CalibrationThresholdFMin && n <= Cache.CalibrationThresholdNMax)
-                            ? Cache.FindInterval
+                            ? Cache.FindCurrentStep
                             : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
                     current += interval;
@@ -475,6 +470,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
+            var ecsToNmRatio = AfViewModel.GetEcsToUmRatio() * 1000;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -482,14 +478,212 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 originGain,
                 originCurrentAValue,
                 originCurrentBValue,
+                ecsToNmRatio,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
                 Cache.FindPosition,
                 Cache.HalfEcsLength,
-                Cache.SpeedEcs,
-                Cache.NscStandardValue,
-                Cache.CalibrationNscCenterOffset,
-                Cache.CalibrationNscSideOffset,
-                Cache.ThresholdNscStandardCenterOffset,
+                Cache.SpeedEcsPerSecond,
+                Cache.NscStandardNscPerNm,
+                Cache.ThresholdNscStandardSymmetryRatio,
+                Cache.ThresholdNscStandardGain
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("Get Nsc Profile", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            try
+            {
+                StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+                AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
+
+                AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
+                await Task.Delay(100, cancellationToken);
+
+                AfViewModel.SetSensorCurrentValue(true, ResultLaserAutoFocusDto.CurrentA);
+                AfViewModel.SetSensorCurrentValue(false, ResultLaserAutoFocusDto.CurrentB);
+                await Task.Delay(100, cancellationToken);
+
+                AfViewModel.ToggleDarkFieldEnable(true);
+                await Task.Delay(100, cancellationToken);
+
+                var averageEcs = AfViewModel.GetSensorAverageEcsValue();
+                var startEcs = averageEcs - Cache.HalfEcsLength;
+                var endEcs = averageEcs + Cache.HalfEcsLength;
+
+                AfViewModel.SetSensorEcsValue(startEcs);
+                await Task.Delay(100, cancellationToken);
+
+                var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                var ecs = traceBufferList.Select(t => t.Ecs).ToImmutableArray();
+                var nsc = traceBufferList.Select(t => t.Nsc).ToImmutableArray();
+                var lvdt = traceBufferList.Select(t => t.Lvdt).ToImmutableArray();
+                var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
+                var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
+                var nscMinIndex = nscVector.MinimumIndex();
+                var nscMaxIndex = nscVector.MaximumIndex();
+                Guard.IsEqualTo(nscMinIndex, nscMaxIndex, "nsc curve is a error");
+
+                double nscLeftIntervalLeftEndpointValue, nscRightIntervalRightEndpointValue;
+                Vector<double> nscLeftIntervalVector, nscMiddleIntervalVector, nscRightIntervalVector;
+                Vector<double> ecsLeftIntervalVector, ecsMiddleIntervalVector, ecsRightIntervalVector;
+
+                var isMinMax = nscMinIndex < nscMaxIndex;
+                if (isMinMax)
+                {
+                    var nscNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+                    var nscNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+
+                    var nscNegativeLeftVector = nscVector.SubVectorRange(nscNegativeLeftIndex, nscMinIndex);
+                    var ecsNegativeLeftVector = ecsVector.SubVectorRange(nscNegativeLeftIndex, nscMinIndex);
+
+                    var nscPositiveMiddleVector = nscVector.SubVectorRange(nscMinIndex, nscMaxIndex);
+                    var ecsPositiveMiddleVector = ecsVector.SubVectorRange(nscMinIndex, nscMaxIndex);
+
+                    var nscNegativeRightVector = nscVector.SubVectorRange(nscMaxIndex, nscNegativeRightIndex);
+                    var ecsNegativeRightVector = ecsVector.SubVectorRange(nscMaxIndex, nscNegativeRightIndex);
+
+                    nscLeftIntervalLeftEndpointValue = nscNegativeLeftVector[0];
+                    nscRightIntervalRightEndpointValue = nscNegativeRightVector[^1];
+
+                    nscLeftIntervalVector = nscNegativeLeftVector;
+                    ecsLeftIntervalVector = ecsNegativeLeftVector;
+
+                    nscMiddleIntervalVector = nscPositiveMiddleVector;
+                    ecsMiddleIntervalVector = ecsPositiveMiddleVector;
+
+                    nscRightIntervalVector = nscNegativeRightVector;
+                    ecsRightIntervalVector = ecsNegativeRightVector;
+                }
+                else
+                {
+                    var nscPositiveLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MinimumIndex();
+                    var nscPositiveRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MaximumIndex() + nscMaxIndex;
+
+                    var nscPositiveLeftVector = nscVector.SubVectorRange(nscPositiveLeftIndex, nscMaxIndex);
+                    var ecsPositiveLeftVector = ecsVector.SubVectorRange(nscPositiveLeftIndex, nscMaxIndex);
+
+                    var nscNegativeMiddleVector = nscVector.SubVectorRange(nscMaxIndex, nscMinIndex);
+                    var ecsNegativeMiddleVector = ecsVector.SubVectorRange(nscMaxIndex, nscMinIndex);
+
+                    var nscPositiveRightVector = nscVector.SubVectorRange(nscMinIndex, nscPositiveRightIndex);
+                    var ecsPositiveRightVector = ecsVector.SubVectorRange(nscMinIndex, nscPositiveRightIndex);
+
+                    nscLeftIntervalLeftEndpointValue = nscPositiveLeftVector[0];
+                    nscRightIntervalRightEndpointValue = nscPositiveRightVector[^1];
+
+                    nscLeftIntervalVector = nscPositiveLeftVector;
+                    ecsLeftIntervalVector = ecsPositiveLeftVector;
+
+                    nscMiddleIntervalVector = nscNegativeMiddleVector;
+                    ecsMiddleIntervalVector = ecsNegativeMiddleVector;
+
+                    nscRightIntervalVector = nscPositiveRightVector;
+                    ecsRightIntervalVector = ecsPositiveRightVector;
+                }
+
+                var isLeftVector = nscLeftIntervalVector[0] * nscLeftIntervalVector[^1] < 0 && ecsLeftIntervalVector[0] < averageEcs && averageEcs < ecsLeftIntervalVector[^1];
+                var isMiddleVector = nscMiddleIntervalVector[0] * nscMiddleIntervalVector[^1] < 0 && ecsMiddleIntervalVector[0] < averageEcs && averageEcs < ecsMiddleIntervalVector[^1];
+                var isRightVector = nscRightIntervalVector[0] * nscRightIntervalVector[^1] < 0 && ecsRightIntervalVector[0] < averageEcs && averageEcs < ecsRightIntervalVector[^1];
+
+                var result = (isMinMax, isLeftVector, isMiddleVector, isRightVector) switch
+                {
+                    (true, true, false, false) => ((false, false), nscLeftIntervalVector, ecsLeftIntervalVector),
+                    (true, false, true, false) => ((Math.Abs(nscRightIntervalRightEndpointValue) >= Math.Abs(nscLeftIntervalLeftEndpointValue), true), nscMiddleIntervalVector, ecsMiddleIntervalVector),
+                    (true, false, false, true) => ((true, false), nscRightIntervalVector, ecsRightIntervalVector),
+                    (false, true, false, false) => ((false, true), nscLeftIntervalVector, ecsLeftIntervalVector),
+                    (false, false, true, false) => ((Math.Abs(nscLeftIntervalLeftEndpointValue) >= Math.Abs(nscRightIntervalRightEndpointValue), false), nscMiddleIntervalVector, ecsMiddleIntervalVector),
+                    (false, false, false, true) => ((true, true), nscRightIntervalVector, ecsRightIntervalVector),
+                    _ => (((bool IsNscUseMaxValue, bool IsNscUsePositiveSlope) Result, Vector<double> NscIntervalVector, Vector<double> EcsIntervalVector)?)null
+                };
+
+                if (result is not null)
+                {
+                    var nscIntervalVector = result.Value.NscIntervalVector;
+                    var ecsIntervalVector = result.Value.EcsIntervalVector;
+
+                    ResultLaserAutoFocusDto.OriginalEcs = ecs;
+                    ResultLaserAutoFocusDto.OriginalNsc = nsc;
+                    ResultLaserAutoFocusDto.OriginalLvdt = lvdt;
+
+                    ResultLaserAutoFocusDto.IsNscUseMaxValue = result.Value.Result.IsNscUseMaxValue;
+                    ResultLaserAutoFocusDto.IsNscUsePositiveSlope = result.Value.Result.IsNscUsePositiveSlope;
+
+                    var symmetryRatio = Math.Abs(nscIntervalVector.Maximum() / nscIntervalVector.Minimum());
+                    var isSymmetryOk = symmetryRatio <= Cache.ThresholdNscStandardSymmetryRatio;
+
+                    ResultLaserAutoFocusDto.EcsToNmRange = (ecsIntervalVector[^1] - ecsIntervalVector[0]) * ecsToNmRatio;
+                    ResultLaserAutoFocusDto.NscStandard = ResultLaserAutoFocusDto.EcsToNmRange * Cache.NscStandardNscPerNm;
+
+                    var isOverflow = ResultLaserAutoFocusDto.NscStandard > short.MaxValue * 0.8;
+
+                    var htmlBullet = new HtmlBullet(new
+                    {
+                        startEcs,
+                        endEcs,
+                        averageEcs,
+                        symmetryRatio,
+                        isSymmetryOk,
+                        isOverflow,
+                        ResultLaserAutoFocusDto.IsNscUseMaxValue,
+                        ResultLaserAutoFocusDto.IsNscUsePositiveSlope,
+                        ResultLaserAutoFocusDto.EcsToNmRange,
+                        ResultLaserAutoFocusDto.NscStandard,
+                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                    });
+
+                    if (isSymmetryOk && isOverflow)
+                    {
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        return true;
+                    }
+
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
+                else
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        startEcs,
+                        endEcs,
+                        averageEcs,
+                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+                return false;
+            }
+            finally
+            {
+                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+                AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
+                AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        await InvokeCalibrateAsync(async () =>
+        {
+            Guard.IsNotNull(ResultLaserAutoFocusDto);
+
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
+            var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
+            var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                originOffset,
+                originGain,
+                originCurrentAValue,
+                originCurrentBValue,
+                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.FindPosition,
+                Cache.HalfEcsLength,
+                Cache.SpeedEcsPerSecond,
+                Cache.NscStandardNscPerNm,
+                Cache.ThresholdNscStandardSymmetryRatio,
                 Cache.ThresholdNscStandardGain,
+                Cache.CalibrationThresholdNscSymmetryRatio,
+                Cache.CalibrationThresholdNscNscPerNmRange,
                 Cache.RetryCount
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -516,7 +710,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 var averageEcs = AfViewModel.GetSensorAverageEcsValue();
                 var startEcs = averageEcs - Cache.HalfEcsLength;
                 var endEcs = averageEcs + Cache.HalfEcsLength;
-                var (isNscUseMaxValue, isNscUsePositiveSlope) = await GetNscIsPositiveSlopeAsync(startEcs, endEcs, averageEcs);
 
                 double offset = 0, gain = 1;
                 var count = 1;
@@ -527,91 +720,94 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     AfViewModel.SetSensorNscCompensationCoefficient(offset, gain);
                     AfViewModel.SetSensorEcsValue(startEcs);
                     await Task.Delay(100, cancellationToken);
-                    var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcs, TimeSpan.FromSeconds(Cache.HalfEcsLength * 2 / Cache.SpeedEcs + 2));
 
-                    var ecs = traceBufferList.Select(t => t.Ecs).ToList();
-                    var nsc = traceBufferList.Select(t => t.Nsc).ToList();
-                    var lvdt = traceBufferList.Select(t => t.Lvdt).ToList();
+                    var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                    var ecs = traceBufferList.Select(t => t.Ecs).ToImmutableArray();
+                    var nsc = traceBufferList.Select(t => t.Nsc).ToImmutableArray();
+                    var lvdt = traceBufferList.Select(t => t.Lvdt).ToImmutableArray();
                     var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
-                    double max, min;
-                    if (isNscUseMaxValue)
-                    {
-                        var maximumIndex = nscVector.MaximumIndex();
-                        var subVector = isNscUsePositiveSlope
-                            ? nscVector.SubVector(0, maximumIndex)
-                            : nscVector.SubVector(maximumIndex, nscVector.Count - maximumIndex);
 
-                        max = subVector.Maximum();
-                        min = subVector.Minimum();
+                    Vector<double> nscIntervalVector;
+                    if (ResultLaserAutoFocusDto.IsNscUseMaxValue)
+                    {
+                        var nscMaxIndex = nscVector.MaximumIndex();
+                        var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+                        var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+                        nscIntervalVector = ResultLaserAutoFocusDto.IsNscUsePositiveSlope
+                            ? nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex)
+                            : nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
                     }
                     else
                     {
-                        var maximumIndex = nscVector.MaximumIndex();
-                        var subVector = isNscUsePositiveSlope
-                            ? nscVector.SubVector(maximumIndex, nscVector.Count - maximumIndex)
-                            : nscVector.SubVector(0, maximumIndex);
-
-                        max = subVector.Maximum();
-                        min = subVector.Minimum();
+                        var nscMinIndex = nscVector.MinimumIndex();
+                        var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+                        var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+                        nscIntervalVector = ResultLaserAutoFocusDto.IsNscUsePositiveSlope
+                            ? nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex)
+                            : nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
                     }
 
-                    var currentOffset = (max + min) / 2;
-                    var currentGain = Cache.NscStandardValue / (max - currentOffset);
-                    var offsetIsOk = Math.Abs(currentOffset) <= Cache.CalibrationNscCenterOffset;
-                    var gainIsOk = Math.Abs(max - Cache.NscStandardValue) <= Cache.CalibrationNscSideOffset &&
-                                   Math.Abs(min + Cache.NscStandardValue) <= Cache.CalibrationNscSideOffset;
-                    if (offsetIsOk == false) offset += currentOffset / gain;
-                    if (gainIsOk == false) gain *= currentGain;
+                    var nscMax = nscIntervalVector.Maximum();
+                    var nscMin = nscIntervalVector.Minimum();
+
+                    var currentNscPerNm = Math.Abs((nscMax - nscMin) / ResultLaserAutoFocusDto.EcsToNmRange);
+                    var currentSymmetryRatio = Math.Abs(nscMax / nscMin);
+                    var currentOffset = (nscMax + nscMin) / 2;
+                    var currentGain = ResultLaserAutoFocusDto.NscStandard / (nscMax - currentOffset);
+
+                    var perNmIsOk = Math.Abs(Cache.NscStandardNscPerNm - currentNscPerNm) <= Cache.CalibrationThresholdNscNscPerNmRange;
+                    var symmetryRatioIsOk = currentSymmetryRatio <= Cache.CalibrationThresholdNscSymmetryRatio;
+
+                    if (symmetryRatioIsOk == false) offset += currentOffset / gain;
+                    if (perNmIsOk == false) gain *= currentGain;
 
                     var item = new LaserAutoFocusDto
                     {
                         NscOffset = offset,
                         NscGain = gain,
-                        IsNscUseMaxValue = isNscUseMaxValue,
-                        IsNscUsePositiveSlope = isNscUsePositiveSlope,
-                        NscCurrentMax = max,
-                        NscCurrentMin = min,
-                        NscCurrentOffset = currentOffset,
-                        NscCurrentGain = currentGain,
-                        EcsData = ecs,
-                        NscData = nsc,
-                        LvdtData = lvdt
+                        NscCurrentNscPerNm = currentNscPerNm,
+                        NscCurrentSymmetryRatio = currentSymmetryRatio,
+                        CalibrationEcs = ecs,
+                        CalibrationNsc = nsc,
+                        CalibrationLvdt = lvdt
                     };
+
                     NscStandardList = [.. NscStandardList, item];
+                    var isOverflow = item.NscGain > Cache.ThresholdNscStandardGain;
 
                     var htmlBullet = new HtmlBullet(new
                     {
-                        Cache.FindPosition,
                         startEcs,
                         endEcs,
                         averageEcs,
-                        Cache.SpeedEcs,
+                        nscMax,
+                        nscMin,
+                        isOverflow,
+                        ResultLaserAutoFocusDto.IsNscUseMaxValue,
+                        ResultLaserAutoFocusDto.IsNscUsePositiveSlope,
+                        ResultLaserAutoFocusDto.EcsToNmRange,
+                        ResultLaserAutoFocusDto.NscStandard,
                         item.NscOffset,
                         item.NscGain,
-                        item.NscGainReciprocal,
-                        item.IsNscUseMaxValue,
-                        item.IsNscUsePositiveSlope,
-                        item.NscCurrentMax,
-                        item.NscCurrentMin,
-                        item.NscCurrentOffset,
-                        item.NscCurrentGain,
+                        item.NscCurrentNscPerNm,
+                        item.NscCurrentSymmetryRatio,
                         traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                     });
 
-                    if (offsetIsOk && gainIsOk)
+                    if (symmetryRatioIsOk && perNmIsOk)
                     {
                         NscStandardSelected = item;
 
                         ResultLaserAutoFocusDto.NscOffset = NscStandardSelected.NscOffset;
                         ResultLaserAutoFocusDto.NscGain = NscStandardSelected.NscGain;
-                        ResultLaserAutoFocusDto.NscCurrentMax = NscStandardSelected.NscCurrentMax;
-                        ResultLaserAutoFocusDto.NscCurrentMin = NscStandardSelected.NscCurrentMin;
-                        ResultLaserAutoFocusDto.EcsData = [.. NscStandardSelected.EcsData];
-                        ResultLaserAutoFocusDto.NscData = [.. NscStandardSelected.NscData];
-                        ResultLaserAutoFocusDto.LvdtData = [.. NscStandardSelected.LvdtData];
-                        if (item.NscGain > Cache.ThresholdNscStandardGain)
+                        ResultLaserAutoFocusDto.NscCurrentNscPerNm = NscStandardSelected.NscCurrentNscPerNm;
+                        ResultLaserAutoFocusDto.NscCurrentSymmetryRatio = NscStandardSelected.NscCurrentSymmetryRatio;
+                        ResultLaserAutoFocusDto.CalibrationEcs = NscStandardSelected.CalibrationEcs;
+                        ResultLaserAutoFocusDto.CalibrationNsc = NscStandardSelected.CalibrationNsc;
+                        ResultLaserAutoFocusDto.CalibrationLvdt = NscStandardSelected.CalibrationLvdt;
+                        if (isOverflow)
                         {
-                            Logger.LogHtmlError($"Error: {item.NscGain} > {Cache.ThresholdNscStandardGain}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                            Logger.LogHtmlError($"time: {count} Error", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                             return false;
                         }
@@ -632,124 +828,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
             }
         }).ConfigureAwait(false);
-
-        return;
-
-        async Task<(bool IsNscUseMaxValue, bool IsNscUsePositiveSlope)> GetNscIsPositiveSlopeAsync(double startEcs, double endEcs, double averageEcs)
-        {
-            AfViewModel.SetSensorEcsValue(startEcs);
-            await Task.Delay(100, cancellationToken);
-
-            (bool IsNscUseMaxValue, bool IsNscUsePositiveSlope)? result = null;
-
-            var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcs, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcs + 2));
-            var ecs = traceBufferList.Select(t => t.Ecs).ToList();
-            var nsc = traceBufferList.Select(t => t.Nsc).ToList();
-            var lvdt = traceBufferList.Select(t => t.Lvdt).ToList();
-            var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
-            var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
-
-            var nscMaxIndex = nscVector.MaximumIndex();
-            var nscMaxPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
-            var nscMaxNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
-            var nscMaxPositiveVector = nscVector.SubVectorRange(nscMaxPositiveLeftIndex, nscMaxIndex);
-            var nscMaxNegativeVector = nscVector.SubVectorRange(nscMaxIndex, nscMaxNegativeRightIndex);
-            var ecsMaxPositiveVector = ecsVector.SubVectorRange(nscMaxPositiveLeftIndex, nscMaxIndex);
-            var ecsMaxNegativeVector = ecsVector.SubVectorRange(nscMaxIndex, nscMaxNegativeRightIndex);
-            var isMax = nscMaxPositiveVector[0] * nscMaxPositiveVector[^1] < 0 && nscMaxNegativeVector[0] * nscMaxNegativeVector[^1] < 0;
-            var isMaxPositive = ecsMaxPositiveVector[0] < averageEcs && averageEcs < ecsMaxPositiveVector[^1];
-            var isMaxNegative = ecsMaxNegativeVector[0] < averageEcs && averageEcs < ecsMaxNegativeVector[^1];
-
-            var nscMinIndex = nscVector.MinimumIndex();
-            var nscMinNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
-            var nscMinPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
-            var nscMinNegativeVector = nscVector.SubVectorRange(nscMinNegativeLeftIndex, nscMinIndex);
-            var nscMinPositiveVector = nscVector.SubVectorRange(nscMinIndex, nscMinPositiveRightIndex);
-            var ecsMinNegativeVector = ecsVector.SubVectorRange(nscMinNegativeLeftIndex, nscMinIndex);
-            var ecsMinPositiveVector = ecsVector.SubVectorRange(nscMinIndex, nscMinPositiveRightIndex);
-            var isMin = nscMinNegativeVector[0] * nscMinNegativeVector[^1] < 0 && nscMinPositiveVector[0] * nscMinPositiveVector[^1] < 0;
-            var isMinNegative = ecsMinNegativeVector[0] < averageEcs && averageEcs < ecsMinNegativeVector[^1];
-            var isMinPositive = ecsMinPositiveVector[0] < averageEcs && averageEcs < ecsMinPositiveVector[^1];
-
-            switch (isMax, isMin)
-            {
-                case (true, true):
-                    var resultByMax = GetResult(true, isMaxPositive, isMaxNegative);
-                    var resultByMin = GetResult(false, isMinPositive, isMinNegative);
-                    result = (resultByMax, resultByMin) switch
-                    {
-                        (not null, null) => resultByMax,
-                        (null, not null) => resultByMin,
-                        (not null, not null) => Math.Abs(nscVector[nscMaxIndex]) >= Math.Abs(nscVector[nscMinIndex])
-                            ? resultByMax
-                            : resultByMin,
-                        _ => result
-                    };
-
-                    break;
-
-                case (true, false):
-                    result = GetResult(true, isMaxPositive, isMaxNegative);
-                    break;
-
-                case (false, true):
-                    result = GetResult(false, isMinPositive, isMinNegative);
-                    break;
-            }
-
-            if (result is not null)
-            {
-                var vector = result switch
-                {
-                    (true, true) => nscMaxPositiveVector,
-                    (true, false) => nscMaxNegativeVector,
-                    (false, true) => nscMinPositiveVector,
-                    (false, false) => nscMinNegativeVector
-                };
-                var currentOffset = (vector.Maximum() + vector.Minimum()) / 2d;
-                if (currentOffset > Cache.ThresholdNscStandardCenterOffset)
-                {
-                    Logger.LogHtmlError("Get Nsc Positive Slope Failed", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                    {
-                        startEcs,
-                        endEcs,
-                        averageEcs,
-                        Cache.SpeedEcs,
-                        Cache.ThresholdNscStandardCenterOffset,
-                        IsUseMaxValue = result.Value.IsNscUseMaxValue,
-                        IsPositiveSlope = result.Value.IsNscUsePositiveSlope,
-                        currentOffset,
-                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
-                    }), HtmlLogUniqueId.LoggingHtml());
-
-                    return ThrowHelper.ThrowArgumentException<(bool IsNscUseMaxValue, bool IsNscPositiveSlope)>($"{nameof(currentOffset)}: {currentOffset} > {Cache.ThresholdNscStandardCenterOffset}");
-                }
-            }
-
-            Logger.LogHtmlInformation("Get Nsc Positive Slope", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-            {
-                startEcs,
-                endEcs,
-                averageEcs,
-                Cache.SpeedEcs,
-                Cache.ThresholdNscStandardCenterOffset,
-                IsUseMaxValue = result?.IsNscUseMaxValue.ToString() ?? "Error",
-                IsPositiveSlope = result?.IsNscUsePositiveSlope.ToString() ?? "Error",
-                traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return result ?? ThrowHelper.ThrowArgumentException<(bool IsUseMaxValue, bool IsPositiveSlope)>("nsc slope is not valid");
-
-            (bool IsNscUseMaxValue, bool IsNscUsePositiveSlope)? GetResult(bool isUseMaxValue, bool isPositive, bool isNegative)
-            {
-                return (isPositive, isNegative) switch
-                {
-                    (true, true) or (false, false) => null,
-                    (true, false) => (isUseMaxValue, true),
-                    (false, true) => (isUseMaxValue, false)
-                };
-            }
-        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -782,19 +860,19 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.ThresholdIdealNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
-                Cache.FindInterval,
                 Cache.ReviewThresholdRangeRation,
                 Cache.ReviewThresholdFMin,
                 Cache.ReviewThresholdFMax,
                 Cache.ReviewThresholdNMin,
                 Cache.ReviewThresholdNMax,
+                Cache.FindCurrentStep,
                 Cache.HalfEcsLength,
-                Cache.SpeedEcs,
-                Cache.NscStandardValue,
-                Cache.CalibrationNscCenterOffset,
-                Cache.CalibrationNscSideOffset,
-                Cache.ThresholdNscStandardCenterOffset,
+                Cache.SpeedEcsPerSecond,
+                Cache.NscStandardNscPerNm,
+                Cache.ThresholdNscStandardSymmetryRatio,
                 Cache.ThresholdNscStandardGain,
+                Cache.CalibrationThresholdNscSymmetryRatio,
+                Cache.CalibrationThresholdNscNscPerNmRange,
                 Cache.RetryCount
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -822,65 +900,75 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                 var startEcs = averageEcs - Cache.HalfEcsLength;
                 var endEcs = averageEcs + Cache.HalfEcsLength;
-                var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcs, TimeSpan.FromSeconds(Cache.HalfEcsLength * 2 / Cache.SpeedEcs + 2));
+                var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                var ecs = traceBufferList.Select(t => t.Ecs).ToImmutableArray();
+                var nsc = traceBufferList.Select(t => t.Nsc).ToImmutableArray();
+                var lvdt = traceBufferList.Select(t => t.Lvdt).ToImmutableArray();
+                var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
 
-                var ecs = traceBufferList.Select(t => t.Ecs).ToList();
-                var nsc = traceBufferList.Select(t => t.Nsc).ToList();
-                var lvdt = traceBufferList.Select(t => t.Lvdt).ToList();
-                var vector = Vector<double>.Build.DenseOfEnumerable(nsc);
-                double currentMax, currentMin;
+                Vector<double> nscIntervalVector;
                 if (ReviewDto.IsNscUseMaxValue)
                 {
-                    var maximumIndex = vector.MaximumIndex();
-                    var subVector = ReviewDto.IsNscUsePositiveSlope
-                        ? vector.SubVectorRange(0, maximumIndex)
-                        : vector.SubVectorRange(maximumIndex, vector.Count - 1);
-                    currentMax = subVector.Maximum();
-                    currentMin = subVector.Minimum();
+                    var nscMaxIndex = nscVector.MaximumIndex();
+                    var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+                    var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+                    nscIntervalVector = ReviewDto.IsNscUsePositiveSlope
+                        ? nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex)
+                        : nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
                 }
                 else
                 {
-                    var minimumIndex = vector.MinimumIndex();
-                    var subVector = ReviewDto.IsNscUsePositiveSlope
-                        ? vector.SubVectorRange(minimumIndex, vector.Count - 1)
-                        : vector.SubVectorRange(0, minimumIndex);
-                    currentMax = subVector.Maximum();
-                    currentMin = subVector.Minimum();
+                    var nscMinIndex = nscVector.MinimumIndex();
+                    var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+                    var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+                    nscIntervalVector = ReviewDto.IsNscUsePositiveSlope
+                        ? nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex)
+                        : nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
                 }
 
-                var currentNscOffset = (currentMax + currentMin) / 2;
-                var currentNscGain = Cache.NscStandardValue / (currentMax - currentNscOffset);
-                var abBrightnessResult = Cache.ReviewThresholdNMin < na && na < Cache.ReviewThresholdNMax &&
-                                         Cache.ReviewThresholdNMin < nb && nb < Cache.ReviewThresholdNMax &&
-                                         Cache.ReviewThresholdFMin < fa && fa < Cache.ReviewThresholdFMax &&
-                                         Cache.ReviewThresholdFMin < fb && fb < Cache.ReviewThresholdFMax;
-                var offsetIsOk = Math.Abs(currentNscOffset) <= Cache.CalibrationNscCenterOffset;
-                var gainIsOk = Math.Abs(currentMax - Cache.NscStandardValue) <= Cache.CalibrationNscSideOffset &&
-                               Math.Abs(currentMin + Cache.NscStandardValue) <= Cache.CalibrationNscSideOffset;
-                var compensationCoefficientResult = offsetIsOk && gainIsOk;
+                var nscMax = nscIntervalVector.Maximum();
+                var nscMin = nscIntervalVector.Minimum();
+                var currentNscPerNm = Math.Abs((nscMax - nscMin) / ReviewDto.EcsToNmRange);
+                var currentSymmetryRatio = Math.Abs(nscMax / nscMin);
 
-                var result = abBrightnessResult && compensationCoefficientResult;
+                var faIsOk = Cache.ReviewThresholdFMin < fa && fa < Cache.ReviewThresholdFMax;
+                var naIsOk = Cache.ReviewThresholdNMin < na && na < Cache.ReviewThresholdNMax;
+                var fbIsOk = Cache.ReviewThresholdFMin < fb && fb < Cache.ReviewThresholdFMax;
+                var nbIsOk = Cache.ReviewThresholdNMin < nb && nb < Cache.ReviewThresholdNMax;
 
-                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                var perNmIsOk = Math.Abs(Cache.NscStandardNscPerNm - currentNscPerNm) <= Cache.CalibrationThresholdNscNscPerNmRange;
+                var symmetryRatioIsOk = currentSymmetryRatio <= Cache.CalibrationThresholdNscSymmetryRatio;
+                var result = faIsOk && naIsOk && fbIsOk && nbIsOk && perNmIsOk && symmetryRatioIsOk;
+
+                var htmlBullet = new HtmlBullet(new
                 {
                     ReviewDto.CurrentA,
                     ReviewDto.CurrentB,
                     ReviewDto.NscOffset,
                     ReviewDto.NscGain,
-                    ReviewDto.NscGainReciprocal,
                     Fa = fa,
                     Na = na,
                     Fb = fb,
                     Nb = nb,
                     startEcs,
                     endEcs,
-                    Cache.SpeedEcs,
-                    currentMax,
-                    currentMin,
-                    currentNscOffset,
-                    currentNscGain,
+                    nscMax,
+                    nscMin,
+                    currentNscPerNm,
+                    currentSymmetryRatio,
+                    faIsOk,
+                    naIsOk,
+                    fbIsOk,
+                    nbIsOk,
+                    perNmIsOk,
+                    symmetryRatioIsOk,
                     traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
-                }), HtmlLogUniqueId.LoggingHtml());
+                });
+
+                if (result)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                 ReviewDto.IsVerified = result;
 
@@ -891,7 +979,15 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     return false;
                 }
 
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog($"""
+                                                 Verify: 
+                                                 {nameof(fa)}: {faIsOk}
+                                                 {nameof(na)}: {naIsOk}
+                                                 {nameof(fb)}: {fbIsOk}
+                                                 {nameof(nb)}: {nbIsOk}
+                                                 {nameof(currentNscPerNm)}: {perNmIsOk}
+                                                 {nameof(currentSymmetryRatio)}: {symmetryRatioIsOk}
+                                                 """, DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
                 return result;
             }

@@ -15,6 +15,8 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _findPosition;
 
+    #region Current
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationThresholdFMax), nameof(CalibrationThresholdFMin), nameof(ReviewThresholdFMax), nameof(ReviewThresholdFMin))]
     private double _thresholdIdealFMin = 6000;
@@ -30,15 +32,6 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationThresholdNMax), nameof(CalibrationThresholdNMin), nameof(ReviewThresholdNMax), nameof(ReviewThresholdNMin))]
     private double _thresholdIdealNMax = 22000;
-
-    [ObservableProperty]
-    private double _thresholdCurrentMin;
-
-    [ObservableProperty]
-    private double _thresholdCurrentMax = 550;
-
-    [ObservableProperty]
-    private double _findInterval = 100;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationThresholdFMax), nameof(CalibrationThresholdFMin), nameof(CalibrationThresholdNMax), nameof(CalibrationThresholdNMin))]
@@ -65,29 +58,41 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     public double ReviewThresholdNMax => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d + (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ReviewThresholdRangeRation;
 
     [ObservableProperty]
+    private double _thresholdCurrentMin;
+
+    [ObservableProperty]
+    private double _thresholdCurrentMax = 550;
+
+    [ObservableProperty]
+    private double _findCurrentStep = 100;
+
+    #endregion Current
+
+    #region NSC
+
+    [ObservableProperty]
     private double _halfEcsLength = 250;
 
-    /// <summary>
-    /// Ecs/s
-    /// </summary>
     [ObservableProperty]
-    private double _speedEcs = 100;
+    private double _speedEcsPerSecond = 100;
 
     [ObservableProperty]
-    private double _nscStandardValue = 5000;
+    private double _nscStandardNscPerNm = 1;
 
     [ObservableProperty]
-    private double _calibrationNscCenterOffset = 150;
+    private double _thresholdNscStandardSymmetryRatio = 1.5;
 
     [ObservableProperty]
-    private double _calibrationNscSideOffset = 500;
+    private double _thresholdNscStandardGain = 1.5;
 
     [ObservableProperty]
-    private double _thresholdNscStandardCenterOffset = 1000;
+    private double _calibrationThresholdNscSymmetryRatio = 1.1;
 
     [ObservableProperty]
-    private double _thresholdNscStandardGain = 1.4;
+    private double _calibrationThresholdNscNscPerNmRange = 0.005;
 
     [ObservableProperty]
     private int _retryCount = 5;
+
+    #endregion NSC
 }

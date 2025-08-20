@@ -83,7 +83,7 @@
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ThresholdNscStandardCenterOffset}" />
+                                          Value="{Binding Cache.ThresholdNscStandardSymmetryMaxRatio}" />
                         <hc:NumericUpDown Width="275"
                                           hc:InfoElement.Title="Threshold Nsc Gain: "
                                           hc:TitleElement.TitleWidth="180"
