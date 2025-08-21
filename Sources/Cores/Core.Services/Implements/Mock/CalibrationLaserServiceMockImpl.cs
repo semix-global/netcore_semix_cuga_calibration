@@ -153,6 +153,16 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAodWaveParamDto generatePrescanAodWaveParamDto)
+    {
+        return _calibrationLaserServiceImpl.GeneratePrescanAodWaveList(opticsMagTypeEnum, generatePrescanAodWaveParamDto);
+    }
+
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto)
+    {
+        return _calibrationLaserServiceImpl.GenerateChirpAodWaveList(opticsMagTypeEnum, generateChirpAodWaveParamDto);
+    }
+
     public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)
     {
         Thread.Sleep(100);

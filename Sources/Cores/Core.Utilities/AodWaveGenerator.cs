@@ -6,11 +6,9 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
-using System.IO;
 using Complex = System.Numerics.Complex;
 
-// ReSharper disable once CheckNamespace
-namespace Net.Utilities.Algorithms.ModulesTest;
+namespace Core.Utilities;
 
 public static class AodWaveGenerator
 {
@@ -383,7 +381,8 @@ public static class AodWaveGenerator
             FunctionMonotonicTypeEnum.Flatness => $"{readonlyCenterFrequency:0.###}Mhz_{readonlyCenterFrequency:0.###}Mhz",
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(functionMonotonicTypeEnum))
         };
-        // $总byte长度$补零个数$不知道含义$下发寄存器号（02prescan，03chirp）
+
+        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
         var aodWaveFileName = soundPacketLengthNullable is not null
             ? $"chirp" +
               $"_{soundPacketLengthNullable.Value:0.###}mm" +
@@ -391,31 +390,25 @@ public static class AodWaveGenerator
               $"_{frequencyFileName}" +
               $"_{flatnessTime:0.###}ns" +
               $"_{amplitude:0.###}AMP" +
-              $"_{offsetFrequency:0.###}offsetFrequency" +
-              $"_{offsetFrequencyPeriodMultiple:0.###}offsetFrequencyPeriodMultiple" +
               $"_{astigmatismCompensationCoefficient:0.###############}astigmatism" +
               $"_{sphericalAberrationCompensationCoefficient:0.###############}sphericalAberration" +
               $"_{secondaryAstigmatismCompensationCoefficient:0.###############}secondaryAstigmatism" +
               $"_{comaCompensationCoefficient:0.###############}coma" +
               $"_{trefoilCompensationCoefficient:0.###############}trefoil" +
               $"_{quadrafoilCompensationCoefficient:0.###############}quadrafoil" +
-              $"_{numberOfSamples}Count" +
-              $"${numberOfSamples}${zeroSampleCount}$600$03$.txt"
+              $"${numberOfSamples + zeroSampleCount}${zeroSampleCount}$600$03${offsetFrequency:0.###}${offsetFrequencyPeriodMultiple:0.###}$.txt"
             : $"prescan" +
               $"_{readonlyBandWidth:0.###}BWMhz" +
               $"_{frequencyFileName}" +
               $"_{flatnessTime:0.###}ns" +
               $"_{amplitude:0.###}AMP" +
-              $"_{offsetFrequency:0.###}offsetFrequency" +
-              $"_{offsetFrequencyPeriodMultiple:0.###}offsetFrequencyPeriodMultiple" +
               $"_{astigmatismCompensationCoefficient:0.###############}astigmatism" +
               $"_{sphericalAberrationCompensationCoefficient:0.###############}sphericalAberration" +
               $"_{secondaryAstigmatismCompensationCoefficient:0.###############}secondaryAstigmatism" +
               $"_{comaCompensationCoefficient:0.###############}coma" +
               $"_{trefoilCompensationCoefficient:0.###############}trefoil" +
               $"_{quadrafoilCompensationCoefficient:0.###############}quadrafoil" +
-              $"_{numberOfSamples}Count" +
-              $"${numberOfSamples}${zeroSampleCount}$600$02$.txt";
+              $"${numberOfSamples + zeroSampleCount}${zeroSampleCount}$600$02${offsetFrequency:0.###}${offsetFrequencyPeriodMultiple:0.###}$.txt";
 
         #endregion 文件
 
@@ -787,7 +780,7 @@ public static class AodWaveGenerator
             var headerPhases = dHeaderPhases.IntegrateCumulative();
             var dFlatnessPhases = 2 * Math.PI * dFlatnessFrequencies * dt;
             var flatnessPhases = dFlatnessPhases.IntegrateCumulative();
-            if (currentOffsetFrequency != 0) flatnessPhases += 2D * Math.PI * dFlatnessFrequencies * currentOffsetFrequencyPeriodMultiple * 1D / currentOffsetFrequency;
+            if (currentOffsetFrequency != 0) flatnessPhases += 2 * Math.PI * dFlatnessFrequencies * currentOffsetFrequencyPeriodMultiple * 1 / currentOffsetFrequency;
             var dFooterPhases = 2 * Math.PI * dFooterFrequencies * dt;
             var footerPhases = dFooterPhases.IntegrateCumulative();
 

@@ -19,6 +19,12 @@ public partial class AODWaveformProfile : ObservableObject
     [NotifyPropertyChangedFor(nameof(TotalSampleCount))]
     private int _zeroSampleCount;
 
+    [ObservableProperty]
+    private double _offsetFrequency;
+
+    [ObservableProperty]
+    private double _offsetFrequencyPeriodMultiple;
+
     public int TotalSampleCount => ShortList.Count + ZeroSampleCount;
 
     public IReadOnlyList<short> ShortList
@@ -42,9 +48,11 @@ public partial class AODWaveformProfile : ObservableObject
     partial void OnFilePathChanged(string value)
     {
         var strings = value.Split('$');
-        if (strings.Length < 3) ThrowHelper.ThrowNotSupportedException("filePath name error.");
+        if (strings.Length < 7) ThrowHelper.ThrowNotSupportedException("filePath name error.");
 
         ZeroSampleCount = short.Parse(strings[2]);
+        OffsetFrequency = double.Parse(strings[5]);
+        OffsetFrequencyPeriodMultiple = double.Parse(strings[6]);
 
         var resultString = File.ReadAllLines(value)
             .Select(t => t.Trim())

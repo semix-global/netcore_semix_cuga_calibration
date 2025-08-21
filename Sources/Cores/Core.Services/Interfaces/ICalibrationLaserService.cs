@@ -142,6 +142,26 @@ public interface ICalibrationLaserService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetChirpAODWaveProfileList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfileList);
 
+    #region 波形生成
+
+    /// <summary>
+    /// 根据prescan参数生成prescan波形列表
+    /// </summary>
+    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="generatePrescanAodWaveParamDto">prescan参数</param>
+    /// <returns>prescan波形列表</returns>
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAodWaveParamDto generatePrescanAodWaveParamDto);
+
+    /// <summary>
+    /// 根据chirp参数生成chirp波形列表
+    /// </summary>
+    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="generateChirpAodWaveParamDto">chirp参数</param>
+    /// <returns>chirp波形列表</returns>
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto);
+
+    #endregion
+
     #endregion 任意波形发生器Arbitrary Waveform Generator
 
     #region 暗场相机CIB
@@ -165,6 +185,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="enable">是否自动增益</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -176,6 +197,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="cibProfileModeEnum">数据显示模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -187,6 +209,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="enable">是否Mark模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -198,6 +221,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="enable">是否自动L0k</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -209,6 +233,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="gain">增益</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
