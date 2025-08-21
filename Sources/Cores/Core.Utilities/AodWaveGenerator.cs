@@ -6,11 +6,9 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
-using System.IO;
 using Complex = System.Numerics.Complex;
 
-// ReSharper disable once CheckNamespace
-namespace Net.Utilities.Algorithms.ModulesTest;
+namespace Core.Utilities;
 
 public static class AodWaveGenerator
 {

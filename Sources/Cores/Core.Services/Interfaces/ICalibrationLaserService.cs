@@ -165,6 +165,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="enable">是否自动增益</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -176,6 +177,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="cibProfileModeEnum">数据显示模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -187,6 +189,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="enable">是否Mark模式</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -198,6 +201,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="enable">是否自动L0k</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>
@@ -209,6 +213,7 @@ public interface ICalibrationLaserService
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
     /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
     /// <param name="gain">增益</param>
     /// <param name="pmtId">PMT ID</param>
     /// <param name="channelId">Channel ID</param>

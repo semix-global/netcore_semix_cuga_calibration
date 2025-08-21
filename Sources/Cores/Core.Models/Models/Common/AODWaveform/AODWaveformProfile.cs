@@ -11,6 +11,9 @@ public partial class AODWaveformProfile : ObservableObject
 
     [ObservableProperty]
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+    
+    [ObservableProperty]
+    private double _phaseDelay;
 
     [ObservableProperty]
     private string _filePath = string.Empty;
