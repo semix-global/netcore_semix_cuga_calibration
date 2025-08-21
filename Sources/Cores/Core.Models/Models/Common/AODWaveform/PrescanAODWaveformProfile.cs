@@ -9,6 +9,8 @@ public sealed class PrescanAODWaveformProfile : AODWaveformProfile, ICloneable<P
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         FilePath = FilePath,
         ZeroSampleCount = ZeroSampleCount,
+        OffsetFrequency = OffsetFrequency,
+        OffsetFrequencyPeriodMultiple = OffsetFrequencyPeriodMultiple,
         ShortList = [.. ShortList],
         ByteList = [.. ByteList]
     };
