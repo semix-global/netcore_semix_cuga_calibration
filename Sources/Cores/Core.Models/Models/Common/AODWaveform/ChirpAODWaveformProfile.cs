@@ -9,6 +9,8 @@ public sealed class ChirpAODWaveformProfile : AODWaveformProfile, ICloneable<Chi
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         FilePath = FilePath,
         ZeroSampleCount = ZeroSampleCount,
+        OffsetFrequency = OffsetFrequency,
+        OffsetFrequencyPeriodMultiple = OffsetFrequencyPeriodMultiple,
         ShortList = [.. ShortList],
         ByteList = [.. ByteList]
     };
