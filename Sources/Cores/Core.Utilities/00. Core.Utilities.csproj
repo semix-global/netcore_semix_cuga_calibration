@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FreeSql" />
+        <PackageReference Include="FreeSql.Repository" />
+        <PackageReference Include="FreeSql.Provider.Sqlite" />
+
         <PackageReference Include="Net.Utilities.Mapper" />
         <PackageReference Include="Net.Utilities.Models" />
         <PackageReference Include="Net.Utilities.DataAnnotations" />
