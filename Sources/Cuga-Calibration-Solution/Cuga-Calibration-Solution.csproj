@@ -9,7 +9,6 @@
         <StartupObject>CugaCalibration.App</StartupObject>
         <ApplicationIcon>Assets\Images\CugaCalibration.ico</ApplicationIcon>
         <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsPreviewNamespaces>
-        <LangVersion>preview</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
