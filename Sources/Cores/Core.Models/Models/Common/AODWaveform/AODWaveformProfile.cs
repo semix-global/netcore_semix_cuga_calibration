@@ -1,11 +1,16 @@
+using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
 public partial class AODWaveformProfile : ObservableObject
 {
+    private double _offsetFrequency;
+    private double _offsetFrequencyPeriodMultiple;
     private IReadOnlyList<short> _shortList = [];
     private IReadOnlyList<byte> _byteList = [];
 
@@ -19,11 +24,17 @@ public partial class AODWaveformProfile : ObservableObject
     [NotifyPropertyChangedFor(nameof(TotalSampleCount))]
     private int _zeroSampleCount;
 
-    [ObservableProperty]
-    private double _offsetFrequency;
+    public double OffsetFrequency
+    {
+        get => _offsetFrequency;
+        protected set => SetProperty(ref _offsetFrequency, value);
+    }
 
-    [ObservableProperty]
-    private double _offsetFrequencyPeriodMultiple;
+    public double OffsetFrequencyPeriodMultiple
+    {
+        get => _offsetFrequencyPeriodMultiple;
+        protected set => SetProperty(ref _offsetFrequencyPeriodMultiple, value);
+    }
 
     public int TotalSampleCount => ShortList.Count + ZeroSampleCount;
 
@@ -47,10 +58,11 @@ public partial class AODWaveformProfile : ObservableObject
 
     partial void OnFilePathChanged(string value)
     {
+        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
         var strings = value.Split('$');
-        if (strings.Length < 7) ThrowHelper.ThrowNotSupportedException("filePath name error.");
+        Guard.IsTrue(strings.Length >= 7, "filePath name error.");
 
-        ZeroSampleCount = short.Parse(strings[2]);
+        ZeroSampleCount = int.Parse(strings[2]);
         OffsetFrequency = double.Parse(strings[5]);
         OffsetFrequencyPeriodMultiple = double.Parse(strings[6]);
 
@@ -70,7 +82,7 @@ public partial class AODWaveformProfile : ObservableObject
 
     protected void SetByteList(IReadOnlyList<double> coefficientWindowList)
     {
-        if (ShortList.Count != coefficientWindowList.Count) ThrowHelper.ThrowNotSupportedException("Count is not equal.");
+        Guard.IsTrue(ShortList.Count == coefficientWindowList.Count, "Count is not equal.");
 
         /*
          * double[-1,1]归一化数据需要转换为16-bit或32-bit整数格式进行传输[DSP、FPGA、DAC数模转换器硬件], 目前这个是16-bit PCM(脉冲编码调制)格式
@@ -110,5 +122,30 @@ public partial class AODWaveformProfile : ObservableObject
         }
 
         ByteList = result;
+    }
+
+    protected string Save(string directoryPath)
+    {
+        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
+        var strings = FilePath.Split('$');
+        Guard.IsTrue(strings.Length >= 7, "filePath name error.");
+
+        var registerId = strings[4];
+        var filePath = Path.Combine(directoryPath, EnumHelper.ToDescriptionString(OpticsAODElectrodeEnum), $"{Guid.NewGuid():N}${TotalSampleCount}${ZeroSampleCount}$600${registerId}${OffsetFrequency:0.###}${OffsetFrequencyPeriodMultiple:0.###}$.txt");
+        FileHelper.DeleteFileIfExists(filePath);
+        DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
+
+        Guard.IsTrue(ShortList.Count * 2 == ByteList.Count, "Count is not equal.");
+
+        var stringBuilder = new StringBuilder();
+        for (var i = 0; i < ByteList.Count; i += 2)
+        {
+            stringBuilder.AppendFormat("{0:X2}{1:X2}", ByteList[i], ByteList[i + 1]);
+            stringBuilder.AppendLine();
+        }
+
+        File.WriteAllText(filePath, stringBuilder.ToString());
+
+        return filePath;
     }
 }
