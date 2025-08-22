@@ -10,9 +10,9 @@
 
     <PropertyGroup>
         <LangVersion>12.0</LangVersion>
-        <Version>2.1.0705</Version>
-        <AssemblyVersion>2.1.0.0705</AssemblyVersion>
-        <FileVersion>2.1.0.0705</FileVersion>
+        <Version>2.1.0822</Version>
+        <AssemblyVersion>2.1.0.0822</AssemblyVersion>
+        <FileVersion>2.1.0.0822</FileVersion>
     </PropertyGroup>
 
 </Project>
