@@ -2,8 +2,16 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public sealed class PrescanAODWaveformProfile : AODWaveformProfile, ICloneable<PrescanAODWaveformProfile>
+public sealed class PrescanAODWaveformProfile : AODWaveformProfile, IAdaptTo<PrescanAODWaveformResult>, ICloneable<PrescanAODWaveformProfile>
 {
+    internal PrescanAODWaveformProfile()
+    {
+    }
+
+    public PrescanAODWaveformResult AdaptTo() => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, FilePath);
+
+    public PrescanAODWaveformResult AdaptTo(string directoryPath)=> AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, Save(directoryPath));
+
     public PrescanAODWaveformProfile Clone() => new()
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
