@@ -122,3 +122,41 @@
 >   2.   自动化校准：stagemap
 >   3.   Laser校准：auto focus 2.0、agc delay1.0
 >   4.   设置：配方数据库分离 标准库替换 
+
+## 2.1.0.0822
+
+>   1.   优化：
+>
+>        11# AODtraing添加lightpoint strehl ratio  、 StrehlRatio
+>
+>        12# AGC 优化(修改并发方式) 2.0.10版本net utilities更新 
+>
+>        22# 长扫图3G 以上 内存开销小速度快分割匹配的方法 
+>
+>        25# 双电极AOD算法 
+>
+>        28# 自动化校准采图模式：agc 反差， agc开关，Gain 设置 LOK等、 添加calchip不判断是否有晶圆 、 修改agc等自动化接口
+>
+>        29# 多电极版本、散光临时修改算法为mtf
+>
+>        30# wafermap转机械坐标、增加review
+>
+>        35# 校准采图接口长扫图不报错fix，截取模板光强固定fix
+>
+>        37# 多电极波形生成、 多电极结果集的保存和互转
+>
+>        Feature/dev stagemap bugfix
+>
+>        采图方法应用setting af参数
+>
+>   2.   校准：
+>
+>        21# calchip2.0/采图模式配置/重命名/倍镜反序列化映射写入
+>
+>        23# 动态配置倍镜、 B3镜头动态配置的bug修复
+>
+>        26# 均匀性校准改为单光斑
+>
+>        27# CalChip2.0
+>
+>        31# microscope、chuck傻瓜化，倍镜动态配置bug修复，calchip rtfc
