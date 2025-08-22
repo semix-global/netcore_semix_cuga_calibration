@@ -574,6 +574,9 @@ public sealed partial class CalibrationLaserServiceImpl(
             _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
         };
 
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is not 3", []);
+
         // 获得stageMap两点x像素间隔（剪裁小图的宽度width）
         var heightPixelOfByte = height * 2;
         var splitImageLength = xWidthPixel * heightPixelOfByte;
