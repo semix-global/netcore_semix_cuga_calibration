@@ -1,30 +1,26 @@
-fileNames = ["C:\Users\DELL\Desktop\Test\17.txt",
-"C:\Users\DELL\Desktop\Test\16.txt",
-"C:\Users\DELL\Desktop\Test\15.txt",
-"C:\Users\DELL\Desktop\Test\14.txt",
-"C:\Users\DELL\Desktop\Test\13.txt",
-"C:\Users\DELL\Desktop\Test\12.txt",
-"C:\Users\DELL\Desktop\Test\11.txt",
-"C:\Users\DELL\Desktop\Test\10.txt",
-"C:\Users\DELL\Desktop\Test\9.txt",
-"C:\Users\DELL\Desktop\Test\8.txt",
-"C:\Users\DELL\Desktop\Test\7.txt",
-"C:\Users\DELL\Desktop\Test\6.txt",
-"C:\Users\DELL\Desktop\Test\5.txt",
-"C:\Users\DELL\Desktop\Test\4.txt",
-"C:\Users\DELL\Desktop\Test\3.txt",
-"C:\Users\DELL\Desktop\Test\2.txt",
-"C:\Users\DELL\Desktop\Test\1.txt"]
+fileNames = ["C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\0.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\1.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\2.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\3.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\4.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\5.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\6.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\7.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\8.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\9.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\10.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\11.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\12.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\13.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\14.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\15.txt",
+             "C:\Users\DELL\Desktop\校准数据\ChuckStagemap\清晰度\B2\20250822\16.txt"]
 
 allData = {};  % 存储所有解析后的数组
 
 for i = 1:length(fileNames)
-    % 读取文件内容
-    fileContent = fileread(fileNames{i});
-    
-    % 解析字符串为数组（假设格式是 "[x, y, z, ...]"）
     try
-        data = jsondecode(fileContent);  % 直接解析 JSON 格式的数组
+        data = readmatrix(fileNames{i});  % 直接解析 JSON 格式的数组
         allData{end+1} = data(:)';  % 确保是行向量并存储
     catch
         error('Failed to parse file: %s', fileNames{i});
