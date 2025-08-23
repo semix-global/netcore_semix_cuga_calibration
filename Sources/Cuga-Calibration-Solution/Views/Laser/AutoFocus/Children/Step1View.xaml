@@ -111,13 +111,13 @@
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdCurrentMax}" />
                     <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Interval: "
+                                      hc:InfoElement.Title="Current Step: "
                                       hc:TitleElement.TitleWidth="100"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Maximum="100"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.FindInterval}" />
+                                      Value="{Binding Cache.FindCurrentStep}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

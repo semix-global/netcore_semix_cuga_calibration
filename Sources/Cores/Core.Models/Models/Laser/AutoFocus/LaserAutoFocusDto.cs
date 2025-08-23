@@ -40,6 +40,9 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     private bool _isNscUsePositiveSlope;
 
     [ObservableProperty]
+    private double _originalSymmetryRatio;
+
+    [ObservableProperty]
     private double _ecsToNmRange;
 
     [ObservableProperty]
@@ -95,6 +98,7 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         Nb = Nb,
         IsNscUseMaxValue = IsNscUseMaxValue,
         IsNscUsePositiveSlope = IsNscUsePositiveSlope,
+        OriginalSymmetryRatio = OriginalSymmetryRatio,
         EcsToNmRange = EcsToNmRange,
         NscStandard = NscStandard,
         OriginalEcs = [..OriginalEcs],

@@ -43,54 +43,26 @@
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.HalfEcsLength}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Speed Ecs(Ecs/s): "
+                                          hc:InfoElement.Title="Speed Ecs(ecs/s): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.SpeedEcs}" />
+                                          Value="{Binding Cache.SpeedEcsPerSecond}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Nsc Standard: "
+                                          hc:InfoElement.Title="Nsc Standard(nsc/um): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.NscStandardValue}" />
+                                          Value="{Binding Cache.NscStandardNscPerNm}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Retry Count: "
+                                          hc:InfoElement.Title="Threshold Symmetry Ratio: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.RetryCount}" />
-                        <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Calibration Nsc Center Offset: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.CalibrationNscCenterOffset}" />
-                        <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Calibration Nsc Side Offset: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.CalibrationNscSideOffset}" />
-                        <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Threshold Nsc Center Offset: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ThresholdNscStandardSymmetryMaxRatio}" />
-                        <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Threshold Nsc Gain: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ThresholdNscStandardGain}" />
+                                          Value="{Binding Cache.CalibrationThresholdNscSymmetryRatio}" />
                     </hc:UniformSpacingPanel>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
@@ -114,78 +86,72 @@
         <!--#region Right-->
         <Grid Grid.Column="2">
             <GroupBox Header="History">
-                <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding NscStandardList}"
-                          Style="{StaticResource ListView.Small}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding NscStandardSelected, Mode=OneWay}">
-                    <i:Interaction.Behaviors>
-                        <behaviors:ListBoxScrollToCurrentBehavior />
-                    </i:Interaction.Behaviors>
-                    <ListView.ItemContainerStyle>
-                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Setter Property="Height" Value="250" />
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.View>
-                        <GridView>
-                            <GridView.ColumnHeaderContainerStyle>
-                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                </Style>
-                            </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="500" Header="Min, Max, Offset, Gain">
-                                <GridViewColumn.DisplayMemberBinding>
-                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}, {3:f3}" Mode="OneWay">
-                                        <Binding Path="NscCurrentMin" />
-                                        <Binding Path="NscCurrentMax" />
-                                        <Binding Path="NscCurrentOffset" />
-                                        <Binding Path="NscCurrentGain" />
-                                    </MultiBinding>
-                                </GridViewColumn.DisplayMemberBinding>
-                            </GridViewColumn>
-                            <GridViewColumn Width="600" Header="Trans buffer">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <wpf:WpfPlot Width="600"
-                                                     Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                                     d:DataContext="{d:DesignInstance Type=autoFocus:LaserAutoFocusDto}">
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:WpfPlotMultiBehavior Plot0Title="ECS"
-                                                                                Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                                Plot0="{Binding EcsData, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                                Plot1Title="NSC"
-                                                                                Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                                                Plot1="{Binding NscData, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                                Plot2Title="Lvdt"
-                                                                                Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                                Plot2="{Binding LvdtData, Converter={StaticResource DoublesToPointsConverter}}" />
-                                            </i:Interaction.Behaviors>
-                                        </wpf:WpfPlot>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="100"
-                                            Header="Offset"
-                                            DisplayMemberBinding="{Binding NscOffset, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Gain"
-                                            DisplayMemberBinding="{Binding NscGain, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Gain Reciprocal"
-                                            DisplayMemberBinding="{Binding NscGainReciprocal, Mode=OneWay, StringFormat={}{0:f3}}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <TextBox Text="{Binding ResultLaserAutoFocusDto.IsNscUseMaxValue}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Is Use Max: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultLaserAutoFocusDto.IsNscUsePositiveSlope}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Is Use Positive: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultLaserAutoFocusDto.OriginalSymmetryRatio, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Original Symmetry Ratio: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Foreground="{Binding ResultLaserAutoFocusDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultLaserAutoFocusDto.EcsToNmRange, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Z Range(um): "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding ResultLaserAutoFocusDto.NscStandard, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Standard(nsc): "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                        </hc:UniformSpacingPanel>
+                        <wpf:WpfPlot Grid.Row="2">
+                            <i:Interaction.Behaviors>
+                                <behaviors:WpfPlotMultiBehavior Title="Trace Buffer"
+                                                                Plot0Title="Original ECS"
+                                                                Plot0Color="{x:Static scottPlot:Colors.LightGreen}"
+                                                                Plot0="{Binding ResultLaserAutoFocusDto.OriginalEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot1Title="Original NSC"
+                                                                Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
+                                                                Plot1="{Binding ResultLaserAutoFocusDto.OriginalNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot2Title="Original Lvdt"
+                                                                Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
+                                                                Plot2="{Binding ResultLaserAutoFocusDto.OriginalLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
+                            </i:Interaction.Behaviors>
+                        </wpf:WpfPlot>
+                    </Grid>
+                </Border>
             </GroupBox>
         </Grid>
         <!--#endregion-->

@@ -488,7 +488,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.ThresholdNscStandardGain
             }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlInformation("Get Nsc Profile", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Nsc Profile", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             try
             {
@@ -607,8 +607,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     ResultLaserAutoFocusDto.IsNscUseMaxValue = result.Value.Result.IsNscUseMaxValue;
                     ResultLaserAutoFocusDto.IsNscUsePositiveSlope = result.Value.Result.IsNscUsePositiveSlope;
 
-                    var symmetryRatio = Math.Abs(nscIntervalVector.Maximum() / nscIntervalVector.Minimum());
-                    var isSymmetryOk = symmetryRatio <= Cache.ThresholdNscStandardSymmetryRatio;
+                    ResultLaserAutoFocusDto.OriginalSymmetryRatio = Math.Abs(nscIntervalVector.Maximum() / nscIntervalVector.Minimum());
+                    var isSymmetryOk = ResultLaserAutoFocusDto.OriginalSymmetryRatio <= Cache.ThresholdNscStandardSymmetryRatio;
 
                     ResultLaserAutoFocusDto.EcsToNmRange = (ecsIntervalVector[^1] - ecsIntervalVector[0]) * ecsToNmRatio;
                     ResultLaserAutoFocusDto.NscStandard = ResultLaserAutoFocusDto.EcsToNmRange * Cache.NscStandardNscPerNm;
@@ -620,7 +620,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         startEcs,
                         endEcs,
                         averageEcs,
-                        symmetryRatio,
+                        ResultLaserAutoFocusDto.OriginalSymmetryRatio,
                         isSymmetryOk,
                         isOverflow,
                         ResultLaserAutoFocusDto.IsNscUseMaxValue,
