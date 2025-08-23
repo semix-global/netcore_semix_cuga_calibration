@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
@@ -49,13 +48,13 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     private double _nscStandard;
 
     [ObservableProperty]
-    private ImmutableArray<double> _originalEcs = [];
+    private IReadOnlyList<double> _originalEcs = [];
 
     [ObservableProperty]
-    private ImmutableArray<double> _originalNsc = [];
+    private IReadOnlyList<double> _originalNsc = [];
 
     [ObservableProperty]
-    private ImmutableArray<double> _originalLvdt = [];
+    private IReadOnlyList<double> _originalLvdt = [];
 
     #endregion NSC Profile
 
@@ -74,13 +73,13 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     private double _nscCurrentSymmetryRatio;
 
     [ObservableProperty]
-    private ImmutableArray<double> _calibrationEcs = [];
+    private IReadOnlyList<double> _calibrationEcs = [];
 
     [ObservableProperty]
-    private ImmutableArray<double> _calibrationNsc = [];
+    private IReadOnlyList<double> _calibrationNsc = [];
 
     [ObservableProperty]
-    private ImmutableArray<double> _calibrationLvdt = [];
+    private IReadOnlyList<double> _calibrationLvdt = [];
 
     #endregion NscGain
 

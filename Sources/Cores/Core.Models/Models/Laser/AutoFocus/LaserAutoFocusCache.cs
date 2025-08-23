@@ -35,7 +35,7 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationThresholdFMax), nameof(CalibrationThresholdFMin), nameof(CalibrationThresholdNMax), nameof(CalibrationThresholdNMin))]
-    private double _calibrationThresholdRangeRation = 0.8;
+    private double _calibrationThresholdRangeRation = 0.5;
 
     public double CalibrationThresholdFMin => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d - (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * CalibrationThresholdRangeRation;
 
@@ -61,7 +61,7 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private double _thresholdCurrentMin;
 
     [ObservableProperty]
-    private double _thresholdCurrentMax = 550;
+    private double _thresholdCurrentMax = 5500;
 
     [ObservableProperty]
     private double _findCurrentStep = 100;
@@ -74,7 +74,7 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private double _halfEcsLength = 250;
 
     [ObservableProperty]
-    private double _speedEcsPerSecond = 100;
+    private double _speedEcsPerSecond = 500;
 
     [ObservableProperty]
     private double _nscStandardNscPerNm = 1;
@@ -86,13 +86,13 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private double _thresholdNscStandardGain = 1.5;
 
     [ObservableProperty]
-    private double _calibrationThresholdNscSymmetryRatio = 1.1;
+    private double _calibrationThresholdNscSymmetryRatio = 1.01;
 
     [ObservableProperty]
     private double _calibrationThresholdNscNscPerNmRange = 0.005;
 
     [ObservableProperty]
-    private int _retryCount = 5;
+    private int _retryCount = 10;
 
     #endregion NSC
 }

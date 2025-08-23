@@ -74,7 +74,7 @@
                                           hc:InfoElement.Title="Calibration Symmetry Ratio: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0"
+                                          Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.CalibrationThresholdNscSymmetryRatio}" />
                         <hc:NumericUpDown Width="275"
@@ -89,11 +89,11 @@
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
+                                Command="{Binding Step3CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
+                                Command="{Binding Step3CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
@@ -136,9 +136,10 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="500" Header="Offset, Gain, nsc/um, Symmetry Ratio">
+                            <GridViewColumn Width="310" Header="Standard, Offset, Gain, nsc/um, Symmetry Ratio">
                                 <GridViewColumn.DisplayMemberBinding>
-                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}, {3:f3}" Mode="OneWay">
+                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}, {3:f3}, {4:f3}" Mode="OneWay">
+                                        <Binding Path="NscStandard" />
                                         <Binding Path="NscOffset" />
                                         <Binding Path="NscGain" />
                                         <Binding Path="NscCurrentNscPerNm" />

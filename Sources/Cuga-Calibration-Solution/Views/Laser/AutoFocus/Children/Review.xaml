@@ -40,6 +40,7 @@
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
+                                      Maximum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ReviewThresholdRangeRation}" />
                     <hc:NumericUpDown Width="275"
@@ -99,19 +100,19 @@
                         </TextBox.Text>
                     </TextBox>
                     <hc:NumericUpDown Width="275"
+                                      hc:InfoElement.Title="Calibration Range (nsc/um): "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.CalibrationThresholdNscNscPerNmRange}" />
+                    <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="Calibration Symmetry Ratio: "
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="0"
+                                      Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.CalibrationThresholdNscSymmetryRatio}" />
-                    <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Threshold Gain: "
-                                      hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ThresholdNscStandardGain}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -140,10 +141,15 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="5" />
+                            <RowDefinition Height="2" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <UniformGrid Columns="2">
+                            <UniformGrid.Resources>
+                                <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                    <Setter Property="Margin" Value="5" />
+                                </Style>
+                            </UniformGrid.Resources>
                             <TextBox Text="{Binding ReviewDto.CurrentA, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -151,8 +157,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Na, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -160,8 +165,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Fa, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -169,8 +173,8 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBlock />
                             <TextBox Text="{Binding ReviewDto.CurrentB, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -178,8 +182,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Nb, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -187,8 +190,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Fb, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -196,8 +198,8 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBlock />
                             <TextBox Text="{Binding ReviewDto.IsNscUseMaxValue}"
                                      Width="375"
                                      Height="25"
@@ -205,8 +207,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.IsNscUsePositiveSlope}"
                                      Width="375"
                                      Height="25"
@@ -214,8 +215,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.OriginalSymmetryRatio, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -223,17 +223,15 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.EcsToNmRange, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
-                                     hc:InfoElement.Title="Nsc Z Range(um): "
+                                     hc:InfoElement.Title="Ecs Range(um): "
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.NscStandard, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -241,8 +239,8 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBlock />
                             <TextBox Text="{Binding ReviewDto.NscOffset, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -250,8 +248,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.NscGain, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -259,8 +256,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.NscCurrentNscPerNm, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -268,8 +264,7 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.NscCurrentSymmetryRatio, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
@@ -277,9 +272,8 @@
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                        </UniformGrid>
                         <wpf:WpfPlot Grid.Row="2">
                             <i:Interaction.Behaviors>
                                 <behaviors:WpfPlotMultiBehavior Title="Trace Buffer"

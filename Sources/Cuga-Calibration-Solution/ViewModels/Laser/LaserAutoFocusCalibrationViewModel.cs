@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -513,14 +512,14 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 await Task.Delay(100, cancellationToken);
 
                 var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
-                var ecs = traceBufferList.Select(t => t.Ecs).ToImmutableArray();
-                var nsc = traceBufferList.Select(t => t.Nsc).ToImmutableArray();
-                var lvdt = traceBufferList.Select(t => t.Lvdt).ToImmutableArray();
+                var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
+                var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
+                var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
                 var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
                 var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
                 var nscMinIndex = nscVector.MinimumIndex();
                 var nscMaxIndex = nscVector.MaximumIndex();
-                Guard.IsEqualTo(nscMinIndex, nscMaxIndex, "nsc curve is a error");
+                Guard.IsNotEqualTo(nscMinIndex, nscMaxIndex, "nsc curve is a error");
 
                 double nscLeftIntervalLeftEndpointValue, nscRightIntervalRightEndpointValue;
                 Vector<double> nscLeftIntervalVector, nscMiddleIntervalVector, nscRightIntervalVector;
@@ -606,14 +605,15 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     ResultLaserAutoFocusDto.IsNscUseMaxValue = result.Value.Result.IsNscUseMaxValue;
                     ResultLaserAutoFocusDto.IsNscUsePositiveSlope = result.Value.Result.IsNscUsePositiveSlope;
-
-                    ResultLaserAutoFocusDto.OriginalSymmetryRatio = Math.Abs(nscIntervalVector.Maximum() / nscIntervalVector.Minimum());
+                    var nscAbsMax = Math.Abs(nscIntervalVector.Maximum());
+                    var nscAbsMin = Math.Abs(nscIntervalVector.Minimum());
+                    ResultLaserAutoFocusDto.OriginalSymmetryRatio = nscAbsMax >= nscAbsMin ? nscAbsMax / nscAbsMin : nscAbsMin / nscAbsMax;
                     var isSymmetryOk = ResultLaserAutoFocusDto.OriginalSymmetryRatio <= Cache.ThresholdNscStandardSymmetryRatio;
 
                     ResultLaserAutoFocusDto.EcsToNmRange = (ecsIntervalVector[^1] - ecsIntervalVector[0]) * ecsToNmRatio;
                     ResultLaserAutoFocusDto.NscStandard = ResultLaserAutoFocusDto.EcsToNmRange * Cache.NscStandardNscPerNm;
 
-                    var isOverflow = ResultLaserAutoFocusDto.NscStandard > short.MaxValue * 0.8;
+                    var isNotOverflow = (ResultLaserAutoFocusDto.NscStandard / 2) <= short.MaxValue * 0.9;
 
                     var htmlBullet = new HtmlBullet(new
                     {
@@ -622,7 +622,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         averageEcs,
                         ResultLaserAutoFocusDto.OriginalSymmetryRatio,
                         isSymmetryOk,
-                        isOverflow,
+                        isNotOverflow,
                         ResultLaserAutoFocusDto.IsNscUseMaxValue,
                         ResultLaserAutoFocusDto.IsNscUsePositiveSlope,
                         ResultLaserAutoFocusDto.EcsToNmRange,
@@ -630,7 +630,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                     });
 
-                    if (isSymmetryOk && isOverflow)
+                    if (isSymmetryOk && isNotOverflow)
                     {
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                         return true;
@@ -722,9 +722,9 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     await Task.Delay(100, cancellationToken);
 
                     var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
-                    var ecs = traceBufferList.Select(t => t.Ecs).ToImmutableArray();
-                    var nsc = traceBufferList.Select(t => t.Nsc).ToImmutableArray();
-                    var lvdt = traceBufferList.Select(t => t.Lvdt).ToImmutableArray();
+                    var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
+                    var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
+                    var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
                     var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
 
                     Vector<double> nscIntervalVector;
@@ -749,11 +749,13 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     var nscMax = nscIntervalVector.Maximum();
                     var nscMin = nscIntervalVector.Minimum();
+                    var nscAbsMax = Math.Abs(nscIntervalVector.Maximum());
+                    var nscAbsMin = Math.Abs(nscIntervalVector.Minimum());
 
                     var currentNscPerNm = Math.Abs((nscMax - nscMin) / ResultLaserAutoFocusDto.EcsToNmRange);
-                    var currentSymmetryRatio = Math.Abs(nscMax / nscMin);
+                    var currentSymmetryRatio = nscAbsMax >= nscAbsMin ? nscAbsMax / nscAbsMin : nscAbsMin / nscAbsMax;
                     var currentOffset = (nscMax + nscMin) / 2;
-                    var currentGain = ResultLaserAutoFocusDto.NscStandard / (nscMax - currentOffset);
+                    var currentGain = ResultLaserAutoFocusDto.NscStandard / (nscMax - nscMin);
 
                     var perNmIsOk = Math.Abs(Cache.NscStandardNscPerNm - currentNscPerNm) <= Cache.CalibrationThresholdNscNscPerNmRange;
                     var symmetryRatioIsOk = currentSymmetryRatio <= Cache.CalibrationThresholdNscSymmetryRatio;
@@ -763,6 +765,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                     var item = new LaserAutoFocusDto
                     {
+                        NscStandard = ResultLaserAutoFocusDto.NscStandard,
                         NscOffset = offset,
                         NscGain = gain,
                         NscCurrentNscPerNm = currentNscPerNm,
@@ -901,9 +904,9 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 var startEcs = averageEcs - Cache.HalfEcsLength;
                 var endEcs = averageEcs + Cache.HalfEcsLength;
                 var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
-                var ecs = traceBufferList.Select(t => t.Ecs).ToImmutableArray();
-                var nsc = traceBufferList.Select(t => t.Nsc).ToImmutableArray();
-                var lvdt = traceBufferList.Select(t => t.Lvdt).ToImmutableArray();
+                var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
+                var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
+                var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
                 var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
 
                 Vector<double> nscIntervalVector;
