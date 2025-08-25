@@ -15,61 +15,84 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _findPosition;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThresholdFMax), nameof(ThresholdFMin), nameof(ThresholdNMax), nameof(ThresholdNMin))]
-    private double _thresholdRangeRatio = 0.8;
+    #region Current
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThresholdFMax), nameof(ThresholdFMin))]
+    [NotifyPropertyChangedFor(nameof(CalibrationThresholdFMax), nameof(CalibrationThresholdFMin), nameof(ReviewThresholdFMax), nameof(ReviewThresholdFMin))]
     private double _thresholdIdealFMin = 6000;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThresholdFMax), nameof(ThresholdFMin))]
+    [NotifyPropertyChangedFor(nameof(CalibrationThresholdFMax), nameof(CalibrationThresholdFMin), nameof(ReviewThresholdFMax), nameof(ReviewThresholdFMin))]
     private double _thresholdIdealFMax = 14000;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThresholdNMax), nameof(ThresholdNMin))]
+    [NotifyPropertyChangedFor(nameof(CalibrationThresholdNMax), nameof(CalibrationThresholdNMin), nameof(ReviewThresholdNMax), nameof(ReviewThresholdNMin))]
     private double _thresholdIdealNMin = 18000;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ThresholdNMax), nameof(ThresholdNMin))]
+    [NotifyPropertyChangedFor(nameof(CalibrationThresholdNMax), nameof(CalibrationThresholdNMin), nameof(ReviewThresholdNMax), nameof(ReviewThresholdNMin))]
     private double _thresholdIdealNMax = 22000;
 
-    public double ThresholdFMin => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d - (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * ThresholdRangeRatio;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CalibrationThresholdFMax), nameof(CalibrationThresholdFMin), nameof(CalibrationThresholdNMax), nameof(CalibrationThresholdNMin))]
+    private double _calibrationThresholdRangeRation = 0.5;
 
-    public double ThresholdFMax => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d + (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * ThresholdRangeRatio;
+    public double CalibrationThresholdFMin => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d - (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * CalibrationThresholdRangeRation;
 
-    public double ThresholdNMin => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d - (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ThresholdRangeRatio;
+    public double CalibrationThresholdFMax => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d + (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * CalibrationThresholdRangeRation;
 
-    public double ThresholdNMax => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d + (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ThresholdRangeRatio;
+    public double CalibrationThresholdNMin => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d - (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * CalibrationThresholdRangeRation;
+
+    public double CalibrationThresholdNMax => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d + (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * CalibrationThresholdRangeRation;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ReviewThresholdFMax), nameof(ReviewThresholdFMin), nameof(ReviewThresholdNMax), nameof(ReviewThresholdNMin))]
+    private double _reviewThresholdRangeRation = 0.8;
+
+    public double ReviewThresholdFMin => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d - (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * ReviewThresholdRangeRation;
+
+    public double ReviewThresholdFMax => (ThresholdIdealFMax + ThresholdIdealFMin) / 2d + (ThresholdIdealFMax - ThresholdIdealFMin) / 2d * ReviewThresholdRangeRation;
+
+    public double ReviewThresholdNMin => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d - (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ReviewThresholdRangeRation;
+
+    public double ReviewThresholdNMax => (ThresholdIdealNMax + ThresholdIdealNMin) / 2d + (ThresholdIdealNMax - ThresholdIdealNMin) / 2d * ReviewThresholdRangeRation;
 
     [ObservableProperty]
     private double _thresholdCurrentMin;
 
     [ObservableProperty]
-    private double _thresholdCurrentMax = 550;
+    private double _thresholdCurrentMax = 5500;
 
     [ObservableProperty]
-    private double _findInterval = 100;
+    private double _findCurrentStep = 100;
+
+    #endregion Current
+
+    #region NSC
 
     [ObservableProperty]
     private double _halfEcsLength = 250;
 
-    /// <summary>
-    /// Ecs/s
-    /// </summary>
     [ObservableProperty]
-    private double _speedEcs = 100;
+    private double _speedEcsPerSecond = 500;
 
     [ObservableProperty]
-    private double _nscStandardValue = 5000;
+    private double _nscStandardNscPerNm = 1;
 
     [ObservableProperty]
-    private double _thresholdNscOffset = 150;
+    private double _thresholdNscStandardSymmetryRatio = 1.5;
 
     [ObservableProperty]
-    private double _thresholdNscGain = 500;
+    private double _thresholdNscStandardGain = 1.5;
 
     [ObservableProperty]
-    private int _retryCount = 5;
+    private double _calibrationThresholdNscSymmetryRatio = 1.01;
+
+    [ObservableProperty]
+    private double _calibrationThresholdNscNscPerNmRange = 0.005;
+
+    [ObservableProperty]
+    private int _retryCount = 10;
+
+    #endregion NSC
 }

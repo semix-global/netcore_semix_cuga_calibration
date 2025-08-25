@@ -87,7 +87,7 @@ public class CalibrationRecipeServiceImpl(
             if (isAutoAlignment && GetWaferMapOffset(out offsetPosition) == false)
                 return false;
             var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
-            var offset =/* (Vector)waferCenterBrightFieldPosition +*/ (Vector)new Point(xDirection * offsetPosition.X, yDirection * offsetPosition.Y);
+            var offset = /* (Vector)waferCenterBrightFieldPosition +*/ (Vector)new Point(xDirection * offsetPosition.X, yDirection * offsetPosition.Y);
 
             waferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint
                                                                           + offset;
@@ -203,7 +203,7 @@ public class CalibrationRecipeServiceImpl(
             var scribeSize = waferMapDocument.ReticleBuilder.DieScribeSize;
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
                                                      + ((Vector)waferPosition
-                                                     - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
+                                                        - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
             position = realReticleMaskBrightFieldPosition;
             return true;
         }

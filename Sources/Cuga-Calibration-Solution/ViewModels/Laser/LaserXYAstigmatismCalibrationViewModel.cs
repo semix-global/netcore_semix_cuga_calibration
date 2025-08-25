@@ -861,18 +861,18 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         if (laserXyAstigmatismCalibrationItemDto.Index == 0) Thread.Sleep(1000);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
-                    CalChipSiteModelEnum.ChuckModel,
-                    Cache.GetFindPosition(),
-                    800,
-                    Cache.OpticsMagTypeEnum,
-                    StageSpeedEnum.Low,
-                    8,
-                    StageCoordinateSystemEnum.Dark,
-                    Cache.CIBConfiguration,
-                    (true, null),
-                    false,
-                    isAutoFocus: false,
-                    isRtfc: false);
+            CalChipSiteModelEnum.ChuckModel,
+            Cache.GetFindPosition(),
+            800,
+            Cache.OpticsMagTypeEnum,
+            StageSpeedEnum.Low,
+            8,
+            StageCoordinateSystemEnum.Dark,
+            Cache.CIBConfiguration,
+            (true, null),
+            false,
+            isAutoFocus: false,
+            isRtfc: false);
 
         var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
         var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);
@@ -898,9 +898,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         HalconHelper.Save(channel3DarkFieldImageDto.Image, laserXyAstigmatismCalibrationItemDto.FilePath);
 
         var ch1FilePath =
-           $"{ImageFileDirectory}\\Ch1_ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
+            $"{ImageFileDirectory}\\Ch1_ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
         var ch2FilePath =
-           $"{ImageFileDirectory}\\Ch2_ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
+            $"{ImageFileDirectory}\\Ch2_ECS({laserXyAstigmatismCalibrationItemDto.EcsX})_FrequenceIncrease({laserXyAstigmatismCalibrationItemDto.FrequenceIncrease})_Guid({HtmlLogUniqueId}).jpg";
         HalconHelper.Save(channel1DarkFieldImageDto.Image, ch1FilePath);
         HalconHelper.Save(channel2DarkFieldImageDto.Image, ch2FilePath);
 

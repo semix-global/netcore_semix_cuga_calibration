@@ -44,6 +44,12 @@ public interface ICalibrationAfService
     SxExecuteRet<(bool IsEnable, CalChipSiteModelEnum CalChipSiteModelEnum)> GetBrightFieldStatus();
 
     /// <summary>
+    /// 获取Ecs到Um的转换比率
+    /// </summary>
+    /// <returns>Ecs到Um的转换比率</returns>
+    SxExecuteRet<double> GetEcsToUmRatio();
+
+    /// <summary>
     /// 获取ECS当前值
     /// </summary>
     /// <returns>ECS当前值</returns>

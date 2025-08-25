@@ -417,6 +417,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                     DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
+
                 var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
                 Cache.SetTemplate(templateFilePath, templateImageFilePath, Cache.LowChuckCenterCacheItem.MagnificationInfo);
             }
@@ -973,6 +974,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
             .OrderBy(t => t.Index.X).ToList();
 
         Cache.BaseLowFindPosition = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint;
+
         #region 上低倍
 
         if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowChuckCenterCacheItem.MagnificationInfo, null, out var maskInfoLow) == false)
@@ -993,6 +995,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.LowChuckCenterCacheItem.RightPosition = lowRightPosition;
         Cache.LowChuckCenterCacheItem.RightTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowChuckCenterCacheItem.RightTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+
         #endregion 右边低倍
 
         #region 下边低倍
@@ -1002,6 +1005,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.LowChuckCenterCacheItem.BottomPosition = lowBottomPosition;
         Cache.LowChuckCenterCacheItem.BottomTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowChuckCenterCacheItem.BottomTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+
         #endregion 下边低倍
 
         #region 左边低倍
@@ -1011,6 +1015,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.LowChuckCenterCacheItem.LeftPosition = lowLeftPosition;
         Cache.LowChuckCenterCacheItem.LeftTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowChuckCenterCacheItem.LeftTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+
         #endregion 左边低倍
 
         #region 上高倍
@@ -1030,6 +1035,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.HighChuckCenterCacheItem.RightPosition = highRightPosition;
         Cache.HighChuckCenterCacheItem.RightTemplateFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighChuckCenterCacheItem.RightTemplateImageFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+
         #endregion 右高倍
 
         #region 下高倍
@@ -1038,6 +1044,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.HighChuckCenterCacheItem.BottomPosition = highBottomPosition;
         Cache.HighChuckCenterCacheItem.BottomTemplateFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighChuckCenterCacheItem.BottomTemplateImageFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+
         #endregion 下高倍
 
         #region 左高倍
@@ -1046,6 +1053,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.HighChuckCenterCacheItem.LeftPosition = highLeftPosition;
         Cache.HighChuckCenterCacheItem.LeftTemplateFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighChuckCenterCacheItem.LeftTemplateImageFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+
         #endregion 左高倍
 
         MicroscopeViewModel.SwitchMagnification(Cache.LowChuckCenterCacheItem.MagnificationInfo);

@@ -707,6 +707,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
             var opticsMode = Cache.IsDarkField ? "DarkField" : "BrightField";
             var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new

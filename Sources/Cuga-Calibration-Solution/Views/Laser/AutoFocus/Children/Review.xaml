@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
@@ -37,81 +37,82 @@
                     </StackPanel>
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="Range Ratio: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
+                                      Maximum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ThresholdRangeRatio}" />
+                                      Value="{Binding Cache.ReviewThresholdRangeRation}" />
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="F Min: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdIdealFMin}" />
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="F Max: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdIdealFMax}" />
                     <TextBox Width="275"
                              hc:InfoElement.Title="F Range: "
-                             hc:TitleElement.TitleWidth="150"
+                             hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Background="LightGray"
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.ThresholdFMin" />
-                                <Binding Path="Cache.ThresholdFMax" />
+                                <Binding Path="Cache.ReviewThresholdFMin" />
+                                <Binding Path="Cache.ReviewThresholdFMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="N Min: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdIdealNMin}" />
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="N Max: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdIdealNMax}" />
                     <TextBox Width="275"
                              hc:InfoElement.Title="N Range: "
-                             hc:TitleElement.TitleWidth="150"
+                             hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Background="LightGray"
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.ThresholdNMin" />
-                                <Binding Path="Cache.ThresholdNMax" />
+                                <Binding Path="Cache.ReviewThresholdNMin" />
+                                <Binding Path="Cache.ReviewThresholdNMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>
                     <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Threshold Nsc Offset: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:InfoElement.Title="Calibration Range (nsc/um): "
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ThresholdNscOffset}" />
+                                      Value="{Binding Cache.CalibrationThresholdNscNscPerNmRange}" />
                     <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Threshold Nsc Gain: "
-                                      hc:TitleElement.TitleWidth="150"
+                                      hc:InfoElement.Title="Calibration Symmetry Ratio: "
+                                      hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="0"
+                                      Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ThresholdNscGain}" />
+                                      Value="{Binding Cache.CalibrationThresholdNscSymmetryRatio}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -140,123 +141,161 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="5" />
+                            <RowDefinition Height="2" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <UniformGrid Columns="2">
+                            <UniformGrid.Resources>
+                                <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                    <Setter Property="Margin" Value="5" />
+                                </Style>
+                            </UniformGrid.Resources>
                             <TextBox Text="{Binding ReviewDto.CurrentA, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="CurrentA: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Na, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="NA: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Fa, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="FA: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBlock />
                             <TextBox Text="{Binding ReviewDto.CurrentB, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="CurrentB: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Nb, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="NB: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.Fb, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="FB: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.NscCurrentMax, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBlock />
+                            <TextBox Text="{Binding ReviewDto.IsNscUseMaxValue}"
+                                     Width="375"
                                      Height="25"
-                                     hc:InfoElement.Title="Nsc Max: "
+                                     hc:InfoElement.Title="Nsc Is Use Max: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.NscCurrentMin, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBox Text="{Binding ReviewDto.IsNscUsePositiveSlope}"
+                                     Width="375"
                                      Height="25"
-                                     hc:InfoElement.Title="Nsc Min: "
+                                     hc:InfoElement.Title="Nsc Is Use Positive: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBox Text="{Binding ReviewDto.OriginalSymmetryRatio, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Original Symmetry Ratio: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBox Text="{Binding ReviewDto.EcsToNmRange, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Ecs Range(um): "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBox Text="{Binding ReviewDto.NscStandard, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Standard(nsc): "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBlock />
                             <TextBox Text="{Binding ReviewDto.NscOffset, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="Nsc Offset: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                             <TextBox Text="{Binding ReviewDto.NscGain, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Width="375"
                                      Height="25"
                                      hc:InfoElement.Title="Nsc Gain: "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.NscGainReciprocal, Mode=OneWay, StringFormat={}{0:f3}}"
-                                     Width="275"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBox Text="{Binding ReviewDto.NscCurrentNscPerNm, StringFormat={}{0:f3}}"
+                                     Width="375"
                                      Height="25"
-                                     hc:InfoElement.Title="Nsc Gain Reciprocal: "
+                                     hc:InfoElement.Title="Nsc(nsc/um): "
                                      hc:InfoElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
-                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                            <TextBox Text="{Binding ReviewDto.NscCurrentSymmetryRatio, StringFormat={}{0:f3}}"
+                                     Width="375"
+                                     Height="25"
+                                     hc:InfoElement.Title="Nsc Symmetry Ratio: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsReadOnly="True"
+                                     Foreground="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
+                        </UniformGrid>
                         <wpf:WpfPlot Grid.Row="2">
-                            <b:Interaction.Behaviors>
+                            <i:Interaction.Behaviors>
                                 <behaviors:WpfPlotMultiBehavior Title="Trace Buffer"
-                                                                Plot0Title="ECS"
-                                                                Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                Plot0="{Binding ReviewDto.EcsData, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot1Title="NSC"
+                                                                Plot0Title="Original ECS"
+                                                                Plot0Color="{x:Static scottPlot:Colors.LightGreen}"
+                                                                Plot0="{Binding ReviewDto.OriginalEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot1Title="Original NSC"
                                                                 Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                                Plot1="{Binding ReviewDto.NscData, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot2Title="Lvdt"
+                                                                Plot1="{Binding ReviewDto.OriginalNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot2Title="Original Lvdt"
                                                                 Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                Plot2="{Binding ReviewDto.LvdtData, Converter={StaticResource DoublesToPointsConverter}}" />
-                            </b:Interaction.Behaviors>
+                                                                Plot2="{Binding ReviewDto.OriginalLvdt, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot3Title="Calibration ECS"
+                                                                Plot3Color="{x:Static scottPlot:Colors.Green}"
+                                                                Plot3="{Binding ReviewDto.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot4Title="Calibration NSC"
+                                                                Plot4Color="{x:Static scottPlot:Colors.Blue}"
+                                                                Plot4="{Binding ReviewDto.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot5Title="Calibration Lvdt"
+                                                                Plot5Color="{x:Static scottPlot:Colors.Coral}"
+                                                                Plot5="{Binding ReviewDto.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
+                            </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                     </Grid>
                 </Border>
