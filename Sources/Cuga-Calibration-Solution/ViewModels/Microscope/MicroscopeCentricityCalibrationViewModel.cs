@@ -308,8 +308,8 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 var maxMagnification = Cache.MicroscopeCentricityCacheItem.Last().MagnificationInfo;
 
                 ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.MagnificationInfo != maxMagnification
-                                ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.MagnificationInfo == maxMagnification).CentricityPosition
-                                : Point.Origin;
+                    ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.MagnificationInfo == maxMagnification).CentricityPosition
+                    : Point.Origin;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {

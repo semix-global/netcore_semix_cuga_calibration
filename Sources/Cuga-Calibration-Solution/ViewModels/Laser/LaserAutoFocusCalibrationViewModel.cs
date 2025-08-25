@@ -620,14 +620,14 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         startEcs,
                         endEcs,
                         averageEcs,
-                        ResultLaserAutoFocusDto.OriginalSymmetryRatio,
                         isSymmetryOk,
                         isNotOverflow,
                         ResultLaserAutoFocusDto.IsNscUseMaxValue,
                         ResultLaserAutoFocusDto.IsNscUsePositiveSlope,
+                        ResultLaserAutoFocusDto.OriginalSymmetryRatio,
                         ResultLaserAutoFocusDto.EcsToNmRange,
                         ResultLaserAutoFocusDto.NscStandard,
-                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                        TraceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                     });
 
                     if (isSymmetryOk && isNotOverflow)
@@ -644,7 +644,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         startEcs,
                         endEcs,
                         averageEcs,
-                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                        TraceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
 
                 return false;
@@ -788,13 +788,14 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         isOverflow,
                         ResultLaserAutoFocusDto.IsNscUseMaxValue,
                         ResultLaserAutoFocusDto.IsNscUsePositiveSlope,
+                        ResultLaserAutoFocusDto.OriginalSymmetryRatio,
                         ResultLaserAutoFocusDto.EcsToNmRange,
                         ResultLaserAutoFocusDto.NscStandard,
                         item.NscOffset,
                         item.NscGain,
                         item.NscCurrentNscPerNm,
                         item.NscCurrentSymmetryRatio,
-                        traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                        TraceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                     });
 
                     if (symmetryRatioIsOk && perNmIsOk)
@@ -945,10 +946,29 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    ReviewDto.CurrentA,
-                    ReviewDto.CurrentB,
-                    ReviewDto.NscOffset,
-                    ReviewDto.NscGain,
+                    ReviewDtoCurrentA = ReviewDto.CurrentA,
+                    ReviewDtoFa = ReviewDto.Fa,
+                    ReviewDtoNa = ReviewDto.Na,
+                    ReviewDtoCurrentB = ReviewDto.CurrentB,
+                    ReviewDtoFb = ReviewDto.Fb,
+                    ReviewDtoNb = ReviewDto.Nb,
+                    ReviewDtoIsNscUseMaxValue = ReviewDto.IsNscUseMaxValue,
+                    ReviewDtoIsNscUsePositiveSlope = ReviewDto.IsNscUsePositiveSlope,
+                    ReviewDtoOriginalSymmetryRatio = ReviewDto.OriginalSymmetryRatio,
+                    ReviewDtoEcsToNmRange = ReviewDto.EcsToNmRange,
+                    ReviewDtoNscStandard = ReviewDto.NscStandard,
+                    ReviewDtoNscOffset = ReviewDto.NscOffset,
+                    ReviewDtoNscGain = ReviewDto.NscGain,
+                    ReviewDtoNscCurrentNscPerNm = ReviewDto.NscCurrentNscPerNm,
+                    ReviewDtoNscCurrentSymmetryRatio = ReviewDto.NscCurrentSymmetryRatio,
+                    ReviewDtoTraceBufferList = new HtmlPlot2DLinesChart([
+                        (nameof(ReviewDto.OriginalEcs), ReviewDto.OriginalEcs.ToPoints()),
+                        (nameof(ReviewDto.OriginalNsc), ReviewDto.OriginalNsc.ToPoints()),
+                        (nameof(ReviewDto.OriginalLvdt), ReviewDto.OriginalLvdt.ToPoints()),
+                        (nameof(ReviewDto.CalibrationEcs), ReviewDto.CalibrationEcs.ToPoints()),
+                        (nameof(ReviewDto.CalibrationNsc), ReviewDto.CalibrationNsc.ToPoints()),
+                        (nameof(ReviewDto.CalibrationLvdt), ReviewDto.CalibrationLvdt.ToPoints())
+                    ], string.Empty),
                     Fa = fa,
                     Na = na,
                     Fb = fb,
@@ -965,7 +985,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     nbIsOk,
                     perNmIsOk,
                     symmetryRatioIsOk,
-                    traceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
+                    TraceBufferList = new HtmlPlot2DLinesChart([(nameof(ecs), ecs.ToPoints()), (nameof(nsc), nsc.ToPoints()), (nameof(lvdt), lvdt.ToPoints())], string.Empty)
                 });
 
                 if (result)

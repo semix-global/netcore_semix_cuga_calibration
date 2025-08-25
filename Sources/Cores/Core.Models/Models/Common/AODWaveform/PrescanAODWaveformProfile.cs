@@ -10,7 +10,7 @@ public sealed class PrescanAODWaveformProfile : AODWaveformProfile, IAdaptTo<Pre
 
     public PrescanAODWaveformResult AdaptTo() => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, FilePath);
 
-    public PrescanAODWaveformResult AdaptTo(string directoryPath)=> AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, Save(directoryPath));
+    public PrescanAODWaveformResult AdaptTo(string directoryPath) => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, Save(directoryPath));
 
     public PrescanAODWaveformProfile Clone() => new()
     {

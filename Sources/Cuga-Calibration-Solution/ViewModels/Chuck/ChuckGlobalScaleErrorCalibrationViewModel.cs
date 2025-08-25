@@ -164,6 +164,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false) return false;
             if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
         }
+
         StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheBrightField.LowSite1.Location);
         return true;
     }
