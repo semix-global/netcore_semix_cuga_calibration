@@ -86,10 +86,10 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private double _thresholdNscStandardGain = 1.5;
 
     [ObservableProperty]
-    private double _calibrationThresholdNscSymmetryRatio = 1.01;
+    private double _calibrationThresholdNscSymmetryRatio = 1.05;
 
     [ObservableProperty]
-    private double _calibrationThresholdNscNscPerNmRange = 0.005;
+    private double _calibrationThresholdNscNscPerNmRange = 0.05;
 
     [ObservableProperty]
     private int _retryCount = 10;

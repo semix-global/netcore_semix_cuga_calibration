@@ -554,8 +554,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 }
                 else
                 {
-                    var nscPositiveLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MinimumIndex();
-                    var nscPositiveRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MaximumIndex() + nscMaxIndex;
+                    var nscPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+                    var nscPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMaxIndex;
 
                     var nscPositiveLeftVector = nscVector.SubVectorRange(nscPositiveLeftIndex, nscMaxIndex);
                     var ecsPositiveLeftVector = ecsVector.SubVectorRange(nscPositiveLeftIndex, nscMaxIndex);
