@@ -364,7 +364,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
     private async Task<bool> Step3ActionAsync(CancellationToken cancellationToken)
     {
-        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(LaserXPixelSizeItem, Guid.NewGuid(), cancellationToken);
+        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(LaserXPixelSizeItem, Guid.NewGuid(), cancellationToken, false);
         if (isSuccess == false) return false;
         var calPixelDifferences = matchPoint
             .Zip(matchPoint.Skip(1), (prev, curr) => curr.X - prev.X)
@@ -420,7 +420,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         Cache.FindEndPosition = laserXPixelSizeItemDto.FindEndPosition;
         Cache.TemplateFilePath = laserXPixelSizeItemDto.FilePath;
         Cache.TemplateImageFilePath = laserXPixelSizeItemDto.FileTemplatePath;
-        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken);
+        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken, true);
         if (isSuccess == false) return false;
 
         var differences = matchPoint
@@ -524,14 +524,14 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         });
     }
 
-    private Task<(bool isSuccess, List<Point> matchPoint)> GetXPixelSizeAsync(LaserXPixelSizeItemDto laserXPixelSizeItem, Guid guid, CancellationToken cancellationToken)
+    private Task<(bool isSuccess, List<Point> matchPoint)> GetXPixelSizeAsync(LaserXPixelSizeItemDto laserXPixelSizeItem, Guid guid, CancellationToken cancellationToken, bool isReview)
     {
         var points = new List<Point>();
         return Task.Run(() =>
         {
             try
             {
-                Cache.GetMagSpeedIdeaXPixelSize(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
+                if (isReview == false) Cache.GetMagSpeedIdeaXPixelSize(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
                 Cache.GetMagSpeedTemplateFilePath(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
                 ClearCalibrationTemp();
                 laserXPixelSizeItem.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
@@ -587,6 +587,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 laserXPixelSizeItem.OriginalFilePath = originFilePath;
 
                 var isSplitImage = SplitLongImage(originFilePath, Cache.IdealUmPerPixel, guid, out var matchPoint);
+                if (isReview)
+                {
+                    return (isSplitImage, matchPoint);
+                }
+
                 if (isSplitImage == false)
                 {
                     while (!isSplitImage)
