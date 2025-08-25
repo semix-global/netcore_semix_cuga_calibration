@@ -13,7 +13,6 @@ using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -22,6 +21,8 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
 using System.Text;
+using Core.Models.Exceptions;
+using Semix.WcfTransfer.DTO;
 
 namespace Core.Services.Implements.WCF;
 
@@ -257,13 +258,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -504,18 +505,30 @@ public sealed partial class CalibrationLaserServiceImpl(
         bool isAutoFocus,
         bool isForward)
     {
-        var darkFieldImagesRet = stageCoordinateSystemEnum switch
+        SxExecuteRet<List<M2CImgSysCollectImgDTO>> darkFieldImagesRet;
+        try
         {
-            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
-                opticsMagTypeEnum.ToSxMagEnum(),
-                xStageSpeedEnum.ToSxSpeedEnum(),
-                isForward ? startPosition.ToSxPointD() : endPosition.ToSxPointD(),
-                isForward ? endPosition.ToSxPointD() : startPosition.ToSxPointD(),
-                pmtId,
-                /*是否单向*/isSingle: true,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
-        };
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+
+            darkFieldImagesRet = stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
+                    opticsMagTypeEnum.ToSxMagEnum(),
+                    xStageSpeedEnum.ToSxSpeedEnum(),
+                    isForward ? startPosition.ToSxPointD() : endPosition.ToSxPointD(),
+                    isForward ? endPosition.ToSxPointD() : startPosition.ToSxPointD(),
+                    pmtId,
+                    /*是否单向*/isSingle: true,
+                    /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+            };
+        }
+        finally
+        {
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
+            if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
+        }
 
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
@@ -560,23 +573,31 @@ public sealed partial class CalibrationLaserServiceImpl(
         var startPoint = new Point(machinePositionList[0].X - extendWidth, machinePositionList[0].Y);
         var endPoint = new Point(machinePositionList.Last().X + extendWidth * 3, machinePositionList[0].Y); // 后面多采集一段，防止最后一段数据不全
 
-        // todo:finally改回30
-        var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-        if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
-
-        // 从起点到终点采图，输出三通道长图片
-        var darkFieldImagesRet = stageCoordinateSystemEnum switch
+        SxExecuteRet<List<M2CImgSysCollectImgDTO>> darkFieldImagesRet;
+        try
         {
-            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
-                opticsMagTypeEnum.ToSxMagEnum(),
-                xStageSpeedEnum.ToSxSpeedEnum(),
-                startPoint.ToSxPointD(),
-                endPoint.ToSxPointD(),
-                pmtId,
-                /*是否单向*/isSingle: true,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
-        };
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(setWaitTimeRet.ErrorMsg, []);
+
+            // 从起点到终点采图，输出三通道长图片
+            darkFieldImagesRet = stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
+                    opticsMagTypeEnum.ToSxMagEnum(),
+                    xStageSpeedEnum.ToSxSpeedEnum(),
+                    startPoint.ToSxPointD(),
+                    endPoint.ToSxPointD(),
+                    pmtId,
+                    /*是否单向*/isSingle: true,
+                    /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+            };
+        }
+        finally
+        {
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
+            if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
+        }
 
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is not 3", []);
@@ -595,18 +616,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         {
             using var fileSteam = File.OpenRead(darkFieldImagesRet.Anything[channelId].Url);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, false);
-            binaryReader.BaseStream.Seek(0, SeekOrigin.Begin);
 
-            binaryReader.BaseStream.Seek(10, SeekOrigin.Begin);
-            var width1 = binaryReader.ReadInt32();
-            binaryReader.BaseStream.Seek(18, SeekOrigin.Begin);
-            var height1 = binaryReader.ReadInt32();
-            binaryReader.BaseStream.Seek(26, SeekOrigin.Begin);
-            var randomSize = binaryReader.ReadInt16();
-            long rawImageHeaderLength = 28;
-            var imageRawBytesLength = 2L * width1 * height1;
-            var (_, bodyBytesStartIndex, bodyBytesLength) = (new Size(width1, height1), rawImageHeaderLength, imageRawBytesLength);
-            if (imageRawBytesLength != binaryReader.BaseStream.Length - rawImageHeaderLength - randomSize) throw new ArgumentNullException();
+            var (_, bodyBytesStartIndex, bodyBytesLength) = Utilities.RawImageHelper.GetSize(binaryReader);
 
             var splitImages = new List<DarkFieldImageDto>();
             foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))

@@ -27,6 +27,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using Point = Net.Utilities.Models.Geometries.Point;
+using RawImageHelper = Core.Utilities.RawImageHelper;
 using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.ViewModels.Laser;

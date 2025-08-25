@@ -293,24 +293,24 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes)
     {
-        return RawImageHelper.GetSize(rawBytes);
+        return Utilities.RawImageHelper.GetSize(rawBytes);
     }
 
     public byte[] ToRawBytes(byte[] bodyBytes, Size size)
     {
-        return RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
+        return Utilities.RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
     }
 
     public (HObject Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
     {
-        var (matrix, _) = RawImageHelper.ToMatrix(rawBytes);
+        var (matrix, _) = Utilities.RawImageHelper.ToMatrix(rawBytes);
 
         return (_algorithm.GetDataImage(rawBytes), matrix);
     }
 
     public (HObject Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
     {
-        var (matrix, horizontalFlipRawBytes, _) = RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
+        var (matrix, horizontalFlipRawBytes, _) = Utilities.RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
 
         return (_algorithm.GetDataImage(horizontalFlipRawBytes), matrix, horizontalFlipRawBytes);
     }
