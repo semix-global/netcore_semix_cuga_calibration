@@ -305,17 +305,17 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                 }
 
                 if (_calibrationObj.CalibrationLaserObj.CalibrationLaserXtcCalibrationItemList
-                    .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
-                            && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
-                    .IsOk == false)
+                        .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
+                                              && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
+                        .IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserXTCCalibrationItemDto>(cancellationToken) == false) return false;
                 }
 
                 if (_calibrationObj.CalibrationLaserObj.CalibrationLaserPixelSizeItemList
-                    .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
-                                && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
-                    .IsOk == false)
+                        .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
+                                              && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
+                        .IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserPixelSizeItemDto>(cancellationToken) == false) return false;
                 }
@@ -326,10 +326,10 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                 }
 
                 if (_calibrationObj.CalibrationLaserObj.CalibrationLaserLineCentricityItemList
-                    .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
-                            && t.Speed == ADSSpeedEnum.Low
-                            && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
-                    .IsOk == false)
+                        .SingleOrDefault(t => t.CgMagTypeEnum == CgMagTypeEnum.High
+                                              && t.Speed == ADSSpeedEnum.Low
+                                              && t.PmtId == CalibrationConstantsHelper.MainPmtId)?
+                        .IsOk == false)
                 {
                     if (_calibrationCacheProviderService.TrySetArrayDisable<LaserLineCentricityItemDto>(cancellationToken) == false) return false;
                 }
@@ -593,4 +593,3 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
         }
     }
 }
-

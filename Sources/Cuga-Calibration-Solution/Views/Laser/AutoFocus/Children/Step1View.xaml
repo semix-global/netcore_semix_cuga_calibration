@@ -38,8 +38,9 @@
                                       hc:TitleElement.TitleWidth="100"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
+                                      Maximum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ThresholdRangeRatio}" />
+                                      Value="{Binding Cache.CalibrationThresholdRangeRation}" />
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="F Min: "
                                       hc:TitleElement.TitleWidth="100"
@@ -63,8 +64,8 @@
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.ThresholdFMin" />
-                                <Binding Path="Cache.ThresholdFMax" />
+                                <Binding Path="Cache.CalibrationThresholdFMin" />
+                                <Binding Path="Cache.CalibrationThresholdFMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>
@@ -91,8 +92,8 @@
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.ThresholdNMin" />
-                                <Binding Path="Cache.ThresholdNMax" />
+                                <Binding Path="Cache.CalibrationThresholdNMin" />
+                                <Binding Path="Cache.CalibrationThresholdNMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>
@@ -101,6 +102,7 @@
                                       hc:TitleElement.TitleWidth="100"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
+                                      Maximum="5500"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdCurrentMin}" />
                     <hc:NumericUpDown Width="275"
@@ -108,16 +110,17 @@
                                       hc:TitleElement.TitleWidth="100"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
+                                      Maximum="5500"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ThresholdCurrentMax}" />
                     <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Interval: "
+                                      hc:InfoElement.Title="Current Step: "
                                       hc:TitleElement.TitleWidth="100"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Maximum="100"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.FindInterval}" />
+                                      Value="{Binding Cache.FindCurrentStep}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

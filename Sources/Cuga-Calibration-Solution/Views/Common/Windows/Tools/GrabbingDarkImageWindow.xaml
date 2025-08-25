@@ -362,7 +362,7 @@
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Forward:  "
+                                <TextBlock Text="Forward: "
                                            Width="150"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />

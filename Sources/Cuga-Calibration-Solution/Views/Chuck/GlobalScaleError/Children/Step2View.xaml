@@ -6,7 +6,6 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckGlobalScaleErrorCalibrationViewModel}"
              d:DesignHeight="1000"

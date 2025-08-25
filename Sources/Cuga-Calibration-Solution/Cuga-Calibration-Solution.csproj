@@ -71,6 +71,11 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Page Update="Views\Laser\AutoFocus\Children\Step3View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
     <ItemGroup>
