@@ -97,11 +97,6 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
     public double CurrentB { get; set; }
 
     /// <summary>
-    /// Nsc 偏置NSC原始数据, **需要下发AF硬件**
-    /// </summary>
-    public double NscOffset { get; set; }
-
-    /// <summary>
     /// Nsc 增益归一化, **需要下发AF硬件** 【需要 * 1000下发】
     /// </summary>
     public double NscGain { get; set; }

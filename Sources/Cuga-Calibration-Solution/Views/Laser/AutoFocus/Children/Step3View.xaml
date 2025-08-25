@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Laser.AutoFocus.Children.Step2View "
+﻿<UserControl x:Class="CugaCalibration.Views.Laser.AutoFocus.Children.Step3View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -23,8 +23,8 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Auto Focus Step 3: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                <hc:Shield Subject="Auto Focus Step 4: "
+                           Status="{Binding CalibrationStepList[4].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
@@ -37,56 +37,63 @@
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <hc:NumericUpDown Width="275"
                                           hc:InfoElement.Title="Half Length Ecs: "
-                                          hc:TitleElement.TitleWidth="150"
+                                          hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.HalfEcsLength}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Speed Ecs(Ecs/s): "
-                                          hc:TitleElement.TitleWidth="150"
+                                          hc:InfoElement.Title="Speed Ecs(ecs/s): "
+                                          hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.SpeedEcs}" />
+                                          Value="{Binding Cache.SpeedEcsPerSecond}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Nsc Standard: "
-                                          hc:TitleElement.TitleWidth="150"
+                                          hc:InfoElement.Title="Nsc Standard(nsc/um): "
+                                          hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.NscStandardValue}" />
+                                          Value="{Binding Cache.NscStandardNscPerNm}" />
                         <hc:NumericUpDown Width="275"
                                           hc:InfoElement.Title="Retry Count: "
-                                          hc:TitleElement.TitleWidth="150"
+                                          hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.RetryCount}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Threshold Nsc Offset: "
-                                          hc:TitleElement.TitleWidth="150"
+                                          hc:InfoElement.Title="Calibration Range (nsc/um): "
+                                          hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ThresholdNscOffset}" />
+                                          Value="{Binding Cache.CalibrationThresholdNscNscPerNmRange}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Threshold Nsc Gain: "
-                                          hc:TitleElement.TitleWidth="150"
+                                          hc:InfoElement.Title="Calibration Symmetry Ratio: "
+                                          hc:TitleElement.TitleWidth="180"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.CalibrationThresholdNscSymmetryRatio}" />
+                        <hc:NumericUpDown Width="275"
+                                          hc:InfoElement.Title="Threshold Gain: "
+                                          hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ThresholdNscGain}" />
+                                          Value="{Binding Cache.ThresholdNscStandardGain}" />
                     </hc:UniformSpacingPanel>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
+                                Command="{Binding Step3CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
+                                Command="{Binding Step3CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
@@ -129,13 +136,14 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="500" Header="Min, Max, Offset, Gain">
+                            <GridViewColumn Width="310" Header="Standard, Offset, Gain, nsc/um, Symmetry Ratio">
                                 <GridViewColumn.DisplayMemberBinding>
-                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}, {3:f3}" Mode="OneWay">
-                                        <Binding Path="NscCurrentMin" />
-                                        <Binding Path="NscCurrentMax" />
-                                        <Binding Path="NscCurrentOffset" />
-                                        <Binding Path="NscCurrentGain" />
+                                    <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}, {3:f3}, {4:f3}" Mode="OneWay">
+                                        <Binding Path="NscStandard" />
+                                        <Binding Path="NscOffset" />
+                                        <Binding Path="NscGain" />
+                                        <Binding Path="NscCurrentNscPerNm" />
+                                        <Binding Path="NscCurrentSymmetryRatio" />
                                     </MultiBinding>
                                 </GridViewColumn.DisplayMemberBinding>
                             </GridViewColumn>
@@ -148,27 +156,18 @@
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotMultiBehavior Plot0Title="ECS"
                                                                                 Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                                Plot0="{Binding EcsData, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                                Plot0="{Binding CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
                                                                                 Plot1Title="NSC"
                                                                                 Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                                                Plot1="{Binding NscData, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                                Plot1="{Binding CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
                                                                                 Plot2Title="Lvdt"
                                                                                 Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                                Plot2="{Binding LvdtData, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                                                Plot2="{Binding CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
                                             </i:Interaction.Behaviors>
                                         </wpf:WpfPlot>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Width="100"
-                                            Header="Offset"
-                                            DisplayMemberBinding="{Binding NscOffset, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Gain"
-                                            DisplayMemberBinding="{Binding NscGain, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Gain Reciprocal"
-                                            DisplayMemberBinding="{Binding NscGainReciprocal, Mode=OneWay, StringFormat={}{0:f3}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

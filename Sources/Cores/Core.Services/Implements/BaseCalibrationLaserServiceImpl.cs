@@ -1,12 +1,12 @@
-using Core.Models.Helper;
-using Core.Models.Models.Common.DarkField;
-using Semix.CoreLib;
-using System.IO;
 using Core.Models.Enums.Optics;
+using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Semix.CoreLib;
+using System.IO;
 
 #if NET
 // ReSharper disable once CheckNamespace

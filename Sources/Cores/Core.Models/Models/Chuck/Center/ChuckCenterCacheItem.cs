@@ -45,5 +45,4 @@ public sealed partial class ChuckCenterCacheItem : ObservableCacheBase
 
     [ObservableProperty]
     private string _rightTemplateImageFilePath = string.Empty;
-
 }

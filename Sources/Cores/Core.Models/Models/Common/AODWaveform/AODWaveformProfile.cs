@@ -1,9 +1,9 @@
-using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
+using System.Text;
 
 namespace Core.Models.Models.Common.AODWaveform;
 

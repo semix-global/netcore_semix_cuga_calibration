@@ -312,6 +312,7 @@ public sealed partial class RecipeSettingViewModel(
             dialogWindowProvider.ShowDialog("Recipe cache is empty!");
             return;
         }
+
         ReviewRecipeDtoBackup = ApplicationCookie.CalibrationRecipeDto.Clone();
 
         if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag.MagnificationCode == -1)
@@ -599,6 +600,7 @@ public sealed partial class RecipeSettingViewModel(
             return false;
         }
     }
+
     #endregion
 
     #region MaskConfig
@@ -729,14 +731,15 @@ public sealed partial class RecipeSettingViewModel(
                                     (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, diePitchHeight + scribeSize.Height));
 
             var maskMachinePosition = chuckCenterMachinePosition.NewBFCenterStagePosition +
-                                 (Vector)new Point(_stageDirection.X * maskWaferPosition.X, _stageDirection.Y * maskWaferPosition.Y);
+                                      (Vector)new Point(_stageDirection.X * maskWaferPosition.X, _stageDirection.Y * maskWaferPosition.Y);
 
             if (IsReview)
             {
                 var offset = applicationCookie.CalibrationReviseRecipeDto!.WaferDto.WaferCenterWaferPosition
-                     - (Vector)applicationCookie.CalibrationRecipeDto!.WaferDto.WaferCenterWaferPosition!;
+                             - (Vector)applicationCookie.CalibrationRecipeDto!.WaferDto.WaferCenterWaferPosition!;
                 maskMachinePosition += (Vector)new Point(_stageDirection.X * offset!.Value.X, _stageDirection.Y * offset.Value.Y);
             }
+
             StageViewModel.SetMachineAbsoluteStageXy(maskMachinePosition);
         }
         catch (Exception ex)

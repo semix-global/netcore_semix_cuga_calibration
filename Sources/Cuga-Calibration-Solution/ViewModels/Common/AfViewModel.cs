@@ -70,6 +70,13 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public double GetEcsToUmRatio()
+    {
+        var ret = calibrationAfService.GetEcsToUmRatio();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public double GetSensorEcsValue()
     {
         var ret = calibrationAfService.GetSensorEcsValue();

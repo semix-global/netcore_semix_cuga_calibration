@@ -45,5 +45,4 @@ public sealed partial class ChuckGlobalScaleErrorCacheItem : ObservableCacheBase
 
     [ObservableProperty]
     private string _rightTemplateImageFilePath = string.Empty;
-
 }

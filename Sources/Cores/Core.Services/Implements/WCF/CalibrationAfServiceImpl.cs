@@ -67,6 +67,11 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == AutofocusMode.Review, sxExecuteRet.Anything.CalChipType.ToCalChipModelEnum()));
     }
 
+    public SxExecuteRet<double> GetEcsToUmRatio()
+    {
+        return SxExecuteRetHelper.CreateSuccess(0.2d);
+    }
+
     public SxExecuteRet<double> GetSensorEcsValue()
     {
         Thread.Sleep(120);

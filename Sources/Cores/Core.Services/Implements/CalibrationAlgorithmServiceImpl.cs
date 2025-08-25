@@ -37,7 +37,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         _algorithm.LaplaceDefinition(image, out var meanTuple);
         using var _ = meanTuple;
         return meanTuple.D;
-
     }
 
     public double GetDarkFieldQuality(HObject image)
