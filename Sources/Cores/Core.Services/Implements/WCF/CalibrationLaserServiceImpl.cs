@@ -545,9 +545,9 @@ public sealed partial class CalibrationLaserServiceImpl(
             || machinePositionList.Zip(machinePositionList.Skip(1), (current, next) => current.X <= next.X).All(b => b) == false) // 检查x是否递增
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
-        var directionRect = calibrationStageService.GetMachineDirection();
-        if (directionRect.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRect.ErrorMsg, []);
-        var directionX = directionRect.Anything.XDirection;
+        var directionRet = calibrationStageService.GetMachineDirection();
+        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
+        var directionX = directionRet.Anything.XDirection;
 
         var picturePixelHeightRet = GetDarkFieldLineScanImageYPixelHeight(opticsMagTypeEnum, true);
         if (picturePixelHeightRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(picturePixelHeightRet.ErrorMsg, []);
@@ -559,6 +559,10 @@ public sealed partial class CalibrationLaserServiceImpl(
         // 计算采图的起点终点机械坐标
         var startPoint = new Point(machinePositionList[0].X - extendWidth, machinePositionList[0].Y);
         var endPoint = new Point(machinePositionList.Last().X + extendWidth * 3, machinePositionList[0].Y); // 后面多采集一段，防止最后一段数据不全
+
+        // todo:finally改回30
+        var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+        if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
 
         // 从起点到终点采图，输出三通道长图片
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
@@ -591,8 +595,18 @@ public sealed partial class CalibrationLaserServiceImpl(
         {
             using var fileSteam = File.OpenRead(darkFieldImagesRet.Anything[channelId].Url);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, false);
+            binaryReader.BaseStream.Seek(0, SeekOrigin.Begin);
 
-            var (_, bodyBytesStartIndex, bodyBytesLength) = RawImageHelper.GetSize(binaryReader);
+            binaryReader.BaseStream.Seek(10, SeekOrigin.Begin);
+            var width1 = binaryReader.ReadInt32();
+            binaryReader.BaseStream.Seek(18, SeekOrigin.Begin);
+            var height1 = binaryReader.ReadInt32();
+            binaryReader.BaseStream.Seek(26, SeekOrigin.Begin);
+            var randomSize = binaryReader.ReadInt16();
+            long rawImageHeaderLength = 28;
+            var imageRawBytesLength = 2L * width1 * height1;
+            var (_, bodyBytesStartIndex, bodyBytesLength) = (new Size(width1, height1), rawImageHeaderLength, imageRawBytesLength);
+            if (imageRawBytesLength != binaryReader.BaseStream.Length - rawImageHeaderLength - randomSize) throw new ArgumentNullException();
 
             var splitImages = new List<DarkFieldImageDto>();
             foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))

@@ -610,6 +610,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                     XPixelSize = umPerPixel,
                                 }), HtmlLogUniqueId.LoggingHtml());
                                 isSplitImage = SplitLongImage(originFilePath, umPerPixel, Guid.NewGuid(), out matchPoint);
+                                if (isSplitImage) points = matchPoint;
                             }
                             else
                             {
@@ -697,7 +698,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             HalconHelper.Save(image, originImageFilePath);
             //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
             var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
-            if (!isSuccess && resultScore < Cache.NccScoreThreshold)
+            if (!isSuccess || resultScore < Cache.NccScoreThreshold)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
