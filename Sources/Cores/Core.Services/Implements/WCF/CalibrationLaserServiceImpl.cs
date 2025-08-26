@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
@@ -19,10 +20,9 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using Semix.WcfTransfer.DTO;
 using System.IO;
 using System.Text;
-using Core.Models.Exceptions;
-using Semix.WcfTransfer.DTO;
 
 namespace Core.Services.Implements.WCF;
 
@@ -258,13 +258,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case (> 0, > 0):
+            case ( > 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case (> 0, Constants.NegInt32Value):
+            case ( > 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 

@@ -14,7 +14,6 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Interface.Calibration;
 using Cuga.Interface.Diagnosis;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;

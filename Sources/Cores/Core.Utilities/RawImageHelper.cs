@@ -1,9 +1,9 @@
-﻿using System.Runtime.InteropServices;
 using CommunityToolkit.Diagnostics;
 using HalconDotNet;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Enums.Files;
 using Net.Utilities.Models.Geometries;
+using System.Runtime.InteropServices;
 
 namespace Core.Utilities;
 
