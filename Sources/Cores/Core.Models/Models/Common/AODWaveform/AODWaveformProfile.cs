@@ -60,11 +60,11 @@ public partial class AODWaveformProfile : ObservableObject
     {
         // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
         var strings = value.Split('$');
-        Guard.IsTrue(strings.Length >= 3, "filePath name error.");
+        Guard.IsTrue(strings.Length >= 7, "filePath name error.");
 
         ZeroSampleCount = int.Parse(strings[2]);
-        //OffsetFrequency = double.Parse(strings[5]);
-        //OffsetFrequencyPeriodMultiple = double.Parse(strings[6]);
+        OffsetFrequency = double.Parse(strings[5]);
+        OffsetFrequencyPeriodMultiple = double.Parse(strings[6]);
 
         var resultString = File.ReadAllLines(value)
             .Select(t => t.Trim())
