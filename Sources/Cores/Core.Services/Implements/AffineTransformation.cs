@@ -320,7 +320,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         }
 
         logger.LogHtmlInformation(
-            "2.2. Y OK",
+            "2.2. Y",
             HtmlHeaderLevelEnum.Header5,
             new HtmlBullet(new
             {

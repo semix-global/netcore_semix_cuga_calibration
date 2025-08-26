@@ -158,26 +158,26 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes)
     {
-        return RawImageHelper.GetSize(rawBytes);
+        return Utilities.RawImageHelper.GetSize(rawBytes);
     }
 
     public byte[] ToRawBytes(byte[] bodyBytes, Size size)
     {
-        return RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
+        return Utilities.RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
     }
 
     public (HObject Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
     {
-        var (matrix, _) = RawImageHelper.ToMatrix(rawBytes);
+        var (matrix, _) = Utilities.RawImageHelper.ToMatrix(rawBytes);
 
-        return (RawImageHelper.ToHObject(rawBytes), matrix);
+        return (Utilities.RawImageHelper.CreateImage(rawBytes), matrix);
     }
 
     public (HObject Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
     {
-        var (matrix, horizontalFlipRawBytes, _) = RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
+        var (matrix, horizontalFlipRawBytes, _) = Utilities.RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
 
-        return (RawImageHelper.ToHObject(horizontalFlipRawBytes), matrix, horizontalFlipRawBytes);
+        return (Utilities.RawImageHelper.CreateImage(horizontalFlipRawBytes), matrix, horizontalFlipRawBytes);
     }
 
     public (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue)

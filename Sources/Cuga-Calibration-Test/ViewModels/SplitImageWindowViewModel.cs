@@ -82,7 +82,7 @@ public sealed partial class SplitImageWindowViewModel(
                 using var fileSteam = File.OpenRead(CalUmPerPixelRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
-                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageHelper.GetSize(binaryReader);
+                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);
                 var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
 
                 var calUmPerPixelDieWidthPixel = DieWidthUm / IdealUmPerPixel;
@@ -177,7 +177,7 @@ public sealed partial class SplitImageWindowViewModel(
                     TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 }), guid.LoggingHtml());
 
-                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = RawImageHelper.GetSize(binaryReader);
+                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);
                 var (_, heightPixel) = bodyBytesSize.DeconstructToInt32();
 
                 var dieWidthPixel = DieWidthUm / RealUmPerPixel;
