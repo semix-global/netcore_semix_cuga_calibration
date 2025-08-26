@@ -14,7 +14,6 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Interface.Calibration;
 using Cuga.Interface.Diagnosis;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -425,7 +424,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             using var fileSteam = File.OpenRead(darkFieldImagesRet.Anything[channelId].Url);
             using var binaryReader = new BinaryReader(fileSteam);
 
-            var (_, bodyBytesStartIndex, bodyBytesLength) = RawImageHelper.GetSize(binaryReader);
+            var (_, bodyBytesStartIndex, bodyBytesLength) = Utilities.RawImageHelper.GetSize(binaryReader);
 
             var splitImages = new List<DarkFieldImageDto>();
             foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))

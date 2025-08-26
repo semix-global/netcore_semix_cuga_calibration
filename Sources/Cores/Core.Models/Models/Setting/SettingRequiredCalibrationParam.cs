@@ -8,19 +8,19 @@ namespace Core.Models.Models.Setting;
 public sealed partial class SettingRequiredCalibrationParam : ObservableCacheBase, ICloneable<SettingRequiredCalibrationParam>, IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
 {
     [ObservableProperty]
-    [property: System.ComponentModel.Description(Core.Wcf.Models.WcfConstantHelper.AdsNodeCalibrationName)]
+    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.AdsNodeCalibrationName)]
     private ObservableCollection<RequiredCalibrationParam> _adsRequiredCalibrationList = [];
 
     [ObservableProperty]
-    [property: System.ComponentModel.Description(Core.Wcf.Models.WcfConstantHelper.MicroscopeNodeCalibrationName)]
+    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.MicroscopeNodeCalibrationName)]
     private ObservableCollection<RequiredCalibrationParam> _microscopeRequiredCalibrationList = [];
 
     [ObservableProperty]
-    [property: System.ComponentModel.Description(Core.Wcf.Models.WcfConstantHelper.ChuckNodeCalibrationName)]
+    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.ChuckNodeCalibrationName)]
     private ObservableCollection<RequiredCalibrationParam> _chuckRequiredCalibrationList = [];
 
     [ObservableProperty]
-    [property: System.ComponentModel.Description(Core.Wcf.Models.WcfConstantHelper.LaserNodeCalibrationName)]
+    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.LaserNodeCalibrationName)]
     private ObservableCollection<RequiredCalibrationParam> _laserRequiredCalibrationList = [];
 
     #region Mapper
