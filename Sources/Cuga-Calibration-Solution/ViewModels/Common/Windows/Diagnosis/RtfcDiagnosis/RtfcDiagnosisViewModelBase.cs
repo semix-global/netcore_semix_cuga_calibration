@@ -19,7 +19,7 @@ using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis;
+namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis;
 
 [IOCAppService(ServiceType = typeof(RtfcDiagnosisViewModelBase), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public partial class RtfcDiagnosisViewModelBase : ViewModelBase

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
-namespace CugaCalibration.Core.Models;
+namespace Core.Models.Models.Common.Cookies;
 
 /// <summary>
 /// 校准的菜单

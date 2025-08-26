@@ -3,7 +3,7 @@ using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Pattern;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
-namespace CugaCalibration.Core.Models;
+namespace Core.Models.Models.Common.Cookies;
 
 public sealed partial class ApplicationCookie : ObservableObject
 {

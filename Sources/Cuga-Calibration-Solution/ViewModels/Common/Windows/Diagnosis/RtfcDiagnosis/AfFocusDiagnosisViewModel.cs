@@ -17,7 +17,6 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
-using CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using MoreLinq;

@@ -3,14 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
-using CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagonosis;
+using CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Windows.Controls;
-using AfFocusDiagnosisViewModel = CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis.AfFocusDiagnosisViewModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 
