@@ -51,6 +51,12 @@ public interface ICalibrationLaserService
     SxExecuteRet<double> GetOpticalPowerMeter();
 
     /// <summary>
+    /// 获取光强的信息列表
+    /// </summary>
+    /// <returns>光强信息列表</returns>
+    SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList();
+
+    /// <summary>
     /// 功率等级和功率系数互转
     /// </summary>
     /// <param name="level">功率等级</param>

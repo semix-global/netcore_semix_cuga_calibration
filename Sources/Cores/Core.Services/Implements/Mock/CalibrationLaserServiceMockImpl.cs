@@ -75,14 +75,39 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
     }
 
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([
+            new LaserLightInformation { Level = 170, Coefficient = 0.85 },
+            new LaserLightInformation { Level = 157, Coefficient = 0.785 },
+            new LaserLightInformation { Level = 127, Coefficient = 0.635 },
+            new LaserLightInformation { Level = 99, Coefficient = 0.495 },
+            new LaserLightInformation { Level = 78, Coefficient = 0.39 },
+            new LaserLightInformation { Level = 67, Coefficient = 0.335 },
+            new LaserLightInformation { Level = 52, Coefficient = 0.26 },
+            new LaserLightInformation { Level = 38, Coefficient = 0.19 },
+            new LaserLightInformation { Level = 24, Coefficient = 0.12 },
+            new LaserLightInformation { Level = 14, Coefficient = 0.07 },
+            new LaserLightInformation { Level = 10, Coefficient = 0.05 },
+            new LaserLightInformation { Level = 7, Coefficient = 0.035 },
+            new LaserLightInformation { Level = 1, Coefficient = 0.005 },
+        ]);
+    }
+
     public SxExecuteRet<double> LevelToCoefficient(double level)
     {
-        return SxExecuteRetHelper.CreateSuccess(level / 200);
+        var sxExecuteRet = GetLaserLightInformationList();
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Single(m => m.Level - level == 0).Coefficient);
     }
 
     public SxExecuteRet<double> CoefficientToLevel(double coefficient)
     {
-        return SxExecuteRetHelper.CreateSuccess(coefficient * 200);
+        var sxExecuteRet = GetLaserLightInformationList();
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Single(m => m.Coefficient - coefficient == 0).Level);
     }
 
     public SxExecuteRet<DarkFieldChirpAodWaveDto> ReadChirpAodByCustomFile(string filePath)

@@ -79,6 +79,11 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<double> LevelToCoefficient(double level)
     {
         throw new NotImplementedException();
