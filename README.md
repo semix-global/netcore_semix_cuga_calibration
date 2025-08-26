@@ -742,7 +742,7 @@ cancellationToken.Register(subscribe.Dispose);
     ```csharp
     Logger.LogInformation("{@Name} Param: {@Markdown}{@Unique}", Name, new MarkdownQuoteList(new
     {
-        MicroscopeMagnification = Cache.MicroscopeMagnificationEnum,
+        Cache.MicroscopeMagnificationEnum,
         Cache.FindFocusPosition,
         ImageFileDirectory = detectImageDirectory
     }), guid.LogMarkdown());

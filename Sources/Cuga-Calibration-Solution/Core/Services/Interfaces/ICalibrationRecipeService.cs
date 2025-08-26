@@ -1,8 +1,8 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
-using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF.Documents;
 using Net.Utilities.WaferMap.WPF.Drawables;
@@ -19,11 +19,11 @@ public interface ICalibrationRecipeService
 
     bool GetCorrectWaferMapByOffset(bool isAutoAlignment);
 
-    bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationInfo? magnificationInfo, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
+    bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
 
-    bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationInfo? magnificationInfo, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
+    bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
 
-    bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeMagnificationInfo? magnificationInfo, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo);
+    bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo);
 
     /// <summary>
     /// 获取指定Die对应的Mask明场位置

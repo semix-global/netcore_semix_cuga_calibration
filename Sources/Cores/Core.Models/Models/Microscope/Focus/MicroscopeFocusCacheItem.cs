@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Mapper.Interfaces;
@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.Focus;
 public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, ICloneable<MicroscopeFocusCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _magnificationInfo = new();
+    private MicroscopeLensInformation _lensInformation = new();
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Undefined;
@@ -64,7 +64,7 @@ public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, IClo
 
     public MicroscopeFocusCacheItem Clone() => new()
     {
-        MagnificationInfo = MagnificationInfo.Clone(),
+        LensInformation = LensInformation.Clone(),
         WaferMaskTypeEnum = WaferMaskTypeEnum,
         FindFocusPosition = FindFocusPosition,
         FindFocusMin = FindFocusMin,
@@ -77,10 +77,10 @@ public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, IClo
     #region Eqauls
 
     /// <summary>
-    /// 确定指定的对象是否等于当前对象，仅比较 MagnificationInfo
+    /// 确定指定的对象是否等于当前对象，仅比较 LensInformation
     /// </summary>
     /// <param name="obj">要与当前对象进行比较的对象</param>
-    /// <returns>如果指定的对象的 MagnificationInfo 与当前对象的相等，则为 true；否则为 false</returns>
+    /// <returns>如果指定的对象的 LensInformation 与当前对象的相等，则为 true；否则为 false</returns>
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
@@ -89,29 +89,29 @@ public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, IClo
     }
 
     /// <summary>
-    /// 确定指定的 MicroscopeFocusCacheItem 是否等于当前 MicroscopeFocusCacheItem，仅比较 MagnificationInfo
+    /// 确定指定的 MicroscopeFocusCacheItem 是否等于当前 MicroscopeFocusCacheItem，仅比较 LensInformation
     /// </summary>
     /// <param name="other">要与当前对象进行比较的 MicroscopeFocusCacheItem</param>
-    /// <returns>如果指定的 MicroscopeFocusCacheItem 的 MagnificationInfo 与当前对象的相等，则为 true；否则为 false</returns>
+    /// <returns>如果指定的 MicroscopeFocusCacheItem 的 LensInformation 与当前对象的相等，则为 true；否则为 false</returns>
     private bool Equals(MicroscopeFocusCacheItem? other)
     {
         if (other is null) return false;
         return ReferenceEquals(this, other) ||
-               // 仅比较 _magnificationInfo
-               MagnificationInfo.Equals(other.MagnificationInfo);
+               // 仅比较 _lensInformation
+               LensInformation.Equals(other.LensInformation);
     }
 
     /// <summary>
-    /// 返回基于 MagnificationInfo 的哈希码
+    /// 返回基于 LensInformation 的哈希码
     /// </summary>
     /// <returns>当前对象的哈希码</returns>
     public override int GetHashCode()
     {
-        return MagnificationInfo?.GetHashCode() ?? 0;
+        return LensInformation?.GetHashCode() ?? 0;
     }
 
     /// <summary>
-    /// 确定两个 MicroscopeFocusCacheItem 实例的 MagnificationInfo 是否相等
+    /// 确定两个 MicroscopeFocusCacheItem 实例的 LensInformation 是否相等
     /// </summary>
     public static bool operator ==(MicroscopeFocusCacheItem? left, MicroscopeFocusCacheItem? right)
     {
@@ -120,7 +120,7 @@ public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, IClo
     }
 
     /// <summary>
-    /// 确定两个 MicroscopeFocusCacheItem 实例的 MagnificationInfo 是否不相等
+    /// 确定两个 MicroscopeFocusCacheItem 实例的 LensInformation 是否不相等
     /// </summary>
     public static bool operator !=(MicroscopeFocusCacheItem? left, MicroscopeFocusCacheItem? right)
     {

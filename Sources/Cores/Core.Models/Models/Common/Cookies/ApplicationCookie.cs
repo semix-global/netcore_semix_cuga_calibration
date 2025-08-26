@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
-using Core.Models.Models.Pattern;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+
 
 namespace Core.Models.Models.Common.Cookies;
 
@@ -53,7 +54,13 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 倍镜列表
     /// </summary>
     [ObservableProperty]
-    private List<MicroscopeMagnificationInfo> _microscopeMagnificationInfoList = [];
+    private List<MicroscopeLensInformation> _microscopeLensInformationList = [];
+
+    /// <summary>
+    /// 激光光强信息列表
+    /// </summary>
+    [ObservableProperty]
+    private IReadOnlyList<LaserLightInformation> _laserLightInformationList = [];
 
     /// <summary>
     /// 校准当前应用配方

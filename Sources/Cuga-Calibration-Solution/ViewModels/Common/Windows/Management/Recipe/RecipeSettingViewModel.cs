@@ -315,13 +315,13 @@ public sealed partial class RecipeSettingViewModel(
 
         ReviewRecipeDtoBackup = ApplicationCookie.CalibrationRecipeDto.Clone();
 
-        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag.MagnificationCode == -1)
-            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag.LensCode == -1)
+            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag.MagnificationCode == -1)
-            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
-                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
-                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
+        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag.LensCode == -1)
+            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
+                ? ApplicationCookie.MicroscopeLensInformationList[^1]
+                : ApplicationCookie.MicroscopeLensInformationList[2];
     }
 
     [RelayCommand]
@@ -457,11 +457,11 @@ public sealed partial class RecipeSettingViewModel(
         {
             if (name is null) return;
             IsReticleMode = name.ToString() == "Reticle";
-            var magnificationEnum = microscopeViewModel.GetMagnification();
-            if (magnificationEnum != CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag)
+            var currentMicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+            if (currentMicroscopeLensInformation != CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag)
             {
                 dialogWindowProvider.ShowDialog("The generation wafermap must to be done under a 50x lens. Please re-obtain the origin die coordinates ", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                microscopeViewModel.SwitchMagnification(CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag);
+                microscopeViewModel.SwitchMicroscopeLensInformation(CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag);
             }
 
             if (GenerateWaferMap() == false)
@@ -719,7 +719,7 @@ public sealed partial class RecipeSettingViewModel(
             if (obj is null)
                 return;
             var (maskDto, _) = GetSelectReticleMaskListInfo(obj.ToString());
-            microscopeViewModel.SwitchMagnification(maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo);
+            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
 
             var reticleBuilder = WaferMapCanvasViewModel.Document.ReticleBuilder;
 
@@ -810,10 +810,10 @@ public sealed partial class RecipeSettingViewModel(
 
             var (maskDto, directoryName) = GetSelectReticleMaskListInfo(obj.ToString());
 
-            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\BrightField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\BrightField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var templateFilePath = maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath;
 
-            microscopeViewModel.SwitchMagnification(maskDto.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo);
+            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
             await Task.Delay(3000);
             var generateTemplate = reviewViewModel.TryGenerateTemplate(AlgorithmTemplateTypeEnum.Ncc, maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath, AlgorithmTemplateSizeEnum.Size256);
             if (generateTemplate == false)
@@ -1016,7 +1016,7 @@ public sealed partial class RecipeSettingViewModel(
         var realReticleMaskBrightFieldPosition = ideaReticleMaskPosition + (Vector)offsetPosition
                                                                          + (Vector)waferCenterBrightFieldPosition
                                                                          + (originReticleWaferPosition - new Point(0, reticleHeight));
-        microscopeViewModel.SwitchMagnification(SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo);
+        microscopeViewModel.SwitchMicroscopeLensInformation(SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
         StageViewModel.SetBrightFieldAbsoluteStageXy(realReticleMaskBrightFieldPosition);
 
         // 重新对准后基于指定索引的ReticleDieCorner为基准的Mask位置
@@ -1033,7 +1033,7 @@ public sealed partial class RecipeSettingViewModel(
             return;
         var reviseRecipeDto = applicationCookie.CalibrationReviseRecipeDto;
 
-        microscopeViewModel.SwitchMagnification(CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag);
+        microscopeViewModel.SwitchMicroscopeLensInformation(CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag);
 
         // 重新对准后的originDie Corner位置
         var originDieDto = reviseRecipeDto!.WaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint;
@@ -1053,10 +1053,10 @@ public sealed partial class RecipeSettingViewModel(
 
         // 重新对准后基于OriginDieCorner为基准的ReticleMask位置
         var originDie = reviseRecipeDto.WaferDto.WaferMapCanvasDocument.DieModel.Single(t => t.Index is { X: 0, Y: 0 });
-        calibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectReticleMarkItem!.ReticleMaskTypeEnum, SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo, null, out var maskDto);
+        calibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectReticleMarkItem!.ReticleMaskTypeEnum, SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeLensInformation, null, out var maskDto);
         calibrationRecipeService.GetDieMaskBrightFieldPosition(originDie, maskDto, out var originReticleMaskBrightFieldPosition);
 
-        microscopeViewModel.SwitchMagnification(SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeMagnificationInfo);
+        microscopeViewModel.SwitchMicroscopeLensInformation(SelectReticleMarkItem!.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
         StageViewModel.SetBrightFieldAbsoluteStageXy(originReticleMaskBrightFieldPosition);
 
         // 重新对准后基于指定索引的ReticleDieCorner为基准的Mask位置
@@ -1066,7 +1066,7 @@ public sealed partial class RecipeSettingViewModel(
         var microscopePixelSizeItems = cacheProvider.GetArray<MicroscopePixelSizeItemDto>();
         var template = SelectReticleMarkItem!.RecipeBrightFieldTemplateDto;
         //var appHomeDirectory = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value.AppHomeDirectory;
-        if (reviewViewModel.TryGetMatchPosition(template.AlgorithmTemplateTypeEnum, microscopePixelSizeItems!, reticleMaskBrightFieldPosition, template.MicroscopeMagnificationInfo,
+        if (reviewViewModel.TryGetMatchPosition(template.AlgorithmTemplateTypeEnum, microscopePixelSizeItems!, reticleMaskBrightFieldPosition, template.MicroscopeLensInformation,
                 template.TemplateFilePath, Path.GetDirectoryName(template.TemplateImageFilePath), null, null,
                 "Magnification", out _, out _, out _, out _, out _) == false) return;
     }

@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.XYAstigmatism;
@@ -9,7 +9,7 @@ namespace Core.Models.Models.Laser.XYAstigmatism;
 public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

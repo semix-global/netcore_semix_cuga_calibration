@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using MoreLinq;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
@@ -13,7 +13,7 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     private double _threshold = 50;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private double _verifyResultError;
@@ -36,33 +36,33 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
 
     public void SetFindFocusPosition(Point position)
     {
-        var info = MicroscopeFocusCacheItems.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetFindFocusPosition));
+        var info = MicroscopeFocusCacheItems.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(SetFindFocusPosition));
         info.FindFocusPosition = position;
     }
 
     public MicroscopeFocusCacheItem GetSelectedCacheItem()
     {
-        return MicroscopeFocusCacheItems.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
+        return MicroscopeFocusCacheItems.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
     }
 
 
-    public bool InitializeCacheList(List<MicroscopeMagnificationInfo> microscopeMagnificationInfoList)
+    public bool InitializeCacheList(List<MicroscopeLensInformation> microscopeLensInformationList)
     {
-        if (microscopeMagnificationInfoList.Count == 0) return false;
-        var isInitialized = MicroscopeFocusCacheItems.Count == microscopeMagnificationInfoList.Count
+        if (microscopeLensInformationList.Count == 0) return false;
+        var isInitialized = MicroscopeFocusCacheItems.Count == microscopeLensInformationList.Count
                             && MicroscopeFocusCacheItems.Select((item, index) => (index, item))
-                                .All(t => t.item.MagnificationInfo == microscopeMagnificationInfoList[t.index]);
+                                .All(t => t.item.LensInformation == microscopeLensInformationList[t.index]);
         if (isInitialized) return true;
         MicroscopeFocusCacheItems = new ObservableCollection<MicroscopeFocusCacheItem>(
-            microscopeMagnificationInfoList.Select(t => new MicroscopeFocusCacheItem() { MagnificationInfo = t.Clone() }));
-        MicroscopeMagnificationInfo = MicroscopeFocusCacheItems.Minima(t => t.MagnificationInfo.MagnificationCode).Single().MagnificationInfo;
+            microscopeLensInformationList.Select(t => new MicroscopeFocusCacheItem() { LensInformation = t.Clone() }));
+        MicroscopeLensInformation = MicroscopeFocusCacheItems.Minima(t => t.LensInformation.LensCode).Single().LensInformation;
         return true;
     }
 
-    public (bool IsSuccess, string ErrorMessage) CalibrationVerify(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public (bool IsSuccess, string ErrorMessage) CalibrationVerify(MicroscopeLensInformation microscopeLensInformation)
     {
         ClearErrors();
-        var info = MicroscopeFocusCacheItems.FirstOrDefault(item => item.MagnificationInfo.Equals(microscopeMagnificationInfo)) ?? throw new ArgumentNullException(nameof(CalibrationVerify));
+        var info = MicroscopeFocusCacheItems.FirstOrDefault(item => item.LensInformation.Equals(microscopeLensInformation)) ?? throw new ArgumentNullException(nameof(CalibrationVerify));
         info.CacheItemVerify();
 
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);

@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -28,7 +28,7 @@ public sealed partial class MicroscopeWindowViewModel(
     private int _isRunning;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {
@@ -39,8 +39,8 @@ public sealed partial class MicroscopeWindowViewModel(
             try
             {
                 if (_isRunning == 1) return;
-                var result = microscopeViewModel.GetMagnification();
-                MicroscopeMagnificationInfo = result;
+                var result = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+                MicroscopeLensInformation = result;
             }
             catch (Exception ex)
             {
@@ -61,9 +61,9 @@ public sealed partial class MicroscopeWindowViewModel(
 
             try
             {
-                microscopeViewModel.SwitchMagnification(MicroscopeMagnificationInfo, true);
-                var result = microscopeViewModel.GetMagnification();
-                MicroscopeMagnificationInfo = result;
+                microscopeViewModel.SwitchMicroscopeLensInformation(MicroscopeLensInformation, true);
+                var result = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+                MicroscopeLensInformation = result;
             }
             catch (Exception ex)
             {

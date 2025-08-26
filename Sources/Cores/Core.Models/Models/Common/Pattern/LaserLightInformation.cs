@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Cuga.Data.DataStruct.PMT;
 using Net.Utilities.Mapper.Interfaces;
 
-namespace Core.Models.Models.Pattern;
+namespace Core.Models.Models.Common.Pattern;
 
 public partial class LaserLightInformation : ObservableObject, IAdaptIn<CgLightConfig, LaserLightInformation>, ICloneable<LaserLightInformation>
 {

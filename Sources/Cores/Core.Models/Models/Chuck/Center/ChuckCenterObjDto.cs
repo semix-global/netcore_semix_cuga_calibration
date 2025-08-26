@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.Center;
 public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<ChuckCenterObjDto>, IAdaptTo<CalibrationCenterObj>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     [ObservableProperty]
     private Point _positiveTopPosition;
@@ -84,8 +84,8 @@ public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<C
 
     public ChuckCenterObjDto Clone() => new()
     {
-        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
-        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         PositiveTopPosition = PositiveTopPosition,
         PositiveRightPosition = PositiveRightPosition,
         PositiveBottomPosition = PositiveBottomPosition,
@@ -116,7 +116,7 @@ public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<C
 
     public CalibrationCenterObj AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

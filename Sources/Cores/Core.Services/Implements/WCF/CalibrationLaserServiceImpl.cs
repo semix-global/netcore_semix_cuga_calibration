@@ -7,7 +7,7 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -34,7 +34,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
-    private IReadOnlyList<LaserLightInformation>? _laserLightInfoList;
+    private IReadOnlyList<LaserLightInformation>? _laserLightInformationList;
     private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
 
     public SxExecuteRet<bool> Connect()
@@ -88,15 +88,15 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
     {
-        if (_laserLightInfoList is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInfoList);
+        if (_laserLightInformationList is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
 
         var sxExecuteRet = Invoke(() => Service?.GetLightConfig());
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
-        if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Info is empty", []);
+        if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        _laserLightInfoList = [.. sxExecuteRet.Anything.Select(t => new LaserLightInformation().AdaptIn(t))];
+        _laserLightInformationList = [.. sxExecuteRet.Anything.Select(t => new LaserLightInformation().AdaptIn(t))];
 
-        return SxExecuteRetHelper.CreateSuccess(_laserLightInfoList);
+        return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
     }
 
     public SxExecuteRet<double> LevelToCoefficient(double level)
@@ -104,11 +104,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = GetLaserLightInformationList();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
 
-        var laserLightInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
 
-        return laserLightInfo is null
-            ? SxExecuteRetHelper.CreateError<double>("laser Light Info is not single", 0)
-            : SxExecuteRetHelper.CreateSuccess(laserLightInfo.Coefficient);
+        return result is null
+            ? SxExecuteRetHelper.CreateError<double>("Laser Light Information is not single", 0)
+            : SxExecuteRetHelper.CreateSuccess(result.Coefficient);
     }
 
     public SxExecuteRet<double> CoefficientToLevel(double coefficient)
@@ -116,11 +116,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = GetLaserLightInformationList();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
 
-        var laserLightInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
 
-        return laserLightInfo is null
-            ? SxExecuteRetHelper.CreateError("laser Light Info is not single", 0d)
-            : SxExecuteRetHelper.CreateSuccess(laserLightInfo.Level);
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", 0d)
+            : SxExecuteRetHelper.CreateSuccess(result.Level);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)

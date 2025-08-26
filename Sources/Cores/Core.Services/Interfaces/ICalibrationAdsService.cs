@@ -2,9 +2,6 @@ using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// 缓震平台服务
-/// </summary>
 public interface ICalibrationAdsService
 {
     /// <summary>

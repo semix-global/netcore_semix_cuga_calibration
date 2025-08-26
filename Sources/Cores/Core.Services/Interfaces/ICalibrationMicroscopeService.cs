@@ -1,13 +1,9 @@
-using Core.Models.Models.Pattern;
-using Cuga.Data.DataStruct.Microscope;
+using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// 显微镜服务
-/// </summary>
 public interface ICalibrationMicroscopeService
 {
     /// <summary>
@@ -17,39 +13,38 @@ public interface ICalibrationMicroscopeService
     SxExecuteRet<bool> Connect();
 
     /// <summary>
+    /// 获取cuga配置的显微镜镜头列表
+    /// </summary>
+    /// <returns>cuga配置的显微镜镜头列表</returns>
+    SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformationList();
+
+    /// <summary>
     /// 倍镜类型转换
     /// </summary>
-    /// <param name="microscopeMagnificationInfo">倍镜信息对象</param>
+    /// <param name="microscopeLensInformation">倍镜信息对象</param>
     /// <returns></returns>
-    SxExecuteRet<CgMicroscopeLens> MicroscopeMagnificationInfoToCgMicroscopeLens(MicroscopeMagnificationInfo microscopeMagnificationInfo);
+    SxExecuteRet<CgMicroscopeLens> MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation);
 
     /// <summary>
     /// 倍镜类型转换
     /// </summary>
     /// <param name="cgMicroscopeLens">显微镜镜头枚举对象</param>
     /// <returns></returns>
-    SxExecuteRet<MicroscopeMagnificationInfo> CgMicroscopeLensToMicroscopeMagnificationInfo(CgMicroscopeLens cgMicroscopeLens);
+    SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens);
 
 
     /// <summary>
     /// 获取显微镜倍率
     /// </summary>
     /// <returns>显微镜倍率</returns>
-    SxExecuteRet<MicroscopeMagnificationInfo> GetMagnification();
-
-    /// <summary>
-    /// 切换显微镜倍率
-    /// </summary>
-    /// <param name="microscopeMagnificationInfo">倍率</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SwitchMagnification(MicroscopeMagnificationInfo microscopeMagnificationInfo);
+    SxExecuteRet<MicroscopeLensInformation> GetCurrentMicroscopeLensInformation();
 
     /// <summary>
     /// 切换显微镜倍率不切自动聚焦模式
     /// </summary>
-    /// <param name="microscopeMagnificationInfo">倍率</param>
+    /// <param name="microscopeLensInformation">倍率</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SwitchMagnificationNotAutoFocus(MicroscopeMagnificationInfo microscopeMagnificationInfo);
+    SxExecuteRet<bool> SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation);
 
     /// <summary>
     /// 设置显微镜电压
@@ -69,10 +64,4 @@ public interface ICalibrationMicroscopeService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<(double min, double max)> GetVoltageRange();
-
-    /// <summary>
-    /// 获取cuga配置的倍镜列表
-    /// </summary>
-    /// <returns></returns>
-    SxExecuteRet<List<CgMicroscopeInfo>> GetLensList();
 }

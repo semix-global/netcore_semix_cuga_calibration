@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.AutoFocus;
@@ -7,7 +7,7 @@ namespace Core.Models.Models.Laser.AutoFocus;
 public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

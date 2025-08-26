@@ -7,6 +7,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -15,7 +16,6 @@ using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using Core.Utilities;
 using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
@@ -188,7 +188,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
@@ -199,7 +199,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         Cache.FindPosition = Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius
             ? new Point(0, 0)
             : Cache.FindPosition;
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
         return true;
     }
@@ -231,7 +231,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         switch (CalibrationStepIndex)
         {
             case 1:
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 return true;
 
             case 2:
@@ -316,13 +316,13 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -365,7 +365,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.MicroscopeMagnificationInfo = MicroscopeViewModel.GetMagnification();
+            Cache.MicroscopeLensInformation = MicroscopeViewModel.GetCurrentMicroscopeLensInformation();
 
             var resultBright = StageViewModel.GetBrightFieldStagePosition();
 
@@ -424,7 +424,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 Logger.LogHtmlInformation("Find EcsX Param OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     OpticsMagType = Cache.OpticsMagTypeEnum,
-                    MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    Cache.MicroscopeLensInformation.LensName,
                     ChirpAodDefaultDto.SoundPackageLength,
                     DefaultRateChange = ChirpAodDefaultDto.RateChange,
                     ChirpAodDefaultDto.ZeroNum,
@@ -483,7 +483,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 Logger.LogHtmlInformation("Initial Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     OpticsMagType = Cache.OpticsMagTypeEnum,
-                    MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    Cache.MicroscopeLensInformation.LensName,
                     InitialSoundPackageLength = initialSoundPackageLength,
                     InitialZeroNum = initialZeroNum,
                     InitialCenterFrequence = initialCenterFrequence,
@@ -688,7 +688,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 }
 
                 Cache.OpticsMagTypeEnum = SelectReviewItemDto.OpticsMagTypeEnum;
-                Cache.MicroscopeMagnificationInfo = SelectReviewItemDto.MicroscopeMagnificationInfo;
+                Cache.MicroscopeLensInformation = SelectReviewItemDto.MicroscopeLensInformation;
 
                 ClearCalibrationTemp();
                 var detectImageDirectory = ImageFileDirectory;
@@ -719,7 +719,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     OpticsMagType = Cache.OpticsMagTypeEnum,
-                    MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    Cache.MicroscopeLensInformation.LensName,
                     SoundPackageLength = initialSoundPackageLength,
                     CenterFrequence = initialCenterFrequence,
                     ZeroNum = initialZeroNum,
@@ -753,7 +753,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
                 Logger.LogHtmlInformation($"Vefify {(isSuccess ? "Success" : "Error")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     OpticsMagType = Cache.OpticsMagTypeEnum,
-                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    Cache.MicroscopeLensInformation.LensName,
                     CurrentFrequenceRateChange = ResultReviewItemDto.FrequenceIncrease,
                     OldEcsError = SelectReviewItemDto.EcsErrorValue,
                     NewEcsError = EcsError,
@@ -799,7 +799,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
+        itemDto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
 
         Calibrations =
         [

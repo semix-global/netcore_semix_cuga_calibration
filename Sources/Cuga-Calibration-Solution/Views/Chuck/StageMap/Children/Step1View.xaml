@@ -37,7 +37,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="High Microscope Magnification: "
-                           Status="{Binding Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                           Status="{Binding Cache.HighMicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
@@ -56,11 +56,11 @@
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
                                  Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                 SelectedItem="{Binding Cache.HighMicroscopeMagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                <TextBlock Text="{Binding LensName}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>

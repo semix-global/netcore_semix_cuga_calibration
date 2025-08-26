@@ -1,4 +1,3 @@
-using Core.Models.Enums.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 
 #if NET
@@ -22,30 +21,6 @@ public static class EnumMicroscopeExtension
         CgMicroscopeLens.Five => 5,
         _ => throw new ArgumentOutOfRangeException(nameof(cgMicroscopeLens), cgMicroscopeLens, null)
     };
-
-    #region MicroscopeMagnificationEnum <=> int
-
-    public static int ToCgLens(this MicroscopeMagnificationEnum microscopeMagnificationEnum) => microscopeMagnificationEnum switch
-    {
-        MicroscopeMagnificationEnum.Magnification5X => 5,
-        MicroscopeMagnificationEnum.Magnification10X => 10,
-        MicroscopeMagnificationEnum.Magnification50X => 50,
-        MicroscopeMagnificationEnum.Magnification100X => 100,
-        MicroscopeMagnificationEnum.Magnification150X => 150,
-        _ => throw new ArgumentOutOfRangeException(nameof(microscopeMagnificationEnum), microscopeMagnificationEnum, null)
-    };
-
-    public static MicroscopeMagnificationEnum ToMicroscopeMagnificationEnum(this int cgLens) => cgLens switch
-    {
-        5 => MicroscopeMagnificationEnum.Magnification5X,
-        10 => MicroscopeMagnificationEnum.Magnification10X,
-        50 => MicroscopeMagnificationEnum.Magnification50X,
-        100 => MicroscopeMagnificationEnum.Magnification100X,
-        150 => MicroscopeMagnificationEnum.Magnification150X,
-        _ => throw new ArgumentOutOfRangeException(nameof(cgLens), cgLens, null)
-    };
-
-    #endregion MicroscopeMagnificationEnum <=> int
 
     #region ESxMicroscopelens <=> CgMicroscopeLens
 
@@ -72,34 +47,4 @@ public static class EnumMicroscopeExtension
     };
 
     #endregion ESxMicroscopelens <=> CgMicroscopeLens
-
-    #region Mock CgMicroscopeLens <=> MicroscopeMagnificationEnum
-
-    /// <summary>
-    /// 为了实现Mock方法，实际逻辑不要使用。
-    /// </summary>
-    public static CgMicroscopeLens ToCgMicroscopeLens(this MicroscopeMagnificationEnum microscopeMagnificationEnum) => microscopeMagnificationEnum switch
-    {
-        MicroscopeMagnificationEnum.Magnification5X => CgMicroscopeLens.One,
-        MicroscopeMagnificationEnum.Magnification10X => CgMicroscopeLens.Two,
-        MicroscopeMagnificationEnum.Magnification50X => CgMicroscopeLens.Three,
-        MicroscopeMagnificationEnum.Magnification100X => CgMicroscopeLens.Four,
-        MicroscopeMagnificationEnum.Magnification150X => CgMicroscopeLens.Five,
-        _ => throw new ArgumentOutOfRangeException(nameof(microscopeMagnificationEnum), microscopeMagnificationEnum, null)
-    };
-
-    /// <summary>
-    /// 为了实现Mock方法，实际逻辑不要使用。
-    /// </summary>
-    public static MicroscopeMagnificationEnum ToMicroscopeMagnificationEnum(this CgMicroscopeLens cgMicroscopeLens) => cgMicroscopeLens switch
-    {
-        CgMicroscopeLens.One => MicroscopeMagnificationEnum.Magnification5X,
-        CgMicroscopeLens.Two => MicroscopeMagnificationEnum.Magnification10X,
-        CgMicroscopeLens.Three => MicroscopeMagnificationEnum.Magnification50X,
-        CgMicroscopeLens.Four => MicroscopeMagnificationEnum.Magnification100X,
-        CgMicroscopeLens.Five => MicroscopeMagnificationEnum.Magnification150X,
-        _ => throw new ArgumentOutOfRangeException(nameof(cgMicroscopeLens), cgMicroscopeLens, null)
-    };
-
-    #endregion Mock CgMicroscopeLens <=> MicroscopeMagnificationEnum
 }

@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Chuck;

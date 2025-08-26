@@ -3,15 +3,12 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// AutoFocus自动聚焦服务
-/// </summary>
 public interface ICalibrationLaserService
 {
     /// <summary>
@@ -51,9 +48,9 @@ public interface ICalibrationLaserService
     SxExecuteRet<double> GetOpticalPowerMeter();
 
     /// <summary>
-    /// 获取光强的信息列表
+    /// 获取cuga配置的激光光强的信息列表
     /// </summary>
-    /// <returns>光强信息列表</returns>
+    /// <returns>cuga配置的激光光强信息列表</returns>
     SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList();
 
     /// <summary>

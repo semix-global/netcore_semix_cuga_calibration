@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.IlluminationProfile;
-using Core.Models.Models.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.XTCCalibration;
 public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.Prealigner;
@@ -9,10 +9,10 @@ namespace Core.Models.Models.Chuck.Prealigner;
 public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     /// <summary>
     /// 晶圆类型

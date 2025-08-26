@@ -1,7 +1,7 @@
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Agent.Facade.Service.MachineFacade;
 using Cuga.Data.DataStruct.Autofocus;
@@ -76,7 +76,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         var sxExecuteRet = Invoke(() => Service2?.ReadData());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0.0d)
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(sxExecuteRet.Anything.Ecs));
     }
 
@@ -86,7 +86,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         var sxExecuteRet = Invoke(() => Service2?.ReadData());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0.0d)
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(sxExecuteRet.Anything.ECSAVG));
     }
 
@@ -99,9 +99,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
-        var ret = microscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
+        var ret = microscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
         if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
 
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeObj(new SxParamObj<CgMicroscopeLens>(ret.Anything)));
@@ -138,7 +138,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         var sxExecuteRet = Invoke(() => Service2?.ReadData());
 
         if (sxExecuteRet.IsSuccess == false)
-            return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0.0d);
+            return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
 
         var led = Convert.ToDouble(isA ? sxExecuteRet.Anything.LedA : sxExecuteRet.Anything.LedB);
 
@@ -191,9 +191,9 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationInfo microscopeMagnificationInfo, double standardEcsValue)
+    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
-        var ret = microscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
+        var ret = microscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
         if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
 
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeEcs(new SxParamObj<(CgMicroscopeLens lens, ushort ecs)>((ret.Anything, Convert.ToUInt16(standardEcsValue)))));

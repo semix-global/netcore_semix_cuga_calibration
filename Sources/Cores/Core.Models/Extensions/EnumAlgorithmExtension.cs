@@ -1,7 +1,7 @@
 using Core.Models.Enums.Algorithm;
+using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.Basic;
 using Net.Utilities.Models.Geometries;
-using CalibrationSetting = Core.Models.Models.Setting.CalibrationSetting;
 
 #if NET
 using Semix.GRPC.DTO.Basic;
@@ -96,5 +96,5 @@ public static class EnumAlgorithmExtension
 
     public static Size ToSize(this AlgorithmStandardMaskSquareSizeEnum algorithmStandardMaskSquareSizeEnum) => new(Convert.ToInt32(algorithmStandardMaskSquareSizeEnum), Convert.ToInt32(algorithmStandardMaskSquareSizeEnum));
 
-    #endregion
+    #endregion StandardMaskSquareSize
 }

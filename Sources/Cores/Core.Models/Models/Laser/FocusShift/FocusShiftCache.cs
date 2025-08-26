@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Net.Utilities.Models.Geometries;
 
@@ -32,10 +32,10 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
     private SettingDarkFieldAutoFocusParam _highMagDarkFieldAutoFocusParam = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Undefined;

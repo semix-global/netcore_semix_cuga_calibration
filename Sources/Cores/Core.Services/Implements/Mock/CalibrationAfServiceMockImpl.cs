@@ -1,6 +1,6 @@
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -88,7 +88,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
         Thread.Sleep(100);
 
@@ -171,7 +171,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationInfo microscopeMagnificationInfo, double standardEcsValue)
+    public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
         Thread.Sleep(100);
 

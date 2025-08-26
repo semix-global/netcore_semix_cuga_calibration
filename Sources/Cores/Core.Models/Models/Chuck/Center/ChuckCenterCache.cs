@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -94,9 +94,9 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
         return isAxisX ? WaferDiameter - ColumnCellWidth : WaferDiameter - RowCellHeight;
     }
 
-    public void SetPosition(Point position, MicroscopeMagnificationInfo magnificationInfo)
+    public void SetPosition(Point position, MicroscopeLensInformation lensInformation)
     {
-        var chuckCenterCacheItem = magnificationInfo == LowChuckCenterCacheItem.MagnificationInfo ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
+        var chuckCenterCacheItem = lensInformation == LowChuckCenterCacheItem.LensInformation ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
         switch (SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
@@ -116,9 +116,9 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
         }
     }
 
-    public void SetTemplate(string templatePath, string templateImagePath, MicroscopeMagnificationInfo magnificationInfo)
+    public void SetTemplate(string templatePath, string templateImagePath, MicroscopeLensInformation lensInformation)
     {
-        var chuckCenterCacheItem = magnificationInfo == LowChuckCenterCacheItem.MagnificationInfo ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
+        var chuckCenterCacheItem = lensInformation == LowChuckCenterCacheItem.LensInformation ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
         switch (SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
@@ -142,9 +142,9 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
         }
     }
 
-    public Point GetPosition(MicroscopeMagnificationInfo magnificationInfo)
+    public Point GetPosition(MicroscopeLensInformation lensInformation)
     {
-        var chuckCenterCacheItem = magnificationInfo == LowChuckCenterCacheItem.MagnificationInfo ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
+        var chuckCenterCacheItem = lensInformation == LowChuckCenterCacheItem.LensInformation ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
         return SiteDirection switch
         {
             StageDirectionTypeEnum.Up => chuckCenterCacheItem.TopPosition,
@@ -155,9 +155,9 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
         };
     }
 
-    public (string templatePath, string templateImagePath) GetTemplate(MicroscopeMagnificationInfo magnificationInfo)
+    public (string templatePath, string templateImagePath) GetTemplate(MicroscopeLensInformation lensInformation)
     {
-        var chuckCenterCacheItem = magnificationInfo == LowChuckCenterCacheItem.MagnificationInfo ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
+        var chuckCenterCacheItem = lensInformation == LowChuckCenterCacheItem.LensInformation ? LowChuckCenterCacheItem : HighChuckCenterCacheItem;
         return SiteDirection switch
         {
             StageDirectionTypeEnum.Up => (chuckCenterCacheItem.TopTemplateFilePath, chuckCenterCacheItem.TopTemplateImageFilePath),

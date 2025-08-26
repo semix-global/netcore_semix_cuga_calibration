@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -12,7 +13,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -149,7 +149,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
@@ -160,7 +160,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
 
         Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
 
         return true;
     }
@@ -229,13 +229,13 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -274,7 +274,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
@@ -292,7 +292,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
@@ -325,7 +325,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
             var detectImageDirectory = ImageFileDirectory;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,

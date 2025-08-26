@@ -25,9 +25,9 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -54,7 +54,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     private MicroscopePixelSizeItemDto? _resultMicroscopePixelSizeItemDto;
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeMagnificationInfoCalibrationStatus> _calibrationStatusList = [];
+    private ObservableCollection<MicroscopeLensInfoCalibrationStatus> _calibrationStatusList = [];
 
     #endregion Calibrate
 
@@ -110,22 +110,22 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             (isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
             Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
 
-            Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeMagnificationInfoList.Contains(t.MagnificationInfo))]; // 过滤掉变更静态配置后原来的缓存
+            Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
             SynchronizationContextProvider.Send(() =>
                 CalibrationStatusList =
                 [
-                    .. ApplicationCookie.MicroscopeMagnificationInfoList
-                        .Select(t => new MicroscopeMagnificationInfoCalibrationStatus { MicroscopeMagnificationInfo = t, IsCalibrated = false })
+                    .. ApplicationCookie.MicroscopeLensInformationList
+                        .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
                 ]
             );
             foreach (var calibrationStatus in Calibrations)
             {
                 CalibrationStatusList
-                    .Single(t => t.MicroscopeMagnificationInfo == calibrationStatus.MagnificationInfo)
+                    .Single(t => t.MicroscopeLensInformation == calibrationStatus.LensInformation)
                     .IsCalibrated = calibrationStatus.IsCalibrated;
             }
         }).ConfigureAwait(false);
-        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeMagnificationInfoList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
+        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -144,8 +144,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.MagnificationInfo.Magnification)
-                .ThenBy(t => t.MagnificationInfo.MagnificationCode)
+                .OrderBy(t => t.LensInformation.Magnification)
+                .ThenBy(t => t.LensInformation.LensCode)
         ];
 
         return ReviewList.Count != 0 && ReviewList.Any(t => t.IsCalibrated);
@@ -157,7 +157,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition);
 
                 return true;
@@ -190,7 +190,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.MicroscopeMagnificationInfo == SelectMicroscopePixelSizeCacheItem.MagnificationInfo).IsCalibrated = true;
+                CalibrationStatusList.Single(t => t.MicroscopeLensInformation == SelectMicroscopePixelSizeCacheItem.LensInformation).IsCalibrated = true;
                 //DialogWindowProvider.ShowDialog("Find Pixel Size Ok!");
 
                 IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
@@ -224,7 +224,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
+                Cache.MicroscopeLensInformation.LensName
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -248,12 +248,12 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
             if (IsRecipeCalibrate)
             {
-                if (await AutomationRecipeInformationAsync(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName) == false) return false;
+                if (await AutomationRecipeInformationAsync(Cache.MicroscopeLensInformation.LensName) == false) return false;
             }
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 SelectMicroscopePixelSizeCacheItem.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -271,7 +271,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 SelectMicroscopePixelSizeCacheItem.FindPosition,
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -290,7 +290,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
             Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                MicroscopeMagnification = ResultMicroscopePixelSizeItemDto.MagnificationInfo.MicroscopeMagnificationName,
+                ResultMicroscopePixelSizeItemDto.LensInformation.LensName,
                 SelectMicroscopePixelSizeCacheItem.FindPosition,
                 ResultMicroscopePixelSizeItemDto.PixelSize,
                 HtmlTab = new HtmlTab(new
@@ -345,15 +345,15 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             else
             {
                 selectReviewItemDto.IsVerified = false;
-                Cache.MicroscopeMagnificationInfo = SelectReviewItemDto!.MagnificationInfo;
+                Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
                 SelectMicroscopePixelSizeCacheItem = Cache.GetSelectedCacheItem();
                 SelectMicroscopePixelSizeCacheItem.FindPosition = selectReviewItemDto.FindPosition;
 
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
-                Logger.LogHtmlInformation($"{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    Cache.MicroscopeLensInformation.LensName,
                     SelectMicroscopePixelSizeCacheItem.FindPosition,
                     ImageFileDirectory = detectImageDirectory
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -364,7 +364,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 var averageHeight = MicroscopePixelSizeItemDtoList.Select(t => t.PixelSize.Height).Average();
                 var averagePixelSize = new Size(averageWidth, averageHeight);
                 var error = (Size)((Vector)averagePixelSize - (Vector)selectReviewItemDto.PixelSize);
-                ReviewResultList.Add((Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName, selectReviewItemDto.PixelSize, averagePixelSize, error));
+                ReviewResultList.Add((Cache.MicroscopeLensInformation.LensName, selectReviewItemDto.PixelSize, averagePixelSize, error));
                 result = error.DiagonalLength < Cache.Threshold.DiagonalLength;
 
                 Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -413,7 +413,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 using var _2 = drawingImage;
                 var microscopePixelSizeItemDto = new MicroscopePixelSizeItemDto
                 {
-                    MagnificationInfo = Cache.MicroscopeMagnificationInfo,
+                    LensInformation = Cache.MicroscopeLensInformation,
                     FindPosition = SelectMicroscopePixelSizeCacheItem.FindPosition,
                     OriginFilePath = $"{detectImageDirectory}\\PixelSize({pixelSize})_Times({times})_Guid({HtmlLogUniqueId}).jpg",
                     FilePath = $"{detectImageDirectory}\\PixelSize({pixelSize})_Drawing_Times({times})_Guid({HtmlLogUniqueId}).jpg",
@@ -425,7 +425,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
                 var htmlBulletList = new HtmlBullet(new
                 {
-                    MicroscopeMagnification = microscopePixelSizeItemDto.MagnificationInfo.MicroscopeMagnificationName,
+                    microscopePixelSizeItemDto.LensInformation.LensName,
                     SelectMicroscopePixelSizeCacheItem.FindPosition,
                     microscopePixelSizeItemDto.PixelSize,
                     HtmlTab = new HtmlTab(new
@@ -457,7 +457,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         Calibrations =
         [
             .. Calibrations
-                .Where(t => t.MagnificationInfo != itemDto.MagnificationInfo),
+                .Where(t => t.LensInformation != itemDto.LensInformation),
             itemDto.Clone(),
         ];
 
@@ -495,7 +495,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
-                .. ApplicationCookie.MicroscopeMagnificationInfoList.Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName }),
+                .. ApplicationCookie.MicroscopeLensInformationList.Select(info => new CalibrationItemStep { StepName = info.LensName }),
                 new() { StepName = "Review" }
             ]);
         });
@@ -538,7 +538,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                                 SelectReviewItemDto = itemReview;
                                 if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken).ConfigureAwait(false) == false)
                                 {
-                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                     return false;
                                 }
                             }
@@ -558,11 +558,11 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                             return false;
                         }
 
-                        if (ResultMicroscopePixelSizeItemDtoList.Count(t => t.IsOk) == ApplicationCookie.MicroscopeMagnificationInfoList.Count)
+                        if (ResultMicroscopePixelSizeItemDtoList.Count(t => t.IsOk) == ApplicationCookie.MicroscopeLensInformationList.Count)
                         {
                             Logger.LogHtmlInformation("ResultPixelSize", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                             {
-                                ResultPixelSize = new HtmlTable([.. ResultMicroscopePixelSizeItemDtoList.Select(t => new { t.MagnificationInfo.MicroscopeMagnificationName, t.PixelSize }).Cast<object>()])
+                                ResultPixelSize = new HtmlTable([.. ResultMicroscopePixelSizeItemDtoList.Select(t => new { t.LensInformation.LensName, t.PixelSize }).Cast<object>()])
                             }), HtmlLogUniqueId.LoggingHtml());
                         }
 
@@ -595,16 +595,16 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             return false;
         }
 
-        Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t.MicroscopeMagnificationName == microscopeName);
+        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Single(t => t.LensName == microscopeName);
         SelectMicroscopePixelSizeCacheItem = Cache.GetSelectedCacheItem();
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopePixelSizeCacheItem.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, out var maskInfo) == false)
+        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopePixelSizeCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
         Cache.SetFindFocusPosition(position);
 
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo, true);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation, true);
         StageViewModel.SetBrightFieldAbsoluteStageXy(position);
         return true;
     }
@@ -649,10 +649,10 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     SelectReviewItemDto = itemReview;
-                    if (await AutomationRecipeInformationAsync(SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName) == false) return false;
+                    if (await AutomationRecipeInformationAsync(SelectReviewItemDto.LensInformation.LensName) == false) return false;
                     if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false)
                     {
-                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                         return false;
                     }
                 }

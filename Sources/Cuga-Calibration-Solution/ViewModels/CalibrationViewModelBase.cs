@@ -596,7 +596,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         return Task.Run(() =>
         {
             if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out _))
-                MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList[0]);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList[0]);
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             return true;
         });

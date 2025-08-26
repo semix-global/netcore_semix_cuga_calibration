@@ -108,11 +108,11 @@
                             <hc:UniformSpacingPanel Spacing="5" />
                             <StackPanel Orientation="Vertical">
                                 <TextBox x:Name="ThresholdTextBox"
-                                         Text="{Binding CacheFindWaferCenter.PositionErrorThreshold, StringFormat={}{0:f3}}"
+                                         Text="{Binding AlignmentFindCenterCache.PositionErrorThreshold, StringFormat={}{0:f3}}"
                                          hc:InfoElement.Title="Position Error Threshold(um):"
                                          hc:InfoElement.TitlePlacement="Left"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding CacheFindWaferCenter.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                                <TextBox Text="{Binding AlignmentFindCenterCache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
                                          hc:InfoElement.Title="Center offset position:"
                                          hc:InfoElement.TitlePlacement="Left"
                                          Style="{StaticResource TextBoxExtend}" />

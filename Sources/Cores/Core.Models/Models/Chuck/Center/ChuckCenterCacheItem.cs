@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 
@@ -8,7 +8,7 @@ namespace Core.Models.Models.Chuck.Center;
 public sealed partial class ChuckCenterCacheItem : ObservableCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _magnificationInfo = new();
+    private MicroscopeLensInformation _lensInformation = new();
 
     [ObservableProperty]
     private Point _topPosition = new(150, 0);

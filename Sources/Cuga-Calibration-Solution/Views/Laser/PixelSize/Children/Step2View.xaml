@@ -35,7 +35,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Need Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "

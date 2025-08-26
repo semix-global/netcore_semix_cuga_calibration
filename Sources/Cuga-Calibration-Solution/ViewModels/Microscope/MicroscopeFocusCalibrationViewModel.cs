@@ -24,9 +24,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -53,7 +53,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     private MicroscopeFocusItemDto? _resultMicroscopeFocusItemDto;
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeMagnificationInfoCalibrationStatus> _calibrationStatusList = [];
+    private ObservableCollection<MicroscopeLensInfoCalibrationStatus> _calibrationStatusList = [];
 
     #endregion Calibrate
 
@@ -99,23 +99,23 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
 
-        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeMagnificationInfoList.Contains(t.MagnificationInfo))]; // 过滤掉变更静态配置后原来的缓存
+        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
 
         SynchronizationContextProvider.Send(() =>
             CalibrationStatusList =
             [
-                .. ApplicationCookie.MicroscopeMagnificationInfoList
-                    .Select(t => new MicroscopeMagnificationInfoCalibrationStatus { MicroscopeMagnificationInfo = t, IsCalibrated = false })
+                .. ApplicationCookie.MicroscopeLensInformationList
+                    .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
             ]
         );
         foreach (var calibrationStatus in Calibrations)
         {
             CalibrationStatusList
-                .Single(t => t.MicroscopeMagnificationInfo == calibrationStatus.MagnificationInfo)
+                .Single(t => t.MicroscopeLensInformation == calibrationStatus.LensInformation)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeMagnificationInfoList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
+        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -135,8 +135,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.MagnificationInfo.Magnification)
-                .ThenBy(t => t.MagnificationInfo.MagnificationCode)
+                .OrderBy(t => t.LensInformation.Magnification)
+                .ThenBy(t => t.LensInformation.LensCode)
         ];
 
         if (ReviewList.Count == 0)
@@ -154,7 +154,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         switch (CalibrationStepIndex)
         {
             case 0:
-                return MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo);
+                return MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation);
             case 1:
                 StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(SelectMicroscopeFocusCacheItem.FindFocusPosition);
                 return true;
@@ -176,7 +176,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.MicroscopeMagnificationInfo == SelectMicroscopeFocusCacheItem.MagnificationInfo).IsCalibrated = true;
+                CalibrationStatusList.Single(t => t.MicroscopeLensInformation == SelectMicroscopeFocusCacheItem.LensInformation).IsCalibrated = true;
                 //DialogWindowProvider.ShowDialog("Find Focus Ok!");
 
                 IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
@@ -196,7 +196,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         await Task.CompletedTask.ConfigureAwait(false);
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
 
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -218,7 +218,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             SelectMicroscopeFocusCacheItem = Cache.GetSelectedCacheItem();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
+                LensName = Cache.MicroscopeLensInformation.LensName
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -232,12 +232,12 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             var result = StageViewModel.GetBrightFieldStagePosition();
             Cache.SetFindFocusPosition(result);
 
-            if (await AutomationRecipeInformationAsync(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName) == false)
+            if (await AutomationRecipeInformationAsync(Cache.MicroscopeLensInformation.LensName) == false)
                 return false;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                SelectMicroscopeFocusCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                LensName = SelectMicroscopeFocusCacheItem.LensInformation.LensName,
                 SelectMicroscopeFocusCacheItem.FindFocusPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -252,7 +252,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         await InvokeCalibrateAsync(() =>
         {
             ClearCalibrationTemp();
-            var (isSuccessVerify, errorMessage) = Cache.CalibrationVerify(SelectMicroscopeFocusCacheItem.MagnificationInfo);
+            var (isSuccessVerify, errorMessage) = Cache.CalibrationVerify(SelectMicroscopeFocusCacheItem.LensInformation);
             if (isSuccessVerify == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
@@ -276,7 +276,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             }
 
             AfViewModel.ToggleBrightFieldEnable(false);
-            if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(SelectMicroscopeFocusCacheItem.MagnificationInfo) == false)
+            if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(SelectMicroscopeFocusCacheItem.LensInformation) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -288,7 +288,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 CurrentEcsValue = ecsValue,
-                MicroscopeMagnification = SelectMicroscopeFocusCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+                SelectMicroscopeFocusCacheItem.LensInformation.LensName,
                 FindFocusPosition = findFocusPosition,
                 FindFocusLimitMin = findFocusMin,
                 FindFocusLimitMax = findFocusMax,
@@ -305,7 +305,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 ecsList.Add(new MicroscopeFocusItemDto
                 {
                     Index = index + 1,
-                    MagnificationInfo = SelectMicroscopeFocusCacheItem.MagnificationInfo,
+                    LensInformation = SelectMicroscopeFocusCacheItem.LensInformation,
                     FindPosition = findFocusPosition,
                     Quality = 0,
                     EcsValue = ecsValueTemp,
@@ -354,7 +354,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             SelectedMicroscopeFocusItemDto.TransBufferAfErrorValue = afErrorAverage;
             SelectedMicroscopeFocusItemDto.MicroscopeVoltage = voltage;
             ResultMicroscopeFocusItemDto = SelectedMicroscopeFocusItemDto.Clone();
-            AfViewModel.SetSensorBrightFieldChuckStandardEcsValue(ResultMicroscopeFocusItemDto.MagnificationInfo, ResultMicroscopeFocusItemDto.EcsValue);
+            AfViewModel.SetSensorBrightFieldChuckStandardEcsValue(ResultMicroscopeFocusItemDto.LensInformation, ResultMicroscopeFocusItemDto.EcsValue);
             MicroscopeViewModel.SetVoltage(ResultMicroscopeFocusItemDto.MicroscopeVoltage);
 
             Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -363,7 +363,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 ResultMicroscopeFocusItemDto.EcsValue,
                 ResultMicroscopeFocusItemDto.MicroscopeVoltage,
                 ImageQuality = ResultMicroscopeFocusItemDto.Quality,
-                MicroscopeMagnification = ResultMicroscopeFocusItemDto.MagnificationInfo.MicroscopeMagnificationName,
+                ResultMicroscopeFocusItemDto.LensInformation.LensName,
                 ResultMicroscopeFocusItemDto.TransBufferAfErrorValue,
                 HtmlTab = new HtmlTab(new
                 {
@@ -401,7 +401,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         var detectImageDirectory = ImageFileDirectory;
 
         selectReviewItemDto!.IsVerified = false;
-        Cache.MicroscopeMagnificationInfo = SelectReviewItemDto!.MagnificationInfo;
+        Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
 
         SelectMicroscopeFocusCacheItem = Cache.GetSelectedCacheItem();
 
@@ -410,12 +410,12 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         var findFocusMax = SelectMicroscopeFocusCacheItem.FindFocusMax;
         var findFocusInterval = SelectMicroscopeFocusCacheItem.FindFocusInterval;
 
-        Logger.LogHtmlInformation($"{SelectMicroscopeFocusCacheItem.MagnificationInfo.MicroscopeMagnificationName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation($"{SelectMicroscopeFocusCacheItem.LensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         Logger.LogHtmlInformation($"Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
             ResultEcsValue = selectReviewItemDto.EcsValue,
             ResultVoltage = selectReviewItemDto.MicroscopeVoltage,
-            MicroscopeMagnification = SelectMicroscopeFocusCacheItem.MagnificationInfo.MicroscopeMagnificationName,
+            SelectMicroscopeFocusCacheItem.LensInformation.LensName,
             FindFocusPosition = findFocusPosition,
             FindFocusLimitMin = findFocusMin,
             FindFocusLimitMax = findFocusMax,
@@ -425,14 +425,14 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
         AfViewModel.ToggleBrightFieldEnable(false);
 
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(SelectMicroscopeFocusCacheItem.MagnificationInfo) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(SelectMicroscopeFocusCacheItem.LensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
         StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(findFocusPosition);
-        AfViewModel.SetSensorBrightFieldChuckStandardEcsValue(selectReviewItemDto.MagnificationInfo, selectReviewItemDto.EcsValue);
+        AfViewModel.SetSensorBrightFieldChuckStandardEcsValue(selectReviewItemDto.LensInformation, selectReviewItemDto.EcsValue);
         MicroscopeViewModel.SetVoltage(selectReviewItemDto.MicroscopeVoltage);
         AfViewModel.ToggleBrightFieldEnable(true);
 
@@ -441,7 +441,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         var microscopeFocusItemDto = new MicroscopeFocusItemDto
         {
             Index = 0,
-            MagnificationInfo = SelectMicroscopeFocusCacheItem.MagnificationInfo,
+            LensInformation = SelectMicroscopeFocusCacheItem.LensInformation,
             FindPosition = findFocusPosition,
             Quality = 0,
             EcsValue = selectReviewItemDto.EcsValue,
@@ -474,7 +474,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             Cache.Threshold,
             microscopeFocusItemDto.EcsValue,
             ImageQuality = microscopeFocusItemDto.Quality,
-            MicroscopeMagnification = microscopeFocusItemDto.MagnificationInfo.MicroscopeMagnificationName,
+            microscopeFocusItemDto.LensInformation.LensName,
         }), HtmlLogUniqueId.LoggingHtml());
 
         if (!IsAutoCalibrate)
@@ -507,9 +507,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             {
                 Cache.ParfocalThreshold,
                 parfocalOffset,
-                MinEcsMicroscopeType = Calibrations.OrderBy(t => t.EcsValue).First().MagnificationInfo.MicroscopeMagnificationName,
-                MaxEcsMicroscopeType = Calibrations.OrderBy(t => t.EcsValue).Last().MagnificationInfo.MicroscopeMagnificationName,
-                EcsResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, t.MagnificationInfo.MicroscopeMagnificationName, t.EcsValue }).Cast<object>()])
+                MinEcsMicroscopeType = Calibrations.OrderBy(t => t.EcsValue).First().LensInformation.LensName,
+                MaxEcsMicroscopeType = Calibrations.OrderBy(t => t.EcsValue).Last().LensInformation.LensName,
+                EcsResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.EcsValue }).Cast<object>()])
             }), HtmlLogUniqueId.LoggingHtml());
         }
 
@@ -540,7 +540,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         {
             microscopeFocusItemDto.EcsValue,
             ImageQuality = microscopeFocusItemDto.Quality,
-            MicroscopeMagnification = microscopeFocusItemDto.MagnificationInfo.MicroscopeMagnificationName,
+            microscopeFocusItemDto.LensInformation.LensName,
             HtmlTab = new HtmlTab(new
             {
                 Image = new HtmlImage(microscopeFocusItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -558,7 +558,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         Calibrations =
         [
             .. Calibrations
-                .Where(t => t.MagnificationInfo != itemDto.MagnificationInfo),
+                .Where(t => t.LensInformation != itemDto.LensInformation),
             itemDto.Clone(),
         ];
 
@@ -587,7 +587,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
-                .. ApplicationCookie.MicroscopeMagnificationInfoList.Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName }),
+                .. ApplicationCookie.MicroscopeLensInformationList.Select(info => new CalibrationItemStep { StepName = info.LensName }),
                 new() { StepName = "Review" }
             ]);
         });
@@ -628,7 +628,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                             SelectReviewItemDto = itemReview;
                             if (VerifyCalibration(SelectReviewItemDto, cancellationToken) == false)
                             {
-                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                 return false;
                             }
                         }
@@ -672,11 +672,11 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t.MicroscopeMagnificationName == microscopeName);
+        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Single(t => t.LensName == microscopeName);
         SelectMicroscopeFocusCacheItem = Cache.GetSelectedCacheItem();
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeFocusCacheItem.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, out var maskInfo) == false)
+        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeFocusCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)
             return false;
 
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
@@ -686,9 +686,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         return true;
     }
 
-    private async Task<bool> AutoActionStepAsync(string magnificationName, CancellationToken cancellationToken)
+    private async Task<bool> AutoActionStepAsync(string lensName, CancellationToken cancellationToken)
     {
-        if (await AutomationRecipeInformationAsync(magnificationName) == false) return false;
+        if (await AutomationRecipeInformationAsync(lensName) == false) return false;
         if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
         CalibrationStepIndex = 2;
         if (await NextingAsync(cancellationToken) == false) return false;
@@ -725,10 +725,10 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     SelectReviewItemDto = itemReview;
-                    if (await AutomationRecipeInformationAsync(SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName) == false) return false;
+                    if (await AutomationRecipeInformationAsync(SelectReviewItemDto.LensInformation.LensName) == false) return false;
                     if (VerifyCalibration(SelectReviewItemDto, cancellationToken) == false)
                     {
-                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                         return false;
                     }
                 }

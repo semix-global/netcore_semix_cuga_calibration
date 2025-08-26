@@ -7,9 +7,9 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
-using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using MathNet.Numerics.LinearAlgebra;
@@ -133,7 +133,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
@@ -285,13 +285,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -475,7 +475,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var detectImageDirectory = ImageFileDirectory;
             using var _ = darkFieldImageDto;
 
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
             {
                 if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -751,7 +751,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
+        itemDto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
 
         Calibrations =
         [
@@ -817,7 +817,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             {
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
+                    Cache.MicroscopeLensInformation.LensName
                 }), HtmlLogUniqueId.LoggingHtml());
                 return true;
             });
@@ -878,7 +878,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         // Bright Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, null, out var brightFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, null, out var brightFieldMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, brightFieldMaskInfo, out var brightFieldMaskPosition);
         Cache.FindTemplatePosition = brightFieldMaskPosition;
