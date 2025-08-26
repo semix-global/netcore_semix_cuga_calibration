@@ -27,6 +27,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using Point = Net.Utilities.Models.Geometries.Point;
+using RawImageHelper = Core.Utilities.RawImageHelper;
 using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -363,7 +364,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
     private async Task<bool> Step3ActionAsync(CancellationToken cancellationToken)
     {
-        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(LaserXPixelSizeItem, Guid.NewGuid(), cancellationToken);
+        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(LaserXPixelSizeItem, Guid.NewGuid(), cancellationToken, false);
         if (isSuccess == false) return false;
         var calPixelDifferences = matchPoint
             .Zip(matchPoint.Skip(1), (prev, curr) => curr.X - prev.X)
@@ -419,7 +420,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         Cache.FindEndPosition = laserXPixelSizeItemDto.FindEndPosition;
         Cache.TemplateFilePath = laserXPixelSizeItemDto.FilePath;
         Cache.TemplateImageFilePath = laserXPixelSizeItemDto.FileTemplatePath;
-        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken);
+        var (isSuccess, matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken, true);
         if (isSuccess == false) return false;
 
         var differences = matchPoint
@@ -523,14 +524,14 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         });
     }
 
-    private Task<(bool isSuccess, List<Point> matchPoint)> GetXPixelSizeAsync(LaserXPixelSizeItemDto laserXPixelSizeItem, Guid guid, CancellationToken cancellationToken)
+    private Task<(bool isSuccess, List<Point> matchPoint)> GetXPixelSizeAsync(LaserXPixelSizeItemDto laserXPixelSizeItem, Guid guid, CancellationToken cancellationToken, bool isReview)
     {
         var points = new List<Point>();
         return Task.Run(() =>
         {
             try
             {
-                Cache.GetMagSpeedIdeaXPixelSize(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
+                if (isReview == false) Cache.GetMagSpeedIdeaXPixelSize(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
                 Cache.GetMagSpeedTemplateFilePath(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
                 ClearCalibrationTemp();
                 laserXPixelSizeItem.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
@@ -586,6 +587,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 laserXPixelSizeItem.OriginalFilePath = originFilePath;
 
                 var isSplitImage = SplitLongImage(originFilePath, Cache.IdealUmPerPixel, guid, out var matchPoint);
+                if (isReview)
+                {
+                    return (isSplitImage, matchPoint);
+                }
+
                 if (isSplitImage == false)
                 {
                     while (!isSplitImage)
@@ -610,6 +616,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                     XPixelSize = umPerPixel,
                                 }), HtmlLogUniqueId.LoggingHtml());
                                 isSplitImage = SplitLongImage(originFilePath, umPerPixel, Guid.NewGuid(), out matchPoint);
+                                if (isSplitImage) points = matchPoint;
                             }
                             else
                             {
@@ -697,7 +704,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             HalconHelper.Save(image, originImageFilePath);
             //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
             var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
-            if (!isSuccess && resultScore < Cache.NccScoreThreshold)
+            if (!isSuccess || resultScore < Cache.NccScoreThreshold)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
