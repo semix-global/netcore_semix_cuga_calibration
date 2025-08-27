@@ -2,9 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Common.FindWaferCenter;
+namespace Core.Models.Models.Common.Alignment;
 
-public partial class FindWaferCenterCache : ObservableCacheBase
+public partial class AlignmentFindCenterCache : ObservableCacheBase
 {
     [ObservableProperty]
     private bool _isOk;

@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -18,7 +18,7 @@ public sealed partial class ChuckBrightFieldStageMapCache : CalibrationCacheBase
     private int _calculateContainColumnMinCount = 8;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
     public int RowNumber
@@ -151,5 +151,5 @@ public sealed partial class ChuckBrightFieldStageMapCache : CalibrationCacheBase
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
 
-    #endregion
+    #endregion Verify
 }

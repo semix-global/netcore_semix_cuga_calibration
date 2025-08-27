@@ -1,6 +1,7 @@
+using Net.Utilities.WPF.Converters.MultiValueConverters;
 using System.Globalization;
 
-namespace Net.Utilities.WPF.Converters.MultiValueConverters;
+namespace Core.Utilities.WPF.Converters.MultiValueConverters;
 
 public sealed class MultiValueBooleanConverter : AbstractSingletonMultiConverterBase<MultiValueBooleanConverter>
 {

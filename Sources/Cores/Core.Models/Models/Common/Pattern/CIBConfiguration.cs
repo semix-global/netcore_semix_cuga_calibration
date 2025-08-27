@@ -3,7 +3,7 @@ using Core.Models.Enums.CIB;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
-namespace Core.Models.Models.Pattern;
+namespace Core.Models.Models.Common.Pattern;
 
 public sealed partial class CIBConfiguration : ObservableCacheBase, ICloneable<CIBConfiguration>
 {

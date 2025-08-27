@@ -8,10 +8,10 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -43,7 +43,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
     [ObservableProperty]
     private ChuckPrealignerObjDto _chuckPrealignerObjDto = new();
-
 
     [ObservableProperty]
     private bool _isReviewLoadWafer;
@@ -132,11 +131,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         Calibration = CacheProvider.GetOrDefault<ChuckPrealignerObjDto>();
         CalibrationStepList[0].StepIsNextEnable = false;
 
-        if (Cache.LowMicroscopeMagnificationInfo.MagnificationCode == -1) Cache.LowMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
-        if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
-            Cache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
-                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
-                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
+        if (Cache.LowMicroscopeLensInformation.LensCode == -1) Cache.LowMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
+        if (Cache.HighMicroscopeLensInformation.LensCode == -1)
+            Cache.HighMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
+                ? ApplicationCookie.MicroscopeLensInformationList[^1]
+                : ApplicationCookie.MicroscopeLensInformationList[2];
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -179,7 +178,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
-        MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
         return true;
     }
 
@@ -190,23 +189,28 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
                 return true;
+
             case 1:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
                 return true;
+
             case 2:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 Cache.HighFindPosition1 = Cache.LowFindPosition1;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return true;
+
             case 3:
                 Cache.HighFindPosition2 = Cache.LowFindPosition2;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
+
             case 4:
                 return true;
+
             case 5:
                 ChuckPrealignerObjDto.IsCalibrated = true;
                 if (Save(ChuckPrealignerObjDto, cancellationToken) == false)
@@ -218,6 +222,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                 IsCalibrated = true;
                 return true;
+
             default:
                 return false;
         }
@@ -232,17 +237,21 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             case 2:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
                 return true;
+
             case 3:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
                 return true;
+
             case 4:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return true;
+
             case 5:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
+
             default:
                 return false;
         }
@@ -267,7 +276,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     case nameof(Cache.LowFindPosition1):
                         Cache.LowFindPosition1 = result;
                         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
-                        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+                        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
                         Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
                         Cache.LowSite1.Location = Cache.LowFindPosition1;
                         var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -291,7 +300,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                     case nameof(Cache.HighFindPosition1):
                         Cache.HighFindPosition1 = result;
-                        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+                        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
                         Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
                         Cache.HighSite1.Location = Cache.HighFindPosition1;
                         var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -331,13 +340,13 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -432,7 +441,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         {
             var position = StageViewModel.GetBrightFieldStagePosition();
             Cache.LowFindPosition1 = position;
-            Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
             Cache.LowSite1.Location = Cache.LowFindPosition1;
             var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -449,7 +458,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowFindPosition1,
                 HtmlTab = new HtmlTab(new
                 {
@@ -478,7 +487,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowFindPosition2,
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
@@ -492,7 +501,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var result = true;
         await InvokeCalibrateAsync(() =>
         {
-            if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode <= Cache.LowMicroscopeMagnificationInfo.MagnificationCode)
+            if (Cache.HighMicroscopeLensInformation.LensCode <= Cache.LowMicroscopeLensInformation.LensCode)
             {
                 DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -500,7 +509,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             var position = StageViewModel.GetBrightFieldStagePosition();
             Cache.HighFindPosition1 = position;
-            Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
             Cache.HighSite1.Location = Cache.HighFindPosition1;
             var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -517,7 +526,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.HighMicroscopeLensInformation.LensName,
                 Cache.HighFindPosition1,
                 HtmlTab = new HtmlTab(new
                 {
@@ -545,7 +554,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.HighMicroscopeLensInformation.LensName,
                 Cache.HighFindPosition2
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
@@ -709,7 +718,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return result;
     }
 
-
     private async Task<bool> P5CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var result = false;
@@ -718,8 +726,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("P5 Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.AngleErrorThreshold,
-                LowMagnification = Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
-                HighMagnification = Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
+                HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
                 Cache.AlgorithmWaferTypeEnum,
                 LowLocation1 = Cache.LowSite1.Location,
                 LowLocation2 = Cache.LowSite2.Location,
@@ -736,8 +744,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.LowSite2,
                 Cache.HighSite1,
                 Cache.HighSite2,
-                Cache.LowMicroscopeMagnificationInfo,
-                Cache.HighMicroscopeMagnificationInfo,
+                Cache.LowMicroscopeLensInformation,
+                Cache.HighMicroscopeLensInformation,
                 Cache.AlgorithmWaferTypeEnum);
             Cache.OffsetAngle = alignmentResultDto.Degrees;
             result = Math.Abs(Cache.OffsetAngle) <= Cache.AngleErrorThreshold;
@@ -755,7 +763,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             efemWindowViewModel.PrealignerIsOk = false;
             if (Math.Abs(Cache.OffsetAngle) > Cache.AngleThreshold || !isReviewLoadWafer) efemWindowViewModel.OffsetAngle = 0;
             else efemWindowViewModel.OffsetAngle = Cache.OffsetAngle;
-
 
             if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionThreshold || !isReviewLoadWafer)
                 efemWindowViewModel.OffsetPoint = Point.Origin;
@@ -795,40 +802,40 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var result = false;
         await Task.Run(() =>
         {
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb1 = Cache.WaferCenterThumb1;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb2 = Cache.WaferCenterThumb2;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb3 = Cache.WaferCenterThumb3;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb4 = Cache.WaferCenterThumb4;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb5 = Cache.WaferCenterThumb5;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb6 = Cache.WaferCenterThumb6;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb7 = Cache.WaferCenterThumb7;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb8 = Cache.WaferCenterThumb8;
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.OffsetPosition = Cache.OffsetPosition;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb1 = Cache.WaferCenterThumb1;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb2 = Cache.WaferCenterThumb2;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb3 = Cache.WaferCenterThumb3;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb4 = Cache.WaferCenterThumb4;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb5 = Cache.WaferCenterThumb5;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb6 = Cache.WaferCenterThumb6;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb7 = Cache.WaferCenterThumb7;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb8 = Cache.WaferCenterThumb8;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.OffsetPosition = Cache.OffsetPosition;
 
-            findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.PositionErrorThreshold = Cache.PositionErrorThreshold;
+            findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.PositionErrorThreshold = Cache.PositionErrorThreshold;
             WindowManagerService.ShowDialog(findWaferCenterWindowFieldViewModel);
             result = findWaferCenterWindowFieldViewModel.IsFindWaferCenterOffsetPositionEnabled;
             var waferCenterThumbList = new List<byte[]>
             {
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb1,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb2,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb3,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb4,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb5,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb6,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb7,
-                findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.WaferCenterThumb8
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb1,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb2,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb3,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb4,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb5,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb6,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb7,
+                findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.WaferCenterThumb8
             };
             SaveWaferCenterThumbImages(waferCenterThumbList);
-            Cache.FindWaferCenterOffset1 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset1;
-            Cache.FindWaferCenterOffset2 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset2;
-            Cache.FindWaferCenterOffset3 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset3;
-            Cache.FindWaferCenterOffset4 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset4;
-            Cache.FindWaferCenterOffset5 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset5;
-            Cache.FindWaferCenterOffset6 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset6;
-            Cache.FindWaferCenterOffset7 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset7;
-            Cache.FindWaferCenterOffset8 = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.FindWaferCenterOffset8;
-            Cache.OffsetPosition = findWaferCenterWindowFieldViewModel.CacheFindWaferCenter.OffsetPosition;
+            Cache.FindWaferCenterOffset1 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset1;
+            Cache.FindWaferCenterOffset2 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset2;
+            Cache.FindWaferCenterOffset3 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset3;
+            Cache.FindWaferCenterOffset4 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset4;
+            Cache.FindWaferCenterOffset5 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset5;
+            Cache.FindWaferCenterOffset6 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset6;
+            Cache.FindWaferCenterOffset7 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset7;
+            Cache.FindWaferCenterOffset8 = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.FindWaferCenterOffset8;
+            Cache.OffsetPosition = findWaferCenterWindowFieldViewModel.AlignmentFindCenterCache.OffsetPosition;
             ChuckPrealignerObjDto.OffsetPosition = Cache.OffsetPosition;
             var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
             var efemLoadWaferStagePosition = StageViewModel.GetEfemLoadWaferMachineStagePosition();
@@ -877,8 +884,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         update(dto);
         update(Cache);
 
-        dto.LowMicroscopeMagnificationInfo = Cache.LowMicroscopeMagnificationInfo;
-        dto.HighMicroscopeMagnificationInfo = Cache.HighMicroscopeMagnificationInfo;
+        dto.LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation;
+        dto.HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation;
 
         Calibration = dto.Clone();
 
@@ -945,9 +952,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                         }
 
                         break;
+
                     case 1:
                         if (await Step0CalibrateActionAsync(cancellationToken) == false) return false;
                         break;
+
                     case 2:
                         if (await InvokeCalibrateAsync(async () =>
                             {
@@ -955,12 +964,14 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                                 return result;
                             }) == false) return false;
                         break;
+
                     case 3:
                         if (await AutomationRecipeInformationAsync() == false) return false;
                         if (await Step5CalibrateActionAsync(cancellationToken) == false) return false;
                         CalibrationStepIndex = 5;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         break;
+
                     case 4:
                         if (await InvokeCalibrateAsync(async () =>
                             {
@@ -975,6 +986,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                                 return result;
                             }) == false) return false;
                         break;
+
                     case 5:
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
                         await InvokeCalibrateAsync(async () =>
@@ -1004,11 +1016,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         await Task.CompletedTask.ConfigureAwait(false);
         if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
             return false;
-        Cache.LowMicroscopeMagnificationInfo = AlignmentCacheBrightField.LowMag;
-        Cache.HighMicroscopeMagnificationInfo = AlignmentCacheBrightField.HighMag;
-        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+        Cache.LowMicroscopeLensInformation = AlignmentCacheBrightField.LowMag;
+        Cache.HighMicroscopeLensInformation = AlignmentCacheBrightField.HighMag;
+        Cache.LowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
         Cache.LowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowTemplateFilePath);
-        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+        Cache.HighTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
         Cache.HighTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighTemplateFilePath);
         Cache.LowFindPosition1 = AlignmentCacheBrightField.LowSite1.Location;
         Cache.LowFindPosition2 = AlignmentCacheBrightField.LowSite2.Location;

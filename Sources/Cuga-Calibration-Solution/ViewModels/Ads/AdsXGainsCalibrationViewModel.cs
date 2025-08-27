@@ -23,7 +23,6 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using static Core.Models.Models.Ads.XGains.AdsXGainsCache;
 
-
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
 
@@ -44,7 +43,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         new() { StepName = "X Negative Gains" },
         new() { StepName = "X Negative  HPR" }
     ];
-
 
     #region 界面相关
 

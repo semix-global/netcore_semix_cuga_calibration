@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -15,7 +16,6 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using Microsoft.Extensions.Logging;
@@ -48,7 +48,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         new() { StepName = "Find a Position", DefaultIsNextEnable = true },
         new() { StepName = "Pixel Size" }
     ];
-
 
     private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
 
@@ -167,8 +166,8 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
-            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1)
+            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         Cache.PmtInterval = calibrationSetting.SettingCommonParam.PmtInterval;
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -181,7 +180,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         Cache.FindPosition = Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius
             ? new Point(0, 0)
             : Cache.FindPosition;
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
         return true;
     }
@@ -302,13 +301,13 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -439,7 +438,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         return result;
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
@@ -457,7 +455,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             return result;
         }).ConfigureAwait(false);
     }
-
 
     private bool VerifyCalibration(CancellationToken cancellationToken)
     {
@@ -536,7 +533,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                 laserPixelSizeItemDto.PmtId);
         try
         {
-            var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImageDto, CalibrationConstantsHelper.CalibrationYPixelSizeStandardMaskSquareSize.Height);
+            var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImageDto, 10);
             laserPixelSizeItemDto.YPixelSize = yPixelSize;
         }
         catch (Exception ex)
@@ -575,7 +572,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
+        itemDto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
         Calibrations =
         [
             .. Calibrations
@@ -643,7 +640,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
                                 Cache.OpticsMagTypeEnum,
-                                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
+                                Cache.MicroscopeLensInformation.LensName
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });
@@ -676,6 +673,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                         }
 
                         break;
+
                     case 4:
                         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
@@ -731,7 +729,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, null, out var maskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, null, out var maskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var maskPosition);
 
@@ -820,5 +818,5 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         }
     }
 
-    #endregion
+    #endregion 自动化校准
 }

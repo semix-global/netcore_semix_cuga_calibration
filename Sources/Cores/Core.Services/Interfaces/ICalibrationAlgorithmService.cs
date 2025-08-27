@@ -6,9 +6,6 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// 算法服务
-/// </summary>
 public interface ICalibrationAlgorithmService
 {
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using CugaCalibration.Core.Models;
+﻿using Core.Models.Models.Common.Cookies;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
 namespace CugaCalibration.Core.Services.Interfaces;

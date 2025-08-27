@@ -6,6 +6,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -22,7 +23,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -222,19 +222,18 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         LaserViewModel.ToggleEnableL0K(false);
 
         StageViewModel.SetAbsoluteStageTheta(0);
-        MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
-
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<FocusShiftCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<FocusShiftDto>();
 
-        if (Cache.LowMicroscopeMagnificationInfo.MagnificationCode == -1) Cache.LowMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
-        if (Cache.HighMicroscopeMagnificationInfo.MagnificationCode == -1)
-            Cache.HighMicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
-                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
-                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
+        if (Cache.LowMicroscopeLensInformation.LensCode == -1) Cache.LowMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
+        if (Cache.HighMicroscopeLensInformation.LensCode == -1)
+            Cache.HighMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
+                ? ApplicationCookie.MicroscopeLensInformationList[^1]
+                : ApplicationCookie.MicroscopeLensInformationList[2];
 
         foreach (var calibrationStatus in Calibrations)
         {
@@ -266,13 +265,15 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
                 return true;
+
             case 1 or 2 or 3:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.HighSiteFindPosition);
                 return true;
+
             case 4:
                 if (ResultFocusShiftDto is null)
                 {
@@ -312,13 +313,15 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         switch (CalibrationStepIndex)
         {
             case 2:
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
                 return true;
+
             case 3 or 4:
-                MicroscopeViewModel.SwitchMagnification(Cache.HighMicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.HighSiteFindPosition);
                 return true;
+
             default:
                 return true;
         }
@@ -346,7 +349,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                             Cache.LowSiteFindPosition = result;
                             Cache.HighSiteFindPosition = result;
 
-                            Cache.LowSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+                            Cache.LowSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
                             var generateTemplateLow = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
                             if (generateTemplateLow == false) DialogWindowProvider.ShowDialog("Generate Low Site Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             else Cache.LowSiteTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowSiteTemplateFilePath);
@@ -358,7 +361,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                                 Logger.LogHtmlInformation("Template", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
                                 Cache.HighSiteFindPosition = result;
-                                Cache.HighSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+                                Cache.HighSiteTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
                                 var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
                                 if (generateTemplateHigh == false)
                                 {
@@ -393,13 +396,13 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -444,7 +447,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.LowMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
@@ -462,7 +465,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.HighMicroscopeLensInformation.LensName,
                 Cache.HighSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
@@ -653,7 +656,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             #region Bright Field
 
             Logger.LogHtmlInformation("2. Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.LowMicroscopeMagnificationInfo, Cache.LowSiteTemplateFilePath, ImageFileDirectory,
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.LowMicroscopeLensInformation, Cache.LowSiteTemplateFilePath, ImageFileDirectory,
                     HtmlLogUniqueId, Name,
                     "Low Magnification", out var lowResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
             {
@@ -662,7 +665,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             }
 
             Cache.LowSiteFindPosition = lowResultPosition;
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.HighMicroscopeMagnificationInfo, Cache.HighSiteTemplateFilePath, ImageFileDirectory,
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowSiteFindPosition, Cache.HighMicroscopeLensInformation, Cache.HighSiteTemplateFilePath, ImageFileDirectory,
                     HtmlLogUniqueId, Name,
                     "High Magnification", out var highResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
             {

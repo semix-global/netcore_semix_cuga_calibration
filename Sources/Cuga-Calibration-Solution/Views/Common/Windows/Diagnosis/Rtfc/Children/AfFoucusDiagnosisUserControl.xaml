@@ -220,7 +220,6 @@
                                     </ToggleButton.Style>
                                 </ToggleButton>
                             </hc:SimplePanel>
-
                         </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </Border>
@@ -256,7 +255,6 @@
                                              ShowGrid="False"
                                              BackgroundImage="{Binding FocusShiftCache.LowSiteTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                         </hc:UniformSpacingPanel>
-
                     </hc:UniformSpacingPanel>
                 </Border>
                 <Border Style="{StaticResource BorderRegion}"
@@ -637,8 +635,6 @@
                     </Border>
                 </Grid>
             </hc:ScrollViewer>
-
         </Grid>
-
     </Grid>
 </UserControl>

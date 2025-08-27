@@ -23,7 +23,7 @@
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Microscope Magnification: "
-                       Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                       Status="{Binding Cache.MicroscopeLensInformation.LensName}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -50,7 +50,7 @@
                       VerticalAlignment="Center"
                       ItemsSource="{Binding CalibrationStatusList}">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.MicroscopeMagnificationInfo, Mode=TwoWay}" />
+                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.MicroscopeLensInformation, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -59,9 +59,9 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                    <RadioButton Content="{Binding .MicroscopeLensInformation.LensName}"
                                  FontSize="35"
-                                 Tag="{Binding .MicroscopeMagnificationInfo}"
+                                 Tag="{Binding .MicroscopeLensInformation}"
                                  GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

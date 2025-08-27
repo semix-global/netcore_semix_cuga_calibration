@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -16,7 +16,7 @@ public sealed partial class AlignmentParamWindowBrightFieldViewModel : ViewModel
     private AlignmentCacheBrightField _cache = new();
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeMagnificationInfo> _microscopeMagnificationInfoList = [];
+    private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationList = [];
 
     [RelayCommand]
     private void Close()

@@ -4,10 +4,10 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
@@ -127,7 +127,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<LaserAutoFocusDto>();
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
@@ -136,7 +136,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         Cache.FindPosition = MicroscopeCalChip.ShinyWaferBrightFieldMachinePosition;
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
@@ -151,7 +151,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         if (ReviewDto.IsCalibrated == false) return false;
 
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
         return true;
@@ -197,13 +197,13 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -478,7 +478,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 originCurrentAValue,
                 originCurrentBValue,
                 ecsToNmRatio,
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.FindPosition,
                 Cache.HalfEcsLength,
                 Cache.SpeedEcsPerSecond,
@@ -675,7 +675,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 originGain,
                 originCurrentAValue,
                 originCurrentBValue,
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.FindPosition,
                 Cache.HalfEcsLength,
                 Cache.SpeedEcsPerSecond,
@@ -1003,7 +1003,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 }
 
                 DialogWindowProvider.ShowDialog($"""
-                                                 Verify: 
+                                                 Verify:
                                                  {nameof(fa)}: {faIsOk}
                                                  {nameof(na)}: {naIsOk}
                                                  {nameof(fb)}: {fbIsOk}

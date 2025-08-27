@@ -1,7 +1,6 @@
 using Core.Models.Helper;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -13,7 +12,7 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscopeService
 {
     private static readonly Random Random = new();
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     public SxExecuteRet<bool> Connect()
     {
@@ -22,42 +21,84 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<CgMicroscopeLens> MicroscopeMagnificationInfoToCgMicroscopeLens(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformationList()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(microscopeMagnificationInfo.AdaptTo().LensCode);
+        var microscopeLensInformationList = new List<MicroscopeLensInformation>
+        {
+            new()
+            {
+                Magnification = 5,
+                LensCode = 1,
+                LensName = "5X"
+            },
+            new()
+            {
+                Magnification = 10,
+                LensCode = 2,
+                LensName = "10X"
+            },
+            new()
+            {
+                Magnification = 50,
+                LensCode = 3,
+                LensName = "50X"
+            },
+            new()
+            {
+                Magnification = 100,
+                LensCode = 4,
+                LensName = "100X"
+            },
+            new()
+            {
+                Magnification = 150,
+                LensCode = 5,
+                LensName = "150X"
+            }
+        };
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<MicroscopeLensInformation>>(microscopeLensInformationList);
     }
 
-    public SxExecuteRet<MicroscopeMagnificationInfo> CgMicroscopeLensToMicroscopeMagnificationInfo(CgMicroscopeLens cgMicroscopeLens)
+    public SxExecuteRet<CgMicroscopeLens> MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation)
     {
-        Thread.Sleep(100);
-        var lensList = GetLensList();
-        var microscopeMagnificationInfo = new MicroscopeMagnificationInfo();
-        return SxExecuteRetHelper.CreateSuccess(microscopeMagnificationInfo.AdaptIn(lensList.Anything.SingleOrDefault(t => t.LensCode == cgMicroscopeLens)!));
+        var sxExecuteRet = GetMicroscopeLensInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, CgMicroscopeLens.None);
+
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Magnification == microscopeLensInformation.Magnification);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Microscope Lens Information is not single", CgMicroscopeLens.None)
+            : SxExecuteRetHelper.CreateSuccess(result.AdaptTo().LensCode);
     }
 
-    public SxExecuteRet<MicroscopeMagnificationInfo> GetMagnification()
+    public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
     {
-        Thread.Sleep(100);
+        var sxExecuteRet = GetMicroscopeLensInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, MicroscopeLensInformation.Default);
 
-        return SxExecuteRetHelper.CreateSuccess(_microscopeMagnificationInfo);
+        var result = sxExecuteRet.Anything
+            .SingleOrDefault(t => t.AdaptTo().LensCode == cgMicroscopeLens);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Microscope Lens Information is not single", MicroscopeLensInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<bool> SwitchMagnification(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<MicroscopeLensInformation> GetCurrentMicroscopeLensInformation()
     {
         Thread.Sleep(100);
 
-        _microscopeMagnificationInfo = microscopeMagnificationInfo;
-
-        return SxExecuteRetHelper.CreateSuccess(true);
+        return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformation);
     }
 
-    public SxExecuteRet<bool> SwitchMagnificationNotAutoFocus(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<bool> SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation)
     {
         Thread.Sleep(100);
 
-        _microscopeMagnificationInfo = microscopeMagnificationInfo;
+        _microscopeLensInformation = microscopeLensInformation;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -79,43 +120,5 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
     public SxExecuteRet<(double min, double max)> GetVoltageRange()
     {
         return SxExecuteRetHelper.CreateSuccess((0d, 1640d));
-    }
-
-    public SxExecuteRet<List<CgMicroscopeInfo>> GetLensList()
-    {
-        var infoList = new List<CgMicroscopeInfo>
-        {
-            new()
-            {
-                Lens = 5,
-                LensCode = CgMicroscopeLens.One,
-                LensName = "5X"
-            },
-            new()
-            {
-                Lens = 10,
-                LensCode = CgMicroscopeLens.Two,
-                LensName = "10X"
-            },
-            new()
-            {
-                Lens = 50,
-                LensCode = CgMicroscopeLens.Three,
-                LensName = "50X"
-            },
-            new()
-            {
-                Lens = 100,
-                LensCode = CgMicroscopeLens.Four,
-                LensName = "100X"
-            },
-            new()
-            {
-                Lens = 150,
-                LensCode = CgMicroscopeLens.Five,
-                LensName = "150X"
-            }
-        };
-        return SxExecuteRetHelper.CreateSuccess(infoList);
     }
 }

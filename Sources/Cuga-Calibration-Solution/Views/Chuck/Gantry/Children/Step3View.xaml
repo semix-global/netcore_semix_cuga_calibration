@@ -24,7 +24,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="High Microscope Magnification: "
-                           Status="{Binding Cache.HighMicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                           Status="{Binding Cache.HighMicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 

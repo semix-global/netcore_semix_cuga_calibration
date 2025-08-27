@@ -59,11 +59,11 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Low Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.LowChuckCenterCacheItem.MagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                 SelectedItem="{Binding Cache.LowChuckCenterCacheItem.LensInformation}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                <TextBlock Text="{Binding LensName}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>
@@ -77,11 +77,11 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.HighChuckCenterCacheItem.MagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                 SelectedItem="{Binding Cache.HighChuckCenterCacheItem.LensInformation}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                <TextBlock Text="{Binding LensName}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>

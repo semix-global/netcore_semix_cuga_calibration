@@ -24,9 +24,9 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } = [];
 
@@ -107,22 +107,22 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             CalibrationStepList.Clear();
             CalibrationStepList.AddRange([
                 new() { StepName = "Select a location" },
-                .. ApplicationCookie.MicroscopeMagnificationInfoList
+                .. ApplicationCookie.MicroscopeLensInformationList
                     .Select(t => t)
                     .OrderByDescending(t => t.Magnification)
-                    .ThenByDescending(t => t.MagnificationCode)
-                    .Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName })
+                    .ThenByDescending(t => t.LensCode)
+                    .Select(info => new CalibrationItemStep { StepName = info.LensName })
             ]);
         });
         MicroscopePixelSizeItems = microscopePixelSizeItems;
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
-        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeMagnificationInfoList.Contains(t.MagnificationInfo))]; // 过滤掉变更静态配置后原来的缓存
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
-            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
+        if (Cache.MicroscopeLensInformation.LensCode == -1)
+            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeMagnificationInfoList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
+        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -132,10 +132,10 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
                 return false;
-            if (await AutomationRecipeInformationAsync(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName) == false) return false;
+            if (await AutomationRecipeInformationAsync(Cache.MicroscopeLensInformation.LensName) == false) return false;
         }
 
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
         StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition);
 
@@ -151,8 +151,8 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.MagnificationInfo.Magnification)
-                .ThenBy(t => t.MagnificationInfo.MagnificationCode)
+                .OrderBy(t => t.LensInformation.Magnification)
+                .ThenBy(t => t.LensInformation.LensCode)
         ];
 
         return ReviewList.Count > 0;
@@ -162,19 +162,19 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.MicroscopeMagnificationInfo = CalibrationStepIndex switch
+        Cache.MicroscopeLensInformation = CalibrationStepIndex switch
         {
-            > 1 => ApplicationCookie.MicroscopeMagnificationInfoList
+            > 1 => ApplicationCookie.MicroscopeLensInformationList
                 .Select(t => t)
                 .OrderByDescending(t => t.Magnification)
-                .ThenByDescending(t => t.MagnificationCode)
+                .ThenByDescending(t => t.LensCode)
                 .ElementAt(CalibrationStepIndex - 1),
-            1 => ApplicationCookie.MicroscopeMagnificationInfoList[0],
+            1 => ApplicationCookie.MicroscopeLensInformationList[0],
             _ => throw new ArgumentOutOfRangeException()
         };
 
         SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition);
         return true;
     }
@@ -193,18 +193,18 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             return result;
         }
 
-        Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList
+        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList
             .Select(t => t)
             .OrderByDescending(t => t.Magnification)
-            .ThenByDescending(t => t.MagnificationCode)
+            .ThenByDescending(t => t.LensCode)
             .ElementAt(CalibrationStepIndex);
 
         if (IsRecipeCalibrate || IsAutoCalibrate)
-            if (await AutomationRecipeInformationAsync(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName) == false)
+            if (await AutomationRecipeInformationAsync(Cache.MicroscopeLensInformation.LensName) == false)
                 result = false;
 
         SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
 
         return result;
 
@@ -252,7 +252,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.MicroscopeLensInformation.LensName,
                 Cache.AlgorithmTemplateTypeEnum,
                 SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum,
                 SelectMicroscopeCentricityCacheItem.FindPosition
@@ -275,7 +275,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 var position = StageViewModel.GetBrightFieldStagePosition();
                 Cache.SetFindPosition(position);
 
-                Cache.SetTemplateFilePath($"{TemplateFileDirectory}\\{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}");
+                Cache.SetTemplateFilePath($"{TemplateFileDirectory}\\{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}");
 
                 var generateTemplateLow1 = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, SelectMicroscopeCentricityCacheItem.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
 
@@ -305,15 +305,15 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 ResultMicroscopeCentricityItemDto = SelectMicroscopeCentricityItemDto.Clone();
                 ResultMicroscopeCentricityItemDto.CentricityPosition = averageCentricityPosition;
 
-                var maxMagnification = Cache.MicroscopeCentricityCacheItem.Last().MagnificationInfo;
+                var maxMagnification = Cache.MicroscopeCentricityCacheItem.Last().LensInformation;
 
-                ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.MagnificationInfo != maxMagnification
-                    ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.MagnificationInfo == maxMagnification).CentricityPosition
+                ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.LensInformation != maxMagnification
+                    ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.LensInformation == maxMagnification).CentricityPosition
                     : Point.Origin;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    MicroscopeMagnification = ResultMicroscopeCentricityItemDto.MagnificationInfo.MicroscopeMagnificationName,
+                    ResultMicroscopeCentricityItemDto.LensInformation.LensName,
                     ResultMicroscopeCentricityItemDto.CentricityPosition,
                     ResultMicroscopeCentricityItemDto.Offset,
                     Score = ResultMicroscopeCentricityItemDto.TemplateScore,
@@ -367,21 +367,21 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             }
             else
             {
-                Cache.MicroscopeMagnificationInfo = selectReviewItemDto.MagnificationInfo;
+                Cache.MicroscopeLensInformation = selectReviewItemDto.LensInformation;
                 SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
 
-                Logger.LogHtmlInformation($"{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 ClearCalibrationTemp();
                 var detectImageDirectory = ImageFileDirectory;
 
                 selectReviewItemDto.IsVerified = false;
 
-                var centricityItemMaxDto = ReviewList.Single(t => t.MagnificationInfo == Cache.MicroscopeCentricityCacheItem.Last().MagnificationInfo);
+                var centricityItemMaxDto = ReviewList.Single(t => t.LensInformation == Cache.MicroscopeCentricityCacheItem.Last().LensInformation);
 
                 if (IsAutoCalibrate) // 定位最高倍的位置
                 {
-                    if (selectReviewItemDto.MagnificationInfo == ApplicationCookie.MicroscopeMagnificationInfoList[0])
+                    if (selectReviewItemDto.LensInformation == ApplicationCookie.MicroscopeLensInformationList[0])
                     {
                         //if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(magnificationInfos[0]), magnificationInfos[0], Cache.GetTemplateFilePath(magnificationInfos[0]), detectImageDirectory, HtmlLogUniqueId, Name, "Low Magnification",
                         //    out var resultPositionLow, out _, out _, out _, out _) == false) return;
@@ -390,17 +390,17 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         //if (magnificationInfos.Count == 1 || ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPositionLow, highMagnificationInfo, Cache.GetTemplateFilePath(highMagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "High Magnification",
                         //        out resultPositionLow, out _, out _, out _, out _) == false) return;
 
-                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.MagnificationInfo), centricityItemMaxDto.MagnificationInfo, Cache.GetTemplateFilePath(centricityItemMaxDto.MagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
+                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
                                 out var maxMatchResultPosition, out _, out _, out _, out _) == false)
                         {
                             result = false;
                             return;
                         }
 
-                        Cache.MicroscopeCentricityCacheItem.Single(t => t.MagnificationInfo == centricityItemMaxDto.MagnificationInfo).FindPosition = maxMatchResultPosition;
+                        Cache.MicroscopeCentricityCacheItem.Single(t => t.LensInformation == centricityItemMaxDto.LensInformation).FindPosition = maxMatchResultPosition;
                     }
 
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItem.Single(t => t.MagnificationInfo == centricityItemMaxDto!.MagnificationInfo).FindPosition);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItem.Single(t => t.LensInformation == centricityItemMaxDto!.LensInformation).FindPosition);
                 }
                 else
                 {
@@ -415,7 +415,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 }
 
                 var templateFilePath = SelectMicroscopeCentricityCacheItem.TemplateFilePath;
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.MoveRelativeStageXy(selectReviewItemDto.Offset);
 
                 var oldPosition = StageViewModel.GetBrightFieldStagePosition();
@@ -439,7 +439,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     OldPosition = oldPosition,
                     Error = error,
                     Cache.Threshold,
-                    MicroscopeMagnification = microscopeCentricityItem.MagnificationInfo.MicroscopeMagnificationName,
+                    microscopeCentricityItem.LensInformation.LensName,
                     microscopeCentricityItem.CentricityPosition,
                     microscopeCentricityItem.Offset,
                     Score = microscopeCentricityItem.TemplateScore,
@@ -490,9 +490,9 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     {
                         Cache.ConcentricThreshold,
                         concentricOffset,
-                        MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.ToOriginLength).Single().MagnificationInfo.MicroscopeMagnificationName,
-                        MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.ToOriginLength).Single().MagnificationInfo.MicroscopeMagnificationName,
-                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, t.MagnificationInfo.MicroscopeMagnificationName, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength }).Cast<object>()])
+                        MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
+                        MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
+                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength }).Cast<object>()])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
             }
@@ -506,7 +506,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
-                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.AlgorithmTemplateTypeEnum,
                 FindFocusPosition = position,
                 ImageFileDirectory = detectImageDirectory
@@ -518,12 +518,12 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 cancellationToken.ThrowIfCancellationRequested();
                 Logger.LogHtmlInformation($"Repeat Time:{times}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.MicroscopeMagnificationInfo, templatePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
+                if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.MicroscopeLensInformation, templatePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
                         out var resultPosition, out var score, out var angle, out var resultImageFilePath, out _) == false) return false;
 
                 var microscopeCentricityItemDto = new MicroscopeCentricityItemDto
                 {
-                    MagnificationInfo = Cache.MicroscopeMagnificationInfo,
+                    LensInformation = Cache.MicroscopeLensInformation,
                     CentricityPosition = resultPosition,
                     FilePath = resultImageFilePath,
                     TemplateFilePath = templatePath,
@@ -535,7 +535,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                 Logger.LogHtmlInformation("Match Template Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
-                    MicroscopeMagnification = microscopeCentricityItemDto.MagnificationInfo.MicroscopeMagnificationName,
+                    microscopeCentricityItemDto.LensInformation.LensName,
                     ResultPosition = microscopeCentricityItemDto.CentricityPosition
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -561,14 +561,14 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         Calibrations =
         [
             .. Calibrations
-                .Where(t => t.MagnificationInfo != itemDto.MagnificationInfo),
+                .Where(t => t.LensInformation != itemDto.LensInformation),
             itemDto.Clone(),
         ];
 
         ReviewList =
         [
             .. ReviewList
-                .Where(t => t.MagnificationInfo != itemDto.MagnificationInfo)
+                .Where(t => t.LensInformation != itemDto.LensInformation)
                 .Concat([itemDto.Clone()])
         ];
 
@@ -593,11 +593,11 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
-                .. ApplicationCookie.MicroscopeMagnificationInfoList
+                .. ApplicationCookie.MicroscopeLensInformationList
                     .Select(t => t)
                     .OrderByDescending(t => t.Magnification)
-                    .ThenByDescending(t => t.MagnificationCode)
-                    .Select(info => new CalibrationItemStep { StepName = info.MicroscopeMagnificationName }),
+                    .ThenByDescending(t => t.LensCode)
+                    .Select(info => new CalibrationItemStep { StepName = info.LensName }),
                 new() { StepName = "Review" }
             ]);
         });
@@ -637,7 +637,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                         if (await InvokeCalibrateAsync(async () =>
                             {
-                                foreach (var itemReview in ReviewList.Select(t => t.Clone()).OrderBy(t => t.MagnificationInfo.MagnificationCode))
+                                foreach (var itemReview in ReviewList.Select(t => t.Clone()).OrderBy(t => t.LensInformation.LensCode))
                                 {
                                     SelectReviewItemDto = itemReview;
                                     if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false) return false;
@@ -653,7 +653,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     {
                         if (await AutoActionStepAsync(cancellationToken) == false)
                         {
-                            DialogWindowProvider.ShowDialog($"Auto Calibration {Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                            DialogWindowProvider.ShowDialog($"Auto Calibration {Cache.MicroscopeLensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             return false;
                         }
 
@@ -688,12 +688,12 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             return false;
         }
 
-        Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t.MicroscopeMagnificationName == microscopeName);
+        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Single(t => t.LensName == microscopeName);
         SelectMicroscopeCentricityCacheItem = Cache.GetSelectedCacheItem();
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum, Cache.MicroscopeMagnificationInfo, null, out var maskInfo) == false)
+        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
         Cache.SetFindPosition(position);
@@ -735,7 +735,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         foreach (var item in Cache.MicroscopeCentricityCacheItem)
         {
-            if (await AutomationRecipeInformationAsync(item.MagnificationInfo.MicroscopeMagnificationName) == false)
+            if (await AutomationRecipeInformationAsync(item.LensInformation.LensName) == false)
                 return false;
         }
 
@@ -744,13 +744,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             try
             {
-                foreach (var itemReview in ReviewList.Select(t => t.Clone()).OrderBy(t => t.MagnificationInfo.MagnificationCode))
+                foreach (var itemReview in ReviewList.Select(t => t.Clone()).OrderBy(t => t.LensInformation.LensCode))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     SelectReviewItemDto = itemReview;
                     if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false)
                     {
-                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.MagnificationInfo.MicroscopeMagnificationName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                         return false;
                     }
                 }

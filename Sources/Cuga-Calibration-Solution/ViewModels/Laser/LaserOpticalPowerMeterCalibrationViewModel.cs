@@ -278,7 +278,6 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
                 Map = []
             };
 
-
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
 
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);

@@ -67,7 +67,6 @@ public sealed partial class FocusShiftDto : CalibrationDtoBase, ICloneable<Focus
 
     public Point BrightFieldToDarkFieldOffset => DarkFieldFindPosition - (Vector)BrightFieldFindPosition;
 
-
     public FocusShiftDto Clone() => new()
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,

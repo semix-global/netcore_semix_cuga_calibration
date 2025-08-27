@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Extensions;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using CugaCalibration.Core.Models;
 using CugaCalibration.ViewModels.Common;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -66,17 +66,17 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Wcf Service", 8).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Wcf Service", 9).ConfigureAwait(false) == false) return;
 
-            CustomerAdaptToMapper.RegisterType<MicroscopeMagnificationInfo, CgMicroscopeLens>(
-                microscopeViewModel.MicroscopeMagnificationInfoToCgMicroscopeLens,
-                microscopeViewModel.CgMicroscopeLensToMicroscopeMagnificationInfo
+            CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
+                microscopeViewModel.MicroscopeLensInfoToCgMicroscopeLens,
+                microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
             );
 
             Message = "Connected OK!!!";
 
-            var magnificationList = microscopeViewModel.GetMagnificationList();
+            var microscopeLensInformationList = microscopeViewModel.GetMicroscopeLensInformationList();
             var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-            applicationCookie.MicroscopeMagnificationInfoList = [.. magnificationList.Select(t => t.Clone())];
-            CoreWcfModelsExtension.Initialize(() => applicationCookie.MicroscopeMagnificationInfoList);
+            applicationCookie.MicroscopeLensInformationList = [.. microscopeLensInformationList.Select(t => t.Clone())];
+            CoreWcfModelsExtension.Initialize(() => applicationCookie.MicroscopeLensInformationList);
 
             contextProvider.Send(() => CloseView(true));
 

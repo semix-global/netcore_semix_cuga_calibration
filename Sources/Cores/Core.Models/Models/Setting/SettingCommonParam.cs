@@ -98,7 +98,7 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
         _ => throw new ArgumentOutOfRangeException(nameof(GetScanLineXPixelSize), "Illegal value")
     };
 
-    #endregion
+    #endregion 校准状态控制
 
     #region Mapper
 

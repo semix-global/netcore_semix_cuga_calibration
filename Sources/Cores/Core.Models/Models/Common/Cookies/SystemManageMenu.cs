@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace CugaCalibration.Core.Models;
+namespace Core.Models.Models.Common.Cookies;
 
 /// <summary>
 /// 系统管理菜单（权限管理...）

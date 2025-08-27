@@ -12,6 +12,7 @@ using Semix.GRPC.DTO;
 using C2MImgModel = Cuga.Data.DataStruct.DTO.Calibration.CgRawImgModel;
 #else
 using Semix.WcfTransfer.DTO;
+
 #endif
 
 namespace Core.Models.Models.Common.DarkField;

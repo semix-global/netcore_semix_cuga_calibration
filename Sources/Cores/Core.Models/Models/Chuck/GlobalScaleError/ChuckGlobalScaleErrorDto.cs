@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -11,10 +11,10 @@ namespace Core.Models.Models.Chuck.GlobalScaleError;
 public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     /// <summary>
     /// X轴比例误差系数
@@ -121,8 +121,8 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public ChuckGlobalScaleErrorDto Clone() => new()
     {
-        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
-        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         ScaleX = ScaleX,
         ScaleY = ScaleY,
         ScaleErrorValue = ScaleErrorValue,
@@ -152,7 +152,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckGlobalScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         ScaleX = ScaleX,
         ScaleY = ScaleY,
         IsCalibrated = IsCalibrated,

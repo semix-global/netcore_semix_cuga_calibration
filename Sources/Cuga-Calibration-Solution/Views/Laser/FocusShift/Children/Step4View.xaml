@@ -133,7 +133,6 @@
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.AfMotorReviseThreshold}" />
-
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

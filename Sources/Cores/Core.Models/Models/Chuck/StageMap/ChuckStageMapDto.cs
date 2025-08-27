@@ -2,8 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -14,7 +14,7 @@ namespace Core.Models.Models.Chuck.StageMap;
 public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -50,7 +50,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
 
     public ChuckStageMapDto Clone() => new()
     {
-        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         StageSpeedEnum = StageSpeedEnum,
         CalibrationBrightFieldStageMap = CalibrationBrightFieldStageMap.Clone(),
@@ -70,7 +70,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
 
     public CalibrationChuckStageMap AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
         Speed = StageSpeedEnum.ToAdsSpeedEnum(),
         ExpandStageMap = ExpandStageMapDto.AdaptTo(),

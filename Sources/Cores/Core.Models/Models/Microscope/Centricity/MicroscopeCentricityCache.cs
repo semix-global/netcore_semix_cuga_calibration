@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using MoreLinq;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
@@ -9,7 +9,7 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private ObservableCollection<MicroscopeCentricityCacheItem> _microscopeCentricityCacheItem = [];
@@ -28,55 +28,55 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
 
     public void SetFindPosition(Point position)
     {
-        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetFindPosition));
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(SetFindPosition));
         info.FindPosition = position;
     }
 
     public void SetTemplateFilePath(string templateFilePath)
     {
-        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateFilePath));
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(SetTemplateFilePath));
         info.TemplateFilePath = templateFilePath;
     }
 
     public void SetTemplateImageFilePath(string templateImageFilePath)
     {
-        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateImageFilePath));
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(SetTemplateImageFilePath));
         info.TemplateImageFilePath = templateImageFilePath;
     }
 
-    public Point GetFindPosition(MicroscopeMagnificationInfo magnificationInfo)
+    public Point GetFindPosition(MicroscopeLensInformation lensInformation)
     {
-        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == magnificationInfo) ?? throw new ArgumentNullException(nameof(SetFindPosition));
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == lensInformation) ?? throw new ArgumentNullException(nameof(SetFindPosition));
         return info.FindPosition;
     }
 
-    public string GetTemplateFilePath(MicroscopeMagnificationInfo magnificationInfo)
+    public string GetTemplateFilePath(MicroscopeLensInformation lensInformation)
     {
-        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == magnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateFilePath));
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == lensInformation) ?? throw new ArgumentNullException(nameof(SetTemplateFilePath));
         return info.TemplateFilePath;
     }
 
-    public string SetTemplateImageFilePath(MicroscopeMagnificationInfo magnificationInfo)
+    public string SetTemplateImageFilePath(MicroscopeLensInformation lensInformation)
     {
-        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == magnificationInfo) ?? throw new ArgumentNullException(nameof(SetTemplateImageFilePath));
+        var info = MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == lensInformation) ?? throw new ArgumentNullException(nameof(SetTemplateImageFilePath));
         return info.TemplateImageFilePath;
     }
 
     public MicroscopeCentricityCacheItem GetSelectedCacheItem()
     {
-        return MicroscopeCentricityCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
+        return MicroscopeCentricityCacheItem.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
     }
 
-    public bool InitializeCacheList(List<MicroscopeMagnificationInfo> microscopeMagnificationInfoList)
+    public bool InitializeCacheList(List<MicroscopeLensInformation> microscopeLensInformationList)
     {
-        if (microscopeMagnificationInfoList.Count == 0) return false;
-        var isInitialized = MicroscopeCentricityCacheItem.Count == microscopeMagnificationInfoList.Count
+        if (microscopeLensInformationList.Count == 0) return false;
+        var isInitialized = MicroscopeCentricityCacheItem.Count == microscopeLensInformationList.Count
                             && MicroscopeCentricityCacheItem.Select((item, index) => (index, item))
-                                .All(t => t.item.MagnificationInfo == microscopeMagnificationInfoList[t.index]);
+                                .All(t => t.item.LensInformation == microscopeLensInformationList[t.index]);
         if (isInitialized) return true;
         MicroscopeCentricityCacheItem = new ObservableCollection<MicroscopeCentricityCacheItem>(
-            microscopeMagnificationInfoList.Select(t => new MicroscopeCentricityCacheItem() { MagnificationInfo = t.Clone() }));
-        MicroscopeMagnificationInfo = MicroscopeCentricityCacheItem.Minima(t => t.MagnificationInfo.MagnificationCode).Single().MagnificationInfo;
+            microscopeLensInformationList.Select(t => new MicroscopeCentricityCacheItem() { LensInformation = t.Clone() }));
+        MicroscopeLensInformation = MicroscopeCentricityCacheItem.Minima(t => t.LensInformation.LensCode).Single().LensInformation;
         return true;
     }
 }

@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -14,7 +14,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
     private int _index;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _magnificationInfo = new();
+    private MicroscopeLensInformation _lensInformation = new();
 
     [ObservableProperty]
     private Point _findPosition;
@@ -39,7 +39,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
     public MicroscopeFocusItemDto Clone() => new()
     {
         Index = Index,
-        MagnificationInfo = MagnificationInfo,
+        LensInformation = LensInformation,
         FindPosition = FindPosition,
         EcsValue = EcsValue,
         TransBufferAfErrorValue = TransBufferAfErrorValue,
@@ -55,7 +55,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationMicroscopeFocusItem AdaptTo() => new()
     {
-        CgMicroscopeLens = MagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
+        CgMicroscopeLens = LensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(LensInformation),
         EcsValue = EcsValue,
         MicroscopeVoltage = MicroscopeVoltage,
         IsCalibrated = IsCalibrated,
@@ -65,7 +65,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
 
     public MicroscopeFocusItemDto AdaptIn(CalibrationMicroscopeFocusItem obj) => new()
     {
-        MagnificationInfo = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeMagnificationInfo>(obj.CgMicroscopeLens),
+        LensInformation = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeLensInformation>(obj.CgMicroscopeLens),
         EcsValue = obj.EcsValue,
         MicroscopeVoltage = obj.MicroscopeVoltage,
         IsCalibrated = obj.IsCalibrated,
