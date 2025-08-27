@@ -30,7 +30,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
-                           Status="{Binding Cache.Coefficient, StringFormat={}{0:f3}}"
+                           Status="{Binding Cache.LaserLightInformation, StringFormat={}{0:f3}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
@@ -45,8 +45,7 @@
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
-                        <hc:ComboBox x:Name="comboChannel"
-                                     HorizontalAlignment="Left"
+                        <hc:ComboBox HorizontalAlignment="Left"
                                      hc:InfoElement.TitleWidth="175"
                                      hc:InfoElement.Necessary="True"
                                      hc:InfoElement.TitlePlacement="Left"

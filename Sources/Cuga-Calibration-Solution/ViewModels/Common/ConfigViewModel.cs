@@ -27,14 +27,14 @@ public sealed class ConfigViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<AODWaveformProfile> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
+    public IReadOnlyList<PrescanAODWaveformProfile> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationConfigService.GetPrescanAODWaveProfileList(opticsMagTypeEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<AODWaveformProfile> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
+    public IReadOnlyList<ChirpAODWaveformProfile> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationConfigService.GetChirpAODWaveProfileList(opticsMagTypeEnum);
 

@@ -31,6 +31,7 @@ public sealed partial class LoadingWindowViewModel(
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
+    ApplicationCookie applicationCookie,
     string applicationName) : ViewModelBase
 {
     private const int ConnectCount = 8;
@@ -74,8 +75,11 @@ public sealed partial class LoadingWindowViewModel(
             Message = "Connected OK!!!";
 
             var microscopeLensInformationList = microscopeViewModel.GetMicroscopeLensInformationList();
-            var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+            var laserLightInformationList = laserViewModel.GetLaserLightInformationList();
+
             applicationCookie.MicroscopeLensInformationList = [.. microscopeLensInformationList.Select(t => t.Clone())];
+            applicationCookie.LaserLightInformationList = laserLightInformationList;
+
             CoreWcfModelsExtension.Initialize(() => applicationCookie.MicroscopeLensInformationList);
 
             contextProvider.Send(() => CloseView(true));

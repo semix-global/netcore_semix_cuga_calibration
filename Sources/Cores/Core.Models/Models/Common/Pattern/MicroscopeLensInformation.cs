@@ -7,7 +7,13 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public sealed partial class MicroscopeLensInformation : ObservableCacheBase, ICloneable<MicroscopeLensInformation>, IAdaptTo<CgMicroscopeInfo>, IAdaptIn<CgMicroscopeInfo, MicroscopeLensInformation>
+public sealed partial class MicroscopeLensInformation :
+    ObservableCacheBase,
+    IEquatable<MicroscopeLensInformation>,
+    IFormattable,
+    IAdaptTo<CgMicroscopeInfo>,
+    IAdaptIn<CgMicroscopeInfo, MicroscopeLensInformation>,
+    ICloneable<MicroscopeLensInformation>
 {
     public static readonly MicroscopeLensInformation Default = new();
 
@@ -20,14 +26,37 @@ public sealed partial class MicroscopeLensInformation : ObservableCacheBase, ICl
     [ObservableProperty]
     private int _magnification = -1;
 
-    #region Mapper
+    #region IEquatable、IFormattable
 
-    public MicroscopeLensInformation Clone() => new()
+    public bool Equals(MicroscopeLensInformation? other) => this == other;
+
+    public override bool Equals(object? obj) => obj is MicroscopeLensInformation other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, Magnification);
+
+    public override string ToString() => ToString(null);
+
+    public string ToString(string? format, IFormatProvider? formatProvider = null) => LensName;
+
+    #endregion IEquatable、IFormattable
+
+    #region Operator
+
+    public static bool operator ==(MicroscopeLensInformation? left, MicroscopeLensInformation? right) => (left, right) switch
     {
-        LensName = LensName,
-        LensCode = LensCode,
-        Magnification = Magnification
+        (null, null) => true,
+        (null, _) => false,
+        (_, null) => false,
+        (_, _) => ReferenceEquals(left, right) || (Equals(left.LensName, right.LensName) &&
+                                                   Equals(left.LensCode, right.LensCode) &&
+                                                   Equals(left.Magnification, right.Magnification))
     };
+
+    public static bool operator !=(MicroscopeLensInformation? left, MicroscopeLensInformation? right) => !(left == right);
+
+    #endregion Operator
+
+    #region Mapper
 
     public CgMicroscopeInfo AdaptTo() => new()
     {
@@ -49,43 +78,12 @@ public sealed partial class MicroscopeLensInformation : ObservableCacheBase, ICl
         return this;
     }
 
+    public MicroscopeLensInformation Clone() => new()
+    {
+        LensName = LensName,
+        LensCode = LensCode,
+        Magnification = Magnification
+    };
+
     #endregion Mapper
-
-    #region Equals
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        return obj is MicroscopeLensInformation other && Equals(other);
-    }
-
-    public bool Equals(MicroscopeLensInformation? other)
-    {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
-
-        if (LensCode != other.LensCode) return false;
-
-        return string.Equals(LensName, other.LensName, StringComparison.Ordinal) &&
-               Magnification == other.Magnification;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(LensCode, LensName, Magnification);
-    }
-
-    public static bool operator ==(MicroscopeLensInformation? left, MicroscopeLensInformation? right)
-    {
-        if (left is null) return right is null;
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(MicroscopeLensInformation? left, MicroscopeLensInformation? right)
-    {
-        return !(left == right);
-    }
-
-    #endregion Equals
 }
