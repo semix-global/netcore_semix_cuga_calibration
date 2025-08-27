@@ -11,7 +11,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.Mapper;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 

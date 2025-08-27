@@ -152,7 +152,7 @@ public sealed partial class LaserIlluminationProfileCalibrationCacheItem : Calib
     /// 去掉首位的点数
     /// </summary>
     [ObservableProperty]
-    private int _judgeDarkFieldImageListRateSkipCout = 50;
+    private int _judgeDarkFieldImageListRateSkipCout;
 
     #endregion 参数
 

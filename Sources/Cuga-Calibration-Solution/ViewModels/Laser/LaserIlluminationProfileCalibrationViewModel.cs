@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -230,10 +229,12 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         foreach (var calibration in Calibrations)
         {
-            var laserLightInformationStatus = CalibrationStatusList.SingleOrDefault(t => t.OpticsMagTypeEnum == calibration.OpticsMagTypeEnum)
-                ?.LaserLightInformationStatusList.SingleOrDefault(t => t.LaserLightInformation == calibration.LaserLightInformation);
+            var laserLightInformationStatus = CalibrationStatusList
+                .SingleOrDefault(t => t.OpticsMagTypeEnum == calibration.OpticsMagTypeEnum)
+                ?.LaserLightInformationStatusList
+                .SingleOrDefault(t => t.LaserLightInformation == calibration.LaserLightInformation);
 
-            if (laserLightInformationStatus is not null) IsCalibrated = calibration.IsCalibrated;
+            if (laserLightInformationStatus is not null) laserLightInformationStatus.IsCalibrated = calibration.IsCalibrated;
         }
 
         if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
@@ -393,12 +394,12 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             {
                 if (laserIlluminationProfileItemDto is null) return;
 
-                var tryShowSaveFilePathDialog = DialogWindowProvider.TryShowSaveFilePathDialog(".txt", out var saveFilePath);
+                var tryShowSaveFilePathDialog = DialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath);
                 if (tryShowSaveFilePathDialog == false) return;
 
                 foreach (var prescanAODWaveformProfile in laserIlluminationProfileItemDto.PrescanAODWaveformProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(laserIlluminationProfileItemDto.PrescanRateList);
 
-                AODWaveformResultFactory.CreatePrescanList(laserIlluminationProfileItemDto.PrescanAODWaveformProfileList, FileHelper.GetFileFullName(saveFilePath));
+                AODWaveformResultFactory.CreatePrescanList(laserIlluminationProfileItemDto.PrescanAODWaveformProfileList, directoryPath);
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -478,7 +479,12 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 Cache.FindPosition,
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+
+            var contains = applicationCookie.LaserLightInformationList.Contains(Cache.LaserLightInformation);
+            if (contains) return contains;
+
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Laser Light Information is not exist!"), HtmlLogUniqueId.LoggingHtml());
+            return false;
         });
     }
 

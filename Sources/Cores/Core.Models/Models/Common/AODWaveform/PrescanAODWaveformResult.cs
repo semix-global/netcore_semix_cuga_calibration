@@ -1,5 +1,4 @@
-﻿using Core.Wcf.Models.Laser;
-using Net.Utilities.Mapper.Interfaces;
+﻿using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
@@ -10,12 +9,10 @@ public class PrescanAODWaveformResult : AODWaveformResult, IAdaptTo<PrescanAODWa
     }
 
     public PrescanAODWaveformProfile AdaptTo() => AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum, FilePath);
-    
+
     public PrescanAODWaveformResult Clone() => new()
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         FilePath = FilePath
     };
-
-
 }
