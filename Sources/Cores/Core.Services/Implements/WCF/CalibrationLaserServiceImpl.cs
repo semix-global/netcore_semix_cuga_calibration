@@ -7,7 +7,7 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -34,7 +34,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
-    private List<CgLightConfig>? _cgLightConfigList;
+    private IReadOnlyList<LaserLightInformation>? _laserLightInformationList;
     private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
 
     public SxExecuteRet<bool> Connect()
@@ -86,24 +86,41 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    {
+        if (_laserLightInformationList is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
+
+        var sxExecuteRet = Invoke(() => Service?.GetLightConfig());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
+        if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
+
+        _laserLightInformationList = [.. sxExecuteRet.Anything.Select(t => new LaserLightInformation().AdaptIn(t))];
+
+        return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
+    }
+
     public SxExecuteRet<double> LevelToCoefficient(double level)
     {
-        var sxExecuteRet = GetLightConfigList();
-        var cgLightConfig = sxExecuteRet.Anything.SingleOrDefault(m => Math.Abs(m.LightProp - level) < Constants.Tolerance);
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
 
-        return sxExecuteRet.IsSuccess == false || cgLightConfig is null
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
-            : SxExecuteRetHelper.CreateSuccess(cgLightConfig.LightCoeff);
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError<double>("Laser Light Information is not single", 0)
+            : SxExecuteRetHelper.CreateSuccess(result.Coefficient);
     }
 
     public SxExecuteRet<double> CoefficientToLevel(double coefficient)
     {
-        var sxExecuteRet = GetLightConfigList();
-        var cgLightConfig = sxExecuteRet.Anything.SingleOrDefault(m => Math.Abs(m.LightCoeff - coefficient) < Constants.Tolerance);
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
 
-        return sxExecuteRet.IsSuccess == false || cgLightConfig is null
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
-            : SxExecuteRetHelper.CreateSuccess(cgLightConfig.LightProp);
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", 0d)
+            : SxExecuteRetHelper.CreateSuccess(result.Level);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
@@ -653,18 +670,5 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
-    }
-
-    private SxExecuteRet<List<CgLightConfig>> GetLightConfigList()
-    {
-        if (_cgLightConfigList is not null) return SxExecuteRetHelper.CreateSuccess(_cgLightConfigList);
-
-        var sxExecuteRet = Invoke(() => Service?.GetLightConfig());
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, new List<CgLightConfig>());
-        if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<List<CgLightConfig>>("Lens List is empty", []);
-
-        _cgLightConfigList = [.. sxExecuteRet.Anything];
-
-        return SxExecuteRetHelper.CreateSuccess(_cgLightConfigList);
     }
 }

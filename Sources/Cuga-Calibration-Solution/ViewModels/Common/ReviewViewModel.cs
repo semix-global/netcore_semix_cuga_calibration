@@ -5,8 +5,8 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
@@ -165,7 +165,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="microscopePixelSizeHistoryList">显微镜尺寸列表</param>
     /// <param name="position">匹配旧的位置</param>
-    /// <param name="microscopeMagnificationInfo">匹配的镜头</param>
+    /// <param name="microscopeLensInformation">匹配的镜头</param>
     /// <param name="templateFilePath">匹配的模板</param>
     /// <param name="saveResultImageFileDirectory">匹配后成功的[保存的匹配图片的文件目录]</param>
     /// <param name="logGuid">记录日志: id</param>
@@ -181,7 +181,7 @@ public sealed partial class ReviewViewModel(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         IEnumerable<MicroscopePixelSizeItemDto> microscopePixelSizeHistoryList,
         Point position,
-        MicroscopeMagnificationInfo microscopeMagnificationInfo,
+        MicroscopeLensInformation microscopeLensInformation,
         string templateFilePath,
         string? saveResultImageFileDirectory,
         Guid? logGuid,
@@ -200,7 +200,7 @@ public sealed partial class ReviewViewModel(
         resultImageFilePath = string.Empty;
         originImageFilePath = string.Empty;
 
-        var size = microscopePixelSizeHistoryList.SingleOrDefault(t => t.MagnificationInfo == microscopeMagnificationInfo);
+        var size = microscopePixelSizeHistoryList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
         if (size is null || size.IsOk == false)
         {
             if (logGuid is not null && logName is not null)
@@ -222,9 +222,9 @@ public sealed partial class ReviewViewModel(
 
         try
         {
-            var currentMag = microscopeViewModel.GetMagnification();
-            if (microscopeMagnificationInfo != currentMag)
-                microscopeViewModel.SwitchMagnification(microscopeMagnificationInfo);
+            var currentMag = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+            if (microscopeLensInformation != currentMag)
+                microscopeViewModel.SwitchMicroscopeLensInformation(microscopeLensInformation);
             stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
             Thread.Sleep(500);
 
@@ -239,7 +239,7 @@ public sealed partial class ReviewViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
-                        MicroscopeMagnification = microscopeMagnificationInfo.MicroscopeMagnificationName,
+                        microscopeLensInformation.LensName,
                         OriginPosition = position,
                         Score = resultScore,
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
@@ -273,7 +273,7 @@ public sealed partial class ReviewViewModel(
             if (logGuid is not null && logName is not null && logResultTitle is not null)
                 logger.LogHtmlInformation($"Match Template {logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
-                    MicroscopeMagnification = microscopeMagnificationInfo.MicroscopeMagnificationName,
+                    microscopeLensInformation.LensName,
                     OriginPosition = position,
                     ResultPosition = resultPosition,
                     ResultOffset = actualOffset,
@@ -306,7 +306,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="microscopePixelSizeHistoryList">显微镜尺寸列表</param>
     /// <param name="position">匹配旧的位置</param>
-    /// <param name="microscopeMagnificationInfo">匹配的镜头</param>
+    /// <param name="microscopeLensInformation">匹配的镜头</param>
     /// <param name="templateFilePath">匹配的模板</param>
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <returns>是否成功</returns>
@@ -314,11 +314,11 @@ public sealed partial class ReviewViewModel(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         IEnumerable<MicroscopePixelSizeItemDto> microscopePixelSizeHistoryList,
         Point position,
-        MicroscopeMagnificationInfo microscopeMagnificationInfo,
+        MicroscopeLensInformation microscopeLensInformation,
         string templateFilePath,
         out Point resultPosition)
     {
-        return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeMagnificationInfo, templateFilePath, null, null, null, null,
+        return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeLensInformation, templateFilePath, null, null, null, null,
             out resultPosition, out _, out _, out _, out _);
     }
 
@@ -328,7 +328,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="microscopePixelSizeHistoryList">显微镜尺寸列表</param>
     /// <param name="position">匹配的位置</param>
-    /// <param name="microscopeMagnificationInfo">镜头</param>
+    /// <param name="microscopeLensInformation">镜头</param>
     /// <param name="templateFilePath">模板</param>
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="resultScore">匹配后成功的[得分]</param>
@@ -340,7 +340,7 @@ public sealed partial class ReviewViewModel(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         IEnumerable<MicroscopePixelSizeItemDto> microscopePixelSizeHistoryList,
         Point position,
-        MicroscopeMagnificationInfo microscopeMagnificationInfo,
+        MicroscopeLensInformation microscopeLensInformation,
         string templateFilePath,
         out Point resultPosition,
         out double resultScore,
@@ -348,7 +348,7 @@ public sealed partial class ReviewViewModel(
         out string resultImageFilePath,
         out string originImageFilePath)
     {
-        return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeMagnificationInfo, templateFilePath, null, null, null, null,
+        return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeLensInformation, templateFilePath, null, null, null, null,
             out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, out originImageFilePath);
     }
 
@@ -416,11 +416,11 @@ public sealed partial class ReviewViewModel(
                 return;
             }
 
-            var magnificationEnum = microscopeViewModel.GetMagnification();
-            var microscopePixelSizeItemDto = microscopePixelSizes.SingleOrDefault(t => t.MagnificationInfo == magnificationEnum);
+            var currentMicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+            var microscopePixelSizeItemDto = microscopePixelSizes.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
             if (microscopePixelSizeItemDto is null)
             {
-                dialogWindowProvider.ShowDialog($"Microscope {magnificationEnum} Pixel Size is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog($"Microscope {currentMicroscopeLensInformation} Pixel Size is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
             }
 

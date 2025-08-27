@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Models.Common.FindWaferCenter;
+using Core.Models.Models.Common.Alignment;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -8,7 +8,6 @@ using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -23,7 +22,7 @@ public sealed partial class FindWaferCenterWindowFieldViewModel : ViewModelBase
     #region 界面
 
     [ObservableProperty]
-    private FindWaferCenterCache _cacheFindWaferCenter = new();
+    private AlignmentFindCenterCache _alignmentFindCenterCache = new();
 
     [ObservableProperty]
     private bool isFindWaferCenterOffsetPositionEnabled = true;
@@ -46,7 +45,7 @@ public sealed partial class FindWaferCenterWindowFieldViewModel : ViewModelBase
     [RelayCommand]
     private void Loaded()
     {
-        FindWaferCenterByManuallyWindowViewModel.FindWaferCenterCache = CacheFindWaferCenter;
+        FindWaferCenterByManuallyWindowViewModel.AlignmentFindCenterCache = AlignmentFindCenterCache;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -54,7 +53,7 @@ public sealed partial class FindWaferCenterWindowFieldViewModel : ViewModelBase
     {
         IsFindWaferCenterOffsetPositionEnabled = true;
         var result = await FindWaferCenterByManuallyWindowViewModel.ActionAsync(cancellationToken).ConfigureAwait(false);
-        if (result) CacheFindWaferCenter = FindWaferCenterByManuallyWindowViewModel.Cache;
+        if (result) AlignmentFindCenterCache = FindWaferCenterByManuallyWindowViewModel.Cache;
         else
         {
             IsFindWaferCenterOffsetPositionEnabled = false;

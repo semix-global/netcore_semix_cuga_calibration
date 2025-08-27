@@ -39,11 +39,11 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.HighMicroscopeMagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                <TextBlock Text="{Binding LensName}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>

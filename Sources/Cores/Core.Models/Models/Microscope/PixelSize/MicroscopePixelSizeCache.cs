@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using MoreLinq;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
@@ -11,7 +11,7 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     [Comparison(100000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Radius: ")]
@@ -31,25 +31,25 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
 
     public void SetFindFocusPosition(Point position)
     {
-        var info = MicroscopePixelSizeCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(SetFindFocusPosition));
+        var info = MicroscopePixelSizeCacheItem.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(SetFindFocusPosition));
         info.FindPosition = position;
     }
 
     public MicroscopePixelSizeCacheItem GetSelectedCacheItem()
     {
-        return MicroscopePixelSizeCacheItem.SingleOrDefault(item => item.MagnificationInfo == MicroscopeMagnificationInfo) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
+        return MicroscopePixelSizeCacheItem.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
     }
 
-    public bool InitializeCacheList(List<MicroscopeMagnificationInfo> microscopeMagnificationInfoList)
+    public bool InitializeCacheList(List<MicroscopeLensInformation> microscopeLensInformationList)
     {
-        if (microscopeMagnificationInfoList.Count == 0) return false;
-        var isInitialized = MicroscopePixelSizeCacheItem.Count == microscopeMagnificationInfoList.Count
+        if (microscopeLensInformationList.Count == 0) return false;
+        var isInitialized = MicroscopePixelSizeCacheItem.Count == microscopeLensInformationList.Count
                             && MicroscopePixelSizeCacheItem.Select((item, index) => (index, item))
-                                .All(t => t.item.MagnificationInfo == microscopeMagnificationInfoList[t.index]);
+                                .All(t => t.item.LensInformation == microscopeLensInformationList[t.index]);
         if (isInitialized) return true;
         MicroscopePixelSizeCacheItem = new ObservableCollection<MicroscopePixelSizeCacheItem>(
-            microscopeMagnificationInfoList.Select(t => new MicroscopePixelSizeCacheItem() { MagnificationInfo = t.Clone() }));
-        MicroscopeMagnificationInfo = MicroscopePixelSizeCacheItem.Minima(t => t.MagnificationInfo.MagnificationCode).Single().MagnificationInfo;
+            microscopeLensInformationList.Select(t => new MicroscopePixelSizeCacheItem() { LensInformation = t.Clone() }));
+        MicroscopeLensInformation = MicroscopePixelSizeCacheItem.Minima(t => t.LensInformation.LensCode).Single().LensInformation;
         return true;
     }
 }

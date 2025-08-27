@@ -1,12 +1,9 @@
-﻿using HalconDotNet;
+using HalconDotNet;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// 复查相机服务
-/// </summary>
 public interface ICalibrationReviewService
 {
     /// <summary>

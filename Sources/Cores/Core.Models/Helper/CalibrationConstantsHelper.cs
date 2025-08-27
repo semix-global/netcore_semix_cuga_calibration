@@ -1,35 +1,15 @@
-using Core.Models.Enums.Microscope;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Models.Geometries;
-using System.Collections.Frozen;
 
 namespace Core.Models.Helper;
 
 public static class CalibrationConstantsHelper
 {
     /// <summary>
-    /// 校准明场PixelSize标准掩膜方块大小
-    /// </summary>
-    public static readonly FrozenDictionary<MicroscopeMagnificationEnum, Size> CalibrationPixelSizeStandardMaskSquareSizeDic = new Dictionary<MicroscopeMagnificationEnum, Size>
-    {
-        { MicroscopeMagnificationEnum.Magnification5X, new Size(100, 100) },
-        { MicroscopeMagnificationEnum.Magnification10X, new Size(50, 50) },
-        { MicroscopeMagnificationEnum.Magnification50X, new Size(25, 25) },
-        { MicroscopeMagnificationEnum.Magnification100X, new Size(10, 10) },
-        { MicroscopeMagnificationEnum.Magnification150X, new Size(10, 10) }
-    }.ToFrozenDictionary();
-
-    /// <summary>
     /// 校准明场StageY轴长度
     /// </summary>
     public const double CalibrationGantryHLength = 1130000;
-
-    /// <summary>
-    /// 校准暗场YPixelSize标准掩膜方块大小
-    /// </summary>
-    public static readonly Size CalibrationYPixelSizeStandardMaskSquareSize = CalibrationPixelSizeStandardMaskSquareSizeDic[MicroscopeMagnificationEnum.Magnification150X];
 
     /// <summary>
     /// 校准暗场采集波形功率系数(1表示100%, 0表示0%)

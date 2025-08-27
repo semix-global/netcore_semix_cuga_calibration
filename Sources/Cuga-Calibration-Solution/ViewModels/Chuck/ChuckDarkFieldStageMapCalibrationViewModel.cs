@@ -12,6 +12,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -27,7 +28,6 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Pattern;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -56,9 +56,9 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName)}-{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -286,10 +286,10 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
-            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList.Count <= 2
-                ? ApplicationCookie.MicroscopeMagnificationInfoList[^1]
-                : ApplicationCookie.MicroscopeMagnificationInfoList[2];
+        if (Cache.MicroscopeLensInformation.LensCode == -1)
+            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
+                ? ApplicationCookie.MicroscopeLensInformationList[^1]
+                : ApplicationCookie.MicroscopeLensInformationList[2];
 
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
@@ -352,7 +352,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 1:
-                MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 return true;
 
             case 2:
@@ -392,13 +392,13 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -462,7 +462,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.P5Angle,
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName
+                LensName = Cache.MicroscopeLensInformation.LensName
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -546,7 +546,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             var detectImageDirectory = ImageFileDirectory;
             using var _ = darkFieldImageDto;
 
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}_{Guid.NewGuid()}";
+            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
             {
                 if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
@@ -620,7 +620,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 RtfcEcs = ecs,
                 RtfcHeight = height,
                 Cache.P5Angle,
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.MicroscopeLensInformation.LensName,
                 Cache.AlgorithmTemplateTypeEnum,
                 Cache.CalculateContainRowMinCount,
                 Cache.CalculateContainColumnMinCount,
@@ -667,7 +667,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    LensName = Cache.MicroscopeLensInformation.LensName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ResultChuckDarkFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath,
                     ResultChuckDarkFieldStageMapDto.CalibrationStageMap.RealCsvFilePath,
@@ -682,7 +682,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 xAxisTemperature,
                 yAxisTemperature,
                 cibTemperature,
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                LensName = Cache.MicroscopeLensInformation.LensName,
                 Cache.AlgorithmTemplateTypeEnum,
                 ResultChuckDarkFieldStageMapDto.CalibrationStageMap.IdealCsvFilePath,
                 ResultChuckDarkFieldStageMapDto.CalibrationStageMap.RealCsvFilePath,
@@ -776,7 +776,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     reviewCamTemperature,
                     cibTemperature,
                     Cache.P5Angle,
-                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    LensName = Cache.MicroscopeLensInformation.LensName,
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
@@ -822,7 +822,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    LensName = Cache.MicroscopeLensInformation.LensName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath,
@@ -904,7 +904,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                     yAxisTemperature,
                     reviewCamTemperature,
                     cibTemperature,
-                    Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                    LensName = Cache.MicroscopeLensInformation.LensName,
                     Cache.AlgorithmTemplateTypeEnum,
                     ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath,
@@ -1178,7 +1178,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
         update(dto);
         update(Cache);
 
-        dto.MicroscopeMagnificationInfo = ChuckBrightFieldStageMap.MicroscopeMagnificationInfo;
+        dto.MicroscopeLensInformation = ChuckBrightFieldStageMap.MicroscopeLensInformation;
         dto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         dto.StageSpeedEnum = Cache.StageSpeedEnum;
 

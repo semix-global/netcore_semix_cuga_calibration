@@ -1,5 +1,5 @@
 using ArxOne.MrAdvice.Advice;
-using CugaCalibration.Core.Models;
+using Core.Models.Models.Common.Cookies;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Enums;
 using Net.Utilities.Helpers.Helpers;

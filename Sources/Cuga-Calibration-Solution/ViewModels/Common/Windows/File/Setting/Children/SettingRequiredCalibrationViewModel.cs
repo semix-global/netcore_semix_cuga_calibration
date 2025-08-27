@@ -170,7 +170,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
         }
     }
 
-    static bool SetCalibrationItemIsRequired(object childCalibrationObj, bool isRequired)
+    private static bool SetCalibrationItemIsRequired(object childCalibrationObj, bool isRequired)
     {
         try
         {

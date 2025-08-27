@@ -5,7 +5,6 @@ using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-// ReSharper disable once InconsistentNaming
 public interface ICalibrationEFEMService
 {
     /// <summary>

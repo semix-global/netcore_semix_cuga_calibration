@@ -9,6 +9,7 @@ using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
 using CommunityToolkit.Diagnostics;
 using Cuga.Data.DataStruct.PMT;
+
 #endif
 
 namespace Core.Models.Extensions;
@@ -106,7 +107,6 @@ public static class EnumOpticsExtension
     };
 
     #endregion Polarization
-
 
 #if NETFRAMEWORK
 

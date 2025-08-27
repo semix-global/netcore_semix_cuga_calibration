@@ -6,7 +6,7 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Agent.Facade.Service.MachineFacade;
@@ -77,6 +77,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<double> LevelToCoefficient(double level)

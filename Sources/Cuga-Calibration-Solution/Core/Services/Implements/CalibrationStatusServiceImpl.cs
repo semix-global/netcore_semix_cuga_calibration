@@ -84,7 +84,6 @@ public class CalibrationStatusServiceImpl(
         return true;
     }
 
-
     public bool EnableDependChuckCenterCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibration<ChuckPrealignerObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;

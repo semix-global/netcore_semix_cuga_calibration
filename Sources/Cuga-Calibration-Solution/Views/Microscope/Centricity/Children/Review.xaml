@@ -121,7 +121,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="120"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding LensInformation.LensName, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="200"
                                         Header="Centricity"
                                         DisplayMemberBinding="{Binding CentricityPosition, Converter={StaticResource PointToStringConverter}}" />

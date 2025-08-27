@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>, IAdaptIn<CalibrationMicroscopeCentricityItem, MicroscopeCentricityItemDto>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _magnificationInfo = new();
+    private MicroscopeLensInformation _lensInformation = new();
 
     [ObservableProperty]
     private Point _centricityPosition;
@@ -39,7 +39,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
 
     public MicroscopeCentricityItemDto Clone() => new()
     {
-        MagnificationInfo = MagnificationInfo,
+        LensInformation = LensInformation,
         CentricityPosition = CentricityPosition,
         Offset = Offset,
         FilePath = FilePath,
@@ -56,7 +56,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
 
     public CalibrationMicroscopeCentricityItem AdaptTo() => new()
     {
-        CgMicroscopeLens = MagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MagnificationInfo),
+        CgMicroscopeLens = LensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(LensInformation),
         Offset = Offset.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -65,7 +65,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
 
     public MicroscopeCentricityItemDto AdaptIn(CalibrationMicroscopeCentricityItem obj) => new()
     {
-        MagnificationInfo = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeMagnificationInfo>(obj.CgMicroscopeLens),
+        LensInformation = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeLensInformation>(obj.CgMicroscopeLens),
         Offset = obj.Offset.ToPoint(),
         IsCalibrated = obj.IsCalibrated,
         IsVerified = obj.IsVerified,

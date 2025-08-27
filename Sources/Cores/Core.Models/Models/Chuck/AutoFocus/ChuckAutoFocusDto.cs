@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -9,7 +9,7 @@ namespace Core.Models.Models.Chuck.AutoFocus;
 public sealed partial class ChuckAutoFocusDto : CalibrationDtoBase, ICloneable<ChuckAutoFocusDto>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo;
+    private MicroscopeLensInformation _microscopeLensInformation;
 
     [ObservableProperty]
     private int _rowNumber;
@@ -33,7 +33,7 @@ public sealed partial class ChuckAutoFocusDto : CalibrationDtoBase, ICloneable<C
 
     public ChuckAutoFocusDto Clone() => new()
     {
-        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
+        MicroscopeLensInformation = MicroscopeLensInformation,
         RowNumber = RowNumber,
         ColumnNumber = ColumnNumber,
         ChuckDiameter = ChuckDiameter,

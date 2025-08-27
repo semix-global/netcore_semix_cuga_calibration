@@ -4,8 +4,8 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
-using CugaCalibration.Core.Models;
 using Local.NoSQL.DB.Providers.Helper;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -146,20 +146,22 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 Cache = _recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
                 Cache.IsVerified = false;
                 Cache.IsOk = false;
-                if (_applicationCookie.MicroscopeMagnificationInfoList.Contains(Cache.LowMag) == false ||
-                    _applicationCookie.MicroscopeMagnificationInfoList.Contains(Cache.HighMag) == false)
+                if (_applicationCookie.MicroscopeLensInformationList.Contains(Cache.LowMag) == false ||
+                    _applicationCookie.MicroscopeLensInformationList.Contains(Cache.HighMag) == false)
                 {
-                    Cache = new();
-                    Cache.LowMag = _applicationCookie.MicroscopeMagnificationInfoList[0];
-                    Cache.HighMag = _applicationCookie.MicroscopeMagnificationInfoList.Count <= 2
-                        ? _applicationCookie.MicroscopeMagnificationInfoList[^1]
-                        : _applicationCookie.MicroscopeMagnificationInfoList[2];
+                    Cache = new AlignmentCacheBrightField()
+                    {
+                        LowMag = _applicationCookie.MicroscopeLensInformationList[0],
+                        HighMag = _applicationCookie.MicroscopeLensInformationList.Count <= 2
+                            ? _applicationCookie.MicroscopeLensInformationList[^1]
+                            : _applicationCookie.MicroscopeLensInformationList[2]
+                    };
                     _recipeCacheProvider.Set(Cache, cancellationToken);
                 }
 
                 _contextProvider.Send(() =>
                 {
-                    AlignmentParamWindowBrightFieldViewModel.MicroscopeMagnificationInfoList = [.. _applicationCookie.MicroscopeMagnificationInfoList];
+                    AlignmentParamWindowBrightFieldViewModel.MicroscopeLensInformationList = [.. _applicationCookie.MicroscopeLensInformationList];
                     StepIndex = 0;
                 });
 
@@ -180,7 +182,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
 
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-                MicroscopeViewModel.SwitchMagnification(Cache.LowMag);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
                 StageViewModel.SetAbsoluteStageTheta(0);
             }
             catch (Exception ex)
@@ -222,7 +224,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     {
         return InvokeAsync(() =>
         {
-            var magnificationEnum = MicroscopeViewModel.GetMagnification();
+            var magnificationEnum = MicroscopeViewModel.GetCurrentMicroscopeLensInformation();
 
             switch (StepIndex)
             {
@@ -384,22 +386,22 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
             {
                 case 0:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
-                    MicroscopeViewModel.SwitchMagnification(Cache.LowMag);
+                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
                     break;
 
                 case 1:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
-                    MicroscopeViewModel.SwitchMagnification(Cache.LowMag);
+                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
                     break;
 
                 case 2:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location);
-                    MicroscopeViewModel.SwitchMagnification(Cache.HighMag);
+                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMag);
                     break;
 
                 case 3:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location);
-                    MicroscopeViewModel.SwitchMagnification(Cache.HighMag);
+                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMag);
                     break;
             }
         }

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -21,7 +21,7 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
     private int _calculateContainColumnMinCount = 8;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
@@ -68,14 +68,12 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _firstStageMapPosition;
 
-
     [ComparisonRange(0, 10, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "RepeatCount: ")]
     public int RepeatCount
     {
         get => _repeatCount;
         set => SetProperty(ref _repeatCount, value, true);
     }
-
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
     public int RowNumber
@@ -120,7 +118,6 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
         set => SetProperty(ref _calculateContainRowMinCount, value, true);
     }
 
-
     [CustomValidation(typeof(ChuckDarkFieldStageMapCache), nameof(ValidateIsOutOfColumnNumberRange))]
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Column MinCout: ")]
     public int CalculateContainColumnMinCount
@@ -151,7 +148,7 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
             : ValidationResult.Success;
     }
 
-    #endregion
+    #endregion Validators
 
     #region Verify
 
@@ -177,5 +174,5 @@ public sealed partial class ChuckDarkFieldStageMapCache : CalibrationCacheBase
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
 
-    #endregion
+    #endregion Verify
 }

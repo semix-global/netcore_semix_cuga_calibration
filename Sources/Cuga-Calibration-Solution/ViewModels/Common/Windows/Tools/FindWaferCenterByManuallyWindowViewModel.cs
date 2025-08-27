@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Models.Common.FindWaferCenter;
+using Core.Models.Models.Common.Alignment;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -15,21 +15,18 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
 [IOCAppService(ServiceType = typeof(FindWaferCenterByManuallyWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FindWaferCenterByManuallyWindowViewModel(
-    ISynchronizationContextProvider contextProvider,
+    StageViewModel stageViewModel,
     ILogger<FindWaferCenterByManuallyWindowViewModel> logger,
-    StageViewModel stageViewModel) : CalibrationViewModelBase
+    ISynchronizationContextProvider contextProvider) : CalibrationViewModelBase
 {
-    private readonly ISynchronizationContextProvider _contextProvider = contextProvider;
-    private readonly ILogger<FindWaferCenterByManuallyWindowViewModel> _logger = logger;
-
     [ObservableProperty]
     private StageViewModel _stageViewModel = stageViewModel;
 
     [ObservableProperty]
-    private FindWaferCenterCache _cache = new();
+    private AlignmentFindCenterCache _cache = new();
 
     [ObservableProperty]
-    private FindWaferCenterCache? _findWaferCenterCache;
+    private AlignmentFindCenterCache? _alignmentFindCenterCache;
 
     [ObservableProperty]
     private bool _isEnable = true;
@@ -41,13 +38,13 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         {
             try
             {
-                if (FindWaferCenterCache is null) Cache = RecipeCacheProvider.GetOrDefault<FindWaferCenterCache>();
-                else Cache = FindWaferCenterCache;
+                if (AlignmentFindCenterCache is null) Cache = RecipeCacheProvider.GetOrDefault<AlignmentFindCenterCache>();
+                else Cache = AlignmentFindCenterCache;
             }
             catch (Exception ex)
             {
                 DialogWindowProvider.ShowDialog("Find wafer center load failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                _logger.LogError(ex, "{@Name}: Loaded Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
+                logger.LogError(ex, "{@Name}: Loaded Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
             }
         });
     }
@@ -90,7 +87,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
 
             if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionErrorThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionErrorThreshold)
             {
-                _logger.LogHtmlInformation("Find wafer center offset exceeds threshold, please manually adjust EFEM.", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                logger.LogHtmlInformation("Find wafer center offset exceeds threshold, please manually adjust EFEM.", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     OffsetX = Cache.OffsetPosition.X,
                     OffsetY = Cache.OffsetPosition.Y
@@ -101,7 +98,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
                 return;
             }
 
-            _logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
                 Cache.OffsetPosition,
                 Cache.FindWaferCenterOffset1,
@@ -123,29 +120,29 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         {
             try
             {
-                _contextProvider.Send(() => IsEnable = false);
+                contextProvider.Send(() => IsEnable = false);
                 action();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "{@Name}: Invoke Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
+                logger.LogError(e, "{@Name}: Invoke Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
             }
             finally
             {
-                _contextProvider.Send(() => IsEnable = true);
+                contextProvider.Send(() => IsEnable = true);
             }
         });
     }
 
     private void SaveWaferCenterThumbImages(List<byte[]> bitmapMemoryBytes)
     {
-        _logger.LogHtmlInformation("Save Wafer Center Thumb Images", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+        logger.LogHtmlInformation("Save Wafer Center Thumb Images", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
         for (var i = 0; i < bitmapMemoryBytes.Count; i++)
         {
             var waferCenterThumbPath = $"{ImageFileDirectory}\\WaferCenterThumb\\WaferCenterThumb{i + 1}_Guid{HtmlLogUniqueId}.jpg";
             var waferCenterThumbBitmapSource = BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(bitmapMemoryBytes[i]);
             BitmapSourceHelper.Save(waferCenterThumbBitmapSource, waferCenterThumbPath);
-            _logger.LogHtmlInformation($"Find center edge image {i}", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+            logger.LogHtmlInformation($"Find center edge image {i}", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
             {
                 HtmlTab = new HtmlTab(new
                 {

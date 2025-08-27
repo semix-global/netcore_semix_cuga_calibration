@@ -1,7 +1,7 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -98,9 +98,9 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetSensorMicroscopeObjValue(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public void SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
-        var ret = calibrationAfService.SetSensorMicroscopeObjValue(microscopeMagnificationInfo);
+        var ret = calibrationAfService.SetSensorMicroscopeObjValue(microscopeLensInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -187,9 +187,9 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationInfo microscopeMagnificationInfo, double standardEcsValue)
+    public void SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
-        var ret = calibrationAfService.SetSensorBrightFieldChuckStandardEcsValue(microscopeMagnificationInfo, standardEcsValue);
+        var ret = calibrationAfService.SetSensorBrightFieldChuckStandardEcsValue(microscopeLensInformation, standardEcsValue);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

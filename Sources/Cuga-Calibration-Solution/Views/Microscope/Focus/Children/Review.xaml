@@ -121,7 +121,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName}" />
+                                        DisplayMemberBinding="{Binding LensInformation.LensName}" />
                         <GridViewColumn Width="200"
                                         Header="FindPosition"
                                         DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

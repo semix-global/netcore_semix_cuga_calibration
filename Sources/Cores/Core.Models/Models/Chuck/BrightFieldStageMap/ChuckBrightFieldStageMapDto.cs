@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Pattern;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.BrightFieldStageMap;
@@ -8,7 +8,7 @@ namespace Core.Models.Models.Chuck.BrightFieldStageMap;
 public sealed partial class ChuckBrightFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckBrightFieldStageMapDto>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private StageMapDto _calibrationStageMap = new();
@@ -20,7 +20,7 @@ public sealed partial class ChuckBrightFieldStageMapDto : CalibrationDtoBase, IC
 
     public ChuckBrightFieldStageMapDto Clone() => new()
     {
-        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
+        MicroscopeLensInformation = MicroscopeLensInformation,
         CalibrationStageMap = CalibrationStageMap.Clone(),
         VerifyStageMap = VerifyStageMap.Clone(),
         IsCalibrated = IsCalibrated,

@@ -344,6 +344,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                         if (await NextingAsync(cancellationToken) == false) return false;
                         if (await AutoNextingAsync(cancellationToken) == false) return false;
                         break;
+
                     case 2:
                         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;

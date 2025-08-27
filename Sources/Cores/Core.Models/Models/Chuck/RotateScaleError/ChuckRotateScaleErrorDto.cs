@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.RotateScaleError;
 public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckRotateScaleErrorDto>, IAdaptTo<CalibrationChuckRotateScaleError>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     [ObservableProperty]
     private bool _isPositive;
@@ -145,6 +145,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
+
             case StageDirectionTypeEnum.Down:
                 {
                     if (IsPositive)
@@ -159,6 +160,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
+
             case StageDirectionTypeEnum.Left:
                 {
                     if (IsPositive)
@@ -173,6 +175,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
+
             case StageDirectionTypeEnum.Right:
                 {
                     if (IsPositive)
@@ -216,7 +219,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckRotateScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -225,8 +228,8 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
 
     public ChuckRotateScaleErrorDto Clone() => new()
     {
-        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
-        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         IsPositive = IsPositive,
         ChuckCenterBrightFieldPosition = ChuckCenterBrightFieldPosition,
         AppliedScaleT = AppliedScaleT,

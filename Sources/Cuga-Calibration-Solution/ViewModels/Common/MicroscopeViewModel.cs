@@ -1,7 +1,7 @@
 using Core.Models.Exceptions;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -33,63 +33,59 @@ public sealed class MicroscopeViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public CgMicroscopeLens MicroscopeMagnificationInfoToCgMicroscopeLens(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public IReadOnlyList<MicroscopeLensInformation> GetMicroscopeLensInformationList()
     {
-        var ret = calibrationMicroscopeService.MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
+        var ret = calibrationMicroscopeService.GetMicroscopeLensInformationList();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public MicroscopeMagnificationInfo CgMicroscopeLensToMicroscopeMagnificationInfo(CgMicroscopeLens cgMicroscopeLens)
+    public CgMicroscopeLens MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation)
     {
-        var ret = calibrationMicroscopeService.CgMicroscopeLensToMicroscopeMagnificationInfo(cgMicroscopeLens);
+        var ret = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<MicroscopeMagnificationInfo> GetMagnificationList()
+    public MicroscopeLensInformation CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
     {
-        var ret = calibrationMicroscopeService.GetLensList();
-        var magnificationList = ret.Anything
-            .Select(t => CgMicroscopeLensToMicroscopeMagnificationInfo(t.LensCode))
-            .OrderBy(t => t.Magnification)
-            .ThenBy(t => t.MagnificationCode)
-            .ToList();
-        return ret.IsSuccess ? magnificationList : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public MicroscopeMagnificationInfo GetMagnification()
-    {
-        var ret = calibrationMicroscopeService.GetMagnification();
+        var ret = calibrationMicroscopeService.CgMicroscopeLensToMicroscopeLensInfo(cgMicroscopeLens);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SwitchMagnification(MicroscopeMagnificationInfo microscopeMagnificationInfo, bool isMoveToMicroscopeCenter = false)
+    public MicroscopeLensInformation GetCurrentMicroscopeLensInformation()
     {
-        var switchMagnificationNotAutoFocus = SwitchMagnificationNotAutoFocus(microscopeMagnificationInfo, isMoveToMicroscopeCenter);
-        if (switchMagnificationNotAutoFocus == false) throw new CugaException("Switch Magnification Not AutoFocus Failed");
+        var ret = calibrationMicroscopeService.GetCurrentMicroscopeLensInformation();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SwitchMicroscopeLensInformation(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
+    {
+        var switchMicroscopeLensInformationNotAutoFocus = SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation, isMoveToMicroscopeCenter);
+        if (switchMicroscopeLensInformationNotAutoFocus == false) throw new CugaException("Switch Microscope Lens Information Not AutoFocus Failed");
 
         afViewModel.ToggleBrightFieldEnable(true);
 
         Thread.Sleep(500);
     }
 
-    public bool SwitchMagnificationNotAutoFocus(MicroscopeMagnificationInfo microscopeMagnificationInfo, bool isMoveToMicroscopeCenter = false)
+    public bool SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
     {
         var resultFocusList = cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
         var resultCentricityList = cacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
-        var previousMagnificationInfo = GetMagnification();
-        var newMicroscopeFocusItemDto = resultFocusList.SingleOrDefault(t => t.MagnificationInfo == microscopeMagnificationInfo);
-        var oldMicroscopeCentricityItemDto = resultCentricityList.SingleOrDefault(t => t.MagnificationInfo == previousMagnificationInfo);
-        var newMicroscopeCentricityItemDto = resultCentricityList.SingleOrDefault(t => t.MagnificationInfo == microscopeMagnificationInfo);
+        var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
+        var newMicroscopeFocusItemDto = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+        var oldMicroscopeCentricityItemDto = resultCentricityList.SingleOrDefault(t => t.LensInformation == previousMicroscopeLensInformation);
+        var newMicroscopeCentricityItemDto = resultCentricityList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
 
         afViewModel.ToggleBrightFieldEnable(false);
 
         var taskAf1 = Task.Run(() =>
         {
-            if (previousMagnificationInfo == microscopeMagnificationInfo) return true;
+            if (previousMicroscopeLensInformation == microscopeLensInformation) return true;
             if (newMicroscopeFocusItemDto?.IsOk == true)
             {
                 afViewModel.SetSensorEcsValue(newMicroscopeFocusItemDto.EcsValue);
@@ -102,7 +98,7 @@ public sealed class MicroscopeViewModel(
         {
             if (newMicroscopeFocusItemDto?.IsOk == true)
             {
-                afViewModel.SetSensorBrightFieldChuckStandardEcsValue(microscopeMagnificationInfo, newMicroscopeFocusItemDto.EcsValue);
+                afViewModel.SetSensorBrightFieldChuckStandardEcsValue(microscopeLensInformation, newMicroscopeFocusItemDto.EcsValue);
             }
 
             return true;
@@ -110,15 +106,15 @@ public sealed class MicroscopeViewModel(
 
         var taskAf3 = Task.Run(() =>
         {
-            afViewModel.SetSensorMicroscopeObjValue(microscopeMagnificationInfo);
+            afViewModel.SetSensorMicroscopeObjValue(microscopeLensInformation);
             return true;
         });
 
         var taskMicroscope1 = Task.Run(() =>
         {
-            if (previousMagnificationInfo == microscopeMagnificationInfo) return true;
+            if (previousMicroscopeLensInformation == microscopeLensInformation) return true;
 
-            var ret = calibrationMicroscopeService.SwitchMagnificationNotAutoFocus(microscopeMagnificationInfo);
+            var ret = calibrationMicroscopeService.SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation);
             return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
         });
 

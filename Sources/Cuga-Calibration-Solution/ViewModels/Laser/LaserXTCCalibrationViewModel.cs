@@ -6,6 +6,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -16,7 +17,6 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using MathNet.Numerics.LinearAlgebra;
@@ -34,7 +34,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
-
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
@@ -183,7 +182,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXTCCalibrationCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXTCCalibrationItemDto>();
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         foreach (var calibrationStatus in Calibrations)
         {
@@ -199,7 +198,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     {
         await Task.CompletedTask.ConfigureAwait(false);
         Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
-        //MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationEnum);
+        //MicroscopeViewModel.SwitchGetCurrentMicroscopeLensInformation(Cache.MicroscopeMagnificationEnum);
         StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
         return true;
     }
@@ -338,13 +337,13 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -392,7 +391,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -484,7 +483,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -736,7 +735,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         var detectImageDirectory = ImageFileDirectory;
         Logger.LogHtmlInformation($"{laserXTCCalibrationItemDto.PmtId} Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+            Cache.MicroscopeLensInformation.LensName,
             StageSpeedEnum.Low,
             laserXTCCalibrationItemDto.PmtId,
             laserXTCCalibrationItemDto.CH1Delay,
@@ -873,7 +872,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
+        itemDto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
 
         Calibrations =
         [
