@@ -3,15 +3,12 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// AutoFocus自动聚焦服务
-/// </summary>
 public interface ICalibrationLaserService
 {
     /// <summary>
@@ -49,6 +46,12 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <returns>返回台面功率计的光强值</returns>
     SxExecuteRet<double> GetOpticalPowerMeter();
+
+    /// <summary>
+    /// 获取cuga配置的激光光强的信息列表
+    /// </summary>
+    /// <returns>cuga配置的激光光强信息列表</returns>
+    SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList();
 
     /// <summary>
     /// 功率等级和功率系数互转
@@ -160,7 +163,7 @@ public interface ICalibrationLaserService
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto);
 
-    #endregion
+    #endregion 波形生成
 
     #endregion 任意波形发生器Arbitrary Waveform Generator
 

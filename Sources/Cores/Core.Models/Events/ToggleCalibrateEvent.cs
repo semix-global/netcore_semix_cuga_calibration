@@ -18,7 +18,6 @@ public sealed class ToggleCalibrateEvent
 
     public bool? IsWindowEnable { get; set; } = false;
 
-
     public ToggleCalibrateEvent UpdateIsCalibrateEnable(bool value)
     {
         IsCalibrateEnable = value;
@@ -163,7 +162,6 @@ public static class ToggleCalibrateEventFactory
             IsNextEnable = value
         });
     }
-
 
     public static ValueChangedMessage<ToggleCalibrateEvent> Enable()
     {

@@ -1,9 +1,8 @@
 using Core.Models.Extensions;
 using Core.Models.Helper;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
@@ -15,7 +14,7 @@ namespace Core.Services.Implements.WCF;
 [IOCAppService(ServiceType = typeof(ICalibrationMicroscopeService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibrationService>, ICalibrationMicroscopeService
 {
-    private List<CgMicroscopeInfo>? _cgMicroscopeInfoList;
+    private IReadOnlyList<MicroscopeLensInformation>? _microscopeLensInformationList;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -30,55 +29,59 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
         }, false);
     }
 
-    public SxExecuteRet<CgMicroscopeLens> MicroscopeMagnificationInfoToCgMicroscopeLens(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformationList()
     {
-        var sxExecuteRet = GetLensList();
-        var cgMicroscopeInfo = sxExecuteRet.Anything.SingleOrDefault(m => m.LensCode == (CgMicroscopeLens)microscopeMagnificationInfo.MagnificationCode);
+        if (_microscopeLensInformationList is not null) return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformationList);
 
-        return sxExecuteRet.IsSuccess == false || cgMicroscopeInfo is null
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default(CgMicroscopeLens))
-            : SxExecuteRetHelper.CreateSuccess(cgMicroscopeInfo.LensCode);
+        var sxExecuteRet = Invoke(() => Service?.GetLensList());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<MicroscopeLensInformation>>(sxExecuteRet.ErrorMsg, []);
+        if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<MicroscopeLensInformation>>("Microscope Lens Information is empty", []);
+
+        _microscopeLensInformationList = [.. sxExecuteRet.Anything.Select(t => new MicroscopeLensInformation().AdaptIn(t))];
+
+        return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformationList);
     }
 
-    public SxExecuteRet<MicroscopeMagnificationInfo> CgMicroscopeLensToMicroscopeMagnificationInfo(CgMicroscopeLens cgMicroscopeLens)
+    public SxExecuteRet<CgMicroscopeLens> MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation)
     {
-        var sxExecuteRet = GetLensList();
-        var cgLens = sxExecuteRet.Anything.SingleOrDefault(m => m.LensCode == cgMicroscopeLens);
-        if (cgLens is null) SxExecuteRetHelper.CreateError("cgLens is null", default(MicroscopeMagnificationInfo));
-        var cgMicroscopeInfo = new MicroscopeMagnificationInfo();
+        var sxExecuteRet = GetMicroscopeLensInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, CgMicroscopeLens.None);
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, cgMicroscopeInfo)
-            : SxExecuteRetHelper.CreateSuccess(cgMicroscopeInfo.AdaptIn(cgLens!));
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Magnification == microscopeLensInformation.Magnification);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Microscope Lens Information is not single", CgMicroscopeLens.None)
+            : SxExecuteRetHelper.CreateSuccess(result.AdaptTo().LensCode);
     }
 
-    public SxExecuteRet<MicroscopeMagnificationInfo> GetMagnification()
+    public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
+    {
+        var sxExecuteRet = GetMicroscopeLensInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, MicroscopeLensInformation.Default);
+
+        var result = sxExecuteRet.Anything
+            .SingleOrDefault(t => t.AdaptTo().LensCode == cgMicroscopeLens);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Microscope Lens Information is not single", MicroscopeLensInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<MicroscopeLensInformation> GetCurrentMicroscopeLensInformation()
     {
         var sxExecuteRet = Invoke(() => Service!.GetCurrentMicroscopeInfo());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new MicroscopeMagnificationInfo())
-            : CgMicroscopeLensToMicroscopeMagnificationInfo(sxExecuteRet.Anything.LensCode);
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new MicroscopeLensInformation())
+            : CgMicroscopeLensToMicroscopeLensInfo(sxExecuteRet.Anything.LensCode);
     }
 
-    public SxExecuteRet<bool> SwitchMagnification(MicroscopeMagnificationInfo microscopeMagnificationInfo)
+    public SxExecuteRet<bool> SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation)
     {
-        var microscopeMagnificationInfoToCgMicroscopeLens = MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
-        if (microscopeMagnificationInfoToCgMicroscopeLens.IsSuccess == false) return SxExecuteRetHelper.CreateError(microscopeMagnificationInfoToCgMicroscopeLens.Msg, false);
+        var result = MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
+        if (result.IsSuccess == false) return SxExecuteRetHelper.CreateError(result.Msg, false);
 
-        var sxExecuteRet = Invoke(() => Service!.SwitchMicroscopeLensNoCorrection(microscopeMagnificationInfoToCgMicroscopeLens.Anything.ToESxMicroscopeLens()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SwitchMagnificationNotAutoFocus(MicroscopeMagnificationInfo microscopeMagnificationInfo)
-    {
-        var microscopeMagnificationInfoToCgMicroscopeLens = MicroscopeMagnificationInfoToCgMicroscopeLens(microscopeMagnificationInfo);
-        if (microscopeMagnificationInfoToCgMicroscopeLens.IsSuccess == false) return SxExecuteRetHelper.CreateError(microscopeMagnificationInfoToCgMicroscopeLens.Msg, false);
-
-        var sxExecuteRet = Invoke(() => Service!.SwitchMicroscopeNoMode(microscopeMagnificationInfoToCgMicroscopeLens.Anything.ToESxMicroscopeLens().ToCgMicroscopeLens()));
+        var sxExecuteRet = Invoke(() => Service!.SwitchMicroscopeNoMode(result.Anything.ToESxMicroscopeLens().ToCgMicroscopeLens()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -99,7 +102,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
         var sxExecuteRet = Invoke(() => Service!.ReadMicroscopeVolt());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default(double))
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(sxExecuteRet.Anything));
     }
 
@@ -110,18 +113,5 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default((double min, double max)))
             : SxExecuteRetHelper.CreateSuccess((Convert.ToDouble(sxExecuteRet.Anything.lower), Convert.ToDouble(sxExecuteRet.Anything.upper)));
-    }
-
-    public SxExecuteRet<List<CgMicroscopeInfo>> GetLensList()
-    {
-        if (_cgMicroscopeInfoList is not null) return SxExecuteRetHelper.CreateSuccess(_cgMicroscopeInfoList);
-
-        var sxExecuteRet = Invoke(() => Service!.GetLensList());
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, new List<CgMicroscopeInfo>());
-        if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<List<CgMicroscopeInfo>>("Lens List is empty", []);
-
-        _cgMicroscopeInfoList = sxExecuteRet.Anything;
-
-        return SxExecuteRetHelper.CreateSuccess(_cgMicroscopeInfoList);
     }
 }

@@ -133,7 +133,6 @@
                                 <GridViewColumn Width="150"
                                                 Header="Error Value(um)"
                                                 DisplayMemberBinding="{Binding ScaleErrorValueAverage}" />
-
                             </GridView>
                         </ListView.View>
                     </ListView>

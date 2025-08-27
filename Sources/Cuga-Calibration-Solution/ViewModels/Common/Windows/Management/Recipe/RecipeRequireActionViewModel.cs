@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Common.FindWaferCenter;
 using Core.Models.Models.Common.Recipe;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -42,7 +41,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
 
     [ObservableProperty]
-    private FindWaferCenterCache _findWaferCenterCache = new();
+    private AlignmentFindCenterCache _alignmentFindCenterCache = new();
 
     #endregion 缓存
 
@@ -148,8 +147,8 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         await FindWaferCenterByManuallyWindowViewModel.LoadedAsync().ConfigureAwait(false);
-        FindWaferCenterCache = FindWaferCenterByManuallyWindowViewModel.Cache;
-        FindWaferCenterOffset = FindWaferCenterCache.OffsetPosition;
+        AlignmentFindCenterCache = FindWaferCenterByManuallyWindowViewModel.Cache;
+        FindWaferCenterOffset = AlignmentFindCenterCache.OffsetPosition;
         return true;
     }
 

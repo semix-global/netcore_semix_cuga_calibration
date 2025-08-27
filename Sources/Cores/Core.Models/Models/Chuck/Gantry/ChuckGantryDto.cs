@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -11,10 +11,10 @@ namespace Core.Models.Models.Chuck.Gantry;
 public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _lowMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     [ObservableProperty]
     private Point _position1;
@@ -52,8 +52,8 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public ChuckGantryDto Clone() => new()
     {
-        LowMicroscopeMagnificationInfo = LowMicroscopeMagnificationInfo,
-        HighMicroscopeMagnificationInfo = HighMicroscopeMagnificationInfo,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         Position1 = Position1,
         FilePath1 = FilePath1,
         TemplateScore1 = TemplateScore1,
@@ -73,7 +73,7 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public CalibrationChuckGantry AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(HighMicroscopeMagnificationInfo),
+        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         Offset = Offset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

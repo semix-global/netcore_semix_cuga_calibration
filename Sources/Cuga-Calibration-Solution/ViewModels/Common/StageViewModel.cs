@@ -4,8 +4,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -260,11 +260,11 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto lowSite2,
         AlignmentSiteDto highSite1,
         AlignmentSiteDto highSite2,
-        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
-        MicroscopeMagnificationInfo highMicroscopeMagnificationInfo,
+        MicroscopeLensInformation lowMicroscopeLensInformation,
+        MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
-        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeMagnificationInfo, highMicroscopeMagnificationInfo, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum);
 
         if (ret.IsSuccess == false)
             throw new CugaException(ret.ErrorMsg);
@@ -311,7 +311,7 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto darkFieldHighSite2,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        MicroscopeMagnificationInfo lowMicroscopeMagnificationInfo,
+        MicroscopeLensInformation lowMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
@@ -322,7 +322,7 @@ public sealed partial class StageViewModel(
             darkFieldHighSite2,
             opticsMagTypeEnum,
             xStageSpeedEnum,
-            lowMicroscopeMagnificationInfo,
+            lowMicroscopeLensInformation,
             algorithmWaferTypeEnum);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 

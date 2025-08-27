@@ -80,7 +80,6 @@ public sealed class CalibrationAdsServiceMockImpl : ICalibrationAdsService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 5000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
     }
 
-
     public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
     {
         Thread.Sleep(100);

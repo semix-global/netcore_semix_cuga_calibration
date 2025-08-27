@@ -1,13 +1,10 @@
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-/// <summary>
-/// AutoFocus自动聚焦服务
-/// </summary>
 public interface ICalibrationAfService
 {
     /// <summary>
@@ -71,9 +68,9 @@ public interface ICalibrationAfService
     /// <summary>
     /// 移动显微镜镜头
     /// </summary>
-    /// <param name="microscopeMagnificationInfo">显微镜镜头</param>
+    /// <param name="microscopeLensInformation">显微镜镜头</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeMagnificationInfo microscopeMagnificationInfo);
+    SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation);
 
     /// <summary>
     /// 测试NSC曲线，得到曲线上下限，判断曲线上下限是否大于0.25
@@ -153,10 +150,10 @@ public interface ICalibrationAfService
     /// <summary>
     /// 设置明场倍镜的清晰度最好的标准Ecs值
     /// </summary>
-    /// <param name="microscopeMagnificationInfo">显微镜倍率</param>
+    /// <param name="microscopeLensInformation">显微镜倍率</param>
     /// <param name="standardEcsValue">清晰度最好的标准Ecs值</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeMagnificationInfo microscopeMagnificationInfo, double standardEcsValue);
+    SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue);
 
     /// <summary>
     /// 设置明场耳朵中心的机械位置

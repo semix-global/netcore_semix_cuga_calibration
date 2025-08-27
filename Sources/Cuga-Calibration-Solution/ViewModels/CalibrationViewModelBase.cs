@@ -6,12 +6,12 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums;
 using Core.Models.Events;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using CugaCalibration.Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Humanizer;
@@ -121,7 +121,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// <summary>
     /// 校准步骤名称列表
     /// </summary>
-    /// 
     [ObservableProperty]
     private ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
 
@@ -186,7 +185,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// 日志唯一标识
     /// </summary>
     public Guid HtmlLogUniqueId { get; set; }
-
 
     /// <summary>
     /// 是否应用配方
@@ -596,7 +594,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         return Task.Run(() =>
         {
             if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out _))
-                MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList[0]);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList[0]);
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             return true;
         });

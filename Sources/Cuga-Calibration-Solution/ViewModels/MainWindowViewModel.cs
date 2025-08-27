@@ -17,6 +17,8 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -36,7 +38,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using Core.Wcf.Models;
@@ -63,7 +64,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using ApplicationCookie = CugaCalibration.Core.Models.ApplicationCookie;
 
 namespace CugaCalibration.ViewModels;
 
@@ -488,7 +488,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         }
     }
 
-
     [RelayCommand]
     private void ShowLog()
     {
@@ -549,8 +548,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             try
             {
                 if (IsLoadingOk == false) return;
-                var (magnificationChanged, magnificationList) = CoreWcfModelsExtension.IsMagnificationChanged();
-                if (magnificationChanged)
+                var (lensChanged, lensList) = CoreWcfModelsExtension.IsLensChanged();
+                if (lensChanged)
                 {
                     var appliedFilePath = _configViewModel.GetAppliedCalibrateResultFilePath();
                     _getResultFileService.SetResultFilePath(appliedFilePath);
@@ -633,9 +632,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPmtAgcDelayCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPmtAgcDelayItemDto>().IsOk(out _);
 
-                if (magnificationChanged)
+                if (lensChanged)
                 {
-                    CalibrationSetting.MicroscopeMagnificationInfoItems = new ObservableCollection<MicroscopeMagnificationInfo>(magnificationList.Select(t => t.Clone()));
+                    CalibrationSetting.MicroscopeLensInformationItems = new ObservableCollection<MicroscopeLensInformation>(lensList.Select(t => t.Clone()));
                     _cacheProvider.Set(CalibrationSetting, CancellationToken.None);
                 }
             }

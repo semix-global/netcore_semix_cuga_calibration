@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Mapper.Interfaces;
@@ -31,13 +31,13 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
     /// 低倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeLowMag = new();
+    private MicroscopeLensInformation _microscopeLowMag = new();
 
     /// <summary>
     /// 高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeHighMag = new();
+    private MicroscopeLensInformation _microscopeHighMag = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

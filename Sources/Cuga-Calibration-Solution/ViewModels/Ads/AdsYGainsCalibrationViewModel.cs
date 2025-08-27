@@ -20,6 +20,7 @@ using static Core.Models.Models.Ads.YGains.AdsYGainsCache;
 
 #if NETFRAMEWORK
 using MoreLinq;
+
 #endif
 
 namespace CugaCalibration.ViewModels.Ads;
@@ -185,8 +186,10 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 Cache.IsPositive = false;
                 ClearCalibrationTemp();
                 return true;
+
             case 3:
                 return true;
+
             case 4:
                 var isCalibrated = CalibrationStepIndex == 4;
 

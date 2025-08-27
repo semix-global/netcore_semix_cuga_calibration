@@ -72,10 +72,10 @@
                                          hc:InfoElement.Title="Low Mag: "
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.LowMag}"
-                                         ItemsSource="{Binding MicroscopeMagnificationInfoList}">
+                                         ItemsSource="{Binding MicroscopeLensInformationList}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                        <TextBlock Text="{Binding LensName}" />
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
@@ -102,10 +102,10 @@
                                          hc:InfoElement.Title="High Mag: "
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.HighMag}"
-                                         ItemsSource="{Binding MicroscopeMagnificationInfoList}">
+                                         ItemsSource="{Binding MicroscopeLensInformationList}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                        <TextBlock Text="{Binding LensName}" />
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>

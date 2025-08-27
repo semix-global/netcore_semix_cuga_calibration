@@ -116,13 +116,13 @@
                                            Status="{Binding Cache.AlgorithmTemplateTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                            Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="Lower Mag: "
-                                           Status="{Binding Cache.LowMag.MicroscopeMagnificationName}"
+                                           Status="{Binding Cache.LowMag.LensName}"
                                            Color="{StaticResource InfoBrush}" />
                                 <hc:Shield Subject="Lower Template Size: "
                                            Status="{Binding Cache.LowSizeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                            Color="{StaticResource InfoBrush}" />
                                 <hc:Shield Subject="High Mag: "
-                                           Status="{Binding Cache.HighMag.MicroscopeMagnificationName}"
+                                           Status="{Binding Cache.HighMag.LensName}"
                                            Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="High Template Size: "
                                            Status="{Binding Cache.HighSizeEnum, Converter={StaticResource EnumDescriptionConverter}}"

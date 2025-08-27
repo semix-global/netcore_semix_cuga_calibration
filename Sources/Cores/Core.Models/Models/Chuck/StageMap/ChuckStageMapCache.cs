@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -73,7 +73,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private bool _isDarkField;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _highMicroscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
@@ -230,7 +230,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
         }
     }
 
-    #endregion
+    #endregion Method
 
     #region Validators
 
@@ -280,5 +280,5 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
 
-    #endregion
+    #endregion Verify
 }

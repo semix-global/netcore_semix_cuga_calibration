@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -24,11 +24,10 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private double _threshold = 1;
 
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-
 
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinDsw: ")]
     public double FindFocusMinDsw
@@ -150,7 +149,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     public Point DswPosition => (DswLeftTopPosition + (Vector)DswRightBottomPosition) / 2;
 
-    #endregion
+    #endregion DSW
 
     #region Undefined
 
@@ -164,7 +163,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     public Point UndefinedPosition => (UndefinedLeftTopPosition + (Vector)UndefinedRightBottomPosition) / 2;
 
-    #endregion
+    #endregion Undefined
 
     #region Haze
 
@@ -178,7 +177,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     public Point HazePosition => (HazeLeftTopPosition + (Vector)HazeRightBottomPosition) / 2;
 
-    #endregion
+    #endregion Haze
 
     #region ShinyWafer
 
@@ -192,9 +191,9 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     public Point ShinyWaferPosition => (ShinyWaferLeftTopPosition + (Vector)ShinyWaferRightBottomPosition) / 2;
 
-    #endregion
+    #endregion ShinyWafer
 
-    #endregion
+    #endregion Position
 
     public double GetFindFocusMin() => CalChipSiteModelEnum switch
     {

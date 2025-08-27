@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper;
@@ -14,7 +14,7 @@ namespace Core.Models.Models.Laser.LineCentricity;
 public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICloneable<LaserLineCentricityItemDto>, IAdaptTo<CalibrationLaserLineCentricityItem>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -61,7 +61,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     {
         return new LaserLineCentricityItemDto
         {
-            MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
+            MicroscopeLensInformation = MicroscopeLensInformation,
             OpticsMagTypeEnum = OpticsMagTypeEnum,
             StageSpeedEnum = StageSpeedEnum,
             PmtId = PmtId,
@@ -87,7 +87,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     {
         return new CalibrationLaserLineCentricityItem
         {
-            CgMicroscopeLens = MicroscopeMagnificationInfo.MagnificationCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeMagnificationInfo, CgMicroscopeLens>(MicroscopeMagnificationInfo),
+            CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
             CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
             Speed = StageSpeedEnum.ToAdsSpeedEnum(),
             PmtId = PmtId,

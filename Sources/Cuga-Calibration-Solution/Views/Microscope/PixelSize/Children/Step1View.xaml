@@ -25,7 +25,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

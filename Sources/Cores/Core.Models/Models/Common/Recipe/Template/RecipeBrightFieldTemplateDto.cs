@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Recipe.Template;
@@ -7,11 +7,11 @@ namespace Core.Models.Models.Common.Recipe.Template;
 public sealed partial class RecipeBrightFieldTemplateDto : RecipeTemplateDtoBase, ICloneable<RecipeBrightFieldTemplateDto>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     public RecipeBrightFieldTemplateDto Clone() => new()
     {
-        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
+        MicroscopeLensInformation = MicroscopeLensInformation,
         TemplateId = TemplateId,
         Remark = Remark,
         MaskReticlePosition = MaskReticlePosition,

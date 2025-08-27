@@ -29,7 +29,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName}"
+                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find Focus Position: "
@@ -193,7 +193,7 @@
                                                 DisplayMemberBinding="{Binding Index}" />
                                 <GridViewColumn Width="200"
                                                 Header="Magnification"
-                                                DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName}" />
+                                                DisplayMemberBinding="{Binding LensInformation.LensName}" />
                                 <GridViewColumn Width="200"
                                                 Header="FindPosition"
                                                 DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

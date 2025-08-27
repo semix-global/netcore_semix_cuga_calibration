@@ -8,9 +8,9 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XPixelSize;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -315,7 +315,6 @@ public sealed class LaserViewModel(
         return true;
     }
 
-
     /// <summary>
     /// 单点采图三通道图像
     /// </summary>
@@ -457,7 +456,6 @@ public sealed class LaserViewModel(
 
         return darkFieldImageDto;
     }
-
 
     /// <summary>
     /// PTP行扫

@@ -8,6 +8,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -18,7 +19,6 @@ using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
@@ -232,7 +232,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1) Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
@@ -245,7 +245,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-        MicroscopeViewModel.SwitchMagnification(Cache.MicroscopeMagnificationInfo);
+        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         return true;
     }
 
@@ -422,13 +422,13 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     {
         try
         {
-            if (obj is not MicroscopeMagnificationInfo)
+            if (obj is not MicroscopeLensInformation)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMagnification(ApplicationCookie.MicroscopeMagnificationInfoList.Single(t => t == (MicroscopeMagnificationInfo)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -464,7 +464,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition,
@@ -481,7 +481,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
@@ -521,7 +521,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -578,7 +578,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
@@ -1074,7 +1074,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -1176,7 +1176,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
                 Cache.FindPosition,
@@ -1405,7 +1405,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 LaserViewModel.SetPrescanAODWaveProfileList([prescanDtoTemp]);
 
                 // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
-                // 
+                //
                 // (var isSuccess, SelectCalibrateItemDto.PolarizationPPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.P).ConfigureAwait(false);
                 // if (isSuccess == false) return false;
                 // (isSuccess, SelectCalibrateItemDto.PolarizationSPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.S).ConfigureAwait(false);
@@ -1480,7 +1480,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
                 Cache.OpticsMagTypeEnum,
                 Cache.Coefficient,
@@ -1580,7 +1580,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
         Logger.LogHtmlInformation($"PmtId: {pmtCacheItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
-            Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+            Cache.MicroscopeLensInformation.LensName,
             Cache.OpticsMagTypeEnum,
             Cache.Coefficient,
             pmtCacheItem.PmtId,
@@ -1712,7 +1712,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         update(itemDto);
         update(Cache);
 
-        itemDto.MicroscopeMagnificationInfo = Cache.MicroscopeMagnificationInfo;
+        itemDto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
 
         Calibrations =
         [

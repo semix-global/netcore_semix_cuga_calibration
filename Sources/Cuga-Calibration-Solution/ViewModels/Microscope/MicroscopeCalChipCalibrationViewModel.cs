@@ -23,9 +23,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -106,8 +106,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
-        if (Cache.MicroscopeMagnificationInfo.MagnificationCode == -1)
-            Cache.MicroscopeMagnificationInfo = ApplicationCookie.MicroscopeMagnificationInfoList[0];
+        if (Cache.MicroscopeLensInformation.LensCode == -1)
+            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         StageViewModel.SetAbsoluteStageTheta(0);
 
@@ -120,7 +120,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -138,7 +138,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         if (ReviewDto.IsCalibrated == false) return false;
 
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -153,7 +153,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         AfViewModel.ToggleBrightFieldEnable(false);
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
-        if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -172,39 +172,50 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             case 1:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
                 return true;
+
             case 2:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
                 return true;
+
             case 3:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
                 return true;
+
             case 4:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
                 return true;
+
             case 5:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
                 return true;
+
             case 6:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
                 return true;
+
             case 7:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
                 return true;
+
             case 8:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
                 return true;
+
             case 9:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
                 return true;
+
             case 10:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
                 return true;
+
             case 11:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
                 return true;
+
             case 12:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
@@ -224,43 +235,55 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             case 0:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
                 break;
+
             case 1:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
                 break;
+
             case 2:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
                 break;
+
             case 3:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
                 break;
+
             case 4:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
                 break;
+
             case 5:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
                 break;
+
             case 6:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
                 break;
+
             case 7:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
                 break;
+
             case 8:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
                 break;
+
             case 9:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
                 break;
+
             case 10:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
                 break;
+
             case 11:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ChuckPosition);
                 break;
+
             default:
                 break;
         }
@@ -312,18 +335,22 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.DswBrightFieldMachinePosition);
                         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     case "Undefined":
                         brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.UndefinedBrightFieldMachinePosition);
                         StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     case "Haze":
                         brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.HazeBrightFieldMachinePosition);
                         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     case "ShinyWafer":
                         brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.ShinyWaferBrightFieldMachinePosition);
                         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     default:
                         break;
                 }
@@ -354,18 +381,22 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.DswDarkFieldMachinePosition);
                         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     case "Undefined":
                         darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.UndefinedDarkFieldMachinePosition);
                         StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     case "Haze":
                         darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.HazeDarkFieldMachinePosition);
                         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     case "ShinyWafer":
                         darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.ShinyWaferDarkFieldMachinePosition);
                         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     default:
                         break;
                 }
@@ -392,6 +423,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.DswLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.DswRightBottomPosition = resultMachine;
                             break;
@@ -408,6 +440,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.UndefinedLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.UndefinedRightBottomPosition = resultMachine;
                             break;
@@ -424,6 +457,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.HazeLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.HazeRightBottomPosition = resultMachine;
                             break;
@@ -440,6 +474,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.ShinyWaferLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.ShinyWaferRightBottomPosition = resultMachine;
                             break;
@@ -523,7 +558,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
-            if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
+            if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -534,7 +569,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.CalChipSiteModelEnum,
-                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 CurrentEcsValue = ecsValue,
                 FindFocusPosition = findFocusPosition,
                 FindFocusLimitMin = findFocusMin,
@@ -551,7 +586,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 ecsList.Add(new MicroscopeFocusItemDto
                 {
                     Index = index + 1,
-                    MagnificationInfo = Cache.MicroscopeMagnificationInfo,
+                    LensInformation = Cache.MicroscopeLensInformation,
                     FindPosition = findFocusPosition,
                     Quality = 0,
                     EcsValue = ecsValueTemp,
@@ -596,7 +631,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 Cache.CalChipSiteModelEnum,
                 RtfcAfEcs = ecs,
                 RtfcAfMotor = afMotor,
-                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo.MicroscopeMagnificationName,
+                Cache.MicroscopeLensInformation.LensName,
                 EcsValue = ResultMicroscopeCalChipDto.GetEcsValue(Cache.CalChipSiteModelEnum),
                 ImageQuality = ResultMicroscopeCalChipDto.GetQuality(Cache.CalChipSiteModelEnum),
                 HtmlTab = new HtmlTab(new
@@ -644,7 +679,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.CalChipSiteModelEnum,
-                    MicroscopeMagnification = Cache.MicroscopeMagnificationInfo,
+                    Cache.MicroscopeLensInformation,
                     FindFocusPosition = findFocusPosition,
                     FindFocusLimitMin = findFocusMin,
                     FindFocusLimitMax = findFocusMax,
@@ -655,7 +690,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
-                if (MicroscopeViewModel.SwitchMagnificationNotAutoFocus(Cache.MicroscopeMagnificationInfo) == false)
+                if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -669,7 +704,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 var microscopeFocusItemDto = new MicroscopeFocusItemDto
                 {
                     Index = 0,
-                    MagnificationInfo = Cache.MicroscopeMagnificationInfo,
+                    LensInformation = Cache.MicroscopeLensInformation,
                     FindPosition = findFocusPosition,
                     Quality = 0,
                     EcsValue = ReviewDto.GetEcsValue(Cache.CalChipSiteModelEnum),
@@ -710,7 +745,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
             {
-                MicroscopeMagnification = Cache.MicroscopeMagnificationInfo,
+                Cache.MicroscopeLensInformation,
                 NewOffset = Cache.VerifyResultQuality,
                 OldOffset = string.Join(", ", oldQualityList),
                 Error = Cache.VerifyResultError,
@@ -777,7 +812,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         {
             microscopeFocusItemDto.EcsValue,
             ImageQuality = microscopeFocusItemDto.Quality,
-            MicroscopeMagnification = microscopeFocusItemDto.MagnificationInfo.MicroscopeMagnificationName,
+            microscopeFocusItemDto.LensInformation.LensName,
             HtmlTab = new HtmlTab(new
             {
                 Image = new HtmlImage(microscopeFocusItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])

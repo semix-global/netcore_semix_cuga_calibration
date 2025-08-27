@@ -12,6 +12,7 @@ using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
 using Cuga.Data.DataStruct.Stage;
 using CommunityToolkit.Diagnostics;
+
 #endif
 
 namespace Core.Models.Extensions;
@@ -42,6 +43,7 @@ public static class EnumStageExtension
     };
 
 #else
+
     public static CgCalChipType ToCgCalChipType(this CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
     {
         CalChipSiteModelEnum.ChuckModel => CgCalChipType.None,
@@ -71,6 +73,7 @@ public static class EnumStageExtension
         4 => CalChipSiteModelEnum.HazeModel,
         _ => throw new ArgumentOutOfRangeException(nameof(cgCalChipModel), cgCalChipModel, null)
     };
+
 #endif
 
     #endregion CalChipMode

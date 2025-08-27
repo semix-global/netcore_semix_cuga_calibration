@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
+using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -29,7 +30,7 @@ public sealed partial class AlignmentSiteDto : ObservableCacheBase, ICloneable<A
     [ObservableProperty]
     private double _templateMatchScoreThreshold = 0.8;
 
-    public void UpdateTemplateMatchScoreThreshold(Setting.CalibrationSetting calibrationSetting)
+    public void UpdateTemplateMatchScoreThreshold(CalibrationSetting calibrationSetting)
     {
         TemplateMatchScoreThreshold = AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
     }

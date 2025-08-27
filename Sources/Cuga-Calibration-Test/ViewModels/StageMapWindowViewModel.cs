@@ -76,7 +76,6 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         recipeLiteDataBaseProvider.ModifyLiteDatabase(@"D:\Nano\Cuga-Calibration\Database\DSW\cache.db");
     }
 
-
     [RelayCommand]
     private void MergeStageMapStep0()
     {

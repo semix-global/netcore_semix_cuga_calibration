@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
-using Core.Models.Models.Pattern;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -12,7 +12,7 @@ namespace Core.Models.Models.Laser.XPixelSize;
 public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDto>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeMagnificationInfo _microscopeMagnificationInfo = new();
+    private MicroscopeLensInformation _microscopeLensInformation = new();
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -51,7 +51,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     public LaserXPixelSizeItemDto Clone() => new()
     {
-        MicroscopeMagnificationInfo = MicroscopeMagnificationInfo,
+        MicroscopeLensInformation = MicroscopeLensInformation,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         XStageSpeedEnum = XStageSpeedEnum,
         PmtId = PmtId,

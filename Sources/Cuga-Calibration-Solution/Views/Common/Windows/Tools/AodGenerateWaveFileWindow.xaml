@@ -211,7 +211,6 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Value="{Binding GenerateChirpAodWaveParamDto.OffsetFrequencyPeriodMultiple}" />
-
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -516,7 +515,6 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Value="{Binding GeneratePrescanAodWaveParamDto.OffsetFrequencyPeriodMultiple}" />
-
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>

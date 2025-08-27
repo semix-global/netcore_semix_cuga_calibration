@@ -109,7 +109,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
                                         Header="Magnification"
-                                        DisplayMemberBinding="{Binding MagnificationInfo.MicroscopeMagnificationName, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding LensInformation.LensName, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="200"
                                         Header="FindPosition"
                                         DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

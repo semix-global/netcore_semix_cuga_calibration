@@ -57,11 +57,11 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Low Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding IdeaPositionCache.LowGlobalScaleErrorCacheItem.MagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                 SelectedItem="{Binding IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                <TextBlock Text="{Binding LensName}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>
@@ -75,11 +75,11 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding IdeaPositionCache.HighGlobalScaleErrorCacheItem.MagnificationInfo}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeMagnificationInfoList}">
+                                 SelectedItem="{Binding IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding MicroscopeMagnificationName}" />
+                                <TextBlock Text="{Binding LensName}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>
