@@ -299,9 +299,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 return true;
+
             case 2 or 6:
                 Cache.GetParam();
                 return true;
+
             case 4:
                 Cache.SetParam();
                 Cache.IsDarkField = true;
@@ -318,10 +320,12 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
                 IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
+
             case 5:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.FirstStageMapPosition);
                 return true;
+
             case 8:
                 if (ResultChuckStageMapDto.IsCalibrationBrightField == false)
                 {
@@ -330,6 +334,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 return true;
+
             case 9:
                 ResultChuckStageMapDto.IsCalibrated = true;
                 ResultChuckStageMapDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
@@ -360,6 +365,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.BrightFieldFirstStageMapPosition);
                 return true;
+
             case 5:
                 Cache.IsDarkField = false;
                 IsDarkFieldAlignment = false;
@@ -367,11 +373,13 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.GetParam();
 
                 return true;
+
             case 7 or 8:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 var position = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(position);
                 return true;
+
             default:
                 return true;
         }
@@ -614,7 +622,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         return true;
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step2CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -650,7 +657,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.WaferDiameter,
                 Cache.FirstStageMapPosition
             }), HtmlLogUniqueId.LoggingHtml());
-
 
             return true;
         });
@@ -693,7 +699,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap));
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
@@ -1535,6 +1540,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     case 4 or 8:
                         if (await Step3CalibrateActionAsync(cancellationToken) == false) return false;
                         break;
+
                     case 9:
                         if (await Step4CalibrateActionAsync(cancellationToken) == false) return false;
                         break;
@@ -1611,7 +1617,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         return true;
     }
 
-
     public override async Task<bool> AutomationReviewActionAsync(CancellationToken cancellationToken)
     {
         GetAutoCalibrationStep();
@@ -1637,5 +1642,5 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         return result;
     }
 
-    #endregion
+    #endregion 自动化校准
 }

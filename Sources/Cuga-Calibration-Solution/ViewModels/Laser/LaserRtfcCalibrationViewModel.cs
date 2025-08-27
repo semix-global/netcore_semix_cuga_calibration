@@ -266,7 +266,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         AfViewModel.ToggleCalChipSiteModelEnum(FocusShiftCache.CalChipSiteModelEnum);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.LowSiteFindPosition);
 
-
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<RtfcCache>();
         (var isHasFocusShiftCache, FocusShiftCache) = CacheProvider.TryGetOrDefault<FocusShiftCache>();
         (_, ResultFocusShiftDtoItems) = CacheProvider.TryGetOrDefaultArray<FocusShiftDto>();
@@ -286,7 +285,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         return (isHasCache || CacheProvider.Set(Cache, cancellationToken))
                && (isHasFocusShiftCache || CacheProvider.Set(FocusShiftCache, cancellationToken));
     }
-
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
@@ -312,10 +310,12 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(FocusShiftCache.LowMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.LowSiteFindPosition);
                 return true;
+
             case 2 or 3 or 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(FocusShiftCache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.HighSiteFindPosition);
                 return true;
+
             case 5:
                 if (ResultRtfcDto is null)
                 {
@@ -358,10 +358,12 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(FocusShiftCache.LowMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.LowSiteFindPosition);
                 return true;
+
             case 4 or 5:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(FocusShiftCache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.HighSiteFindPosition);
                 return true;
+
             default:
                 return true;
         }
@@ -1023,7 +1025,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             }
         });
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> VerifyActionAsync(CancellationToken cancellationToken)

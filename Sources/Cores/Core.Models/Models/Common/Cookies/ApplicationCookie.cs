@@ -3,7 +3,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
-
 namespace Core.Models.Models.Common.Cookies;
 
 public sealed partial class ApplicationCookie : ObservableObject

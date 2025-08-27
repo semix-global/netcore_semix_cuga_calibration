@@ -58,7 +58,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     [ObservableProperty]
     private ObservableCollection<ChuckRotateScaleErrorDto> _rotateErrorDtoItemDtoList = [];
 
-    #endregion
+    #endregion Calibration
 
     #region Review
 
@@ -70,9 +70,9 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
 
     private bool _isFastMode = true;
 
-    #endregion
+    #endregion Review
 
-    #endregion
+    #endregion 界面相关
 
     #region 缓存
 
@@ -91,9 +91,9 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
-    #endregion
+    #endregion 缓存
 
-    #endregion
+    #endregion 属性
 
     #region 控制校准业务
 
@@ -201,6 +201,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
             case 2:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseLowSiteFindPosition);
                 break;
+
             case 3:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation));
@@ -211,6 +212,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation));
                 break;
+
             case 5:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation));
@@ -221,6 +223,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation));
                 break;
+
             case 7:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation));
@@ -231,6 +234,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation));
                 break;
+
             case 9:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.GetPosition(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation));
@@ -256,9 +260,11 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(IdeaPositionCache.BaseLowSiteFindPosition);
                 return true;
+
             case 2 or 4 or 6 or 8:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation);
                 return true;
+
             case 1:
                 IdeaPositionCache.SiteDirection = StageDirectionTypeEnum.Up;
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation);
@@ -311,7 +317,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         }
     }
 
-    #endregion
+    #endregion 控制校准业务
 
     #region 校准
 
@@ -785,7 +791,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         ResultRotateScaleErrorDto = null;
     }
 
-    #endregion
+    #endregion 校准
 
     #region 算法
 
@@ -988,7 +994,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         tempRotateScaleErrorDto.ScaleErrorValueAverage = diameter * radian;
     }
 
-    #endregion
+    #endregion 算法
 
     #region 自动化校准
 
@@ -1084,7 +1090,6 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         var reticleBottom = reticleRows.ElementAt(1);
         var reticleLeft = reticleCols.ElementAt(1);
 
-
         if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, null, out var baseLowMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, baseLowMaskInfo, out var lowPosition);
@@ -1102,7 +1107,6 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Down);
         IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Left);
         IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Right);
-
 
         if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation, null, out var baseHighMaskInfo) == false)
             return false;

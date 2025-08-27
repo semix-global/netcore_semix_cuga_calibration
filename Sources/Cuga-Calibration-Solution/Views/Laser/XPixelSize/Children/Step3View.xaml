@@ -186,7 +186,6 @@
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Text" Value="{Binding Cache.LowMagLowSpeedPixel}" />
                                     </MultiDataTrigger>
-
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>

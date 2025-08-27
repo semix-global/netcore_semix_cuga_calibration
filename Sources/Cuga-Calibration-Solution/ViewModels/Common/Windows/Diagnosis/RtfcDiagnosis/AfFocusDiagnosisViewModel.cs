@@ -142,7 +142,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
     [ObservableProperty]
     private double _reviewCamTemperature;
 
-    #endregion
+    #endregion 缓存
 
     #endregion 属性
 

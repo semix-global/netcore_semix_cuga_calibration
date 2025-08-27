@@ -77,7 +77,7 @@ public static class CoreWcfModelsExtension
         return (lensChanged, lensInformationList);
     }
 
-    #endregion
+    #endregion Initialize
 
     #region CalibrationBase
 

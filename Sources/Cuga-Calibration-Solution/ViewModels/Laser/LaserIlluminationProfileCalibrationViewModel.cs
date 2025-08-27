@@ -1405,7 +1405,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 LaserViewModel.SetPrescanAODWaveProfileList([prescanDtoTemp]);
 
                 // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
-                // 
+                //
                 // (var isSuccess, SelectCalibrateItemDto.PolarizationPPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.P).ConfigureAwait(false);
                 // if (isSuccess == false) return false;
                 // (isSuccess, SelectCalibrateItemDto.PolarizationSPower) = await GetPowerAsync(OpticsPolarizationTypeEnum.S).ConfigureAwait(false);

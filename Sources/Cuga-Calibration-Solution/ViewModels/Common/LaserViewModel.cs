@@ -315,7 +315,6 @@ public sealed class LaserViewModel(
         return true;
     }
 
-
     /// <summary>
     /// 单点采图三通道图像
     /// </summary>
@@ -457,7 +456,6 @@ public sealed class LaserViewModel(
 
         return darkFieldImageDto;
     }
-
 
     /// <summary>
     /// PTP行扫

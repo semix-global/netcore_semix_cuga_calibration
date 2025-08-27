@@ -103,7 +103,6 @@ public sealed partial class AdsYGainsItemDto : CalibrationDtoBase, ICloneable<Ad
     [ObservableProperty]
     private List<Point> _negativeY6SmoothPlots = [];
 
-
     public double GetY1P1()
     {
         return IsPositive ? PositiveY1P1 : NegativeY4P1;

@@ -488,7 +488,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         }
     }
 
-
     [RelayCommand]
     private void ShowLog()
     {

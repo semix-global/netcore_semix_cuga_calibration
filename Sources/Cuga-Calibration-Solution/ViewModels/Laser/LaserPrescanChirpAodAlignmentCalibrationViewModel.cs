@@ -84,7 +84,6 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(Ca
     [ObservableProperty]
     private LaserPrescanChirpAodAlignmentCache _cache = new();
 
-
     [ObservableProperty]
     private LaserPrescanChirpAodAlignmentDto[] _calibrations = [];
 

@@ -230,7 +230,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
         }
     }
 
-    #endregion
+    #endregion Method
 
     #region Validators
 
@@ -280,5 +280,5 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
 
-    #endregion
+    #endregion Verify
 }

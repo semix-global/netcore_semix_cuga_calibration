@@ -13,7 +13,6 @@ public sealed partial class MicroscopeCentricityCacheItem : CalibrationDtoBase
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner;
 
-
     [ObservableProperty]
     private Point _findPosition;
 

@@ -583,7 +583,6 @@ public sealed partial class MainWindowViewModel(
         }
     }
 
-
     [RelayCommand]
     private void SetLiteDbData()
     {

@@ -45,7 +45,6 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
         return MicroscopeFocusCacheItems.SingleOrDefault(item => item.LensInformation == MicroscopeLensInformation) ?? throw new ArgumentNullException(nameof(GetSelectedCacheItem));
     }
 
-
     public bool InitializeCacheList(List<MicroscopeLensInformation> microscopeLensInformationList)
     {
         if (microscopeLensInformationList.Count == 0) return false;

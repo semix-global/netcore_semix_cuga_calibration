@@ -122,12 +122,15 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
             case OpticsMagTypeEnum.Low:
                 LowMagDarkFieldAutoFocusParam = param.Clone();
                 break;
+
             case OpticsMagTypeEnum.Middle:
                 MiddleMagDarkFieldAutoFocusParam = param.Clone();
                 break;
+
             case OpticsMagTypeEnum.High:
                 HighMagDarkFieldAutoFocusParam = param.Clone();
                 break;
+
             default:
                 throw new NotImplementedException();
         }

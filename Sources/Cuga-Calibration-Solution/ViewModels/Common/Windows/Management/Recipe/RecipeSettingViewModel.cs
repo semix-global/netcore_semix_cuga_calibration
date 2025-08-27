@@ -151,7 +151,7 @@ public sealed partial class RecipeSettingViewModel(
     [ObservableProperty]
     private CalibrationRecipeDto? _reviewRecipeDtoBackup;
 
-    #endregion
+    #endregion Review字段属性
 
     #region WaferMap属性
 
@@ -268,7 +268,7 @@ public sealed partial class RecipeSettingViewModel(
         }
     }
 
-    #endregion
+    #endregion WaferMap属性
 
     #region 业务
 
@@ -601,7 +601,7 @@ public sealed partial class RecipeSettingViewModel(
         }
     }
 
-    #endregion
+    #endregion Review
 
     #region MaskConfig
 

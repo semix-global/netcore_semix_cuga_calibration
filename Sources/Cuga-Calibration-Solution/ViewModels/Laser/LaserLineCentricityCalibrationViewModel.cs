@@ -59,7 +59,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         new() { StepName = "Line Centricity Calibration" }
     ];
 
-
     private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
 
     private List<(StageSpeedEnum stageSpeed, bool isEnbale)> _enableStageSpeedList = [];
@@ -349,7 +348,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 else Cache.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.BrightTemplateFilePath);
 
-
                 Logger.LogInformation("{@Name}: Get Point Image OK!", Name);
             }).ConfigureAwait(false);
         }
@@ -481,7 +479,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         return true;
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
@@ -685,7 +682,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         }).ConfigureAwait(false);
     }
 
-
     private bool VerifyCalibration(CancellationToken cancellationToken)
     {
         ClearCalibrationTemp();
@@ -718,7 +714,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             laserLineCentricityItemDto.ForwardFilePath = detectImageDirectory + "Forward";
             laserLineCentricityItemDto.ReverseFilePath = detectImageDirectory + "Reverse";
             laserLineCentricityItemDto.TemplateFilePath = templateFileDirectory;
-
 
             if (GetLineCentricity(laserLineCentricityItemDto) == false) return false;
 
@@ -960,6 +955,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                         }
 
                         break;
+
                     case 4:
                         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
@@ -1152,5 +1148,5 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         }
     }
 
-    #endregion
+    #endregion 自动化校准
 }

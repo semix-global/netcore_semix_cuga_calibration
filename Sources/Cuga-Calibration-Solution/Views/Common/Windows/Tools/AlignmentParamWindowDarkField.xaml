@@ -157,7 +157,6 @@
                                                             hc:InfoElement.Title="Cib Grab Mode: "
                                                             DataContext="{Binding CIBConfiguration}" />
                     </hc:UniformSpacingPanel>
-
                 </hc:UniformSpacingPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>

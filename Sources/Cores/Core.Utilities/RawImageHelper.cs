@@ -371,7 +371,7 @@ public static class RawImageHelper
 
     internal static int GetBytesPerPixel(this int bitsPerPixel)
     {
-        // 表示每个像素所占用的字节数(最小满足8的倍数的bit值), eg: 4bit (4+7)/8=1 return 1 byte 
+        // 表示每个像素所占用的字节数(最小满足8的倍数的bit值), eg: 4bit (4+7)/8=1 return 1 byte
         return (bitsPerPixel + 7) / 8;
     }
 

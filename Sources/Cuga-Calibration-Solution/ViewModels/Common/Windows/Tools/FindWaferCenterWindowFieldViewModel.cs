@@ -9,7 +9,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
-
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
 [IOCAppService(ServiceType = typeof(FindWaferCenterWindowFieldViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]

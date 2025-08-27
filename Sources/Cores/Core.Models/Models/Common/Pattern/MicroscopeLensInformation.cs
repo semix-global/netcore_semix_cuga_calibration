@@ -49,7 +49,7 @@ public sealed partial class MicroscopeLensInformation : ObservableCacheBase, ICl
         return this;
     }
 
-    #endregion
+    #endregion Mapper
 
     #region Equals
 
@@ -87,5 +87,5 @@ public sealed partial class MicroscopeLensInformation : ObservableCacheBase, ICl
         return !(left == right);
     }
 
-    #endregion
+    #endregion Equals
 }

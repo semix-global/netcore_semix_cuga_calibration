@@ -24,7 +24,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private double _chuckAfMotorValue;
 
-    #endregion
+    #endregion Chuck
 
     #region Dsw
 
@@ -49,7 +49,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private double _dswAfMotorValue;
 
-    #endregion
+    #endregion Dsw
 
     #region Undefined
 
@@ -68,7 +68,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private double _undefinedQuality;
 
-    #endregion
+    #endregion Undefined
 
     #region Haze
 
@@ -93,7 +93,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private double _hazeQuality;
 
-    #endregion
+    #endregion Haze
 
     #region ShinyWafer
 
@@ -112,7 +112,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private string _shinyWaferFilePath = string.Empty;
 
-    #endregion
+    #endregion ShinyWafer
 
     public double DswToChuckAfEcsValue => DswAfEcsValue - ChuckAfEcsValue;
 
@@ -121,7 +121,6 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     public double HazeToChuckAfEcsValue => HazeAfEcsValue - ChuckAfEcsValue;
 
     public double HazeToChuckAfMotorValue => HazeAfMotorValue - ChuckAfMotorValue;
-
 
     public Point GetBrightFieldMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
     {

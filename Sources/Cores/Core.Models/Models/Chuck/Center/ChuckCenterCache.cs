@@ -73,7 +73,6 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
     [ObservableProperty]
     private double _thetaAngle;
 
-
     [ComparisonRange(-1d, 0d, NumberComparisonRangeTypeEnum.LeftClosedAndRightOpenInterval, ErrorMessage = "Negative Angle: ")]
     public double NegativeAngle
     {
@@ -102,15 +101,19 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
             case StageDirectionTypeEnum.Up:
                 chuckCenterCacheItem.TopPosition = position;
                 break;
+
             case StageDirectionTypeEnum.Down:
                 chuckCenterCacheItem.BottomPosition = position;
                 break;
+
             case StageDirectionTypeEnum.Left:
                 chuckCenterCacheItem.LeftPosition = position;
                 break;
+
             case StageDirectionTypeEnum.Right:
                 chuckCenterCacheItem.RightPosition = position;
                 break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
         }
@@ -125,18 +128,22 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
                 chuckCenterCacheItem.TopTemplateFilePath = templatePath;
                 chuckCenterCacheItem.TopTemplateImageFilePath = templateImagePath;
                 break;
+
             case StageDirectionTypeEnum.Down:
                 chuckCenterCacheItem.BottomTemplateFilePath = templatePath;
                 chuckCenterCacheItem.BottomTemplateImageFilePath = templateImagePath;
                 break;
+
             case StageDirectionTypeEnum.Left:
                 chuckCenterCacheItem.LeftTemplateFilePath = templatePath;
                 chuckCenterCacheItem.LeftTemplateImageFilePath = templateImagePath;
                 break;
+
             case StageDirectionTypeEnum.Right:
                 chuckCenterCacheItem.RightTemplateFilePath = templatePath;
                 chuckCenterCacheItem.RightTemplateImageFilePath = templateImagePath;
                 break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
         }
@@ -196,5 +203,5 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
 
-    #endregion
+    #endregion Verify
 }

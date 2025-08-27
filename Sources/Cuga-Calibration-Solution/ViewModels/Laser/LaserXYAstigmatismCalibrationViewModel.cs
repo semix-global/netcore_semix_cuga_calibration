@@ -878,7 +878,6 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);
         var channel3DarkFieldImageDto = list.Single(t => t.ChannelId == 3);
 
-
         var size = HalconHelper.GetSize(channel3DarkFieldImageDto.Image);
         var roi = new Rect(0, 0, size.Width, size.Height);
 

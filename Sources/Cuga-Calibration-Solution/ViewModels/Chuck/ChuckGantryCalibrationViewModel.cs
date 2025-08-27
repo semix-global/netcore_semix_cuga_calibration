@@ -42,7 +42,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         new() { StepName = "Offset" }
     ];
 
-
     #region 界面相关
 
     #region Calibrate
@@ -173,6 +172,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition);
                 return true;
+
             case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighTopPosition);
@@ -182,6 +182,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition);
                 return true;
+
             case 6:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighBottomPosition);
@@ -204,9 +205,11 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 StageViewModel.SetGantryOffset(0);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
                 return true;
+
             case 1:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition);
                 return true;
+
             case 2:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowTopTemplateFilePath))
@@ -217,6 +220,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.HighTopTemplateFilePath)) &&
                        File.Exists(Cache.HighTopTemplateImageFilePath);
+
             case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowBottomTemplateFilePath))
@@ -225,6 +229,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
             case 5:
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.HighBottomTemplateFilePath))
                        && File.Exists(Cache.HighBottomTemplateImageFilePath);
+
             case 6:
                 ResultChuckGantryDto.IsCalibrated = true;
                 if (Save(ResultChuckGantryDto, cancellationToken) == false)

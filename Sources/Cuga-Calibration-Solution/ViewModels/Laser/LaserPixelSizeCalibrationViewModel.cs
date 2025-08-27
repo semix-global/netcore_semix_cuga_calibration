@@ -49,7 +49,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         new() { StepName = "Pixel Size" }
     ];
 
-
     private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
 
     #region 界面相关
@@ -439,7 +438,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         return result;
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
@@ -457,7 +455,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             return result;
         }).ConfigureAwait(false);
     }
-
 
     private bool VerifyCalibration(CancellationToken cancellationToken)
     {
@@ -676,6 +673,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
                         }
 
                         break;
+
                     case 4:
                         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
@@ -820,5 +818,5 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         }
     }
 
-    #endregion
+    #endregion 自动化校准
 }

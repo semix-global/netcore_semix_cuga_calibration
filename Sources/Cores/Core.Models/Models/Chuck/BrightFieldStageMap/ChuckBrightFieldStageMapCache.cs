@@ -151,5 +151,5 @@ public sealed partial class ChuckBrightFieldStageMapCache : CalibrationCacheBase
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
 
-    #endregion
+    #endregion Verify
 }

@@ -172,39 +172,50 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             case 1:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
                 return true;
+
             case 2:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
                 return true;
+
             case 3:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
                 return true;
+
             case 4:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
                 return true;
+
             case 5:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
                 return true;
+
             case 6:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
                 return true;
+
             case 7:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
                 return true;
+
             case 8:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
                 return true;
+
             case 9:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
                 return true;
+
             case 10:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
                 return true;
+
             case 11:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
                 return true;
+
             case 12:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
@@ -224,43 +235,55 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             case 0:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
                 break;
+
             case 1:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
                 break;
+
             case 2:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
                 break;
+
             case 3:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
                 break;
+
             case 4:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
                 break;
+
             case 5:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
                 break;
+
             case 6:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
                 break;
+
             case 7:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
                 break;
+
             case 8:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
                 break;
+
             case 9:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
                 break;
+
             case 10:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
                 break;
+
             case 11:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ChuckPosition);
                 break;
+
             default:
                 break;
         }
@@ -312,18 +335,22 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.DswBrightFieldMachinePosition);
                         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     case "Undefined":
                         brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.UndefinedBrightFieldMachinePosition);
                         StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     case "Haze":
                         brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.HazeBrightFieldMachinePosition);
                         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     case "ShinyWafer":
                         brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.ShinyWaferBrightFieldMachinePosition);
                         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(brightFieldPosition);
                         break;
+
                     default:
                         break;
                 }
@@ -354,18 +381,22 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.DswDarkFieldMachinePosition);
                         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     case "Undefined":
                         darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.UndefinedDarkFieldMachinePosition);
                         StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     case "Haze":
                         darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.HazeDarkFieldMachinePosition);
                         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     case "ShinyWafer":
                         darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.ShinyWaferDarkFieldMachinePosition);
                         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(darkFieldPosition);
                         break;
+
                     default:
                         break;
                 }
@@ -392,6 +423,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.DswLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.DswRightBottomPosition = resultMachine;
                             break;
@@ -408,6 +440,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.UndefinedLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.UndefinedRightBottomPosition = resultMachine;
                             break;
@@ -424,6 +457,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.HazeLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.HazeRightBottomPosition = resultMachine;
                             break;
@@ -440,6 +474,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                         case "LeftTop":
                             Cache.ShinyWaferLeftTopPosition = resultMachine;
                             break;
+
                         case "RightBottom":
                             Cache.ShinyWaferRightBottomPosition = resultMachine;
                             break;

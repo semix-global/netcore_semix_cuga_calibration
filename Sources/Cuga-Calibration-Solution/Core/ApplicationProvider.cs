@@ -25,7 +25,6 @@ public static class ApplicationProvider
             return applicationCookie;
         }); // cookie
 
-
         services.AddCugaCalibrationSolutionInjectHostDI(hostEnvironment);
 
         return services;

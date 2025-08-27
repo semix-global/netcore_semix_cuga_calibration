@@ -4,7 +4,6 @@ using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 
-
 namespace Core.Models.Models.Chuck.AutoFocus;
 
 public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
@@ -116,7 +115,6 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
         get => _threshold;
         set => SetProperty(ref _threshold, value, true);
     }
-
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth

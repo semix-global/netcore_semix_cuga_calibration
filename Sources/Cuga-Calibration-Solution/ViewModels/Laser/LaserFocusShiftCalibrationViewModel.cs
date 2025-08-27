@@ -226,7 +226,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
 
-
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<FocusShiftCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<FocusShiftDto>();
 
@@ -269,10 +268,12 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
                 return true;
+
             case 1 or 2 or 3:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.HighSiteFindPosition);
                 return true;
+
             case 4:
                 if (ResultFocusShiftDto is null)
                 {
@@ -315,10 +316,12 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.LowSiteFindPosition);
                 return true;
+
             case 3 or 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.HighSiteFindPosition);
                 return true;
+
             default:
                 return true;
         }

@@ -21,7 +21,6 @@ public sealed partial class AlignmentParamWindowDarkFieldViewModel : ViewModelBa
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
-
     [RelayCommand]
     private void Close()
     {

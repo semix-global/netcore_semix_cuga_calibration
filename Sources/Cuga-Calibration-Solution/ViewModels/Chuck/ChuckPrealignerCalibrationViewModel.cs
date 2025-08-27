@@ -44,7 +44,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     [ObservableProperty]
     private ChuckPrealignerObjDto _chuckPrealignerObjDto = new();
 
-
     [ObservableProperty]
     private bool _isReviewLoadWafer;
 
@@ -193,20 +192,25 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
                 return true;
+
             case 1:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
                 return true;
+
             case 2:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 Cache.HighFindPosition1 = Cache.LowFindPosition1;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return true;
+
             case 3:
                 Cache.HighFindPosition2 = Cache.LowFindPosition2;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
+
             case 4:
                 return true;
+
             case 5:
                 ChuckPrealignerObjDto.IsCalibrated = true;
                 if (Save(ChuckPrealignerObjDto, cancellationToken) == false)
@@ -218,6 +222,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                 IsCalibrated = true;
                 return true;
+
             default:
                 return false;
         }
@@ -232,17 +237,21 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             case 2:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
                 return true;
+
             case 3:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
                 return true;
+
             case 4:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition1);
                 return true;
+
             case 5:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
+
             default:
                 return false;
         }
@@ -709,7 +718,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return result;
     }
 
-
     private async Task<bool> P5CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var result = false;
@@ -755,7 +763,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             efemWindowViewModel.PrealignerIsOk = false;
             if (Math.Abs(Cache.OffsetAngle) > Cache.AngleThreshold || !isReviewLoadWafer) efemWindowViewModel.OffsetAngle = 0;
             else efemWindowViewModel.OffsetAngle = Cache.OffsetAngle;
-
 
             if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionThreshold || !isReviewLoadWafer)
                 efemWindowViewModel.OffsetPoint = Point.Origin;
@@ -945,9 +952,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                         }
 
                         break;
+
                     case 1:
                         if (await Step0CalibrateActionAsync(cancellationToken) == false) return false;
                         break;
+
                     case 2:
                         if (await InvokeCalibrateAsync(async () =>
                             {
@@ -955,12 +964,14 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                                 return result;
                             }) == false) return false;
                         break;
+
                     case 3:
                         if (await AutomationRecipeInformationAsync() == false) return false;
                         if (await Step5CalibrateActionAsync(cancellationToken) == false) return false;
                         CalibrationStepIndex = 5;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         break;
+
                     case 4:
                         if (await InvokeCalibrateAsync(async () =>
                             {
@@ -975,6 +986,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                                 return result;
                             }) == false) return false;
                         break;
+
                     case 5:
                         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
                         await InvokeCalibrateAsync(async () =>

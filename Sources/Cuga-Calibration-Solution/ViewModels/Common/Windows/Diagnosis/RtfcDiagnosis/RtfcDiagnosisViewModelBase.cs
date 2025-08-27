@@ -98,7 +98,7 @@ public partial class RtfcDiagnosisViewModelBase : ViewModelBase
     [ObservableProperty]
     private MonitorViewModel _monitorViewModel = HostApplication.GetRequiredService<MonitorViewModel>();
 
-    #endregion
+    #endregion ViewModel
 
     #region 界面
 

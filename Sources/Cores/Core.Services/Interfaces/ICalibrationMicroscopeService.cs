@@ -32,7 +32,6 @@ public interface ICalibrationMicroscopeService
     /// <returns></returns>
     SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens);
 
-
     /// <summary>
     /// 获取显微镜倍率
     /// </summary>

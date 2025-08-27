@@ -73,7 +73,6 @@ public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, IClo
         SetVoltageAfErrorThreshold = SetVoltageAfErrorThreshold
     };
 
-
     #region Eqauls
 
     /// <summary>
@@ -127,5 +126,5 @@ public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, IClo
         return !(left == right);
     }
 
-    #endregion
+    #endregion Eqauls
 }

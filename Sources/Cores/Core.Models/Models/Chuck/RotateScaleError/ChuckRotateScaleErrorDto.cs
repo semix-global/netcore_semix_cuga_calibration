@@ -145,6 +145,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
+
             case StageDirectionTypeEnum.Down:
                 {
                     if (IsPositive)
@@ -159,6 +160,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
+
             case StageDirectionTypeEnum.Left:
                 {
                     if (IsPositive)
@@ -173,6 +175,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
                     }
                 }
                 break;
+
             case StageDirectionTypeEnum.Right:
                 {
                     if (IsPositive)

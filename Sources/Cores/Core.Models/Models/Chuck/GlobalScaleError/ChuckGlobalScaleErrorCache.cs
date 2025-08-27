@@ -32,7 +32,6 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     [ObservableProperty]
     private double _p5Angle;
 
-
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth
     {
@@ -84,15 +83,19 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
             case StageDirectionTypeEnum.Up:
                 chuckCenterCacheItem.TopPosition = position;
                 break;
+
             case StageDirectionTypeEnum.Down:
                 chuckCenterCacheItem.BottomPosition = position;
                 break;
+
             case StageDirectionTypeEnum.Left:
                 chuckCenterCacheItem.LeftPosition = position;
                 break;
+
             case StageDirectionTypeEnum.Right:
                 chuckCenterCacheItem.RightPosition = position;
                 break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
         }
@@ -107,18 +110,22 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
                 chuckCenterCacheItem.TopTemplateFilePath = templatePath;
                 chuckCenterCacheItem.TopTemplateImageFilePath = templateImagePath;
                 break;
+
             case StageDirectionTypeEnum.Down:
                 chuckCenterCacheItem.BottomTemplateFilePath = templatePath;
                 chuckCenterCacheItem.BottomTemplateImageFilePath = templateImagePath;
                 break;
+
             case StageDirectionTypeEnum.Left:
                 chuckCenterCacheItem.LeftTemplateFilePath = templatePath;
                 chuckCenterCacheItem.LeftTemplateImageFilePath = templateImagePath;
                 break;
+
             case StageDirectionTypeEnum.Right:
                 chuckCenterCacheItem.RightTemplateFilePath = templatePath;
                 chuckCenterCacheItem.RightTemplateImageFilePath = templateImagePath;
                 break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
         }

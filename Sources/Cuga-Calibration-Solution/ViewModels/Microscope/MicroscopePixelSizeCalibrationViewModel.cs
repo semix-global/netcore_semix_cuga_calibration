@@ -36,7 +36,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         new() { StepName = "Find Pixel Size" }
     ];
 
-
     #region 界面相关
 
     #region Calibrate

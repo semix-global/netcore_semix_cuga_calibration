@@ -1003,7 +1003,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 }
 
                 DialogWindowProvider.ShowDialog($"""
-                                                 Verify: 
+                                                 Verify:
                                                  {nameof(fa)}: {faIsOk}
                                                  {nameof(na)}: {naIsOk}
                                                  {nameof(fb)}: {fbIsOk}

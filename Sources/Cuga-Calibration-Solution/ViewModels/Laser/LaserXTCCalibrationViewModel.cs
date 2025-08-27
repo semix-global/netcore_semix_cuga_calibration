@@ -35,7 +35,6 @@ using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
 
-
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
 

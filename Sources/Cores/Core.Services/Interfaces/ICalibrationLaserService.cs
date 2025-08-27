@@ -163,7 +163,7 @@ public interface ICalibrationLaserService
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto);
 
-    #endregion
+    #endregion 波形生成
 
     #endregion 任意波形发生器Arbitrary Waveform Generator
 

@@ -35,7 +35,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         new() { StepName = "Find Focus" }
     ];
 
-
     #region 界面相关
 
     #region Calibrate
@@ -155,6 +154,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         {
             case 0:
                 return MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation);
+
             case 1:
                 StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(SelectMicroscopeFocusCacheItem.FindFocusPosition);
                 return true;

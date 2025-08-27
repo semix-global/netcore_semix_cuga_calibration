@@ -172,9 +172,11 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
                 return true;
+
             case 2 or 4 or 6 or 8:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighChuckCenterCacheItem.LensInformation);
                 return true;
+
             case 1:
                 Cache.SiteDirection = StageDirectionTypeEnum.Up;
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowChuckCenterCacheItem.LensInformation);
@@ -228,6 +230,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
             case 2:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
                 return true;
+
             case 3:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.LowChuckCenterCacheItem.LensInformation));
@@ -238,6 +241,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.HighChuckCenterCacheItem.LensInformation));
                 return true;
+
             case 5:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.LowChuckCenterCacheItem.LensInformation));
@@ -248,6 +252,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.HighChuckCenterCacheItem.LensInformation));
                 return true;
+
             case 7:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.LowChuckCenterCacheItem.LensInformation));
@@ -258,6 +263,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.HighChuckCenterCacheItem.LensInformation));
                 return true;
+
             case 9:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowChuckCenterCacheItem.LensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.GetPosition(Cache.LowChuckCenterCacheItem.LensInformation));
@@ -482,7 +488,6 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
             return true;
         });
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
@@ -986,7 +991,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Cache.LowChuckCenterCacheItem.TopTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowChuckCenterCacheItem.TopTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
 
-        #endregion
+        #endregion 上低倍
 
         #region 右边低倍
 

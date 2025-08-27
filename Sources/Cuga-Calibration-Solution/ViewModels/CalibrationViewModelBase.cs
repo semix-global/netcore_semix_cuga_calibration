@@ -121,7 +121,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// <summary>
     /// 校准步骤名称列表
     /// </summary>
-    /// 
     [ObservableProperty]
     private ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
 
@@ -186,7 +185,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// 日志唯一标识
     /// </summary>
     public Guid HtmlLogUniqueId { get; set; }
-
 
     /// <summary>
     /// 是否应用配方

@@ -13,11 +13,11 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Core.Models.Models.Setting;
 
-
 #if NET
 using Core.Services.Implements.GRPC;
 #else
 using Core.Services.Implements.WCF;
+
 #endif
 
 namespace Core.Services.Implements.Mock;
