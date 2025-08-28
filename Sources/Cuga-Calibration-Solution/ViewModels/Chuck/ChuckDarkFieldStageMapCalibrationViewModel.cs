@@ -536,7 +536,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 Cache.FirstStageMapPosition,
-                (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 Cache.XWidthPixel,
@@ -1020,7 +1020,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
                     var rowDarkFieldImageDtoList = LaserViewModel.GetChuckDarkFieldRowLineScanImage(
                         points,
-                        (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+                        (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                         false,
                         Cache.CIBConfiguration,
                         Cache.XWidthPixel,

@@ -94,7 +94,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     #region 3. 补偿训练
 
     [ObservableProperty]
-    private double _prescanCoefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
+    private LaserLightInformation _prescanLaserLightInformation = calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
     #region 散光
 
@@ -220,7 +220,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.ChuckModel,
                     FindPosition,
-                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
+                    (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                     false,
                     CIBConfiguration,
                     XWidthPixel,
@@ -246,7 +246,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
 
                 logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
                 {
-                    calibrationSetting.SettingCommonParam.MainCoefficient,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
                     FindPosition,
                     XWidthPixel,
                     OpticsMagTypeEnum,
@@ -649,7 +649,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 foreach (var (index, ecs) in Generate.LinearRange(EcsMin, EcsStep, EcsMax).Select((t, i) => (Index: i, Ecs: t)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanCoefficient);
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanLaserLightInformation);
                     laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.ChirpAodWaveFilePath)]);
 
                     afViewModel.ToggleBrightFieldEnable(false);
@@ -693,7 +693,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                     logger.LogHtmlInformation($"{ecs}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         OpticsMagTypeEnum,
-                        PrescanCoefficient,
+                        PrescanCoefficient = PrescanLaserLightInformation,
                         item.ChirpAodWaveFilePath,
                         FindPosition,
                         XWidthPixel,

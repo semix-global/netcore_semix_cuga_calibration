@@ -524,7 +524,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 laserPixelSizeItemDto.FindPosition,
-                (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 Cache.XWidthPixel,

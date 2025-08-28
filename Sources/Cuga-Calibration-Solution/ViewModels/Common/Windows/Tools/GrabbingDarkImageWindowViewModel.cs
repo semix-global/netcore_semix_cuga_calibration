@@ -25,6 +25,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Setting;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -36,12 +37,13 @@ public partial class GrabbingDarkImageWindowViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IOptions<ApplicationSetting> options,
     ISynchronizationContextProvider contextProvider,
+    CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie,
     ILogger<GrabbingDarkImageWindowViewModel> logger)
     : ViewModelBase
 {
     public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
-    
+
     [ObservableProperty]
     private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
 
@@ -61,7 +63,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     private int _pmtId = 8;
 
     [ObservableProperty]
-    private double _coefficient = 1;
+    private LaserLightInformation _laserLightInformation = calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
@@ -129,7 +131,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                                                                """
                                                             : $"{nameof(XWidth)}: {XWidth}")}
                                                         {nameof(PmtId)}: {PmtId}
-                                                        {nameof(Coefficient)}: {Coefficient}
+                                                        {nameof(LaserLightInformation)}: {LaserLightInformation}
                                                         {nameof(CIBConfiguration.Gain)}: {CIBConfiguration.Gain}
                                                         {nameof(OpticsMagTypeEnum)}: {OpticsMagTypeEnum}
                                                         {nameof(StageSpeedEnum)}: {StageSpeedEnum}
@@ -144,7 +146,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 var isCustomPrescanAod = string.IsNullOrWhiteSpace(PrescanFilePath) == false;
                 if (isCustomPrescanAod)
                 {
-                    laserViewModel.SetPrescanAODWaveProfileList([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, Coefficient)]);
+                    laserViewModel.SetPrescanAODWaveProfileList([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, LaserLightInformation)]);
                 }
 
                 var isCustomChirpAod = string.IsNullOrWhiteSpace(ChirpFilePath) == false;
@@ -172,7 +174,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                             PmtId,
                             StageCoordinateSystemEnum,
                             CIBConfiguration,
-                            (isCustomPrescanAod, isCustomPrescanAod ? null : Coefficient),
+                            (isCustomPrescanAod, isCustomPrescanAod ? null : LaserLightInformation),
                             isCustomChirpAod,
                             IsForward).Select(ToDarkFieldImageDto)
                     ]
@@ -185,7 +187,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                         PmtId,
                         StageCoordinateSystemEnum,
                         CIBConfiguration,
-                        (isCustomPrescanAod, isCustomPrescanAod ? null : Coefficient),
+                        (isCustomPrescanAod, isCustomPrescanAod ? null : LaserLightInformation),
                         isCustomChirpAod,
                         IsForward);
 
@@ -194,7 +196,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 foreach (var (i, darkFieldImageDto) in result.Select((t, i) => (i, t)))
                 {
                     using var _ = darkFieldImageDto;
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{Coefficient}\\{CIBConfiguration.Gain}\\{htmlLogUniqueId}.jpg";
+                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{LaserLightInformation}\\{CIBConfiguration.Gain}\\{htmlLogUniqueId}.jpg";
                     HalconHelper.Save(darkFieldImageDto.Image, filePath);
                     var size = HalconHelper.GetSize(darkFieldImageDto.Image);
                     darkFieldImageList.Add(new DarkFieldImage
@@ -216,7 +218,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 var grabbingDarkImageDto = new GrabbingDarkImageDto
                 {
                     PmtId = PmtId,
-                    Coefficient = Coefficient,
+                    Coefficient = LaserLightInformation,
                     OpticsMagTypeEnum = OpticsMagTypeEnum,
                     StageSpeedEnum = StageSpeedEnum,
                     CalChipSiteModelEnum = CalChipSiteModelEnum,
@@ -235,11 +237,11 @@ public partial class GrabbingDarkImageWindowViewModel(
                 SelectGrabbingDarkImageDto = grabbingDarkImageDto;
                 isSuccess = true;
 
-                logger.LogHtmlInformation($"Ok Mag:{OpticsMagTypeEnum};Coefficient: {Coefficient}; Gain: {CIBConfiguration.Gain}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                logger.LogHtmlInformation($"Ok Mag:{OpticsMagTypeEnum};Coefficient: {LaserLightInformation}; Gain: {CIBConfiguration.Gain}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     PmtId,
                     OpticsMagTypeEnum,
-                    Coefficient,
+                    Coefficient = LaserLightInformation,
                     DcGainVoltage = CIBConfiguration.Gain,
                     CalChipSiteModelEnum,
                     HtmlTab = new HtmlTab(new

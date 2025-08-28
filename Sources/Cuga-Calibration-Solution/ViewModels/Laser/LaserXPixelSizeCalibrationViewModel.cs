@@ -465,7 +465,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 Cache.FindTemplatePosition,
-                (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 Cache.SplitWidthPixel,

@@ -92,7 +92,7 @@
                                              hc:InfoElement.TitleWidth="150"
                                              hc:InfoElement.TitlePlacement="Left"
                                              hc:InfoElement.Title="Coefficient: "
-                                             SelectedItem="{Binding SettingCommonParam.MainCoefficient}"
+                                             SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
                                              ItemsSource="{Binding LaserLightInformationList}" />
                             </hc:UniformSpacingPanel>
                             <hc:UniformSpacingPanel Grid.Column="1" Orientation="Vertical">

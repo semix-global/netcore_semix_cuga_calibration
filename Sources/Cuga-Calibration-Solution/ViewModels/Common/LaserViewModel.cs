@@ -281,7 +281,7 @@ public sealed class LaserViewModel(
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         int pmtId = CalibrationConstantsHelper.MainPmtId)
     {
-        var coefficient = lightCoefficient is null ? lightCoefficient : calibrationSetting.SettingCommonParam.MainCoefficient;
+        var coefficient = lightCoefficient is null ? lightCoefficient : calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
         if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && position is not null)
             position = stageViewModel.MachineToBrightFieldPosition(position.Value);
@@ -745,7 +745,7 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true,
         bool? isRtfc = true)
     {
-        if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
+        if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
         resultPosition = Point.Origin;
         resultScore = 0;

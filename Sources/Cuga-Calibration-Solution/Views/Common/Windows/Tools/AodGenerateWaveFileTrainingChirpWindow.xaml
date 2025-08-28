@@ -325,7 +325,7 @@
                                                  hc:InfoElement.TitlePlacement="Left"
                                                  hc:InfoElement.TitleWidth="150"
                                                  ItemsSource="{Binding LaserLightInformationList}"
-                                                 SelectedItem="{Binding PrescanCoefficient}" />
+                                                 SelectedItem="{Binding PrescanLaserLightInformation}" />
                                     <Border Margin="-5,0"
                                             Padding="5,2"
                                             Style="{StaticResource BorderRegion}">

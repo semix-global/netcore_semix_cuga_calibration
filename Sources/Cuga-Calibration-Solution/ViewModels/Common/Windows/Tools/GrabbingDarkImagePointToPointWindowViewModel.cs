@@ -76,7 +76,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                 var positionList = Enumerable.Range(0, ColumnNumber).Select(t => new Point(StartPosition.X + t * ColumnCellWidth, StartPosition.Y)).ToList();
                 var cropResultList = laserViewModel.GetChuckDarkFieldRowLineScanImage(
                     positionList,
-                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
+                    (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                     false,
                     CIBConfiguration,
                     XWidth,
@@ -129,7 +129,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                     using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                         CalChipSiteModelEnum.ChuckModel,
                         resultPosition,
-                        (false, calibrationSetting.SettingCommonParam.MainCoefficient),
+                        (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                         false,
                         CIBConfiguration,
                         XWidth,

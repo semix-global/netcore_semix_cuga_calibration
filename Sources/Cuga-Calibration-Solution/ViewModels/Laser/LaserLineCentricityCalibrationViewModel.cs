@@ -507,7 +507,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
             CalChipSiteModelEnum.ChuckModel,
             Cache.FindPosition,
-            (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+            (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
             Cache.CIBConfiguration,
             Cache.XWidthPixel,

@@ -317,7 +317,7 @@
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="Coefficient: "
-                                         SelectedItem="{Binding Coefficient}"
+                                         SelectedItem="{Binding LaserLightInformation}"
                                          ItemsSource="{Binding LaserLightInformationList}" />
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:InfoElement.TitleWidth="150"

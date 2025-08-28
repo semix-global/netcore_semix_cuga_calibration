@@ -847,7 +847,7 @@ public sealed partial class RecipeSettingViewModel(
             var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 brightPosition,
-                (false, calibrationSetting.SettingCommonParam.MainCoefficient),
+                (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration,
                 800,

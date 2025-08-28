@@ -30,7 +30,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
-                           Status="{Binding Cache.Coefficient, StringFormat={}{0:f3}}"
+                           Status="{Binding Cache.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
@@ -77,7 +77,7 @@
                                  hc:InfoElement.TitleWidth="150"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Coefficient: "
-                                 SelectedItem="{Binding Cache.Coefficient}"
+                                 SelectedItem="{Binding Cache.LaserLightInformation}"
                                  ItemsSource="{Binding LaserLightInformationList}" />
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"

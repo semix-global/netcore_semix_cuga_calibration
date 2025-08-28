@@ -266,7 +266,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                 var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                                     FocusShiftCache.CalChipSiteModelEnum,
                                     FocusShiftCache.HighSiteFindPosition,
-                                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
+                                    (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                                     false,
                                     FocusShiftCache.CIBConfiguration,
                                     800,

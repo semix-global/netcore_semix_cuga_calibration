@@ -29,7 +29,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
-                           Status="{Binding Cache.Coefficient, StringFormat={}{0:f3}}"
+                           Status="{Binding Cache.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
