@@ -1,7 +1,9 @@
+using CommunityToolkit.Diagnostics;
 using Cuga.Data.DataStruct.Microscope.Enums;
 
 #if NET
 using Semix.GRPC.DTO.Basic;
+
 #else
 using Semix.WcfTransfer.DTO.Basic;
 
@@ -11,7 +13,7 @@ namespace Core.Models.Extensions;
 
 public static class EnumMicroscopeExtension
 {
-    public static ushort ToUshort(this CgMicroscopeLens cgMicroscopeLens) => cgMicroscopeLens switch
+    public static int ToInt(this CgMicroscopeLens @this) => @this switch
     {
         CgMicroscopeLens.None => 0,
         CgMicroscopeLens.One => 1,
@@ -19,12 +21,21 @@ public static class EnumMicroscopeExtension
         CgMicroscopeLens.Three => 3,
         CgMicroscopeLens.Four => 4,
         CgMicroscopeLens.Five => 5,
-        _ => throw new ArgumentOutOfRangeException(nameof(cgMicroscopeLens), cgMicroscopeLens, null)
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<int>(nameof(@this))
     };
 
-    #region ESxMicroscopelens <=> CgMicroscopeLens
+    public static CgMicroscopeLens ToCgMicroscopeLens(this int @this) => @this switch
+    {
+        0 => CgMicroscopeLens.None,
+        1 => CgMicroscopeLens.One,
+        2 => CgMicroscopeLens.Two,
+        3 => CgMicroscopeLens.Three,
+        4 => CgMicroscopeLens.Four,
+        5 => CgMicroscopeLens.Five,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgMicroscopeLens>(nameof(@this))
+    };
 
-    public static ESxMicroscopelens ToESxMicroscopeLens(this CgMicroscopeLens cgMicroscopeLens) => cgMicroscopeLens switch
+    public static ESxMicroscopelens ToESxMicroscopeLens(this CgMicroscopeLens @this) => @this switch
     {
         CgMicroscopeLens.None => ESxMicroscopelens.None,
         CgMicroscopeLens.One => ESxMicroscopelens.One,
@@ -32,10 +43,10 @@ public static class EnumMicroscopeExtension
         CgMicroscopeLens.Three => ESxMicroscopelens.Three,
         CgMicroscopeLens.Four => ESxMicroscopelens.Four,
         CgMicroscopeLens.Five => ESxMicroscopelens.Five,
-        _ => throw new ArgumentOutOfRangeException(nameof(cgMicroscopeLens), cgMicroscopeLens, null)
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<ESxMicroscopelens>(nameof(@this))
     };
 
-    public static CgMicroscopeLens ToCgMicroscopeLens(this ESxMicroscopelens sxMicroscopeLens) => sxMicroscopeLens switch
+    public static CgMicroscopeLens ToCgMicroscopeLens(this ESxMicroscopelens @this) => @this switch
     {
         ESxMicroscopelens.None => CgMicroscopeLens.None,
         ESxMicroscopelens.One => CgMicroscopeLens.One,
@@ -43,8 +54,6 @@ public static class EnumMicroscopeExtension
         ESxMicroscopelens.Three => CgMicroscopeLens.Three,
         ESxMicroscopelens.Four => CgMicroscopeLens.Four,
         ESxMicroscopelens.Five => CgMicroscopeLens.Five,
-        _ => throw new ArgumentOutOfRangeException(nameof(sxMicroscopeLens), sxMicroscopeLens, null)
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgMicroscopeLens>(nameof(@this))
     };
-
-    #endregion ESxMicroscopelens <=> CgMicroscopeLens
 }

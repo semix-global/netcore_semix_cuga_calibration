@@ -260,19 +260,26 @@ public sealed class CalibrationStageServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.Center.X, sxExecuteRet.Anything.Center.Y));
     }
 
-    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
+        AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.MarkBFAlignSite1(new SxParamObj<(SxSizeD size, ushort algo)>((algorithmTemplateSizeEnum.ToSize().ToSxSizeD(), algorithmTemplateTypeEnum.ToAlgorithmTemplateType()))));
+        var sxExecuteRet = Invoke(() => Service2?.MarkBFAlignSite1(new SxParamObj<(SxSizeD size, ushort algo)>((
+            algorithmTemplateSizeEnum.ToSize().ToSxSizeD(),
+            algorithmTemplateTypeEnum.ToAlgorithmTemplateType()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
             : SxExecuteRetHelper.CreateSuccess(new AlignmentSiteDto().AdaptIn(sxExecuteRet.Anything));
     }
 
-    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(
+        AlignmentSiteDto site,
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
@@ -307,15 +314,28 @@ public sealed class CalibrationStageServiceImpl(
         var highRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(highMicroscopeLensInformation);
         if (highRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(highRet.Msg, new AlignmentResultDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.BFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((lowSite1.AdaptTo(), lowSite2.AdaptTo(), highSite1.AdaptTo(), highSite2.AdaptTo(), lowRet.Anything.ToUshort(), highRet.Anything.ToUshort(), C2MAlignTypeDTO.Mid))));
+        var sxExecuteRet = Invoke(() => Service2?.BFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((
+            lowSite1.AdaptTo(),
+            lowSite2.AdaptTo(),
+            highSite1.AdaptTo(),
+            highSite2.AdaptTo(),
+            Convert.ToUInt16(lowRet.Anything.ToInt()),
+            Convert.ToUInt16(highRet.Anything.ToInt()),
+            C2MAlignTypeDTO.Mid))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
             : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
     }
 
-    public SxExecuteRet<AlignmentResultDto> AlignmentVerify(AlignmentSiteDto lowSite1, AlignmentSiteDto lowSite2, AlignmentSiteDto highSite1, AlignmentSiteDto highSite2, MicroscopeLensInformation lowMicroscopeLensInformation,
-        MicroscopeLensInformation highMicroscopeLensInformation, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public SxExecuteRet<AlignmentResultDto> AlignmentVerify(
+        AlignmentSiteDto lowSite1,
+        AlignmentSiteDto lowSite2,
+        AlignmentSiteDto highSite1,
+        AlignmentSiteDto highSite2,
+        MicroscopeLensInformation lowMicroscopeLensInformation,
+        MicroscopeLensInformation highMicroscopeLensInformation,
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
@@ -331,7 +351,15 @@ public sealed class CalibrationStageServiceImpl(
         var highRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(highMicroscopeLensInformation);
         if (highRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(highRet.Msg, new AlignmentResultDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.BFAlignmentVerify(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((lowSite1.AdaptTo(), lowSite2.AdaptTo(), highSite1.AdaptTo(), highSite2.AdaptTo(), lowRet.Anything.ToUshort(), highRet.Anything.ToUshort(), C2MAlignTypeDTO.Mid))));
+        var sxExecuteRet = Invoke(() =>
+            Service2?.BFAlignmentVerify(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((
+                lowSite1.AdaptTo(),
+                lowSite2.AdaptTo(),
+                highSite1.AdaptTo(),
+                highSite2.AdaptTo(),
+                Convert.ToUInt16(lowRet.Anything.ToInt()),
+                Convert.ToUInt16(highRet.Anything.ToInt()),
+                C2MAlignTypeDTO.Mid))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
@@ -347,7 +375,10 @@ public sealed class CalibrationStageServiceImpl(
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite1(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, SxSizeD size)>((opticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), algorithmTemplateSizeEnum.ToSize().ToSxSizeD()))));
+        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite1(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, SxSizeD size)>((
+            opticsMagTypeEnum.ToESxLevelEnum(),
+            xStageSpeedEnum.ToESxLevelEnum(),
+            algorithmTemplateSizeEnum.ToSize().ToSxSizeD()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
@@ -363,7 +394,10 @@ public sealed class CalibrationStageServiceImpl(
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
-        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite2(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, C2MSiteDTO site)>((opticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), site.AdaptTo()))));
+        var sxExecuteRet = Invoke(() => Service2?.MarkAlignDFSite2(new SxParamObj<(ESxLevelEnum mag, ESxLevelEnum speed, C2MSiteDTO site)>((
+            opticsMagTypeEnum.ToESxLevelEnum(),
+            xStageSpeedEnum.ToESxLevelEnum(),
+            site.AdaptTo()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
@@ -392,7 +426,13 @@ public sealed class CalibrationStageServiceImpl(
         if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
 
         var sxExecuteRet = Invoke(() => Service2?.DFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ESxLevelEnum mag, ESxLevelEnum speed, ushort ll)>
-            ((brightFieldLowSite1.AdaptTo(), brightFieldLowSite2.AdaptTo(), darkFieldHighSite1.AdaptTo(), darkFieldHighSite2.AdaptTo(), opticsMagTypeEnum.ToESxLevelEnum(), xStageSpeedEnum.ToESxLevelEnum(), lowRet.Anything.ToUshort()))));
+        ((brightFieldLowSite1.AdaptTo(),
+            brightFieldLowSite2.AdaptTo(),
+            darkFieldHighSite1.AdaptTo(),
+            darkFieldHighSite2.AdaptTo(),
+            opticsMagTypeEnum.ToESxLevelEnum(),
+            xStageSpeedEnum.ToESxLevelEnum(),
+            Convert.ToUInt16(lowRet.Anything.ToInt())))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())

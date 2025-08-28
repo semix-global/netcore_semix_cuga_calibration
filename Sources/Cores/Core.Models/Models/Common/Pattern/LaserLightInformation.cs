@@ -16,10 +16,10 @@ public partial class LaserLightInformation :
     public static readonly LaserLightInformation Default = new();
 
     [ObservableProperty]
-    private double _level;
+    private double _level = -1;
 
     [ObservableProperty]
-    private double _coefficient;
+    private double _coefficient = -1;
 
     #region IEquatable、IFormattable
 
@@ -55,6 +55,12 @@ public partial class LaserLightInformation :
     public static bool operator !=(LaserLightInformation? left, LaserLightInformation? right) => !(left == right);
 
     #endregion Operator
+
+    #region Deconstruct
+
+    public void Deconstruct(out double level, out double coefficient) => (level, coefficient) = (Level, Coefficient);
+
+    #endregion Deconstruct
 
     #region Mapper
 

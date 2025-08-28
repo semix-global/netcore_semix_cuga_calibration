@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Extensions;
 using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.NoSQL.DB.Providers.Bases;
@@ -24,7 +25,7 @@ public sealed partial class MicroscopeLensInformation :
     private int _lensCode = -1;
 
     [ObservableProperty]
-    private int _magnification = -1;
+    private double _magnification = -1;
 
     #region IEquatable、IFormattable
 
@@ -56,22 +57,26 @@ public sealed partial class MicroscopeLensInformation :
 
     #endregion Operator
 
+    #region Deconstruct
+
+    public void Deconstruct(out string lensName, out int lensCode, out double magnification) => (lensName, lensCode, magnification) = (LensName, LensCode, Magnification);
+
+    #endregion Deconstruct
+
     #region Mapper
 
     public CgMicroscopeInfo AdaptTo() => new()
     {
         LensName = LensName,
-        LensCode = Enum.IsDefined(typeof(CgMicroscopeLens), LensCode)
-            ? (CgMicroscopeLens)LensCode
-            : throw new ArgumentException("Invalid LensCode value"),
-        Lens = Magnification
+        LensCode = LensCode.ToCgMicroscopeLens(),
+        Lens = Convert.ToInt32(Magnification)
     };
 
     public MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
     {
         Guard.IsNotNull(obj, nameof(obj));
 
-        LensCode = (int)obj.LensCode;
+        LensCode = obj.LensCode.ToInt();
         LensName = obj.LensName;
         Magnification = obj.Lens;
 

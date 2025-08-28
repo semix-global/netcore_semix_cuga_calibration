@@ -84,7 +84,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
         var result = MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
         if (result.IsSuccess == false) return SxExecuteRetHelper.CreateError(result.Msg, false);
 
-        var sxExecuteRet = Invoke(() => Service!.SwitchMicroscopeNoMode(result.Anything.ToESxMicroscopeLens().ToCgMicroscopeLens()));
+        var sxExecuteRet = Invoke(() => Service!.SwitchMicroscopeNoMode(result.Anything));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
