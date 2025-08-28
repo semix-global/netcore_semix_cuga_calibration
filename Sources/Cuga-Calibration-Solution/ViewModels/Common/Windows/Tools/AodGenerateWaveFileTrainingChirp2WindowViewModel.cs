@@ -33,6 +33,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using Core.Models.Models.Common.Cookies;
 using Complex = System.Numerics.Complex;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -50,11 +51,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     AfViewModel afViewModel,
     IOptions<ApplicationSetting> options,
     CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie,
     ILogger<AodGenerateWaveFileTrainingChirp2WindowViewModel> logger) : ViewModelBase
 {
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
+
 
     #region 0. 确认生成波形参数
 

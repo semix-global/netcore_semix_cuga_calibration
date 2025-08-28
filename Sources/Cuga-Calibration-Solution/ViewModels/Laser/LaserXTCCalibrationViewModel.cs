@@ -34,6 +34,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Models.Models.Common.Cookies;
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
@@ -43,9 +44,13 @@ using MoreLinq.Extensions;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXTCCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserXTCCalibrationViewModel(
+    CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
+
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 

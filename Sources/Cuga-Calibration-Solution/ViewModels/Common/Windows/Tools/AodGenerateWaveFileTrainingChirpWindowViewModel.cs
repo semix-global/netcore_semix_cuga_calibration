@@ -23,6 +23,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Models.Models.Common.Cookies;
 using AodWaveGenerator = Net.Utilities.Algorithms.Modules.AodWaveGenerator;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -38,8 +39,11 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     AfViewModel afViewModel,
     CalibrationSetting calibrationSetting,
     IOptions<ApplicationSetting> options,
+    ApplicationCookie applicationCookie,
     ILogger<AodGenerateWaveFileTrainingChirpWindowViewModel> logger) : ViewModelBase
 {
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirpWindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirpWindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));

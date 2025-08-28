@@ -6,7 +6,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -25,6 +24,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using Core.Models.Models.Common.Cookies;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -33,13 +33,15 @@ public partial class GrabbingDarkImageWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
-    CalibrationSetting calibrationSetting,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IOptions<ApplicationSetting> options,
     ISynchronizationContextProvider contextProvider,
+    ApplicationCookie applicationCookie,
     ILogger<GrabbingDarkImageWindowViewModel> logger)
     : ViewModelBase
 {
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    
     [ObservableProperty]
     private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
 

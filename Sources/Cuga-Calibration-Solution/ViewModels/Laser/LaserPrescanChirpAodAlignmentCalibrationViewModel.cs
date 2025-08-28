@@ -33,14 +33,19 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Models.Models.Common.Cookies;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPrescanChirpAodAlignmentCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
+    CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
+    
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
