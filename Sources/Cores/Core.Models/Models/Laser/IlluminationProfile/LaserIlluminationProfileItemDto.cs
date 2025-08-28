@@ -138,8 +138,8 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         PmtId = PmtId,
         ChannelId = ChannelId,
-        PrescanAODWaveformProfileList = [..PrescanAODWaveformProfileList.Select(t => t.Clone())],
-        PrescanAODWaveformResultList = [..PrescanAODWaveformResultList.Select(t => t.Clone())],
+        PrescanAODWaveformProfileList = [.. PrescanAODWaveformProfileList.Select(t => t.Clone())],
+        PrescanAODWaveformResultList = [.. PrescanAODWaveformResultList.Select(t => t.Clone())],
         FindPosition = FindPosition,
         Channel1ImageFilePath = Channel1ImageFilePath,
         Channel1DarkFieldImageList = [.. Channel1DarkFieldImageList],
@@ -164,7 +164,12 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     {
         Coefficient = LaserLightInformation.Coefficient,
         OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        CalibrationPrescanAODWaveformResults = [.. PrescanAODWaveformResultList.Select(t => new CalibrationPrescanAODWaveformResult { OpticsAODElectrodeEnum = (int)t.OpticsAODElectrodeEnum, FilePath = t.FilePath })],
+        CalibrationPrescanAODWaveformResults =
+        [
+            .. PrescanAODWaveformResultList
+                .Cast<IAdaptTo<CalibrationPrescanAODWaveformResult>>()
+                .Select(t => t.AdaptTo())
+        ],
         PolarizationPPower = PolarizationPPower,
         PolarizationSPower = PolarizationSPower,
         PolarizationCPower = PolarizationCPower,

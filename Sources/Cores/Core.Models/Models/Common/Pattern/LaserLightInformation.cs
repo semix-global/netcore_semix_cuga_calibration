@@ -1,8 +1,8 @@
-﻿using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Cuga.Data.DataStruct.PMT;
 using Net.Utilities.Mapper.Interfaces;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 

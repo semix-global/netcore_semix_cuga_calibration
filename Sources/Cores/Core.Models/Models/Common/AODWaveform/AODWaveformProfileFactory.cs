@@ -1,4 +1,5 @@
 using Core.Models.Enums.Optics;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
@@ -19,10 +20,10 @@ public static class AODWaveformProfileFactory
         return aodWaveProfile;
     }
 
-    public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(IReadOnlyList<PrescanAODWaveformResult> prescanAODWaveformResultList)
-    {
-        return prescanAODWaveformResultList.Select(t => t.AdaptTo()).ToList();
-    }
+    public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(IReadOnlyList<PrescanAODWaveformResult> prescanAODWaveformResultList) => prescanAODWaveformResultList
+        .Cast<IAdaptTo<PrescanAODWaveformProfile>>()
+        .Select(t => t.AdaptTo())
+        .ToList();
 
     public static ChirpAODWaveformProfile CreateChirp(OpticsAODElectrodeEnum opticsAODElectrodeEnum, string filePath, int? customZeroSampleCount = null)
     {
@@ -37,8 +38,8 @@ public static class AODWaveformProfileFactory
         return chirpAODWaveformProfile;
     }
 
-    public static IReadOnlyList<ChirpAODWaveformProfile> CreateChirpList(IReadOnlyList<ChirpAODWaveformResult> chirpAODWaveformResultList)
-    {
-        return chirpAODWaveformResultList.Select(t => t.AdaptTo()).ToList();
-    }
+    public static IReadOnlyList<ChirpAODWaveformProfile> CreateChirpList(IReadOnlyList<ChirpAODWaveformResult> chirpAODWaveformResultList) => chirpAODWaveformResultList
+        .Cast<IAdaptTo<ChirpAODWaveformProfile>>()
+        .Select(t => t.AdaptTo())
+        .ToList();
 }

@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using System.ComponentModel;
-using Core.Models.Models.Common.Pattern;
 
 namespace Core.Models.Models.Common.Status;
 

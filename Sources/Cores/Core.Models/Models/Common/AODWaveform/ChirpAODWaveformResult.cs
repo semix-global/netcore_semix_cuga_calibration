@@ -8,7 +8,7 @@ public class ChirpAODWaveformResult : AODWaveformResult, IAdaptTo<ChirpAODWavefo
     {
     }
 
-    public ChirpAODWaveformProfile AdaptTo() => AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum, FilePath);
+    ChirpAODWaveformProfile IAdaptTo<ChirpAODWaveformProfile>.AdaptTo() => AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum, FilePath);
 
     public ChirpAODWaveformResult Clone() => new()
     {

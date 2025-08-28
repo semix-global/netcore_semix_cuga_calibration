@@ -12,6 +12,7 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscopeService
 {
     private static readonly Random Random = new();
+
     private MicroscopeLensInformation _microscopeLensInformation = new()
     {
         Magnification = 5,
