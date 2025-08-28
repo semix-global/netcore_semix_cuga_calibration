@@ -59,7 +59,7 @@
                           VerticalAlignment="Center"
                           ItemsSource="{Binding CalibrationStatusListItem}">
                 <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.Coefficient, Mode=TwoWay}" />
+                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.LaserLightInformation, Mode=TwoWay}" />
                 </i:Interaction.Behaviors>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -68,9 +68,9 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Content="{Binding .Coefficient, StringFormat={}{0:f3}}"
+                        <RadioButton Content="{Binding .LaserLightInformation, StringFormat={}{0:f3}}"
                                      FontSize="25"
-                                     Tag="{Binding .Coefficient}"
+                                     Tag="{Binding .LaserLightInformation}"
                                      GroupName="2731d392-e083-442e-bb8c-c4486169f7f7">
                             <RadioButton.Style>
                                 <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

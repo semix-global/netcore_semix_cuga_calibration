@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -38,6 +39,8 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
         if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<MicroscopeLensInformation>>("Microscope Lens Information is empty", []);
 
         _microscopeLensInformationList = [.. sxExecuteRet.Anything.Select(t => new MicroscopeLensInformation().AdaptIn(t))];
+
+        Guard.IsTrue(_microscopeLensInformationList.Select(t => t.LensCode).Distinct().Count() == _microscopeLensInformationList.Count, "Microscope Lens Information Lens Code is not unique");
 
         return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformationList);
     }

@@ -31,7 +31,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
-                           Status="{Binding Cache.Coefficient, StringFormat={}{0:f3}}"
+                           Status="{Binding Cache.LaserLightInformation, StringFormat={}{0:f3}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
@@ -49,16 +49,6 @@
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                            <TextBox Text="{Binding Cache.CurrentDarkFieldImageListToPrescanListCacheItem.PrescanFilePath}"
-                                     Height="50"
-                                     TextWrapping="Wrap"
-                                     hc:InfoElement.Title="FileName : "
-                                     hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <Button Content="Change" Command="{Binding ChangePrescanFileCommand}" />
-                            <Separator />
                             <hc:NumericUpDown hc:InfoElement.Title="Servings: "
                                               hc:TitleElement.TitleWidth="90"
                                               hc:InfoElement.TitlePlacement="Left"

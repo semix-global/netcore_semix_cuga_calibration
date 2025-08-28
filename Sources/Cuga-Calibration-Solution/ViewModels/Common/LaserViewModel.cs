@@ -61,9 +61,7 @@ public sealed class LaserViewModel(
     {
         var ret = calibrationLaserService.GetLaserBeamOriginPoint();
 
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        return (ret.Anything.PD1Point, ret.Anything.PD2Point);
+        return ret.IsSuccess ? (ret.Anything.PD1Point, ret.Anything.PD2Point) : throw new CugaException(ret.ErrorMsg);
     }
 
     public void AdjustBeamStabilizer(bool isEnable)
@@ -77,8 +75,14 @@ public sealed class LaserViewModel(
     {
         var ret = calibrationLaserService.GetOpticalPowerMeter();
 
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-        return ret.Anything;
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<LaserLightInformation> GetLaserLightInformationList()
+    {
+        var ret = calibrationLaserService.GetLaserLightInformationList();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public DarkFieldChirpAodWaveDto ReadChirpAodByCustomFile(string filePath)

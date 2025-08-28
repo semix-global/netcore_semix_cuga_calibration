@@ -6,6 +6,7 @@ using System.ComponentModel;
 
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
+
 #else
 using Cuga.Data.DataStruct.ADS;
 
@@ -164,7 +165,7 @@ public sealed class CalibrationLaserIlluminationProfileItem : CalibrationBase
     /// <summary>
     /// 当前暗场Mag和功率系数下的结果prescan文件路径, **需要下发Laser硬件**
     /// </summary>
-    public string ResultPrescanFilePath { get; set; }
+    public CalibrationPrescanAODWaveformResult[] CalibrationPrescanAODWaveformResults { get; set; }
 
     /// <summary>
     /// 当前暗场Mag和功率系数下的P偏振功率, **Cuga内部使用**
@@ -339,4 +340,12 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     public string ChirpAodWaveFilePath { get; set; } = string.Empty;
+}
+
+[Serializable]
+public class CalibrationPrescanAODWaveformResult
+{
+    public int OpticsAODElectrodeEnum { get; set; }
+
+    public string FilePath { get; set; } = string.Empty;
 }
