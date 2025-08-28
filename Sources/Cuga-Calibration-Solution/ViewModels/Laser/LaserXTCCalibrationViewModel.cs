@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -34,7 +35,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
-using Core.Models.Models.Common.Cookies;
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;

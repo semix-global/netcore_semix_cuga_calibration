@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
@@ -33,7 +34,6 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using Core.Models.Models.Common.Cookies;
 using Complex = System.Numerics.Complex;
 using Constants = Net.Utilities.Models.Constants;
 
