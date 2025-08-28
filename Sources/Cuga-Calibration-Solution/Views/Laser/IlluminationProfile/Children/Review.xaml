@@ -76,7 +76,7 @@
 
         <!--#region Right-->
         <Grid Grid.Column="2">
-            <GroupBox Grid.Row="2" Header="Calibration Data">
+            <GroupBox Header="Calibration Data">
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <ListView d:SelectedIndex="0"
                               ItemsSource="{Binding ReviewList}"
@@ -114,7 +114,7 @@
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn Width="100"
                                                 Header="Coefficient"
-                                                DisplayMemberBinding="{Binding Coefficient, StringFormat={}{0:f3}}" />
+                                                DisplayMemberBinding="{Binding LaserLightInformation, StringFormat={}{0:f3}}" />
                                 <GridViewColumn Width="100"
                                                 Header="Optics Mag"
                                                 DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />

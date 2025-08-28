@@ -12,7 +12,7 @@ namespace Core.Models.Models.Laser.IlluminationProfile;
 public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
@@ -91,7 +91,7 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentCalibrationCacheItem))]
-    private double _coefficient = 1.0;
+    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private ConcurrentDictionary<string, LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem> _darkFieldImageListToPrescanListCacheItemDic = [];
@@ -105,7 +105,7 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
 
     [JsonIgnore]
     public LaserIlluminationProfileCalibrationCacheItem CurrentCalibrationCacheItem =>
-        CalibrationCacheItemDic.GetOrAdd($"{OpticsMagTypeEnum}-{Coefficient:f6}", new LaserIlluminationProfileCalibrationCacheItem());
+        CalibrationCacheItemDic.GetOrAdd($"{OpticsMagTypeEnum}-{LaserLightInformation}", new LaserIlluminationProfileCalibrationCacheItem());
 
     partial void OnOpticsMagTypeEnumChanged(OpticsMagTypeEnum value)
     {
@@ -114,7 +114,7 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
         CurrentCalibrationCacheItem.Reset();
     }
 
-    partial void OnCoefficientChanged(double value)
+    partial void OnLaserLightInformationChanged(LaserLightInformation value)
     {
         _ = value;
         CurrentCalibrationCacheItem.Reset();
@@ -152,7 +152,7 @@ public sealed partial class LaserIlluminationProfileCalibrationCacheItem : Calib
     /// 去掉首位的点数
     /// </summary>
     [ObservableProperty]
-    private int _judgeDarkFieldImageListRateSkipCout = 50;
+    private int _judgeDarkFieldImageListRateSkipCout;
 
     #endregion 参数
 
@@ -278,12 +278,6 @@ public sealed partial class LaserIlluminationProfileDarkFieldImageListToPrescanL
     #endregion 多V对应关系
 
     #region 参数
-
-    /// <summary>
-    /// 校准的prescan文件路径
-    /// </summary>
-    [ObservableProperty]
-    private string _prescanFilePath = string.Empty;
 
     /// <summary>
     /// 份数
@@ -414,12 +408,6 @@ public sealed partial class LaserIlluminationProfileDarkFieldImageListToPrescanL
     private List<int[]> _servingToDarkFieldImageListIndicesList = [];
 
     #endregion 结果
-
-    partial void OnPrescanFilePathChanged(string value)
-    {
-        _ = value;
-        Reset();
-    }
 
     partial void OnServingsChanged(int value)
     {

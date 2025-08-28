@@ -96,6 +96,9 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         _laserLightInformationList = [.. sxExecuteRet.Anything.Select(t => new LaserLightInformation().AdaptIn(t))];
 
+        Guard.IsTrue(_laserLightInformationList.Select(t => t.Coefficient).Distinct().Count() == _laserLightInformationList.Count, "Laser Light Information Coefficient is not unique");
+        Guard.IsTrue(_laserLightInformationList.Select(t => t.Level).Distinct().Count() == _laserLightInformationList.Count, "Laser Light Information Level is not unique");
+
         return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
     }
 
@@ -275,13 +278,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
