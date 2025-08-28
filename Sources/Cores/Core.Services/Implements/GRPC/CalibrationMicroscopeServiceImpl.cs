@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
@@ -44,6 +45,8 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
                 .Info
                 .Select(t => new MicroscopeLensInformation().AdaptIn(t))
         ];
+
+        Guard.IsTrue(_microscopeLensInformationList.Select(t => t.LensCode).Distinct().Count() == _microscopeLensInformationList.Count, "Microscope Lens Information Lens Code is not unique");
 
         return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformationList);
     }

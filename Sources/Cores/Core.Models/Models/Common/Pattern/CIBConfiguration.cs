@@ -8,10 +8,10 @@ namespace Core.Models.Models.Common.Pattern;
 public sealed partial class CIBConfiguration : ObservableCacheBase, ICloneable<CIBConfiguration>
 {
     [ObservableProperty]
-    private int _gain;
+    private int _gain = -2;
 
     [ObservableProperty]
-    private bool _isAutoGainControl = true;
+    private bool _isAutoGainControl;
 
     [ObservableProperty]
     private bool _isL0K;

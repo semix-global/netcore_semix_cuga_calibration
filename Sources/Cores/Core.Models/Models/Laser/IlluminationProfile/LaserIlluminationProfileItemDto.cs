@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
@@ -14,7 +15,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     private int _index;
 
     [ObservableProperty]
-    private double _coefficient;
+    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = new();
@@ -32,13 +33,13 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     /// prescan文件路径
     /// </summary>
     [ObservableProperty]
-    private string _prescanFilePath = string.Empty;
+    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfileList = [];
 
     /// <summary>
     /// prescan文件路径
     /// </summary>
     [ObservableProperty]
-    private string _resultPrescanFilePath = string.Empty;
+    private IReadOnlyList<PrescanAODWaveformResult> _prescanAODWaveformResultList = [];
 
     [ObservableProperty]
     private Point _findPosition;
@@ -132,13 +133,13 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     public LaserIlluminationProfileItemDto Clone() => new()
     {
         Index = Index,
-        Coefficient = Coefficient,
+        LaserLightInformation = LaserLightInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         PmtId = PmtId,
         ChannelId = ChannelId,
-        PrescanFilePath = PrescanFilePath,
-        ResultPrescanFilePath = ResultPrescanFilePath,
+        PrescanAODWaveformProfileList = [..PrescanAODWaveformProfileList.Select(t => t.Clone())],
+        PrescanAODWaveformResultList = [..PrescanAODWaveformResultList.Select(t => t.Clone())],
         FindPosition = FindPosition,
         Channel1ImageFilePath = Channel1ImageFilePath,
         Channel1DarkFieldImageList = [.. Channel1DarkFieldImageList],
@@ -161,9 +162,9 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
 
     public CalibrationLaserIlluminationProfileItem AdaptTo() => new()
     {
-        Coefficient = Coefficient,
+        Coefficient = LaserLightInformation.Coefficient,
         OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        ResultPrescanFilePath = ResultPrescanFilePath,
+        CalibrationPrescanAODWaveformResults = [.. PrescanAODWaveformResultList.Select(t => new CalibrationPrescanAODWaveformResult { OpticsAODElectrodeEnum = (int)t.OpticsAODElectrodeEnum, FilePath = t.FilePath })],
         PolarizationPPower = PolarizationPPower,
         PolarizationSPower = PolarizationSPower,
         PolarizationCPower = PolarizationCPower,
