@@ -471,7 +471,20 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true,
         bool? isRtfc = true)
     {
-        var result = GetDarkFieldLineScanImageList(calChipSiteModelEnum, position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, cIbConfiguration, customPrescanAod, isCustomChirpAod, isForward, isAutoFocus, isRtfc);
+        var result = GetDarkFieldLineScanImageList(
+            calChipSiteModelEnum, 
+            position, 
+            xWidthPixel, 
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum, 
+            pmtId, 
+            stageCoordinateSystemEnum,
+            cIbConfiguration,
+            customPrescanAod,
+            isCustomChirpAod,
+            isForward, 
+            isAutoFocus,
+            isRtfc);
 
         var darkFieldImageDto = result.Single(t => t.ChannelId == channelId);
 

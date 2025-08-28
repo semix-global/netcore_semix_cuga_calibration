@@ -38,7 +38,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis;
 
 [IOCAppService(ServiceType = typeof(AfFocusDiagnosisViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : RtfcDiagnosisViewModelBase
+public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel, CalibrationSetting calibrationSetting) : RtfcDiagnosisViewModelBase
 {
     #region 属性
 
@@ -266,7 +266,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                 var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                                     FocusShiftCache.CalChipSiteModelEnum,
                                     FocusShiftCache.HighSiteFindPosition,
-                                    (false, 0.26),
+                                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                                     false,
                                     FocusShiftCache.CIBConfiguration,
                                     800,

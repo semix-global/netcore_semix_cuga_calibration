@@ -43,6 +43,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Core.Models.Models.Setting;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 
@@ -67,6 +68,7 @@ public sealed partial class RecipeSettingViewModel(
     MicroscopeViewModel microscopeViewModel,
     ReviewViewModel reviewViewModel,
     LaserViewModel laserViewModel,
+    CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie) : ViewModelBase
 {
     private readonly string _appHomeDirectory = options.Value.AppHomeDirectory;
@@ -845,7 +847,7 @@ public sealed partial class RecipeSettingViewModel(
             var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 brightPosition,
-                (false, 0.85),
+                (false, calibrationSetting.SettingCommonParam.MainCoefficient),
                 false,
                 CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration,
                 800,
