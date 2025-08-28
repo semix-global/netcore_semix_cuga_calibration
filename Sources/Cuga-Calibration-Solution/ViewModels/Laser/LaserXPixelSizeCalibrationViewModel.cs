@@ -578,7 +578,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     8,
                     StageCoordinateSystemEnum.Machine,
                     Cache.CIBConfiguration,
-                    (false, 0.5),
+                    (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                     false
                 );
 

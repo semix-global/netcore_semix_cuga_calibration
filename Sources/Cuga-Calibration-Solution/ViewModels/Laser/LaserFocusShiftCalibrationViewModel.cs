@@ -501,7 +501,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 Cache.CalChipSiteModelEnum,
                 Cache.HighSiteFindPosition,
-                (false, Cache.LightCoefficient),
+                (false, Cache.LaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 800,
@@ -713,7 +713,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     Cache.OpticsMagTypeEnum,
                     Cache.StageSpeedEnum,
                     StageCoordinateSystemEnum.Bright,
-                    Cache.LightCoefficient) == false)
+                    Cache.LaserLightInformation) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -857,7 +857,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     Cache.OpticsMagTypeEnum,
                     Cache.StageSpeedEnum,
                     StageCoordinateSystemEnum.Bright,
-                    Cache.LightCoefficient,
+                    Cache.LaserLightInformation,
                     isAutoFocus: false) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -945,7 +945,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 Cache.CalChipSiteModelEnum,
                 darkFieldPosition,
-                (false, Cache.LightCoefficient),
+                (false, Cache.LaserLightInformation),
                 true,
                 Cache.CIBConfiguration,
                 800,

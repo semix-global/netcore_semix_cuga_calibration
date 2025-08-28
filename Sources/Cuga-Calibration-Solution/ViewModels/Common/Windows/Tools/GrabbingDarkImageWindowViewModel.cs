@@ -146,7 +146,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 var isCustomPrescanAod = string.IsNullOrWhiteSpace(PrescanFilePath) == false;
                 if (isCustomPrescanAod)
                 {
-                    laserViewModel.SetPrescanAODWaveProfileList([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, LaserLightInformation)]);
+                    laserViewModel.SetPrescanAODWaveProfileList([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, LaserLightInformation.Coefficient)]);
                 }
 
                 var isCustomChirpAod = string.IsNullOrWhiteSpace(ChirpFilePath) == false;
@@ -218,7 +218,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 var grabbingDarkImageDto = new GrabbingDarkImageDto
                 {
                     PmtId = PmtId,
-                    Coefficient = LaserLightInformation,
+                    Coefficient = LaserLightInformation.Coefficient,
                     OpticsMagTypeEnum = OpticsMagTypeEnum,
                     StageSpeedEnum = StageSpeedEnum,
                     CalChipSiteModelEnum = CalChipSiteModelEnum,
@@ -241,8 +241,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                 {
                     PmtId,
                     OpticsMagTypeEnum,
-                    Coefficient = LaserLightInformation,
-                    DcGainVoltage = CIBConfiguration.Gain,
+                    LaserLightInformation,
+                    CIBConfiguration.Gain,
                     CalChipSiteModelEnum,
                     HtmlTab = new HtmlTab(new
                     {

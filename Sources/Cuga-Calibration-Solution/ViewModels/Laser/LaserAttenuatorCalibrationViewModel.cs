@@ -274,7 +274,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity = (firstLightIntensity + secondLightIntensity) / 2; // 计算平均值。
         if (HostEnvironment.IsProduction())
         {
-            if (ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity < ResultLaserAttenuatorObjDto.InitialightIntensity * CalibrationSetting.SettingCommonParam.MainLaserLightInformation)
+            if (ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity < ResultLaserAttenuatorObjDto.InitialightIntensity * CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient)
             {
                 Logger.LogHtmlInformation($"{Name}: Attenuator calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {

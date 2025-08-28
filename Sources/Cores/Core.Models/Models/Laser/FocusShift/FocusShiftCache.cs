@@ -14,7 +14,7 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
-    private double _lightCoefficient = 0.26;
+    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     /// <summary>
     /// 根据ecs变化值调节afMotor的系数

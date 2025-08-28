@@ -431,7 +431,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LightCoefficient) == false)
+                        FocusShiftCache.LaserLightInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -581,7 +581,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LightCoefficient) == false)
+                        FocusShiftCache.LaserLightInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -803,7 +803,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                     FocusShiftCache.CalChipSiteModelEnum,
                     Cache.IdeaDarkFieldMachinePosition,
-                    (false, FocusShiftCache.LightCoefficient),
+                    (false, FocusShiftCache.LaserLightInformation),
                     true,
                     FocusShiftCache.CIBConfiguration,
                     800,
@@ -954,7 +954,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 rtfcItemDto.BrightFieldFindPosition,
-                (false, FocusShiftCache.LightCoefficient),
+                (false, FocusShiftCache.LaserLightInformation),
                 true,
                 FocusShiftCache.CIBConfiguration,
                 800,
@@ -1090,7 +1090,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 FocusShiftCache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
                 CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                FocusShiftCache.LightCoefficient) == false)
+                FocusShiftCache.LaserLightInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;

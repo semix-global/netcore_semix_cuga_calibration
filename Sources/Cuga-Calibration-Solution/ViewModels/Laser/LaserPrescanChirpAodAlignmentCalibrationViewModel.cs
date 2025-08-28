@@ -392,7 +392,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                 item.PrescanSignals = aodWaveSignals;
                 item.PrescanFouriers = aodWaveSignalsFourier;
 
-                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, calibrationSetting.SettingCommonParam.MainLaserLightInformation);
+                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, calibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
                 var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
                 if (isSuccess == false)

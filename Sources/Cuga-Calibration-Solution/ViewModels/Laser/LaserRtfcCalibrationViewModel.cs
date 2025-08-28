@@ -567,7 +567,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 FocusShiftCache.HighSiteFindPosition,
-                (false, FocusShiftCache.LightCoefficient),
+                (false, FocusShiftCache.LaserLightInformation),
                 false,
                 FocusShiftCache.CIBConfiguration,
                 800,
@@ -741,7 +741,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                     FocusShiftCache.CalChipSiteModelEnum,
                     Cache.IdeaDarkFieldMachinePosition,
-                    (false, FocusShiftCache.LightCoefficient),
+                    (false, FocusShiftCache.LaserLightInformation),
                     true,
                     FocusShiftCache.CIBConfiguration,
                     800,
@@ -968,7 +968,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                             Cache.OpticsMagTypeEnum,
                             FocusShiftCache.StageSpeedEnum,
                             StageCoordinateSystemEnum.Bright,
-                            FocusShiftCache.LightCoefficient) == false)
+                            FocusShiftCache.LaserLightInformation) == false)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                         return false;
@@ -1146,7 +1146,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 rtfcItemDto.BrightFieldFindPosition,
-                (false, FocusShiftCache.LightCoefficient),
+                (false, FocusShiftCache.LaserLightInformation),
                 true,
                 FocusShiftCache.CIBConfiguration,
                 800,
