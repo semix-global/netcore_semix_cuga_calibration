@@ -48,7 +48,7 @@ public static class WcfConstantHelper
 
     public const string ChuckDarkFieldStageMapCalibrationName = "Dark Field StageMap";
 
-    public const string ChucStageMapCalibrationName = "Stage Map";
+    public const string ChuckStageMapCalibrationName = "Stage Map";
 
     public const string ChuckGlobalScaleErrorCalibrationName = "GlobalScaleError";
 
