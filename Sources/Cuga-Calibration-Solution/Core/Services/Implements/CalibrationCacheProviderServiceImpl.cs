@@ -11,6 +11,7 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPower;
@@ -94,6 +95,7 @@ public class CalibrationCacheProviderServiceImpl(
             tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserIlluminationProfileItemList = [.. cacheProvider.GetOrDefaultArray<LaserIlluminationProfileItemDto>().Select(t => t.AdaptTo())]));
             tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserOpticalPowerList = [.. cacheProvider.GetOrDefaultArray<LaserOpticalPowerDto>().Select(t => t.AdaptTo())]));
             tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserXYAstigmatismItemList = [.. cacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>().Select(t => t.AdaptTo())]));
+            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserDoeAngle = cacheProvider.GetOrDefault<LaserDOEAngleDto>().AdaptTo()));
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
 

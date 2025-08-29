@@ -12,6 +12,7 @@ using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPower;
@@ -119,6 +120,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
                 if (calibrationCacheProvider.TrySetArrayIsRequiredSelfCheck<LaserIlluminationProfileItemDto>(laserParamList.Single(t => t.CalibrationClassName == nameof(CalibrationLaserIlluminationProfileItem)).IsRequired, cancellationToken) == false) return false;
                 if (calibrationCacheProvider.TrySetArrayIsRequiredSelfCheck<LaserOpticalPowerDto>(laserParamList.Single(t => t.CalibrationClassName == nameof(CalibrationLaserOpticalPower)).IsRequired, cancellationToken) == false) return false;
                 if (calibrationCacheProvider.TrySetArrayIsRequiredSelfCheck<LaserXYAstigmatismCalibrationItemDto>(laserParamList.Single(t => t.CalibrationClassName == nameof(CalibrationLaserXYAstigmatismItem)).IsRequired, cancellationToken) == false) return false;
+                if (calibrationCacheProvider.TrySetIsRequiredSelfCheck<LaserDOEAngleDto>(laserParamList.Single(t => t.CalibrationClassName == nameof(CalibrationLaserDOEAngle)).IsRequired, cancellationToken) == false) return false;
 
                 return true;
             }

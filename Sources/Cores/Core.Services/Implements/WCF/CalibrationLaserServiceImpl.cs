@@ -431,7 +431,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, double? coefficient = null, Point? position = null)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null)
     {
         ushort? power = null;
         if (coefficient is not null)
@@ -441,7 +441,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             power = Convert.ToUInt16(executeRet.Anything);
         }
 
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), power, position?.ToCgPoint()));
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), power, position?.ToCgPoint(), Convert.ToUInt16(pmtId)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
@@ -673,5 +673,19 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
+    }
+
+    public SxExecuteRet<double> ReadDOECurrentAngle()
+    {
+        var sxExecuteRet = Invoke(() => Service?.ReadDoePos());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, default);
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<bool> SetDOEAngle(double angle)
+    {
+        var sxExecuteRet = Invoke(() => Service?.DoeMove(angle));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

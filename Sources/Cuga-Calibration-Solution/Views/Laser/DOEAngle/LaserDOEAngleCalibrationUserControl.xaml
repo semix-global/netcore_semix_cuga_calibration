@@ -1,25 +1,24 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Laser.PixelSize.LaserPixelSizeCalibrationUserControl"
+﻿<UserControl x:Class="CugaCalibration.Views.Laser.DOEAngle.LaserDOEAngleCalibrationUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
-             xmlns:childrenView="clr-namespace:CugaCalibration.Views.Laser.PixelSize.Children"
-             xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CugaCalibration.Views.Laser.DOEAngle"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:children="clr-namespace:CugaCalibration.Views.Laser.DOEAngle.Children"
-             xmlns:doeAngle="clr-namespace:CugaCalibration.Views.Laser.DOEAngle"
-             wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserPixelSizeCalibrationViewModel}"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:childrenView="clr-namespace:CugaCalibration.Views.Laser.DOEAngle.Children"
+             xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
+             xmlns:laser="clr-namespace:CugaCalibration.ViewModels.Laser"
+             attachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
+             d:DataContext="{d:DesignInstance Type=laser:LaserDOEAngleCalibrationViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="1920"
              mc:Ignorable="d">
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
     <hc:TransitioningContentControl TransitionStoryboard="{StaticResource Left2RightWithFadeTransition}">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -45,15 +44,9 @@
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
                         <childrenView:ConfigView Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
-                        <childrenView:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
-                        <children:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
-                        <children:Review Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
-                    </Grid>
-                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsAutoCalibrationToVisibilityConverter}}">
-                        <children:Review Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
-                        <children:Review Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
-                        <children:Review Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
-                        <childrenView:Review Visibility="{Binding AutoReviewCalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
+                        <childrenView:PmtConfigView Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
+                        <childrenView:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
+                        <childrenView:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                         <childrenView:Review />
@@ -71,7 +64,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="50" />
+                        <RowDefinition Height="80" />
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <TextBlock Text="Instructions"
@@ -121,7 +114,7 @@
                                 VerticalAlignment="Center"
                                 FontSize="10"
                                 StepIndex="{Binding AutoCalibrationStepIndex}"
-                                ItemsSource="{Binding AutoCalibrationStepList}"
+                                ItemsSource="{Binding AutoCalibrationStepList, Mode=TwoWay}"
                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
                         <hc:StepBar.ItemTemplate>
                             <DataTemplate>
