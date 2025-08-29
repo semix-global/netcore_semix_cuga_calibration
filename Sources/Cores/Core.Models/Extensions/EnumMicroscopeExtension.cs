@@ -3,6 +3,7 @@ using Cuga.Data.DataStruct.Microscope.Enums;
 
 #if NET
 using Semix.GRPC.DTO.Basic;
+
 #else
 using Semix.WcfTransfer.DTO.Basic;
 

@@ -12,7 +12,6 @@ using System.IO;
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.GRPC;
 #else
-
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.WCF;
 #endif
