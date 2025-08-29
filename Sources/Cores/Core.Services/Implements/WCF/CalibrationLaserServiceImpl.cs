@@ -278,13 +278,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -431,11 +431,17 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        int pmtId,
+        LaserLightInformation? laserLightInformation = null,
+        Point? point = null)
     {
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), (ushort?)(laserLightInformation?.Level ?? null), position?.ToCgPoint()));
-
-        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(calChipSiteModelEnum.ToCgCalChipType(), power, position?.ToCgPoint(), Convert.ToUInt16(pmtId)));
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
+            calChipSiteModelEnum.ToCgCalChipType(),
+            (ushort?)(laserLightInformation?.Level ?? null),
+            point?.ToCgPoint(),
+            Convert.ToUInt16(pmtId)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)

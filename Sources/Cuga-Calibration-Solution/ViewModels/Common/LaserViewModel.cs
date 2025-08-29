@@ -278,18 +278,18 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public (double Ecs, double AfMotor) RuntimeAfCalibration
-    (Point? position = null,
-        double? lightCoefficient = null,
+    public (double Ecs, double AfMotor) RuntimeAfCalibration(
+        Point? point = null,
+        LaserLightInformation? laserLightInformation = null,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         int pmtId = CalibrationConstantsHelper.MainPmtId)
     {
-        var coefficient = lightCoefficient is null ? lightCoefficient : calibrationSetting.SettingCommonParam.MainLaserLightInformation;
+        var coefficient = laserLightInformation is null ? laserLightInformation : calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
-        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && position is not null)
-            position = stageViewModel.MachineToBrightFieldPosition(position.Value);
+        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && point is not null)
+            point = stageViewModel.MachineToBrightFieldPosition(point.Value);
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, coefficient, position);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, coefficient, point);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

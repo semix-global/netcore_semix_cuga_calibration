@@ -328,7 +328,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        int pmtId,
+        LaserLightInformation? laserLightInformation = null,
+        Point? point = null)
     {
         Thread.Sleep(100);
 
