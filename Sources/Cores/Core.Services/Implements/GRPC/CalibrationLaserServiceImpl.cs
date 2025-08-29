@@ -266,7 +266,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, double? coefficient = null, Point? position = null)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null)
     {
         throw new NotImplementedException();
     }
@@ -465,5 +465,15 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
+    }
+
+    public SxExecuteRet<double> ReadDOECurrentAngle()
+    {
+        return SxExecuteRetHelper.CreateSuccess(0d);
+    }
+
+    public SxExecuteRet<bool> SetDOEAngle(double angle)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

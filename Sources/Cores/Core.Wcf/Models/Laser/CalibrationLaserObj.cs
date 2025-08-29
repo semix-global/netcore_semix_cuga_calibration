@@ -79,6 +79,12 @@ public sealed class CalibrationLaserObj
     /// </summary>
     [Description(WcfConstantHelper.LaserXyAstigmatismCalibrationName)]
     public CalibrationLaserXYAstigmatismItem[] CalibrationLaserXYAstigmatismItemList { get; set; } = Array.Empty<CalibrationLaserXYAstigmatismItem>();
+
+    /// <summary>
+    /// 暗场DOE角度校准对象
+    /// </summary>
+    [Description(WcfConstantHelper.LaserDOEAngleCalibrationName)]
+    public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
 }
 
 /// <summary>
@@ -326,6 +332,15 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 反向暗场中心坐标, **Cuga内部使用**
     /// </summary>
     public CgPoint ReverseDarkMachineCenterPosition { get; set; }
+}
+
+/// <summary>
+/// DOE角度校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserDOEAngle : CalibrationBase
+{
+    public double DOEAngle { get; set; }
 }
 
 /// <summary>

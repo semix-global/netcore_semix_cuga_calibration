@@ -872,6 +872,12 @@ public sealed class CalibrationLaserObj
     /// </summary>
     [Description(WcfConstantHelper.LaserXyAstigmatismCalibrationName)]
     public CalibrationLaserXYAstigmatismItem[] CalibrationLaserXYAstigmatismItemList { get; set; } = Array.Empty<CalibrationLaserXYAstigmatismItem>();
+
+    /// <summary>
+    /// 暗场DOE角度校准对象
+    /// </summary>
+    [Description(WcfConstantHelper.LaserDOEAngleCalibrationName)]
+    public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
 }
 ```
 
@@ -1215,5 +1221,18 @@ public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
     /// 当前暗场Mag和PmtId下的通道3 AGC延迟时间, **需要下发Laser硬件**
     /// </summary>
     public double Channel3AgcDelay { get; set; }
+}
+```
+
+## 4.12. DOE Angle
+
+```cs
+/// <summary>
+/// DOE角度校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserDOEAngle : CalibrationBase
+{
+    public double DOEAngle { get; set; }
 }
 ```

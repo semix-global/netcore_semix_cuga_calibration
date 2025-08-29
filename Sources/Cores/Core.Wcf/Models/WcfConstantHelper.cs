@@ -84,5 +84,7 @@ public static class WcfConstantHelper
 
     public const string LaserFocusShiftCalibrationName = "Focus Shift";
 
+    public const string LaserDOEAngleCalibrationName = "DOE Angle";
+
     #endregion Laser校准小项描述文本
 }

@@ -326,10 +326,11 @@ public interface ICalibrationLaserService
     /// 自动聚焦
     /// </summary>
     /// <param name="calChipSiteModelEnum">CalChip模式</param>
+    /// <param name="pmtId">光斑ID</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%) null表示用cuga配置值</param>
     /// <param name="position">位置 null表示用cuga配置值</param>
     /// <returns>RTFC返回AfEcs和Af电机值</returns>
-    SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, double? coefficient = null, Point? position = null);
+    SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null);
 
     /// <summary>
     /// 获取暗场图片的Y像素高度
@@ -406,4 +407,21 @@ public interface ICalibrationLaserService
         bool isAutoFocus);
 
     #endregion 暗场采图
+
+    #region DOE
+
+    /// <summary>
+    /// 读取DOE当前角度值
+    /// </summary>
+    /// <returns>返回角度</returns>
+    SxExecuteRet<double> ReadDOECurrentAngle();
+
+    /// <summary>
+    /// 下发DOE旋转角度
+    /// </summary>
+    /// <param name="angle">角度</param>
+    /// <returns>返回是否下发成功</returns>
+    SxExecuteRet<bool> SetDOEAngle(double angle);
+
+    #endregion
 }

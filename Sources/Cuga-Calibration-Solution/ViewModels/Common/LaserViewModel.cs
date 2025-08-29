@@ -275,14 +275,18 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(Point? position = null, double? lightCoefficient = null, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    public (double Ecs, double AfMotor) RuntimeAfCalibration
+    (Point? position = null,
+        double? lightCoefficient = null,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
+        int pmtId = CalibrationConstantsHelper.MainPmtId)
     {
         var coefficient = lightCoefficient is null ? lightCoefficient : calibrationSetting.SettingCommonParam.MainCoefficient;
 
         if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && position is not null)
             position = stageViewModel.MachineToBrightFieldPosition(position.Value);
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, coefficient, position);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, coefficient, position);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -318,6 +322,24 @@ public sealed class LaserViewModel(
 
         return true;
     }
+
+    #region DOE
+
+    public double ReadDOECurrentAngle()
+    {
+        var ret = calibrationLaserService.ReadDOECurrentAngle();
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetDOEAngle(double angle)
+    {
+        var ret = calibrationLaserService.SetDOEAngle(angle);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    #endregion
+
 
     /// <summary>
     /// 单点采图三通道图像
