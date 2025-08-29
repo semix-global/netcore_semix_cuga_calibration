@@ -429,7 +429,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     OpticsMagTypeEnum,
-                    PrescanCoefficient = PrescanLaserLightInformation,
+                    PrescanLaserLightInformation,
                     FindPosition,
                     XWidthPixel,
                     StageSpeedEnum,
