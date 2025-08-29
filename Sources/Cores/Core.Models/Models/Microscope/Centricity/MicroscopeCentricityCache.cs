@@ -75,7 +75,7 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
                                 .All(t => t.item.LensInformation == microscopeLensInformationList[t.index]);
         if (isInitialized) return true;
         MicroscopeCentricityCacheItem = new ObservableCollection<MicroscopeCentricityCacheItem>(
-            microscopeLensInformationList.Select(t => new MicroscopeCentricityCacheItem() { LensInformation = t.Clone() }));
+            microscopeLensInformationList.Select(t => new MicroscopeCentricityCacheItem { LensInformation = t.Clone() }));
         MicroscopeLensInformation = MicroscopeCentricityCacheItem.Minima(t => t.LensInformation.LensCode).Single().LensInformation;
         return true;
     }

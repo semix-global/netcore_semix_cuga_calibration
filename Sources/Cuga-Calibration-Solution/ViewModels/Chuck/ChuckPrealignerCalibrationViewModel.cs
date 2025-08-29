@@ -488,7 +488,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             {
                 Cache.AlgorithmTemplateTypeEnum,
                 LensName = Cache.LowMicroscopeLensInformation.LensName,
-                Cache.LowFindPosition2,
+                Cache.LowFindPosition2
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });
@@ -589,7 +589,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 ChuckPrealignerObjDto.EfemLoadWaferStagePosition,
                 ChuckPrealignerObjDto.EfemLoadWaferChuckAngle,
                 OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
-                OffsetAngleCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle,
+                OffsetAngleCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (IsAutoCalibrate == false)
@@ -685,7 +685,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                         OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
                         VerifyOffsetPosition = offsetPosition,
                         OldOffsetAngle = selectChuckPrealignerObjDto.OffsetAngle,
-                        VerifyOffsetAngle = Cache.OffsetAngle,
+                        VerifyOffsetAngle = Cache.OffsetAngle
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     DialogWindowProvider.ShowDialog("Verify Chuck Prealigner calibration failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -709,7 +709,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
                     VerifyOffsetPosition = offsetPosition,
                     OldOffsetAngle = selectChuckPrealignerObjDto.OffsetAngle,
-                    VerifyOffsetAngle = Cache.OffsetAngle,
+                    VerifyOffsetAngle = Cache.OffsetAngle
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 

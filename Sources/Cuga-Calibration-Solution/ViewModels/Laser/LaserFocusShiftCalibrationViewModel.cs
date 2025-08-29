@@ -451,7 +451,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Cache.LowSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    LowSiteTemplateImage = new HtmlImage(Cache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    LowSiteTemplateImage = new HtmlImage(Cache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -469,7 +469,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Cache.HighSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    HighSiteTemplateImage = new HtmlImage(Cache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    HighSiteTemplateImage = new HtmlImage(Cache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -495,7 +495,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 Cache.HighSiteFindPosition,
                 settingDarkFieldAutoFocusParam.IsEnableDsw,
                 settingDarkFieldAutoFocusParam.DswEcsValue,
-                settingDarkFieldAutoFocusParam.DswMotorValue,
+                settingDarkFieldAutoFocusParam.DswMotorValue
             }), HtmlLogUniqueId.LoggingHtml());
 
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
@@ -543,7 +543,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 darkFieldFindPosition = Cache.HighSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    DarkFieldTemplateImage = new HtmlImage(Cache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    DarkFieldTemplateImage = new HtmlImage(Cache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -603,7 +603,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 RealEcs = ResultFocusShiftDto.DarkFieldEcsValue,
                 ResultFocusShiftDto.FocusShiftOffset,
                 ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.DswEcsValue,
-                ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.DswMotorValue,
+                ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.DswMotorValue
             }), HtmlLogUniqueId.LoggingHtml());
 
             DialogWindowProvider.ShowDialog($"Focus Shift Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
@@ -649,7 +649,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 {
                     LowSiteTemplateImage = new HtmlImage(Cache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     HighSiteTemplateImage = new HtmlImage(Cache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    DarkFieldTemplateImage = new HtmlImage(Cache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    DarkFieldTemplateImage = new HtmlImage(Cache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -684,7 +684,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             {
                 highSiteFindPosition = Cache.HighSiteFindPosition,
                 brightFieldMachinePosition,
-                afEcs,
+                afEcs
             }), HtmlLogUniqueId.LoggingHtml());
 
             #endregion Bright Field
@@ -746,8 +746,8 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 autoFocusEcs,
                 autoFocusNsc,
                 NscTraceBuffers = new HtmlPlot2DLinesChart([
-                    ("Time-Nsc", nscBuffers.ToPoints()),
-                ], "NscTraceBuffers"),
+                    ("Time-Nsc", nscBuffers.ToPoints())
+                ], "NscTraceBuffers")
             }), HtmlLogUniqueId.LoggingHtml());
 
             #endregion Dark Field
@@ -814,7 +814,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 ResultFocusShiftDto.EcsOffset,
                 HtmlTab = new HtmlTab(new
                 {
-                    ResultImage = new HtmlImage(ResultFocusShiftDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    ResultImage = new HtmlImage(ResultFocusShiftDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }),
                 EcsQuality = new HtmlPlot2DLinesChart([
                     ("Ecs-Quality", FocusShiftDtoItems.Select(t => new Point(t.DarkFieldEcsValue, t.DarkFieldQuality)).ToArray())
@@ -873,8 +873,8 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 RealNscEcs = ResultFocusShiftDto.DarkFieldEcsValue,
                 RealNsc = ResultFocusShiftDto.NscValue,
                 NscTraceBuffers = new HtmlPlot2DLinesChart([
-                    ("Time-Nsc", nscBuffers.ToPoints()),
-                ], "NscTraceBuffers"),
+                    ("Time-Nsc", nscBuffers.ToPoints())
+                ], "NscTraceBuffers")
             }), HtmlLogUniqueId.LoggingHtml());
 
             #endregion BF To DF Machine Offset
@@ -916,8 +916,8 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.IsEnableDsw,
                 resultAfMotor = ResultFocusShiftDto.SettingDarkFieldAutoFocusParam.DswMotorValue,
                 RealNscTraceBuffers = new HtmlPlot2DLinesChart([
-                    ("Time-Nsc", nscBuffers.ToPoints()),
-                ], "NscTraceBuffers"),
+                    ("Time-Nsc", nscBuffers.ToPoints())
+                ], "NscTraceBuffers")
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -975,7 +975,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 ImageQuality = focusShiftDto.DarkFieldQuality,
                 HtmlTab = new HtmlTab(new
                 {
-                    Image = new HtmlImage(focusShiftDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    Image = new HtmlImage(focusShiftDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -998,7 +998,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         [
             .. Calibrations
                 .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         if (isSave == false) return true;

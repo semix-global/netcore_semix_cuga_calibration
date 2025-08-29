@@ -149,7 +149,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 if (_applicationCookie.MicroscopeLensInformationList.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformationList.Contains(Cache.HighMag) == false)
                 {
-                    Cache = new AlignmentCacheBrightField()
+                    Cache = new AlignmentCacheBrightField
                     {
                         LowMag = _applicationCookie.MicroscopeLensInformationList[0],
                         HighMag = _applicationCookie.MicroscopeLensInformationList.Count <= 2

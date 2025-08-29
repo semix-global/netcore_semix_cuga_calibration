@@ -250,7 +250,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await InvokeCalibrateAsync(async () =>
         {
-            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
 
@@ -286,7 +286,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
+                AfViewModel.SetSensorNscCompensation(0, 1);
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.ToggleDarkFieldEnable(true);
@@ -452,7 +452,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             }
             finally
             {
-                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+                AfViewModel.SetSensorNscCompensation(originOffset, originGain);
                 AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
                 AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
             }
@@ -466,7 +466,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         {
             Guard.IsNotNull(ResultLaserAutoFocusDto);
 
-            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
             var ecsToNmRatio = AfViewModel.GetEcsToUmRatio() * 1000;
@@ -494,7 +494,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
+                AfViewModel.SetSensorNscCompensation(0, 1);
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.SetSensorCurrentValue(true, ResultLaserAutoFocusDto.CurrentA);
@@ -511,7 +511,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 AfViewModel.SetSensorEcsValue(startEcs);
                 await Task.Delay(100, cancellationToken);
 
-                var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
                 var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                 var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                 var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
@@ -651,7 +651,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             }
             finally
             {
-                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+                AfViewModel.SetSensorNscCompensation(originOffset, originGain);
                 AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
                 AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
             }
@@ -665,7 +665,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         {
             Guard.IsNotNull(ResultLaserAutoFocusDto);
 
-            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
 
@@ -697,7 +697,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensationCoefficient(0, 1);
+                AfViewModel.SetSensorNscCompensation(0, 1);
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.SetSensorCurrentValue(true, ResultLaserAutoFocusDto.CurrentA);
@@ -717,11 +717,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    AfViewModel.SetSensorNscCompensationCoefficient(offset, gain);
+                    AfViewModel.SetSensorNscCompensation(offset, gain);
                     AfViewModel.SetSensorEcsValue(startEcs);
                     await Task.Delay(100, cancellationToken);
 
-                    var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                    var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
                     var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                     var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                     var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
@@ -827,7 +827,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             }
             finally
             {
-                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+                AfViewModel.SetSensorNscCompensation(originOffset, originGain);
                 AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
                 AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
             }
@@ -847,7 +847,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         {
             ReviewDto.IsVerified = false;
 
-            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensationCoefficient();
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
 
@@ -885,7 +885,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensationCoefficient(ReviewDto.NscOffset, ReviewDto.NscGain);
+                AfViewModel.SetSensorNscCompensation(ReviewDto.NscOffset, ReviewDto.NscGain);
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.SetSensorCurrentValue(true, ReviewDto.CurrentA);
@@ -904,7 +904,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                 var startEcs = averageEcs - Cache.HalfEcsLength;
                 var endEcs = averageEcs + Cache.HalfEcsLength;
-                var traceBufferList = AfViewModel.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
                 var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                 var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                 var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
@@ -1016,7 +1016,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             }
             finally
             {
-                AfViewModel.SetSensorNscCompensationCoefficient(originOffset, originGain);
+                AfViewModel.SetSensorNscCompensation(originOffset, originGain);
                 AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
                 AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
             }

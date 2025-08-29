@@ -521,7 +521,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 ResultMicroscopeCalChipDto.DswToChuckAfEcsValue,
                 ResultMicroscopeCalChipDto.DswToChuckAfMotorValue,
                 ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue,
-                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue,
+                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });

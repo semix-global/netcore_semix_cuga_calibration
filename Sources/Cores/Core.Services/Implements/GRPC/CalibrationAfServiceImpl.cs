@@ -101,10 +101,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
-        var ret = microscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
-        if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
-
-        var sxExecuteRet = Invoke(() => Service?.SetMicroscopeObj(new SxParamObj<CgMicroscopeLens>(ret.Anything)));
+        var sxExecuteRet = Invoke(() => Service?.SetMicroscopeObj(new SxParamObj<CgMicroscopeLens>(microscopeLensInformation.AdaptTo().LensCode)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -156,12 +153,12 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient()
+    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensation()
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain)
+    public SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain)
     {
         throw new NotImplementedException();
     }
@@ -186,17 +183,14 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
-        var ret = microscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
-        if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
-
-        var sxExecuteRet = Invoke(() => Service?.SetMicroscopeEcs(new SxParamObj<(CgMicroscopeLens lens, ushort ecs)>((ret.Anything, Convert.ToUInt16(standardEcsValue)))));
+        var sxExecuteRet = Invoke(() => Service?.SetMicroscopeEcs(new SxParamObj<(CgMicroscopeLens lens, ushort ecs)>((microscopeLensInformation.AdaptTo().LensCode, Convert.ToUInt16(standardEcsValue)))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

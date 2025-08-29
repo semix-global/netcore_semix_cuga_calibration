@@ -320,19 +320,13 @@ public sealed class CalibrationStageServiceImpl(
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var lowRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(lowMicroscopeLensInformation);
-        if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
-
-        var highRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(highMicroscopeLensInformation);
-        if (highRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(highRet.Msg, new AlignmentResultDto());
-
         var sxExecuteRet = Invoke(() => Service!.Alignment(
             lowSite1.AdaptTo(),
             lowSite2.AdaptTo(),
             highSite1.AdaptTo(),
             highSite2.AdaptTo(),
-            Convert.ToUInt16(lowRet.Anything.ToInt()),
-            Convert.ToUInt16(highRet.Anything.ToInt()),
+            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
+            Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
             type: C2MAlignType.Mid));
 
         return sxExecuteRet.IsSuccess == false
@@ -356,19 +350,13 @@ public sealed class CalibrationStageServiceImpl(
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var lowRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(lowMicroscopeLensInformation);
-        if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
-
-        var highRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(highMicroscopeLensInformation);
-        if (highRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(highRet.Msg, new AlignmentResultDto());
-
         var sxExecuteRet = Invoke(() => Service!.AlignmentVerify(
             lowSite1.AdaptTo(),
             lowSite2.AdaptTo(),
             highSite1.AdaptTo(),
             highSite2.AdaptTo(),
-            Convert.ToUInt16(lowRet.Anything.ToInt()),
-            Convert.ToUInt16(highRet.Anything.ToInt()),
+            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
+            Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
             type: C2MAlignType.Mid));
 
         return sxExecuteRet.IsSuccess == false
@@ -432,9 +420,6 @@ public sealed class CalibrationStageServiceImpl(
         darkFieldHighSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         darkFieldHighSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var lowRet = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(lowMicroscopeLensInformation);
-        if (lowRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(lowRet.Msg, new AlignmentResultDto());
-
         var sxExecuteRet = Invoke(() => Service!.DFAlignment(
             brightFieldLowSite1.AdaptTo(),
             brightFieldLowSite2.AdaptTo(),
@@ -442,7 +427,7 @@ public sealed class CalibrationStageServiceImpl(
             darkFieldHighSite2.AdaptTo(),
             opticsMagTypeEnum.ToESxLevelEnum(),
             xStageSpeedEnum.ToESxLevelEnum(),
-            Convert.ToUInt16(lowRet.Anything.ToInt())));
+            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
@@ -519,7 +504,7 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
-    public SxExecuteRet<bool> SetGlobalScaleErrorCoefficient(double xScale, double yScale)
+    public SxExecuteRet<bool> SetXYGlobalScale(double xScale, double yScale)
     {
         var sxExecuteRet = Invoke(() => Service!.UpdateScale(ESxAxisEnum.X, xScale));
         if (sxExecuteRet.IsSuccess == false)
@@ -532,7 +517,7 @@ public sealed class CalibrationStageServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetRotateScaleErrorCoefficient(double tScale)
+    public SxExecuteRet<bool> SetTScale(double tScale)
     {
         var sxExecuteRet = Invoke(() => Service!.UpdateScale(ESxAxisEnum.T, tScale));
 

@@ -133,16 +133,16 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public (double Offset, double Gain) GetSensorNscCompensationCoefficient()
+    public (double Offset, double Gain) GetSensorNscCompensation()
     {
-        var ret = calibrationAfService.GetSensorNscCompensationCoefficient();
+        var ret = calibrationAfService.GetSensorNscCompensation();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetSensorNscCompensationCoefficient(double offset, double gain)
+    public void SetSensorNscCompensation(double offset, double gain)
     {
-        var ret = calibrationAfService.SetSensorNscCompensationCoefficient(offset, gain);
+        var ret = calibrationAfService.SetSensorNscCompensation(offset, gain);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -169,11 +169,11 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Ecs, double Nsc, double Lvdt)> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public List<(double Ecs, double Nsc, double Lvdt)> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
+        var ret = calibrationAfService.GetSensorNscTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
 
         logger.LogInformation("End TraceBuffer");
 

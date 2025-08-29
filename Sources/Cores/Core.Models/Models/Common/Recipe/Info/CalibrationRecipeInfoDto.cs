@@ -64,7 +64,7 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
 
     public CalibrationRecipeInfoDto AdaptIn(SysRecipeInformationDto obj)
     {
-        return new CalibrationRecipeInfoDto()
+        return new CalibrationRecipeInfoDto
         {
             RecipeName = obj.RecipeDbName,
             DescribeName = obj.DescribeInformation,

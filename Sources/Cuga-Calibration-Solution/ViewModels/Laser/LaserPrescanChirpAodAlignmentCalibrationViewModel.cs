@@ -302,14 +302,14 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                 Cache.WidthPixel,
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition,
-                Cache.PrescanCoefficient
+                Cache.PrescanLaserLightInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.SetGain(Cache.Gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-            ResultCalibrateDto.PrescanCoefficient = Cache.PrescanCoefficient;
+            ResultCalibrateDto.PrescanLaserLightInformation = Cache.PrescanLaserLightInformation;
             ResultCalibrateDto.Gain = Cache.Gain;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -335,7 +335,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                 Cache.WidthPixel,
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition,
-                Cache.PrescanCoefficient,
+                Cache.PrescanLaserLightInformation,
                 Cache.Gain,
                 Cache.PrescanFlatnessTime,
                 Cache.PrescanFrontAndBackMonotonicEndpointTime,
@@ -380,7 +380,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                     Cache.PrescanFlatnessTime,
                     FunctionMonotonicTypeEnum.Flatness,
                     Cache.PrescanSampleRate,
-                    Cache.PrescanCoefficient,
+                    Cache.PrescanLaserLightInformation.Coefficient,
                     detectPrescanDirectory,
                     zeroSampleCount: Cache.PrescanZeroNum,
                     endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
@@ -472,7 +472,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                 yPixelHeight * 4d,
                 FunctionMonotonicTypeEnum.Increasing,
                 Cache.PrescanSampleRate,
-                Cache.PrescanCoefficient,
+                Cache.PrescanLaserLightInformation.Coefficient,
                 detectPrescanDirectory,
                 zeroSampleCount: Cache.PrescanZeroNum,
                 endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
@@ -575,7 +575,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
         [
             .. Calibrations
                 .Where(t => t.OpticsMagTypeEnum != dto.OpticsMagTypeEnum),
-            dto.Clone(),
+            dto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)

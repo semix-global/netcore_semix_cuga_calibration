@@ -28,7 +28,7 @@ public sealed partial class WaferMapDto : ObservableCacheBase, ICloneable<WaferM
         OriginDieDto = new()
         {
             WaferPosition = originDieBrightPosition,
-            IsInWafer = true,
+            IsInWafer = true
         };
         WaferMapDieDtoItemList =
         [

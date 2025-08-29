@@ -104,7 +104,7 @@ public interface ICalibrationAfService
     /// 获取Nsc补偿系数
     /// </summary>
     /// <returns>偏置NSC原始数据, 归一化增益</returns>
-    SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient();
+    SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensation();
 
     /// <summary>
     /// 设置Nsc补偿系数
@@ -112,7 +112,7 @@ public interface ICalibrationAfService
     /// <param name="gain">归一化增益</param>
     /// </summary>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain);
+    SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain);
 
     /// <summary>
     /// 获取传感器: TracesBuffer error的Buffer值
@@ -136,7 +136,7 @@ public interface ICalibrationAfService
     /// <param name="speedEcs">速度Ecs</param>
     /// <param name="timeSpan">多长时间Buffer</param>
     /// <returns>TraceBuffer ECS NSC Lvdt当前值</returns>
-    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
+    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
 
     #region 自动聚焦下发参数
 

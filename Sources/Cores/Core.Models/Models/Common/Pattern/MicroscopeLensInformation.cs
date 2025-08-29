@@ -1,13 +1,12 @@
 using CommunityToolkit.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Extensions;
 using Cuga.Data.DataStruct.Microscope;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public sealed partial class MicroscopeLensInformation :
+public sealed class MicroscopeLensInformation :
     ObservableCacheBase,
     IEquatable<MicroscopeLensInformation>,
     IFormattable,
@@ -17,14 +16,31 @@ public sealed partial class MicroscopeLensInformation :
 {
     public static readonly MicroscopeLensInformation Default = new();
 
-    [ObservableProperty]
     private string _lensName = "N/A";
-
-    [ObservableProperty]
     private int _lensCode = -1;
-
-    [ObservableProperty]
     private double _magnification = -1;
+
+    public string LensName
+    {
+        get => _lensName;
+        private set => SetProperty(ref _lensName, value);
+    }
+
+    public int LensCode
+    {
+        get => _lensCode;
+        private set => SetProperty(ref _lensCode, value);
+    }
+
+    public double Magnification
+    {
+        get => _magnification;
+        private set => SetProperty(ref _magnification, value);
+    }
+
+    internal MicroscopeLensInformation()
+    {
+    }
 
     #region IEquatable、IFormattable
 
@@ -67,7 +83,9 @@ public sealed partial class MicroscopeLensInformation :
     public CgMicroscopeInfo AdaptTo() => new()
     {
         LensName = LensName,
-        LensCode = LensCode.ToCgMicroscopeLens(),
+        LensCode = Enum.IsDefined(typeof(CgMicroscopeLens), LensCode)
+            ? (CgMicroscopeLens)LensCode
+            : ThrowHelper.ThrowArgumentOutOfRangeException<CgMicroscopeLens>(nameof(LensCode)),
         Lens = Convert.ToInt32(Magnification)
     };
 
@@ -75,7 +93,7 @@ public sealed partial class MicroscopeLensInformation :
     {
         Guard.IsNotNull(obj, nameof(obj));
 
-        LensCode = obj.LensCode.ToInt();
+        LensCode = (int)obj.LensCode;
         LensName = obj.LensName;
         Magnification = obj.Lens;
 

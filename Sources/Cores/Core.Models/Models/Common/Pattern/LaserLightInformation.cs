@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public partial class LaserLightInformation :
+public class LaserLightInformation :
     ObservableObject,
     IEquatable<LaserLightInformation>,
     IFormattable,
@@ -15,11 +15,24 @@ public partial class LaserLightInformation :
 {
     public static readonly LaserLightInformation Default = new();
 
-    [ObservableProperty]
     private double _level = -1;
-
-    [ObservableProperty]
     private double _coefficient = -1;
+
+    public double Level
+    {
+        get => _level;
+        private set => SetProperty(ref _level, value);
+    }
+
+    public double Coefficient
+    {
+        get => _coefficient;
+        private set => SetProperty(ref _coefficient, value);
+    }
+
+    private LaserLightInformation()
+    {
+    }
 
     #region IEquatable、IFormattable
 

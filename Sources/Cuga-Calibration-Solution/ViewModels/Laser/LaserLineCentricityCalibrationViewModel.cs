@@ -859,7 +859,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         [
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.StageSpeedEnum == itemDto.StageSpeedEnum) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
         if (isSave == false) return true;
 

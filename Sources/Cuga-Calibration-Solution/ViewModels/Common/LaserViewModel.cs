@@ -84,6 +84,13 @@ public sealed class LaserViewModel(
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
+    
+    public LaserLightInformation LevelToLaserLightInformation(double level)
+    {
+        var ret = calibrationLaserService.LevelToLaserLightInformation(level);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
 
     public DarkFieldChirpAodWaveDto ReadChirpAodByCustomFile(string filePath)
     {

@@ -36,7 +36,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCache : CalibrationCach
     private double _prescanFlatnessTime = 4300;
 
     [ObservableProperty]
-    private double _prescanCoefficient = 0.495;
+    private LaserLightInformation _prescanLaserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private int _prescanFrontAndBackMonotonicEndpointTime;

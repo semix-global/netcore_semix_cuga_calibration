@@ -24,6 +24,6 @@ public sealed partial class WaferMapDieItemDto : ObservableCacheBase, ICloneable
         RowIndex = RowIndex,
         ColumnIndex = ColumnIndex,
         WaferPosition = WaferPosition,
-        IsInWafer = IsInWafer,
+        IsInWafer = IsInWafer
     };
 }

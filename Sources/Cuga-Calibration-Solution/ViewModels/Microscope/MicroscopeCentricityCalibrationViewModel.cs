@@ -562,7 +562,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         [
             .. Calibrations
                 .Where(t => t.LensInformation != itemDto.LensInformation),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         ReviewList =
@@ -621,7 +621,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         {
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
-                                Cache.AlgorithmTemplateTypeEnum,
+                                Cache.AlgorithmTemplateTypeEnum
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });
@@ -659,7 +659,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                         return true;
                     }
-                    ,
                 };
                 if (await autoStepAction().ConfigureAwait(false) == false) return false;
                 if (await AutoStepAsync() == false) return false;

@@ -438,7 +438,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     item.TargetValueX,
                     item.TargetValueY,
                     Image = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect)]),
-                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(item.ImageFilePath)}.raw"),
+                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(item.ImageFilePath)}.raw")
                 }), htmlGuid.LoggingHtml());
 
                 return true;

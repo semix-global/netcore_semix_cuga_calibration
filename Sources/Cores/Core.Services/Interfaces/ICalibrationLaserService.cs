@@ -58,14 +58,7 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="level">功率等级</param>
     /// <returns>功率系数</returns>
-    SxExecuteRet<double> LevelToCoefficient(double level);
-
-    /// <summary>
-    /// 功率等级和功率系数互转
-    /// </summary>
-    /// <param name="coefficient">功率系数</param>
-    /// <returns>功率等级</returns>
-    SxExecuteRet<double> CoefficientToLevel(double coefficient);
+    SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level);
 
     /// <summary>
     /// 通过chirpAod波形文件路径命名，获得dto参数

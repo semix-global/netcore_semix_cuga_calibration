@@ -84,14 +84,16 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<double> LevelToCoefficient(double level)
+    public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
-        throw new NotImplementedException();
-    }
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
-    public SxExecuteRet<double> CoefficientToLevel(double coefficient)
-    {
-        throw new NotImplementedException();
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError<LaserLightInformation>("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)

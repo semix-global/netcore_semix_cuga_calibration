@@ -283,7 +283,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
         DialogWindowProvider.ShowImage([
             (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch1"),
             (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch2"),
-            (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch3"),
+            (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch3")
         ]);
     }
 
@@ -498,7 +498,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 minWindowStartIndex,
                 windowToMinAmount,
                 judgeWindowStartIndex,
-                judgeWindowEndIndex,
+                judgeWindowEndIndex
             }), HtmlLogUniqueId.LoggingHtml());
             if (item.IsOk)
             {
@@ -711,7 +711,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 {
                     SelectReviewItemDto.PmtId,
                     VerifyCH1DelayOffset = ch1PmtDelay,
-                    VerifyCH2DelayOffset = ch2PmtDelay,
+                    VerifyCH2DelayOffset = ch2PmtDelay
                 }), HtmlLogUniqueId.LoggingHtml());
                 SelectReviewItemDto.IsVerified = false;
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")},PMT ID: {SelectReviewItemDto.PmtId}, " + $"ch1: ({ch1PmtDelay:f2}) ch2: ({ch2PmtDelay:f2})", DialogButtonsEnum.OK,
@@ -725,7 +725,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 {
                     SelectReviewItemDto.PmtId,
                     VerifyCH1DelayOffset = ch1PmtDelay,
-                    VerifyCH2DelayOffset = ch2PmtDelay,
+                    VerifyCH2DelayOffset = ch2PmtDelay
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, PMT ID: {SelectReviewItemDto.PmtId},ch1: ({ch1PmtDelay:f2}) ch2: ({ch2PmtDelay:f2})", DialogButtonsEnum.OK,
@@ -883,7 +883,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
         [
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
         if (isSave == false) return true;
 

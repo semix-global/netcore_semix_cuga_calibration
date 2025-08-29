@@ -142,7 +142,7 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
             OpticsMagTypeEnum.Low => LowMagDarkFieldAutoFocusParam.Clone(),
             OpticsMagTypeEnum.Middle => MiddleMagDarkFieldAutoFocusParam.Clone(),
             OpticsMagTypeEnum.High => HighMagDarkFieldAutoFocusParam.Clone(),
-            _ => throw new NotImplementedException(),
+            _ => throw new NotImplementedException()
         };
 
     public (double min, double max, double interval) GetSteppingRangeParam()
@@ -151,6 +151,6 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
             OpticsMagTypeEnum.Low => (LowMagFindFocusMin, LowMagFindFocusMax, LowMagFindFocusInterval),
             OpticsMagTypeEnum.Middle => (MiddleMagFindFocusMin, MiddleMagFindFocusMax, MiddleMagFindFocusInterval),
             OpticsMagTypeEnum.High => (HighMagFindFocusMin, HighMagFindFocusMax, HighMagFindFocusInterval),
-            _ => throw new NotImplementedException(),
+            _ => throw new NotImplementedException()
         };
 }

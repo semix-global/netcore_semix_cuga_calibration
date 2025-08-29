@@ -371,10 +371,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     var z2IsPositive = false;
                     IsX1Stop = false;
                     IsX2Stop = false;
-                    var adsXGainsDichotomySpeedCacheItem = new AdsXGainsDichotomySpeedCacheItem()
+                    var adsXGainsDichotomySpeedCacheItem = new AdsXGainsDichotomySpeedCacheItem
                     {
                         IsPositive = Cache.IsPositive,
-                        SpeedXValue = speedvalue,
+                        SpeedXValue = speedvalue
                     };
                     SynchronizationContextProvider.Send(() => AdsXGainsDichotomySpeedCacheItemList.Add(adsXGainsDichotomySpeedCacheItem));
                     var adsXGainsCacheItem = new AdsXGainsCacheItem
@@ -549,11 +549,11 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         {
                             cancellationToken.ThrowIfCancellationRequested();
                             index++;
-                            var adsXGainsHrpCacheItem = new AdsXGainsCacheItem()
+                            var adsXGainsHrpCacheItem = new AdsXGainsCacheItem
                             {
                                 Index = index,
                                 IsPositive = Cache.IsPositive,
-                                SpeedXValue = speedCacheItem.SpeedXValue,
+                                SpeedXValue = speedCacheItem.SpeedXValue
                             };
                             adsXGainsHrpCacheItem.SetX1(x1Value);
                             adsXGainsHrpCacheItem.SetX2(x2Value);
@@ -757,7 +757,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         selectItemDto.PositiveX1P3,
                         selectItemDto.PositiveX2P1,
                         selectItemDto.PositiveX2P2,
-                        selectItemDto.PositiveX2P3,
+                        selectItemDto.PositiveX2P3
                     }), HtmlLogUniqueId.LoggingHtml());
                 else
                     Logger.LogHtmlInformation("Negative", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -770,14 +770,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         selectItemDto.NegativeX3P3,
                         selectItemDto.NegativeX4P1,
                         selectItemDto.NegativeX4P2,
-                        selectItemDto.NegativeX4P3,
+                        selectItemDto.NegativeX4P3
                     }), HtmlLogUniqueId.LoggingHtml());
                 var verifySpeedValueList = Cache.SpeedXValueList.Zip(Cache.SpeedXValueList.Skip(1), (t1, t2) => (t1 + t2) / 2).ToList();
                 foreach (var speedvalueItem in verifySpeedValueList)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     index++;
-                    var adsXGainsHrpCacheItem = new AdsXGainsCacheItem()
+                    var adsXGainsHrpCacheItem = new AdsXGainsCacheItem
                     {
                         Index = index,
                         IsPositive = Cache.IsPositive,
@@ -994,7 +994,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         {
             Index = index,
             IsPositive = isPositive,
-            SpeedXValue = speedValue,
+            SpeedXValue = speedValue
         };
         adsXGainsCacheItemTemp.SetX1(x1Value);
         adsXGainsCacheItemTemp.SetX2(x2Value);

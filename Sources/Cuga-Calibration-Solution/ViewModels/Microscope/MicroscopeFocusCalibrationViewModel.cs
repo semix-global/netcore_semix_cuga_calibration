@@ -338,7 +338,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 ImageQuality = findFocalItemResult.Quality,
                 HtmlTab = new HtmlTab(new
                 {
-                    Image = new HtmlImage(findFocalItemResult.FilePath),
+                    Image = new HtmlImage(findFocalItemResult.FilePath)
                 }),
                 Quality = new HtmlPlot2DLinesChart([("Ecs-Quality", EcsPoints)], "Ecs-Quality")
             }), HtmlLogUniqueId.LoggingHtml());
@@ -367,7 +367,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 ResultMicroscopeFocusItemDto.TransBufferAfErrorValue,
                 HtmlTab = new HtmlTab(new
                 {
-                    Image = new HtmlImage(ResultMicroscopeFocusItemDto.FilePath),
+                    Image = new HtmlImage(ResultMicroscopeFocusItemDto.FilePath)
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -474,7 +474,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             Cache.Threshold,
             microscopeFocusItemDto.EcsValue,
             ImageQuality = microscopeFocusItemDto.Quality,
-            microscopeFocusItemDto.LensInformation.LensName,
+            microscopeFocusItemDto.LensInformation.LensName
         }), HtmlLogUniqueId.LoggingHtml());
 
         if (!IsAutoCalibrate)
@@ -543,7 +543,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             microscopeFocusItemDto.LensInformation.LensName,
             HtmlTab = new HtmlTab(new
             {
-                Image = new HtmlImage(microscopeFocusItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                Image = new HtmlImage(microscopeFocusItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
             })
         });
 
@@ -559,7 +559,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         [
             .. Calibrations
                 .Where(t => t.LensInformation != itemDto.LensInformation),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -609,7 +609,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                     {
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                         {
-                            Cache.AlgorithmTemplateTypeEnum,
+                            Cache.AlgorithmTemplateTypeEnum
                         }), HtmlLogUniqueId.LoggingHtml());
                         return true;
                     });
@@ -650,7 +650,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
                     return true;
                 }
-                ,
             };
 
             if (await autoStepAction().ConfigureAwait(false) == false) return false;

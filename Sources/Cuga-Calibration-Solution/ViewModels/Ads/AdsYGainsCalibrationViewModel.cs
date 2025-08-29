@@ -349,10 +349,10 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     IsY1Stop = false;
                     IsY2Stop = false;
                     IsY3Stop = false;
-                    var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem()
+                    var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem
                     {
                         IsPositive = Cache.IsPositive,
-                        SpeedYValue = speedvalue,
+                        SpeedYValue = speedvalue
                     };
                     SynchronizationContextProvider.Send(() => AdsYGainsDichotomySpeedCacheItemList.Add(adsYGainsDichotomySpeedCacheItem));
                     var adsYGainsCacheItem = new AdsYGainsCacheItem
@@ -551,11 +551,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 index++;
-                                var adsYGainsHrpCacheItem = new AdsYGainsCacheItem()
+                                var adsYGainsHrpCacheItem = new AdsYGainsCacheItem
                                 {
                                     Index = index,
                                     IsPositive = Cache.IsPositive,
-                                    SpeedYValue = speedCacheItem.SpeedYValue,
+                                    SpeedYValue = speedCacheItem.SpeedYValue
                                 };
                                 adsYGainsHrpCacheItem.SetAdsY1(y1Value);
                                 adsYGainsHrpCacheItem.SetAdsY2(y2Value);
@@ -589,7 +589,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
 
-                var adsYGainsItemDto = new AdsYGainsItemDto()
+                var adsYGainsItemDto = new AdsYGainsItemDto
                 {
                     IsPositive = Cache.IsPositive
                 };
@@ -792,7 +792,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         selectItemDto.PositiveY2P3,
                         selectItemDto.PositiveY3P1,
                         selectItemDto.PositiveY3P2,
-                        selectItemDto.PositiveY3P3,
+                        selectItemDto.PositiveY3P3
                     }), HtmlLogUniqueId.LoggingHtml());
                 else
                     Logger.LogHtmlInformation("Negative", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -808,14 +808,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         selectItemDto.NegativeY5P3,
                         selectItemDto.NegativeY6P1,
                         selectItemDto.NegativeY6P2,
-                        selectItemDto.NegativeY6P3,
+                        selectItemDto.NegativeY6P3
                     }), HtmlLogUniqueId.LoggingHtml());
                 var verifySpeedValueList = Cache.SpeedYValueList.Zip(Cache.SpeedYValueList.Skip(1), (t1, t2) => (t1 + t2) / 2).ToList();
                 foreach (var speedvalueItem in verifySpeedValueList)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     index++;
-                    var adsYGainsHrpCacheItem = new AdsYGainsCacheItem()
+                    var adsYGainsHrpCacheItem = new AdsYGainsCacheItem
                     {
                         Index = index,
                         IsPositive = Cache.IsPositive,
@@ -1014,7 +1014,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             PitchMax = pitchMax,
                             PositiveZ1 = z1,
                             PositiveZ2 = z2,
-                            PositiveZ3 = z3,
+                            PositiveZ3 = z3
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
                 else
@@ -1240,7 +1240,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         {
             Index = index,
             IsPositive = isPositive,
-            SpeedYValue = speedValue,
+            SpeedYValue = speedValue
         };
         adsYGainsCacheItemTemp.SetAdsY1(x1Value);
         adsYGainsCacheItemTemp.SetAdsY2(x2Value);

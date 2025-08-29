@@ -641,7 +641,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                         AodWaveFlatnessSecondaryAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessSecondaryAstigmatismCompensationSignals)], string.Empty),
                         AodWaveFlatnessComaCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessComaCompensationSignals)], string.Empty),
                         AodWaveFlatnessTrefoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessTrefoilCompensationSignals)], string.Empty),
-                        AodWaveFlatnessQuadrafoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessQuadrafoilCompensationSignals)], string.Empty),
+                        AodWaveFlatnessQuadrafoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, item.AodWaveFlatnessQuadrafoilCompensationSignals)], string.Empty)
                     })
                 }), htmlGuid.LoggingHtml());
                 logger.LogHtmlInformation($"ECS: [{EcsMin}, {EcsMax}] STEP: {EcsStep}", HtmlHeaderLevelEnum.Header4, htmlGuid.LoggingHtml());

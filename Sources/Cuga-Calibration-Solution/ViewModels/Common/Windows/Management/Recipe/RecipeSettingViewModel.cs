@@ -630,7 +630,7 @@ public sealed partial class RecipeSettingViewModel(
                     break;
             }
 
-            reticleMarkList.Add(new ReticleMarkItemDto()
+            reticleMarkList.Add(new ReticleMarkItemDto
             {
                 MaskIndex = reticleMarkList.Count != 0 ? reticleMarkList.Last().MaskIndex + 1 : 0
             });

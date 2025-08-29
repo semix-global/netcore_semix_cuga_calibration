@@ -47,7 +47,7 @@
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.TitleWidth="150"
                                          ItemsSource="{Binding LaserLightInformationList}"
-                                         SelectedItem="{Binding Cache.PrescanCoefficient}" />
+                                         SelectedItem="{Binding Cache.PrescanLaserLightInformation}" />
                         </hc:UniformSpacingPanel>
                     </Border>
                     <hc:NumericUpDown hc:InfoElement.Title="Gain: "

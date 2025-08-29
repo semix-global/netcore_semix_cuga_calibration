@@ -457,7 +457,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         [
             .. Calibrations
                 .Where(t => t.LensInformation != itemDto.LensInformation),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)
@@ -518,7 +518,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                         {
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
-                                Cache.AlgorithmTemplateTypeEnum,
+                                Cache.AlgorithmTemplateTypeEnum
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });

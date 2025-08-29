@@ -159,7 +159,7 @@ public sealed partial class CalibrationLaserServiceImpl
             CenterFrequency = currentDarkFieldChirpAodWaveDto.CenterFrequency,
             ZeroNum = currentDarkFieldChirpAodWaveDto.ZeroNum,
             RateChange = rateChange,
-            IncrementChirpAodFilePath = currentDarkFieldChirpAodWaveDto.IncrementChirpAodFilePath,
+            IncrementChirpAodFilePath = currentDarkFieldChirpAodWaveDto.IncrementChirpAodFilePath
         };
 
         var files = Directory.GetFiles(Path.GetDirectoryName(currentDarkFieldChirpAodWaveDto.IncrementChirpAodFilePath)!, "*.txt", SearchOption.AllDirectories);

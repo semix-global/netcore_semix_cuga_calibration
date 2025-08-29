@@ -237,7 +237,7 @@ public sealed class StageMap
                         .. Enumerable.Range(0, ColumnNumber).Select(column => new CgErrorMapCol
                         {
                             Id = column,
-                            Location = ErrorMatrix.ElementAtOrDefault(row)?.ElementAtOrDefault(column) ?? CgPoint.Empty,
+                            Location = ErrorMatrix.ElementAtOrDefault(row)?.ElementAtOrDefault(column) ?? CgPoint.Empty
                         })
                     ]
                 })

@@ -44,5 +44,5 @@ public enum WaferMaskTypeEnum
     DieCorner_LeftBottom,
 
     [Description("Undefined")]
-    Undefined,
+    Undefined
 }
