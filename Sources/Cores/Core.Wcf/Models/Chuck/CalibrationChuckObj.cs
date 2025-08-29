@@ -53,7 +53,7 @@ public sealed class CalibrationChuckObj
     /// <summary>
     /// Stage Map 校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChucStageMapCalibrationName)]
+    [Description(WcfConstantHelper.ChuckStageMapCalibrationName)]
     public CalibrationChuckStageMap CalibrationChuckStageMap { get; set; } = new CalibrationChuckStageMap();
 }
 
