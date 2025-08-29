@@ -22,7 +22,7 @@ public sealed partial class SettingPmtConfigParam : ObservableCacheBase, IAdaptI
     #endregion Mapper
 }
 
-public sealed partial class PmtConfigParam : ObservableCacheBase, IAdaptIn<PmtConfigParam, PmtConfigParam>
+public sealed partial class PmtConfigParam : ObservableCacheBase, IAdaptIn<PmtConfigParam, PmtConfigParam>, ICloneable<PmtConfigParam>
 {
     [ObservableProperty]
     private bool _enabled = true;
@@ -39,6 +39,12 @@ public sealed partial class PmtConfigParam : ObservableCacheBase, IAdaptIn<PmtCo
 
         return obj;
     }
+
+    public PmtConfigParam Clone() => new()
+    {
+        Enabled = Enabled,
+        Id = Id
+    };
 
     #endregion Mapper
 }

@@ -17,6 +17,7 @@ using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.FocusShift;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
@@ -622,6 +623,16 @@ public static class CoreWcfModelsExtension
 
         var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
         if (isOk == false) errorMessage = "Laser XTC is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this LaserDOEAngleDto result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.IsOk;
+        if (isOk == false) errorMessage = "Laser DOE Angle is Empty";
 
         return isOk;
     }
