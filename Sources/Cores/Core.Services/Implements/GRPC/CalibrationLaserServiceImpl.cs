@@ -92,7 +92,19 @@ public sealed partial class CalibrationLaserServiceImpl(
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
 
         return result is null
-            ? SxExecuteRetHelper.CreateError<LaserLightInformation>("Laser Light Information is not single", LaserLightInformation.Default)
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
+    {
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
+
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
@@ -271,7 +283,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         int pmtId,
-        LaserLightInformation? laserLightInformation = null,
+        double? coefficient = null,
         Point? point = null)
     {
         throw new NotImplementedException();

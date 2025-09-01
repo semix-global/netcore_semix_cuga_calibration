@@ -54,11 +54,18 @@ public interface ICalibrationLaserService
     SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList();
 
     /// <summary>
-    /// 功率等级和功率系数互转
+    /// 功率等级和激光光强的信息互转
     /// </summary>
     /// <param name="level">功率等级</param>
-    /// <returns>功率系数</returns>
+    /// <returns>激光光强的信息</returns>
     SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level);
+
+    /// <summary>
+    /// 功率系数和激光光强的信息互转
+    /// </summary>
+    /// <param name="coefficient">功率系数</param>
+    /// <returns>激光光强的信息</returns>
+    SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient);
 
     /// <summary>
     /// 通过chirpAod波形文件路径命名，获得dto参数
@@ -320,13 +327,13 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="calChipSiteModelEnum">CalChip模式</param>
     /// <param name="pmtId">光斑ID</param>
-    /// <param name="laserLightInformation">波形功率系数(1表示100%, 0表示0%) null表示用cuga配置值</param>
+    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%) null表示用cuga配置值</param>
     /// <param name="point">位置 null表示用cuga配置值</param>
     /// <returns>RTFC返回AfEcs和Af电机值</returns>
     SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         int pmtId,
-        LaserLightInformation? laserLightInformation = null,
+        double? coefficient = null,
         Point? point = null);
 
     /// <summary>

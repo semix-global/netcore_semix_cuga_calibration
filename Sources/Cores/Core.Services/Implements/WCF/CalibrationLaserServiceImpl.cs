@@ -110,7 +110,19 @@ public sealed partial class CalibrationLaserServiceImpl(
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
 
         return result is null
-            ? SxExecuteRetHelper.CreateError<LaserLightInformation>("Laser Light Information is not single", LaserLightInformation.Default)
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
+    {
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
+
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
@@ -266,13 +278,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case (> 0, > 0):
+            case ( > 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case (> 0, Constants.NegInt32Value):
+            case ( > 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -422,12 +434,20 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         int pmtId,
-        LaserLightInformation? laserLightInformation = null,
+        double? coefficient = null,
         Point? point = null)
     {
+        ushort? level = null;
+        if (coefficient is not null)
+        {
+            var laserLightInformationRet = CoefficientToLaserLightInformation(coefficient.Value);
+            if (laserLightInformationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(laserLightInformationRet.ErrorMsg);
+            level = Convert.ToUInt16(laserLightInformationRet.Anything.Level);
+        }
+
         var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
             calChipSiteModelEnum.ToCgCalChipType(),
-            (ushort?)(laserLightInformation?.Level ?? null),
+            level,
             point?.ToCgPoint(),
             Convert.ToUInt16(pmtId)));
 
@@ -666,7 +686,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<double> ReadDOECurrentAngle()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadDoePos());
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, default);
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 

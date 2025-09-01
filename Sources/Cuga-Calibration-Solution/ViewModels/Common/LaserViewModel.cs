@@ -84,7 +84,7 @@ public sealed class LaserViewModel(
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
-    
+
     public LaserLightInformation LevelToLaserLightInformation(double level)
     {
         var ret = calibrationLaserService.LevelToLaserLightInformation(level);
@@ -133,9 +133,6 @@ public sealed class LaserViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
-
-    public void SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, LaserLightInformation laserLightInformation) =>
-        SetPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, laserLightInformation.Coefficient);
 
     public void SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
@@ -291,12 +288,12 @@ public sealed class LaserViewModel(
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         int pmtId = CalibrationConstantsHelper.MainPmtId)
     {
-        var coefficient = laserLightInformation is null ? laserLightInformation : calibrationSetting.SettingCommonParam.MainLaserLightInformation;
+        var lightInformation = laserLightInformation is null ? laserLightInformation : calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
         if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && point is not null)
             point = stageViewModel.MachineToBrightFieldPosition(point.Value);
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, coefficient, point);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

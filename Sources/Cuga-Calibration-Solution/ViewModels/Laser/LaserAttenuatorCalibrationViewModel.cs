@@ -260,7 +260,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(ResultLaserAttenuatorObjDto.StagePosition);
         LaserViewModel.ToggleOpticsMagType(ResultLaserAttenuatorObjDto.OpticsMagTypeEnum);
         LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainLaserLightInformation);
+        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 

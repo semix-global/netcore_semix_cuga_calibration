@@ -370,7 +370,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 }), htmlGuid.LoggingHtml());
 
                 cancellationToken.ThrowIfCancellationRequested();
-                laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanLaserLightInformation);
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanLaserLightInformation.Coefficient);
                 laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.ChirpAodWaveFilePath)]);
 
                 using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(

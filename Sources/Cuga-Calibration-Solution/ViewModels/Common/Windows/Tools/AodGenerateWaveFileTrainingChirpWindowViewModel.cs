@@ -649,7 +649,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 foreach (var (index, ecs) in Generate.LinearRange(EcsMin, EcsStep, EcsMax).Select((t, i) => (Index: i, Ecs: t)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanLaserLightInformation);
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanLaserLightInformation.Coefficient);
                     laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.ChirpAodWaveFilePath)]);
 
                     afViewModel.ToggleBrightFieldEnable(false);
