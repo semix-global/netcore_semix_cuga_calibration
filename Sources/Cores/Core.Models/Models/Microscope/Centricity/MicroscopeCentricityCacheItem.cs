@@ -8,7 +8,7 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityCacheItem : CalibrationDtoBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = new();
+    private MicroscopeLensInformation _lensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner;

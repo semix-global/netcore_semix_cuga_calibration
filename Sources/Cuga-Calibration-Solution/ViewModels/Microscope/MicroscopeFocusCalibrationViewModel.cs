@@ -134,7 +134,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.LensInformation.Magnification)
+                .OrderBy(t => t.LensInformation.ObjectiveMagnification)
                 .ThenBy(t => t.LensInformation.LensCode)
         ];
 

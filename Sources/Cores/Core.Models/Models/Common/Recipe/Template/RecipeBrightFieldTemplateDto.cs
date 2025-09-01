@@ -7,7 +7,7 @@ namespace Core.Models.Models.Common.Recipe.Template;
 public sealed partial class RecipeBrightFieldTemplateDto : RecipeTemplateDtoBase, ICloneable<RecipeBrightFieldTemplateDto>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
 
     public RecipeBrightFieldTemplateDto Clone() => new()
     {

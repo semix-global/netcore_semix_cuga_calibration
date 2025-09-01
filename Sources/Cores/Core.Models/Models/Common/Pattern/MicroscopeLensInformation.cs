@@ -18,7 +18,7 @@ public sealed class MicroscopeLensInformation :
 
     private string _lensName = "N/A";
     private int _lensCode = -1;
-    private double _magnification = -1;
+    private double _objectiveMagnification = -1;
 
     public string LensName
     {
@@ -32,13 +32,13 @@ public sealed class MicroscopeLensInformation :
         private set => SetProperty(ref _lensCode, value);
     }
 
-    public double Magnification
+    public double ObjectiveMagnification
     {
-        get => _magnification;
-        private set => SetProperty(ref _magnification, value);
+        get => _objectiveMagnification;
+        private set => SetProperty(ref _objectiveMagnification, value);
     }
 
-    internal MicroscopeLensInformation()
+    private MicroscopeLensInformation()
     {
     }
 
@@ -48,7 +48,7 @@ public sealed class MicroscopeLensInformation :
 
     public override bool Equals(object? obj) => obj is MicroscopeLensInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, Magnification);
+    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, ObjectiveMagnification);
 
     public override string ToString() => ToString(null);
 
@@ -65,7 +65,7 @@ public sealed class MicroscopeLensInformation :
         (_, null) => false,
         (_, _) => ReferenceEquals(left, right) || (Equals(left.LensName, right.LensName) &&
                                                    Equals(left.LensCode, right.LensCode) &&
-                                                   Equals(left.Magnification, right.Magnification))
+                                                   Equals(left.ObjectiveMagnification, right.ObjectiveMagnification))
     };
 
     public static bool operator !=(MicroscopeLensInformation? left, MicroscopeLensInformation? right) => !(left == right);
@@ -74,7 +74,7 @@ public sealed class MicroscopeLensInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string lensName, out int lensCode, out double magnification) => (lensName, lensCode, magnification) = (LensName, LensCode, Magnification);
+    public void Deconstruct(out string lensName, out int lensCode, out double magnification) => (lensName, lensCode, magnification) = (LensName, LensCode, ObjectiveMagnification);
 
     #endregion Deconstruct
 
@@ -86,7 +86,7 @@ public sealed class MicroscopeLensInformation :
         LensCode = Enum.IsDefined(typeof(CgMicroscopeLens), LensCode)
             ? (CgMicroscopeLens)LensCode
             : ThrowHelper.ThrowArgumentOutOfRangeException<CgMicroscopeLens>(nameof(LensCode)),
-        Lens = Convert.ToInt32(Magnification)
+        Lens = Convert.ToInt32(ObjectiveMagnification)
     };
 
     public MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
@@ -95,7 +95,7 @@ public sealed class MicroscopeLensInformation :
 
         LensCode = (int)obj.LensCode;
         LensName = obj.LensName;
-        Magnification = obj.Lens;
+        ObjectiveMagnification = obj.Lens;
 
         return this;
     }
@@ -104,7 +104,7 @@ public sealed class MicroscopeLensInformation :
     {
         LensName = LensName,
         LensCode = LensCode,
-        Magnification = Magnification
+        ObjectiveMagnification = ObjectiveMagnification
     };
 
     #endregion Mapper

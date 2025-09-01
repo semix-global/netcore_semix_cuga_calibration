@@ -32,10 +32,10 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
     private SettingDarkFieldAutoFocusParam _highMagDarkFieldAutoFocusParam = new();
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Undefined;

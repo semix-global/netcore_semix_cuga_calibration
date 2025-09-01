@@ -10,7 +10,7 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeCacheItem : ObservableCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = new();
+    private MicroscopeLensInformation _lensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_100um;

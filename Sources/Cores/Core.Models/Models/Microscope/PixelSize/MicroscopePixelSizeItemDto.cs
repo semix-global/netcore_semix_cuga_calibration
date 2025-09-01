@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>, IAdaptIn<CalibrationMicroscopePixelSizeItem, MicroscopePixelSizeItemDto>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = new();
+    private MicroscopeLensInformation _lensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _findPosition;

@@ -10,7 +10,7 @@ namespace Core.Models.Models.Chuck.DarkFieldStageMap;
 public sealed partial class ChuckDarkFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckDarkFieldStageMapDto>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

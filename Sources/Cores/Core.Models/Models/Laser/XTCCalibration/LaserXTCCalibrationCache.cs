@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.XTCCalibration;
 public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

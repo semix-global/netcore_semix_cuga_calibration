@@ -143,7 +143,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.LensInformation.Magnification)
+                .OrderBy(t => t.LensInformation.ObjectiveMagnification)
                 .ThenBy(t => t.LensInformation.LensCode)
         ];
 

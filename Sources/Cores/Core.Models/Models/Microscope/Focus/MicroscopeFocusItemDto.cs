@@ -14,7 +14,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
     private int _index;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = new();
+    private MicroscopeLensInformation _lensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _findPosition;

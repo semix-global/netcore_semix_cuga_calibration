@@ -13,7 +13,7 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     private double _threshold = 50;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private double _verifyResultError;
