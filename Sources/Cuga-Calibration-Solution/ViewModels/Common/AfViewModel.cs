@@ -70,9 +70,16 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetEcsToUmRatio()
+    public double GetNmPerEcs()
     {
-        var ret = calibrationAfService.GetEcsToUmRatio();
+        var ret = calibrationAfService.GetNmPerEcs();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public double GetEcsPerOffsetMotorMm()
+    {
+        var ret = calibrationAfService.GetEcsPerOffsetMotorMm();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -138,6 +145,13 @@ public sealed class AfViewModel(
         var ret = calibrationAfService.GetSensorNscCompensation();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ResetSensorNscCompensation()
+    {
+        var ret = calibrationAfService.SetSensorNscCompensation(0, 1);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void SetSensorNscCompensation(double offset, double gain)

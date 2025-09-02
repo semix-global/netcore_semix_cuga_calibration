@@ -375,9 +375,9 @@ public sealed partial class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetXYGlobalScale()
+    public void ResetXYGlobalScale()
     {
-        var ret = calibrationStageService.SetXYGlobalScale(1.0, 1.0);
+        var ret = calibrationStageService.SetXYGlobalScale(1, 1);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -385,6 +385,13 @@ public sealed partial class StageViewModel(
     public void SetXYGlobalScale(double xScale, double yScale)
     {
         var ret = calibrationStageService.SetXYGlobalScale(xScale, yScale);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ResetTScale()
+    {
+        var ret = calibrationStageService.SetTScale(1);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

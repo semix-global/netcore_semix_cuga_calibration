@@ -462,7 +462,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         try
         {
             if (string.IsNullOrWhiteSpace(menuName)) return;
-            if (menuName == CalibrationTypeEnum.AutoCalibration.ToString())
+            if (menuName == nameof(CalibrationTypeEnum.AutoCalibration))
             {
                 await CancelAsync();
                 if (!IsAutoCalibrate)

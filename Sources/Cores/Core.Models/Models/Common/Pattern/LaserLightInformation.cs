@@ -10,6 +10,7 @@ public class LaserLightInformation :
     ObservableObject,
     IEquatable<LaserLightInformation>,
     IFormattable,
+    IAdaptTo<CgLightConfig>,
     IAdaptIn<CgLightConfig, LaserLightInformation>,
     ICloneable<LaserLightInformation>
 {
@@ -76,6 +77,12 @@ public class LaserLightInformation :
     #endregion Deconstruct
 
     #region Mapper
+
+    public CgLightConfig AdaptTo() => new()
+    {
+        LightProp = Level,
+        LightCoeff = Coefficient
+    };
 
     public LaserLightInformation AdaptIn(CgLightConfig obj)
     {

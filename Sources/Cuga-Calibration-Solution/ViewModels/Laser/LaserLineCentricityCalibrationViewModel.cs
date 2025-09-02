@@ -20,7 +20,6 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using Microsoft.Extensions.Logging;
@@ -40,8 +39,7 @@ namespace CugaCalibration.ViewModels.Laser;
 public sealed partial class LaserLineCentricityCalibrationViewModel(
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     EnableOpticsMagWindowViewModel enableOpticsMagWindowViewModel,
-    EnableStageSpeedWindowViewModel enableStageSpeedWindowViewModel,
-    CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+    EnableStageSpeedWindowViewModel enableStageSpeedWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -227,7 +225,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 ? ApplicationCookie.MicroscopeLensInformationList[^1]
                 : ApplicationCookie.MicroscopeLensInformationList[2];
 
-        Cache.PmtInterval = calibrationSetting.SettingCommonParam.PmtInterval;
+        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -641,7 +639,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 pmtList.Add(pmt);
             }
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
             if (pmtConfig
                     .Where(t => t.Enabled)

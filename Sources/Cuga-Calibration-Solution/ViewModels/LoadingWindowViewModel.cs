@@ -73,9 +73,11 @@ public sealed partial class LoadingWindowViewModel(
 
             Message = "Connected OK!!!";
 
+            var deviceCode = configViewModel.GetDeviceCode();
             var microscopeLensInformationList = microscopeViewModel.GetMicroscopeLensInformationList();
             var laserLightInformationList = laserViewModel.GetLaserLightInformationList();
 
+            applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformationList = [.. microscopeLensInformationList.Select(t => t.Clone())];
             applicationCookie.LaserLightInformationList = laserLightInformationList;
 

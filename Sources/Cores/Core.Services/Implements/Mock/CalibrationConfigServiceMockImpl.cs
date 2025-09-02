@@ -22,6 +22,13 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<string> GetDeviceCode()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess("Demo");
+    }
+
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
         var fileCacheDirectoryPath = $"{options.Value.AppHomeDirectory}\\CalibrationResult";

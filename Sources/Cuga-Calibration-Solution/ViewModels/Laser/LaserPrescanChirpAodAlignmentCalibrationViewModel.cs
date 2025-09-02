@@ -4,7 +4,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -14,7 +13,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Setting;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -39,13 +37,11 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPrescanChirpAodAlignmentCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
-    CalibrationSetting calibrationSetting,
-    ApplicationCookie applicationCookie) : CalibrationViewModelBase
+public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
@@ -392,7 +388,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                 item.PrescanSignals = aodWaveSignals;
                 item.PrescanFouriers = aodWaveSignalsFourier;
 
-                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, calibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
+                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
                 var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
                 if (isSuccess == false)

@@ -637,8 +637,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(FocusShiftCache.HighSiteFindPosition);
             }
         }, cancellationToken).ConfigureAwait(false);
-        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"FocusShiftCalibration_{(result ? "OK" : "Failed")}"));
-        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
+        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"FocusShiftCalibration_{(result ? "OK" : "Failed")}"));
     }
 
     public override async Task<bool> DiagnosisActionAsync(CancellationToken cancellationToken)
@@ -655,8 +654,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     Logger.LogHtmlInformation($"{LogHtmlFileName}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
                     PlotList.Clear();
                     result = await DiagnosisAsync(cancellationToken).ConfigureAwait(false);
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{DiagnosisHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
                     if (resultEnum is DialogResultEnum.No)
                         return result;
                 }

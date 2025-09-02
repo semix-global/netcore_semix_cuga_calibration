@@ -67,9 +67,20 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.Mode == AutofocusMode.Review, sxExecuteRet.Anything.CalChipType.ToCalChipModelEnum()));
     }
 
-    public SxExecuteRet<double> GetEcsToUmRatio()
+    public SxExecuteRet<double> GetNmPerEcs()
     {
-        return SxExecuteRetHelper.CreateSuccess(0.2d);
+        var sxExecuteRet = Invoke(() => Service!.ReadAutofocusECSUnit());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<double> GetEcsPerOffsetMotorMm()
+    {
+        var sxExecuteRet = Invoke(() => Service!.ReadAutofocusOffsetUnit());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<double> GetSensorEcsValue()

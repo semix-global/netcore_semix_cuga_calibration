@@ -5,7 +5,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -18,7 +17,6 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
@@ -44,13 +42,11 @@ using MoreLinq.Extensions;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXTCCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXTCCalibrationViewModel(
-    CalibrationSetting calibrationSetting,
-    ApplicationCookie applicationCookie) : CalibrationViewModelBase
+public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
@@ -437,7 +433,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 pmtList.Add(pmt);
             }
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
             if (pmtConfig?.Count > 0)
             {
                 LaserXTCCalibrationItemDtoList = [.. pmtList.Where(t => pmtConfig[t.PmtId - 1].Enabled).ToList()];
@@ -603,7 +599,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
 
-                var coefficient = calibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient;
+                var coefficient = CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient;
                 var resultPrescanWindowList = new List<double>();
 
                 for (var i = 0; i < startIndex; i++) // 1-1499, 都是按照系数来
