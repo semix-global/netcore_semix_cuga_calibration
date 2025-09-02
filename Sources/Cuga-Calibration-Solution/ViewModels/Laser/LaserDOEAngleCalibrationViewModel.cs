@@ -19,7 +19,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Setting;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using MoreLinq.Extensions;

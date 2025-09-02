@@ -20,7 +20,6 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using Microsoft.Extensions.Logging;

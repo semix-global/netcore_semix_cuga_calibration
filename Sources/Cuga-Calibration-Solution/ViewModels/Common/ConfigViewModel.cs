@@ -19,7 +19,7 @@ public sealed class ConfigViewModel(
 
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
-    
+
     public string GetDeviceCode()
     {
         var ret = calibrationConfigService.GetDeviceCode();

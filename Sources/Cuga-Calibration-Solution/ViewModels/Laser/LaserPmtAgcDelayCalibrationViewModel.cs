@@ -10,7 +10,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Setting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
