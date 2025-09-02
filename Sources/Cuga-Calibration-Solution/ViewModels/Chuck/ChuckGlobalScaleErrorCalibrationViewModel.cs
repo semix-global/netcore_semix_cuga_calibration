@@ -172,7 +172,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
     protected override async Task<bool> CancelingAsync()
     {
         if (CacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk == false)
-            StageViewModel.SetXYGlobalScale();
+            StageViewModel.ResetXYGlobalScale();
 
         return await base.CancelingAsync().ConfigureAwait(false);
     }
@@ -295,7 +295,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                     if (Save(ResultGlobalScaleErrorDto, cancellationToken) == false)
                     {
                         ResultGlobalScaleErrorDto.IsCalibrated = false;
-                        StageViewModel.SetXYGlobalScale();
+                        StageViewModel.ResetXYGlobalScale();
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }
@@ -574,7 +574,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 { StageDirectionTypeEnum.Right, Cache.HighGlobalScaleErrorCacheItem.RightPosition }
             };
 
-            StageViewModel.SetXYGlobalScale();
+            StageViewModel.ResetXYGlobalScale();
 
             List<Point> calibrationScaleErrorList = [];
             List<(double x, double y)> calibrationScaleList = [];

@@ -57,11 +57,18 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess((true, _calChipSiteModelEnum));
     }
 
-    public SxExecuteRet<double> GetEcsToUmRatio()
+    public SxExecuteRet<double> GetNmPerEcs()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(0.2d);
+        return SxExecuteRetHelper.CreateSuccess(200d);
+    }
+
+    public SxExecuteRet<double> GetEcsPerOffsetMotorMm()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(23d);
     }
 
     public SxExecuteRet<double> GetSensorEcsValue()

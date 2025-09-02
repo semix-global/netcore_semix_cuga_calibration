@@ -96,8 +96,7 @@ public partial class AdsDiagnosisViewModelBase(
             result = false;
         }
 
-        logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
-        logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
+        logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{DiagnosisHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
         HtmlLogUniqueId = Guid.NewGuid();
     }
 

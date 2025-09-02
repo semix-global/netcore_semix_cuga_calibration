@@ -32,6 +32,14 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
         }, false);
     }
 
+    public SxExecuteRet<string> GetDeviceCode()
+    {
+        var sxExecuteRet = Invoke(() => Service!.ReadDeviceCode());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, string.Empty);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
         var sxExecuteRet = Invoke(() => Service!.GetCalibrationFilePath());

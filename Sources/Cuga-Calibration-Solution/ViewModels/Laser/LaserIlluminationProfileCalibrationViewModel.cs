@@ -7,7 +7,6 @@ using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -21,13 +20,11 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
-using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using Humanizer;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MoreLinq;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Modules;
@@ -49,10 +46,7 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserIlluminationProfileCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserIlluminationProfileCalibrationViewModel(
-    CalibrationSetting calibrationSetting,
-    ApplicationCookie applicationCookie,
-    IOptions<ApplicationSetting> options) : CalibrationViewModelBase
+public sealed partial class LaserIlluminationProfileCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -72,7 +66,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         new() { StepName = "Illumination" }
     ];
 
-    public string PrescanFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Prescan", nameof(LaserIlluminationProfileCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string PrescanFileDirectory => Path.Combine(AppHomeDirectory, "Prescan", nameof(LaserIlluminationProfileCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     #region 界面相关
 
@@ -85,13 +79,10 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     private SettingDarkFieldGainViewModel _darkFieldImageListToPrescanListSettingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndLaserLightInformationCalibration> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(applicationCookie.LaserLightInformationList)] })
-    ];
+    private ObservableCollection<OpticsMagTypeEnumAndLaserLightInformationCalibration> _calibrationStatusList;
 
     [ObservableProperty]
-    private ObservableCollection<LaserLightInformationStatus> _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(applicationCookie.LaserLightInformationList)];
+    private ObservableCollection<LaserLightInformationStatus> _calibrationStatusListItem;
 
     [ObservableProperty]
     private ObservableCollection<LaserIlluminationProfileItemDto> _calibrationLaserIlluminationProfileDtoList = [];
@@ -157,6 +148,15 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
     #endregion 缓存
 
     #endregion 属性
+
+    public LaserIlluminationProfileCalibrationViewModel()
+    {
+        _calibrationStatusList =
+        [
+            ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformationList)] })
+        ];
+        _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformationList)];
+    }
 
     #region 控制校准业务
 
@@ -288,9 +288,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
                 var calibrationSettingMiddleMagSettingDarkFieldGainParam = Cache.OpticsMagTypeEnum switch
                 {
-                    OpticsMagTypeEnum.Low => calibrationSetting.LowMagSettingDarkFieldGainParam,
-                    OpticsMagTypeEnum.Middle => calibrationSetting.MiddleMagSettingDarkFieldGainParam,
-                    OpticsMagTypeEnum.High => calibrationSetting.HighMagSettingDarkFieldGainParam,
+                    OpticsMagTypeEnum.Low => CalibrationSetting.LowMagSettingDarkFieldGainParam,
+                    OpticsMagTypeEnum.Middle => CalibrationSetting.MiddleMagSettingDarkFieldGainParam,
+                    OpticsMagTypeEnum.High => CalibrationSetting.HighMagSettingDarkFieldGainParam,
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<ObservableCollection<SettingDarkFieldGainParam>>(nameof(Cache.OpticsMagTypeEnum))
                 };
                 AutoGainSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t is { PmtId: 8, ChannelId: 3 });
@@ -480,7 +480,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var contains = applicationCookie.LaserLightInformationList.Contains(Cache.LaserLightInformation);
+            var contains = ApplicationCookie.LaserLightInformationList.Contains(Cache.LaserLightInformation);
             if (contains) return contains;
 
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Laser Light Information is not exist!"), HtmlLogUniqueId.LoggingHtml());
@@ -502,7 +502,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
 
             Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt = mainPmtCacheItem;
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
             if (pmtConfig.Single((t => t.Id == CalibrationConstantsHelper.MainPmtId)).Enabled == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Config pmt8 setting is enable!"), HtmlLogUniqueId.LoggingHtml());

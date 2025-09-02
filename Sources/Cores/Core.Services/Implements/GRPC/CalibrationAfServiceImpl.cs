@@ -65,9 +65,14 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<double> GetEcsToUmRatio()
+    public SxExecuteRet<double> GetNmPerEcs()
     {
-        return SxExecuteRetHelper.CreateSuccess(0.2d);
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<double> GetEcsPerOffsetMotorMm()
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<double> GetSensorEcsValue()

@@ -7,7 +7,6 @@ using System.Linq;
 
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
-
 #else
 using Cuga.Data.DataStruct.ADS;
 

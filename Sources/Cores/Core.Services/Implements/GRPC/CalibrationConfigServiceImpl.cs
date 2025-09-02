@@ -25,6 +25,11 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         });
     }
 
+    public SxExecuteRet<string> GetDeviceCode()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
         var sxExecuteRet = Invoke(() => Service?.GetCalibrationFilePath());

@@ -10,7 +10,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Setting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
@@ -30,7 +29,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPmtAgcDelayCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -221,7 +220,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel(CalibrationSett
         {
             LaserPmtAgcDelayItemDtoList = [];
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
             Cache.PmtIdList = [.. LaserViewModel.GetIsUsedCIBConfigList().Select(t => t.PmtId)];
             var darkFieldPmtDelayDtos = LaserViewModel.GetCIBDelayList();
