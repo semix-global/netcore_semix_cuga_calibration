@@ -9,7 +9,6 @@
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:children="clr-namespace:CugaCalibration.Views.Laser.DOEAngle.Children"
-             xmlns:doeAngle="clr-namespace:CugaCalibration.Views.Laser.DOEAngle"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPixelSizeCalibrationViewModel}"
              d:DesignHeight="900"

@@ -178,7 +178,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     protected override async Task<bool> CancelingAsync()
     {
         if (CacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>().IsOk == false)
-            StageViewModel.SetTScale(1.0);
+            StageViewModel.ResetTScale();
 
         return await base.CancelingAsync().ConfigureAwait(false);
     }
@@ -301,7 +301,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                     if (Save(ResultRotateScaleErrorDto, cancellationToken) == false)
                     {
                         ResultRotateScaleErrorDto.IsCalibrated = false;
-                        StageViewModel.SetTScale(1.0);
+                        StageViewModel.ResetTScale();
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }

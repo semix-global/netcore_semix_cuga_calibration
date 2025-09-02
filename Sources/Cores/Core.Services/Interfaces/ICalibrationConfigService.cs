@@ -13,6 +13,12 @@ public interface ICalibrationConfigService
     SxExecuteRet<bool> Connect();
 
     /// <summary>
+    /// 读取设备编码
+    /// </summary>
+    /// <returns>设备编码</returns>
+    SxExecuteRet<string> GetDeviceCode();
+
+    /// <summary>
     /// 获得cuga应用的校准Result文件全路径文件名
     /// </summary>
     /// <returns>result文件路径</returns>

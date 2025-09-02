@@ -52,6 +52,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     protected readonly ICacheProvider RecipeCacheProvider;
     protected readonly ICalibrationStatusService CalibrationStatusService;
     protected readonly ICalibrationRecipeService CalibrationRecipeService;
+    protected readonly ApplicationCookie ApplicationCookie;
     protected readonly CalibrationSetting CalibrationSetting;
     protected readonly string AppHomeDirectory;
 
@@ -61,9 +62,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     private CancellationTokenSource? _cancellationTokenSource;
 
     #region 属性
-
-    [ObservableProperty]
-    private ApplicationCookie _applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
     #region ViewModels
 
@@ -266,6 +264,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey);
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
+        ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         CalibrationSetting = HostApplication.GetRequiredService<CalibrationSetting>();
 
         Messenger.RegisterAll(this);
@@ -399,7 +398,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             {
                 CancelToken();
 
-                if (ViewEnum == CalibrationItemViewEnum.Calibration) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{CalibrateHtmlLogFileName}_Step1-Step{CalibrationStepIndex + 1}_Failed"));
+                if (ViewEnum == CalibrationItemViewEnum.Calibration) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{ApplicationCookie.DeviceCode}_{CalibrateHtmlLogFileName}_Step1-Step{CalibrationStepIndex + 1}_Failed"));
 
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 if (await CancelingAsync().ConfigureAwait(false) == false)
@@ -637,6 +636,16 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     #region 校准
 
+    protected Task<bool> InvokeCalibrateAsync(Func<Task<bool>> func, string comment = "")
+    {
+        return InvokeCalibrateAsync(() => func.Invoke().GetAwaiter().GetResult(), comment);
+    }
+
+    protected Task<bool> InvokeVerifyAsync(Func<Task<bool>> func)
+    {
+        return InvokeVerifyAsync(() => func.Invoke().GetAwaiter().GetResult());
+    }
+
     protected async Task<bool> InvokeCalibrateAsync(Func<bool> func, string comment = "")
     {
         if (IsAutoCalibrate)
@@ -685,12 +694,12 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             if (IsAutoCalibrate)
             {
-                if (AutoCalibrationStepIndex == AutoCalibrationStepList.Count - 1 || !result) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{CalibrationTypeEnum.AutoCalibration.ToString()}_{calibrateName}_{(result ? "OK" : "Failed")}"));
+                if (AutoCalibrationStepIndex == AutoCalibrationStepList.Count - 1 || !result) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.AutoCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{(result ? "OK" : "Failed")}"));
             }
             else
             {
                 UpdatePreviousNextStatus();
-                if (CalibrationStepIndex == CalibrationStepList.Count - 1 || !result) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{CalibrationTypeEnum.HandleCalibration.ToString()}_{calibrateName}_{CalibrateHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
+                if (CalibrationStepIndex == CalibrationStepList.Count - 1 || !result) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{CalibrateHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
             }
         }
     }
@@ -732,20 +741,10 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             UpdateReviewStatus();
             if (IsAutoCalibrate)
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.AutoVerify)}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.AutoVerify)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
             else
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
         }
-    }
-
-    protected Task<bool> InvokeCalibrateAsync(Func<Task<bool>> func, string comment = "")
-    {
-        return InvokeCalibrateAsync(() => func.Invoke().GetAwaiter().GetResult(), comment);
-    }
-
-    protected Task<bool> InvokeVerifyAsync(Func<Task<bool>> func)
-    {
-        return InvokeVerifyAsync(() => func.Invoke().GetAwaiter().GetResult());
     }
 
     protected bool InvokeSave(Func<Action<ICacheItem>, bool> func)
@@ -888,6 +887,8 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             if (!IsAutoCalibrate)
             {
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
+                HtmlLogUniqueId = Guid.NewGuid();
                 DialogWindowProvider.ShowDialog($"Calibration {Name} Ok!");
             }
 

@@ -6,7 +6,6 @@ using System.ComponentModel;
 
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
-
 #else
 using Cuga.Data.DataStruct.ADS;
 using Cuga.Data.DataStruct.PMT;

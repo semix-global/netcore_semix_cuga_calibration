@@ -14,6 +14,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     private string _applicationName = string.Empty;
 
     /// <summary>
+    /// 设备编码
+    /// </summary>
+    [ObservableProperty]
+    private string _deviceCode = string.Empty;
+
+    /// <summary>
     /// 用户
     /// </summary>
     [ObservableProperty]
