@@ -113,7 +113,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveSignals,
                     aodWaveSignalsFourier,
                     aodWaveFrequencyAmplitudes,
-                    exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                    exception) = AODWaveformGenerator.GenerateChirpAodWaveFile(
                     GenerateChirpAodWaveParamDto.BandWidth,
                     GenerateChirpAodWaveParamDto.CenterFrequency,
                     GenerateChirpAodWaveParamDto.SoundPackageLength,
@@ -238,7 +238,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveSignals,
                     aodWaveSignalsFourier,
                     aodWaveFrequencyAmplitudes,
-                    exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                    exception) = AODWaveformGenerator.GeneratePrescanAodWaveFile(
                     GeneratePrescanAodWaveParamDto.BandWidth,
                     GeneratePrescanAodWaveParamDto.CenterFrequency,
                     GeneratePrescanAodWaveParamDto.FlatnessTime,

@@ -41,7 +41,7 @@ public sealed partial class CalibrationLaserServiceImpl
                 aodWaveSignals,
                 aodWaveSignalsFourier,
                 aodWaveFrequencyAmplitudes,
-                exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                exception) = AODWaveformGenerator.GeneratePrescanAodWaveFile(
                 generatePrescanAodWaveParamDto.BandWidth,
                 generatePrescanAodWaveParamDto.CenterFrequency,
                 generatePrescanAodWaveParamDto.FlatnessTime,
@@ -96,7 +96,7 @@ public sealed partial class CalibrationLaserServiceImpl
                 aodWaveSignals,
                 aodWaveSignalsFourier,
                 aodWaveFrequencyAmplitudes,
-                exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                exception) = AODWaveformGenerator.GenerateChirpAodWaveFile(
                 generateChirpAodWaveParamDto.BandWidth,
                 generateChirpAodWaveParamDto.CenterFrequency,
                 generateChirpAodWaveParamDto.SoundPackageLength,
