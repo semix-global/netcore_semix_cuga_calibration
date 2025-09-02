@@ -12,6 +12,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Core.Models.Models.Setting;
+using Cuga.Data.DataStruct.PMT;
 
 #if NET
 using Core.Services.Implements.GRPC;
@@ -80,34 +81,44 @@ public sealed class CalibrationLaserServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([
-            new LaserLightInformation { Level = 170, Coefficient = 0.85 },
-            new LaserLightInformation { Level = 157, Coefficient = 0.785 },
-            new LaserLightInformation { Level = 127, Coefficient = 0.635 },
-            new LaserLightInformation { Level = 99, Coefficient = 0.495 },
-            new LaserLightInformation { Level = 78, Coefficient = 0.39 },
-            new LaserLightInformation { Level = 67, Coefficient = 0.335 },
-            new LaserLightInformation { Level = 52, Coefficient = 0.26 },
-            new LaserLightInformation { Level = 38, Coefficient = 0.19 },
-            new LaserLightInformation { Level = 24, Coefficient = 0.12 },
-            new LaserLightInformation { Level = 14, Coefficient = 0.07 },
-            new LaserLightInformation { Level = 10, Coefficient = 0.05 },
-            new LaserLightInformation { Level = 7, Coefficient = 0.035 },
-            new LaserLightInformation { Level = 1, Coefficient = 0.005 },
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 170, LightCoeff = 0.85 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 157, LightCoeff = 0.785 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 127, LightCoeff = 0.635 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 99, LightCoeff = 0.495 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 78, LightCoeff = 0.39 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 67, LightCoeff = 0.335 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 52, LightCoeff = 0.26 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 38, LightCoeff = 0.19 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 24, LightCoeff = 0.12 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 14, LightCoeff = 0.07 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 10, LightCoeff = 0.05 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 7, LightCoeff = 0.035 }),
+            LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 1, LightCoeff = 0.005 })
         ]);
     }
 
-    public SxExecuteRet<double> LevelToCoefficient(double level)
+    public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
         var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Single(m => m.Level - level == 0).Coefficient);
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<double> CoefficientToLevel(double coefficient)
+    public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
     {
         var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Single(m => m.Coefficient - coefficient == 0).Level);
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
     }
 
     public SxExecuteRet<DarkFieldChirpAodWaveDto> ReadChirpAodByCustomFile(string filePath)
@@ -328,7 +339,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        int pmtId,
+        double? coefficient = null,
+        Point? point = null)
     {
         Thread.Sleep(100);
 

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -15,7 +16,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
     private Point _findPosition;
 
     [ObservableProperty]
-    private double _prescanCoefficient;
+    private LaserLightInformation _prescanLaserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private double _gain;
@@ -53,7 +54,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         FindPosition = FindPosition,
-        PrescanCoefficient = PrescanCoefficient,
+        PrescanLaserLightInformation = PrescanLaserLightInformation.Clone(),
         Gain = Gain,
         Items = [.. Items.Select(x => x.Clone())],
         Slope = Slope,

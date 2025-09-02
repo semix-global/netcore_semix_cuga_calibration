@@ -334,7 +334,7 @@ public sealed partial class MainWindowViewModel(
                 [
                     new HtmlImageCrossOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
-                ]),
+                ])
             })
         }), guid.LoggingHtml());
         logger.LogHtmlInformation("Tab", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -398,7 +398,7 @@ public sealed partial class MainWindowViewModel(
                 [
                     new HtmlImageCrossOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
-                ]),
+                ])
             })
         }), guid.LoggingHtml());
 

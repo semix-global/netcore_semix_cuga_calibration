@@ -805,7 +805,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel : Calibration
         [
             .. Calibrations
                 .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)

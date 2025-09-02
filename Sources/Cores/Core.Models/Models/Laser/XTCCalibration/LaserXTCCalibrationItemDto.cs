@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.XTCCalibration;
 public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICloneable<LaserXTCCalibrationItemDto>, IAdaptTo<CalibrationLaserXTCCalibrationItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

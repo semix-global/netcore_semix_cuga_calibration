@@ -10,7 +10,7 @@ namespace Core.Models.Models.Laser.LineCentricity;
 public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

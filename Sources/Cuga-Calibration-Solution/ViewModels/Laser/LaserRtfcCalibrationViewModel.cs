@@ -510,7 +510,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 FocusShiftCache.LowSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    LowSiteTemplateImage = new HtmlImage(FocusShiftCache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    LowSiteTemplateImage = new HtmlImage(FocusShiftCache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -534,7 +534,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 FocusShiftCache.HighSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    HighSiteTemplateImage = new HtmlImage(FocusShiftCache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    HighSiteTemplateImage = new HtmlImage(FocusShiftCache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -560,14 +560,14 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 FocusShiftCache.HighSiteFindPosition,
                 settingDarkFieldAutoFocusParam.IsEnableDsw,
                 settingDarkFieldAutoFocusParam.DswEcsValue,
-                settingDarkFieldAutoFocusParam.DswMotorValue,
+                settingDarkFieldAutoFocusParam.DswMotorValue
             }), HtmlLogUniqueId.LoggingHtml());
 
             AfViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, FocusShiftCache.OpticsMagTypeEnum, FocusShiftCache.CalChipSiteModelEnum);
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 FocusShiftCache.HighSiteFindPosition,
-                (false, FocusShiftCache.LightCoefficient),
+                (false, FocusShiftCache.LaserLightInformation),
                 false,
                 FocusShiftCache.CIBConfiguration,
                 800,
@@ -609,7 +609,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 darkFieldFindPosition = FocusShiftCache.HighSiteFindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -669,7 +669,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     {
                         LowSiteTemplateImage = new HtmlImage(FocusShiftCache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                         HighSiteTemplateImage = new HtmlImage(FocusShiftCache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -741,7 +741,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                     FocusShiftCache.CalChipSiteModelEnum,
                     Cache.IdeaDarkFieldMachinePosition,
-                    (false, FocusShiftCache.LightCoefficient),
+                    (false, FocusShiftCache.LaserLightInformation),
                     true,
                     FocusShiftCache.CIBConfiguration,
                     800,
@@ -764,18 +764,18 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     autoFocusNsc,
                     NscDiagnosisK,
                     NscDiagnosisTraceBuffers = new HtmlPlot2DLinesChart([
-                        ("Ecs-Nsc", nscDiagnosis),
+                        ("Ecs-Nsc", nscDiagnosis)
                     ], "NscDiagnosisTraceBuffers"),
                     IdeaEcsNscTraceBuffer = new HtmlPlot2DLinesChart([
-                        ("Time-nm", notAutoFocusNscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                        ("Time-nm", notAutoFocusNscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
                     ], "IdeaEcsNscTraceBuffer"),
                     AutoFocusNscTraceBuffer = new HtmlPlot2DLinesChart([
-                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
                     ], "AutoFocusNscTraceBuffer"),
                     HtmlTab = new HtmlTab(new
                     {
-                        nscDarkFieldImageFilePath = new HtmlImage(nscDarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    }),
+                        nscDarkFieldImageFilePath = new HtmlImage(nscDarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 #endregion Dark Field
@@ -816,7 +816,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     afMotorOffset,
                     settingDarkFieldAutoFocusParam.DswEcsValue,
                     settingDarkFieldAutoFocusParam.DswMotorValue,
-                    autoFocusEcs,
+                    autoFocusEcs
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 #endregion Reviese Af
@@ -849,15 +849,15 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     HtmlTab = new HtmlTab(new
                     {
                         ResultImage = new HtmlImage(ResultRtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     }),
                     IterationCurve = new HtmlPlot2DLinesChart([
                         ("Times-Ecs", RtfcDtoIterationItems.Select(t => t.EcsValue).ToList().ToPoints()),
                         ("Times-DfOffset", RtfcDtoIterationItems.Select(t => t.DfOffset).ToList().ToPoints()),
                         ("Times-XOffset", RtfcDtoIterationItems.Select(t => t.DarkFieldMatchOffset.X).ToList().ToPoints()),
                         ("Times-DeltaZ", RtfcDtoIterationItems.Select(t => t.DeltaEcs).ToList().ToPoints()),
-                        ("Times-LightAxisOffset", RtfcDtoIterationItems.Select(t => t.LightAxisOffset).ToList().ToPoints()),
-                    ], "IterationCurve"),
+                        ("Times-LightAxisOffset", RtfcDtoIterationItems.Select(t => t.LightAxisOffset).ToList().ToPoints())
+                    ], "IterationCurve")
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 #endregion Reviese Light Focus
@@ -889,7 +889,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     RealNsc = ResultRtfcDto.NscValue,
                     ResultRtfcDto.DarkFieldMatchOffset,
                     ResultRtfcDto.AfOffset,
-                    ResultRtfcDto.DfOffset,
+                    ResultRtfcDto.DfOffset
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return iterationResult;
@@ -913,7 +913,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                         idealEcs,
                         FindFocusMin = minEcs,
                         FindFocusMax = maxEcs,
-                        findFocusInterval,
+                        findFocusInterval
                     }), HtmlLogUniqueId.LoggingHtml());
                     // 初始化
                     var findDarkFieldPosition = StageViewModel.MachineToDarkFieldPosition(Cache.IdeaDarkFieldMachinePosition);
@@ -968,7 +968,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                             Cache.OpticsMagTypeEnum,
                             FocusShiftCache.StageSpeedEnum,
                             StageCoordinateSystemEnum.Bright,
-                            FocusShiftCache.LightCoefficient) == false)
+                            FocusShiftCache.LaserLightInformation) == false)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                         return false;
@@ -992,12 +992,12 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                         ResultRtfcDto.EcsValue,
                         ResultRtfcDto.NscValue,
                         NscTraceBuffers = new HtmlPlot2DLinesChart([
-                            ("Time-Nsc", nscBuffers.ToPoints()),
+                            ("Time-Nsc", nscBuffers.ToPoints())
                         ], "NscTraceBuffers"),
                         HtmlTab = new HtmlTab(new
                         {
                             ResultImage = new HtmlImage(ResultRtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                            TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                            TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1079,7 +1079,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 afShift,
                 dfShift,
                 afDfOffset,
-                ResultRtfcDto.DarkFieldMatchOffset,
+                ResultRtfcDto.DarkFieldMatchOffset
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         }).ConfigureAwait(false);
@@ -1117,7 +1117,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 rtfcDto.Quality,
                 HtmlTab = new HtmlTab(new
                 {
-                    ResultImage = new HtmlImage(rtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)]),
+                    ResultImage = new HtmlImage(rtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
                 }),
                 EcsQuality = new HtmlPlot2DLinesChart([
                     ("Ecs-Quality", RtfcDtoItems.Select(t => new Point(t.EcsValue, t.Quality)).ToArray())
@@ -1146,7 +1146,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 rtfcItemDto.BrightFieldFindPosition,
-                (false, FocusShiftCache.LightCoefficient),
+                (false, FocusShiftCache.LaserLightInformation),
                 true,
                 FocusShiftCache.CIBConfiguration,
                 800,
@@ -1175,7 +1175,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 ImageQuality = rtfcItemDto.Quality,
                 HtmlTab = new HtmlTab(new
                 {
-                    Image = new HtmlImage(rtfcItemDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    Image = new HtmlImage(rtfcItemDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -1197,7 +1197,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         [
             .. Calibrations
                 .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         if (isSave == false) return true;

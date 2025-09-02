@@ -11,6 +11,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -67,6 +68,7 @@ public sealed partial class RecipeSettingViewModel(
     MicroscopeViewModel microscopeViewModel,
     ReviewViewModel reviewViewModel,
     LaserViewModel laserViewModel,
+    CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie) : ViewModelBase
 {
     private readonly string _appHomeDirectory = options.Value.AppHomeDirectory;
@@ -628,7 +630,7 @@ public sealed partial class RecipeSettingViewModel(
                     break;
             }
 
-            reticleMarkList.Add(new ReticleMarkItemDto()
+            reticleMarkList.Add(new ReticleMarkItemDto
             {
                 MaskIndex = reticleMarkList.Count != 0 ? reticleMarkList.Last().MaskIndex + 1 : 0
             });
@@ -845,7 +847,7 @@ public sealed partial class RecipeSettingViewModel(
             var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 brightPosition,
-                (false, 0.85),
+                (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration,
                 800,

@@ -147,7 +147,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                         return;
                     }
 
-                    _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out calibrationRecipeDto);
+                    _recipeCacheProvider.TryGetOrDefault(out calibrationRecipeDto);
                 }
 
                 _recipeSettingViewModel.CalibrationRecipeDto = calibrationRecipeDto.Clone();

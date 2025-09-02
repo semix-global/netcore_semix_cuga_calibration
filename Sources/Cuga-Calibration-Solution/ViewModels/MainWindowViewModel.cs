@@ -391,7 +391,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         CalibrationStepIndex = -1;
         foreach (var (spaceName, name) in selectReviewList)
         {
-            var calibrationItem = new CalibrationItemStep() { StepName = name };
+            var calibrationItem = new CalibrationItemStep { StepName = name };
             CalibrationStepList.Add(calibrationItem);
         }
 

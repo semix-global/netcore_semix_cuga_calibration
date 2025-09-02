@@ -14,5 +14,5 @@ public enum AlgorithmStandardMaskSquareSizeEnum
     Size50 = 50,
 
     [Description("100um")]
-    Size100 = 100,
+    Size100 = 100
 }

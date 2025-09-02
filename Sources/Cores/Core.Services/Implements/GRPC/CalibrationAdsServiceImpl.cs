@@ -114,7 +114,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
             AdsTracebufferRegEnum.Roll.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.Pitch.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.ACS_X_Speed.ToCalibrationRegEnum(),
-            AdsTracebufferRegEnum.ACS_Y_Speed.ToCalibrationRegEnum(),
+            AdsTracebufferRegEnum.ACS_Y_Speed.ToCalibrationRegEnum()
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(new SxParamObj<(List<CalibrationRegEnum> regs, int time)>((calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)))));
         if (sxExecuteRet.Anything.Count != 5
@@ -143,7 +143,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
             AdsTracebufferRegEnum.Roll.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.Pitch.ToCalibrationRegEnum(),
             AdsTracebufferRegEnum.ACS_X_Speed.ToCalibrationRegEnum(),
-            AdsTracebufferRegEnum.ACS_Y_Speed.ToCalibrationRegEnum(),
+            AdsTracebufferRegEnum.ACS_Y_Speed.ToCalibrationRegEnum()
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(new SxParamObj<(List<CalibrationRegEnum> regs, int time)>((calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)))));
 

@@ -16,6 +16,6 @@ public partial class CalibrationRecipeDto : CalibrationRecipeDtoBase, ICloneable
     public CalibrationRecipeDto Clone() => new()
     {
         CalibrationRecipeInfoDto = CalibrationRecipeInfoDto.Clone(),
-        WaferDto = WaferDto.Clone(),
+        WaferDto = WaferDto.Clone()
     };
 }

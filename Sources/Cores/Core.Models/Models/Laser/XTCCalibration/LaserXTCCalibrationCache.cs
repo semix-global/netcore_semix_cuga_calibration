@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.XTCCalibration;
 public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
@@ -47,7 +47,7 @@ public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
     private double _threshold = 1.0d;
 
     [ObservableProperty]
-    private double _coefficient = 1.0d;
+    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private Point _findPosition;

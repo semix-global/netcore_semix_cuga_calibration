@@ -317,14 +317,8 @@
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="Coefficient: "
-                                         SelectedItem="{Binding Coefficient}"
-                                         ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}">
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" />
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                                         SelectedItem="{Binding LaserLightInformation}"
+                                         ItemsSource="{Binding LaserLightInformationList}" />
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"

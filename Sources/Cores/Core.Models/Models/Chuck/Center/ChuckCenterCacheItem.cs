@@ -8,7 +8,7 @@ namespace Core.Models.Models.Chuck.Center;
 public sealed partial class ChuckCenterCacheItem : ObservableCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = new();
+    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _topPosition = new(150, 0);

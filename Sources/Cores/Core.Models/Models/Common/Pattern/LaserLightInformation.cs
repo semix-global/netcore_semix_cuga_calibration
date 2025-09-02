@@ -1,12 +1,12 @@
-﻿using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Cuga.Data.DataStruct.PMT;
 using Net.Utilities.Mapper.Interfaces;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public partial class LaserLightInformation :
+public class LaserLightInformation :
     ObservableObject,
     IEquatable<LaserLightInformation>,
     IFormattable,
@@ -15,11 +15,24 @@ public partial class LaserLightInformation :
 {
     public static readonly LaserLightInformation Default = new();
 
-    [ObservableProperty]
-    private double _level;
+    private double _level = -1;
+    private double _coefficient = -1;
 
-    [ObservableProperty]
-    private double _coefficient;
+    public double Level
+    {
+        get => _level;
+        private set => SetProperty(ref _level, value);
+    }
+
+    public double Coefficient
+    {
+        get => _coefficient;
+        private set => SetProperty(ref _coefficient, value);
+    }
+
+    private LaserLightInformation()
+    {
+    }
 
     #region IEquatable、IFormattable
 
@@ -55,6 +68,12 @@ public partial class LaserLightInformation :
     public static bool operator !=(LaserLightInformation? left, LaserLightInformation? right) => !(left == right);
 
     #endregion Operator
+
+    #region Deconstruct
+
+    public void Deconstruct(out double level, out double coefficient) => (level, coefficient) = (Level, Coefficient);
+
+    #endregion Deconstruct
 
     #region Mapper
 

@@ -20,7 +20,7 @@ public static class ApplicationProvider
                 ApplicationName = applicationName,
                 SysUser = sysUserDto,
                 CalibrationMenu = new CalibrationMenu(),
-                TitleMenu = new SysMenuDto(),
+                TitleMenu = new SysMenuDto()
             };
             return applicationCookie;
         }); // cookie

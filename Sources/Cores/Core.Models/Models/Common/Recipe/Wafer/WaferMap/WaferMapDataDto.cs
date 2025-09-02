@@ -99,6 +99,6 @@ public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<Wa
         ReticleScribeHeight = ReticleScribeHeight,
 
         ReferenceDieRowNumber = ReferenceDieRowNumber,
-        ReferenceDieColumnNumber = ReferenceDieColumnNumber,
+        ReferenceDieColumnNumber = ReferenceDieColumnNumber
     };
 }

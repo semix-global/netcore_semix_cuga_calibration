@@ -28,7 +28,7 @@ public sealed partial class MicroscopeWindowViewModel(
     private int _isRunning;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {

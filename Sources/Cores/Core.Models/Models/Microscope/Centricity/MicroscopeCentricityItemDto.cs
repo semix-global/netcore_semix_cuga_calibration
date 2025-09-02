@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>, IAdaptIn<CalibrationMicroscopeCentricityItem, MicroscopeCentricityItemDto>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = new();
+    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _centricityPosition;

@@ -9,7 +9,7 @@ namespace Core.Models.Models.Laser.XYAstigmatism;
 public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
