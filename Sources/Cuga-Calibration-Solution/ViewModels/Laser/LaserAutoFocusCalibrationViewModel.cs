@@ -469,7 +469,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
-            var ecsToNmRatio = AfViewModel.GetEcsToUmRatio() * 1000;
+            var ecsToNmRatio = AfViewModel.GetNmPerEcs();
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {

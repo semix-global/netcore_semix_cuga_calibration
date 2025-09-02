@@ -39,13 +39,11 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPrescanChirpAodAlignmentCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
-    CalibrationSetting calibrationSetting,
-    ApplicationCookie applicationCookie) : CalibrationViewModelBase
+public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel: CalibrationViewModelBase
 {
     #region 属性
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
@@ -392,7 +390,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel(
                 item.PrescanSignals = aodWaveSignals;
                 item.PrescanFouriers = aodWaveSignalsFourier;
 
-                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, calibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
+                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
                 var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
                 if (isSuccess == false)

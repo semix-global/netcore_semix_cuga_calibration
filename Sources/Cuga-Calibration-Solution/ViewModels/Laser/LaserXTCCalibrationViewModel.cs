@@ -44,13 +44,11 @@ using MoreLinq.Extensions;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXTCCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXTCCalibrationViewModel(
-    CalibrationSetting calibrationSetting,
-    ApplicationCookie applicationCookie) : CalibrationViewModelBase
+public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
@@ -437,7 +435,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 pmtList.Add(pmt);
             }
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
             if (pmtConfig?.Count > 0)
             {
                 LaserXTCCalibrationItemDtoList = [.. pmtList.Where(t => pmtConfig[t.PmtId - 1].Enabled).ToList()];
@@ -603,7 +601,7 @@ public sealed partial class LaserXTCCalibrationViewModel(
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
 
-                var coefficient = calibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient;
+                var coefficient = CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient;
                 var resultPrescanWindowList = new List<double>();
 
                 for (var i = 0; i < startIndex; i++) // 1-1499, 都是按照系数来

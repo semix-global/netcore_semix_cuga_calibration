@@ -35,7 +35,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserDOEAngleCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -205,7 +205,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
         StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition), Cache.CalChipSiteModelEnum);
 
-        if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. calibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
+        if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
         return isHasCache || CacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -492,7 +492,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
         {
             ClearCalibrationTemp();
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
             var (_, yDirection) = StageViewModel.GetMachineDirection();
 

@@ -33,7 +33,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWindowViewModel enableOpticsMagWindowViewModel, CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWindowViewModel enableOpticsMagWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -169,7 +169,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         if (Cache.MicroscopeLensInformation.LensCode == -1)
             Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        Cache.PmtInterval = calibrationSetting.SettingCommonParam.PmtInterval;
+        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
         return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
     }
 
@@ -195,7 +195,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             return false;
         }
 
-        var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+        var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
         ReviewList =
         [
             .. Calibrations
@@ -418,7 +418,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
 
             Logger.LogHtmlInformation("Get Y Pixel Size", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-            var pmtConfig = calibrationSetting.SettingPmtConfigParam.PmtConfigList;
+            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
             foreach (var laserPixelSizeItemDto in pmtList)
             {
                 cancellationToken.ThrowIfCancellationRequested();
