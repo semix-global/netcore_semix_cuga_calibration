@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -22,10 +23,10 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
     ILogger<AodGenerateWaveFileWindowViewModel> logger) : ViewModelBase
 {
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _generateChirpAodWaveParamDto = new();
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
 
     [ObservableProperty]
-    private GeneratePrescanAodWaveParamDto _generatePrescanAodWaveParamDto = new();
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
 
     [ObservableProperty]
     private string _chirpAodWaveFilePath = string.Empty;
@@ -77,7 +78,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
         var dialog = dialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath);
         if (dialog == false) return;
 
-        GenerateChirpAodWaveParamDto.AodWaveDirectory = directoryPath;
+        GenerateChirpAODWaveformParam.AodWaveDirectory = directoryPath;
     }
 
     [RelayCommand]
@@ -86,7 +87,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
         var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
         if (dialog == false) return;
 
-        GenerateChirpAodWaveParamDto.FrequencyAmplitudesFilePath = filePath;
+        GenerateChirpAODWaveformParam.FrequencyAmplitudesFilePath = filePath;
     }
 
     [RelayCommand]
@@ -114,28 +115,28 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveSignalsFourier,
                     aodWaveFrequencyAmplitudes,
                     exception) = AODWaveformGenerator.GenerateChirpAodWaveFile(
-                    GenerateChirpAodWaveParamDto.BandWidth,
-                    GenerateChirpAodWaveParamDto.CenterFrequency,
-                    GenerateChirpAodWaveParamDto.SoundPackageLength,
-                    GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum,
-                    GenerateChirpAodWaveParamDto.SampleRate,
-                    GenerateChirpAodWaveParamDto.Amplitude,
-                    GenerateChirpAodWaveParamDto.AodWaveDirectory,
-                    zeroSampleCount: GenerateChirpAodWaveParamDto.ZeroSampleCount,
-                    endpointSampleCount: GenerateChirpAodWaveParamDto.EndpointSampleCount,
-                    offsetFrequency: GenerateChirpAodWaveParamDto.OffsetFrequency,
-                    offsetFrequencyPeriodMultiple: GenerateChirpAodWaveParamDto.OffsetFrequencyPeriodMultiple,
-                    sincCoefficient: GenerateChirpAodWaveParamDto.SincCoefficient,
-                    astigmatismCompensationCoefficient: GenerateChirpAodWaveParamDto.AstigmatismCompensationCoefficient,
-                    sphericalAberrationCompensationCoefficient: GenerateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient,
-                    secondaryAstigmatismCompensationCoefficient: GenerateChirpAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient,
-                    comaCompensationCoefficient: GenerateChirpAodWaveParamDto.ComaCompensationCoefficient,
-                    trefoilCompensationCoefficient: GenerateChirpAodWaveParamDto.TrefoilCompensationCoefficient,
-                    quadrafoilCompensationCoefficient: GenerateChirpAodWaveParamDto.QuadrafoilCompensationCoefficient,
-                    alphaOrder: GenerateChirpAodWaveParamDto.AlphaOrder,
-                    alphaOrderCoefficient: GenerateChirpAodWaveParamDto.AlphaOrderCoefficient,
-                    frequencyAmplitudes: GenerateChirpAodWaveParamDto.FrequencyAmplitudes,
-                    generateRetryTimes: GenerateChirpAodWaveParamDto.GenerateRetryTimes);
+                    GenerateChirpAODWaveformParam.BandWidth,
+                    GenerateChirpAODWaveformParam.CenterFrequency,
+                    GenerateChirpAODWaveformParam.SoundPackageLength,
+                    GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
+                    GenerateChirpAODWaveformParam.SampleRate,
+                    GenerateChirpAODWaveformParam.Amplitude,
+                    GenerateChirpAODWaveformParam.AodWaveDirectory,
+                    zeroSampleCount: GenerateChirpAODWaveformParam.ZeroSampleCount,
+                    endpointSampleCount: GenerateChirpAODWaveformParam.EndpointSampleCount,
+                    offsetFrequency: GenerateChirpAODWaveformParam.OffsetFrequency,
+                    offsetFrequencyPeriodMultiple: GenerateChirpAODWaveformParam.OffsetFrequencyPeriodMultiple,
+                    sincCoefficient: GenerateChirpAODWaveformParam.SincCoefficient,
+                    astigmatismCompensationCoefficient: GenerateChirpAODWaveformParam.AstigmatismCompensationCoefficient,
+                    sphericalAberrationCompensationCoefficient: GenerateChirpAODWaveformParam.SphericalAberrationCompensationCoefficient,
+                    secondaryAstigmatismCompensationCoefficient: GenerateChirpAODWaveformParam.SecondaryAstigmatismCompensationCoefficient,
+                    comaCompensationCoefficient: GenerateChirpAODWaveformParam.ComaCompensationCoefficient,
+                    trefoilCompensationCoefficient: GenerateChirpAODWaveformParam.TrefoilCompensationCoefficient,
+                    quadrafoilCompensationCoefficient: GenerateChirpAODWaveformParam.QuadrafoilCompensationCoefficient,
+                    alphaOrder: GenerateChirpAODWaveformParam.AlphaOrder,
+                    alphaOrderCoefficient: GenerateChirpAODWaveformParam.AlphaOrderCoefficient,
+                    frequencyAmplitudes: GenerateChirpAODWaveformParam.FrequencyAmplitudes,
+                    generateRetryTimes: GenerateChirpAODWaveformParam.GenerateRetryTimes);
 
                 ChirpAodWaveFilePath = aodWaveFilePath;
                 AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;
@@ -202,7 +203,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
         var dialog = dialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath);
         if (dialog == false) return;
 
-        GeneratePrescanAodWaveParamDto.AodWaveDirectory = directoryPath;
+        GeneratePrescanAODWaveformParam.AodWaveDirectory = directoryPath;
     }
 
     [RelayCommand]
@@ -211,7 +212,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
         var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
         if (dialog == false) return;
 
-        GeneratePrescanAodWaveParamDto.FrequencyAmplitudesFilePath = filePath;
+        GeneratePrescanAODWaveformParam.FrequencyAmplitudesFilePath = filePath;
     }
 
     [RelayCommand]
@@ -239,28 +240,28 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     aodWaveSignalsFourier,
                     aodWaveFrequencyAmplitudes,
                     exception) = AODWaveformGenerator.GeneratePrescanAodWaveFile(
-                    GeneratePrescanAodWaveParamDto.BandWidth,
-                    GeneratePrescanAodWaveParamDto.CenterFrequency,
-                    GeneratePrescanAodWaveParamDto.FlatnessTime,
-                    GeneratePrescanAodWaveParamDto.FunctionMonotonicTypeEnum,
-                    GeneratePrescanAodWaveParamDto.SampleRate,
-                    GeneratePrescanAodWaveParamDto.Amplitude,
-                    GeneratePrescanAodWaveParamDto.AodWaveDirectory,
-                    zeroSampleCount: GeneratePrescanAodWaveParamDto.ZeroSampleCount,
-                    endpointSampleCount: GeneratePrescanAodWaveParamDto.EndpointSampleCount,
-                    offsetFrequency: GeneratePrescanAodWaveParamDto.OffsetFrequency,
-                    offsetFrequencyPeriodMultiple: GeneratePrescanAodWaveParamDto.OffsetFrequencyPeriodMultiple,
-                    sincCoefficient: GeneratePrescanAodWaveParamDto.SincCoefficient,
-                    astigmatismCompensationCoefficient: GeneratePrescanAodWaveParamDto.AstigmatismCompensationCoefficient,
-                    sphericalAberrationCompensationCoefficient: GeneratePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient,
-                    secondaryAstigmatismCompensationCoefficient: GeneratePrescanAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient,
-                    comaCompensationCoefficient: GeneratePrescanAodWaveParamDto.ComaCompensationCoefficient,
-                    trefoilCompensationCoefficient: GeneratePrescanAodWaveParamDto.TrefoilCompensationCoefficient,
-                    quadrafoilCompensationCoefficient: GeneratePrescanAodWaveParamDto.QuadrafoilCompensationCoefficient,
-                    alphaOrder: GeneratePrescanAodWaveParamDto.AlphaOrder,
-                    alphaOrderCoefficient: GeneratePrescanAodWaveParamDto.AlphaOrderCoefficient,
-                    frequencyAmplitudes: GeneratePrescanAodWaveParamDto.FrequencyAmplitudes,
-                    generateRetryTimes: GeneratePrescanAodWaveParamDto.GenerateRetryTimes);
+                    GeneratePrescanAODWaveformParam.BandWidth,
+                    GeneratePrescanAODWaveformParam.CenterFrequency,
+                    GeneratePrescanAODWaveformParam.FlatnessTime,
+                    GeneratePrescanAODWaveformParam.FunctionMonotonicTypeEnum,
+                    GeneratePrescanAODWaveformParam.SampleRate,
+                    GeneratePrescanAODWaveformParam.Amplitude,
+                    GeneratePrescanAODWaveformParam.AodWaveDirectory,
+                    zeroSampleCount: GeneratePrescanAODWaveformParam.ZeroSampleCount,
+                    endpointSampleCount: GeneratePrescanAODWaveformParam.EndpointSampleCount,
+                    offsetFrequency: GeneratePrescanAODWaveformParam.OffsetFrequency,
+                    offsetFrequencyPeriodMultiple: GeneratePrescanAODWaveformParam.OffsetFrequencyPeriodMultiple,
+                    sincCoefficient: GeneratePrescanAODWaveformParam.SincCoefficient,
+                    astigmatismCompensationCoefficient: GeneratePrescanAODWaveformParam.AstigmatismCompensationCoefficient,
+                    sphericalAberrationCompensationCoefficient: GeneratePrescanAODWaveformParam.SphericalAberrationCompensationCoefficient,
+                    secondaryAstigmatismCompensationCoefficient: GeneratePrescanAODWaveformParam.SecondaryAstigmatismCompensationCoefficient,
+                    comaCompensationCoefficient: GeneratePrescanAODWaveformParam.ComaCompensationCoefficient,
+                    trefoilCompensationCoefficient: GeneratePrescanAODWaveformParam.TrefoilCompensationCoefficient,
+                    quadrafoilCompensationCoefficient: GeneratePrescanAODWaveformParam.QuadrafoilCompensationCoefficient,
+                    alphaOrder: GeneratePrescanAODWaveformParam.AlphaOrder,
+                    alphaOrderCoefficient: GeneratePrescanAODWaveformParam.AlphaOrderCoefficient,
+                    frequencyAmplitudes: GeneratePrescanAODWaveformParam.FrequencyAmplitudes,
+                    generateRetryTimes: GeneratePrescanAODWaveformParam.GenerateRetryTimes);
 
                 PrescanAodWaveFilePath = aodWaveFilePath;
                 AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;

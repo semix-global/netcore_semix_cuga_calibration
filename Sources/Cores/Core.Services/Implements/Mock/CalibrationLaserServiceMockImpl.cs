@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
@@ -189,14 +190,14 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAodWaveParamDto generatePrescanAodWaveParamDto)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
     {
-        return _calibrationLaserServiceImpl.GeneratePrescanAodWaveList(opticsMagTypeEnum, generatePrescanAodWaveParamDto);
+        return _calibrationLaserServiceImpl.GeneratePrescanAodWaveList(opticsMagTypeEnum, generatePrescanAODWaveformParam);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
     {
-        return _calibrationLaserServiceImpl.GenerateChirpAodWaveList(opticsMagTypeEnum, generateChirpAodWaveParamDto);
+        return _calibrationLaserServiceImpl.GenerateChirpAodWaveList(opticsMagTypeEnum, generateChirpAODWaveformParam);
     }
 
     public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)

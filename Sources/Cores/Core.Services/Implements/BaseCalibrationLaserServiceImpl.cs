@@ -7,6 +7,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
+using Core.Models.Models.Common.AODWaveform.Generates;
 
 #if NET
 // ReSharper disable once CheckNamespace
@@ -18,7 +19,7 @@ namespace Core.Services.Implements.WCF;
 
 public sealed partial class CalibrationLaserServiceImpl
 {
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAodWaveParamDto generatePrescanAodWaveParamDto)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
     {
         var sxExecuteRetByGetPrescanAODWaveProfileList = calibrationConfigService.GetPrescanAODWaveProfileList(opticsMagTypeEnum);
         if (sxExecuteRetByGetPrescanAODWaveProfileList.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRetByGetPrescanAODWaveProfileList.Msg, []);
@@ -42,28 +43,28 @@ public sealed partial class CalibrationLaserServiceImpl
                 aodWaveSignalsFourier,
                 aodWaveFrequencyAmplitudes,
                 exception) = AODWaveformGenerator.GeneratePrescanAodWaveFile(
-                generatePrescanAodWaveParamDto.BandWidth,
-                generatePrescanAodWaveParamDto.CenterFrequency,
-                generatePrescanAodWaveParamDto.FlatnessTime,
-                generatePrescanAodWaveParamDto.FunctionMonotonicTypeEnum,
-                generatePrescanAodWaveParamDto.SampleRate,
-                generatePrescanAodWaveParamDto.Amplitude,
-                Path.Combine(generatePrescanAodWaveParamDto.AodWaveDirectory, EnumHelper.ToDescriptionString(prescanAODWaveformProfile.OpticsAODElectrodeEnum)),
-                zeroSampleCount: generatePrescanAodWaveParamDto.ZeroSampleCount,
-                endpointSampleCount: generatePrescanAodWaveParamDto.EndpointSampleCount,
+                generatePrescanAODWaveformParam.BandWidth,
+                generatePrescanAODWaveformParam.CenterFrequency,
+                generatePrescanAODWaveformParam.FlatnessTime,
+                generatePrescanAODWaveformParam.FunctionMonotonicTypeEnum,
+                generatePrescanAODWaveformParam.SampleRate,
+                generatePrescanAODWaveformParam.Amplitude,
+                Path.Combine(generatePrescanAODWaveformParam.AodWaveDirectory, EnumHelper.ToDescriptionString(prescanAODWaveformProfile.OpticsAODElectrodeEnum)),
+                zeroSampleCount: generatePrescanAODWaveformParam.ZeroSampleCount,
+                endpointSampleCount: generatePrescanAODWaveformParam.EndpointSampleCount,
                 offsetFrequency: prescanAODWaveformProfile.OffsetFrequency,
                 offsetFrequencyPeriodMultiple: prescanAODWaveformProfile.OffsetFrequencyPeriodMultiple,
-                sincCoefficient: generatePrescanAodWaveParamDto.SincCoefficient,
-                astigmatismCompensationCoefficient: generatePrescanAodWaveParamDto.AstigmatismCompensationCoefficient,
-                sphericalAberrationCompensationCoefficient: generatePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient,
-                secondaryAstigmatismCompensationCoefficient: generatePrescanAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient,
-                comaCompensationCoefficient: generatePrescanAodWaveParamDto.ComaCompensationCoefficient,
-                trefoilCompensationCoefficient: generatePrescanAodWaveParamDto.TrefoilCompensationCoefficient,
-                quadrafoilCompensationCoefficient: generatePrescanAodWaveParamDto.QuadrafoilCompensationCoefficient,
-                alphaOrder: generatePrescanAodWaveParamDto.AlphaOrder,
-                alphaOrderCoefficient: generatePrescanAodWaveParamDto.AlphaOrderCoefficient,
-                frequencyAmplitudes: generatePrescanAodWaveParamDto.FrequencyAmplitudes,
-                generateRetryTimes: generatePrescanAodWaveParamDto.GenerateRetryTimes);
+                sincCoefficient: generatePrescanAODWaveformParam.SincCoefficient,
+                astigmatismCompensationCoefficient: generatePrescanAODWaveformParam.AstigmatismCompensationCoefficient,
+                sphericalAberrationCompensationCoefficient: generatePrescanAODWaveformParam.SphericalAberrationCompensationCoefficient,
+                secondaryAstigmatismCompensationCoefficient: generatePrescanAODWaveformParam.SecondaryAstigmatismCompensationCoefficient,
+                comaCompensationCoefficient: generatePrescanAODWaveformParam.ComaCompensationCoefficient,
+                trefoilCompensationCoefficient: generatePrescanAODWaveformParam.TrefoilCompensationCoefficient,
+                quadrafoilCompensationCoefficient: generatePrescanAODWaveformParam.QuadrafoilCompensationCoefficient,
+                alphaOrder: generatePrescanAODWaveformParam.AlphaOrder,
+                alphaOrderCoefficient: generatePrescanAODWaveformParam.AlphaOrderCoefficient,
+                frequencyAmplitudes: generatePrescanAODWaveformParam.FrequencyAmplitudes,
+                generateRetryTimes: generatePrescanAODWaveformParam.GenerateRetryTimes);
 
             if (isSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(GuardUtils.IsNotNullAndReturn(exception).Message, []);
 
@@ -73,7 +74,7 @@ public sealed partial class CalibrationLaserServiceImpl
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
     {
         var sxExecuteRetByGetChirpAODWaveProfileList = calibrationConfigService.GetChirpAODWaveProfileList(opticsMagTypeEnum);
         if (sxExecuteRetByGetChirpAODWaveProfileList.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRetByGetChirpAODWaveProfileList.Msg, []);
@@ -97,28 +98,28 @@ public sealed partial class CalibrationLaserServiceImpl
                 aodWaveSignalsFourier,
                 aodWaveFrequencyAmplitudes,
                 exception) = AODWaveformGenerator.GenerateChirpAodWaveFile(
-                generateChirpAodWaveParamDto.BandWidth,
-                generateChirpAodWaveParamDto.CenterFrequency,
-                generateChirpAodWaveParamDto.SoundPackageLength,
-                generateChirpAodWaveParamDto.FunctionMonotonicTypeEnum,
-                generateChirpAodWaveParamDto.SampleRate,
-                generateChirpAodWaveParamDto.Amplitude,
-                Path.Combine(generateChirpAodWaveParamDto.AodWaveDirectory, EnumHelper.ToDescriptionString(chirpAODWaveformProfile.OpticsAODElectrodeEnum)),
-                zeroSampleCount: generateChirpAodWaveParamDto.ZeroSampleCount,
-                endpointSampleCount: generateChirpAodWaveParamDto.EndpointSampleCount,
+                generateChirpAODWaveformParam.BandWidth,
+                generateChirpAODWaveformParam.CenterFrequency,
+                generateChirpAODWaveformParam.SoundPackageLength,
+                generateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
+                generateChirpAODWaveformParam.SampleRate,
+                generateChirpAODWaveformParam.Amplitude,
+                Path.Combine(generateChirpAODWaveformParam.AodWaveDirectory, EnumHelper.ToDescriptionString(chirpAODWaveformProfile.OpticsAODElectrodeEnum)),
+                zeroSampleCount: generateChirpAODWaveformParam.ZeroSampleCount,
+                endpointSampleCount: generateChirpAODWaveformParam.EndpointSampleCount,
                 offsetFrequency: chirpAODWaveformProfile.OffsetFrequency,
                 offsetFrequencyPeriodMultiple: chirpAODWaveformProfile.OffsetFrequencyPeriodMultiple,
-                sincCoefficient: generateChirpAodWaveParamDto.SincCoefficient,
-                astigmatismCompensationCoefficient: generateChirpAodWaveParamDto.AstigmatismCompensationCoefficient,
-                sphericalAberrationCompensationCoefficient: generateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient,
-                secondaryAstigmatismCompensationCoefficient: generateChirpAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient,
-                comaCompensationCoefficient: generateChirpAodWaveParamDto.ComaCompensationCoefficient,
-                trefoilCompensationCoefficient: generateChirpAodWaveParamDto.TrefoilCompensationCoefficient,
-                quadrafoilCompensationCoefficient: generateChirpAodWaveParamDto.QuadrafoilCompensationCoefficient,
-                alphaOrder: generateChirpAodWaveParamDto.AlphaOrder,
-                alphaOrderCoefficient: generateChirpAodWaveParamDto.AlphaOrderCoefficient,
-                frequencyAmplitudes: generateChirpAodWaveParamDto.FrequencyAmplitudes,
-                generateRetryTimes: generateChirpAodWaveParamDto.GenerateRetryTimes);
+                sincCoefficient: generateChirpAODWaveformParam.SincCoefficient,
+                astigmatismCompensationCoefficient: generateChirpAODWaveformParam.AstigmatismCompensationCoefficient,
+                sphericalAberrationCompensationCoefficient: generateChirpAODWaveformParam.SphericalAberrationCompensationCoefficient,
+                secondaryAstigmatismCompensationCoefficient: generateChirpAODWaveformParam.SecondaryAstigmatismCompensationCoefficient,
+                comaCompensationCoefficient: generateChirpAODWaveformParam.ComaCompensationCoefficient,
+                trefoilCompensationCoefficient: generateChirpAODWaveformParam.TrefoilCompensationCoefficient,
+                quadrafoilCompensationCoefficient: generateChirpAODWaveformParam.QuadrafoilCompensationCoefficient,
+                alphaOrder: generateChirpAODWaveformParam.AlphaOrder,
+                alphaOrderCoefficient: generateChirpAODWaveformParam.AlphaOrderCoefficient,
+                frequencyAmplitudes: generateChirpAODWaveformParam.FrequencyAmplitudes,
+                generateRetryTimes: generateChirpAODWaveformParam.GenerateRetryTimes);
 
             if (isSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(GuardUtils.IsNotNullAndReturn(exception).Message, []);
 

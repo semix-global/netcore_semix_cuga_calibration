@@ -98,7 +98,7 @@
                                                               hc:TitleElement.TitleWidth="240"
                                                               Minimum="0"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding GenerateChirpAodWaveParamDto.SoundPackageLength}" />
+                                                              Value="{Binding GenerateChirpAODWaveformParam.SoundPackageLength}" />
                                             <Expander Header="Frequency(MHz)"
                                                       IsExpanded="False"
                                                       ExpandDirection="Down">
@@ -109,7 +109,7 @@
                                                                        Width="240"
                                                                        HorizontalAlignment="Left"
                                                                        VerticalAlignment="Center" />
-                                                            <ToggleButton IsChecked="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                            <ToggleButton IsChecked="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter}"
                                                                           HorizontalAlignment="Center"
                                                                           VerticalAlignment="Center"
                                                                           Background="{StaticResource DarkMaskBrush}"
@@ -119,8 +119,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.HeaderFrequency}">
+                                                                          IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter}"
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.HeaderFrequency}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -135,8 +135,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.FooterFrequency}">
+                                                                          IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter}"
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.FooterFrequency}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -151,8 +151,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.BandWidth}">
+                                                                          IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.BandWidth}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -167,8 +167,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.CenterFrequency}">
+                                                                          IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.CenterFrequency}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -182,8 +182,8 @@
                                                         <hc:ComboBox hc:InfoElement.Title="Monotonic: "
                                                                      hc:InfoElement.TitlePlacement="Left"
                                                                      hc:InfoElement.TitleWidth="240"
-                                                                     IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                     SelectedItem="{Binding GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum}"
+                                                                     IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                                     SelectedItem="{Binding GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum}"
                                                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
                                                             <hc:ComboBox.Style>
                                                                 <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
@@ -205,12 +205,12 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.OffsetFrequency}" />
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.OffsetFrequency}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Offset Period Multiple(2pi): "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.OffsetFrequencyPeriodMultiple}" />
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.OffsetFrequencyPeriodMultiple}" />
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -224,15 +224,15 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
                                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.SampleRate}" />
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.SampleRate}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Maximum="1"
                                                                           Minimum="0"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.Amplitude}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.AodWaveDirectory}"
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.Amplitude}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.AodWaveDirectory}"
                                                                  Height="50"
                                                                  TextWrapping="Wrap"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -247,20 +247,20 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.ZeroSampleCount}" />
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.ZeroSampleCount}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Endpoint Count(sa): "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.EndpointSampleCount}" />
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.EndpointSampleCount}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Generate Retry Times: "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Maximum="1000000"
                                                                           Minimum="1"
-                                                                          Value="{Binding GenerateChirpAodWaveParamDto.GenerateRetryTimes}" />
+                                                                          Value="{Binding GenerateChirpAODWaveformParam.GenerateRetryTimes}" />
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -269,7 +269,7 @@
                                                       ExpandDirection="Down">
                                                 <Border Style="{StaticResource BorderRegion}">
                                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.SincCoefficient, StringFormat={}{0:0.###############}}"
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.SincCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Sinc Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -277,8 +277,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="0"
                                                                 Maximum="10"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.SincCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.SincCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Astigmatism Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -286,8 +286,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.AstigmatismCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.AstigmatismCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Spherical Aberration Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -295,8 +295,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.SphericalAberrationCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.SphericalAberrationCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Secondary Astigmatism Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -304,8 +304,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.SecondaryAstigmatismCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Coma Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -313,8 +313,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.ComaCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.ComaCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Trefoil Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -322,8 +322,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.TrefoilCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.TrefoilCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Quadrafoil Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -331,8 +331,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.QuadrafoilCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.AlphaOrder, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.QuadrafoilCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.AlphaOrder, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Alpha Order: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -340,8 +340,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.AlphaOrder}" />
-                                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GenerateChirpAODWaveformParam.AlphaOrder}" />
+                                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Alpha Order Coefficient: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -349,7 +349,7 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GenerateChirpAodWaveParamDto.AlphaOrderCoefficient}" />
+                                                                Value="{Binding GenerateChirpAODWaveformParam.AlphaOrderCoefficient}" />
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -358,7 +358,7 @@
                                 </GroupBox>
                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                        <TextBox Text="{Binding GenerateChirpAodWaveParamDto.FrequencyAmplitudesFilePath}"
+                                        <TextBox Text="{Binding GenerateChirpAODWaveformParam.FrequencyAmplitudesFilePath}"
                                                  Height="20"
                                                  TextWrapping="Wrap"
                                                  hc:TitleElement.TitleWidth="200"
@@ -402,7 +402,7 @@
                                                               hc:TitleElement.TitleWidth="240"
                                                               Minimum="0"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding GeneratePrescanAodWaveParamDto.FlatnessTime}" />
+                                                              Value="{Binding GeneratePrescanAODWaveformParam.FlatnessTime}" />
                                             <Expander Header="Frequency(MHz)"
                                                       IsExpanded="False"
                                                       ExpandDirection="Down">
@@ -413,7 +413,7 @@
                                                                        Width="240"
                                                                        HorizontalAlignment="Left"
                                                                        VerticalAlignment="Center" />
-                                                            <ToggleButton IsChecked="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter}"
+                                                            <ToggleButton IsChecked="{Binding GeneratePrescanAODWaveformParam.IsHeaderAndFooter}"
                                                                           HorizontalAlignment="Center"
                                                                           VerticalAlignment="Center"
                                                                           Background="{StaticResource DarkMaskBrush}"
@@ -423,8 +423,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter}"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.HeaderFrequency}">
+                                                                          IsEnabled="{Binding GeneratePrescanAODWaveformParam.IsHeaderAndFooter}"
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.HeaderFrequency}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -439,8 +439,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter}"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.FooterFrequency}">
+                                                                          IsEnabled="{Binding GeneratePrescanAODWaveformParam.IsHeaderAndFooter}"
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.FooterFrequency}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -455,8 +455,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.BandWidth}">
+                                                                          IsEnabled="{Binding GeneratePrescanAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.BandWidth}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -471,8 +471,8 @@
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
-                                                                          IsEnabled="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.CenterFrequency}">
+                                                                          IsEnabled="{Binding GeneratePrescanAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.CenterFrequency}">
                                                             <hc:NumericUpDown.Style>
                                                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                                     <Style.Triggers>
@@ -486,8 +486,8 @@
                                                         <hc:ComboBox hc:InfoElement.Title="Monotonic: "
                                                                      hc:InfoElement.TitlePlacement="Left"
                                                                      hc:InfoElement.TitleWidth="240"
-                                                                     IsEnabled="{Binding GeneratePrescanAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                                     SelectedItem="{Binding GeneratePrescanAodWaveParamDto.FunctionMonotonicTypeEnum}"
+                                                                     IsEnabled="{Binding GeneratePrescanAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                                     SelectedItem="{Binding GeneratePrescanAODWaveformParam.FunctionMonotonicTypeEnum}"
                                                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
                                                             <hc:ComboBox.Style>
                                                                 <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
@@ -509,12 +509,12 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.OffsetFrequency}" />
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.OffsetFrequency}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Offset Period Multiple(2pi): "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.OffsetFrequencyPeriodMultiple}" />
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.OffsetFrequencyPeriodMultiple}" />
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -528,15 +528,15 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Minimum="0"
                                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.SampleRate}" />
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.SampleRate}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Maximum="1"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.Amplitude}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.AodWaveDirectory}"
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.Amplitude}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.AodWaveDirectory}"
                                                                  Height="50"
                                                                  TextWrapping="Wrap"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -551,20 +551,20 @@
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.ZeroSampleCount}" />
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.ZeroSampleCount}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Endpoint Count(sa): "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Minimum="0"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.EndpointSampleCount}" />
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.EndpointSampleCount}" />
                                                         <hc:NumericUpDown hc:InfoElement.Title="Generate Retry Times: "
                                                                           hc:InfoElement.TitlePlacement="Left"
                                                                           hc:TitleElement.TitleWidth="240"
                                                                           Style="{StaticResource NumericUpDownExtend}"
                                                                           Maximum="1000000"
                                                                           Minimum="1"
-                                                                          Value="{Binding GeneratePrescanAodWaveParamDto.GenerateRetryTimes}" />
+                                                                          Value="{Binding GeneratePrescanAODWaveformParam.GenerateRetryTimes}" />
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -573,7 +573,7 @@
                                                       ExpandDirection="Down">
                                                 <Border Style="{StaticResource BorderRegion}">
                                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.SincCoefficient, StringFormat={}{0:0.###############}}"
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.SincCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Sinc Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -581,8 +581,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="0"
                                                                 Maximum="10"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.SincCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.SincCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Astigmatism Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -590,8 +590,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.AstigmatismCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.AstigmatismCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Spherical Aberration Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -599,8 +599,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.SphericalAberrationCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.SphericalAberrationCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Secondary Astigmatism Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -608,8 +608,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.SecondaryAstigmatismCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.SecondaryAstigmatismCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Coma Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -617,8 +617,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.ComaCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.ComaCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Trefoil Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -626,8 +626,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.TrefoilCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.TrefoilCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Quadrafoil Compensation: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -635,8 +635,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.QuadrafoilCompensationCoefficient}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.AlphaOrder, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.QuadrafoilCompensationCoefficient}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.AlphaOrder, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Alpha Order: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -644,8 +644,8 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.AlphaOrder}" />
-                                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}"
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.AlphaOrder}" />
+                                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}"
                                                                  hc:InfoElement.Title="Alpha Order Coefficient: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  hc:TitleElement.TitleWidth="240"
@@ -653,7 +653,7 @@
                                                         <Slider VerticalAlignment="Center"
                                                                 Minimum="-100"
                                                                 Maximum="100"
-                                                                Value="{Binding GeneratePrescanAodWaveParamDto.AlphaOrderCoefficient}" />
+                                                                Value="{Binding GeneratePrescanAODWaveformParam.AlphaOrderCoefficient}" />
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </Expander>
@@ -662,7 +662,7 @@
                                 </GroupBox>
                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                        <TextBox Text="{Binding GeneratePrescanAodWaveParamDto.FrequencyAmplitudesFilePath}"
+                                        <TextBox Text="{Binding GeneratePrescanAODWaveformParam.FrequencyAmplitudesFilePath}"
                                                  Height="20"
                                                  TextWrapping="Wrap"
                                                  hc:TitleElement.TitleWidth="200"

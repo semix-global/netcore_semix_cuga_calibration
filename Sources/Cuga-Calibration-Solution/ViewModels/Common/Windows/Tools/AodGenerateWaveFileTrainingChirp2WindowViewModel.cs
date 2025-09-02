@@ -34,6 +34,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Complex = System.Numerics.Complex;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -64,7 +65,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     #region 0. 确认生成波形参数
 
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _generateChirpAodWaveParamDto = new()
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new()
     {
         HeaderFrequency = 275,
         FooterFrequency = 155
@@ -351,15 +352,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 logger.LogHtmlInformation($"{item.DeltaKs.ToArrayString()}", HtmlHeaderLevelEnum.Header3, htmlGuid.LoggingHtml());
                 logger.LogHtmlInformation("Aod Wave", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    GenerateChirpAodWaveParamDto.BandWidth,
-                    GenerateChirpAodWaveParamDto.CenterFrequency,
-                    GenerateChirpAodWaveParamDto.SoundPackageLength,
-                    MonotonicTypeEnum = GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum,
-                    GenerateChirpAodWaveParamDto.SampleRate,
-                    GenerateChirpAodWaveParamDto.Amplitude,
-                    GenerateChirpAodWaveParamDto.AodWaveDirectory,
-                    GenerateChirpAodWaveParamDto.ZeroSampleCount,
-                    GenerateChirpAodWaveParamDto.EndpointSampleCount,
+                    GenerateChirpAODWaveformParam.BandWidth,
+                    GenerateChirpAODWaveformParam.CenterFrequency,
+                    GenerateChirpAODWaveformParam.SoundPackageLength,
+                    MonotonicTypeEnum = GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
+                    GenerateChirpAODWaveformParam.SampleRate,
+                    GenerateChirpAODWaveformParam.Amplitude,
+                    GenerateChirpAODWaveformParam.AodWaveDirectory,
+                    GenerateChirpAODWaveformParam.ZeroSampleCount,
+                    GenerateChirpAODWaveformParam.EndpointSampleCount,
                     item.DeltaKs,
                     Signals = new HtmlTab(new
                     {
@@ -461,15 +462,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     aodWaveFlatnessTotalFrequencySignals,
                     aodWaveSignals,
                     aodWaveSignalsFourier) = GenerateChirpAodWave.GenerateChirpAodWaveFile(
-                    GenerateChirpAodWaveParamDto.BandWidth,
-                    GenerateChirpAodWaveParamDto.CenterFrequency,
-                    GenerateChirpAodWaveParamDto.SoundPackageLength,
-                    GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum,
-                    GenerateChirpAodWaveParamDto.SampleRate,
-                    GenerateChirpAodWaveParamDto.Amplitude,
+                    GenerateChirpAODWaveformParam.BandWidth,
+                    GenerateChirpAODWaveformParam.CenterFrequency,
+                    GenerateChirpAODWaveformParam.SoundPackageLength,
+                    GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
+                    GenerateChirpAODWaveformParam.SampleRate,
+                    GenerateChirpAODWaveformParam.Amplitude,
                     aodWaveDirectory,
-                    zeroSampleCount: GenerateChirpAodWaveParamDto.ZeroSampleCount,
-                    endpointSampleCount: GenerateChirpAodWaveParamDto.EndpointSampleCount,
+                    zeroSampleCount: GenerateChirpAODWaveformParam.ZeroSampleCount,
+                    endpointSampleCount: GenerateChirpAODWaveformParam.EndpointSampleCount,
                     deltaKs: item.DeltaKs,
                     generateRetryTimes: 1000);
 

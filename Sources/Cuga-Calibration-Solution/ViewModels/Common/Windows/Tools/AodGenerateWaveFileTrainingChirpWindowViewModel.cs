@@ -24,6 +24,8 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Models.Models.Common.AODWaveform.Generates;
+using AodWaveGenerator = Net.Utilities.Algorithms.Modules.AodWaveGenerator;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -50,7 +52,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
     #region 0. 确认生成波形参数
 
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _generateChirpAodWaveParamDto = new()
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new()
     {
         HeaderFrequency = 275,
         FooterFrequency = 155
@@ -617,15 +619,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 logger.LogHtmlInformation("Aod Wave", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     item.ChirpAodWaveFilePath,
-                    GenerateChirpAodWaveParamDto.BandWidth,
-                    GenerateChirpAodWaveParamDto.CenterFrequency,
-                    GenerateChirpAodWaveParamDto.SoundPackageLength,
-                    MonotonicTypeEnum = GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum,
-                    GenerateChirpAodWaveParamDto.SampleRate,
-                    GenerateChirpAodWaveParamDto.Amplitude,
-                    GenerateChirpAodWaveParamDto.AodWaveDirectory,
-                    GenerateChirpAodWaveParamDto.ZeroSampleCount,
-                    GenerateChirpAodWaveParamDto.EndpointSampleCount,
+                    GenerateChirpAODWaveformParam.BandWidth,
+                    GenerateChirpAODWaveformParam.CenterFrequency,
+                    GenerateChirpAODWaveformParam.SoundPackageLength,
+                    MonotonicTypeEnum = GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
+                    GenerateChirpAODWaveformParam.SampleRate,
+                    GenerateChirpAODWaveformParam.Amplitude,
+                    GenerateChirpAODWaveformParam.AodWaveDirectory,
+                    GenerateChirpAODWaveformParam.ZeroSampleCount,
+                    GenerateChirpAODWaveformParam.EndpointSampleCount,
                     item.AstigmatismCompensationCoefficient,
                     item.SphericalAberrationCompensationCoefficient,
                     item.SecondaryAstigmatismCompensationCoefficient,
@@ -741,17 +743,16 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                     _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    _,
-                    exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
-                    GenerateChirpAodWaveParamDto.BandWidth,
-                    GenerateChirpAodWaveParamDto.CenterFrequency,
-                    GenerateChirpAodWaveParamDto.SoundPackageLength,
-                    GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum,
-                    GenerateChirpAodWaveParamDto.SampleRate,
-                    GenerateChirpAodWaveParamDto.Amplitude,
+                    _) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                    GenerateChirpAODWaveformParam.BandWidth,
+                    GenerateChirpAODWaveformParam.CenterFrequency,
+                    GenerateChirpAODWaveformParam.SoundPackageLength,
+                    GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
+                    GenerateChirpAODWaveformParam.SampleRate,
+                    GenerateChirpAODWaveformParam.Amplitude,
                     aodWaveDirectory,
-                    zeroSampleCount: GenerateChirpAodWaveParamDto.ZeroSampleCount,
-                    endpointSampleCount: GenerateChirpAodWaveParamDto.EndpointSampleCount,
+                    zeroSampleCount: GenerateChirpAODWaveformParam.ZeroSampleCount,
+                    endpointSampleCount: GenerateChirpAODWaveformParam.EndpointSampleCount,
                     astigmatismCompensationCoefficient: item.AstigmatismCompensationCoefficient,
                     sphericalAberrationCompensationCoefficient: item.SphericalAberrationCompensationCoefficient,
                     secondaryAstigmatismCompensationCoefficient: item.SecondaryAstigmatismCompensationCoefficient,

@@ -1,13 +1,14 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.DarkField;
 using Local.NoSQL.DB.Providers.Bases;
 using MiniExcelLibs;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Common.DarkField;
+namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public partial class GenerateAodWaveParamBase : ObservableCacheBase
+public partial class GenerateAODWaveformParamBase : ObservableCacheBase
 {
     [ObservableProperty]
     private bool _isHeaderAndFooter = true;
@@ -34,19 +35,16 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     private double _amplitude = 1d;
 
     [ObservableProperty]
-    private string _aodWaveDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AodWaveDirectory));
+    private string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveformResult));
+
+    [ObservableProperty]
+    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
     private int _zeroSampleCount;
 
     [ObservableProperty]
     private int _endpointSampleCount;
-
-    [ObservableProperty]
-    private double _offsetFrequency;
-
-    [ObservableProperty]
-    private double _offsetFrequencyPeriodMultiple;
 
     [ObservableProperty]
     private double _sincCoefficient;

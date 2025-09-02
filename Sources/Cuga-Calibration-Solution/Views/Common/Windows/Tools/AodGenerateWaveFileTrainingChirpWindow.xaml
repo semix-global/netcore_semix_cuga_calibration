@@ -96,7 +96,7 @@
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding GenerateChirpAodWaveParamDto.SoundPackageLength}" />
+                                                      Value="{Binding GenerateChirpAODWaveformParam.SoundPackageLength}" />
                                     <Border Margin="-5,0"
                                             Padding="5,2"
                                             Style="{StaticResource BorderRegion}">
@@ -112,7 +112,7 @@
                                                            Width="180"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Center" />
-                                                <ToggleButton IsChecked="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                <ToggleButton IsChecked="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter}"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center"
                                                               Background="{StaticResource DarkMaskBrush}"
@@ -121,9 +121,9 @@
                                             <hc:NumericUpDown hc:InfoElement.Title="Header Frequency(MHz): "
                                                               hc:InfoElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="180"
-                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                              IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter}"
                                                               Minimum="0"
-                                                              Value="{Binding GenerateChirpAodWaveParamDto.HeaderFrequency}">
+                                                              Value="{Binding GenerateChirpAODWaveformParam.HeaderFrequency}">
                                                 <hc:NumericUpDown.Style>
                                                     <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                         <Style.Triggers>
@@ -137,9 +137,9 @@
                                             <hc:NumericUpDown hc:InfoElement.Title="Footer Frequency(MHz): "
                                                               hc:InfoElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="180"
-                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter}"
+                                                              IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter}"
                                                               Minimum="0"
-                                                              Value="{Binding GenerateChirpAodWaveParamDto.FooterFrequency}">
+                                                              Value="{Binding GenerateChirpAODWaveformParam.FooterFrequency}">
                                                 <hc:NumericUpDown.Style>
                                                     <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                         <Style.Triggers>
@@ -153,9 +153,9 @@
                                             <hc:NumericUpDown hc:InfoElement.Title="Band Width(MHz): "
                                                               hc:InfoElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="180"
-                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                              IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                                               Minimum="0"
-                                                              Value="{Binding GenerateChirpAodWaveParamDto.BandWidth}">
+                                                              Value="{Binding GenerateChirpAODWaveformParam.BandWidth}">
                                                 <hc:NumericUpDown.Style>
                                                     <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                         <Style.Triggers>
@@ -169,9 +169,9 @@
                                             <hc:NumericUpDown hc:InfoElement.Title="Center Frequency(MHz): "
                                                               hc:InfoElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="180"
-                                                              IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                              IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                                               Minimum="0"
-                                                              Value="{Binding GenerateChirpAodWaveParamDto.CenterFrequency}">
+                                                              Value="{Binding GenerateChirpAODWaveformParam.CenterFrequency}">
                                                 <hc:NumericUpDown.Style>
                                                     <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                                         <Style.Triggers>
@@ -185,9 +185,9 @@
                                             <hc:ComboBox hc:InfoElement.Title="Monotonic: "
                                                          hc:InfoElement.TitlePlacement="Left"
                                                          hc:InfoElement.TitleWidth="180"
-                                                         IsEnabled="{Binding GenerateChirpAodWaveParamDto.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                                         IsEnabled="{Binding GenerateChirpAODWaveformParam.IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}"
-                                                         SelectedItem="{Binding GenerateChirpAodWaveParamDto.FunctionMonotonicTypeEnum}">
+                                                         SelectedItem="{Binding GenerateChirpAODWaveformParam.FunctionMonotonicTypeEnum}">
                                                 <hc:ComboBox.Style>
                                                     <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
                                                         <Style.Triggers>
@@ -210,27 +210,27 @@
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding GenerateChirpAodWaveParamDto.SampleRate}" />
+                                                      Value="{Binding GenerateChirpAODWaveformParam.SampleRate}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Maximum="1"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding GenerateChirpAodWaveParamDto.Amplitude}" />
+                                                      Value="{Binding GenerateChirpAODWaveformParam.Amplitude}" />
                                     <Separator />
                                     <hc:NumericUpDown hc:InfoElement.Title="Zero Count(sa): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding GenerateChirpAodWaveParamDto.ZeroSampleCount}" />
+                                                      Value="{Binding GenerateChirpAODWaveformParam.ZeroSampleCount}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Endpoint Count(sa): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding GenerateChirpAodWaveParamDto.EndpointSampleCount}" />
+                                                      Value="{Binding GenerateChirpAODWaveformParam.EndpointSampleCount}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>

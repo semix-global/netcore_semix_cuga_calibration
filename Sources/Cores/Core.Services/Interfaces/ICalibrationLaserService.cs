@@ -2,6 +2,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -151,17 +152,17 @@ public interface ICalibrationLaserService
     /// 根据prescan参数生成prescan波形列表
     /// </summary>
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="generatePrescanAodWaveParamDto">prescan参数</param>
+    /// <param name="generatePrescanAODWaveformParam">prescan参数</param>
     /// <returns>prescan波形列表</returns>
-    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAodWaveParamDto generatePrescanAodWaveParamDto);
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam);
 
     /// <summary>
     /// 根据chirp参数生成chirp波形列表
     /// </summary>
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="generateChirpAodWaveParamDto">chirp参数</param>
+    /// <param name="generateChirpAODWaveformParam">chirp参数</param>
     /// <returns>chirp波形列表</returns>
-    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAodWaveParamDto generateChirpAodWaveParamDto);
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAODWaveformParam generateChirpAODWaveformParam);
 
     #endregion 波形生成
 
