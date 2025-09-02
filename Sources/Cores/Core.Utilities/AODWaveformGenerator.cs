@@ -22,8 +22,8 @@ public static class AODWaveformGenerator
     /// <param name="OffsetFrequencyPeriodMultiple">偏移频率的2π周期的倍率</param>
     public sealed record GenerateAODWaveformConfiguration(
         string DirectoryName,
-        double OffsetFrequency = 0,
-        double OffsetFrequencyPeriodMultiple = 0)
+        double OffsetFrequency,
+        double OffsetFrequencyPeriodMultiple)
     {
         public string FileNameWithoutExtension { get; internal set; } = string.Empty;
 
@@ -65,7 +65,7 @@ public static class AODWaveformGenerator
         int GenerateRetryTimes = 1000) : AbstractGenerateAODWaveformParam(
         BandWidth,
         CenterFrequency,
-        AODSoundSpeed > 0 ? Math.Round(SoundPacketLength / AODSoundSpeed * 1000d, MidpointRounding.AwayFromZero) : -1, // (ns): mm/(mm/us) * 1000 = us * 1000 = ns
+        AODSoundSpeed > 0 ? Math.Round(SoundPacketLength / AODSoundSpeed * 1000d, MidpointRounding.AwayFromZero) : -1d, // (ns): mm/(mm/us) * 1000 = us * 1000 = ns
         FunctionMonotonicTypeEnum,
         SampleRate,
         Amplitude,
@@ -99,10 +99,7 @@ public static class AODWaveformGenerator
             {
                 item.FileNameWithoutExtension = $"chirp" +
                                                 $"_{SoundPacketLength:0.###}mm" +
-                                                $"_{BandWidth:0.###}BWMhz" +
                                                 $"_{frequencyFileName}" +
-                                                $"_{FlatnessTime:0.###}ns" +
-                                                $"_{Amplitude:0.###}AMP" +
                                                 $"${NumberOfSamples + ZeroSampleCount}${ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodMultiple:0.###}$";
             }
         }
@@ -177,10 +174,8 @@ public static class AODWaveformGenerator
             foreach (var item in Configurations)
             {
                 item.FileNameWithoutExtension = $"prescan" +
-                                                $"_{BandWidth:0.###}BWMhz" +
-                                                $"_{frequencyFileName}" +
                                                 $"_{FlatnessTime:0.###}ns" +
-                                                $"_{Amplitude:0.###}AMP" +
+                                                $"_{frequencyFileName}" +
                                                 $"${NumberOfSamples + ZeroSampleCount}${ZeroSampleCount}$600$02${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodMultiple:0.###}$";
             }
         }
@@ -247,7 +242,7 @@ public static class AODWaveformGenerator
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
         };
 
-        public readonly int NumberOfSamples = (int)Math.Round(FlatnessTime * SampleRate / 1000 + 2 * EndpointSampleCount, MidpointRounding.AwayFromZero); // 总采样点的个数: ns * (Msa/s) / 1000 = ns * (Gsa/s) = (10^-9s)*(10^9sa/s) = sa
+        public readonly int NumberOfSamples = (int)Math.Round(FlatnessTime * SampleRate / 1000d + 2d * EndpointSampleCount, MidpointRounding.AwayFromZero); // 总采样点的个数: ns * (Msa/s) / 1000 = ns * (Gsa/s) = (10^-9s)*(10^9sa/s) = sa
 
         internal abstract void UpdateConfigurations();
 
@@ -413,9 +408,9 @@ public static class AODWaveformGenerator
                         dAstigmatismFrequencies = astigmatismCompensationCoefficient * t.PointwisePower(2);
                         dSphericalAberrationFrequencies = sphericalAberrationCompensationCoefficient * t.PointwisePower(3);
                         dSecondaryAstigmatismFrequencies = secondaryAstigmatismCompensationCoefficient * t.PointwisePower(4);
-                        dComaFrequencies = comaCompensationCoefficient * (2 * Math.PI * t / t.Maximum()).PointwiseSin();
-                        dTrefoilFrequencies = trefoilCompensationCoefficient * (6 * Math.PI * t / t.Maximum()).PointwiseSin();
-                        dQuadrafoilFrequencies = quadrafoilCompensationCoefficient * (8 * Math.PI * t / t.Maximum()).PointwiseSin();
+                        dComaFrequencies = comaCompensationCoefficient * (2d * Math.PI * t / t.Maximum()).PointwiseSin();
+                        dTrefoilFrequencies = trefoilCompensationCoefficient * (6d * Math.PI * t / t.Maximum()).PointwiseSin();
+                        dQuadrafoilFrequencies = quadrafoilCompensationCoefficient * (8d * Math.PI * t / t.Maximum()).PointwiseSin();
                         dAlphaOrderFrequencies = alphaOrderCoefficient * t.PointwisePower(alphaOrder);
 
                         break;
@@ -458,7 +453,7 @@ public static class AODWaveformGenerator
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector<double>>(nameof(functionMonotonicTypeEnum))
                 };
 
-                if (dFlatnessFrequencies.Exists(f => f <= 0 || f > generateAODWaveformParam.HighFrequency * 1.5)) ThrowHelper.ThrowArgumentException(nameof(dFlatnessFrequencies), $"Synthesized frequencies must be in the range (0, {generateAODWaveformParam.HighFrequency * 1.5:f3} MHz)");
+                if (dFlatnessFrequencies.Exists(f => f <= 0 || f > generateAODWaveformParam.HighFrequency * 1.5d)) ThrowHelper.ThrowArgumentException(nameof(dFlatnessFrequencies), $"Synthesized frequencies must be in the range (0, {generateAODWaveformParam.HighFrequency * 1.5d:f3} MHz)");
 
                 #endregion 频率
 
@@ -470,7 +465,7 @@ public static class AODWaveformGenerator
                 var fftDerivativeFrequencies = fftFrequencies.SubVectorRange(0, fftFrequencies.Count - 2);
 
                 // 寻找极值点
-                const double threshold = 0.0001;
+                const double threshold = 0.0001d;
                 var indices = fftDerivative.FindAbsAbove(threshold);
                 var headerIndices = GenerateUtils.LinearIndexRange(0, indices[0] - 1);
                 var flatnessIndices = GenerateUtils.LinearIndexRange(indices[0], indices[^1]);
@@ -642,8 +637,8 @@ public static class AODWaveformGenerator
                         var f = Math.Abs(fftFullFrequencies[index]);
                         var x = sincCoefficient * (f - flatnessCenterFrequency) / flatnessBandwidth;
                         var compensation = x == 0
-                            ? 1
-                            : 1 / (Math.Sin(x) / x + 1e-10);
+                            ? 1d
+                            : 1d / (Math.Sin(x) / x + 1e-10);
                         compensations[i] = compensation;
                     }
 
@@ -742,12 +737,12 @@ public static class AODWaveformGenerator
         {
             #region 相位
 
-            var dHeaderPhases = 2 * Math.PI * dHeaderFrequencies * dt;
+            var dHeaderPhases = 2d * Math.PI * dHeaderFrequencies * dt;
             var headerPhases = dHeaderPhases.IntegrateCumulative();
-            var dFlatnessPhases = 2 * Math.PI * dFlatnessFrequencies * dt;
+            var dFlatnessPhases = 2d * Math.PI * dFlatnessFrequencies * dt;
             var flatnessPhases = dFlatnessPhases.IntegrateCumulative();
-            if (offsetFrequency != 0 && offsetFrequencyPeriodMultiple != 0) flatnessPhases += 2 * Math.PI * dFlatnessFrequencies * offsetFrequencyPeriodMultiple * 1 / offsetFrequency;
-            var dFooterPhases = 2 * Math.PI * dFooterFrequencies * dt;
+            if (offsetFrequency != 0 && offsetFrequencyPeriodMultiple != 0) flatnessPhases += 2d * Math.PI * dFlatnessFrequencies * offsetFrequencyPeriodMultiple * 1d / offsetFrequency;
+            var dFooterPhases = 2d * Math.PI * dFooterFrequencies * dt;
             var footerPhases = dFooterPhases.IntegrateCumulative();
 
             #endregion 相位
@@ -756,7 +751,7 @@ public static class AODWaveformGenerator
 
             if (headerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], amplitude * headerPhases.PointwiseCos().PointwiseMultiply(Vector<double>.Build.DenseOfArray(headerSampleIndices) / headerSampleIndices.Length));
             aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], amplitude * flatnessPhases.PointwiseCos());
-            if (footerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerPhases.PointwiseCos().PointwiseMultiply(1 - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1) / footerSampleIndices.Length));
+            if (footerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerPhases.PointwiseCos().PointwiseMultiply(1d - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1d) / footerSampleIndices.Length));
 
             #endregion 波形
 
