@@ -385,9 +385,12 @@ public static class AODWaveformGenerator
         var dFlatnessFrequencies = Vector<double>.Build.Dense(0);
         var dFooterFrequencies = Vector<double>.Build.Dense(0);
 
-        var minFlatnessFrequency = 0D;
-        var maxFlatnessFrequency = 0D;
+        var minFlatnessFrequency = 0d;
+        var maxFlatnessFrequency = 0d;
 
+        Vector<Complex> fftResult;
+        Vector<double> fftFrequencies;
+        Vector<double> fftMagnitudes;
         bool isSuccess;
         Exception? exception = null;
 
@@ -459,7 +462,7 @@ public static class AODWaveformGenerator
 
                 #endregion 频率
 
-                var (_, fftFrequencies, fftMagnitudes) = FFT(0, 0);
+                FFT(0, 0);
 
                 #region 平坦部分的起始和终止频率
 
@@ -602,7 +605,7 @@ public static class AODWaveformGenerator
         var itemList = new List<GenerateAODWaveformResultItem>();
         foreach (var item in configurations)
         {
-            var (fftResult, fftFrequencies, fftMagnitudes) = FFT(item.OffsetFrequency, item.OffsetFrequencyPeriodMultiple);
+            FFT(item.OffsetFrequency, item.OffsetFrequencyPeriodMultiple);
             var frequencyCompensationsResult = new List<Point>();
 
             if (isSuccess && functionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && (frequencyAmplitudes?.Length > 0 || sincCoefficient != 0))
@@ -735,7 +738,7 @@ public static class AODWaveformGenerator
             )
         );
 
-        (Vector<Complex> FFTResult, Vector<double> FFTFrequencies, Vector<double> FFTMagnitudes) FFT(double offsetFrequency, double offsetFrequencyPeriodMultiple)
+        void FFT(double offsetFrequency, double offsetFrequencyPeriodMultiple)
         {
             #region 相位
 
@@ -760,12 +763,10 @@ public static class AODWaveformGenerator
             #region 傅里叶
 
             var flatnessAodWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
-            var fftResult = flatnessAodWaveformSignals.ToComplex().FastFourierTransform();
-            var (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(sampleRate);
+            fftResult = flatnessAodWaveformSignals.ToComplex().FastFourierTransform();
+            (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(sampleRate);
 
             #endregion 傅里叶
-
-            return (fftResult, fftFrequencies, fftMagnitudes);
         }
     }
 }
