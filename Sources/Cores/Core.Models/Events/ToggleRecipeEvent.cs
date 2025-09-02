@@ -13,7 +13,7 @@ public static class ToggleRecipeEventFactory
     {
         return new ValueChangedMessage<ToggleRecipeEvent>(new ToggleRecipeEvent
         {
-            IsRefreshRecipeList = value,
+            IsRefreshRecipeList = value
         });
     }
 }

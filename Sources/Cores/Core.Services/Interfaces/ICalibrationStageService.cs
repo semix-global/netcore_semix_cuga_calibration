@@ -381,14 +381,14 @@ public interface ICalibrationStageService
     /// <param name="xScale">X轴比例系数</param>
     /// <param name="yScale">Y轴比例系数</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetGlobalScaleErrorCoefficient(double xScale, double yScale);
+    SxExecuteRet<bool> SetXYGlobalScale(double xScale, double yScale);
 
     /// <summary>
     /// 设置旋转比例误差系数
     /// </summary>
     /// <param name="tScale">T轴比例系数</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetRotateScaleErrorCoefficient(double tScale);
+    SxExecuteRet<bool> SetTScale(double tScale);
 
     #region Stage物理坐标
 

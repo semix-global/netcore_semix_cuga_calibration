@@ -519,7 +519,7 @@ public sealed partial class LaserAodDelayCalibrationViewModel(AfViewModel afView
         [
             .. Calibrations
                 .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)

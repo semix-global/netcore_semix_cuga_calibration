@@ -67,7 +67,7 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Wcf Service", 9).ConfigureAwait(false) == false) return;
 
             CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
-                microscopeViewModel.MicroscopeLensInfoToCgMicroscopeLens,
+                microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,
                 microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
             );
 

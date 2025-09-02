@@ -82,6 +82,7 @@ public partial class AODWaveformProfile : ObservableObject
 
     protected void SetByteList(IReadOnlyList<double> coefficientWindowList)
     {
+        foreach (var coefficient in coefficientWindowList) Guard.IsTrue(coefficient >= 0, "coefficient is muse be >= 0.");
         Guard.IsTrue(ShortList.Count == coefficientWindowList.Count, "Count is not equal.");
 
         /*

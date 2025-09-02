@@ -8,7 +8,6 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXTCCalibrationViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="800"
@@ -31,7 +30,7 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
-                           Status="{Binding Cache.Coefficient, StringFormat={}{0:f3}}"
+                           Status="{Binding Cache.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
@@ -78,14 +77,8 @@
                                  hc:InfoElement.TitleWidth="150"
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Coefficient: "
-                                 SelectedItem="{Binding Cache.Coefficient}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 SelectedItem="{Binding Cache.LaserLightInformation}"
+                                 ItemsSource="{Binding LaserLightInformationList}" />
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"

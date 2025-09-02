@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.RotateScaleError;
 public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckRotateScaleErrorDto>, IAdaptTo<CalibrationChuckRotateScaleError>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private bool _isPositive;

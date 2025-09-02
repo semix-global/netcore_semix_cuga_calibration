@@ -34,7 +34,7 @@ public sealed partial class ReticleMarkItemDto : ObservableCacheBase, ICloneable
         ReticleMaskTypeEnum = ReticleMaskTypeEnum,
         MaskWaferCellPosition = MaskWaferCellPosition,
         RecipeBrightFieldTemplateDto = RecipeBrightFieldTemplateDto.Clone(),
-        RecipeDarkFieldTemplateDto = RecipeDarkFieldTemplateDto.Clone(),
+        RecipeDarkFieldTemplateDto = RecipeDarkFieldTemplateDto.Clone()
     };
 
     public override bool Equals(object? obj)

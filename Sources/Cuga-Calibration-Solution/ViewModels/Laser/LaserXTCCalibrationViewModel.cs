@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -43,9 +44,13 @@ using MoreLinq.Extensions;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXTCCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserXTCCalibrationViewModel(
+    CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
+
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 
@@ -278,7 +283,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         DialogWindowProvider.ShowImage([
             (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch1"),
             (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch2"),
-            (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch3"),
+            (laserXTCCalibrationItemDto.Channel1ImageFilePath, "ch3")
         ]);
     }
 
@@ -393,7 +398,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             {
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
-                Cache.Coefficient,
+                Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
@@ -442,7 +447,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
 
             foreach (var pmtItem in LaserXTCCalibrationItemDtoList)
             {
-                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3, Cache.OpticsMagTypeEnum).ConfigureAwait(false);
+                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.LaserLightInformation.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3, Cache.OpticsMagTypeEnum).ConfigureAwait(false);
                 if ((isSuccess) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -485,7 +490,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             {
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.OpticsMagTypeEnum,
-                Cache.Coefficient,
+                Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
                 prescanFilePath,
@@ -493,7 +498,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 minWindowStartIndex,
                 windowToMinAmount,
                 judgeWindowStartIndex,
-                judgeWindowEndIndex,
+                judgeWindowEndIndex
             }), HtmlLogUniqueId.LoggingHtml());
             if (item.IsOk)
             {
@@ -523,7 +528,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 return false;
             }
 
-            var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, prescanFilePath, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, prescanFilePath, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
             LaserViewModel.SetGain(LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8).Gain);
 
@@ -598,7 +603,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
 
-                var coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
+                var coefficient = calibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient;
                 var resultPrescanWindowList = new List<double>();
 
                 for (var i = 0; i < startIndex; i++) // 1-1499, 都是按照系数来
@@ -706,7 +711,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 {
                     SelectReviewItemDto.PmtId,
                     VerifyCH1DelayOffset = ch1PmtDelay,
-                    VerifyCH2DelayOffset = ch2PmtDelay,
+                    VerifyCH2DelayOffset = ch2PmtDelay
                 }), HtmlLogUniqueId.LoggingHtml());
                 SelectReviewItemDto.IsVerified = false;
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")},PMT ID: {SelectReviewItemDto.PmtId}, " + $"ch1: ({ch1PmtDelay:f2}) ch2: ({ch2PmtDelay:f2})", DialogButtonsEnum.OK,
@@ -720,7 +725,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
                 {
                     SelectReviewItemDto.PmtId,
                     VerifyCH1DelayOffset = ch1PmtDelay,
-                    VerifyCH2DelayOffset = ch2PmtDelay,
+                    VerifyCH2DelayOffset = ch2PmtDelay
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, PMT ID: {SelectReviewItemDto.PmtId},ch1: ({ch1PmtDelay:f2}) ch2: ({ch2PmtDelay:f2})", DialogButtonsEnum.OK,
@@ -744,7 +749,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
             Cache.WidthPixel,
             Cache.OpticsMagTypeEnum,
             laserXTCCalibrationItemDto.FindPosition,
-            Cache.Coefficient,
+            Cache.LaserLightInformation,
             laserXTCCalibrationItemDto.Gain,
             Cache.PrescanInterval,
             detectImageDirectory
@@ -753,7 +758,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, Cache.PrescanFilePath, Cache.Coefficient);
+        var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, Cache.PrescanFilePath, Cache.LaserLightInformation.Coefficient);
         var k = 1d / Cache.PrescanInterval;
         var resultWindow = new List<double>();
         var startIndex = Cache.PrescanStartIndex;
@@ -761,24 +766,24 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         var endIndex = midIndex + Cache.PrescanInterval;
         for (var i = 0; i < startIndex; i++)
         {
-            resultWindow.Add(Cache.Coefficient);
+            resultWindow.Add(Cache.LaserLightInformation.Coefficient);
         }
 
         for (var i = startIndex; i < midIndex; i++)
         {
-            var rate = (1 - (i - startIndex) * k) * Cache.Coefficient;
+            var rate = (1 - (i - startIndex) * k) * Cache.LaserLightInformation.Coefficient;
             resultWindow.Add(rate);
         }
 
         for (var i = midIndex; i < endIndex; i++)
         {
-            var rate = ((i - midIndex) * k + k) * Cache.Coefficient;
+            var rate = ((i - midIndex) * k + k) * Cache.LaserLightInformation.Coefficient;
             resultWindow.Add(rate);
         }
 
         for (var i = endIndex; i < prescanDto.ShortList.Count; i++)
         {
-            resultWindow.Add(Cache.Coefficient);
+            resultWindow.Add(Cache.LaserLightInformation.Coefficient);
         }
 
         var temp = prescanDto.Clone();
@@ -878,7 +883,7 @@ public sealed partial class LaserXTCCalibrationViewModel(CalibrationSetting cali
         [
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
         if (isSave == false) return true;
 

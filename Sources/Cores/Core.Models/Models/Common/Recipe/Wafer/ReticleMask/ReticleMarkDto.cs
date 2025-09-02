@@ -20,6 +20,6 @@ public sealed partial class ReticleMarkDto : ObservableCacheBase, ICloneable<Ret
     {
         MicrosocpeReticleMarkItemList = [.. MicrosocpeReticleMarkItemList.Select(t => t.Clone())],
         ChuckReticleMarkItemList = [.. ChuckReticleMarkItemList.Select(t => t.Clone())],
-        LaserReticleMarkItemList = [.. LaserReticleMarkItemList.Select(t => t.Clone())],
+        LaserReticleMarkItemList = [.. LaserReticleMarkItemList.Select(t => t.Clone())]
     };
 }

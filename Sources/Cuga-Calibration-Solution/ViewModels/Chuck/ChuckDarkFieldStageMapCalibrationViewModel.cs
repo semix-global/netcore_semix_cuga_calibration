@@ -536,7 +536,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 Cache.FirstStageMapPosition,
-                (false, 0.85),
+                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 Cache.XWidthPixel,
@@ -710,7 +710,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                 brightFieldStageMapDtoRowNumber = brightFieldStageMapDto.RowNumber,
                 brightFieldStageMapDtoColumnNumber = brightFieldStageMapDto.ColumnNumber,
                 brightFieldStageMapDtoRowCellHeight = brightFieldStageMapDto.RowCellHeight,
-                brightFieldStageMapDtoColumnCellWidth = brightFieldStageMapDto.ColumnCellWidth,
+                brightFieldStageMapDtoColumnCellWidth = brightFieldStageMapDto.ColumnCellWidth
             }), HtmlLogUniqueId.LoggingHtml());
 
             var expandStageMapDto = CalibrationAlgorithmService.ExpandStageMapDto(darkFieldStageMap, brightFieldStageMapDto, HtmlLogUniqueId);
@@ -877,7 +877,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
                 Logger.LogHtmlInformation("Bright Field Alignment Ok", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    alignmentResultDto.Degrees,
+                    alignmentResultDto.Degrees
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 chuckBrightFieldStageMapCalibrationViewModel.HtmlLogUniqueId = HtmlLogUniqueId;
@@ -1020,7 +1020,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
 
                     var rowDarkFieldImageDtoList = LaserViewModel.GetChuckDarkFieldRowLineScanImage(
                         points,
-                        (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+                        (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                         false,
                         Cache.CIBConfiguration,
                         Cache.XWidthPixel,
@@ -1106,7 +1106,7 @@ public sealed partial class ChuckDarkFieldStageMapCalibrationViewModel(
                                 HtmlTab = new HtmlTab(new
                                 {
                                     OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(point)]),
-                                    TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                                    TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                                 })
                             }), HtmlLogUniqueId.LoggingHtml());
                         }

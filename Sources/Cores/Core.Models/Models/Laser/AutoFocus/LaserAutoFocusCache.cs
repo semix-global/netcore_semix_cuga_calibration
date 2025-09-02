@@ -7,7 +7,7 @@ namespace Core.Models.Models.Laser.AutoFocus;
 public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

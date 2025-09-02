@@ -84,14 +84,28 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<double> LevelToCoefficient(double level)
+    public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
+
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<double> CoefficientToLevel(double coefficient)
+    public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = GetLaserLightInformationList();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
+
+        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
+
+        return result is null
+            ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
+            : SxExecuteRetHelper.CreateSuccess(result);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
@@ -266,7 +280,11 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(CalChipSiteModelEnum calChipSiteModelEnum, int pmtId, double? coefficient = null, Point? position = null)
+    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        int pmtId,
+        double? coefficient = null,
+        Point? point = null)
     {
         throw new NotImplementedException();
     }

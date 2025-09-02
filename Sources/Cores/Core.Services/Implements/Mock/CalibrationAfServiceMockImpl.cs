@@ -128,14 +128,14 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient()
+    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensation()
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess((_nscOffsetValue, _nscGainValue));
     }
 
-    public SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain)
+    public SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain)
     {
         _nscOffsetValue = offset;
         _nscGainValue = gain;
@@ -157,7 +157,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.NextDouble()).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 

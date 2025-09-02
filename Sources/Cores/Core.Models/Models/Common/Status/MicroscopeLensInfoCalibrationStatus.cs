@@ -7,7 +7,7 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class MicroscopeLensInfoCalibrationStatus : ObservableCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private bool _isCalibrated;

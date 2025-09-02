@@ -11,10 +11,10 @@ namespace Core.Models.Models.Chuck.Gantry;
 public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _position1;

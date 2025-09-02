@@ -152,7 +152,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
                 childWcfPropertyInfos.ForEach(t =>
                 {
                     var childPropertyDescribe = t.GetCustomAttribute<DescriptionAttribute>()!.Description;
-                    var requiredCalibrationParam = new RequiredCalibrationParam() { CalibrationName = childPropertyDescribe, CalibrationClassName = t.PropertyType.Name.Replace("[]", string.Empty) };
+                    var requiredCalibrationParam = new RequiredCalibrationParam { CalibrationName = childPropertyDescribe, CalibrationClassName = t.PropertyType.Name.Replace("[]", string.Empty) };
                     var cacheReflectValueResult = cacheReflectValue!.SingleOrDefault(t => t.CalibrationName == childPropertyDescribe);
                     if (cacheReflectValueResult is not null)
                         requiredCalibrationParam.IsRequired = cacheReflectValueResult.IsRequired;

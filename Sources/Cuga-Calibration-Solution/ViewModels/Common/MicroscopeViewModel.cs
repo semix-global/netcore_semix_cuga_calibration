@@ -40,13 +40,6 @@ public sealed class MicroscopeViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public CgMicroscopeLens MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation)
-    {
-        var ret = calibrationMicroscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public MicroscopeLensInformation CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
     {
         var ret = calibrationMicroscopeService.CgMicroscopeLensToMicroscopeLensInfo(cgMicroscopeLens);
@@ -235,8 +228,8 @@ public sealed class MicroscopeViewModel(
                         MidVoltage = midVoltage,
                         CurrentTraceBufferValueAverage = currentAfErrorAverage,
                         TraceBuffer = new HtmlPlot2DLinesChart([
-                            ("CurrentTraceBuffer", currentTraceBuffer.ToPoints()),
-                        ], "TraceBuffer"),
+                            ("CurrentTraceBuffer", currentTraceBuffer.ToPoints())
+                        ], "TraceBuffer")
                     }), logGuid.Value.LoggingHtml());
                 else
                     logger.LogWarning("{@Name} Set Voltage Error Time {@Times}", nameof(MicroscopeViewModel), iterations);
@@ -281,8 +274,8 @@ public sealed class MicroscopeViewModel(
                 logger.LogHtmlInformation($"{logName}: Iterations Result", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     BuffersAverage = new HtmlPlot2DLinesChart([
-                        ("BuffersAverage", buffersAverageList.ToPoints()),
-                    ], "BuffersAverage"),
+                        ("BuffersAverage", buffersAverageList.ToPoints())
+                    ], "BuffersAverage")
                 }), logGuid.Value.LoggingHtml());
         }
     }

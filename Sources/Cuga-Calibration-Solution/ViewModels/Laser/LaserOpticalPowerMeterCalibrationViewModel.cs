@@ -284,7 +284,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
             var repeatCout = 0;
 
@@ -418,7 +418,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
 
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainCoefficient);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
             var resultList = new List<double>();
 
@@ -475,7 +475,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel : Calibra
         [
             .. Calibrations
                 .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);

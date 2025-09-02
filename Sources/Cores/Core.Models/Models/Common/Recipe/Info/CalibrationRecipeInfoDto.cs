@@ -31,13 +31,13 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
     /// 低倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLowMag = new();
+    private MicroscopeLensInformation _microscopeLowMag = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeHighMag = new();
+    private MicroscopeLensInformation _microscopeHighMag = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
@@ -64,7 +64,7 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
 
     public CalibrationRecipeInfoDto AdaptIn(SysRecipeInformationDto obj)
     {
-        return new CalibrationRecipeInfoDto()
+        return new CalibrationRecipeInfoDto
         {
             RecipeName = obj.RecipeDbName,
             DescribeName = obj.DescribeInformation,

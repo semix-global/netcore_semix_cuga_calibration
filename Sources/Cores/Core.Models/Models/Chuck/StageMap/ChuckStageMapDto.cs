@@ -14,7 +14,7 @@ namespace Core.Models.Models.Chuck.StageMap;
 public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

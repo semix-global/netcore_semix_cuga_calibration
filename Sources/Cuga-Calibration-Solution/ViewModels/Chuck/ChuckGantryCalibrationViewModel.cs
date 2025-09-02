@@ -520,7 +520,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                     ResultImage1 = new HtmlImage(ResultChuckGantryDto.FilePath1,
                         htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     ResultImage2 = new HtmlImage(ResultChuckGantryDto.FilePath2,
-                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             result = true;
@@ -742,7 +742,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                     {
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                         {
-                            Cache.AlgorithmTemplateTypeEnum,
+                            Cache.AlgorithmTemplateTypeEnum
                         }), HtmlLogUniqueId.LoggingHtml());
                         return true;
                     });

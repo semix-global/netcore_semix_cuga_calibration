@@ -68,7 +68,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Content="{Binding .LaserLightInformation, StringFormat={}{0:f3}}"
+                        <RadioButton Content="{Binding .LaserLightInformation}"
                                      FontSize="25"
                                      Tag="{Binding .LaserLightInformation}"
                                      GroupName="2731d392-e083-442e-bb8c-c4486169f7f7">

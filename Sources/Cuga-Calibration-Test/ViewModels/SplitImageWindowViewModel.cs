@@ -76,7 +76,7 @@ public sealed partial class SplitImageWindowViewModel(
                     IdealUmPerPixel,
                     CalUmPerPixelRawImageFilePath,
                     CalUmPerPixelCount = CalUmPerPixelImageCount,
-                    TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }), guid.LoggingHtml());
 
                 using var fileSteam = File.OpenRead(CalUmPerPixelRawImageFilePath);
@@ -174,7 +174,7 @@ public sealed partial class SplitImageWindowViewModel(
                     SplitRawImageFilePath,
                     SplitWidthPixel,
                     SplitCount = SplitImageCount,
-                    TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }), guid.LoggingHtml());
 
                 var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);

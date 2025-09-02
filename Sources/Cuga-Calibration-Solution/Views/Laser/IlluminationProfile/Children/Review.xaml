@@ -114,7 +114,7 @@
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn Width="100"
                                                 Header="Coefficient"
-                                                DisplayMemberBinding="{Binding LaserLightInformation, StringFormat={}{0:f3}}" />
+                                                DisplayMemberBinding="{Binding LaserLightInformation}" />
                                 <GridViewColumn Width="100"
                                                 Header="Optics Mag"
                                                 DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />

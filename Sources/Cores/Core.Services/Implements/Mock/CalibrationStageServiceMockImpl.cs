@@ -412,12 +412,12 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(new Point(89500, -20300));
     }
 
-    public SxExecuteRet<bool> SetGlobalScaleErrorCoefficient(double xScale, double yScale)
+    public SxExecuteRet<bool> SetXYGlobalScale(double xScale, double yScale)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetRotateScaleErrorCoefficient(double tScale)
+    public SxExecuteRet<bool> SetTScale(double tScale)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }

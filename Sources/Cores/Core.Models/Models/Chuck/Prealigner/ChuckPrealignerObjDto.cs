@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.Prealigner;
 public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneable<ChuckPrealignerObjDto>, IAdaptTo<CalibrationPrealignerObj>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _offsetPosition;
