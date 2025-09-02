@@ -178,7 +178,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     protected override async Task<bool> CancelingAsync()
     {
         if (CacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>().IsOk == false)
-            StageViewModel.SetRotateScaleErrorCoefficient(1.0);
+            StageViewModel.SetTScale(1.0);
 
         return await base.CancelingAsync().ConfigureAwait(false);
     }
@@ -301,7 +301,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                     if (Save(ResultRotateScaleErrorDto, cancellationToken) == false)
                     {
                         ResultRotateScaleErrorDto.IsCalibrated = false;
-                        StageViewModel.SetRotateScaleErrorCoefficient(1.0);
+                        StageViewModel.SetTScale(1.0);
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }
@@ -652,7 +652,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                     AngleErrorValueCurve = new HtmlPlot2DLinesChart([
                         ("Times-CalibrationAngleErrorValue", angleErrorList.Select(t => Cache.RotateAngle * 2 - t).ToList().ToPoints()),
                         ("Times-AppliedAngleErrorValue", RotateErrorDtoItemDtoList.Select(t => Cache.RotateAngle * 2 - t.RealAngleErrorsAverage).ToList().ToPoints())
-                    ], "AngleErrorValueCurve"),
+                    ], "AngleErrorValueCurve")
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetAbsoluteStageTheta(Cache.P5ResultAngle);
@@ -722,7 +722,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                     { StageDirectionTypeEnum.Right, IdeaPositionCache.HighGlobalScaleErrorCacheItem.RightPosition }
                 };
 
-                StageViewModel.SetRotateScaleErrorCoefficient(ReviewDto.AppliedScaleT);
+                StageViewModel.SetTScale(ReviewDto.AppliedScaleT);
                 var verifyItemDto = SelectRotateScaleErrorDto;
 
                 _isFastMode = !IsAutoCalibrate;
@@ -799,7 +799,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
     {
         try
         {
-            StageViewModel.SetRotateScaleErrorCoefficient(tempRotateScaleErrorDto.AppliedScaleT);
+            StageViewModel.SetTScale(tempRotateScaleErrorDto.AppliedScaleT);
             // 正向
             Logger.LogHtmlInformation("Positive Rotate", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
             var degreeAngle = -Cache.RotateAngle + Cache.P5ResultAngle;

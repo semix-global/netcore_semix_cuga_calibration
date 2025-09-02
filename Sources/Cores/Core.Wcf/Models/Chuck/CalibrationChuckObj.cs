@@ -7,6 +7,7 @@ using System.Linq;
 
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
+
 #else
 using Cuga.Data.DataStruct.ADS;
 
@@ -237,7 +238,7 @@ public sealed class StageMap
                         .. Enumerable.Range(0, ColumnNumber).Select(column => new CgErrorMapCol
                         {
                             Id = column,
-                            Location = ErrorMatrix.ElementAtOrDefault(row)?.ElementAtOrDefault(column) ?? CgPoint.Empty,
+                            Location = ErrorMatrix.ElementAtOrDefault(row)?.ElementAtOrDefault(column) ?? CgPoint.Empty
                         })
                     ]
                 })

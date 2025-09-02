@@ -646,7 +646,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
         [
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId && t.Channel == itemDto.Channel) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         if (isSave == false) return true;

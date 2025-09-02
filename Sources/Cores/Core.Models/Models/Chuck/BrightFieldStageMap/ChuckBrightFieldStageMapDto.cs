@@ -8,7 +8,7 @@ namespace Core.Models.Models.Chuck.BrightFieldStageMap;
 public sealed partial class ChuckBrightFieldStageMapDto : CalibrationDtoBase, ICloneable<ChuckBrightFieldStageMapDto>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private StageMapDto _calibrationStageMap = new();

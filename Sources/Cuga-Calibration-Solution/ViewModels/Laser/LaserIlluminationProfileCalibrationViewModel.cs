@@ -497,7 +497,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
             {
                 PmtId = CalibrationConstantsHelper.MainPmtId,
                 ChannelId = Cache.ChannelId,
-                PmtIdPosition = Cache.FindPosition,
+                PmtIdPosition = Cache.FindPosition
             };
 
             Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt = mainPmtCacheItem;
@@ -1695,7 +1695,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel(
         [
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.LaserLightInformation == itemDto.LaserLightInformation) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         return CacheProvider.SetArray(Calibrations, cancellationToken)

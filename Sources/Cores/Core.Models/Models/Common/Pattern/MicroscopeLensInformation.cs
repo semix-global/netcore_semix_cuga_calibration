@@ -1,5 +1,4 @@
 using CommunityToolkit.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.NoSQL.DB.Providers.Bases;
@@ -7,7 +6,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public sealed partial class MicroscopeLensInformation :
+public sealed class MicroscopeLensInformation :
     ObservableCacheBase,
     IEquatable<MicroscopeLensInformation>,
     IFormattable,
@@ -17,14 +16,31 @@ public sealed partial class MicroscopeLensInformation :
 {
     public static readonly MicroscopeLensInformation Default = new();
 
-    [ObservableProperty]
     private string _lensName = "N/A";
-
-    [ObservableProperty]
     private int _lensCode = -1;
+    private double _objectiveMagnification = -1;
 
-    [ObservableProperty]
-    private int _magnification = -1;
+    public string LensName
+    {
+        get => _lensName;
+        private set => SetProperty(ref _lensName, value);
+    }
+
+    public int LensCode
+    {
+        get => _lensCode;
+        private set => SetProperty(ref _lensCode, value);
+    }
+
+    public double ObjectiveMagnification
+    {
+        get => _objectiveMagnification;
+        private set => SetProperty(ref _objectiveMagnification, value);
+    }
+
+    private MicroscopeLensInformation()
+    {
+    }
 
     #region IEquatable、IFormattable
 
@@ -32,7 +48,7 @@ public sealed partial class MicroscopeLensInformation :
 
     public override bool Equals(object? obj) => obj is MicroscopeLensInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, Magnification);
+    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, ObjectiveMagnification);
 
     public override string ToString() => ToString(null);
 
@@ -49,12 +65,18 @@ public sealed partial class MicroscopeLensInformation :
         (_, null) => false,
         (_, _) => ReferenceEquals(left, right) || (Equals(left.LensName, right.LensName) &&
                                                    Equals(left.LensCode, right.LensCode) &&
-                                                   Equals(left.Magnification, right.Magnification))
+                                                   Equals(left.ObjectiveMagnification, right.ObjectiveMagnification))
     };
 
     public static bool operator !=(MicroscopeLensInformation? left, MicroscopeLensInformation? right) => !(left == right);
 
     #endregion Operator
+
+    #region Deconstruct
+
+    public void Deconstruct(out string lensName, out int lensCode, out double magnification) => (lensName, lensCode, magnification) = (LensName, LensCode, ObjectiveMagnification);
+
+    #endregion Deconstruct
 
     #region Mapper
 
@@ -63,8 +85,8 @@ public sealed partial class MicroscopeLensInformation :
         LensName = LensName,
         LensCode = Enum.IsDefined(typeof(CgMicroscopeLens), LensCode)
             ? (CgMicroscopeLens)LensCode
-            : throw new ArgumentException("Invalid LensCode value"),
-        Lens = Magnification
+            : ThrowHelper.ThrowArgumentOutOfRangeException<CgMicroscopeLens>(nameof(LensCode)),
+        Lens = Convert.ToInt32(ObjectiveMagnification)
     };
 
     public MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
@@ -73,7 +95,7 @@ public sealed partial class MicroscopeLensInformation :
 
         LensCode = (int)obj.LensCode;
         LensName = obj.LensName;
-        Magnification = obj.Lens;
+        ObjectiveMagnification = obj.Lens;
 
         return this;
     }
@@ -82,7 +104,7 @@ public sealed partial class MicroscopeLensInformation :
     {
         LensName = LensName,
         LensCode = LensCode,
-        Magnification = Magnification
+        ObjectiveMagnification = ObjectiveMagnification
     };
 
     #endregion Mapper

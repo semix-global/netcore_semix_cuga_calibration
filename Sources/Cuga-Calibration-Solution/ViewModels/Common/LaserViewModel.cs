@@ -85,6 +85,13 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public LaserLightInformation LevelToLaserLightInformation(double level)
+    {
+        var ret = calibrationLaserService.LevelToLaserLightInformation(level);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public DarkFieldChirpAodWaveDto ReadChirpAodByCustomFile(string filePath)
     {
         var ret = calibrationLaserService.ReadChirpAodByCustomFile(filePath);
@@ -275,18 +282,18 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public (double Ecs, double AfMotor) RuntimeAfCalibration
-    (Point? position = null,
-        double? lightCoefficient = null,
+    public (double Ecs, double AfMotor) RuntimeAfCalibration(
+        Point? point = null,
+        LaserLightInformation? laserLightInformation = null,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         int pmtId = CalibrationConstantsHelper.MainPmtId)
     {
-        var coefficient = lightCoefficient is null ? lightCoefficient : calibrationSetting.SettingCommonParam.MainCoefficient;
+        var lightInformation = laserLightInformation is null ? laserLightInformation : calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
-        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && position is not null)
-            position = stageViewModel.MachineToBrightFieldPosition(position.Value);
+        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel && point is not null)
+            point = stageViewModel.MachineToBrightFieldPosition(point.Value);
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, coefficient, position);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -300,7 +307,7 @@ public sealed class LaserViewModel(
 
     public bool TrySendAodFile(
         OpticsMagTypeEnum yOpticsMagTypeEnum,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         out string errorMessage)
     {
@@ -308,12 +315,12 @@ public sealed class LaserViewModel(
 
         if (customPrescanAod.IsCustomPrescanAod == false)
         {
-            Guard.IsNotNull(customPrescanAod.Coefficient, nameof(customPrescanAod.Coefficient));
+            Guard.IsNotNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
-            SetPrescanAODWaveProfileByCoefficient(yOpticsMagTypeEnum, customPrescanAod.Coefficient.Value);
+            SetPrescanAODWaveProfileByCoefficient(yOpticsMagTypeEnum, customPrescanAod.LaserLightInformation.Coefficient);
         }
         else
-            Guard.IsNull(customPrescanAod.Coefficient, nameof(customPrescanAod.Coefficient));
+            Guard.IsNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
         if (isCustomChirpAod == false)
         {
@@ -340,25 +347,6 @@ public sealed class LaserViewModel(
 
     #endregion
 
-
-    /// <summary>
-    /// 单点采图三通道图像
-    /// </summary>
-    /// <param name="calChipSiteModelEnum"></param>
-    /// <param name="position"></param>
-    /// <param name="xWidthPixel"></param>
-    /// <param name="yOpticsMagTypeEnum"></param>
-    /// <param name="xStageSpeedEnum"></param>
-    /// <param name="pmtId"></param>
-    /// <param name="stageCoordinateSystemEnum"></param>
-    /// <param name="cibConfiguration">采图模式</param>
-    /// <param name="customPrescanAod"></param>
-    /// <param name="isCustomChirpAod"></param>
-    /// <param name="isForward"></param>
-    /// <param name="isAutoFocus"></param>
-    /// <param name="isRtfc"></param>
-    /// <returns>三通道图像</returns>
-    /// <exception cref="CugaException"></exception>
     public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
@@ -368,7 +356,7 @@ public sealed class LaserViewModel(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         bool isForward = true,
         bool isAutoFocus = true,
@@ -437,28 +425,10 @@ public sealed class LaserViewModel(
         }
     }
 
-    /// <summary>
-    /// 单点采图指定通道图像
-    /// </summary>
-    /// <param name="calChipSiteModelEnum"></param>
-    /// <param name="position"></param>
-    /// <param name="customPrescanAod"></param>
-    /// <param name="isCustomChirpAod"></param>
-    /// <param name="cIbConfiguration">采图模式</param>
-    /// <param name="xWidthPixel"></param>
-    /// <param name="yOpticsMagTypeEnum"></param>
-    /// <param name="xStageSpeedEnum"></param>
-    /// <param name="pmtId"></param>
-    /// <param name="channelId"></param>
-    /// <param name="stageCoordinateSystemEnum"></param>
-    /// <param name="isForward"></param>
-    /// <param name="isAutoFocus"></param>
-    /// <param name="isRtfc"></param>
-    /// <returns>指定通道图像</returns>
     public DarkFieldImageDto GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         CIBConfiguration cIbConfiguration,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
@@ -471,7 +441,20 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true,
         bool? isRtfc = true)
     {
-        var result = GetDarkFieldLineScanImageList(calChipSiteModelEnum, position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, cIbConfiguration, customPrescanAod, isCustomChirpAod, isForward, isAutoFocus, isRtfc);
+        var result = GetDarkFieldLineScanImageList(
+            calChipSiteModelEnum,
+            position,
+            xWidthPixel,
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum,
+            pmtId,
+            stageCoordinateSystemEnum,
+            cIbConfiguration,
+            customPrescanAod,
+            isCustomChirpAod,
+            isForward,
+            isAutoFocus,
+            isRtfc);
 
         var darkFieldImageDto = result.Single(t => t.ChannelId == channelId);
 
@@ -507,7 +490,7 @@ public sealed class LaserViewModel(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         bool isForward = true,
         bool isAutoFocus = true)
@@ -583,7 +566,7 @@ public sealed class LaserViewModel(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         bool isAutoFocus = true)
     {
@@ -646,7 +629,7 @@ public sealed class LaserViewModel(
     /// <exception cref="CugaException"></exception>
     public List<DarkFieldImageDto> GetChuckDarkFieldRowLineScanImage(
         List<Point> positionList,
-        (bool IsCustomPrescanAod, double? Coefficient) customPrescanAod,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         CIBConfiguration cibConfiguration,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
@@ -703,7 +686,7 @@ public sealed class LaserViewModel(
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
-    /// <param name="coefficient">功率</param>
+    /// <param name="laserLightInformation">功率</param>
     /// <param name="isAutoFocus"></param>
     /// <param name="isRtfc"></param>
     /// <exception cref="AlgorithmException"></exception>
@@ -728,11 +711,11 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        double coefficient = Constants.NegInt32Value,
+        LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true,
         bool? isRtfc = true)
     {
-        if (coefficient <= 0) coefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
+        if (laserLightInformation is null) laserLightInformation = calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
         resultPosition = Point.Origin;
         resultScore = 0;
@@ -770,7 +753,7 @@ public sealed class LaserViewModel(
             using var darkFieldImageDto = GetDarkFieldLineScanImage(
                 calChipSiteModelEnum,
                 position,
-                (false, coefficient),
+                (false, laserLightInformation),
                 false,
                 cibConfiguration,
                 xWidthPixel,
@@ -832,7 +815,7 @@ public sealed class LaserViewModel(
             using var darkFieldImageDtoResult = GetDarkFieldLineScanImage(
                 calChipSiteModelEnum,
                 resultPosition,
-                (false, coefficient),
+                (false, laserLightInformation),
                 false,
                 cibConfiguration,
                 xWidthPixel,

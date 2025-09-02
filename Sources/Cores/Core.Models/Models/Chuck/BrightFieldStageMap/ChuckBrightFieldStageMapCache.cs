@@ -18,7 +18,7 @@ public sealed partial class ChuckBrightFieldStageMapCache : CalibrationCacheBase
     private int _calculateContainColumnMinCount = 8;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
     public int RowNumber

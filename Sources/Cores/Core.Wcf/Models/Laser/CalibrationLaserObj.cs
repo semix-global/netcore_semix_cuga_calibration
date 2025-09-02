@@ -9,7 +9,7 @@ using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
 
 #else
 using Cuga.Data.DataStruct.ADS;
-
+using Cuga.Data.DataStruct.PMT;
 #endif
 
 namespace Core.Wcf.Models.Laser;
@@ -357,10 +357,26 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
     public string ChirpAodWaveFilePath { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// Prescan波形结果
+/// </summary>
 [Serializable]
 public class CalibrationPrescanAODWaveformResult
 {
+#if NETFRAMEWORK
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
+#else
+    /// <summary>
+    /// 电极Id
+    /// </summary>
     public int OpticsAODElectrodeEnum { get; set; }
+#endif
 
+    /// <summary>
+    /// 波形文件路径
+    /// </summary>
     public string FilePath { get; set; } = string.Empty;
 }

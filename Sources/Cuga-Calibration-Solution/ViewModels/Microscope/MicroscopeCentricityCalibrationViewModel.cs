@@ -109,7 +109,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 new() { StepName = "Select a location" },
                 .. ApplicationCookie.MicroscopeLensInformationList
                     .Select(t => t)
-                    .OrderByDescending(t => t.Magnification)
+                    .OrderByDescending(t => t.ObjectiveMagnification)
                     .ThenByDescending(t => t.LensCode)
                     .Select(info => new CalibrationItemStep { StepName = info.LensName })
             ]);
@@ -151,7 +151,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             .. Calibrations
                 .Where(t => t.IsCalibrated)
                 .Select(t => t.Clone())
-                .OrderBy(t => t.LensInformation.Magnification)
+                .OrderBy(t => t.LensInformation.ObjectiveMagnification)
                 .ThenBy(t => t.LensInformation.LensCode)
         ];
 
@@ -166,7 +166,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             > 1 => ApplicationCookie.MicroscopeLensInformationList
                 .Select(t => t)
-                .OrderByDescending(t => t.Magnification)
+                .OrderByDescending(t => t.ObjectiveMagnification)
                 .ThenByDescending(t => t.LensCode)
                 .ElementAt(CalibrationStepIndex - 1),
             1 => ApplicationCookie.MicroscopeLensInformationList[0],
@@ -195,7 +195,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList
             .Select(t => t)
-            .OrderByDescending(t => t.Magnification)
+            .OrderByDescending(t => t.ObjectiveMagnification)
             .ThenByDescending(t => t.LensCode)
             .ElementAt(CalibrationStepIndex);
 
@@ -562,7 +562,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         [
             .. Calibrations
                 .Where(t => t.LensInformation != itemDto.LensInformation),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         ReviewList =
@@ -595,7 +595,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 new() { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeLensInformationList
                     .Select(t => t)
-                    .OrderByDescending(t => t.Magnification)
+                    .OrderByDescending(t => t.ObjectiveMagnification)
                     .ThenByDescending(t => t.LensCode)
                     .Select(info => new CalibrationItemStep { StepName = info.LensName }),
                 new() { StepName = "Review" }
@@ -621,7 +621,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         {
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
-                                Cache.AlgorithmTemplateTypeEnum,
+                                Cache.AlgorithmTemplateTypeEnum
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });
@@ -659,7 +659,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                         return true;
                     }
-                    ,
                 };
                 if (await autoStepAction().ConfigureAwait(false) == false) return false;
                 if (await AutoStepAsync() == false) return false;

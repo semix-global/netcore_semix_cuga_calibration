@@ -172,7 +172,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
     protected override async Task<bool> CancelingAsync()
     {
         if (CacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk == false)
-            StageViewModel.RestoreGlobalScaleErrorCoefficient();
+            StageViewModel.SetXYGlobalScale();
 
         return await base.CancelingAsync().ConfigureAwait(false);
     }
@@ -295,7 +295,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                     if (Save(ResultGlobalScaleErrorDto, cancellationToken) == false)
                     {
                         ResultGlobalScaleErrorDto.IsCalibrated = false;
-                        StageViewModel.RestoreGlobalScaleErrorCoefficient();
+                        StageViewModel.SetXYGlobalScale();
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }
@@ -558,7 +558,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         await InvokeCalibrateAsync(() =>
         {
             ClearCalibrationTemp();
-            StageViewModel.SetGlobalScaleErrorCoefficient(1, 1);
+            StageViewModel.SetXYGlobalScale(1, 1);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -574,7 +574,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 { StageDirectionTypeEnum.Right, Cache.HighGlobalScaleErrorCacheItem.RightPosition }
             };
 
-            StageViewModel.RestoreGlobalScaleErrorCoefficient();
+            StageViewModel.SetXYGlobalScale();
 
             List<Point> calibrationScaleErrorList = [];
             List<(double x, double y)> calibrationScaleList = [];
@@ -644,20 +644,20 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 ResultGlobalScaleErrorDto.ScaleErrorValue,
                 XScaleErrorCurve = new HtmlPlot2DLinesChart([
                     ("Times-CalibrationScaleError", calibrationScaleErrorList.Select(t => t.X).ToPoints()),
-                    ("Times-AppliedScaleError", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.X).ToList().ToPoints()),
+                    ("Times-AppliedScaleError", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.X).ToList().ToPoints())
                 ], "XScaleErrorCurve"),
                 YScaleErrorCurve = new HtmlPlot2DLinesChart([
                     ("Times-CalibrationScaleError", calibrationScaleErrorList.Select(t => t.Y).ToPoints()),
-                    ("Times-AppliedScaleError", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.Y).ToList().ToPoints()),
+                    ("Times-AppliedScaleError", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.Y).ToList().ToPoints())
                 ], "YScaleErrorCurve"),
                 XScaleCurve = new HtmlPlot2DLinesChart([
                     ("Times-CalibrationScale", calibrationScaleList.Select(t => t.x).ToList().ToPoints()),
-                    ("Times-AppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleX).ToList().ToPoints()),
+                    ("Times-AppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleX).ToList().ToPoints())
                 ], "XScaleCurve"),
                 YScaleCurve = new HtmlPlot2DLinesChart([
                     ("Times-CalibrationScale", calibrationScaleList.Select(t => t.y).ToList().ToPoints()),
-                    ("Times-AppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleY).ToList().ToPoints()),
-                ], "YScaleCurve"),
+                    ("Times-AppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleY).ToList().ToPoints())
+                ], "YScaleCurve")
             }), HtmlLogUniqueId.LoggingHtml());
 
             result = currentResult;
@@ -780,7 +780,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
     private (bool isSuccess, ChuckGlobalScaleErrorDto resultDto) GetResult(Dictionary<StageDirectionTypeEnum, Point> idealPositionDictionary, ChuckGlobalScaleErrorDto tempGlobalScaleErrorDto, CancellationToken cancellationToken)
     {
-        StageViewModel.SetGlobalScaleErrorCoefficient(tempGlobalScaleErrorDto.ScaleX, tempGlobalScaleErrorDto.ScaleY);
+        StageViewModel.SetXYGlobalScale(tempGlobalScaleErrorDto.ScaleX, tempGlobalScaleErrorDto.ScaleY);
 
         foreach (var ideaPosition in idealPositionDictionary)
         {
@@ -976,7 +976,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
                                 LowMagnification = Cache.LowGlobalScaleErrorCacheItem.LensInformation.LensName,
-                                HighMagnification = Cache.HighGlobalScaleErrorCacheItem.LensInformation.LensName,
+                                HighMagnification = Cache.HighGlobalScaleErrorCacheItem.LensInformation.LensName
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });

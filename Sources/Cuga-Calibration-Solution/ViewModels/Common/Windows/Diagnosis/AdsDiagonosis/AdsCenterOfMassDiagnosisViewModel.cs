@@ -406,8 +406,8 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
                 ], "YTraceBuffer"),
                 ErrorTraceBuffer = new HtmlPlot2DLinesChart([
                     ("X1-X2", x1X2ErrorBuffers),
-                    ("Y2-Y1", y1Y2ErrorBuffers),
-                ], "YTraceBuffer"),
+                    ("Y2-Y1", y1Y2ErrorBuffers)
+                ], "YTraceBuffer")
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -529,7 +529,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
                 rows = [.. MiniExcel.Query<AdsCenterOfMassCache>(filePath, "FindY")];
             }
 
-            CenterOfMassDiagnosisList = [.. rows.Select(t => new AdsCenterOfMassDiagonosisDto() { Cache = t })];
+            CenterOfMassDiagnosisList = [.. rows.Select(t => new AdsCenterOfMassDiagonosisDto { Cache = t })];
 
             return true;
         }

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
@@ -50,11 +51,15 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     AfViewModel afViewModel,
     IOptions<ApplicationSetting> options,
     CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie,
     ILogger<AodGenerateWaveFileTrainingChirp2WindowViewModel> logger) : ViewModelBase
 {
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     public string AodWaveDirectory => Path.Combine(options.Value.AppHomeDirectory, "Chirp", DirectoryHelper.RemoveInvalidDirectoryName(nameof(AodGenerateWaveFileTrainingChirp2WindowViewModel)), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
+
 
     #region 0. 确认生成波形参数
 
@@ -113,7 +118,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
     private double _yPointDiameter;
 
     [ObservableProperty]
-    private double _prescanCoefficient = calibrationSetting.SettingCommonParam.MainCoefficient;
+    private LaserLightInformation _prescanLaserLightInformation = calibrationSetting.SettingCommonParam.MainLaserLightInformation;
 
     [ObservableProperty]
     private ObservableCollection<DeltaKItem> _deltaKItems = [];
@@ -158,7 +163,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.DswModel,
                     FindPosition,
-                    (false, calibrationSetting.SettingCommonParam.MainCoefficient),
+                    (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                     false,
                     CIBConfiguration,
                     XWidthPixel,
@@ -188,7 +193,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 {
                     RTFCECS = ecs,
                     RTFAfMotorHeight = afMotor,
-                    calibrationSetting.SettingCommonParam.MainCoefficient,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
                     FindPosition,
                     XWidthPixel,
                     OpticsMagTypeEnum,
@@ -365,7 +370,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 }), htmlGuid.LoggingHtml());
 
                 cancellationToken.ThrowIfCancellationRequested();
-                laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanCoefficient);
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum, PrescanLaserLightInformation.Coefficient);
                 laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.ChirpAodWaveFilePath)]);
 
                 using var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
@@ -424,7 +429,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     OpticsMagTypeEnum,
-                    PrescanCoefficient,
+                    PrescanLaserLightInformation,
                     FindPosition,
                     XWidthPixel,
                     StageSpeedEnum,
@@ -433,7 +438,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                     item.TargetValueX,
                     item.TargetValueY,
                     Image = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(RoiRect)]),
-                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(item.ImageFilePath)}.raw"),
+                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(item.ImageFilePath)}.raw")
                 }), htmlGuid.LoggingHtml());
 
                 return true;

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -57,7 +58,8 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
     public SettingWindowViewModel(
         IDialogWindowProvider dialogWindowProvider,
         CalibrationSetting calibrationSetting,
-        ICacheProvider cacheProvider)
+        ICacheProvider cacheProvider,
+        ApplicationCookie applicationCookie)
     {
         _dialogWindowProvider = dialogWindowProvider;
         _calibrationSetting = calibrationSetting;
@@ -94,7 +96,7 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
             }
         }
 
-        foreach (var coefficient in CalibrationConstantsHelper.CalibrationCoefficients)
+        foreach (var (_, coefficient) in applicationCookie.LaserLightInformationList)
         {
             foreach (var lowItem in _calibrationSetting.LowMagSettingDarkFieldGainParam)
             {

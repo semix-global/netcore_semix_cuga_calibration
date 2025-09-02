@@ -12,7 +12,6 @@ using System.IO;
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.GRPC;
 #else
-
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.WCF;
 #endif
@@ -160,7 +159,7 @@ public sealed partial class CalibrationLaserServiceImpl
             CenterFrequency = currentDarkFieldChirpAodWaveDto.CenterFrequency,
             ZeroNum = currentDarkFieldChirpAodWaveDto.ZeroNum,
             RateChange = rateChange,
-            IncrementChirpAodFilePath = currentDarkFieldChirpAodWaveDto.IncrementChirpAodFilePath,
+            IncrementChirpAodFilePath = currentDarkFieldChirpAodWaveDto.IncrementChirpAodFilePath
         };
 
         var files = Directory.GetFiles(Path.GetDirectoryName(currentDarkFieldChirpAodWaveDto.IncrementChirpAodFilePath)!, "*.txt", SearchOption.AllDirectories);

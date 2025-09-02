@@ -300,7 +300,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
                 IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
                 DcGainVoltage = Cache.CIBConfiguration.Gain,
                 IsL0k = Cache.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -408,8 +408,8 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
                     ResultLaserDOEAngleDto.AfPosError,
                     ResultLaserDOEAngleDto.MultiRtfcFitSlope,
                     RtfcResult = new HtmlPlot2DLinesChart([
-                        ("DOEAngle-AFPosError", LaserDOEAngleDtoItems.Select(t => new Point(t.DOEAngle, t.AfPosError)).ToArray()),
-                    ], "RtfcResult"),
+                        ("DOEAngle-AFPosError", LaserDOEAngleDtoItems.Select(t => new Point(t.DOEAngle, t.AfPosError)).ToArray())
+                    ], "RtfcResult")
                 }), HtmlLogUniqueId.LoggingHtml());
                 return true;
             }
@@ -503,7 +503,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
             {
                 if (pmtConfig.Single(t => t.Id == i).Enabled == false || Cache.PmtConfigList.Single(t => t.Id == i).Enabled == false)
                     continue;
-                var pmt = new DarkFieldRTFCDto()
+                var pmt = new DarkFieldRTFCDto
                 {
                     PmtId = i,
                     Position = Cache.FindPosition - (Vector)new Point(0, yDirection * Cache.PmtInterval * (8 - i))
@@ -516,7 +516,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
             {
                 if (pmtConfig.Single(t => t.Id == i).Enabled == false || Cache.PmtConfigList.Single(t => t.Id == i).Enabled == false)
                     continue;
-                var pmt = new DarkFieldRTFCDto()
+                var pmt = new DarkFieldRTFCDto
                 {
                     PmtId = i,
                     Position = Cache.FindPosition + (Vector)new Point(0, yDirection * Cache.PmtInterval * (i - 8))
@@ -566,8 +566,8 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
                 LaserDOEAngleDto.AfPosError,
                 RtfcResult = new HtmlPlot2DLinesChart([
                     ("Pmt-AfPos", darkFieldRTFCDtoList.Select(t => new Point((t.PmtId - 1) * Cache.PmtInterval, t.AfOffset * Cache.EcsPerAfOffset * Cache.UmPerEcs)).ToArray()),
-                    ("Pmt-AfPos-Plot1Fit", darkFieldRTFCDtoList.Select(t => new Point((t.PmtId - 1) * Cache.PmtInterval, slope * (t.PmtId - 1) * Cache.PmtInterval + intercept)).ToArray()),
-                ], "RtfcResult"),
+                    ("Pmt-AfPos-Plot1Fit", darkFieldRTFCDtoList.Select(t => new Point((t.PmtId - 1) * Cache.PmtInterval, slope * (t.PmtId - 1) * Cache.PmtInterval + intercept)).ToArray())
+                ], "RtfcResult")
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;

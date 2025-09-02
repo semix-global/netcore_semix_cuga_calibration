@@ -14,7 +14,7 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
-    private double _lightCoefficient = 0.26;
+    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     /// <summary>
     /// 根据ecs变化值调节afMotor的系数
@@ -32,10 +32,10 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
     private SettingDarkFieldAutoFocusParam _highMagDarkFieldAutoFocusParam = new();
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = new();
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Undefined;
@@ -142,7 +142,7 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
             OpticsMagTypeEnum.Low => LowMagDarkFieldAutoFocusParam.Clone(),
             OpticsMagTypeEnum.Middle => MiddleMagDarkFieldAutoFocusParam.Clone(),
             OpticsMagTypeEnum.High => HighMagDarkFieldAutoFocusParam.Clone(),
-            _ => throw new NotImplementedException(),
+            _ => throw new NotImplementedException()
         };
 
     public (double min, double max, double interval) GetSteppingRangeParam()
@@ -151,6 +151,6 @@ public sealed partial class FocusShiftCache : CalibrationCacheBase
             OpticsMagTypeEnum.Low => (LowMagFindFocusMin, LowMagFindFocusMax, LowMagFindFocusInterval),
             OpticsMagTypeEnum.Middle => (MiddleMagFindFocusMin, MiddleMagFindFocusMax, MiddleMagFindFocusInterval),
             OpticsMagTypeEnum.High => (HighMagFindFocusMin, HighMagFindFocusMax, HighMagFindFocusInterval),
-            _ => throw new NotImplementedException(),
+            _ => throw new NotImplementedException()
         };
 }

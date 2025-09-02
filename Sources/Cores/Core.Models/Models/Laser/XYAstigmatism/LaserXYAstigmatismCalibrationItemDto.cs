@@ -14,7 +14,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     private int _index;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

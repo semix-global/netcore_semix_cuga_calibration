@@ -8,7 +8,6 @@
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
-           xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:models="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
@@ -325,14 +324,8 @@
                                                  hc:InfoElement.Title="Prescan Coefficient: "
                                                  hc:InfoElement.TitlePlacement="Left"
                                                  hc:InfoElement.TitleWidth="150"
-                                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}"
-                                                 SelectedItem="{Binding PrescanCoefficient}">
-                                        <hc:ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding}" />
-                                            </DataTemplate>
-                                        </hc:ComboBox.ItemTemplate>
-                                    </hc:ComboBox>
+                                                 ItemsSource="{Binding LaserLightInformationList}"
+                                                 SelectedItem="{Binding PrescanLaserLightInformation}" />
                                     <Border Margin="-5,0"
                                             Padding="5,2"
                                             Style="{StaticResource BorderRegion}">

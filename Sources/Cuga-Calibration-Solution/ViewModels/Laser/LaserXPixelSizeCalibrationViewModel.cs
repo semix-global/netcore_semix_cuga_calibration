@@ -465,7 +465,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 Cache.FindTemplatePosition,
-                (false, 0.85),
+                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 Cache.SplitWidthPixel,
@@ -578,7 +578,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     8,
                     StageCoordinateSystemEnum.Machine,
                     Cache.CIBConfiguration,
-                    (false, 0.5),
+                    (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                     false
                 );
 
@@ -613,7 +613,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                 var umPerPixel = (Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(calPixelDifferences)).Average();
                                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                                 {
-                                    XPixelSize = umPerPixel,
+                                    XPixelSize = umPerPixel
                                 }), HtmlLogUniqueId.LoggingHtml());
                                 isSplitImage = SplitLongImage(originFilePath, umPerPixel, Guid.NewGuid(), out matchPoint);
                                 if (isSplitImage) points = matchPoint;
@@ -720,7 +720,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             }
 
             var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
-            var darkFieldCropImage = new DarkFieldXPixelSizeICropImage()
+            var darkFieldCropImage = new DarkFieldXPixelSizeICropImage
             {
                 Position = point,
                 Width = currentWidthPixel,
@@ -757,7 +757,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         [
             .. Calibrations
                 .Where(t => (t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.XStageSpeedEnum == itemDto.XStageSpeedEnum) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         if (isSave == false) return true;
@@ -791,9 +791,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             foreach (var stageSpeed in _enableStageSpeedList)
             {
-                var calibrationItemStep = new CalibrationItemStep()
+                var calibrationItemStep = new CalibrationItemStep
                 {
-                    StepName = $"{opticsMag.mag} Mag-{stageSpeed.stageSpeed} Speed",
+                    StepName = $"{opticsMag.mag} Mag-{stageSpeed.stageSpeed} Speed"
                 };
                 autoCalibrationStepList.Add(calibrationItemStep);
                 _opticsMagStageSpeedList.Add((opticsMag.mag, stageSpeed.stageSpeed));

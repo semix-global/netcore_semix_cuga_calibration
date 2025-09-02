@@ -103,10 +103,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
-        var ret = microscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
-        if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
-
-        var sxExecuteRet = Invoke(() => Service!.SetAFMicroscopeObj(ret.Anything));
+        var sxExecuteRet = Invoke(() => Service!.SetAFMicroscopeObj(microscopeLensInformation.AdaptTo().LensCode));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -158,7 +155,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensationCoefficient()
+    public SxExecuteRet<(double Offset, double Gain)> GetSensorNscCompensation()
     {
         var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());
 
@@ -167,7 +164,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             : SxExecuteRetHelper.CreateError<(double Offset, double Gain)>(sxExecuteRet.Msg, (0, 0));
     }
 
-    public SxExecuteRet<bool> SetSensorNscCompensationCoefficient(double offset, double gain)
+    public SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain)
     {
         /*
          * (NSC原始最大-NSC原始最小)/2
@@ -200,7 +197,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         var sxExecuteRet = Invoke(() => Service!.GetUniformAFDiagnosisData(Convert.ToInt32(startEcs), Convert.ToInt32(endEcs), Convert.ToInt32(speedEcs), Convert.ToInt32(timeSpan.TotalMilliseconds)));
 
@@ -216,10 +213,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
 
     public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
-        var ret = microscopeService.MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
-        if (ret.IsSuccess == false) return SxExecuteRetHelper.CreateError(ret.Msg, false);
-
-        var sxExecuteRet = Invoke(() => Service!.WriteMicroscopeEcs(ret.Anything, Convert.ToUInt16(standardEcsValue)));
+        var sxExecuteRet = Invoke(() => Service!.WriteMicroscopeEcs(microscopeLensInformation.AdaptTo().LensCode, Convert.ToUInt16(standardEcsValue)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

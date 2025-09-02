@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Loggings;
@@ -82,7 +83,7 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
     /// 校准暗场采集波形功率系数
     /// </summary>
     [ObservableProperty]
-    private double _mainCoefficient = 0.26;
+    private LaserLightInformation _mainLaserLightInformation = LaserLightInformation.Default;
 
     public double GetScanLineXPixelSize(OpticsMagTypeEnum optics, StageSpeedEnum speed) => (optics, speed) switch
     {
@@ -109,7 +110,7 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
         PrerequisitesEnable = obj.PrerequisitesEnable;
         IsDebugEnvironment = obj.IsDebugEnvironment;
         PmtInterval = obj.PmtInterval;
-        MainCoefficient = obj.MainCoefficient;
+        MainLaserLightInformation = obj.MainLaserLightInformation;
         ScanLineXPixelSizeLowMagLowSpeed = obj.ScanLineXPixelSizeLowMagLowSpeed;
         ScanLineXPixelSizeLowMagMiddleSpeed = obj.ScanLineXPixelSizeLowMagMiddleSpeed;
         ScanLineXPixelSizeLowMagHighSpeed = obj.ScanLineXPixelSizeLowMagHighSpeed;

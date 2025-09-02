@@ -524,7 +524,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
                 laserPixelSizeItemDto.FindPosition,
-                (false, CalibrationSetting.SettingCommonParam.MainCoefficient),
+                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
                 Cache.XWidthPixel,
@@ -577,7 +577,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         [
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum) == false),
-            itemDto.Clone(),
+            itemDto.Clone()
         ];
 
         if (isSave == false) return true;

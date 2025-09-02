@@ -1016,7 +1016,7 @@ public sealed class CalibrationLaserIlluminationProfileItem : CalibrationBase
     /// <summary>
     /// 当前暗场Mag和功率系数下的结果prescan文件路径, **需要下发Laser硬件**
     /// </summary>
-    public string ResultPrescanFilePath { get; set; }
+    public CalibrationPrescanAODWaveformResult[] CalibrationPrescanAODWaveformResults { get; set; }
 
     /// <summary>
     /// 当前暗场Mag和功率系数下的P偏振功率, **Cuga内部使用**
@@ -1032,6 +1032,30 @@ public sealed class CalibrationLaserIlluminationProfileItem : CalibrationBase
     /// 当前暗场Mag和功率系数下的C偏振功率, **Cuga内部使用**
     /// </summary>
     public double PolarizationCPower { get; set; }
+}
+
+/// <summary>
+/// Prescan波形结果
+/// </summary>
+[Serializable]
+public class CalibrationPrescanAODWaveformResult
+{
+#if NETFRAMEWORK
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
+#else
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public int OpticsAODElectrodeEnum { get; set; }
+#endif
+
+    /// <summary>
+    /// 波形文件路径
+    /// </summary>
+    public string FilePath { get; set; } = string.Empty;
 }
 ```
 

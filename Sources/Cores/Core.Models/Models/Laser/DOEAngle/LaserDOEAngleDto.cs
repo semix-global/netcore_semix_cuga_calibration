@@ -45,5 +45,4 @@ public partial class LaserDOEAngleDto : CalibrationDtoBase, ICloneable<LaserDOEA
     }
 
     #endregion
-
 }

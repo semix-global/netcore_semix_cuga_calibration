@@ -43,24 +43,12 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
             ..sxExecuteRet.Anything
                 .Single(t => t.IsUsed)
                 .Info
-                .Select(t => new MicroscopeLensInformation().AdaptIn(t))
+                .Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t))
         ];
 
         Guard.IsTrue(_microscopeLensInformationList.Select(t => t.LensCode).Distinct().Count() == _microscopeLensInformationList.Count, "Microscope Lens Information Lens Code is not unique");
 
         return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformationList);
-    }
-
-    public SxExecuteRet<CgMicroscopeLens> MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation)
-    {
-        var sxExecuteRet = GetMicroscopeLensInformationList();
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, CgMicroscopeLens.None);
-
-        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Magnification == microscopeLensInformation.Magnification);
-
-        return result is null
-            ? SxExecuteRetHelper.CreateError("Microscope Lens Information is not single", CgMicroscopeLens.None)
-            : SxExecuteRetHelper.CreateSuccess(result.AdaptTo().LensCode);
     }
 
     public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
@@ -81,16 +69,14 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
         var sxExecuteRet = Invoke(() => Service?.GetMagnification());
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new MicroscopeLensInformation())
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, MicroscopeLensInformation.Default)
             : CgMicroscopeLensToMicroscopeLensInfo(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<bool> SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation)
     {
-        var result = MicroscopeLensInfoToCgMicroscopeLens(microscopeLensInformation);
-        if (result.IsSuccess == false) return SxExecuteRetHelper.CreateError(result.Msg, false);
-
-        var sxExecuteRet = Invoke(() => Service?.SwitchMagnification(new SxParamObj<CgMicroscopeLens>(result.Anything)));
+        // 确定是否开启自动聚焦
+        var sxExecuteRet = Invoke(() => Service?.SwitchMagnification(new SxParamObj<CgMicroscopeLens>(microscopeLensInformation.AdaptTo().LensCode)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

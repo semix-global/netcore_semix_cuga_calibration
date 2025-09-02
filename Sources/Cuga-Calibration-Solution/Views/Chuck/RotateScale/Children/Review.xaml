@@ -30,7 +30,7 @@
                         IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                         <StackPanel>
-                            <TextBlock Text="Calibration Rotate Scale Coefficient"
+                            <TextBlock Text="Calibration Rotate Scale"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"

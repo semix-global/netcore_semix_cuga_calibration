@@ -31,7 +31,7 @@
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                         <StackPanel>
-                            <TextBlock Text="Calibration Global Scale Coefficient"
+                            <TextBlock Text="Calibration Global Scale"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"

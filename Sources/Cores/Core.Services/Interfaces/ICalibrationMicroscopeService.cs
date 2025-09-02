@@ -21,13 +21,6 @@ public interface ICalibrationMicroscopeService
     /// <summary>
     /// 倍镜类型转换
     /// </summary>
-    /// <param name="microscopeLensInformation">倍镜信息对象</param>
-    /// <returns></returns>
-    SxExecuteRet<CgMicroscopeLens> MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation);
-
-    /// <summary>
-    /// 倍镜类型转换
-    /// </summary>
     /// <param name="cgMicroscopeLens">显微镜镜头枚举对象</param>
     /// <returns></returns>
     SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens);

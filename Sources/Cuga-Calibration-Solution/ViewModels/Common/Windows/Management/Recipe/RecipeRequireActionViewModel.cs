@@ -32,7 +32,7 @@ public sealed partial class RecipeRequireActionViewModel : CalibrationViewModelB
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Find Wafer Bright Field Center offset" },
-        new() { StepName = "Alignment" },
+        new() { StepName = "Alignment" }
     ];
 
     #region 缓存

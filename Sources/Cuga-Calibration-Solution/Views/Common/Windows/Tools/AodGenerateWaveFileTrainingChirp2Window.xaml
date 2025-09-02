@@ -369,14 +369,8 @@
                                                  hc:InfoElement.Title="Prescan Coefficient: "
                                                  hc:InfoElement.TitlePlacement="Left"
                                                  hc:InfoElement.TitleWidth="150"
-                                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.CalibrationCoefficients}"
-                                                 SelectedItem="{Binding PrescanCoefficient}">
-                                        <hc:ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding}" />
-                                            </DataTemplate>
-                                        </hc:ComboBox.ItemTemplate>
-                                    </hc:ComboBox>
+                                                 ItemsSource="{Binding LaserLightInformationList}"
+                                                 SelectedItem="{Binding PrescanLaserLightInformation}" />
                                     <Border Margin="-5,0"
                                             Padding="5,2"
                                             Style="{StaticResource BorderRegion}">

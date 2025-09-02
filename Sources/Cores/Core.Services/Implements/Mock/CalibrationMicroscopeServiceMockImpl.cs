@@ -1,6 +1,7 @@
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
+using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -12,12 +13,13 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscopeService
 {
     private static readonly Random Random = new();
-    private MicroscopeLensInformation _microscopeLensInformation = new()
+
+    private MicroscopeLensInformation _defaultMicroscopeLensInformation = MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
     {
-        Magnification = 5,
-        LensCode = 1,
+        Lens = 5,
+        LensCode = CgMicroscopeLens.One,
         LensName = "5X"
-    };
+    });
 
     public SxExecuteRet<bool> Connect()
     {
@@ -32,51 +34,39 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
 
         var microscopeLensInformationList = new List<MicroscopeLensInformation>
         {
-            new()
+            MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
-                Magnification = 5,
-                LensCode = 1,
+                Lens = 5,
+                LensCode = CgMicroscopeLens.One,
                 LensName = "5X"
-            },
-            new()
+            }),
+            MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
-                Magnification = 10,
-                LensCode = 2,
+                Lens = 10,
+                LensCode = CgMicroscopeLens.Two,
                 LensName = "10X"
-            },
-            new()
+            }),
+            MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
-                Magnification = 50,
-                LensCode = 3,
+                Lens = 50,
+                LensCode = CgMicroscopeLens.Three,
                 LensName = "50X"
-            },
-            new()
+            }),
+            MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
-                Magnification = 100,
-                LensCode = 4,
+                Lens = 100,
+                LensCode = CgMicroscopeLens.Four,
                 LensName = "100X"
-            },
-            new()
+            }),
+            MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
-                Magnification = 150,
-                LensCode = 5,
+                Lens = 150,
+                LensCode = CgMicroscopeLens.Five,
                 LensName = "150X"
-            }
+            })
         };
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<MicroscopeLensInformation>>(microscopeLensInformationList);
-    }
-
-    public SxExecuteRet<CgMicroscopeLens> MicroscopeLensInfoToCgMicroscopeLens(MicroscopeLensInformation microscopeLensInformation)
-    {
-        var sxExecuteRet = GetMicroscopeLensInformationList();
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, CgMicroscopeLens.None);
-
-        var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Magnification == microscopeLensInformation.Magnification);
-
-        return result is null
-            ? SxExecuteRetHelper.CreateError("Microscope Lens Information is not single", CgMicroscopeLens.None)
-            : SxExecuteRetHelper.CreateSuccess(result.AdaptTo().LensCode);
     }
 
     public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
@@ -96,14 +86,14 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformation);
+        return SxExecuteRetHelper.CreateSuccess(_defaultMicroscopeLensInformation);
     }
 
     public SxExecuteRet<bool> SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation)
     {
         Thread.Sleep(100);
 
-        _microscopeLensInformation = microscopeLensInformation;
+        _defaultMicroscopeLensInformation = microscopeLensInformation;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }

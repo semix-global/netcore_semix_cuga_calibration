@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.PixelSize;
 public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserPixelSizeItemDto>, IAdaptTo<CalibrationLaserPixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

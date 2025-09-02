@@ -38,7 +38,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.RtfcDiagnosis;
 
 [IOCAppService(ServiceType = typeof(AfFocusDiagnosisViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : RtfcDiagnosisViewModelBase
+public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel, CalibrationSetting calibrationSetting) : RtfcDiagnosisViewModelBase
 {
     #region 属性
 
@@ -266,7 +266,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                 var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                                     FocusShiftCache.CalChipSiteModelEnum,
                                     FocusShiftCache.HighSiteFindPosition,
-                                    (false, 0.26),
+                                    (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
                                     false,
                                     FocusShiftCache.CIBConfiguration,
                                     800,
@@ -372,7 +372,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     {
                         LowSiteTemplateImage = new HtmlImage(FocusShiftCache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                         HighSiteTemplateImage = new HtmlImage(FocusShiftCache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -431,7 +431,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LightCoefficient) == false)
+                        FocusShiftCache.LaserLightInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -466,11 +466,11 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     autoFocusNsc,
                     NscDiagnosisK,
                     NscDiagnosisTraceBuffers = new HtmlPlot2DLinesChart([
-                        ("Ecs-Nsc", nscDiagnosis),
+                        ("Ecs-Nsc", nscDiagnosis)
                     ], "NscDiagnosisTraceBuffers"),
                     NscTraceBuffers = new HtmlPlot2DLinesChart([
-                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
-                    ], "Nsc(nm)TraceBuffers"),
+                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
+                    ], "Nsc(nm)TraceBuffers")
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation($"4. Get Quality", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
@@ -581,7 +581,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LightCoefficient) == false)
+                        FocusShiftCache.LaserLightInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -619,8 +619,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     ResultFocusShiftDto.FocusShiftOffset,
                     ResultFocusShiftDto.AfMotorOffset,
                     ResultNscTraceBuffers = new HtmlPlot2DLinesChart([
-                        ("Time-Nsc", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
-                    ], "NscTraceBuffers"),
+                        ("Time-Nsc", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
+                    ], "NscTraceBuffers")
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return ResultFocusShiftDto.IsCalibrated;
@@ -744,7 +744,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     {
                         LowSiteTemplateImage = new HtmlImage(FocusShiftCache.LowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                         HighSiteTemplateImage = new HtmlImage(FocusShiftCache.HighSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        DarkFieldTemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -803,7 +803,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                     FocusShiftCache.CalChipSiteModelEnum,
                     Cache.IdeaDarkFieldMachinePosition,
-                    (false, FocusShiftCache.LightCoefficient),
+                    (false, FocusShiftCache.LaserLightInformation),
                     true,
                     FocusShiftCache.CIBConfiguration,
                     800,
@@ -828,18 +828,18 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     autoFocusNsc,
                     NscDiagnosisK,
                     NscDiagnosisTraceBuffers = new HtmlPlot2DLinesChart([
-                        ("Ecs-Nsc", nscDiagnosis),
+                        ("Ecs-Nsc", nscDiagnosis)
                     ], "NscDiagnosisTraceBuffers"),
                     IdeaEcsNscTraceBuffer = new HtmlPlot2DLinesChart([
-                        ("Time-nm", notAutoFocusNscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                        ("Time-nm", notAutoFocusNscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
                     ], "IdeaEcsNscTraceBuffer"),
                     AutoFocusNscTraceBuffer = new HtmlPlot2DLinesChart([
-                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                        ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
                     ], "AutoFocusNscTraceBuffer"),
                     HtmlTab = new HtmlTab(new
                     {
-                        nscDarkFieldImageFilePath = new HtmlImage(nscDarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    }),
+                        nscDarkFieldImageFilePath = new HtmlImage(nscDarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 修正照明焦点
@@ -880,13 +880,13 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     HtmlTab = new HtmlTab(new
                     {
                         ResultImage = new HtmlImage(ResultRtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     }),
                     IterationCurve = new HtmlPlot2DLinesChart([
                         ("Times-Ecs", RtfcDtoIterationItems.Select(t => t.EcsValue).ToList().ToPoints()),
                         ("Times-DeltaEcs", RtfcDtoIterationItems.Select(t => t.DeltaEcs).ToList().ToPoints()),
-                        ("Times-IlluminationFocusOffset", RtfcDtoIterationItems.Select(t => t.LightAxisOffset).ToList().ToPoints()),
-                    ], "IterationCurve"),
+                        ("Times-IlluminationFocusOffset", RtfcDtoIterationItems.Select(t => t.LightAxisOffset).ToList().ToPoints())
+                    ], "IterationCurve")
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 修正af(方向未定、公式未定)
@@ -918,7 +918,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     RealEcs = ResultRtfcDto.EcsValue,
                     RealNsc = ResultRtfcDto.NscValue,
                     ResultRtfcDto.Quality,
-                    ResultRtfcDto.DarkFieldMatchOffset,
+                    ResultRtfcDto.DarkFieldMatchOffset
                 }), HtmlLogUniqueId.LoggingHtml());
                 var csvFilePath = Path.Combine(CsvFileDirectory, "RtfcDiagnosis.csv");
                 SaveCsv(csvFilePath);
@@ -954,7 +954,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 FocusShiftCache.CalChipSiteModelEnum,
                 rtfcItemDto.BrightFieldFindPosition,
-                (false, FocusShiftCache.LightCoefficient),
+                (false, FocusShiftCache.LaserLightInformation),
                 true,
                 FocusShiftCache.CIBConfiguration,
                 800,
@@ -982,7 +982,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 ImageQuality = rtfcItemDto.Quality,
                 HtmlTab = new HtmlTab(new
                 {
-                    Image = new HtmlImage(rtfcItemDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    Image = new HtmlImage(rtfcItemDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -1090,7 +1090,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 FocusShiftCache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
                 CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                FocusShiftCache.LightCoefficient) == false)
+                FocusShiftCache.LaserLightInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -1119,12 +1119,12 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             ResultRtfcDto.EcsValue,
             ResultRtfcDto.NscValue,
             NscTraceBuffers = new HtmlPlot2DLinesChart([
-                ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints()),
+                ("Time-nm", nscBuffers.Select(t => t * NscDiagnosisK).ToPoints())
             ], "NscTraceBuffers"),
             HtmlTab = new HtmlTab(new
             {
                 ResultImage = new HtmlImage(ResultRtfcDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
             })
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1169,7 +1169,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
         else
         {
             var cacheAutoFocusParam = FocusShiftCache.GetDarkFieldAutoFocusParam();
-            var autoFocusParam = new SettingDarkFieldAutoFocusParam()
+            var autoFocusParam = new SettingDarkFieldAutoFocusParam
             {
                 DswEcsValue = rtfcDto.EcsValue,
                 DswMotorValue = cacheAutoFocusParam.DswMotorValue + rtfcDto.AfMotorOffset
@@ -1216,7 +1216,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             HtmlTab = new HtmlTab(new
             {
                 ResultImage = new HtmlImage(verifyResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                TemplateImage = new HtmlImage(FocusShiftCache.DarkFiledTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
             })
         }), HtmlLogUniqueId.LoggingHtml());
         return verifyResult;
