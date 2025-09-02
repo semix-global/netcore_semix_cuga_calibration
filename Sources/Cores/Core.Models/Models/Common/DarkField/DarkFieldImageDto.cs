@@ -10,7 +10,6 @@ using Net.Utilities.Models;
 #if NET
 using Semix.GRPC.DTO;
 using C2MImgModel = Cuga.Data.DataStruct.DTO.Calibration.CgRawImgModel;
-
 #else
 using Semix.WcfTransfer.DTO;
 

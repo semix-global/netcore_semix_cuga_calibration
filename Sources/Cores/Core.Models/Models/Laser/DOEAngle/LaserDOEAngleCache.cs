@@ -10,7 +10,7 @@ namespace Core.Models.Models.Laser.DOEAngle;
 public sealed partial class LaserDOEAngleCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

@@ -12,7 +12,7 @@ namespace Core.Models.Models.Microscope.Focus;
 public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, ICloneable<MicroscopeFocusCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Undefined;

@@ -23,7 +23,7 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     /// 对准低倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMag =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _lowMag = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 对准低倍率模板尺寸
@@ -35,7 +35,7 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     /// 对准高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _highMag =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _highMag = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 对准高倍率模板尺寸

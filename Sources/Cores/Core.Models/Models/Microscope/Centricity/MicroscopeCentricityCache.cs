@@ -9,7 +9,7 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private ObservableCollection<MicroscopeCentricityCacheItem> _microscopeCentricityCacheItem = [];

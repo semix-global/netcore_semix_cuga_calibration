@@ -24,7 +24,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private double _threshold = 1;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;

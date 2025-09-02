@@ -73,7 +73,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private bool _isDarkField;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

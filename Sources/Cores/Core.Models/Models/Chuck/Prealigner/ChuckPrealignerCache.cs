@@ -9,10 +9,10 @@ namespace Core.Models.Models.Chuck.Prealigner;
 public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 晶圆类型

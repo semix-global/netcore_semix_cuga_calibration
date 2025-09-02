@@ -11,10 +11,10 @@ namespace Core.Models.Models.Chuck.GlobalScaleError;
 public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// X轴比例误差系数

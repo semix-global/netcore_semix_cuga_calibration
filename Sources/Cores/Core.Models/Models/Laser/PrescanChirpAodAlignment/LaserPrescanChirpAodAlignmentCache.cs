@@ -9,7 +9,7 @@ namespace Core.Models.Models.Laser.PrescanChirpAodAlignment;
 public sealed partial class LaserPrescanChirpAodAlignmentCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

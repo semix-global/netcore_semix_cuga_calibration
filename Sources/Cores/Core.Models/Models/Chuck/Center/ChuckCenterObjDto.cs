@@ -12,10 +12,10 @@ namespace Core.Models.Models.Chuck.Center;
 public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<ChuckCenterObjDto>, IAdaptTo<CalibrationCenterObj>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private Point _positiveTopPosition;

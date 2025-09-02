@@ -11,7 +11,7 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     [Comparison(100000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Radius: ")]

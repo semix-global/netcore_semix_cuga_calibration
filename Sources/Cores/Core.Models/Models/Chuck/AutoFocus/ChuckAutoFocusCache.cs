@@ -19,7 +19,7 @@ public sealed partial class ChuckAutoFocusCache : CalibrationCacheBase
     private double _rowCellHeight;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

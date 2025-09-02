@@ -37,7 +37,7 @@ public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<
     /// 高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeHighMag =  MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _microscopeHighMag = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
