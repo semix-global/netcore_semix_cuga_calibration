@@ -140,6 +140,13 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public void ResetSensorNscCompensation()
+    {
+        var ret = calibrationAfService.SetSensorNscCompensation(0, 1);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetSensorNscCompensation(double offset, double gain)
     {
         var ret = calibrationAfService.SetSensorNscCompensation(offset, gain);

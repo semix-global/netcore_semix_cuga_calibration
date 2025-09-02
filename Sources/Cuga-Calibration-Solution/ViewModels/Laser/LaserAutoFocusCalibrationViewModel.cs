@@ -286,7 +286,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensation(0, 1);
+                AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.ToggleDarkFieldEnable(true);
@@ -494,7 +494,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensation(0, 1);
+                AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.SetSensorCurrentValue(true, ResultLaserAutoFocusDto.CurrentA);
@@ -697,7 +697,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
                 AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
-                AfViewModel.SetSensorNscCompensation(0, 1);
+                AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
 
                 AfViewModel.SetSensorCurrentValue(true, ResultLaserAutoFocusDto.CurrentA);
