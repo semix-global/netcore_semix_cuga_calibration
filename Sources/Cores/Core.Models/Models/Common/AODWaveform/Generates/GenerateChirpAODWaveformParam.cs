@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Extensions;
 using Core.Utilities;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public sealed partial class GenerateChirpAODWaveformParamDto : GenerateAODWaveformParamBase, IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>
+public sealed partial class GenerateChirpAODWaveformParam : GenerateAODWaveformParamBase, IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>
 {
     [ObservableProperty]
     private double _soundPackageLength = 3.2;
@@ -16,6 +17,7 @@ public sealed partial class GenerateChirpAODWaveformParamDto : GenerateAODWavefo
         BandWidth,
         CenterFrequency,
         SoundPackageLength,
+        SoundSpeed,
         FunctionMonotonicTypeEnum,
         SampleRate,
         Amplitude,
@@ -23,7 +25,6 @@ public sealed partial class GenerateChirpAODWaveformParamDto : GenerateAODWavefo
         [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
         ZeroSampleCount,
         EndpointSampleCount,
-        SoundSpeed,
         SincCoefficient,
         AstigmatismCompensationCoefficient,
         SphericalAberrationCompensationCoefficient,
@@ -34,5 +35,8 @@ public sealed partial class GenerateChirpAODWaveformParamDto : GenerateAODWavefo
         AlphaOrder,
         AlphaOrderCoefficient,
         FrequencyAmplitudes,
-        GenerateRetryTimes);
+        GenerateRetryTimes)
+    {
+        FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()
+    };
 }

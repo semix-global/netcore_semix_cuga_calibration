@@ -2,10 +2,10 @@
 % C:\Users\DELL\Documents\4f4a831c-0f2e-45cb-b3fe-34661b36542a.xlsx
 
 GenerateAodWaveFile( ...
-    200, ... % 带宽 (MHz)
-    200, ... % 中心频率 (MHz)
-    1, ... % 递增, 递减, 平坦: 1, -1, 0
-    10640, ... % 采样率 (Msa/s)
+    0, ... % 带宽 (MHz)
+    333.5, ... % 中心频率 (MHz)
+    0, ... % 递增, 递减, 平坦: 1, -1, 0
+    1064, ... % 采样率 (Msa/s)
     1, ... % 幅值
     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
     0, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
@@ -24,5 +24,5 @@ GenerateAodWaveFile( ...
     0, ... % α次补偿
     0, ... % α次补偿系数t^α
     '', ... % 频率幅值文件路径
-    1 ... % 重试次数
+    10000 ... % 重试次数
 )

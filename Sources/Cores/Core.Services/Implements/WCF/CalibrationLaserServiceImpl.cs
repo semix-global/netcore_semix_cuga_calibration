@@ -165,23 +165,23 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfileList = calibrationConfigService.GetPrescanAODWaveProfileList(opticsMagTypeEnum);
-        if (sxExecuteRetByGetPrescanAODWaveProfileList.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfileList.Msg, false);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsMagTypeEnum);
+        if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
-        var prescanAODWaveProfileList = sxExecuteRetByGetPrescanAODWaveProfileList.Anything;
+        var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
-        foreach (var aodWaveProfile in prescanAODWaveProfileList) aodWaveProfile.ApplyCoefficient(coefficient);
+        foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfileList = SetPrescanAODWaveProfileList(prescanAODWaveProfileList);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
 
-        return sxExecuteRetBySetPrescanAODWaveProfileList.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfileList.Msg, false)
+        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveProfileList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfileList)
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
-        foreach (var aodWaveProfile in prescanAODWaveProfileList)
+        foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescanCalibration(
                 aodWaveProfile.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
@@ -198,19 +198,19 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRetByGetChirpAODWaveProfileList = calibrationConfigService.GetChirpAODWaveProfileList(opticsMagTypeEnum);
-        if (sxExecuteRetByGetChirpAODWaveProfileList.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfileList.Msg, false);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsMagTypeEnum);
+        if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfileList = SetChirpAODWaveProfileList(sxExecuteRetByGetChirpAODWaveProfileList.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
-        return sxExecuteRetBySetPrescanAODWaveProfileList.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfileList.Msg, false)
+        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfileList(IReadOnlyList<ChirpAODWaveformProfile> prescanAODWaveProfileList)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> prescanAODWaveProfiles)
     {
-        foreach (var aodWaveProfile in prescanAODWaveProfileList)
+        foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescanCalibration(
                 aodWaveProfile.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),

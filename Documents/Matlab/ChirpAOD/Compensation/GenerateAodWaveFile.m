@@ -388,9 +388,9 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
         switch monotonicTypeEnum
             case 0
 
-                if abs(centerFrequency - readonlyCenterFrequency) < (sampleRate / length(flatnessSampleIndices))
+                if abs(minFlatnessFrequency - readonlyCenterFrequency) < (sampleRate / length(flatnessSampleIndices))
                     isOk = 1;
-                elseif centerFrequency < readonlyCenterFrequency
+                elseif minFlatnessFrequency < readonlyCenterFrequency
                     centerFrequency = centerFrequency + sampleRate / (2 * length(flatnessSampleIndices));
                 else
                     centerFrequency = centerFrequency - sampleRate / (2 * length(flatnessSampleIndices));

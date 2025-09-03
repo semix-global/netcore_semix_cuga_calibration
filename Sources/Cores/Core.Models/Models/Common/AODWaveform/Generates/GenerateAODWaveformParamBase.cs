@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.DarkField;
 using Local.NoSQL.DB.Providers.Bases;
 using MiniExcelLibs;
@@ -11,7 +12,10 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 public partial class GenerateAODWaveformParamBase : ObservableCacheBase
 {
     [ObservableProperty]
-    private bool _isHeaderAndFooter = true;
+    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
+
+    [ObservableProperty]
+    private bool _isHeaderAndFooter;
 
     [ObservableProperty]
     private double _bandWidth;
@@ -35,7 +39,7 @@ public partial class GenerateAODWaveformParamBase : ObservableCacheBase
     private double _amplitude = 1d;
 
     [ObservableProperty]
-    private string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveformResult));
+    private string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveform));
 
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];

@@ -10,8 +10,9 @@ public static class AODWaveformResultFactory
         FilePath = filePath
     };
 
-    public static IReadOnlyList<PrescanAODWaveformResult> CreatePrescanList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfileList, string? directoryPath = null) =>
-        prescanAODWaveformProfileList.Select(t => directoryPath is null ? t.AdaptTo() : t.AdaptTo(directoryPath)).ToList();
+    public static IReadOnlyList<PrescanAODWaveformResult> CreatePrescanList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfileList, string? directoryPath = null) => prescanAODWaveformProfileList
+        .Select(t => directoryPath is null ? t.AdaptTo() : t.AdaptTo(directoryPath))
+        .ToArray();
 
     public static ChirpAODWaveformResult CreateChirp(OpticsAODElectrodeEnum opticsAODElectrodeEnum, string filePath) => new()
     {
@@ -19,6 +20,7 @@ public static class AODWaveformResultFactory
         FilePath = filePath
     };
 
-    public static IReadOnlyList<ChirpAODWaveformResult> CreateChirpList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveformProfileList, string? directoryPath = null) =>
-        chirpAODWaveformProfileList.Select(t => directoryPath is null ? t.AdaptTo() : t.AdaptTo(directoryPath)).ToList();
+    public static IReadOnlyList<ChirpAODWaveformResult> CreateChirpList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveformProfileList, string? directoryPath = null) => chirpAODWaveformProfileList
+        .Select(t => directoryPath is null ? t.AdaptTo() : t.AdaptTo(directoryPath))
+        .ToArray();
 }

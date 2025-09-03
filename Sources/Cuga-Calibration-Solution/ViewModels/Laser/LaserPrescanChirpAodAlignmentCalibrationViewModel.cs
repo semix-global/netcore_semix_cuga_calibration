@@ -555,7 +555,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         DarkFieldImageDto Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(PrescanAODWaveformProfile aodWaveformProfile)
     {
-        LaserViewModel.SetPrescanAODWaveProfileList([aodWaveformProfile]);
+        LaserViewModel.SetPrescanAODWaveProfiles([aodWaveformProfile]);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,

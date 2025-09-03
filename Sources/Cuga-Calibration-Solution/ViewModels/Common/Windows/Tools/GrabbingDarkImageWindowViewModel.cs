@@ -146,13 +146,13 @@ public partial class GrabbingDarkImageWindowViewModel(
                 var isCustomPrescanAod = string.IsNullOrWhiteSpace(PrescanFilePath) == false;
                 if (isCustomPrescanAod)
                 {
-                    laserViewModel.SetPrescanAODWaveProfileList([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, LaserLightInformation.Coefficient)]);
+                    laserViewModel.SetPrescanAODWaveProfiles([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, LaserLightInformation.Coefficient)]);
                 }
 
                 var isCustomChirpAod = string.IsNullOrWhiteSpace(ChirpFilePath) == false;
                 if (isCustomChirpAod)
                 {
-                    laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, ChirpFilePath)]);
+                    laserViewModel.SetChirpAODWaveProfiles([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, ChirpFilePath)]);
                 }
 
                 var resultPosition = StageCoordinateSystemEnum switch

@@ -1,9 +1,7 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
@@ -19,114 +17,42 @@ namespace Core.Services.Implements.WCF;
 
 public sealed partial class CalibrationLaserServiceImpl
 {
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfileList = calibrationConfigService.GetPrescanAODWaveProfileList(opticsMagTypeEnum);
-        if (sxExecuteRetByGetPrescanAODWaveProfileList.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRetByGetPrescanAODWaveProfileList.Msg, []);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(generatePrescanAODWaveformParam.OpticsMagTypeEnum);
+        if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, []);
 
-        var result = new List<PrescanAODWaveformProfile>();
+        generatePrescanAODWaveformParam.ElectrodeConfigurations =
+        [
+            .. sxExecuteRetByGetPrescanAODWaveProfiles.Anything
+                .Select(t => new GenerateAODWaveformElectrodeConfiguration().AdaptIn(t))
+        ];
 
-        foreach (var prescanAODWaveformProfile in sxExecuteRetByGetPrescanAODWaveProfileList.Anything)
-        {
-            var (isSuccess,
-                aodWaveFilePath,
-                aodWaveFlatnessLinearFrequencySignals,
-                aodWaveFlatnessTotalFrequencySignals,
-                aodWaveFlatnessAstigmatismCompensationSignals,
-                aodWaveFlatnessSphericalAberrationCompensationSignals,
-                aodWaveFlatnessSecondaryAstigmatismCompensationSignals,
-                aodWaveFlatnessComaCompensationSignals,
-                aodWaveFlatnessTrefoilCompensationSignals,
-                aodWaveFlatnessQuadrafoilCompensationSignals,
-                aodWaveFlatnessAlphaOrderCompensationSignals,
-                aodWaveSignals,
-                aodWaveSignalsFourier,
-                aodWaveFrequencyAmplitudes,
-                exception) = AODWaveformGenerator.GeneratePrescanAodWaveFile(
-                generatePrescanAODWaveformParam.BandWidth,
-                generatePrescanAODWaveformParam.CenterFrequency,
-                generatePrescanAODWaveformParam.FlatnessTime,
-                generatePrescanAODWaveformParam.FunctionMonotonicTypeEnum,
-                generatePrescanAODWaveformParam.SampleRate,
-                generatePrescanAODWaveformParam.Amplitude,
-                Path.Combine(generatePrescanAODWaveformParam.AodWaveDirectory, EnumHelper.ToDescriptionString(prescanAODWaveformProfile.OpticsAODElectrodeEnum)),
-                zeroSampleCount: generatePrescanAODWaveformParam.ZeroSampleCount,
-                endpointSampleCount: generatePrescanAODWaveformParam.EndpointSampleCount,
-                offsetFrequency: prescanAODWaveformProfile.OffsetFrequency,
-                offsetFrequencyPeriodMultiple: prescanAODWaveformProfile.OffsetFrequencyPeriodMultiple,
-                sincCoefficient: generatePrescanAODWaveformParam.SincCoefficient,
-                astigmatismCompensationCoefficient: generatePrescanAODWaveformParam.AstigmatismCompensationCoefficient,
-                sphericalAberrationCompensationCoefficient: generatePrescanAODWaveformParam.SphericalAberrationCompensationCoefficient,
-                secondaryAstigmatismCompensationCoefficient: generatePrescanAODWaveformParam.SecondaryAstigmatismCompensationCoefficient,
-                comaCompensationCoefficient: generatePrescanAODWaveformParam.ComaCompensationCoefficient,
-                trefoilCompensationCoefficient: generatePrescanAODWaveformParam.TrefoilCompensationCoefficient,
-                quadrafoilCompensationCoefficient: generatePrescanAODWaveformParam.QuadrafoilCompensationCoefficient,
-                alphaOrder: generatePrescanAODWaveformParam.AlphaOrder,
-                alphaOrderCoefficient: generatePrescanAODWaveformParam.AlphaOrderCoefficient,
-                frequencyAmplitudes: generatePrescanAODWaveformParam.FrequencyAmplitudes,
-                generateRetryTimes: generatePrescanAODWaveformParam.GenerateRetryTimes);
+        var (isSuccess, exception, aodWaveformResult) = AODWaveformGenerator.GeneratePrescanAODWaveformFile(generatePrescanAODWaveformParam.AdaptTo());
+        var results = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
 
-            if (isSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(GuardUtils.IsNotNullAndReturn(exception).Message, []);
-
-            result.Add(AODWaveformProfileFactory.CreatePrescan(prescanAODWaveformProfile.OpticsAODElectrodeEnum, aodWaveFilePath));
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>(result);
+        return isSuccess
+            ? SxExecuteRetHelper.CreateSuccess(results)
+            : SxExecuteRetHelper.CreateError(GuardUtils.IsNotNullAndReturn(exception).Message, results);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
     {
-        var sxExecuteRetByGetChirpAODWaveProfileList = calibrationConfigService.GetChirpAODWaveProfileList(opticsMagTypeEnum);
-        if (sxExecuteRetByGetChirpAODWaveProfileList.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRetByGetChirpAODWaveProfileList.Msg, []);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(generateChirpAODWaveformParam.OpticsMagTypeEnum);
+        if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRetByGetChirpAODWaveProfiles.Msg, []);
 
-        var result = new List<ChirpAODWaveformProfile>();
+        generateChirpAODWaveformParam.ElectrodeConfigurations =
+        [
+            .. sxExecuteRetByGetChirpAODWaveProfiles.Anything
+                .Select(t => new GenerateAODWaveformElectrodeConfiguration().AdaptIn(t))
+        ];
 
-        foreach (var chirpAODWaveformProfile in sxExecuteRetByGetChirpAODWaveProfileList.Anything)
-        {
-            var (isSuccess,
-                aodWaveFilePath,
-                aodWaveFlatnessLinearFrequencySignals,
-                aodWaveFlatnessTotalFrequencySignals,
-                aodWaveFlatnessAstigmatismCompensationSignals,
-                aodWaveFlatnessSphericalAberrationCompensationSignals,
-                aodWaveFlatnessSecondaryAstigmatismCompensationSignals,
-                aodWaveFlatnessComaCompensationSignals,
-                aodWaveFlatnessTrefoilCompensationSignals,
-                aodWaveFlatnessQuadrafoilCompensationSignals,
-                aodWaveFlatnessAlphaOrderCompensationSignals,
-                aodWaveSignals,
-                aodWaveSignalsFourier,
-                aodWaveFrequencyAmplitudes,
-                exception) = AODWaveformGenerator.GenerateChirpAodWaveFile(
-                generateChirpAODWaveformParam.BandWidth,
-                generateChirpAODWaveformParam.CenterFrequency,
-                generateChirpAODWaveformParam.SoundPackageLength,
-                generateChirpAODWaveformParam.FunctionMonotonicTypeEnum,
-                generateChirpAODWaveformParam.SampleRate,
-                generateChirpAODWaveformParam.Amplitude,
-                Path.Combine(generateChirpAODWaveformParam.AodWaveDirectory, EnumHelper.ToDescriptionString(chirpAODWaveformProfile.OpticsAODElectrodeEnum)),
-                zeroSampleCount: generateChirpAODWaveformParam.ZeroSampleCount,
-                endpointSampleCount: generateChirpAODWaveformParam.EndpointSampleCount,
-                offsetFrequency: chirpAODWaveformProfile.OffsetFrequency,
-                offsetFrequencyPeriodMultiple: chirpAODWaveformProfile.OffsetFrequencyPeriodMultiple,
-                sincCoefficient: generateChirpAODWaveformParam.SincCoefficient,
-                astigmatismCompensationCoefficient: generateChirpAODWaveformParam.AstigmatismCompensationCoefficient,
-                sphericalAberrationCompensationCoefficient: generateChirpAODWaveformParam.SphericalAberrationCompensationCoefficient,
-                secondaryAstigmatismCompensationCoefficient: generateChirpAODWaveformParam.SecondaryAstigmatismCompensationCoefficient,
-                comaCompensationCoefficient: generateChirpAODWaveformParam.ComaCompensationCoefficient,
-                trefoilCompensationCoefficient: generateChirpAODWaveformParam.TrefoilCompensationCoefficient,
-                quadrafoilCompensationCoefficient: generateChirpAODWaveformParam.QuadrafoilCompensationCoefficient,
-                alphaOrder: generateChirpAODWaveformParam.AlphaOrder,
-                alphaOrderCoefficient: generateChirpAODWaveformParam.AlphaOrderCoefficient,
-                frequencyAmplitudes: generateChirpAODWaveformParam.FrequencyAmplitudes,
-                generateRetryTimes: generateChirpAODWaveformParam.GenerateRetryTimes);
+        var (isSuccess, exception, aodWaveformResult) = AODWaveformGenerator.GenerateChirpAODWaveformFile(generateChirpAODWaveformParam.AdaptTo());
+        var results = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 
-            if (isSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(GuardUtils.IsNotNullAndReturn(exception).Message, []);
-
-            result.Add(AODWaveformProfileFactory.CreateChirp(chirpAODWaveformProfile.OpticsAODElectrodeEnum, aodWaveFilePath));
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>(result);
+        return isSuccess
+            ? SxExecuteRetHelper.CreateSuccess(results)
+            : SxExecuteRetHelper.CreateError(GuardUtils.IsNotNullAndReturn(exception).Message, results);
     }
 
     public SxExecuteRet<DarkFieldChirpAodWaveDto> ReadChirpAodByCustomFile(string filePath)

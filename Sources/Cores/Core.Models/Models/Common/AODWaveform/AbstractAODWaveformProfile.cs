@@ -4,36 +4,54 @@ using Core.Models.Enums.Optics;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using System.Text;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public partial class AODWaveformProfile : ObservableObject
+public abstract class AbstractAODWaveformProfile<T> : ObservableObject where T : AbstractAODWaveformProfile<T>
 {
+    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+    private string _filePath = string.Empty;
+    private int _zeroSampleCount;
     private double _offsetFrequency;
     private double _offsetFrequencyPeriodMultiple;
     private IReadOnlyList<short> _shortList = [];
     private IReadOnlyList<byte> _byteList = [];
 
-    [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+    public OpticsAODElectrodeEnum OpticsAODElectrodeEnum
+    {
+        get => _opticsAODElectrodeEnum;
+        internal set => SetProperty(ref _opticsAODElectrodeEnum, value);
+    }
 
-    [ObservableProperty]
-    private string _filePath = string.Empty;
+    public string FilePath
+    {
+        get => _filePath;
+        internal set
+        {
+            if (SetProperty(ref _filePath, value)) OnFilePathChanged(value);
+        }
+    }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(TotalSampleCount))]
-    private int _zeroSampleCount;
+    public int ZeroSampleCount
+    {
+        get => _zeroSampleCount;
+        internal set
+        {
+            if (SetProperty(ref _zeroSampleCount, value)) OnPropertyChanged(nameof(TotalSampleCount));
+        }
+    }
 
     public double OffsetFrequency
     {
         get => _offsetFrequency;
-        protected set => SetProperty(ref _offsetFrequency, value);
+        internal set => SetProperty(ref _offsetFrequency, value);
     }
 
     public double OffsetFrequencyPeriodMultiple
     {
         get => _offsetFrequencyPeriodMultiple;
-        protected set => SetProperty(ref _offsetFrequencyPeriodMultiple, value);
+        internal set => SetProperty(ref _offsetFrequencyPeriodMultiple, value);
     }
 
     public int TotalSampleCount => ShortList.Count + ZeroSampleCount;
@@ -41,7 +59,7 @@ public partial class AODWaveformProfile : ObservableObject
     public IReadOnlyList<short> ShortList
     {
         get => _shortList;
-        protected set
+        private set
         {
             if (SetProperty(ref _shortList, value)) OnPropertyChanged(nameof(TotalSampleCount));
         }
@@ -50,13 +68,53 @@ public partial class AODWaveformProfile : ObservableObject
     public IReadOnlyList<byte> ByteList
     {
         get => _byteList;
-        protected set
+        private set
         {
             if (SetProperty(ref _byteList, value)) OnPropertyChanged(nameof(TotalSampleCount));
         }
     }
 
-    partial void OnFilePathChanged(string value)
+    #region 波形
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.Signals"/>
+    public IReadOnlyList<Point> Signals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FFTSignals"/>
+    public IReadOnlyList<Point> FFTSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FrequencyAmplitudes"/>
+    public IReadOnlyList<Point> FrequencyAmplitudes { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessLinearFrequencySignals"/>
+    public IReadOnlyList<Point> FlatnessLinearFrequencySignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
+    public IReadOnlyList<Point> FlatnessTotalFrequencySignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessAstigmatismCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessAstigmatismCompensationSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessSphericalAberrationCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessSphericalAberrationCompensationSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessSecondaryAstigmatismCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessSecondaryAstigmatismCompensationSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessComaCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessComaCompensationSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessTrefoilCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessTrefoilCompensationSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessQuadrafoilCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessQuadrafoilCompensationSignals { get; internal set; } = [];
+
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessAlphaOrderCompensationSignals"/>
+    public IReadOnlyList<Point> FlatnessAlphaOrderCompensationSignals { get; internal set; } = [];
+
+    #endregion 波形
+
+    private void OnFilePathChanged(string value)
     {
         // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
         var strings = value.Split('$');
@@ -74,6 +132,7 @@ public partial class AODWaveformProfile : ObservableObject
         if (resultString.Count <= 0 && resultString.All(t => t.Length == 4) == false) ThrowHelper.ThrowNotSupportedException("filePath value error.");
 
         ShortList = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
+        Signals = [..ShortList.Select((t, i) => new Point(i, (t - (t > Math.Pow(2d, 15d) ? Math.Pow(2d, 32d) : 0)) / Math.Pow(2d, 15d)))];
 
         SetByteList(1);
     }
@@ -148,5 +207,31 @@ public partial class AODWaveformProfile : ObservableObject
         File.WriteAllText(filePath, stringBuilder.ToString());
 
         return filePath;
+    }
+
+    protected T AdaptIn(T obj)
+    {
+        obj.OpticsAODElectrodeEnum = OpticsAODElectrodeEnum;
+        obj.FilePath = FilePath;
+        obj.ZeroSampleCount = ZeroSampleCount;
+        obj.OffsetFrequency = OffsetFrequency;
+        obj.OffsetFrequencyPeriodMultiple = OffsetFrequencyPeriodMultiple;
+        obj.ShortList = [.. ShortList];
+        obj.ByteList = [.. ByteList];
+
+        obj.Signals = [..Signals];
+        obj.FFTSignals = [..FFTSignals];
+        obj.FrequencyAmplitudes = [..FrequencyAmplitudes];
+        obj.FlatnessLinearFrequencySignals = [..FlatnessLinearFrequencySignals];
+        obj.FlatnessTotalFrequencySignals = [..FlatnessTotalFrequencySignals];
+        obj.FlatnessAstigmatismCompensationSignals = [..FlatnessAstigmatismCompensationSignals];
+        obj.FlatnessSphericalAberrationCompensationSignals = [..FlatnessSphericalAberrationCompensationSignals];
+        obj.FlatnessSecondaryAstigmatismCompensationSignals = [..FlatnessSecondaryAstigmatismCompensationSignals];
+        obj.FlatnessComaCompensationSignals = [..FlatnessComaCompensationSignals];
+        obj.FlatnessTrefoilCompensationSignals = [..FlatnessTrefoilCompensationSignals];
+        obj.FlatnessQuadrafoilCompensationSignals = [..FlatnessQuadrafoilCompensationSignals];
+        obj.FlatnessAlphaOrderCompensationSignals = [..FlatnessAlphaOrderCompensationSignals];
+
+        return obj;
     }
 }

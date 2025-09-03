@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -179,7 +178,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     return;
                 }
 
-                laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, ChirpAodWaveFilePath)]);
+                laserViewModel.SetChirpAODWaveProfiles([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, ChirpAodWaveFilePath)]);
 
                 dialogWindowProvider.ShowDialog("Send Chirp Aod Wave File Success!");
             }
@@ -304,7 +303,7 @@ public sealed partial class AodGenerateWaveFileWindowViewModel(
                     return;
                 }
 
-                laserViewModel.SetPrescanAODWaveProfileList([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanAodWaveFilePath)]);
+                laserViewModel.SetPrescanAODWaveProfiles([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanAodWaveFilePath)]);
 
                 dialogWindowProvider.ShowDialog("Send Prescan Aod Wave File Success!");
             }

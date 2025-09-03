@@ -2,7 +2,7 @@
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public class ChirpAODWaveformResult : AODWaveformResult, IAdaptTo<ChirpAODWaveformProfile>, ICloneable<ChirpAODWaveformResult>
+public sealed class ChirpAODWaveformResult : AbstractAODWaveformResult<ChirpAODWaveformResult>, IAdaptTo<ChirpAODWaveformProfile>, ICloneable<ChirpAODWaveformResult>
 {
     internal ChirpAODWaveformResult()
     {
@@ -10,9 +10,5 @@ public class ChirpAODWaveformResult : AODWaveformResult, IAdaptTo<ChirpAODWavefo
 
     ChirpAODWaveformProfile IAdaptTo<ChirpAODWaveformProfile>.AdaptTo() => AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum, FilePath);
 
-    public ChirpAODWaveformResult Clone() => new()
-    {
-        OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
-        FilePath = FilePath
-    };
+    public ChirpAODWaveformResult Clone() => AdaptIn(new ChirpAODWaveformResult());
 }

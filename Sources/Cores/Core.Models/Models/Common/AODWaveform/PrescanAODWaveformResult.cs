@@ -4,7 +4,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public class PrescanAODWaveformResult : AODWaveformResult, IAdaptTo<PrescanAODWaveformProfile>, IAdaptTo<CalibrationPrescanAODWaveformResult>, ICloneable<PrescanAODWaveformResult>
+public class PrescanAODWaveformResult : AbstractAODWaveformResult<PrescanAODWaveformResult>, IAdaptTo<PrescanAODWaveformProfile>, IAdaptTo<CalibrationPrescanAODWaveformResult>, ICloneable<PrescanAODWaveformResult>
 {
     internal PrescanAODWaveformResult()
     {
@@ -22,9 +22,5 @@ public class PrescanAODWaveformResult : AODWaveformResult, IAdaptTo<PrescanAODWa
         FilePath = FilePath
     };
 
-    public PrescanAODWaveformResult Clone() => new()
-    {
-        OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
-        FilePath = FilePath
-    };
+    public PrescanAODWaveformResult Clone() => AdaptIn(new PrescanAODWaveformResult());
 }

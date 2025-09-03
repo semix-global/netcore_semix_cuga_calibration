@@ -128,9 +128,9 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发PrescanAod波形给cuga
     /// </summary>
-    /// <param name="prescanAODWaveProfileList">prescanAOD波形</param>
+    /// <param name="prescanAODWaveProfiles">prescanAOD波形</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPrescanAODWaveProfileList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfileList);
+    SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles);
 
     /// <summary>
     /// 下发ChirpAOD波形给cuga
@@ -142,9 +142,9 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发ChirpAOD波形给cuga
     /// </summary>
-    /// <param name="chirpAODWaveProfileList">chirpAOD波形</param>
+    /// <param name="chirpAODWaveProfiles">chirpAOD波形</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetChirpAODWaveProfileList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfileList);
+    SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles);
 
     #region 波形生成
 
@@ -154,7 +154,7 @@ public interface ICalibrationLaserService
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="generatePrescanAODWaveformParam">prescan参数</param>
     /// <returns>prescan波形列表</returns>
-    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam);
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam);
 
     /// <summary>
     /// 根据chirp参数生成chirp波形列表
@@ -162,7 +162,7 @@ public interface ICalibrationLaserService
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="generateChirpAODWaveformParam">chirp参数</param>
     /// <returns>chirp波形列表</returns>
-    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaveList(OpticsMagTypeEnum opticsMagTypeEnum, GenerateChirpAODWaveformParam generateChirpAODWaveformParam);
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam);
 
     #endregion 波形生成
 

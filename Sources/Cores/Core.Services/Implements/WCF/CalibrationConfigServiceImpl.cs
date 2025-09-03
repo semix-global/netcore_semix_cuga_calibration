@@ -17,7 +17,7 @@ namespace Core.Services.Implements.WCF;
 [IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationService>, ICalibrationConfigService
 {
-    private IReadOnlyList<(AODWaveformProfile AODWaveformProfile, OpticsMagTypeEnum OpticsMagTypeEnum)>? _prescanChirpAODWaveConfigList;
+    private IReadOnlyList<CgElectrodeFileModel>? _cgElectrodeFileModels;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -46,86 +46,78 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = GetPrescanChirpDarkFieldAodWaveProfileList();
+        var sxExecuteRet = GetCgElectrodeFileModels();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRet.Msg, []);
 
-        var result = sxExecuteRet.Anything
-            .Where(t => t.AODWaveformProfile is PrescanAODWaveformProfile && t.OpticsMagTypeEnum == opticsMagTypeEnum)
-            .Select(t => t.AODWaveformProfile)
-            .OfType<PrescanAODWaveformProfile>()
-            .OrderBy(t => t.OpticsAODElectrodeEnum)
-            .Select(t => t.Clone())
-            .ToList();
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>(result);
+        return SxExecuteRetHelper.CreateSuccess(opticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low =>
+            [
+                ..sxExecuteRet.Anything
+                    .Select(t => AODWaveformProfileFactory.CreatePrescan(t.Id.ToOpticsAODElectrodeEnum(), t.PrescanHighFilePath))
+            ],
+            OpticsMagTypeEnum.Middle =>
+            [
+                ..sxExecuteRet.Anything
+                    .Select(t => AODWaveformProfileFactory.CreatePrescan(t.Id.ToOpticsAODElectrodeEnum(), t.PrescanMidFilePath))
+            ],
+            OpticsMagTypeEnum.High =>
+            [
+                ..sxExecuteRet.Anything
+                    .Select(t => AODWaveformProfileFactory.CreatePrescan(t.Id.ToOpticsAODElectrodeEnum(), t.PrescanLowFilePath))
+            ],
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<IReadOnlyList<PrescanAODWaveformProfile>>(nameof(opticsMagTypeEnum))
+        });
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = GetPrescanChirpDarkFieldAodWaveProfileList();
+        var sxExecuteRet = GetCgElectrodeFileModels();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRet.Msg, []);
 
-        var result = sxExecuteRet.Anything
-            .Where(t => t.AODWaveformProfile is ChirpAODWaveformProfile && t.OpticsMagTypeEnum == opticsMagTypeEnum)
-            .Select(t => t.AODWaveformProfile)
-            .OfType<ChirpAODWaveformProfile>()
-            .OrderBy(t => t.OpticsAODElectrodeEnum)
-            .Select(t => t.Clone())
-            .ToList();
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>(result);
+        return SxExecuteRetHelper.CreateSuccess(opticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low =>
+            [
+                ..sxExecuteRet.Anything
+                    .Select(t => AODWaveformProfileFactory.CreateChirp(t.Id.ToOpticsAODElectrodeEnum(), t.ChirpHighFilePath))
+            ],
+            OpticsMagTypeEnum.Middle =>
+            [
+                ..sxExecuteRet.Anything
+                    .Select(t => AODWaveformProfileFactory.CreateChirp(t.Id.ToOpticsAODElectrodeEnum(), t.ChirpMidFilePath))
+            ],
+            OpticsMagTypeEnum.High =>
+            [
+                ..sxExecuteRet.Anything
+                    .Select(t => AODWaveformProfileFactory.CreateChirp(t.Id.ToOpticsAODElectrodeEnum(), t.ChirpLowFilePath))
+            ],
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<IReadOnlyList<ChirpAODWaveformProfile>>(nameof(opticsMagTypeEnum))
+        });
     }
 
-    private SxExecuteRet<IReadOnlyList<(AODWaveformProfile AODWaveformProfile, OpticsMagTypeEnum OpticsMagTypeEnum)>> GetPrescanChirpDarkFieldAodWaveProfileList()
+    private SxExecuteRet<IReadOnlyList<CgElectrodeFileModel>> GetCgElectrodeFileModels()
     {
-        if (_prescanChirpAODWaveConfigList is not null) return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigList);
+        if (_cgElectrodeFileModels is not null) return SxExecuteRetHelper.CreateSuccess(_cgElectrodeFileModels);
 
         var sxExecuteRet = Invoke(() => Service!.GetAWGFilePath());
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<(AODWaveformProfile AODWaveformProfile, OpticsMagTypeEnum OpticsMagTypeEnum)>>(sxExecuteRet.ErrorMsg, []);
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CgElectrodeFileModel>>(sxExecuteRet.ErrorMsg, []);
 
-        var result = sxExecuteRet.Anything.OrderBy(t => t.Id).ToList();
+        var result = sxExecuteRet.Anything.OrderBy(t => t.Id).ToArray();
 
-        Guard.IsTrue(result.Count > 0, "Prescan Chirp Config List is empty");
+        Guard.IsTrue(result.Length > 0, "Prescan Chirp Config List is empty");
         Guard.IsTrue(result
             .Select(t => t.Id.ToOpticsAODElectrodeEnum())
             .OrderBy(t => t)
             .SequenceEqual(EnumHelper.Enums<OpticsAODElectrodeEnum>()
                 .OrderBy(t => t)
                 .ToList()
-                .GetRange(0, result.Count)), "Id is not from 1 to ..");
+                .GetRange(0, result.Length)), "Id is not from 1 to ..");
 
-        _prescanChirpAODWaveConfigList = result
-            .SelectMany<CgElectrodeFileModel, (AODWaveformProfile AODWaveformProfile, OpticsMagTypeEnum OpticsMagTypeEnum)>(t =>
-            [
-                (
-                    AODWaveformProfileFactory.CreatePrescan(t.Id.ToOpticsAODElectrodeEnum(), t.PrescanHighFilePath),
-                    OpticsMagTypeEnum.High
-                ),
-                (
-                    AODWaveformProfileFactory.CreatePrescan(t.Id.ToOpticsAODElectrodeEnum(), t.PrescanMidFilePath),
-                    OpticsMagTypeEnum.Middle
-                ),
-                (
-                    AODWaveformProfileFactory.CreatePrescan(t.Id.ToOpticsAODElectrodeEnum(), t.PrescanLowFilePath),
-                    OpticsMagTypeEnum.Low
-                ),
-                (
-                    AODWaveformProfileFactory.CreateChirp(t.Id.ToOpticsAODElectrodeEnum(), t.ChirpHighFilePath),
-                    OpticsMagTypeEnum.High
-                ),
-                (
-                    AODWaveformProfileFactory.CreateChirp(t.Id.ToOpticsAODElectrodeEnum(), t.ChirpMidFilePath),
-                    OpticsMagTypeEnum.Middle
-                ),
-                (
-                    AODWaveformProfileFactory.CreateChirp(t.Id.ToOpticsAODElectrodeEnum(), t.ChirpLowFilePath),
-                    OpticsMagTypeEnum.Low
-                )
-            ])
-            .ToList();
+        _cgElectrodeFileModels = result;
 
-        return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigList);
+        return SxExecuteRetHelper.CreateSuccess(_cgElectrodeFileModels);
     }
 }

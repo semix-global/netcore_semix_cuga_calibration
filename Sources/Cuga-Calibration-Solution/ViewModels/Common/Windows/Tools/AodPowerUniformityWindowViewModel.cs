@@ -406,7 +406,7 @@ public partial class AodPowerUniformityWindowViewModel(
                 {
                     laserViewModel.SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum.High, DefaultCoefficient);
                     laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-                    laserViewModel.SetChirpAODWaveProfileList([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.AodWaveFilePath)]);
+                    laserViewModel.SetChirpAODWaveProfiles([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, item.AodWaveFilePath)]);
                 }
                 else
                 {
