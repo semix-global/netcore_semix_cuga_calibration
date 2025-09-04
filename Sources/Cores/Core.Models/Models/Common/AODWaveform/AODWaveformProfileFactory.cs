@@ -71,7 +71,7 @@ public static class AODWaveformProfileFactory
         var result = new List<PrescanAODWaveformProfile>();
         foreach (var item in prescanAODWaveformResult.Items)
         {
-            Guard.IsTrue(Enum.TryParse<OpticsAODElectrodeEnum>(item.Configuration.DirectoryName, out var opticsAODElectrodeEnum), "Directory Name is not valid.");
+            Guard.IsTrue(Enum.TryParse<OpticsAODElectrodeEnum>(item.OffsetConfiguration.DirectoryName, out var opticsAODElectrodeEnum), "Directory Name is not valid.");
 
             var prescanAODWaveformProfile = CreatePrescan(opticsAODElectrodeEnum, item.FilePath, coefficient);
             prescanAODWaveformProfile.Signals = [..item.Signals];
@@ -98,7 +98,7 @@ public static class AODWaveformProfileFactory
         var result = new List<ChirpAODWaveformProfile>();
         foreach (var item in chirpAODWaveformResult.Items)
         {
-            Guard.IsTrue(Enum.TryParse<OpticsAODElectrodeEnum>(item.Configuration.DirectoryName, out var opticsAODElectrodeEnum), "Directory Name is not valid.");
+            Guard.IsTrue(Enum.TryParse<OpticsAODElectrodeEnum>(item.OffsetConfiguration.DirectoryName, out var opticsAODElectrodeEnum), "Directory Name is not valid.");
 
             var chirpAODWaveformProfile = CreateChirp(opticsAODElectrodeEnum, item.FilePath);
             chirpAODWaveformProfile.Signals = [..item.Signals];

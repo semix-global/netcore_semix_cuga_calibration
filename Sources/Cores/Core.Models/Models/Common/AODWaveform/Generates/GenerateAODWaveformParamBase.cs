@@ -1,11 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Models.Models.Common.DarkField;
 using Local.NoSQL.DB.Providers.Bases;
 using MiniExcelLibs;
 using Net.Utilities.Models.Enums.Maths;
-using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -45,6 +43,12 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
+    private string _uniformityConfigurationsFilePath = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
+
+    [ObservableProperty]
     private int _zeroSampleCount;
 
     [ObservableProperty]
@@ -79,25 +83,6 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
 
     [ObservableProperty]
     private int _generateRetryTimes = 1000;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(FrequencyAmplitudes))]
-    private string _frequencyAmplitudesFilePath = string.Empty;
-
-
-    public Point[]? FrequencyAmplitudes
-    {
-        get
-        {
-            Point[]? value = null;
-            if (File.Exists(FrequencyAmplitudesFilePath))
-            {
-                value = [.. MiniExcel.Query<GenerateAodWaveUniformityItemDto>(FrequencyAmplitudesFilePath).Select(t => new Point(t.CenterFrequency, t.Coefficient))];
-            }
-
-            return value;
-        }
-    }
 
     partial void OnBandWidthChanged(double value)
     {
@@ -184,5 +169,13 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
             : value > HeaderFrequency
                 ? FunctionMonotonicTypeEnum.Increasing
                 : FunctionMonotonicTypeEnum.Deceasing;
+    }
+
+    partial void OnUniformityConfigurationsFilePathChanged(string value)
+    {
+        if (File.Exists(UniformityConfigurationsFilePath) == false) return;
+
+        var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(value).ToArray();
+        if (values.Length > 0) UniformityConfigurations = values;
     }
 }

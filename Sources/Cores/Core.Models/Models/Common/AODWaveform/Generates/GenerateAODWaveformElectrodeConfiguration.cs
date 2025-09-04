@@ -8,7 +8,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableCacheBase,
-    IAdaptTo<AODWaveformGenerator.AODWaveformConfiguration>,
+    IAdaptTo<AODWaveformGenerator.AODWaveformOffsetConfiguration>,
     IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>
 {
     [ObservableProperty]
@@ -20,7 +20,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     [ObservableProperty]
     private double _offsetFrequencyPeriodMultiple;
 
-    public AODWaveformGenerator.AODWaveformConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodMultiple);
+    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodMultiple);
 
     public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
     {

@@ -19,6 +19,7 @@ public sealed partial class GeneratePrescanAODWaveformParam : AbstractGenerateAO
         Amplitude,
         DirectoryPath,
         [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
+        [..UniformityConfigurations.Select(t => t.AdaptTo())],
         ZeroSampleCount,
         EndpointSampleCount,
         SincCoefficient,
@@ -30,7 +31,6 @@ public sealed partial class GeneratePrescanAODWaveformParam : AbstractGenerateAO
         QuadrafoilCompensationCoefficient,
         AlphaOrder,
         AlphaOrderCoefficient,
-        FrequencyAmplitudes,
         GenerateRetryTimes)
     {
         FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()

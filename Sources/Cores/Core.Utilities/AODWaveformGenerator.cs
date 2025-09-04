@@ -23,7 +23,32 @@ public static class AODWaveformGenerator
     /// <param name="DirectoryName">文件夹名称</param>
     /// <param name="OffsetFrequency">偏移频率(Mhz)</param>
     /// <param name="OffsetFrequencyPeriodMultiple">偏移频率的2π周期的倍率</param>
-    public sealed record AODWaveformConfiguration(string DirectoryName, double OffsetFrequency, double OffsetFrequencyPeriodMultiple);
+    public sealed record AODWaveformOffsetConfiguration(string DirectoryName, double OffsetFrequency, double OffsetFrequencyPeriodMultiple)
+    {
+        public void Validate()
+        {
+            Guard.IsNotNullOrWhiteSpace(DirectoryName, nameof(DirectoryName));
+            Guard.IsGreaterThanOrEqualTo(OffsetFrequency, 0d, nameof(OffsetFrequency));
+        }
+    }
+
+    /// <summary>
+    /// AOD波形频率均匀性配置
+    /// </summary>
+    /// <param name="Frequency">频率</param>
+    /// <param name="Coefficient">均匀性</param>
+    public sealed record AODWaveformUniformityConfiguration(double Frequency, double Coefficient)
+    {
+        public void Validate()
+        {
+            Guard.IsGreaterThan(Frequency, 0d, nameof(Frequency));
+            Guard.IsGreaterThan(Coefficient, 0d, nameof(Coefficient));
+            Guard.IsBetweenOrEqualTo(Coefficient, 0d, 1d, nameof(Coefficient));
+        }
+
+        internal Point ToPoint() => new Point(Frequency, Coefficient);
+    }
+
 
     /// <inheritdoc cref="AbstractAODWaveformParam"/>
     /// <remarks>
@@ -37,7 +62,8 @@ public static class AODWaveformGenerator
         double SampleRate,
         double Amplitude,
         string DirectoryPath,
-        IReadOnlyList<AODWaveformConfiguration> Configurations,
+        IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations,
+        IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations,
         int ZeroSampleCount = 0,
         int EndpointSampleCount = 0,
         double SincCoefficient = 0d,
@@ -49,7 +75,6 @@ public static class AODWaveformGenerator
         double QuadrafoilCompensationCoefficient = 0d,
         double AlphaOrder = 0d,
         double AlphaOrderCoefficient = 0d,
-        Point[]? FrequencyAmplitudes = null,
         int GenerateRetryTimes = 1000) : AbstractAODWaveformParam(
         BandWidth,
         CenterFrequency,
@@ -58,7 +83,8 @@ public static class AODWaveformGenerator
         SampleRate,
         Amplitude,
         DirectoryPath,
-        Configurations,
+        OffsetConfigurations,
+        UniformityConfigurations,
         ZeroSampleCount,
         EndpointSampleCount,
         SincCoefficient,
@@ -70,7 +96,6 @@ public static class AODWaveformGenerator
         QuadrafoilCompensationCoefficient,
         AlphaOrder,
         AlphaOrderCoefficient,
-        FrequencyAmplitudes,
         GenerateRetryTimes);
 
     /// <inheritdoc cref="AbstractAODWaveformParam"/>
@@ -88,7 +113,8 @@ public static class AODWaveformGenerator
         double SampleRate,
         double Amplitude,
         string DirectoryPath,
-        IReadOnlyList<AODWaveformConfiguration> Configurations,
+        IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations,
+        IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations,
         int ZeroSampleCount = 0,
         int EndpointSampleCount = 0,
         double SincCoefficient = 0d,
@@ -100,7 +126,6 @@ public static class AODWaveformGenerator
         double QuadrafoilCompensationCoefficient = 0d,
         double AlphaOrder = 0d,
         double AlphaOrderCoefficient = 0d,
-        Point[]? FrequencyAmplitudes = null,
         int GenerateRetryTimes = 1000) : AbstractAODWaveformParam(
         BandWidth,
         CenterFrequency,
@@ -109,7 +134,8 @@ public static class AODWaveformGenerator
         SampleRate,
         Amplitude,
         DirectoryPath,
-        Configurations,
+        OffsetConfigurations,
+        UniformityConfigurations,
         ZeroSampleCount,
         EndpointSampleCount,
         SincCoefficient,
@@ -121,7 +147,6 @@ public static class AODWaveformGenerator
         QuadrafoilCompensationCoefficient,
         AlphaOrder,
         AlphaOrderCoefficient,
-        FrequencyAmplitudes,
         GenerateRetryTimes)
     {
         internal override void Validate()
@@ -143,7 +168,8 @@ public static class AODWaveformGenerator
     /// <param name="SampleRate">采样率(Msa/s)</param>
     /// <param name="Amplitude">幅值</param>
     /// <param name="DirectoryPath">生成的目录</param>
-    /// <param name="Configurations">AOD波形的频率偏移配置集合</param>
+    /// <param name="OffsetConfigurations">AOD波形的频率偏移配置集合</param>
+    /// <param name="UniformityConfigurations">AOD波形频率均匀性配置集合</param>
     /// <param name="ZeroSampleCount">前面添加多少补零采样点个数, 相当于添加延迟(sa)</param>
     /// <param name="EndpointSampleCount">端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)</param>
     /// <param name="SincCoefficient">sin(cx)/cx</param>
@@ -155,7 +181,6 @@ public static class AODWaveformGenerator
     /// <param name="QuadrafoilCompensationCoefficient">sin(8πt/T)</param>
     /// <param name="AlphaOrder">α次补偿</param>
     /// <param name="AlphaOrderCoefficient">α次补偿系数t^α</param>
-    /// <param name="FrequencyAmplitudes">AOD波形频率生成补偿系数</param>
     /// <param name="GenerateRetryTimes">生成AOD波形文件重试次数</param>
     public abstract record AbstractAODWaveformParam(
         double BandWidth,
@@ -165,7 +190,8 @@ public static class AODWaveformGenerator
         double SampleRate,
         double Amplitude,
         string DirectoryPath,
-        IReadOnlyList<AODWaveformConfiguration> Configurations,
+        IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations,
+        IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations,
         int ZeroSampleCount,
         int EndpointSampleCount,
         double SincCoefficient,
@@ -177,7 +203,6 @@ public static class AODWaveformGenerator
         double QuadrafoilCompensationCoefficient,
         double AlphaOrder,
         double AlphaOrderCoefficient,
-        Point[]? FrequencyAmplitudes,
         int GenerateRetryTimes)
     {
         public readonly double LowFrequency = FunctionMonotonicTypeEnum switch // 低频
@@ -211,11 +236,8 @@ public static class AODWaveformGenerator
             Guard.IsBetweenOrEqualTo(Amplitude, 0d, 1d, nameof(Amplitude));
             Guard.IsNotNullOrWhiteSpace(DirectoryPath, nameof(DirectoryPath));
 
-            foreach (var item in Configurations)
-            {
-                Guard.IsNotNullOrWhiteSpace(item.DirectoryName, nameof(item.DirectoryName));
-                Guard.IsGreaterThanOrEqualTo(item.OffsetFrequency, 0d, nameof(item.OffsetFrequency));
-            }
+            foreach (var item in OffsetConfigurations) item.Validate();
+            foreach (var item in UniformityConfigurations) item.Validate();
 
             Guard.IsGreaterThanOrEqualTo(ZeroSampleCount, 0d, nameof(ZeroSampleCount));
             Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d, nameof(EndpointSampleCount));
@@ -257,7 +279,7 @@ public static class AODWaveformGenerator
             FilePath = FileHelper.GetEnsureLongPathSupport(FileHelper.RemoveInvalidFileName(Path.Combine(Param.DirectoryPath, fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
-            foreach (var item in Param.Configurations)
+            foreach (var item in Param.OffsetConfigurations)
             {
                 fileName = $"prescan" +
                            $"_{Param.FileNameSuffix}" +
@@ -300,7 +322,7 @@ public static class AODWaveformGenerator
             FilePath = FileHelper.GetEnsureLongPathSupport(FileHelper.RemoveInvalidFileName(Path.Combine(Param.DirectoryPath, fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
-            foreach (var item in Param.Configurations)
+            foreach (var item in Param.OffsetConfigurations)
             {
                 fileName = $"chirp" +
                            $"_{Param.FileNameSuffix}" +
@@ -340,9 +362,9 @@ public static class AODWaveformGenerator
     /// <summary>
     /// AOD波形结果项
     /// </summary>
-    /// <param name="Configuration">AOD波形的频率偏移配置</param>
+    /// <param name="OffsetConfiguration">AOD波形的频率偏移配置</param>
     /// <param name="FilePath">AOD波形文件</param>
-    public sealed record AODWaveformResultItem(AODWaveformConfiguration Configuration, string FilePath)
+    public sealed record AODWaveformResultItem(AODWaveformOffsetConfiguration OffsetConfiguration, string FilePath)
     {
         /// <summary>
         /// AOD波形信号
@@ -412,21 +434,21 @@ public static class AODWaveformGenerator
     /// </summary>
     /// <param name="prescanAODWaveformParam">PrescanAOD波形生成参数</param>
     /// <returns>(是否成功, 异常信息, 结果)</returns>
-    public static (bool IsSuccess, Exception? Exception, PrescanAODWaveformResult AODWaveformResult) GeneratePrescanAODWaveformFile(PrescanAODWaveformParam prescanAODWaveformParam) => GenerateAodWaveFile<PrescanAODWaveformResult, PrescanAODWaveformParam>(prescanAODWaveformParam);
+    public static (bool IsSuccess, Exception? Exception, PrescanAODWaveformResult AODWaveformResult) GeneratePrescanAODWaveformFile(PrescanAODWaveformParam prescanAODWaveformParam) => GenerateAODWaveformFile<PrescanAODWaveformResult, PrescanAODWaveformParam>(prescanAODWaveformParam);
 
     /// <summary>
     /// 生成ChirpAOD波形文件
     /// </summary>
     /// <param name="chirpAODWaveformParam">ChirpAOD波形生成参数</param>
     /// <returns>(是否成功, 异常信息, 结果)</returns>
-    public static (bool IsSuccess, Exception? Exception, ChirpAODWaveformResult AODWaveformResult) GenerateChirpAODWaveformFile(ChirpAODWaveformParam chirpAODWaveformParam) => GenerateAodWaveFile<ChirpAODWaveformResult, ChirpAODWaveformParam>(chirpAODWaveformParam);
+    public static (bool IsSuccess, Exception? Exception, ChirpAODWaveformResult AODWaveformResult) GenerateChirpAODWaveformFile(ChirpAODWaveformParam chirpAODWaveformParam) => GenerateAODWaveformFile<ChirpAODWaveformResult, ChirpAODWaveformParam>(chirpAODWaveformParam);
 
     /// <summary>
     /// 生成AOD波形文件
     /// </summary>
     /// <param name="param">AOD波形生成参数</param>
     /// <returns>(是否成功, 异常信息, 结果)</returns>
-    private static (bool IsSuccess, Exception? Exception, TResult AODWaveformResult) GenerateAodWaveFile<TResult, TParam>(TParam param)
+    private static (bool IsSuccess, Exception? Exception, TResult AODWaveformResult) GenerateAODWaveformFile<TResult, TParam>(TParam param)
         where TResult : AbstractAODWaveformResult<TParam>
         where TParam : AbstractAODWaveformParam
     {
@@ -682,27 +704,27 @@ public static class AODWaveformGenerator
 
         foreach (var item in result.Items)
         {
-            FFT(item.Configuration.OffsetFrequency, item.Configuration.OffsetFrequencyPeriodMultiple);
+            FFT(item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodMultiple);
             var frequencyCompensationsResult = new List<Point>();
 
-            if (isSuccess && param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && (param.FrequencyAmplitudes?.Length > 0 || param.SincCoefficient != 0d))
+            if (isSuccess && param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && (param.UniformityConfigurations.Count > 0 || param.SincCoefficient != 0d))
             {
                 var fftFullFrequencies = fftResult.GetFullFrequencies(param.SampleRate);
                 var indices = fftFullFrequencies.FindAll(d => minFlatnessFrequency <= Math.Abs(d) && Math.Abs(d) <= maxFlatnessFrequency);
-                if (param.FrequencyAmplitudes?.Length > 0)
+                if (param.UniformityConfigurations.Count > 0)
                 {
                     foreach (var index in indices)
                     {
                         var f = Math.Abs(fftFullFrequencies[index]);
                         var compensation = BinarySearch.TryValueIndexRange(
-                            [.. param.FrequencyAmplitudes.Select(tt => tt.X)],
+                            [.. param.UniformityConfigurations.Select(tt => tt.Frequency)],
                             f,
                             out var startColumnIndex,
                             out var endColumnIndex)
-                            ? Interpolator.Linear(param.FrequencyAmplitudes[startColumnIndex], param.FrequencyAmplitudes[endColumnIndex], f)
-                            : f <= param.FrequencyAmplitudes.First().X
-                                ? param.FrequencyAmplitudes.First().Y
-                                : param.FrequencyAmplitudes.Last().Y;
+                            ? Interpolator.Linear(param.UniformityConfigurations[startColumnIndex].ToPoint(), param.UniformityConfigurations[endColumnIndex].ToPoint(), f)
+                            : f <= param.UniformityConfigurations.First().Frequency
+                                ? param.UniformityConfigurations.First().Coefficient
+                                : param.UniformityConfigurations.Last().Coefficient;
 
                         fftResult[index] *= compensation;
                         if (fftFullFrequencies[index] >= 0d) frequencyCompensationsResult.Add(new Point(f, compensation));
@@ -829,8 +851,8 @@ public static class AODWaveformGenerator
 
             #region 傅里叶
 
-            var flatnessAodWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
-            fftResult = flatnessAodWaveformSignals.ToComplex().FastFourierTransform();
+            var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
+            fftResult = flatnessAODWaveformSignals.ToComplex().FastFourierTransform();
             (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(param.SampleRate);
 
             #endregion 傅里叶

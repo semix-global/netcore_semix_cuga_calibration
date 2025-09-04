@@ -20,6 +20,8 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Models.Models.Common.AODWaveform.Generates;
+using AodWaveGenerator = Net.Utilities.Algorithms.Modules.AodWaveGenerator;
 using Constants = Net.Utilities.Models.Constants;
 
 // ReSharper disable All
@@ -259,7 +261,7 @@ public partial class AodPowerUniformityWindowViewModel(
             if (dialog == false) return;
 
             FileHelper.DeleteFileIfExists(filePath);
-            MiniExcel.SaveAs(filePath, Items.Select(t => new GenerateAodWaveUniformityItemDto { CenterFrequency = t.CenterFrequency, Coefficient = t.Coefficient }));
+            MiniExcel.SaveAs(filePath, Items.Select(t => new GenerateAODWaveformUniformityConfiguration { CenterFrequency = t.CenterFrequency, Coefficient = t.Coefficient }));
         }
         catch (Exception ex)
         {
