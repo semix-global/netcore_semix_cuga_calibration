@@ -38,7 +38,6 @@ public sealed class LaserViewModel(
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
-    ICalibrationConfigService calibrationConfigService,
     ICacheProvider cacheProvider) : ViewModelBase
 {
     #region 服务

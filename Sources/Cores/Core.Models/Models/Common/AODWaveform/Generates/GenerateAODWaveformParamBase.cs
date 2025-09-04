@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public partial class GenerateAODWaveformParamBase : ObservableCacheBase
+public abstract partial class AbstractGenerateAODWaveformParam : ObservableCacheBase
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;

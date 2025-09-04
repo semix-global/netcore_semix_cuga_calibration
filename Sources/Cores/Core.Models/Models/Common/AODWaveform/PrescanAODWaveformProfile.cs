@@ -2,17 +2,11 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public sealed class PrescanAODWaveformProfile : AbstractAODWaveformProfile<PrescanAODWaveformProfile>, IAdaptTo<PrescanAODWaveformResult>, ICloneable<PrescanAODWaveformProfile>
+public sealed class PrescanAODWaveformProfile : AbstractAODWaveformProfile, IAdaptTo<PrescanAODWaveformResult>, ICloneable<PrescanAODWaveformProfile>
 {
     internal PrescanAODWaveformProfile()
     {
     }
-
-    public PrescanAODWaveformResult AdaptTo() => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, FilePath);
-
-    public PrescanAODWaveformResult AdaptTo(string directoryPath) => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, Save(directoryPath));
-
-    public PrescanAODWaveformProfile Clone() => AdaptIn(new PrescanAODWaveformProfile());
 
     public PrescanAODWaveformProfile ApplyCoefficient(double coefficient)
     {
@@ -27,4 +21,10 @@ public sealed class PrescanAODWaveformProfile : AbstractAODWaveformProfile<Presc
 
         return this;
     }
+
+    public PrescanAODWaveformResult AdaptTo() => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, FilePath);
+
+    public PrescanAODWaveformResult AdaptTo(string directoryPath) => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, Save(directoryPath));
+
+    public PrescanAODWaveformProfile Clone() => AdaptIn(new PrescanAODWaveformProfile());
 }

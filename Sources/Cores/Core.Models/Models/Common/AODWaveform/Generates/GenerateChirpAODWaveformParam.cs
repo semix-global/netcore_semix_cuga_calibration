@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public sealed partial class GenerateChirpAODWaveformParam : GenerateAODWaveformParamBase, IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>
+public sealed partial class GenerateChirpAODWaveformParam : AbstractGenerateAODWaveformParam, IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>
 {
     [ObservableProperty]
     private double _soundPackageLength = 3.2;

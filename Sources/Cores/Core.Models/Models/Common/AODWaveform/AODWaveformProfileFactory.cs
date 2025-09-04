@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Utilities;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
@@ -44,6 +45,26 @@ public static class AODWaveformProfileFactory
         .Cast<IAdaptTo<ChirpAODWaveformProfile>>()
         .Select(t => t.AdaptTo())
         .ToList();
+
+    public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(string prescanAODWaveformResultFilePath)
+    {
+        Guard.IsEqualTo(Path.GetExtension(prescanAODWaveformResultFilePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+
+        var prescanAODWaveformResult = FileHelper.DeserializeOperate<AODWaveformGenerator.PrescanAODWaveformResult>(prescanAODWaveformResultFilePath);
+        Guard.IsNotNull(prescanAODWaveformResult, "File Extension is not valid.");
+
+        return CreatePrescanList(prescanAODWaveformResult);
+    }
+
+    public static IReadOnlyList<ChirpAODWaveformProfile> CreateChirpList(string chirpAODWaveformResultFilePath)
+    {
+        Guard.IsEqualTo(Path.GetExtension(chirpAODWaveformResultFilePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+
+        var chirpAODWaveformResult = FileHelper.DeserializeOperate<AODWaveformGenerator.ChirpAODWaveformResult>(chirpAODWaveformResultFilePath);
+        Guard.IsNotNull(chirpAODWaveformResult, "File Extension is not valid.");
+
+        return CreateChirpList(chirpAODWaveformResult);
+    }
 
     public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(AODWaveformGenerator.PrescanAODWaveformResult prescanAODWaveformResult, double coefficient = 1d)
     {

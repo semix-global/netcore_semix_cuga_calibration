@@ -6,11 +6,10 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public partial class GenerateAODWaveformElectrodeConfiguration :
+public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableCacheBase,
     IAdaptTo<AODWaveformGenerator.AODWaveformConfiguration>,
-    IAdaptIn<PrescanAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
-    IAdaptIn<ChirpAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>
+    IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>
 {
     [ObservableProperty]
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
@@ -21,7 +20,9 @@ public partial class GenerateAODWaveformElectrodeConfiguration :
     [ObservableProperty]
     private double _offsetFrequencyPeriodMultiple;
 
-    private GenerateAODWaveformElectrodeConfiguration AdaptIn<T>(AbstractAODWaveformProfile<T> obj) where T : AbstractAODWaveformProfile<T>
+    public AODWaveformGenerator.AODWaveformConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodMultiple);
+
+    public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
     {
         OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
         OffsetFrequency = obj.OffsetFrequency;
@@ -29,10 +30,4 @@ public partial class GenerateAODWaveformElectrodeConfiguration :
 
         return this;
     }
-
-    public AODWaveformGenerator.AODWaveformConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodMultiple);
-
-    public GenerateAODWaveformElectrodeConfiguration AdaptIn(PrescanAODWaveformProfile obj) => AdaptIn<PrescanAODWaveformProfile>(obj);
-
-    public GenerateAODWaveformElectrodeConfiguration AdaptIn(ChirpAODWaveformProfile obj) => AdaptIn<ChirpAODWaveformProfile>(obj);
 }

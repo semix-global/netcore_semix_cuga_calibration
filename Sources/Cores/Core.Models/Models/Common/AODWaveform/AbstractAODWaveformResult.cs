@@ -3,7 +3,7 @@ using Core.Models.Enums.Optics;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public abstract class AbstractAODWaveformResult<T> : ObservableObject where T : AbstractAODWaveformResult<T>
+public abstract class AbstractAODWaveformResult : ObservableObject
 {
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
     private string _filePath = string.Empty;
@@ -20,7 +20,7 @@ public abstract class AbstractAODWaveformResult<T> : ObservableObject where T : 
         internal set => SetProperty(ref _filePath, value);
     }
 
-    protected T AdaptIn(T obj)
+    protected T AdaptIn<T>(T obj) where T : AbstractAODWaveformResult
     {
         obj.OpticsAODElectrodeEnum = OpticsAODElectrodeEnum;
         obj.FilePath = FilePath;

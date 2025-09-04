@@ -2,7 +2,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public sealed class ChirpAODWaveformProfile : AbstractAODWaveformProfile<ChirpAODWaveformProfile>, IAdaptTo<ChirpAODWaveformResult>, ICloneable<ChirpAODWaveformProfile>
+public sealed class ChirpAODWaveformProfile : AbstractAODWaveformProfile, IAdaptTo<ChirpAODWaveformResult>, ICloneable<ChirpAODWaveformProfile>
 {
     internal ChirpAODWaveformProfile()
     {

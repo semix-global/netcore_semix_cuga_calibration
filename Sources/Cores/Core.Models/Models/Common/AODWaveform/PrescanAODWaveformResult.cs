@@ -4,7 +4,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public class PrescanAODWaveformResult : AbstractAODWaveformResult<PrescanAODWaveformResult>, IAdaptTo<PrescanAODWaveformProfile>, IAdaptTo<CalibrationPrescanAODWaveformResult>, ICloneable<PrescanAODWaveformResult>
+public sealed class PrescanAODWaveformResult : AbstractAODWaveformResult, IAdaptTo<PrescanAODWaveformProfile>, IAdaptTo<CalibrationPrescanAODWaveformResult>, ICloneable<PrescanAODWaveformResult>
 {
     internal PrescanAODWaveformResult()
     {

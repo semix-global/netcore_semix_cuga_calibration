@@ -4,7 +4,6 @@
         <TargetFrameworks>net480;net8.0</TargetFrameworks>
         <AssemblyName>Core.Utilities</AssemblyName>
         <RootNamespace>Core.Utilities</RootNamespace>
-        <LangVersion>preview</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

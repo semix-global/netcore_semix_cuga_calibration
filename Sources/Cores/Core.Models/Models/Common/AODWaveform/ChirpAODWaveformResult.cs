@@ -2,7 +2,7 @@
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public sealed class ChirpAODWaveformResult : AbstractAODWaveformResult<ChirpAODWaveformResult>, IAdaptTo<ChirpAODWaveformProfile>, ICloneable<ChirpAODWaveformResult>
+public sealed class ChirpAODWaveformResult : AbstractAODWaveformResult, IAdaptTo<ChirpAODWaveformProfile>, ICloneable<ChirpAODWaveformResult>
 {
     internal ChirpAODWaveformResult()
     {

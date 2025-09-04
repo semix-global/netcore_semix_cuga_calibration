@@ -8,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public abstract class AbstractAODWaveformProfile<T> : ObservableObject where T : AbstractAODWaveformProfile<T>
+public abstract class AbstractAODWaveformProfile : ObservableObject
 {
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
     private string _filePath = string.Empty;
@@ -209,7 +209,7 @@ public abstract class AbstractAODWaveformProfile<T> : ObservableObject where T :
         return filePath;
     }
 
-    protected T AdaptIn(T obj)
+    protected T AdaptIn<T>(T obj) where T : AbstractAODWaveformProfile
     {
         obj.OpticsAODElectrodeEnum = OpticsAODElectrodeEnum;
         obj.FilePath = FilePath;
