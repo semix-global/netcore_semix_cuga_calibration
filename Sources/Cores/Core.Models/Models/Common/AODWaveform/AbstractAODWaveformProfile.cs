@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
@@ -14,7 +15,7 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
     private string _filePath = string.Empty;
     private int _zeroSampleCount;
     private double _offsetFrequency;
-    private double _offsetFrequencyPeriodMultiple;
+    private double _offsetFrequencyPeriodCoefficient;
     private IReadOnlyList<short> _shortList = [];
     private IReadOnlyList<byte> _byteList = [];
 
@@ -48,10 +49,10 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
         internal set => SetProperty(ref _offsetFrequency, value);
     }
 
-    public double OffsetFrequencyPeriodMultiple
+    public double OffsetFrequencyPeriodCoefficient
     {
-        get => _offsetFrequencyPeriodMultiple;
-        internal set => SetProperty(ref _offsetFrequencyPeriodMultiple, value);
+        get => _offsetFrequencyPeriodCoefficient;
+        internal set => SetProperty(ref _offsetFrequencyPeriodCoefficient, value);
     }
 
     public int TotalSampleCount => ShortList.Count + ZeroSampleCount;
@@ -122,7 +123,7 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
 
         ZeroSampleCount = int.Parse(strings[2]);
         OffsetFrequency = double.Parse(strings[5]);
-        OffsetFrequencyPeriodMultiple = double.Parse(strings[6]);
+        OffsetFrequencyPeriodCoefficient = double.Parse(strings[6]);
 
         var resultString = File.ReadAllLines(value)
             .Select(t => t.Trim())
@@ -191,7 +192,7 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
         Guard.IsTrue(strings.Length >= 7, "filePath name error.");
 
         var registerId = strings[4];
-        var filePath = Path.Combine(directoryPath, EnumHelper.ToDescriptionString(OpticsAODElectrodeEnum), $"{Guid.NewGuid():N}${TotalSampleCount}${ZeroSampleCount}$600${registerId}${OffsetFrequency:0.###}${OffsetFrequencyPeriodMultiple:0.###}$.txt");
+        var filePath = Path.Combine(directoryPath, EnumHelper.ToDescriptionString(OpticsAODElectrodeEnum), $"{Guid.NewGuid():N}${TotalSampleCount}${ZeroSampleCount}$600${registerId}${OffsetFrequency:0.###}${OffsetFrequencyPeriodCoefficient:0.###}$.txt");
         FileHelper.DeleteFileIfExists(filePath);
         DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
 
@@ -215,7 +216,7 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
         obj.FilePath = FilePath;
         obj.ZeroSampleCount = ZeroSampleCount;
         obj.OffsetFrequency = OffsetFrequency;
-        obj.OffsetFrequencyPeriodMultiple = OffsetFrequencyPeriodMultiple;
+        obj.OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient;
         obj.ShortList = [.. ShortList];
         obj.ByteList = [.. ByteList];
 

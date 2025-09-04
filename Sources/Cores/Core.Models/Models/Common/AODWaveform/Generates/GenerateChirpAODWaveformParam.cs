@@ -22,10 +22,11 @@ public sealed partial class GenerateChirpAODWaveformParam : AbstractGenerateAODW
         SampleRate,
         Amplitude,
         DirectoryPath,
-        [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        [..UniformityConfigurations.Select(t => t.AdaptTo())],
         ZeroSampleCount,
         EndpointSampleCount,
+        GenerateRetryTimes,
+        [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
+        [..UniformityConfigurations.Select(t => t.AdaptTo())],
         SincCoefficient,
         AstigmatismCompensationCoefficient,
         SphericalAberrationCompensationCoefficient,
@@ -34,8 +35,7 @@ public sealed partial class GenerateChirpAODWaveformParam : AbstractGenerateAODW
         TrefoilCompensationCoefficient,
         QuadrafoilCompensationCoefficient,
         AlphaOrder,
-        AlphaOrderCoefficient,
-        GenerateRetryTimes)
+        AlphaOrderCoefficient)
     {
         FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()
     };

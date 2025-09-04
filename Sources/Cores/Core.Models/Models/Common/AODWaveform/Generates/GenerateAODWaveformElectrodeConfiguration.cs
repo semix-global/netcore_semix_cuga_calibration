@@ -18,15 +18,15 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     private double _offsetFrequency;
 
     [ObservableProperty]
-    private double _offsetFrequencyPeriodMultiple;
+    private double _offsetFrequencyPeriodCoefficient;
 
-    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodMultiple);
+    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodCoefficient);
 
     public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
     {
         OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
         OffsetFrequency = obj.OffsetFrequency;
-        OffsetFrequencyPeriodMultiple = obj.OffsetFrequencyPeriodMultiple;
+        OffsetFrequencyPeriodCoefficient = obj.OffsetFrequencyPeriodCoefficient;
 
         return this;
     }

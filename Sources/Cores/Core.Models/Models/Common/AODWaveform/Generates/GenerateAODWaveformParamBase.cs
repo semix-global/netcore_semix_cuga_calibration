@@ -1,8 +1,8 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
-using MiniExcelLibs;
 using Net.Utilities.Models.Enums.Maths;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
@@ -16,16 +16,16 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
     private bool _isHeaderAndFooter;
 
     [ObservableProperty]
-    private double _bandWidth;
-
-    [ObservableProperty]
-    private double _centerFrequency;
-
-    [ObservableProperty]
     private double _headerFrequency;
 
     [ObservableProperty]
     private double _footerFrequency;
+
+    [ObservableProperty]
+    private double _bandWidth;
+
+    [ObservableProperty]
+    private double _centerFrequency;
 
     [ObservableProperty]
     private FunctionMonotonicTypeEnum _functionMonotonicTypeEnum;
@@ -40,22 +40,22 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
     private string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveform));
 
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
+    private int _zeroSampleCount;
 
     [ObservableProperty]
-    private string _uniformityConfigurationsFilePath = string.Empty;
+    private int _endpointSampleCount;
+
+    [ObservableProperty]
+    private int _generateRetryTimes = 1000;
+
+    [ObservableProperty]
+    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _deltaSlopeConfigurations = [];
-
-    [ObservableProperty]
-    private int _zeroSampleCount;
-
-    [ObservableProperty]
-    private int _endpointSampleCount;
+    private IReadOnlyList<double> _slopeDeltaKConfigurations = [];
 
     [ObservableProperty]
     private double _sincCoefficient;
@@ -84,8 +84,31 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
     [ObservableProperty]
     private double _alphaOrderCoefficient;
 
-    [ObservableProperty]
-    private int _generateRetryTimes = 1000;
+    partial void OnHeaderFrequencyChanged(double value)
+    {
+        if (IsHeaderAndFooter == false) return;
+
+        BandWidth = Math.Abs(FooterFrequency - value);
+        CenterFrequency = (FooterFrequency + value) / 2d;
+        FunctionMonotonicTypeEnum = FooterFrequency - value == 0
+            ? FunctionMonotonicTypeEnum.Flatness
+            : FooterFrequency > value
+                ? FunctionMonotonicTypeEnum.Increasing
+                : FunctionMonotonicTypeEnum.Deceasing;
+    }
+
+    partial void OnFooterFrequencyChanged(double value)
+    {
+        if (IsHeaderAndFooter == false) return;
+
+        BandWidth = Math.Abs(value - HeaderFrequency);
+        CenterFrequency = (value + HeaderFrequency) / 2d;
+        FunctionMonotonicTypeEnum = value - HeaderFrequency == 0
+            ? FunctionMonotonicTypeEnum.Flatness
+            : value > HeaderFrequency
+                ? FunctionMonotonicTypeEnum.Increasing
+                : FunctionMonotonicTypeEnum.Deceasing;
+    }
 
     partial void OnBandWidthChanged(double value)
     {
@@ -146,39 +169,5 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
         };
         BandWidth = value == FunctionMonotonicTypeEnum.Flatness ? 0d : BandWidth;
-    }
-
-    partial void OnHeaderFrequencyChanged(double value)
-    {
-        if (IsHeaderAndFooter == false) return;
-
-        BandWidth = Math.Abs(FooterFrequency - value);
-        CenterFrequency = (FooterFrequency + value) / 2d;
-        FunctionMonotonicTypeEnum = FooterFrequency - value == 0
-            ? FunctionMonotonicTypeEnum.Flatness
-            : FooterFrequency > value
-                ? FunctionMonotonicTypeEnum.Increasing
-                : FunctionMonotonicTypeEnum.Deceasing;
-    }
-
-    partial void OnFooterFrequencyChanged(double value)
-    {
-        if (IsHeaderAndFooter == false) return;
-
-        BandWidth = Math.Abs(value - HeaderFrequency);
-        CenterFrequency = (value + HeaderFrequency) / 2d;
-        FunctionMonotonicTypeEnum = value - HeaderFrequency == 0
-            ? FunctionMonotonicTypeEnum.Flatness
-            : value > HeaderFrequency
-                ? FunctionMonotonicTypeEnum.Increasing
-                : FunctionMonotonicTypeEnum.Deceasing;
-    }
-
-    partial void OnUniformityConfigurationsFilePathChanged(string value)
-    {
-        if (File.Exists(UniformityConfigurationsFilePath) == false) return;
-
-        var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(value).ToArray();
-        if (values.Length > 0) UniformityConfigurations = values;
     }
 }
