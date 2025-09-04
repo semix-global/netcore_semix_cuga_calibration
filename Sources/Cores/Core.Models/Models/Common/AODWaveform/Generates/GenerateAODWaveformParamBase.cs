@@ -49,6 +49,9 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
     private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
 
     [ObservableProperty]
+    private IReadOnlyList<double> _deltaSlopeConfigurations = [];
+
+    [ObservableProperty]
     private int _zeroSampleCount;
 
     [ObservableProperty]
