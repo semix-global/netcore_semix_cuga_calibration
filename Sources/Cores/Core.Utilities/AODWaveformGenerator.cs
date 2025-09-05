@@ -27,8 +27,8 @@ public static class AODWaveformGenerator
     {
         public void Validate()
         {
-            Guard.IsNotNullOrWhiteSpace(DirectoryName, nameof(DirectoryName));
-            Guard.IsGreaterThanOrEqualTo(OffsetFrequency, 0d, nameof(OffsetFrequency));
+            Guard.IsNotNullOrWhiteSpace(DirectoryName, nameof(AODWaveformOffsetConfiguration) + nameof(DirectoryName));
+            Guard.IsGreaterThanOrEqualTo(OffsetFrequency, 0d, nameof(AODWaveformOffsetConfiguration) + nameof(OffsetFrequency));
         }
     }
 
@@ -41,9 +41,9 @@ public static class AODWaveformGenerator
     {
         public void Validate()
         {
-            Guard.IsGreaterThan(Frequency, 0d, nameof(Frequency));
-            Guard.IsGreaterThan(Coefficient, 0d, nameof(Coefficient));
-            Guard.IsBetweenOrEqualTo(Coefficient, 0d, 1d, nameof(Coefficient));
+            Guard.IsGreaterThan(Frequency, 0d, nameof(AODWaveformUniformityConfiguration) + nameof(Frequency));
+            Guard.IsGreaterThan(Coefficient, 0d, nameof(AODWaveformUniformityConfiguration) + nameof(Coefficient));
+            Guard.IsBetweenOrEqualTo(Coefficient, 0d, 1d, nameof(AODWaveformUniformityConfiguration) + nameof(Coefficient));
         }
 
         internal Point ToPoint() => new(Frequency, Coefficient);
@@ -247,17 +247,18 @@ public static class AODWaveformGenerator
 
             if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness)
             {
-                if(BandWidth != 0d) ThrowHelper.ThrowArgumentException(nameof(BandWidth), "if monotonic is flatness then band Width is must 0");
-                if(SincCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SincCoefficient), "if monotonic is flatness then Sinc Coefficient is must 0");
-                if(AstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(AstigmatismCompensationCoefficient), "if monotonic is flatness then Astigmatism Compensation Coefficient is must 0");
-                if(SphericalAberrationCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SphericalAberrationCompensationCoefficient), "if monotonic is flatness then Spherical Aberration Compensation Coefficient is must 0");
-                if(SecondaryAstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SecondaryAstigmatismCompensationCoefficient), "if monotonic is flatness then Secondary Astigmatism Compensation Coefficient is must 0");
-                if(ComaCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(ComaCompensationCoefficient), "if monotonic is flatness then Coma Compensation Coefficient is must 0");
-                if(TrefoilCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(TrefoilCompensationCoefficient), "if monotonic is flatness then Trefoil Compensation Coefficient is must 0");
-                if(QuadrafoilCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(QuadrafoilCompensationCoefficient), "if monotonic is flatness then Quadrafoil Compensation Coefficient is must 0");
-                if(AlphaOrder != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrder), "if monotonic is flatness then Alpha Order is must 0");
-                if(AlphaOrderCoefficient  != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrderCoefficient), "if monotonic is flatness then Alpha Order Coefficient is must 0");
+                if (BandWidth != 0d) ThrowHelper.ThrowArgumentException(nameof(BandWidth), "if monotonic is flatness then band Width is must 0");
+                if (SincCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SincCoefficient), "if monotonic is flatness then Sinc Coefficient is must 0");
+                if (AstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(AstigmatismCompensationCoefficient), "if monotonic is flatness then Astigmatism Compensation Coefficient is must 0");
+                if (SphericalAberrationCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SphericalAberrationCompensationCoefficient), "if monotonic is flatness then Spherical Aberration Compensation Coefficient is must 0");
+                if (SecondaryAstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SecondaryAstigmatismCompensationCoefficient), "if monotonic is flatness then Secondary Astigmatism Compensation Coefficient is must 0");
+                if (ComaCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(ComaCompensationCoefficient), "if monotonic is flatness then Coma Compensation Coefficient is must 0");
+                if (TrefoilCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(TrefoilCompensationCoefficient), "if monotonic is flatness then Trefoil Compensation Coefficient is must 0");
+                if (QuadrafoilCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(QuadrafoilCompensationCoefficient), "if monotonic is flatness then Quadrafoil Compensation Coefficient is must 0");
+                if (AlphaOrder != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrder), "if monotonic is flatness then Alpha Order is must 0");
+                if (AlphaOrderCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrderCoefficient), "if monotonic is flatness then Alpha Order Coefficient is must 0");
             }
+
             if (BandWidth == 0d && FunctionMonotonicTypeEnum is not FunctionMonotonicTypeEnum.Flatness) ThrowHelper.ThrowArgumentException(nameof(FunctionMonotonicTypeEnum), "if band Width is must 0 then monotonic is flatness and band");
         }
     }
@@ -277,7 +278,6 @@ public static class AODWaveformGenerator
         {
             var fileName = $"prescan" +
                            $"_{Param.FileNameSuffix}" +
-                           $"{Id}" +
                            $"_{Param.FlatnessTime:0.###}ns" +
                            $"_{Param.FunctionMonotonicTypeEnum switch
                            {
@@ -290,19 +290,18 @@ public static class AODWaveformGenerator
 
             if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-            FilePath = FileHelper.GetEnsureLongPathSupport(FileHelper.RemoveInvalidFileName(Path.Combine(Param.DirectoryPath, fileName)));
+            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
             foreach (var item in Param.OffsetConfigurations)
             {
                 fileName = $"prescan" +
                            $"_{Param.FileNameSuffix}" +
-                           $"{Id}" +
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
 
                 if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(FileHelper.RemoveInvalidFileName(Path.Combine(Param.DirectoryPath, item.DirectoryName, fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -320,7 +319,6 @@ public static class AODWaveformGenerator
         {
             var fileName = $"chirp" +
                            $"_{Param.FileNameSuffix}" +
-                           $"{Id}" +
                            $"_{Param.SoundPacketLength:0.###}mm" +
                            $"_{Param.FunctionMonotonicTypeEnum switch
                            {
@@ -333,18 +331,17 @@ public static class AODWaveformGenerator
 
             if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-            FilePath = FileHelper.GetEnsureLongPathSupport(FileHelper.RemoveInvalidFileName(Path.Combine(Param.DirectoryPath, fileName)));
+            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
             foreach (var item in Param.OffsetConfigurations)
             {
                 fileName = $"chirp" +
                            $"_{Param.FileNameSuffix}" +
-                           $"{Id}" +
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
                 if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(FileHelper.RemoveInvalidFileName(Path.Combine(Param.DirectoryPath, item.DirectoryName, fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -383,86 +380,122 @@ public static class AODWaveformGenerator
         /// <summary>
         /// AOD波形信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> Signals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形信号FFT分析
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FFTSignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形频率补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形线性频率信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessLinearFrequencySignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形非线性频率信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessTotalFrequencySignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形总频率信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessAstigmatismCompensationSignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形线性补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessSphericalAberrationCompensationSignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形散光补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessSecondaryAstigmatismCompensationSignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形球差补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessComaCompensationSignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形二阶散光补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessTrefoilCompensationSignals { get; internal set; } = [];
 
         /// <summary>  
         /// AOD波形coma补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessQuadrafoilCompensationSignals { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形trefoil补偿信号
         ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessAlphaOrderCompensationSignals { get; internal set; } = [];
     }
 
     #endregion 结果
 
-    /// <summary>
-    /// 生成PrescanAOD波形文件
-    /// </summary>
-    /// <param name="prescanAODWaveformParam">PrescanAOD波形生成参数</param>
-    /// <returns>(是否成功, 异常信息, 结果)</returns>
-    public static (bool IsSuccess, Exception? Exception, PrescanAODWaveformResult AODWaveformResult) GeneratePrescanAODWaveformFile(PrescanAODWaveformParam prescanAODWaveformParam) => GenerateAODWaveformFile<PrescanAODWaveformResult, PrescanAODWaveformParam>(prescanAODWaveformParam);
+    /// <inheritdoc cref="GenerateAODWaveform{TResult,TParam}"/>
+    /// <remarks>
+    /// 生成PrescanAOD波形
+    /// </remarks>
+    public static (PrescanAODWaveformResult AODWaveformResult, Exception? Exception) GeneratePrescanAODWaveform(PrescanAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<PrescanAODWaveformResult, PrescanAODWaveformParam>(param, cancellationToken);
+
+
+    /// <inheritdoc cref="GenerateAODWaveform{TResult,TParam}"/>
+    /// <remarks>
+    /// 生成ChirpAOD波形
+    /// </remarks>
+    public static (ChirpAODWaveformResult AODWaveformResult, Exception? Exception) GenerateChirpAODWaveform(ChirpAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<ChirpAODWaveformResult, ChirpAODWaveformParam>(param, cancellationToken);
 
     /// <summary>
-    /// 生成ChirpAOD波形文件
-    /// </summary>
-    /// <param name="chirpAODWaveformParam">ChirpAOD波形生成参数</param>
-    /// <returns>(是否成功, 异常信息, 结果)</returns>
-    public static (bool IsSuccess, Exception? Exception, ChirpAODWaveformResult AODWaveformResult) GenerateChirpAODWaveformFile(ChirpAODWaveformParam chirpAODWaveformParam) => GenerateAODWaveformFile<ChirpAODWaveformResult, ChirpAODWaveformParam>(chirpAODWaveformParam);
-
-    /// <summary>
-    /// 生成AOD波形文件
+    /// 生成AOD波形
     /// </summary>
     /// <param name="param">AOD波形生成参数</param>
-    /// <returns>(是否成功, 异常信息, 结果)</returns>
-    private static (bool IsSuccess, Exception? Exception, TResult AODWaveformResult) GenerateAODWaveformFile<TResult, TParam>(TParam param)
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>(结果, 异常信息)</returns>
+    private static (TResult AODWaveformResult, Exception? Exception) GenerateAODWaveform<TResult, TParam>(TParam param, CancellationToken cancellationToken)
         where TResult : AbstractAODWaveformResult<TParam>
         where TParam : AbstractAODWaveformParam
     {
@@ -510,6 +543,8 @@ public static class AODWaveformGenerator
         var count = 1;
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
                 #region 频率
@@ -718,6 +753,8 @@ public static class AODWaveformGenerator
 
         foreach (var item in result.Items)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             FFT(item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
             var frequencyCoefficientList = new List<Point>();
 
@@ -729,6 +766,8 @@ public static class AODWaveformGenerator
                 {
                     foreach (var index in indices)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         var f = Math.Abs(fftFullFrequencies[index]);
                         var compensation = BinarySearch.TryValueIndexRange(
                             [.. param.UniformityConfigurations.Select(tt => tt.Frequency)],
@@ -751,6 +790,8 @@ public static class AODWaveformGenerator
                     var flatnessCenterFrequency = minFlatnessFrequency + flatnessBandwidth / 2d;
                     for (var i = 0; i < indices.Length; i++)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         var index = indices[i];
                         var f = Math.Abs(fftFullFrequencies[index]);
                         var x = param.SincCoefficient * (f - flatnessCenterFrequency) / flatnessBandwidth;
@@ -764,6 +805,8 @@ public static class AODWaveformGenerator
 
                     for (var i = 0; i < indices.Length; i++)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         var index = indices[i];
                         var f = Math.Abs(fftFullFrequencies[index]);
 
@@ -835,14 +878,12 @@ public static class AODWaveformGenerator
         FileHelper.DeleteFileIfExists(result.FilePath);
         FileHelper.SerializeOperate(result, result.FilePath);
 
-        return (
-            isSuccess,
-            exception,
-            result
-        );
+        return (result, exception);
 
         void FFT(double offsetFrequency, double offsetFrequencyPeriodCoefficient)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             #region 相位
 
             var dHeaderPhases = 2d * Math.PI * dHeaderFrequencies * dt;

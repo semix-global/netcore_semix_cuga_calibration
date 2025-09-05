@@ -90,7 +90,7 @@ public partial class GenerateChirpAODWaveformParamUserControl
             _logger.LogError(ex, "{@Name}: Import Uniformity Configuration", nameof(GenerateChirpAODWaveformParamUserControl));
             _dialogWindowProvider.ShowDialog($"""
                                               Import Uniformity Configuration Failed!
-                                              {ex}
+                                              {ex.Message}
                                               """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     }
@@ -133,11 +133,12 @@ public partial class GenerateChirpAODWaveformParamUserControl
     private void RemoveSlopeDeltaKConfiguration(int selectIndex)
     {
         var param = GuardUtils.IsAssignableToType<GenerateChirpAODWaveformParam>(DataContext);
-        if (selectIndex < 0 || param.SlopeDeltaKConfigurations.Count <= selectIndex) return;
+        if (selectIndex < 0 || param.SlopeDeltaKConfigurations.Count <= selectIndex
+                            || param.SlopeDeltaKConfigurations.Count == 0) return;
 
-        var configurationList = param.UniformityConfigurations.ToList();
+        var configurationList = param.SlopeDeltaKConfigurations.ToList();
         configurationList.RemoveAt(selectIndex);
 
-        param.UniformityConfigurations = configurationList;
+        param.SlopeDeltaKConfigurations = configurationList;
     }
 }

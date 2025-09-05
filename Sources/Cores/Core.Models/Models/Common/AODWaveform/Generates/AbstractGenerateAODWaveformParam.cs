@@ -22,10 +22,10 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
     private double _footerFrequency;
 
     [ObservableProperty]
-    private double _bandWidth;
+    private double _bandWidth = 100;
 
     [ObservableProperty]
-    private double _centerFrequency;
+    private double _centerFrequency = 150;
 
     [ObservableProperty]
     private FunctionMonotonicTypeEnum _functionMonotonicTypeEnum;

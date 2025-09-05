@@ -28,10 +28,11 @@ public sealed partial class CalibrationLaserServiceImpl
                 .Select(t => new GenerateAODWaveformElectrodeConfiguration().AdaptIn(t))
         ];
 
-        var (isSuccess, exception, aodWaveformResult) = AODWaveformGenerator.GeneratePrescanAODWaveformFile(generatePrescanAODWaveformParam.AdaptTo());
+        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
         var results = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
 
-        return isSuccess
+        return aodWaveformResult.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(results)
             : SxExecuteRetHelper.CreateError(GuardUtils.IsNotNullAndReturn(exception).Message, results);
     }
@@ -47,10 +48,11 @@ public sealed partial class CalibrationLaserServiceImpl
                 .Select(t => new GenerateAODWaveformElectrodeConfiguration().AdaptIn(t))
         ];
 
-        var (isSuccess, exception, aodWaveformResult) = AODWaveformGenerator.GenerateChirpAODWaveformFile(generateChirpAODWaveformParam.AdaptTo());
+        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
         var results = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 
-        return isSuccess
+        return aodWaveformResult.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(results)
             : SxExecuteRetHelper.CreateError(GuardUtils.IsNotNullAndReturn(exception).Message, results);
     }

@@ -1,0 +1,132 @@
+﻿<UserControl x:Class="Core.Models.Models.Common.AODWaveform.PrescanAODWaveformProfilesUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:wpf="http://schemas.scottplot.net/2008/xaml/presentation"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:aodWaveform="clr-namespace:Core.Models.Models.Common.AODWaveform"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=aodWaveform:PrescanAODWaveformProfile,
+                                              IsDesignTimeCreatable=True,
+                                              CreateList=True}"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <GroupBox Header="Prescan AOD Waveform Profile">
+        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <TabControl SelectedIndex="0" ItemsSource="{Binding .}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                <hc:Shield Subject="AOD Electrode: "
+                                           Status="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Zero Sample Count(sa): "
+                                           Status="{Binding ZeroSampleCount}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Offset Frequency(MHz): "
+                                           Status="{Binding OffsetFrequency}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Offset Period(2pi): "
+                                           Status="{Binding OffsetFrequencyPeriodCoefficient}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Total Sample Count(sa): "
+                                           Status="{Binding TotalSampleCount}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <TextBox Text="{Binding FilePath, Mode=OneWay}"
+                                         Height="50"
+                                         TextWrapping="Wrap"
+                                         hc:InfoElement.Title="File Path: "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         IsReadOnly="True"
+                                         Style="{StaticResource TextBoxExtend}"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                            </hc:UniformSpacingPanel>
+                            <TabControl Grid.Row="2">
+                                <TabItem Header="AOD Waveform">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <wpf:WpfPlot Grid.Column="0">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Time Domain Signal" Plot0="{Binding Signals}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                        <wpf:WpfPlot Grid.Column="1">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Spectrum FFT Analysis" Plot0="{Binding FFTSignals}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                        <wpf:WpfPlot Grid.Column="2">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Dynamic Frequency Coefficient" Plot0="{Binding FrequencyCoefficients}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </Grid>
+                                </TabItem>
+                                <TabItem Header="Flatness Frequency">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <wpf:WpfPlot Grid.Column="0">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Split"
+                                                                                Plot0="{Binding FlatnessLinearFrequencySignals}"
+                                                                                Plot0Title="Liner"
+                                                                                Plot1="{Binding FlatnessAstigmatismCompensationSignals}"
+                                                                                Plot1Title="Astigmatism"
+                                                                                Plot2="{Binding FlatnessSphericalAberrationCompensationSignals}"
+                                                                                Plot2Title="Spherical Aberration"
+                                                                                Plot3="{Binding FlatnessSecondaryAstigmatismCompensationSignals}"
+                                                                                Plot3Title="Secondary Astigmatism"
+                                                                                Plot4="{Binding FlatnessComaCompensationSignals}"
+                                                                                Plot4Title="Coma"
+                                                                                Plot5="{Binding FlatnessTrefoilCompensationSignals}"
+                                                                                Plot5Title="Trefoil"
+                                                                                Plot6="{Binding FlatnessQuadrafoilCompensationSignals}"
+                                                                                Plot6Title="Quadrafoil"
+                                                                                Plot7="{Binding FlatnessAlphaOrderCompensationSignals}"
+                                                                                Plot7Title="Alpha Order" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                        <wpf:WpfPlot Grid.Column="1">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Total" Plot0="{Binding FlatnessTotalFrequencySignals}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
+                        </Grid>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
+        </Border>
+    </GroupBox>
+</UserControl>

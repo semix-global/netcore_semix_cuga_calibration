@@ -228,7 +228,7 @@
                                         Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
                             <DataGrid x:Name="DataGridElectrodeConfigurations"
-                                      hc:DataGridAttach.ShowRowNumber="True"
+                                      hc:DataGridAttach.ShowRowNumber="False"
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="All"
                                       RowHeaderWidth="60"
@@ -314,7 +314,7 @@
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding SlopeDeltaKConfigurations}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ΔK" Binding="{Binding}" />
+                                    <DataGridTextColumn Header="ΔK" Binding="{Binding .}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </hc:UniformSpacingPanel>

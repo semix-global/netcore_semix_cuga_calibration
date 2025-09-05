@@ -4,6 +4,8 @@ namespace Core.Models.Models.Common.AODWaveform;
 
 public sealed class PrescanAODWaveformProfile : AbstractAODWaveformProfile, IAdaptTo<PrescanAODWaveformResult>, ICloneable<PrescanAODWaveformProfile>
 {
+    public static readonly PrescanAODWaveformProfile Default = new();
+
     internal PrescanAODWaveformProfile()
     {
     }

@@ -4,6 +4,8 @@ namespace Core.Models.Models.Common.AODWaveform;
 
 public sealed class ChirpAODWaveformProfile : AbstractAODWaveformProfile, IAdaptTo<ChirpAODWaveformResult>, ICloneable<ChirpAODWaveformProfile>
 {
+    public static readonly ChirpAODWaveformProfile Default = new();
+
     internal ChirpAODWaveformProfile()
     {
     }
