@@ -49,105 +49,29 @@ public static class AODWaveformGenerator
         internal Point ToPoint() => new(Frequency, Coefficient);
     }
 
+    /// <summary>
+    /// 斜率变化率分段的配置项
+    /// </summary>
+    /// <param name="DeltaK">每一段的频率变换率量</param>
+    public sealed record AODWaveformSlopeDeltaKConfiguration(double DeltaK);
 
     /// <inheritdoc cref="AbstractAODWaveformParam"/>
     /// <remarks>
     /// PrescanAOD波形生成参数
     /// </remarks>
-    public sealed record PrescanAODWaveformParam(
-        double BandWidth,
-        double CenterFrequency,
-        double FlatnessTime,
-        FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum,
-        double SampleRate,
-        double Amplitude,
-        string DirectoryPath,
-        int ZeroSampleCount,
-        int EndpointSampleCount,
-        int GenerateRetryTimes,
-        IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations,
-        IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations,
-        double SincCoefficient = 0d,
-        double AstigmatismCompensationCoefficient = 0d,
-        double SphericalAberrationCompensationCoefficient = 0d,
-        double SecondaryAstigmatismCompensationCoefficient = 0d,
-        double ComaCompensationCoefficient = 0d,
-        double TrefoilCompensationCoefficient = 0d,
-        double QuadrafoilCompensationCoefficient = 0d,
-        double AlphaOrder = 0d,
-        double AlphaOrderCoefficient = 0d) : AbstractAODWaveformParam(
-        BandWidth,
-        CenterFrequency,
-        FlatnessTime,
-        FunctionMonotonicTypeEnum,
-        SampleRate,
-        Amplitude,
-        DirectoryPath,
-        ZeroSampleCount,
-        EndpointSampleCount,
-        GenerateRetryTimes,
-        OffsetConfigurations,
-        UniformityConfigurations,
-        SincCoefficient,
-        AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient,
-        AlphaOrder,
-        AlphaOrderCoefficient);
+    public sealed record PrescanAODWaveformParam(double FlatnessTime) : AbstractAODWaveformParam(FlatnessTime);
 
     /// <inheritdoc cref="AbstractAODWaveformParam"/>
     /// <remarks>
-    /// ChirpAOD波形生成参数, 在基类参数的基础上增加了<paramref name="SoundPacketLength"/>和<paramref name="SoundSpeed"/>
+    /// ChirpAOD波形生成参数
     /// </remarks>
+    /// <code>
+    /// <see cref="AbstractAODWaveformParam.FlatnessTime"/> = <see cref="SoundPacketLength"/>/<see cref="SoundSpeed"/>; // (ns): mm/(mm/us) * 1000 = us * 1000 = ns
+    /// </code>
     /// <param name="SoundPacketLength">音包长度(mm)</param>
     /// <param name="SoundSpeed">音速(mm/us)，固体声速更快 (默认: 5.742 mm/us)</param>
-    public sealed record ChirpAODWaveformParam(
-        double BandWidth,
-        double CenterFrequency,
-        double SoundPacketLength,
-        double SoundSpeed,
-        FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum,
-        double SampleRate,
-        double Amplitude,
-        string DirectoryPath,
-        int ZeroSampleCount,
-        int EndpointSampleCount,
-        int GenerateRetryTimes,
-        IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations,
-        IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations,
-        double SincCoefficient = 0d,
-        double AstigmatismCompensationCoefficient = 0d,
-        double SphericalAberrationCompensationCoefficient = 0d,
-        double SecondaryAstigmatismCompensationCoefficient = 0d,
-        double ComaCompensationCoefficient = 0d,
-        double TrefoilCompensationCoefficient = 0d,
-        double QuadrafoilCompensationCoefficient = 0d,
-        double AlphaOrder = 0d,
-        double AlphaOrderCoefficient = 0d) : AbstractAODWaveformParam(
-        BandWidth,
-        CenterFrequency,
-        SoundSpeed > 0d ? Math.Round(SoundPacketLength / SoundSpeed * 1000d, MidpointRounding.AwayFromZero) : -1d, // (ns): mm/(mm/us) * 1000 = us * 1000 = ns
-        FunctionMonotonicTypeEnum,
-        SampleRate,
-        Amplitude,
-        DirectoryPath,
-        ZeroSampleCount,
-        EndpointSampleCount,
-        GenerateRetryTimes,
-        OffsetConfigurations,
-        UniformityConfigurations,
-        SincCoefficient,
-        AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient,
-        AlphaOrder,
-        AlphaOrderCoefficient)
+    public sealed record ChirpAODWaveformParam(double SoundPacketLength, double SoundSpeed)
+        : AbstractAODWaveformParam(SoundSpeed > 0d ? Math.Round(SoundPacketLength / SoundSpeed * 1000d, MidpointRounding.AwayFromZero) : -1d)
     {
         internal override void Validate()
         {
@@ -161,70 +85,143 @@ public static class AODWaveformGenerator
     /// <summary>
     /// AOD波形生成参数 [中心频率 - 带宽/2, 中心频率 + 带宽/2]
     /// </summary>
-    /// <param name="BandWidth">带宽(MHz)</param>
-    /// <param name="CenterFrequency">中心频率(Mhz)</param>
     /// <param name="FlatnessTime">平坦时间(ns)</param>
-    /// <param name="FunctionMonotonicTypeEnum">递增, 递减, 平坦</param>
-    /// <param name="SampleRate">采样率(Msa/s)</param>
-    /// <param name="Amplitude">幅值</param>
-    /// <param name="DirectoryPath">生成的目录</param>
-    /// <param name="ZeroSampleCount">前面添加多少补零采样点个数, 相当于添加延迟(sa)</param>
-    /// <param name="EndpointSampleCount">端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)</param>
-    /// <param name="GenerateRetryTimes">生成AOD波形文件重试次数</param>
-    /// <param name="OffsetConfigurations">AOD波形的频率偏移配置集合</param>
-    /// <param name="UniformityConfigurations">AOD波形频率均匀性配置集合</param>
-    /// <param name="SincCoefficient">sin(cx)/cx</param>
-    /// <param name="AstigmatismCompensationCoefficient">二次补偿系数t^2 散光</param>
-    /// <param name="SphericalAberrationCompensationCoefficient">三次补偿系数t^3 球差</param>
-    /// <param name="SecondaryAstigmatismCompensationCoefficient">四次补偿系数t^4 二阶散光</param>
-    /// <param name="ComaCompensationCoefficient">sin(2πt/T)</param>
-    /// <param name="TrefoilCompensationCoefficient">sin(6πt/T)</param>
-    /// <param name="QuadrafoilCompensationCoefficient">sin(8πt/T)</param>
-    /// <param name="AlphaOrder">α次补偿</param>
-    /// <param name="AlphaOrderCoefficient">α次补偿系数t^α</param>
-    public abstract record AbstractAODWaveformParam(
-        double BandWidth,
-        double CenterFrequency,
-        double FlatnessTime,
-        FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum,
-        double SampleRate,
-        double Amplitude,
-        string DirectoryPath,
-        int ZeroSampleCount,
-        int EndpointSampleCount,
-        int GenerateRetryTimes,
-        IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations,
-        IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations,
-        double SincCoefficient,
-        double AstigmatismCompensationCoefficient,
-        double SphericalAberrationCompensationCoefficient,
-        double SecondaryAstigmatismCompensationCoefficient,
-        double ComaCompensationCoefficient,
-        double TrefoilCompensationCoefficient,
-        double QuadrafoilCompensationCoefficient,
-        double AlphaOrder,
-        double AlphaOrderCoefficient)
+    public abstract record AbstractAODWaveformParam(double FlatnessTime)
     {
-        public readonly double LowFrequency = FunctionMonotonicTypeEnum switch // 低频
+        /// <summary>
+        /// 带宽(MHz)
+        /// </summary>
+        public double BandWidth { get; set; }
+
+        /// <summary>
+        /// 中心频率(Mhz)
+        /// </summary>
+        public double CenterFrequency { get; set; }
+
+        /// <summary>
+        /// 递增, 递减, 平坦
+        /// </summary>
+        public FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum { get; set; }
+
+        /// <summary>
+        /// 采样率(Msa/s)
+        /// </summary>
+        public double SampleRate { get; set; }
+
+        /// <summary>
+        /// 幅值
+        /// </summary>
+        public double Amplitude { get; set; }
+
+        /// <summary>
+        /// 生成的目录
+        /// </summary>
+        public string DirectoryPath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 包含在波形文件名中的可选标识
+        /// </summary>
+        public string FileNameSuffix { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 前面添加多少补零采样点个数, 相当于添加延迟(sa)
+        /// </summary>
+        public int ZeroSampleCount { get; set; }
+
+        /// <summary>
+        /// 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
+        /// </summary>
+        public int EndpointSampleCount { get; set; }
+
+        /// <summary>
+        /// 生成AOD波形文件重试次数
+        /// </summary>
+        public int GenerateRetryTimes { get; set; }
+
+        /// <summary>
+        /// 生成多个AOD波形中每个波形的频率偏移配置集合
+        /// </summary>
+        public IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations { get; set; } = [];
+
+        /// <summary>
+        /// AOD波形频的率均匀性配置集合
+        /// </summary>
+        public IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations { get; set; } = [];
+
+        /// <summary>
+        /// AOD波形的斜率变化率分段的配置项集合
+        /// </summary>
+        public IReadOnlyList<AODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; set; } = [];
+
+        /// <summary>
+        /// sin(cx)/cx
+        /// </summary>
+        public double SincCoefficient { get; set; }
+
+        /// <summary>
+        /// 二次补偿系数t^2 散光
+        /// </summary>
+        public double AstigmatismCompensationCoefficient { get; set; }
+
+        /// <summary>
+        /// 三次补偿系数t^3 球差
+        /// </summary>
+        public double SphericalAberrationCompensationCoefficient { get; set; }
+
+        /// <summary>
+        /// 四次补偿系数t^4 二阶散光
+        /// </summary>
+        public double SecondaryAstigmatismCompensationCoefficient { get; set; }
+
+        /// <summary>
+        /// sin(2πt/T)
+        /// </summary>
+        public double ComaCompensationCoefficient { get; set; }
+
+        /// <summary>
+        /// sin(6πt/T)
+        /// </summary>
+        public double TrefoilCompensationCoefficient { get; set; }
+
+        /// <summary>
+        /// sin(8πt/T)
+        /// </summary>
+        public double QuadrafoilCompensationCoefficient { get; set; }
+
+        /// <summary>
+        /// α次补偿
+        /// </summary>
+        public double AlphaOrder { get; set; }
+
+        /// <summary>
+        /// α次补偿系数t^α
+        /// </summary>
+        public double AlphaOrderCoefficient { get; set; }
+
+        /// <summary>
+        /// 低频
+        /// </summary>
+        public double LowFrequency => FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing or FunctionMonotonicTypeEnum.Deceasing => CenterFrequency - BandWidth / 2d,
             FunctionMonotonicTypeEnum.Flatness => CenterFrequency,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
         };
 
-        public readonly double HighFrequency = FunctionMonotonicTypeEnum switch // 高频
+        /// <summary>
+        /// 高频
+        /// </summary>
+        public double HighFrequency => FunctionMonotonicTypeEnum switch
         {
             FunctionMonotonicTypeEnum.Increasing or FunctionMonotonicTypeEnum.Deceasing => CenterFrequency + BandWidth / 2d,
             FunctionMonotonicTypeEnum.Flatness => CenterFrequency,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
         };
 
-        public readonly int NumberOfSamples = (int)Math.Round(FlatnessTime * SampleRate / 1000d + 2d * EndpointSampleCount, MidpointRounding.AwayFromZero); // 总采样点的个数: ns * (Msa/s) / 1000 = ns * (Gsa/s) = (10^-9s)*(10^9sa/s) = sa
-
         /// <summary>
-        /// 包含在波形文件名中的可选标识
+        /// 总采样点的个数: ns * (Msa/s) / 1000 = ns * (Gsa/s) = (10^-9s)*(10^9sa/s) = sa
         /// </summary>
-        public string FileNameSuffix { get; init; } = string.Empty;
+        public int NumberOfSamples => (int)Math.Round(FlatnessTime * SampleRate / 1000d + 2d * EndpointSampleCount, MidpointRounding.AwayFromZero);
 
         internal virtual void Validate()
         {
@@ -235,15 +232,14 @@ public static class AODWaveformGenerator
             Guard.IsGreaterThan(SampleRate, 0d, nameof(SampleRate));
             Guard.IsBetweenOrEqualTo(Amplitude, 0d, 1d, nameof(Amplitude));
             Guard.IsNotNullOrWhiteSpace(DirectoryPath, nameof(DirectoryPath));
+            Guard.IsGreaterThanOrEqualTo(ZeroSampleCount, 0d, nameof(ZeroSampleCount));
+            Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d, nameof(EndpointSampleCount));
+            Guard.IsGreaterThan(GenerateRetryTimes, 0d, nameof(GenerateRetryTimes));
 
             foreach (var item in OffsetConfigurations) item.Validate();
             foreach (var item in UniformityConfigurations) item.Validate();
 
             Guard.IsTrue(EnumerableHelper.IsStrictlyIncreasing(UniformityConfigurations.Select(t => t.Frequency)), "Uniformity Configurations must be sorted by Frequency");
-
-            Guard.IsGreaterThanOrEqualTo(ZeroSampleCount, 0d, nameof(ZeroSampleCount));
-            Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d, nameof(EndpointSampleCount));
-            Guard.IsGreaterThan(GenerateRetryTimes, 0d, nameof(GenerateRetryTimes));
 
             if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness)
             {
@@ -555,7 +551,22 @@ public static class AODWaveformGenerator
                 {
                     case FunctionMonotonicTypeEnum.Increasing:
                     case FunctionMonotonicTypeEnum.Deceasing:
-                        dLinearFrequencies = bandWidth / t.Maximum() * t;
+                        var kSegments = Vector<double>.Build.Dense(flatnessSampleIndices.Length, bandWidth / flatnessSampleIndices.Length);
+                        var slopeDeltaKConfigurationsCount = param.SlopeDeltaKConfigurations.Count;
+                        if (slopeDeltaKConfigurationsCount > 0)
+                        {
+                            var segmentLength = flatnessSampleIndices.Length / slopeDeltaKConfigurationsCount;
+                            for (var i = 0; i < slopeDeltaKConfigurationsCount; i++)
+                            {
+                                var startIndex = i * segmentLength;
+                                var endIndex = (i + 1) * segmentLength - 1;
+                                if (i == slopeDeltaKConfigurationsCount - 1) endIndex = flatnessSampleIndices.Length - 1;
+
+                                kSegments.SetSubVectorRange(startIndex, endIndex, kSegments.GetByIndices(GenerateUtils.LinearIndexRange(startIndex, endIndex)) + param.SlopeDeltaKConfigurations[i].DeltaK);
+                            }
+                        }
+
+                        dLinearFrequencies = kSegments.IntegrateCumulative();
                         dAstigmatismFrequencies = param.AstigmatismCompensationCoefficient * t.PointwisePower(2d);
                         dSphericalAberrationFrequencies = param.SphericalAberrationCompensationCoefficient * t.PointwisePower(3d);
                         dSecondaryAstigmatismFrequencies = param.SecondaryAstigmatismCompensationCoefficient * t.PointwisePower(4d);

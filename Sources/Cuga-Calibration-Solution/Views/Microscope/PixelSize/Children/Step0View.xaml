@@ -59,9 +59,9 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .MicroscopeLensInformation.LensName}"
+                    <RadioButton Content="{Binding MicroscopeLensInformation.LensName}"
                                  FontSize="35"
-                                 Tag="{Binding .MicroscopeLensInformation}"
+                                 Tag="{Binding MicroscopeLensInformation}"
                                  GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

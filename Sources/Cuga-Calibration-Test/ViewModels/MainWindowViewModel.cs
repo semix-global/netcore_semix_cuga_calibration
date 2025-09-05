@@ -19,7 +19,6 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
-using CugaCalibration.ViewModels.Common.Windows.Tools;
 using HalconDotNet;
 using HAlgorithm;
 using Local.NoSQL.DB.Providers.Extensions;

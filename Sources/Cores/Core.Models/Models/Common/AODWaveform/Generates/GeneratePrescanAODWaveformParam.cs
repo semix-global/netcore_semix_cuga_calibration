@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Extensions;
 using Core.Utilities;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -10,29 +9,5 @@ public sealed partial class GeneratePrescanAODWaveformParam : AbstractGenerateAO
     [ObservableProperty]
     private double _flatnessTime = 4300;
 
-    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => new(
-        BandWidth,
-        CenterFrequency,
-        FlatnessTime,
-        FunctionMonotonicTypeEnum,
-        SampleRate,
-        Amplitude,
-        DirectoryPath,
-        ZeroSampleCount,
-        EndpointSampleCount,
-        GenerateRetryTimes,
-        [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        [..UniformityConfigurations.Select(t => t.AdaptTo())],
-        SincCoefficient,
-        AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient,
-        AlphaOrder,
-        AlphaOrderCoefficient)
-    {
-        FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()
-    };
+    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => AdaptIn(new AODWaveformGenerator.PrescanAODWaveformParam(FlatnessTime));
 }
