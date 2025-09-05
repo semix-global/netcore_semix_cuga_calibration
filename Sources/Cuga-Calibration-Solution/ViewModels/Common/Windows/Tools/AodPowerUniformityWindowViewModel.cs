@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Humanizer;
 using MathNet.Numerics;
