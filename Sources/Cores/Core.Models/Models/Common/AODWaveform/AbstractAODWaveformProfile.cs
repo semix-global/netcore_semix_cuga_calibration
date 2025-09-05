@@ -83,8 +83,8 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
     /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FFTSignals"/>
     public IReadOnlyList<Point> FFTSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FrequencyAmplitudes"/>
-    public IReadOnlyList<Point> FrequencyAmplitudes { get; internal set; } = [];
+    /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FrequencyCoefficients"/>
+    public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
     /// <inheritdoc cref="Core.Utilities.AODWaveformGenerator.AODWaveformResultItem.FlatnessLinearFrequencySignals"/>
     public IReadOnlyList<Point> FlatnessLinearFrequencySignals { get; internal set; } = [];
@@ -222,7 +222,7 @@ public abstract class AbstractAODWaveformProfile : ObservableObject
 
         obj.Signals = [..Signals];
         obj.FFTSignals = [..FFTSignals];
-        obj.FrequencyAmplitudes = [..FrequencyAmplitudes];
+        obj.FrequencyCoefficients = [..FrequencyCoefficients];
         obj.FlatnessLinearFrequencySignals = [..FlatnessLinearFrequencySignals];
         obj.FlatnessTotalFrequencySignals = [..FlatnessTotalFrequencySignals];
         obj.FlatnessAstigmatismCompensationSignals = [..FlatnessAstigmatismCompensationSignals];

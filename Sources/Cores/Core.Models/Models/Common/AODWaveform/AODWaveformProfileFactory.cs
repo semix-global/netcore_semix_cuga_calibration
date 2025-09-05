@@ -77,7 +77,7 @@ public static class AODWaveformProfileFactory
             var prescanAODWaveformProfile = CreatePrescan(opticsAODElectrodeEnum, item.FilePath, coefficient);
             prescanAODWaveformProfile.Signals = [..item.Signals];
             prescanAODWaveformProfile.FFTSignals = [..item.FFTSignals];
-            prescanAODWaveformProfile.FrequencyAmplitudes = [..item.FrequencyAmplitudes];
+            prescanAODWaveformProfile.FrequencyCoefficients = [..item.FrequencyCoefficients];
             prescanAODWaveformProfile.FlatnessLinearFrequencySignals = [..item.FlatnessLinearFrequencySignals];
             prescanAODWaveformProfile.FlatnessTotalFrequencySignals = [..item.FlatnessTotalFrequencySignals];
             prescanAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [..item.FlatnessAstigmatismCompensationSignals];
@@ -104,7 +104,7 @@ public static class AODWaveformProfileFactory
             var chirpAODWaveformProfile = CreateChirp(opticsAODElectrodeEnum, item.FilePath);
             chirpAODWaveformProfile.Signals = [..item.Signals];
             chirpAODWaveformProfile.FFTSignals = [..item.FFTSignals];
-            chirpAODWaveformProfile.FrequencyAmplitudes = [..item.FrequencyAmplitudes];
+            chirpAODWaveformProfile.FrequencyCoefficients = [..item.FrequencyCoefficients];
             chirpAODWaveformProfile.FlatnessLinearFrequencySignals = [..item.FlatnessLinearFrequencySignals];
             chirpAODWaveformProfile.FlatnessTotalFrequencySignals = [..item.FlatnessTotalFrequencySignals];
             chirpAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [..item.FlatnessAstigmatismCompensationSignals];

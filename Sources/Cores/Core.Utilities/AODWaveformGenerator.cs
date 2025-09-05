@@ -381,7 +381,7 @@ public static class AODWaveformGenerator
         /// <summary>
         /// AOD波形频率补偿信号
         ///</summary>
-        public IReadOnlyList<Point> FrequencyAmplitudes { get; internal set; } = [];
+        public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
         /// <summary>
         /// AOD波形线性频率信号
@@ -707,7 +707,7 @@ public static class AODWaveformGenerator
         foreach (var item in result.Items)
         {
             FFT(item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
-            var frequencyCompensationsResult = new List<Point>();
+            var frequencyCoefficientList = new List<Point>();
 
             if (isSuccess && param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && (param.UniformityConfigurations.Count > 0 || param.SincCoefficient != 0d))
             {
@@ -729,7 +729,7 @@ public static class AODWaveformGenerator
                                 : param.UniformityConfigurations.Last().Coefficient;
 
                         fftResult[index] *= compensation;
-                        if (fftFullFrequencies[index] >= 0d) frequencyCompensationsResult.Add(new Point(f, compensation));
+                        if (fftFullFrequencies[index] >= 0d) frequencyCoefficientList.Add(new Point(f, compensation));
                     }
                 }
                 else
@@ -758,7 +758,7 @@ public static class AODWaveformGenerator
                         var compensation = compensations[i];
                         fftResult[index] *= compensation;
 
-                        if (fftFullFrequencies[index] >= 0d) frequencyCompensationsResult.Add(new Point(f, compensation));
+                        if (fftFullFrequencies[index] >= 0d) frequencyCoefficientList.Add(new Point(f, compensation));
                     }
                 }
 
@@ -807,7 +807,7 @@ public static class AODWaveformGenerator
 
             item.Signals = [..allSampleIndices.Select(t => new Point(t + 1d, aodWaveformSignals[t]))];
             item.FFTSignals = [..fftFrequencies.Zip(fftMagnitudes, (t1, t2) => new Point(t1, t2))];
-            item.FrequencyAmplitudes = [..frequencyCompensationsResult];
+            item.FrequencyCoefficients = [..frequencyCoefficientList];
             item.FlatnessLinearFrequencySignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dLinearFrequencies[index]))];
             item.FlatnessTotalFrequencySignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dFlatnessFrequencies[index]))];
             item.FlatnessAstigmatismCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dAstigmatismFrequencies[index]))];

@@ -28,386 +28,382 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <GroupBox Header="Generate Prescan Params">
-        <hc:UniformSpacingPanel Margin="5"
-                                Orientation="Vertical"
-                                Spacing="2">
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                 SelectedItem="{Binding OpticsMagTypeEnum}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                    <hc:NumericUpDown hc:InfoElement.Title="Flatness Time(ns): "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding FlatnessTime}" />
-                    <Expander Header="Frequency(MHz)"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Enable Header Footer: "
-                                               Width="{StaticResource TitleWidth}"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton IsChecked="{Binding IsHeaderAndFooter}"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DarkMaskBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </StackPanel>
-                                <hc:NumericUpDown hc:InfoElement.Title="Header Frequency(MHz): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Minimum="0"
-                                                  IsEnabled="{Binding IsHeaderAndFooter}"
-                                                  Value="{Binding HeaderFrequency}">
-                                    <hc:NumericUpDown.Style>
-                                        <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Background" Value="LightGray" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </hc:NumericUpDown.Style>
-                                </hc:NumericUpDown>
-                                <hc:NumericUpDown hc:InfoElement.Title="Footer Frequency(MHz): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Minimum="0"
-                                                  IsEnabled="{Binding IsHeaderAndFooter}"
-                                                  Value="{Binding FooterFrequency}">
-                                    <hc:NumericUpDown.Style>
-                                        <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Background" Value="LightGray" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </hc:NumericUpDown.Style>
-                                </hc:NumericUpDown>
-                                <hc:NumericUpDown hc:InfoElement.Title="Band Width(MHz): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Minimum="0"
-                                                  IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                  Value="{Binding BandWidth}">
-                                    <hc:NumericUpDown.Style>
-                                        <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Background" Value="LightGray" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </hc:NumericUpDown.Style>
-                                </hc:NumericUpDown>
-                                <hc:NumericUpDown hc:InfoElement.Title="Center Frequency(MHz): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Minimum="0"
-                                                  IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                                  Value="{Binding CenterFrequency}">
-                                    <hc:NumericUpDown.Style>
-                                        <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Background" Value="LightGray" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </hc:NumericUpDown.Style>
-                                </hc:NumericUpDown>
-                                <hc:ComboBox hc:InfoElement.Title="Monotonic: "
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                             IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                             SelectedItem="{Binding FunctionMonotonicTypeEnum}"
-                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
-                                    <hc:ComboBox.Style>
-                                        <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Background" Value="LightGray" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </hc:ComboBox.Style>
-                                    <hc:ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                        </DataTemplate>
-                                    </hc:ComboBox.ItemTemplate>
-                                </hc:ComboBox>
+        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                             SelectedItem="{Binding OpticsMagTypeEnum}"
+                             Style="{StaticResource ComboBoxExtend}"
+                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
+                    <hc:ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                        </DataTemplate>
+                    </hc:ComboBox.ItemTemplate>
+                </hc:ComboBox>
+                <hc:NumericUpDown hc:InfoElement.Title="Flatness Time(ns): "
+                                  hc:InfoElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                  Minimum="0"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding FlatnessTime}" />
+                <Expander Header="Frequency(MHz)"
+                          IsExpanded="False"
+                          ExpandDirection="Down">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Enable Header Footer: "
+                                           Width="{StaticResource TitleWidth}"
+                                           VerticalAlignment="Center" />
+                                <ToggleButton IsChecked="{Binding IsHeaderAndFooter}"
+                                              VerticalAlignment="Center"
+                                              Background="{StaticResource DarkMaskBrush}"
+                                              Style="{StaticResource ToggleButtonSwitch}" />
+                            </StackPanel>
+                            <hc:NumericUpDown hc:InfoElement.Title="Header Frequency(MHz): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Minimum="0"
+                                              IsEnabled="{Binding IsHeaderAndFooter}"
+                                              Value="{Binding HeaderFrequency}">
+                                <hc:NumericUpDown.Style>
+                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:NumericUpDown.Style>
+                            </hc:NumericUpDown>
+                            <hc:NumericUpDown hc:InfoElement.Title="Footer Frequency(MHz): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Minimum="0"
+                                              IsEnabled="{Binding IsHeaderAndFooter}"
+                                              Value="{Binding FooterFrequency}">
+                                <hc:NumericUpDown.Style>
+                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:NumericUpDown.Style>
+                            </hc:NumericUpDown>
+                            <hc:NumericUpDown hc:InfoElement.Title="Band Width(MHz): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Minimum="0"
+                                              IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                              Value="{Binding BandWidth}">
+                                <hc:NumericUpDown.Style>
+                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:NumericUpDown.Style>
+                            </hc:NumericUpDown>
+                            <hc:NumericUpDown hc:InfoElement.Title="Center Frequency(MHz): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Minimum="0"
+                                              IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                              Value="{Binding CenterFrequency}">
+                                <hc:NumericUpDown.Style>
+                                    <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:NumericUpDown.Style>
+                            </hc:NumericUpDown>
+                            <hc:ComboBox hc:InfoElement.Title="Monotonic: "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                         IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                         SelectedItem="{Binding FunctionMonotonicTypeEnum}"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
+                                <hc:ComboBox.Style>
+                                    <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:ComboBox.Style>
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Others"
+                          IsExpanded="False"
+                          ExpandDirection="Down">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <hc:NumericUpDown hc:InfoElement.Title="Sample Rate(Msa/s): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding SampleRate}" />
+                            <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Maximum="1"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Minimum="0"
+                                              Value="{Binding Amplitude}" />
+                            <TextBox Text="{Binding DirectoryPath}"
+                                     Height="50"
+                                     TextWrapping="Wrap"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:InfoElement.Title="AOD Waveform Directory Path:"
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Button Content="Change AOD Waveform Directory Path"
+                                    Command="{Binding ChangeDirectoryPathCommand}"
+                                    Style="{StaticResource ButtonDefault}"
+                                    DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                            <Separator />
+                            <hc:NumericUpDown hc:InfoElement.Title="Zero Sample Count(sa): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Minimum="0"
+                                              Value="{Binding ZeroSampleCount}" />
+                            <hc:NumericUpDown hc:InfoElement.Title="Endpoint Sample Count(sa): "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Minimum="0"
+                                              Value="{Binding EndpointSampleCount}" />
+                            <hc:NumericUpDown hc:InfoElement.Title="Generate Retry Times: "
+                                              hc:InfoElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Maximum="1000000"
+                                              Minimum="1"
+                                              Value="{Binding GenerateRetryTimes}" />
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Electrode Offset Configurations"
+                          IsExpanded="False"
+                          ExpandDirection="Down">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                <Button Content="Add"
+                                        Command="{Binding AddElectrodeConfigurationCommand}"
+                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonInfo}" />
+                                <Button Content="Delete"
+                                        Command="{Binding RemoveElectrodeConfigurationCommand}"
+                                        CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridElectrodeConfigurations}"
+                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Others"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:NumericUpDown hc:InfoElement.Title="Sample Rate(Msa/s): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SampleRate}" />
-                                <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Minimum="0"
-                                                  Value="{Binding Amplitude}" />
-                                <TextBox Text="{Binding DirectoryPath}"
-                                         Height="50"
-                                         TextWrapping="Wrap"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         hc:InfoElement.Title="AOD Waveform Directory Path:"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Button Content="Change AOD Waveform Directory Path"
-                                        Command="{Binding ChangeDirectoryPathCommand}"
-                                        Style="{StaticResource ButtonDefault}"
-                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                <Separator />
-                                <hc:NumericUpDown hc:InfoElement.Title="Zero Sample Count(sa): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Minimum="0"
-                                                  Value="{Binding ZeroSampleCount}" />
-                                <hc:NumericUpDown hc:InfoElement.Title="Endpoint Sample Count(sa): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Minimum="0"
-                                                  Value="{Binding EndpointSampleCount}" />
-                                <hc:NumericUpDown hc:InfoElement.Title="Generate Retry Times: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Maximum="1000000"
-                                                  Minimum="1"
-                                                  Value="{Binding GenerateRetryTimes}" />
+                            <DataGrid x:Name="DataGridElectrodeConfigurations"
+                                      hc:DataGridAttach.ShowRowNumber="True"
+                                      Style="{StaticResource DataGrid.Small}"
+                                      HeadersVisibility="All"
+                                      RowHeaderWidth="60"
+                                      AutoGenerateColumns="False"
+                                      ItemsSource="{Binding ElectrodeConfigurations}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="120"
+                                                        IsReadOnly="True"
+                                                        Header="AOD Electrode"
+                                                        Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <DataGridTextColumn Width="130"
+                                                        Header="Frequency(MHz)"
+                                                        Binding="{Binding OffsetFrequency}" />
+                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Uniformity Configurations"
+                          IsExpanded="False"
+                          ExpandDirection="Down">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                <Button Content="Import"
+                                        Command="{Binding ImportUniformityConfigurationCommand}"
+                                        hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonSuccess}" />
+                                <Button Content="Add"
+                                        Command="{Binding AddUniformityConfigurationCommand}"
+                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonInfo}" />
+                                <Button Content="Delete"
+                                        Command="{Binding RemoveUniformityConfigurationCommand}"
+                                        CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridUniformityConfigurations}"
+                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Electrode Offset Configurations"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                    <Button Content="Add"
-                                            Command="{Binding AddElectrodeConfigurationCommand}"
-                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonInfo}" />
-                                    <Button Content="Delete"
-                                            Command="{Binding RemoveElectrodeConfigurationCommand}"
-                                            CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridElectrodeConfigurations}"
-                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonDanger}" />
-                                </hc:UniformSpacingPanel>
-                                <DataGrid x:Name="DataGridElectrodeConfigurations"
-                                          hc:DataGridAttach.ShowRowNumber="True"
-                                          Style="{StaticResource DataGrid.Small}"
-                                          HeadersVisibility="All"
-                                          RowHeaderWidth="60"
-                                          AutoGenerateColumns="False"
-                                          ItemsSource="{Binding ElectrodeConfigurations}">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Width="120"
-                                                            IsReadOnly="True"
-                                                            Header="AOD Electrode"
-                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                        <DataGridTextColumn Width="130"
-                                                            Header="Frequency(MHz)"
-                                                            Binding="{Binding OffsetFrequency}" />
-                                        <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                            <DataGrid x:Name="DataGridUniformityConfigurations"
+                                      hc:DataGridAttach.ShowRowNumber="True"
+                                      Style="{StaticResource DataGrid.Small}"
+                                      HeadersVisibility="All"
+                                      RowHeaderWidth="60"
+                                      AutoGenerateColumns="False"
+                                      ItemsSource="{Binding UniformityConfigurations}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="130"
+                                                        Header="Frequency(MHz)"
+                                                        Binding="{Binding Frequency}" />
+                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat={}{0:0.######}}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Slope ΔK Configurations"
+                          IsExpanded="False"
+                          ExpandDirection="Down">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                <Button Content="Add"
+                                        Command="{Binding AddSlopeDeltaKConfigurationCommand}"
+                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonInfo}" />
+                                <Button Content="Delete"
+                                        Command="{Binding RemoveSlopeDeltaKConfigurationCommand}"
+                                        CommandParameter="{Binding Path=SelectedIndex, ElementName=DataGridSlopeDeltaKConfigurations}"
+                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                        DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Uniformity Configurations"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                    <Button Content="Import"
-                                            Command="{Binding ImportUniformityConfigurationCommand}"
-                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonSuccess}" />
-                                    <Button Content="Add"
-                                            Command="{Binding AddUniformityConfigurationCommand}"
-                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonInfo}" />
-                                    <Button Content="Delete"
-                                            Command="{Binding RemoveUniformityConfigurationCommand}"
-                                            CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridUniformityConfigurations}"
-                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonDanger}" />
-                                </hc:UniformSpacingPanel>
-                                <DataGrid x:Name="DataGridUniformityConfigurations"
-                                          hc:DataGridAttach.ShowRowNumber="True"
-                                          Style="{StaticResource DataGrid.Small}"
-                                          HeadersVisibility="All"
-                                          RowHeaderWidth="60"
-                                          AutoGenerateColumns="False"
-                                          ItemsSource="{Binding UniformityConfigurations}">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Width="130"
-                                                            Header="Frequency(MHz)"
-                                                            Binding="{Binding Frequency}" />
-                                        <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat={}{0:0.######}}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Slope ΔK Configurations"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                    <Button Content="Add"
-                                            Command="{Binding AddSlopeDeltaKConfigurationCommand}"
-                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonInfo}" />
-                                    <Button Content="Delete"
-                                            Command="{Binding RemoveSlopeDeltaKConfigurationCommand}"
-                                            CommandParameter="{Binding Path=SelectedIndex, ElementName=DataGridSlopeDeltaKConfigurations}"
-                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                            DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            Style="{StaticResource ButtonDanger}" />
-                                </hc:UniformSpacingPanel>
-                                <DataGrid x:Name="DataGridSlopeDeltaKConfigurations"
-                                          hc:DataGridAttach.ShowRowNumber="True"
-                                          Style="{StaticResource DataGrid.Small}"
-                                          HeadersVisibility="All"
-                                          RowHeaderWidth="60"
-                                          AutoGenerateColumns="False"
-                                          ItemsSource="{Binding SlopeDeltaKConfigurations}">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ΔK" Binding="{Binding}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Compensation"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <TextBox Text="{Binding SincCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Sinc Coefficient: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="0"
-                                        Maximum="10"
-                                        Value="{Binding SincCoefficient}" />
-                                <TextBox Text="{Binding AstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Astigmatism Compensation: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding AstigmatismCompensationCoefficient}" />
-                                <TextBox Text="{Binding SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Spherical Aberration Compensation: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding SphericalAberrationCompensationCoefficient}" />
-                                <TextBox Text="{Binding SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Secondary Astigmatism Compensation: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding SecondaryAstigmatismCompensationCoefficient}" />
-                                <TextBox Text="{Binding ComaCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Coma Compensation: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding ComaCompensationCoefficient}" />
-                                <TextBox Text="{Binding TrefoilCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Trefoil Compensation: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding TrefoilCompensationCoefficient}" />
-                                <TextBox Text="{Binding QuadrafoilCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Quadrafoil Compensation: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding QuadrafoilCompensationCoefficient}" />
-                                <TextBox Text="{Binding AlphaOrder, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Alpha Order: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding AlphaOrder}" />
-                                <TextBox Text="{Binding AlphaOrderCoefficient, StringFormat={}{0:0.######}}"
-                                         hc:InfoElement.Title="Alpha Order Coefficient: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <Slider VerticalAlignment="Center"
-                                        Minimum="-100"
-                                        Maximum="100"
-                                        Value="{Binding AlphaOrderCoefficient}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                </hc:UniformSpacingPanel>
-            </Border>
-        </hc:UniformSpacingPanel>
+                            <DataGrid x:Name="DataGridSlopeDeltaKConfigurations"
+                                      hc:DataGridAttach.ShowRowNumber="True"
+                                      Style="{StaticResource DataGrid.Small}"
+                                      HeadersVisibility="All"
+                                      RowHeaderWidth="60"
+                                      AutoGenerateColumns="False"
+                                      ItemsSource="{Binding SlopeDeltaKConfigurations}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ΔK" Binding="{Binding}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+                <Expander Header="Compensation"
+                          IsExpanded="False"
+                          ExpandDirection="Down">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <TextBox Text="{Binding SincCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Sinc Coefficient: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="0"
+                                    Maximum="10"
+                                    Value="{Binding SincCoefficient}" />
+                            <TextBox Text="{Binding AstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Astigmatism Compensation: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding AstigmatismCompensationCoefficient}" />
+                            <TextBox Text="{Binding SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Spherical Aberration Compensation: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding SphericalAberrationCompensationCoefficient}" />
+                            <TextBox Text="{Binding SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Secondary Astigmatism Compensation: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding SecondaryAstigmatismCompensationCoefficient}" />
+                            <TextBox Text="{Binding ComaCompensationCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Coma Compensation: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding ComaCompensationCoefficient}" />
+                            <TextBox Text="{Binding TrefoilCompensationCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Trefoil Compensation: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding TrefoilCompensationCoefficient}" />
+                            <TextBox Text="{Binding QuadrafoilCompensationCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Quadrafoil Compensation: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding QuadrafoilCompensationCoefficient}" />
+                            <TextBox Text="{Binding AlphaOrder, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Alpha Order: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding AlphaOrder}" />
+                            <TextBox Text="{Binding AlphaOrderCoefficient, StringFormat={}{0:0.######}}"
+                                     hc:InfoElement.Title="Alpha Order Coefficient: "
+                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <Slider VerticalAlignment="Center"
+                                    Minimum="-100"
+                                    Maximum="100"
+                                    Value="{Binding AlphaOrderCoefficient}" />
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
+            </hc:UniformSpacingPanel>
+        </Border>
     </GroupBox>
 </UserControl>
