@@ -57,8 +57,6 @@ public sealed partial class MainWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     SplitImageWindowViewModel splitImageWindowViewModel,
     StageMapWindowViewModel stageMapWindowViewModel,
-    AodGenerateWaveFileWindowViewModel aodGenerateWaveFileWindowViewModel,
-    AodGenerateWaveFileTrainingChirpWindowViewModel aodGenerateWaveFileTrainingChirpWindowViewModel,
     IWindowManagerService windowManagerService,
     CalibrationSetting calibrationSetting,
     ReviewViewModel reviewViewModel,
@@ -81,18 +79,6 @@ public sealed partial class MainWindowViewModel(
     private void SplitImage()
     {
         windowManagerService.ShowWindow(splitImageWindowViewModel);
-    }
-
-    [RelayCommand]
-    private void GenerateChirpAodWave()
-    {
-        windowManagerService.ShowDialog(aodGenerateWaveFileWindowViewModel);
-    }
-
-    [RelayCommand]
-    private void GenerateChirpAodWaveTraining()
-    {
-        windowManagerService.ShowDialog(aodGenerateWaveFileTrainingChirpWindowViewModel);
     }
 
     [RelayCommand]

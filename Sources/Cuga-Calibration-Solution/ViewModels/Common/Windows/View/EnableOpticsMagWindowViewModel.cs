@@ -14,9 +14,9 @@ public sealed partial class EnableOpticsMagWindowViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<EnableOpticsMagItem> _opticsMagEnableList =
     [
-        new EnableOpticsMagItem { OpticsMagTypeEnum = OpticsMagTypeEnum.Low, IsEnable = false },
-        new EnableOpticsMagItem { OpticsMagTypeEnum = OpticsMagTypeEnum.Middle, IsEnable = false },
-        new EnableOpticsMagItem { OpticsMagTypeEnum = OpticsMagTypeEnum.High, IsEnable = false }
+        new() { OpticsMagTypeEnum = OpticsMagTypeEnum.Low, IsEnable = false },
+        new() { OpticsMagTypeEnum = OpticsMagTypeEnum.Middle, IsEnable = false },
+        new() { OpticsMagTypeEnum = OpticsMagTypeEnum.High, IsEnable = false }
     ];
 
     [RelayCommand]

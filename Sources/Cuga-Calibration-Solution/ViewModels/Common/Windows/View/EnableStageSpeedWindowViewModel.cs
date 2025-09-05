@@ -14,9 +14,9 @@ public sealed partial class EnableStageSpeedWindowViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<EnableStageSpeedItem> _stageSpeedEnableList =
     [
-        new EnableStageSpeedItem { StageSpeedEnum = StageSpeedEnum.Low, IsEnable = false },
-        new EnableStageSpeedItem { StageSpeedEnum = StageSpeedEnum.Middle, IsEnable = false },
-        new EnableStageSpeedItem { StageSpeedEnum = StageSpeedEnum.High, IsEnable = false }
+        new() { StageSpeedEnum = StageSpeedEnum.Low, IsEnable = false },
+        new() { StageSpeedEnum = StageSpeedEnum.Middle, IsEnable = false },
+        new() { StageSpeedEnum = StageSpeedEnum.High, IsEnable = false }
     ];
 
     [RelayCommand]

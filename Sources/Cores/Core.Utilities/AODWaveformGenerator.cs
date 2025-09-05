@@ -46,7 +46,7 @@ public static class AODWaveformGenerator
             Guard.IsBetweenOrEqualTo(Coefficient, 0d, 1d, nameof(Coefficient));
         }
 
-        internal Point ToPoint() => new Point(Frequency, Coefficient);
+        internal Point ToPoint() => new(Frequency, Coefficient);
     }
 
 
@@ -245,7 +245,19 @@ public static class AODWaveformGenerator
             Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d, nameof(EndpointSampleCount));
             Guard.IsGreaterThan(GenerateRetryTimes, 0d, nameof(GenerateRetryTimes));
 
-            if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness && BandWidth != 0d) ThrowHelper.ThrowArgumentException(nameof(BandWidth), "if monotonic is flatness then band Width is must 0");
+            if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness)
+            {
+                if(BandWidth != 0d) ThrowHelper.ThrowArgumentException(nameof(BandWidth), "if monotonic is flatness then band Width is must 0");
+                if(SincCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SincCoefficient), "if monotonic is flatness then Sinc Coefficient is must 0");
+                if(AstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(AstigmatismCompensationCoefficient), "if monotonic is flatness then Astigmatism Compensation Coefficient is must 0");
+                if(SphericalAberrationCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SphericalAberrationCompensationCoefficient), "if monotonic is flatness then Spherical Aberration Compensation Coefficient is must 0");
+                if(SecondaryAstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SecondaryAstigmatismCompensationCoefficient), "if monotonic is flatness then Secondary Astigmatism Compensation Coefficient is must 0");
+                if(ComaCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(ComaCompensationCoefficient), "if monotonic is flatness then Coma Compensation Coefficient is must 0");
+                if(TrefoilCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(TrefoilCompensationCoefficient), "if monotonic is flatness then Trefoil Compensation Coefficient is must 0");
+                if(QuadrafoilCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(QuadrafoilCompensationCoefficient), "if monotonic is flatness then Quadrafoil Compensation Coefficient is must 0");
+                if(AlphaOrder != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrder), "if monotonic is flatness then Alpha Order is must 0");
+                if(AlphaOrderCoefficient  != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrderCoefficient), "if monotonic is flatness then Alpha Order Coefficient is must 0");
+            }
             if (BandWidth == 0d && FunctionMonotonicTypeEnum is not FunctionMonotonicTypeEnum.Flatness) ThrowHelper.ThrowArgumentException(nameof(FunctionMonotonicTypeEnum), "if band Width is must 0 then monotonic is flatness and band");
         }
     }
