@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="Core.Models.Models.Common.AODWaveform.UI.Generates.GenerateChirpAODWaveformParamUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.Generates"
+             xmlns:generates1="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates"
+             d:DataContext="{d:DesignInstance Type=generates:GenerateChirpAODWaveformParam,
+                                              IsDesignTimeCreatable=True}"
+             d:DesignWidth="400"
+             d:DesignHeight="1000"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Common.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Generates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <generates1:GenerateAODWaveformParamUserControl Header="Chirp">
+        <generates1:GenerateAODWaveformParamUserControl.HeaderContent>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:NumericUpDown hc:InfoElement.Title="Sound Package Length(mm): "
+                                  hc:InfoElement.TitlePlacement="Left"
+                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                  Minimum="0"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding SoundPackageLength}" />
+                <hc:NumericUpDown hc:InfoElement.Title="Sound Speed(mm/us): "
+                                  hc:InfoElement.TitlePlacement="Left"
+                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                  Minimum="0"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding SoundSpeed}" />
+            </hc:UniformSpacingPanel>
+        </generates1:GenerateAODWaveformParamUserControl.HeaderContent>
+    </generates1:GenerateAODWaveformParamUserControl>
+</UserControl>
