@@ -16,13 +16,14 @@ using Cuga.Engine.Interface;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
-using System.Text;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
+using HalconDotNet;
 
 namespace Core.Services.Implements.WCF;
 
@@ -128,7 +129,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.RefreshMag(Convert.ToInt32(opticsMagTypeEnum.ToCgMagTypeEnum())));
+        var sxExecuteRet = Invoke(() => Service?.RefreshMag(opticsMagTypeEnum.ToCgMagTypeEnum(), CgSpeedLevelType.Low));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -155,7 +156,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(opticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(opticsMagTypeEnum.ToCgMagTypeEnum(), CgSpeedLevelType.Low, Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -278,13 +279,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -590,90 +591,56 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
         var directionX = directionRet.Anything.XDirection;
 
-        var picturePixelHeightRet = GetDarkFieldLineScanImageYPixelHeight(opticsMagTypeEnum, true);
-        if (picturePixelHeightRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(picturePixelHeightRet.ErrorMsg, []);
-        var height = picturePixelHeightRet.Anything;
-
         var scanLineXPixelSize = calibrationSetting.SettingCommonParam.GetScanLineXPixelSize(opticsMagTypeEnum, xStageSpeedEnum);
         var extendWidth = xWidthPixel * scanLineXPixelSize / 2.0;
 
-        // 计算采图的起点终点机械坐标
-        var startPoint = new Point(machinePositionList[0].X - extendWidth, machinePositionList[0].Y);
-        var endPoint = new Point(machinePositionList.Last().X + extendWidth * 3, machinePositionList[0].Y); // 后面多采集一段，防止最后一段数据不全
+        var startPointList = new List<SxPointD>();
+        var endPointList = new List<SxPointD>();
 
-        SxExecuteRet<List<M2CImgSysCollectImgDTO>> darkFieldImagesRet;
-        try
+        foreach (var machinePoint in machinePositionList)
         {
-            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(setWaitTimeRet.ErrorMsg, []);
+            var startPoint = new Point(machinePoint.X - extendWidth, machinePoint.Y);
+            var endPoint = new Point(machinePoint.X + extendWidth, machinePoint.Y);
 
-            // 从起点到终点采图，输出三通道长图片
-            darkFieldImagesRet = stageCoordinateSystemEnum switch
-            {
-                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
-                    opticsMagTypeEnum.ToSxMagEnum(),
-                    xStageSpeedEnum.ToSxSpeedEnum(),
-                    startPoint.ToSxPointD(),
-                    endPoint.ToSxPointD(),
-                    pmtId,
-                    /*是否单向*/isSingle: true,
-                    /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
-            };
+            startPointList.Add(startPoint.ToSxPointD());
+            endPointList.Add(endPoint.ToSxPointD());
         }
-        finally
+
+        // 从起点到终点采图，输出三通道长图片
+        var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
-            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
-            if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
-        }
+            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadLongRawImg(
+                opticsMagTypeEnum.ToSxMagEnum(),
+                xStageSpeedEnum.ToSxSpeedEnum(),
+                startPointList,
+                endPointList,
+                pmtId,
+                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
+        };
 
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is not 3", []);
-
-        // 获得stageMap两点x像素间隔（剪裁小图的宽度width）
-        var heightPixelOfByte = height * 2;
-        var splitImageLength = xWidthPixel * heightPixelOfByte;
-        var pointerList = Enumerable
-            .Range(0, machinePositionList.Count)
-            .Select((count, index) => index == 0 ? 0 : count * (machinePositionList[1].X - machinePositionList[0].X) / xPixelSize * heightPixelOfByte)
-            .Select(Convert.ToInt64)
-            .ToList();
+        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is empty", []);
 
         var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
-        foreach (var channelId in Enumerable.Range(0, 3))
+        for (var i = 0; i < machinePositionList.Count; i++)
         {
-            using var fileSteam = File.OpenRead(darkFieldImagesRet.Anything[channelId].Url);
-            using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, false);
-
-            var (_, bodyBytesStartIndex, bodyBytesLength) = Utilities.RawImageHelper.GetSize(binaryReader);
+            var results = darkFieldImagesRet.Anything.Where(t => t.Position == i).ToList();
 
             var splitImages = new List<DarkFieldImageDto>();
-            foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))
+            foreach (var item in results.OrderBy(t => t.Channel))
             {
-                var pointerTemp = pointer - pointer % heightPixelOfByte; // dieWidthPixel不是整数倍, 需要对齐
-                byte[] array;
-                if (pointerTemp + splitImageLength > bodyBytesLength)
+                var bytes = File.ReadAllBytes(item.Url);
+
+                var (image, matrix) = stageCoordinateSystemEnum switch
                 {
-                    if (index != pointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
+                    StageCoordinateSystemEnum.Machine => directionX < 0 && machinePositionList.First().X < machinePositionList.Last().X
+                        ? DropLast(calibrationAlgorithmService.ToHorizontalFlipImageInfo(bytes))
+                        : calibrationAlgorithmService.ToImageInfo(bytes),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
+                };
 
-                    var offset = xWidthPixel - (bodyBytesLength - pointerTemp) / heightPixelOfByte;
-
-                    pointerTemp += offset * heightPixelOfByte;
-                    pointerTemp -= pointerTemp % heightPixelOfByte; // dieWidthPixel不是整数倍, 需要对齐
-
-                    fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                    array = binaryReader.ReadRemainingBytes();
-                }
-                else
-                {
-                    fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                    array = binaryReader.ReadBytes(splitImageLength);
-                }
-
-                var splitRawBytes = calibrationAlgorithmService.ToRawBytes(array, new Size(xWidthPixel, height));
-                var (image, matrix, horizontalFlipRawBytes) = calibrationAlgorithmService.ToHorizontalFlipImageInfo(splitRawBytes);
-                // 三通道图片分别用以上ROI集合裁剪
-                var splitImageDto = new DarkFieldImageDto { PmtId = 8, ChannelId = channelId + 1, Bytes = horizontalFlipRawBytes, Image = image, Matrix = matrix, Height = height, Width = xWidthPixel };
+                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Bytes = bytes, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -681,19 +648,23 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
+
+        static (HImage Image, short[,] Matrix) DropLast((HImage Image, short[,] Matrix, byte[] RawBytes) tuple) => (tuple.Image, tuple.Matrix);
     }
 
     public SxExecuteRet<double> ReadDOECurrentAngle()
     {
-        var sxExecuteRet = Invoke(() => Service?.ReadDoePos());
+        var sxExecuteRet = Invoke(() => Service?.ReadDoePos(CgCommonType.OI_DOE));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
+
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<bool> SetDOEAngle(double angle)
     {
-        var sxExecuteRet = Invoke(() => Service?.DoeMove(angle));
+        var sxExecuteRet = Invoke(() => Service?.DoeMove(CgCommonType.OI_DOE, angle));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 }
