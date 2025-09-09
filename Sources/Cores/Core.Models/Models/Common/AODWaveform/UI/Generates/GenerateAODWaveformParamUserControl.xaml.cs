@@ -9,7 +9,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using CommunityToolkit.Diagnostics;
 
@@ -17,9 +16,6 @@ namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 
 public sealed partial class GenerateAODWaveformParamUserControl
 {
-    private readonly ILogger<GenerateAODWaveformParamUserControl>? _logger;
-    private readonly IDialogWindowProvider? _dialogWindowProvider;
-
     public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
         nameof(Header),
         typeof(string),
@@ -32,6 +28,33 @@ public sealed partial class GenerateAODWaveformParamUserControl
         typeof(GenerateAODWaveformParamUserControl),
         new PropertyMetadata(null));
 
+    public static readonly DependencyProperty IsVisibleElectrodeConfigurationContentProperty = DependencyProperty.Register(
+        nameof(IsVisibleElectrodeConfiguration),
+        typeof(bool),
+        typeof(GenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true));
+
+    public static readonly DependencyProperty IsVisibleUniformityConfigurationContentProperty = DependencyProperty.Register(
+        nameof(IsVisibleUniformityConfiguration),
+        typeof(bool),
+        typeof(GenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true));
+
+    public static readonly DependencyProperty IsVisibleSlopeDeltaKConfigurationContentProperty = DependencyProperty.Register(
+        nameof(IsVisibleSlopeDeltaKConfiguration),
+        typeof(bool),
+        typeof(GenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true));
+
+    public static readonly DependencyProperty IsVisibleCompensationContentProperty = DependencyProperty.Register(
+        nameof(IsVisibleCompensation),
+        typeof(bool),
+        typeof(GenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true));
+
+    private readonly ILogger<GenerateAODWaveformParamUserControl>? _logger;
+    private readonly IDialogWindowProvider? _dialogWindowProvider;
+
     public string Header
     {
         get => (string)GetValue(HeaderProperty);
@@ -42,6 +65,30 @@ public sealed partial class GenerateAODWaveformParamUserControl
     {
         get => GetValue(HeaderContentProperty);
         set => SetValue(HeaderContentProperty, value);
+    }
+
+    public bool IsVisibleElectrodeConfiguration
+    {
+        get => (bool)GetValue(IsVisibleElectrodeConfigurationContentProperty);
+        set => SetValue(IsVisibleElectrodeConfigurationContentProperty, value);
+    }
+
+    public bool IsVisibleUniformityConfiguration
+    {
+        get => (bool)GetValue(IsVisibleUniformityConfigurationContentProperty);
+        set => SetValue(IsVisibleUniformityConfigurationContentProperty, value);
+    }
+
+    public bool IsVisibleSlopeDeltaKConfiguration
+    {
+        get => (bool)GetValue(IsVisibleSlopeDeltaKConfigurationContentProperty);
+        set => SetValue(IsVisibleSlopeDeltaKConfigurationContentProperty, value);
+    }
+
+    public bool IsVisibleCompensation
+    {
+        get => (bool)GetValue(IsVisibleCompensationContentProperty);
+        set => SetValue(IsVisibleCompensationContentProperty, value);
     }
 
     public GenerateAODWaveformParamUserControl()

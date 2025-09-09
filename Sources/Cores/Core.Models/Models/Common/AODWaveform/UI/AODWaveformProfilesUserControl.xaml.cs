@@ -1,5 +1,4 @@
 using System.Windows;
-using Core.Models.Models.Common.AODWaveform.UI.Generates;
 
 namespace Core.Models.Models.Common.AODWaveform.UI;
 

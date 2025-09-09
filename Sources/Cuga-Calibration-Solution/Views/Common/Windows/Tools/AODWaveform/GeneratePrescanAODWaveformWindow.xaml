@@ -6,10 +6,8 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
-           xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.Generates;assembly=Core.Models"
-           xmlns:aodWaveform="clr-namespace:Core.Models.Models.Common.AODWaveform;assembly=Core.Models"
-           xmlns:generates1="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
-           xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
+           xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            Title="GenerateAod"
            Width="1500"
            Height="1000"
@@ -87,7 +85,7 @@
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <generates1:GeneratePrescanAODWaveformParamUserControl DataContext="{Binding Param}" />
+                        <paramUI:GeneratePrescanAODWaveformParamUserControl DataContext="{Binding Param}" />
                         <GroupBox Header="Prescan AOD Waveform Operation">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
@@ -128,7 +126,7 @@
             <Border Grid.Column="2"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
-                <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Profiles}" />
+                <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Profiles}" />
             </Border>
         </Grid>
     </Grid>

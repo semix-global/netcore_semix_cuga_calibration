@@ -201,7 +201,8 @@
                 </Expander>
                 <Expander Header="Electrode Offset Configurations"
                           IsExpanded="False"
-                          ExpandDirection="Down">
+                          ExpandDirection="Down"
+                          Visibility="{Binding IsVisibleElectrodeConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
@@ -238,7 +239,8 @@
                 </Expander>
                 <Expander Header="Uniformity Configurations"
                           IsExpanded="False"
-                          ExpandDirection="Down">
+                          ExpandDirection="Down"
+                          Visibility="{Binding IsVisibleUniformityConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
@@ -275,7 +277,8 @@
                 </Expander>
                 <Expander Header="Slope ΔK Configurations"
                           IsExpanded="False"
-                          ExpandDirection="Down">
+                          ExpandDirection="Down"
+                          Visibility="{Binding IsVisibleSlopeDeltaKConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
@@ -305,7 +308,8 @@
                 </Expander>
                 <Expander Header="Compensation"
                           IsExpanded="False"
-                          ExpandDirection="Down">
+                          ExpandDirection="Down"
+                          Visibility="{Binding IsVisibleCompensation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <TextBox Text="{Binding SincCoefficient, StringFormat={}{0:0.######}}"
