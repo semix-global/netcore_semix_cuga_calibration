@@ -12,5 +12,5 @@ public sealed partial class GenerateChirpAODWaveformParam : AbstractGenerateAODW
     [ObservableProperty]
     private double _soundSpeed = 5.742;
 
-    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => AdaptIn(new AODWaveformGenerator.ChirpAODWaveformParam(SoundPackageLength, SoundSpeed));
+    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => CopyPropertiesTo(new AODWaveformGenerator.ChirpAODWaveformParam(SoundPackageLength, SoundSpeed));
 }

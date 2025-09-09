@@ -173,7 +173,7 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
         BandWidth = value == FunctionMonotonicTypeEnum.Flatness ? 0d : BandWidth;
     }
 
-    protected T AdaptIn<T>(T obj) where T : AODWaveformGenerator.AbstractAODWaveformParam
+    protected T CopyPropertiesTo<T>(T obj) where T : AODWaveformGenerator.AbstractAODWaveformParam
     {
         obj.BandWidth = BandWidth;
         obj.CenterFrequency = CenterFrequency;

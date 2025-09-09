@@ -266,7 +266,7 @@ public abstract class AbstractAODWaveformProfile : ObservableCacheBase
         return filePath;
     }
 
-    protected T AdaptIn<T>(T obj) where T : AbstractAODWaveformProfile
+    protected T CopyPropertiesTo<T>(T obj) where T : AbstractAODWaveformProfile
     {
         obj.OpticsAODElectrodeEnum = OpticsAODElectrodeEnum;
         obj.FilePath = FilePath;

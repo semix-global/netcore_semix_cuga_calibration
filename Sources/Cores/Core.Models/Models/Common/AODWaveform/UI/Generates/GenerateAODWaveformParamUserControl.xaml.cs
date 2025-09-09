@@ -9,7 +9,9 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
+using CommunityToolkit.Diagnostics;
 
 namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 
@@ -53,20 +55,17 @@ public sealed partial class GenerateAODWaveformParamUserControl
     }
 
     [RelayCommand]
-    private void ChangeDirectoryPath()
+    private void ChangeDirectoryPath() => Invoke(param =>
     {
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
-
         var dialog = GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectDirectoryPathDialog(out var directoryPath);
         if (dialog == false) return;
 
         param.DirectoryPath = directoryPath;
-    }
+    });
 
     [RelayCommand]
-    private void AddElectrodeConfiguration()
+    private void AddElectrodeConfiguration() => Invoke(param =>
     {
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
         if (param.ElectrodeConfigurations.Count > electrodeEnums.Length) return;
@@ -81,14 +80,13 @@ public sealed partial class GenerateAODWaveformParamUserControl
         }
 
         param.ElectrodeConfigurations = configurationList;
-    }
+    });
 
     [RelayCommand]
-    private void RemoveElectrodeConfiguration(GenerateAODWaveformElectrodeConfiguration? selectItem)
+    private void RemoveElectrodeConfiguration(GenerateAODWaveformElectrodeConfiguration? selectItem) => Invoke(param =>
     {
         if (selectItem is null) return;
 
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
         var configurationList = param.ElectrodeConfigurations.ToList();
@@ -101,17 +99,15 @@ public sealed partial class GenerateAODWaveformParamUserControl
         }
 
         param.ElectrodeConfigurations = configurationList;
-    }
+    });
 
     [RelayCommand]
-    private void ImportUniformityConfiguration()
+    private void ImportUniformityConfiguration() => Invoke(param =>
     {
         try
         {
             var dialog = GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
-
-            var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
 
             var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath).ToArray();
             if (values.Length > 0) param.UniformityConfigurations = values;
@@ -124,54 +120,56 @@ public sealed partial class GenerateAODWaveformParamUserControl
                                                                              {ex.Message}
                                                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
-    }
+    });
 
     [RelayCommand]
-    private void AddUniformityConfiguration()
+    private void AddUniformityConfiguration() => Invoke(param =>
     {
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
-
         var configurationList = param.UniformityConfigurations.ToList();
         configurationList.Add(new GenerateAODWaveformUniformityConfiguration());
 
         param.UniformityConfigurations = configurationList;
-    }
+    });
 
     [RelayCommand]
-    private void RemoveUniformityConfiguration(GenerateAODWaveformUniformityConfiguration? selectItem)
+    private void RemoveUniformityConfiguration(GenerateAODWaveformUniformityConfiguration? selectItem) => Invoke(param =>
     {
         if (selectItem is null) return;
-
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
 
         var configurationList = param.UniformityConfigurations.ToList();
         configurationList.Remove(selectItem);
 
         param.UniformityConfigurations = configurationList;
-    }
+    });
 
 
     [RelayCommand]
-    private void AddSlopeDeltaKConfiguration()
+    private void AddSlopeDeltaKConfiguration() => Invoke(param =>
     {
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
-
         var configurationList = param.SlopeDeltaKConfigurations.ToList();
         configurationList.Add(new GenerateAODWaveformSlopeDeltaKConfiguration());
 
         param.SlopeDeltaKConfigurations = configurationList;
-    }
+    });
 
     [RelayCommand]
-    private void RemoveSlopeDeltaKConfiguration(GenerateAODWaveformSlopeDeltaKConfiguration? selectItem)
+    private void RemoveSlopeDeltaKConfiguration(GenerateAODWaveformSlopeDeltaKConfiguration? selectItem) => Invoke(param =>
     {
         if (selectItem is null) return;
-
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
 
         var configurationList = param.SlopeDeltaKConfigurations.ToList();
         configurationList.Remove(selectItem);
 
         param.SlopeDeltaKConfigurations = configurationList;
+    });
+
+    private void Invoke(Action<AbstractGenerateAODWaveformParam> action)
+    {
+        Guard.IsNotNull(_logger);
+        Guard.IsNotNull(_dialogWindowProvider);
+
+        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
+
+        action.Invoke(param);
     }
 }

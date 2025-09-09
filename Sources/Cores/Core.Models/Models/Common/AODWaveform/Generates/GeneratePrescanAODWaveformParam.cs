@@ -9,5 +9,5 @@ public sealed partial class GeneratePrescanAODWaveformParam : AbstractGenerateAO
     [ObservableProperty]
     private double _flatnessTime = 4300;
 
-    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => AdaptIn(new AODWaveformGenerator.PrescanAODWaveformParam(FlatnessTime));
+    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => CopyPropertiesTo(new AODWaveformGenerator.PrescanAODWaveformParam(FlatnessTime));
 }

@@ -14,5 +14,5 @@ public sealed class ChirpAODWaveformProfile : AbstractAODWaveformProfile, IAdapt
 
     public ChirpAODWaveformResult AdaptTo(string directoryPath) => AODWaveformResultFactory.CreateChirp(OpticsAODElectrodeEnum, Save(directoryPath));
 
-    public ChirpAODWaveformProfile Clone() => AdaptIn(new ChirpAODWaveformProfile());
+    public ChirpAODWaveformProfile Clone() => CopyPropertiesTo(new ChirpAODWaveformProfile());
 }

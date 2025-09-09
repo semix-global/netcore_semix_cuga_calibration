@@ -28,5 +28,5 @@ public sealed class PrescanAODWaveformProfile : AbstractAODWaveformProfile, IAda
 
     public PrescanAODWaveformResult AdaptTo(string directoryPath) => AODWaveformResultFactory.CreatePrescan(OpticsAODElectrodeEnum, Save(directoryPath));
 
-    public PrescanAODWaveformProfile Clone() => AdaptIn(new PrescanAODWaveformProfile());
+    public PrescanAODWaveformProfile Clone() => CopyPropertiesTo(new PrescanAODWaveformProfile());
 }
