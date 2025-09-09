@@ -6,6 +6,18 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
 {
     protected abstract GenerateAODWaveformParamUserControl InnerControl { get; }
 
+    public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
+        nameof(Header),
+        typeof(string),
+        typeof(GenerateAODWaveformParamUserControl),
+        new PropertyMetadata(string.Empty, OnHeaderChanged));
+
+    public static readonly DependencyProperty HeaderContentProperty = DependencyProperty.Register(
+        nameof(HeaderContent),
+        typeof(object),
+        typeof(GenerateAODWaveformParamUserControl),
+        new PropertyMetadata(null, OnHeaderContentChanged));
+
     public static readonly DependencyProperty IsVisibleElectrodeConfigurationProperty = DependencyProperty.Register(
         nameof(IsVisibleElectrodeConfiguration),
         typeof(bool),
@@ -30,6 +42,17 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(AbstractGenerateAODWaveformParamUserControl),
         new PropertyMetadata(true, OnIsVisibleCompensationChanged));
 
+
+    private static void OnHeaderChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is string value) control.InnerControl.Header = value;
+    }
+
+    private static void OnHeaderContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is AbstractGenerateAODWaveformParamUserControl control) control.InnerControl.HeaderContent = e.NewValue;
+    }
+
     private static void OnIsVisibleElectrodeConfigurationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleElectrodeConfiguration = value;
@@ -48,6 +71,18 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
     private static void OnIsVisibleCompensationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleCompensation = value;
+    }
+
+    public string Header
+    {
+        get => (string)GetValue(HeaderProperty);
+        set => SetValue(HeaderProperty, value);
+    }
+
+    public object? HeaderContent
+    {
+        get => GetValue(HeaderContentProperty);
+        set => SetValue(HeaderContentProperty, value);
     }
 
     public bool IsVisibleUniformityConfiguration

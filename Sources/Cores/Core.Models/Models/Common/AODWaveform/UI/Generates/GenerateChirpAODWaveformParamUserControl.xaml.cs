@@ -7,6 +7,7 @@ public sealed partial class GenerateChirpAODWaveformParamUserControl
     public GenerateChirpAODWaveformParamUserControl()
     {
         InitializeComponent();
+        
         InitializeTransparentProperties();
     }
 }
