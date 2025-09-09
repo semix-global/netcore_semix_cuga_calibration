@@ -189,7 +189,7 @@ public abstract class AbstractAODWaveformProfile : ObservableCacheBase
         if (resultString.Count <= 0 && resultString.All(t => t.Length == 4) == false) ThrowHelper.ThrowNotSupportedException("filePath value error.");
 
         ShortList = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
-        Signals = [..ShortList.Select((t, i) => new Point(i, (t - (t > Math.Pow(2d, 15d) ? Math.Pow(2d, 32d) : 0)) / Math.Pow(2d, 15d)))];
+        Signals = [.. ShortList.Select((t, i) => new Point(i, (t - (t > Math.Pow(2d, 15d) ? Math.Pow(2d, 32d) : 0)) / Math.Pow(2d, 15d)))];
 
         SetByteList(1);
     }
@@ -276,18 +276,18 @@ public abstract class AbstractAODWaveformProfile : ObservableCacheBase
         obj.ShortList = [.. ShortList];
         obj.ByteList = [.. ByteList];
 
-        obj.Signals = [..Signals];
-        obj.FFTSignals = [..FFTSignals];
-        obj.FrequencyCoefficients = [..FrequencyCoefficients];
-        obj.FlatnessLinearFrequencySignals = [..FlatnessLinearFrequencySignals];
-        obj.FlatnessTotalFrequencySignals = [..FlatnessTotalFrequencySignals];
-        obj.FlatnessAstigmatismCompensationSignals = [..FlatnessAstigmatismCompensationSignals];
-        obj.FlatnessSphericalAberrationCompensationSignals = [..FlatnessSphericalAberrationCompensationSignals];
-        obj.FlatnessSecondaryAstigmatismCompensationSignals = [..FlatnessSecondaryAstigmatismCompensationSignals];
-        obj.FlatnessComaCompensationSignals = [..FlatnessComaCompensationSignals];
-        obj.FlatnessTrefoilCompensationSignals = [..FlatnessTrefoilCompensationSignals];
-        obj.FlatnessQuadrafoilCompensationSignals = [..FlatnessQuadrafoilCompensationSignals];
-        obj.FlatnessAlphaOrderCompensationSignals = [..FlatnessAlphaOrderCompensationSignals];
+        obj.Signals = [.. Signals];
+        obj.FFTSignals = [.. FFTSignals];
+        obj.FrequencyCoefficients = [.. FrequencyCoefficients];
+        obj.FlatnessLinearFrequencySignals = [.. FlatnessLinearFrequencySignals];
+        obj.FlatnessTotalFrequencySignals = [.. FlatnessTotalFrequencySignals];
+        obj.FlatnessAstigmatismCompensationSignals = [.. FlatnessAstigmatismCompensationSignals];
+        obj.FlatnessSphericalAberrationCompensationSignals = [.. FlatnessSphericalAberrationCompensationSignals];
+        obj.FlatnessSecondaryAstigmatismCompensationSignals = [.. FlatnessSecondaryAstigmatismCompensationSignals];
+        obj.FlatnessComaCompensationSignals = [.. FlatnessComaCompensationSignals];
+        obj.FlatnessTrefoilCompensationSignals = [.. FlatnessTrefoilCompensationSignals];
+        obj.FlatnessQuadrafoilCompensationSignals = [.. FlatnessQuadrafoilCompensationSignals];
+        obj.FlatnessAlphaOrderCompensationSignals = [.. FlatnessAlphaOrderCompensationSignals];
 
         return obj;
     }

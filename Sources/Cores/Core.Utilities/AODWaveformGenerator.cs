@@ -871,18 +871,18 @@ public static class AODWaveformGenerator
             FileHelper.DeleteFileIfExists(item.FilePath);
             File.WriteAllText(item.FilePath, string.Join(Environment.NewLine, hexStrings));
 
-            item.Signals = [..allSampleIndices.Select(t => new Point(t + 1d, aodWaveformSignals[t]))];
-            item.FFTSignals = [..fftFrequencies.Zip(fftMagnitudes, (t1, t2) => new Point(t1, t2))];
-            item.FrequencyCoefficients = [..frequencyCoefficientList];
-            item.FlatnessLinearFrequencySignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dLinearFrequencies[index]))];
-            item.FlatnessTotalFrequencySignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dFlatnessFrequencies[index]))];
-            item.FlatnessAstigmatismCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dAstigmatismFrequencies[index]))];
-            item.FlatnessSphericalAberrationCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dSphericalAberrationFrequencies[index]))];
-            item.FlatnessSecondaryAstigmatismCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dSecondaryAstigmatismFrequencies[index]))];
-            item.FlatnessComaCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dComaFrequencies[index]))];
-            item.FlatnessTrefoilCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dTrefoilFrequencies[index]))];
-            item.FlatnessQuadrafoilCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dQuadrafoilFrequencies[index]))];
-            item.FlatnessAlphaOrderCompensationSignals = [..flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dAlphaOrderFrequencies[index]))];
+            item.Signals = [.. allSampleIndices.Select(t => new Point(t + 1d, aodWaveformSignals[t]))];
+            item.FFTSignals = [.. fftFrequencies.Zip(fftMagnitudes, (t1, t2) => new Point(t1, t2))];
+            item.FrequencyCoefficients = [.. frequencyCoefficientList];
+            item.FlatnessLinearFrequencySignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dLinearFrequencies[index]))];
+            item.FlatnessTotalFrequencySignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dFlatnessFrequencies[index]))];
+            item.FlatnessAstigmatismCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dAstigmatismFrequencies[index]))];
+            item.FlatnessSphericalAberrationCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dSphericalAberrationFrequencies[index]))];
+            item.FlatnessSecondaryAstigmatismCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dSecondaryAstigmatismFrequencies[index]))];
+            item.FlatnessComaCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dComaFrequencies[index]))];
+            item.FlatnessTrefoilCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dTrefoilFrequencies[index]))];
+            item.FlatnessQuadrafoilCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dQuadrafoilFrequencies[index]))];
+            item.FlatnessAlphaOrderCompensationSignals = [.. flatnessSampleIndices.Select((t, index) => new Point(t + 1d, dAlphaOrderFrequencies[index]))];
         }
 
         DirectoryHelper.CreateFileDirectoryIfNotExists(result.FilePath);

@@ -7,7 +7,7 @@ public sealed partial class GeneratePrescanAODWaveformParamUserControl
     public GeneratePrescanAODWaveformParamUserControl()
     {
         InitializeComponent();
-   
+
         InitializeTransparentProperties();
     }
 }

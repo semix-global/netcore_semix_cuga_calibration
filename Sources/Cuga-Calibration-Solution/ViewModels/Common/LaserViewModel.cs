@@ -7,6 +7,7 @@ using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.PixelSize;
@@ -26,7 +27,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.ViewModels.Common;
 

@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
@@ -9,7 +10,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
 
 namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 

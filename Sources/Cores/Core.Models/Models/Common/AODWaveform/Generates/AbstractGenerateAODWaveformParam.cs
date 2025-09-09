@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
@@ -6,6 +5,7 @@ using Core.Models.Extensions;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Enums.Maths;
+using System.IO;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -186,8 +186,8 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
         obj.EndpointSampleCount = EndpointSampleCount;
         obj.GenerateRetryTimes = GenerateRetryTimes;
         obj.OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())];
-        obj.UniformityConfigurations = [..UniformityConfigurations.Select(t => t.AdaptTo())];
-        obj.SlopeDeltaKConfigurations = [..SlopeDeltaKConfigurations.Select(t => t.AdaptTo())];
+        obj.UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())];
+        obj.SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())];
         obj.SincCoefficient = SincCoefficient;
         obj.AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient;
         obj.SphericalAberrationCompensationCoefficient = SphericalAberrationCompensationCoefficient;

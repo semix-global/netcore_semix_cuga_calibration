@@ -1,7 +1,7 @@
-using System.Globalization;
-using System.Windows;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.WPF.Converters;
+using System.Globalization;
+using System.Windows;
 
 namespace Core.Utilities.WPF.Converters;
 
