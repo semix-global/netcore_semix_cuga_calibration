@@ -286,7 +286,7 @@ public static class AODWaveformGenerator
 
             if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(fileName)));
+            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
             foreach (var item in Param.OffsetConfigurations)
@@ -297,7 +297,7 @@ public static class AODWaveformGenerator
 
                 if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -327,7 +327,7 @@ public static class AODWaveformGenerator
 
             if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(fileName)));
+            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
             foreach (var item in Param.OffsetConfigurations)
@@ -337,7 +337,7 @@ public static class AODWaveformGenerator
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
                 if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Id, Param.DirectoryPath, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -351,7 +351,7 @@ public static class AODWaveformGenerator
     /// <param name="IsSuccess">是否成功</param>
     public abstract record AbstractAODWaveformResult<TParam>(TParam Param, bool IsSuccess) where TParam : AbstractAODWaveformParam
     {
-        protected readonly string Id = Guid.NewGuid().ToString("N");
+        protected readonly string Id = DateTime.Now.ToString(Constants.LongFileDateTimeFormat);
 
         /// <summary>
         /// AOD波形结果项集合
@@ -551,7 +551,7 @@ public static class AODWaveformGenerator
                 {
                     case FunctionMonotonicTypeEnum.Increasing:
                     case FunctionMonotonicTypeEnum.Deceasing:
-                        var kSegments = Vector<double>.Build.Dense(flatnessSampleIndices.Length, bandWidth / flatnessSampleIndices.Length);
+                        var kSegments = Vector<double>.Build.Dense(flatnessSampleIndices.Length, bandWidth / (flatnessSampleIndices.Length - 1));
                         var slopeDeltaKConfigurationsCount = param.SlopeDeltaKConfigurations.Count;
                         if (slopeDeltaKConfigurationsCount > 0)
                         {
@@ -566,6 +566,7 @@ public static class AODWaveformGenerator
                             }
                         }
 
+                        kSegments = Vector<double>.Build.DenseOfArray([0, .. kSegments.Take(kSegments.Count - 1)]); // 从0开始积分, 结果[0, bandWidth]
                         dLinearFrequencies = kSegments.IntegrateCumulative();
                         dAstigmatismFrequencies = param.AstigmatismCompensationCoefficient * t.PointwisePower(2d);
                         dSphericalAberrationFrequencies = param.SphericalAberrationCompensationCoefficient * t.PointwisePower(3d);
@@ -786,9 +787,9 @@ public static class AODWaveformGenerator
                             out var startColumnIndex,
                             out var endColumnIndex)
                             ? Interpolator.Linear(param.UniformityConfigurations[startColumnIndex].ToPoint(), param.UniformityConfigurations[endColumnIndex].ToPoint(), f)
-                            : f <= param.UniformityConfigurations.First().Frequency
-                                ? param.UniformityConfigurations.First().Coefficient
-                                : param.UniformityConfigurations.Last().Coefficient;
+                            : f <= param.UniformityConfigurations[0].Frequency
+                                ? param.UniformityConfigurations[0].Coefficient
+                                : param.UniformityConfigurations[^1].Coefficient;
 
                         fftResult[index] *= compensation;
                         if (fftFullFrequencies[index] >= 0d) frequencyCoefficientList.Add(new Point(f, compensation));
