@@ -14,6 +14,8 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.PMT;
+using CommunityToolkit.Diagnostics;
+
 
 #if NET
 using Core.Services.Implements.GRPC;
@@ -162,15 +164,27 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        Thread.Sleep(100);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsMagTypeEnum);
+        if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
-        _coefficient = coefficient;
+        var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
-        return SxExecuteRetHelper.CreateSuccess(true);
+        foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
+
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+
+        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
+        foreach (var aodWaveProfile in prescanAODWaveProfiles)
+        {
+            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+        }
+
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
@@ -178,13 +192,23 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        Thread.Sleep(100);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsMagTypeEnum);
+        if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        return SxExecuteRetHelper.CreateSuccess(true);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+
+        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
+        foreach (var aodWaveProfile in chirpAODWaveProfiles)
+        {
+            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+        }
+
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);

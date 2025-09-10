@@ -11,6 +11,8 @@ public static class AODWaveformProfileFactory
 {
     public static PrescanAODWaveformProfile CreatePrescan(OpticsAODElectrodeEnum opticsAODElectrodeEnum, string filePath, double coefficient = 1d, int? customZeroSampleCount = null)
     {
+        Guard.IsTrue(File.Exists(filePath), $"File not found: {filePath}");
+
         var aodWaveProfile = new PrescanAODWaveformProfile
         {
             OpticsAODElectrodeEnum = opticsAODElectrodeEnum,
@@ -31,6 +33,8 @@ public static class AODWaveformProfileFactory
 
     public static ChirpAODWaveformProfile CreateChirp(OpticsAODElectrodeEnum opticsAODElectrodeEnum, string filePath, int? customZeroSampleCount = null)
     {
+        Guard.IsTrue(File.Exists(filePath), $"File not found: {filePath}");
+
         var chirpAODWaveformProfile = new ChirpAODWaveformProfile
         {
             OpticsAODElectrodeEnum = opticsAODElectrodeEnum,

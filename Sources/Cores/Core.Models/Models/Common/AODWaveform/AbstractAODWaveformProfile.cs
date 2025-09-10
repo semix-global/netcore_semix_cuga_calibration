@@ -173,6 +173,8 @@ public abstract class AbstractAODWaveformProfile : ObservableCacheBase
 
     private void OnFilePathChanged(string value)
     {
+        if (File.Exists(value) == false) return;
+
         // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
         var strings = value.Split('$');
         Guard.IsTrue(strings.Length >= 7, "filePath name error.");

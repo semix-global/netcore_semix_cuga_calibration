@@ -183,6 +183,8 @@ public sealed partial class CalibrationLaserServiceImpl(
     {
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
+            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+
             var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescanCalibration(
                 aodWaveProfile.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
                 CgWaveType.Prescan,
@@ -212,6 +214,8 @@ public sealed partial class CalibrationLaserServiceImpl(
     {
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
+            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+
             var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescanCalibration(
                 aodWaveProfile.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
                 CgWaveType.Chirp,
