@@ -1,3 +1,4 @@
+using System.Collections;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -61,14 +62,14 @@ public sealed partial class GenerateAODWaveformParamUserControl
     });
 
     [RelayCommand]
-    private void RemoveElectrodeConfiguration(GenerateAODWaveformElectrodeConfiguration? selectItem) => Invoke(param =>
+    private void RemoveElectrodeConfiguration(IEnumerable? selectItems) => Invoke(param =>
     {
-        if (selectItem is null) return;
+        if (selectItems is null) return;
 
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
         var configurationList = param.ElectrodeConfigurations.ToList();
-        configurationList.Remove(selectItem);
+        foreach (GenerateAODWaveformElectrodeConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
 
         foreach (var (index, item) in configurationList
                      .Select((item, index) => (index, t: item)))
@@ -110,12 +111,12 @@ public sealed partial class GenerateAODWaveformParamUserControl
     });
 
     [RelayCommand]
-    private void RemoveUniformityConfiguration(GenerateAODWaveformUniformityConfiguration? selectItem) => Invoke(param =>
+    private void RemoveUniformityConfiguration(IEnumerable? selectItems) => Invoke(param =>
     {
-        if (selectItem is null) return;
+        if (selectItems is null) return;
 
         var configurationList = param.UniformityConfigurations.ToList();
-        configurationList.Remove(selectItem);
+        foreach (GenerateAODWaveformUniformityConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
 
         param.UniformityConfigurations = configurationList;
     });
@@ -131,12 +132,12 @@ public sealed partial class GenerateAODWaveformParamUserControl
     });
 
     [RelayCommand]
-    private void RemoveSlopeDeltaKConfiguration(GenerateAODWaveformSlopeDeltaKConfiguration? selectItem) => Invoke(param =>
+    private void RemoveSlopeDeltaKConfiguration(IEnumerable? selectItems) => Invoke(param =>
     {
-        if (selectItem is null) return;
+        if (selectItems is null) return;
 
         var configurationList = param.SlopeDeltaKConfigurations.ToList();
-        configurationList.Remove(selectItem);
+        foreach (GenerateAODWaveformSlopeDeltaKConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
 
         param.SlopeDeltaKConfigurations = configurationList;
     });

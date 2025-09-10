@@ -213,11 +213,12 @@
                                         Style="{StaticResource ButtonInfo}" />
                                 <Button Content="Delete"
                                         Command="{Binding RemoveElectrodeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridElectrodeConfigurations}"
+                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeConfigurations}"
                                         hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                         Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
                             <DataGrid x:Name="DataGridElectrodeConfigurations"
+                                      MaxHeight="500"
                                       hc:DataGridAttach.ShowRowNumber="False"
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="Column"
@@ -255,11 +256,12 @@
                                         Style="{StaticResource ButtonInfo}" />
                                 <Button Content="Delete"
                                         Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding Path=SelectedItem, ElementName=DataGridUniformityConfigurations}"
+                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridUniformityConfigurations}"
                                         hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                         Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
                             <DataGrid x:Name="DataGridUniformityConfigurations"
+                                      MaxHeight="500"
                                       hc:DataGridAttach.ShowRowNumber="True"
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="All"
@@ -289,11 +291,12 @@
                                         Style="{StaticResource ButtonInfo}" />
                                 <Button Content="Delete"
                                         Command="{Binding RemoveSlopeDeltaKConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding Path=SelectedIndex, ElementName=DataGridSlopeDeltaKConfigurations}"
+                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridSlopeDeltaKConfigurations}"
                                         hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                         Style="{StaticResource ButtonDanger}" />
                             </hc:UniformSpacingPanel>
                             <DataGrid x:Name="DataGridSlopeDeltaKConfigurations"
+                                      MaxHeight="500"
                                       hc:DataGridAttach.ShowRowNumber="True"
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="All"
@@ -301,7 +304,9 @@
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding SlopeDeltaKConfigurations}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ΔK" Binding="{Binding DeltaK}" />
+                                    <DataGridTextColumn Width="250"
+                                                        Header="Delta K"
+                                                        Binding="{Binding DeltaK}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </hc:UniformSpacingPanel>
