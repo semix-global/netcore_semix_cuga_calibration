@@ -1,8 +1,8 @@
 namespace CugaCalibration.Views.Common.Windows.Tools.AODWaveform;
 
-public partial class GenerateChirpAODWaveformWindow
+public partial class PrescanGenerateAODWaveformWindow
 {
-    public GenerateChirpAODWaveformWindow()
+    public PrescanGenerateAODWaveformWindow()
     {
         InitializeComponent();
     }

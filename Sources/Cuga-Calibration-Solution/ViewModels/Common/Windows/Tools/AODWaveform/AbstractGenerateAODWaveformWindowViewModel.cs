@@ -9,7 +9,6 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
-using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -24,10 +23,10 @@ public sealed partial class GenerateAODWaveformCache<TParam, TProfile> : Observa
     private IReadOnlyList<TProfile> _profiles = [];
 
     [ObservableProperty]
-    private string _resultFilePath = string.Empty;
+    private string _aODWaveformResultFilePath = string.Empty;
 }
 
-public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : ViewModelBase
+public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
 {
@@ -37,8 +36,6 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
 
     [ObservableProperty]
     private GenerateAODWaveformCache<TParam, TProfile> _cache = new();
-
-    protected abstract string AODWaveformName { get; }
 
     protected AbstractGenerateAODWaveformWindowViewModel()
     {
@@ -62,10 +59,10 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
                     Param = Cache.Param
                 };
 
-                var (isSuccess, result, resultFilePath, exception) = GenerateAODWaveform(cancellationToken);
+                var (isSuccess, result, resultFilePath, exception) = GenerateAODWaveform(Cache.Param, cancellationToken);
 
                 Cache.Profiles = result;
-                Cache.ResultFilePath = resultFilePath;
+                Cache.AODWaveformResultFilePath = resultFilePath;
 
                 if (isSuccess) DialogWindowProvider.ShowDialog($"Generate {AODWaveformName} AOD Waveform Success!");
                 else throw GuardUtils.IsNotNullAndReturn(exception);
@@ -94,7 +91,7 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
                     return;
                 }
 
-                SetAODWaveProfiles(Cache.Profiles);
+                SetAODWaveProfiles(Cache.Param, Cache.Profiles);
 
                 DialogWindowProvider.ShowDialog($"Send {AODWaveformName} AOD Waveform Success!");
             }
@@ -119,8 +116,4 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
 
         CloseView(true);
     }
-
-    protected abstract (bool IsSuccess, IReadOnlyList<TProfile> Result, string ResultFilePath, Exception? Exception) GenerateAODWaveform(CancellationToken cancellationToken);
-
-    protected abstract void SetAODWaveProfiles(IReadOnlyList<TProfile> profiles);
 }

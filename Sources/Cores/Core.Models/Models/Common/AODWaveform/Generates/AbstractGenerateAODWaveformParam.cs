@@ -200,4 +200,53 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
 
         return obj;
     }
+
+    public void WithFrequencyFlatness(double frequency)
+    {
+        FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness;
+        IsHeaderAndFooter = false;
+        BandWidth = 0d;
+        CenterFrequency = frequency;
+
+        UniformityConfigurations = [];
+        SlopeDeltaKConfigurations = [];
+        SincCoefficient = 0d;
+        AstigmatismCompensationCoefficient = 0d;
+        SphericalAberrationCompensationCoefficient = 0d;
+        SecondaryAstigmatismCompensationCoefficient = 0d;
+        ComaCompensationCoefficient = 0d;
+        TrefoilCompensationCoefficient = 0d;
+        QuadrafoilCompensationCoefficient = 0d;
+        AlphaOrder = 0d;
+        AlphaOrderCoefficient = 0d;
+    }
+
+    public virtual object ToHtmlAnonymous() => new
+    {
+        OpticsMagTypeEnum,
+        IsHeaderAndFooter,
+        HeaderFrequency,
+        FooterFrequency,
+        BandWidth,
+        CenterFrequency,
+        FunctionMonotonicTypeEnum,
+        SampleRate,
+        Amplitude,
+        DirectoryPath,
+        ZeroSampleCount,
+        EndpointSampleCount,
+        GenerateRetryTimes,
+        ElectrodeConfigurations,
+        UniformityConfigurations,
+        SlopeDeltaKConfigurations,
+        SincCoefficient,
+        AstigmatismCompensationCoefficient,
+        SphericalAberrationCompensationCoefficient,
+        SecondaryAstigmatismCompensationCoefficient,
+        ComaCompensationCoefficient,
+        TrefoilCompensationCoefficient,
+        QuadrafoilCompensationCoefficient,
+        AlphaOrder,
+        AlphaOrderCoefficient
+    };
 }
