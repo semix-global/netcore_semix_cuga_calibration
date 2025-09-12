@@ -18,6 +18,24 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(GenerateAODWaveformParamUserControl),
         new PropertyMetadata(null, OnHeaderContentChanged));
 
+    public static readonly DependencyProperty IsVisibleFrequencyProperty = DependencyProperty.Register(
+        nameof(IsVisibleFrequency),
+        typeof(bool),
+        typeof(AbstractGenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true, OnIsVisibleFrequencyChanged));
+
+    public static readonly DependencyProperty IsVisibleAmplitudeProperty = DependencyProperty.Register(
+        nameof(IsVisibleAmplitude),
+        typeof(bool),
+        typeof(AbstractGenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true, OnIsVisibleAmplitudeChanged));
+
+    public static readonly DependencyProperty IsVisibleDirectoryPathProperty = DependencyProperty.Register(
+        nameof(IsVisibleDirectoryPath),
+        typeof(bool),
+        typeof(AbstractGenerateAODWaveformParamUserControl),
+        new PropertyMetadata(true, OnIsVisibleDirectoryPathChanged));
+
     public static readonly DependencyProperty IsVisibleElectrodeConfigurationProperty = DependencyProperty.Register(
         nameof(IsVisibleElectrodeConfiguration),
         typeof(bool),
@@ -53,6 +71,21 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         if (d is AbstractGenerateAODWaveformParamUserControl control) control.InnerControl.HeaderContent = e.NewValue;
     }
 
+    private static void OnIsVisibleFrequencyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleFrequency = value;
+    }
+
+    private static void OnIsVisibleAmplitudeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleAmplitude = value;
+    }
+
+    private static void OnIsVisibleDirectoryPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleDirectoryPath = value;
+    }
+
     private static void OnIsVisibleElectrodeConfigurationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleElectrodeConfiguration = value;
@@ -85,6 +118,24 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         set => SetValue(HeaderContentProperty, value);
     }
 
+    public bool IsVisibleFrequency
+    {
+        get => (bool)GetValue(IsVisibleFrequencyProperty);
+        set => SetValue(IsVisibleFrequencyProperty, value);
+    }
+
+    public bool IsVisibleDirectoryPath
+    {
+        get => (bool)GetValue(IsVisibleDirectoryPathProperty);
+        set => SetValue(IsVisibleDirectoryPathProperty, value);
+    }
+
+    public bool IsVisibleAmplitude
+    {
+        get => (bool)GetValue(IsVisibleAmplitudeProperty);
+        set => SetValue(IsVisibleAmplitudeProperty, value);
+    }
+
     public bool IsVisibleUniformityConfiguration
     {
         get => (bool)GetValue(IsVisibleUniformityConfigurationProperty);
@@ -111,6 +162,9 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
 
     protected void InitializeTransparentProperties()
     {
+        InnerControl.IsVisibleFrequency = IsVisibleFrequency;
+        InnerControl.IsVisibleAmplitude = IsVisibleAmplitude;
+        InnerControl.IsVisibleDirectoryPath = IsVisibleDirectoryPath;
         InnerControl.IsVisibleElectrodeConfiguration = IsVisibleElectrodeConfiguration;
         InnerControl.IsVisibleUniformityConfiguration = IsVisibleUniformityConfiguration;
         InnerControl.IsVisibleSlopeDeltaKConfiguration = IsVisibleSlopeDeltaKConfiguration;

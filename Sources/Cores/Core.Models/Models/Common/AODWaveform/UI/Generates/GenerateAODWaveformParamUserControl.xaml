@@ -24,7 +24,7 @@
     <GroupBox>
         <GroupBox.HeaderTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat='{}{0} AOD Waveform Profiles'}" />
+                <TextBlock Text="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat='{}{0} AOD Waveform Params'}" />
             </DataTemplate>
         </GroupBox.HeaderTemplate>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -48,7 +48,8 @@
                 </hc:UniformSpacingPanel>
                 <Expander Header="Frequency(MHz)"
                           IsExpanded="False"
-                          ExpandDirection="Down">
+                          ExpandDirection="Down"
+                          Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <StackPanel Orientation="Horizontal">
@@ -165,6 +166,7 @@
                                               Maximum="1"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
+                                              Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"
                                               Value="{Binding Amplitude}" />
                             <TextBox Text="{Binding DirectoryPath}"
                                      Height="50"
@@ -173,10 +175,12 @@
                                      hc:InfoElement.Title="AOD Waveform Directory Path:"
                                      hc:InfoElement.TitlePlacement="Left"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                     Style="{StaticResource TextBoxExtend}" />
+                                     Style="{StaticResource TextBoxExtend}"
+                                     Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Button Content="Change AOD Waveform Directory Path"
                                     Command="{Binding ChangeDirectoryPathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    Style="{StaticResource ButtonDefault}" />
+                                    Style="{StaticResource ButtonDefault}"
+                                    Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Separator />
                             <hc:NumericUpDown hc:InfoElement.Title="Zero Sample Count(sa): "
                                               hc:InfoElement.TitlePlacement="Left"

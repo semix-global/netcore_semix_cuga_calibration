@@ -88,7 +88,7 @@
                         <GroupBox Header="Prescan AOD Waveform Operation">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                    <TextBox Text="{Binding Cache.ResultFilePath, Mode=OneWay}"
+                                    <TextBox Text="{Binding Cache.AODWaveformResultFilePath, Mode=OneWay}"
                                              Height="50"
                                              TextWrapping="Wrap"
                                              hc:InfoElement.Title="Result File Path: "

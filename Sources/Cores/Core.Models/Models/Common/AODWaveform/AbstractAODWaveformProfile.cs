@@ -4,9 +4,9 @@ using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.IO;
 using System.Text;
-using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
@@ -304,18 +304,18 @@ public abstract class AbstractAODWaveformProfile : ObservableCacheBase
         OffsetFrequencyPeriodCoefficient,
         Plot = new HtmlTab(new
         {
-            Signals = new HtmlPlot2DLinesChart([(string.Empty, [..Signals])], string.Empty),
-            FFTSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FFTSignals])], string.Empty),
-            FrequencyCoefficients = new HtmlPlot2DLinesChart([(string.Empty, [..FrequencyCoefficients])], string.Empty),
-            FlatnessLinearFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessLinearFrequencySignals])], string.Empty),
-            FlatnessTotalFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessTotalFrequencySignals])], string.Empty),
-            FlatnessAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessAstigmatismCompensationSignals])], string.Empty),
-            FlatnessSphericalAberrationCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessSphericalAberrationCompensationSignals])], string.Empty),
-            FlatnessSecondaryAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessSecondaryAstigmatismCompensationSignals])], string.Empty),
-            FlatnessComaCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessComaCompensationSignals])], string.Empty),
-            FlatnessTrefoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessTrefoilCompensationSignals])], string.Empty),
-            FlatnessQuadrafoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessQuadrafoilCompensationSignals])], string.Empty),
-            FlatnessAlphaOrderCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [..FlatnessAlphaOrderCompensationSignals])], string.Empty),
+            Signals = new HtmlPlot2DLinesChart([(string.Empty, [.. Signals])], string.Empty),
+            FFTSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FFTSignals])], string.Empty),
+            FrequencyCoefficients = new HtmlPlot2DLinesChart([(string.Empty, [.. FrequencyCoefficients])], string.Empty),
+            FlatnessLinearFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessLinearFrequencySignals])], string.Empty),
+            FlatnessTotalFrequencySignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessTotalFrequencySignals])], string.Empty),
+            FlatnessAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessAstigmatismCompensationSignals])], string.Empty),
+            FlatnessSphericalAberrationCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessSphericalAberrationCompensationSignals])], string.Empty),
+            FlatnessSecondaryAstigmatismCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessSecondaryAstigmatismCompensationSignals])], string.Empty),
+            FlatnessComaCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessComaCompensationSignals])], string.Empty),
+            FlatnessTrefoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessTrefoilCompensationSignals])], string.Empty),
+            FlatnessQuadrafoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessQuadrafoilCompensationSignals])], string.Empty),
+            FlatnessAlphaOrderCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessAlphaOrderCompensationSignals])], string.Empty),
         })
     };
 }

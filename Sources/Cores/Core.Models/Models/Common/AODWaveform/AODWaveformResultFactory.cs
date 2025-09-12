@@ -1,6 +1,6 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
+using System.IO;
 
 namespace Core.Models.Models.Common.AODWaveform;
 

@@ -27,6 +27,9 @@ public sealed partial class AODWaveformUniformityCache<TParam> : ObservableCache
     private TParam _param = new();
 
     [ObservableProperty]
+    private double _defaultAmplitude;
+
+    [ObservableProperty]
     private double _waitTime = 15;
 
     [ObservableProperty]
@@ -39,10 +42,10 @@ public sealed partial class AODWaveformUniformityCache<TParam> : ObservableCache
     private double _stopFrequency;
 
     [ObservableProperty]
-    private double _defaultAmplitude;
+    private double _targetMeasurePower;
 
     [ObservableProperty]
-    private double _targetMeasurePower;
+    private double _retryCount = 20;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TargetThresholdRateMin))]
@@ -52,9 +55,6 @@ public sealed partial class AODWaveformUniformityCache<TParam> : ObservableCache
     public double TargetThresholdRateMin => 1 - TargetThreshold;
 
     public double TargetThresholdRateMax => 1 + TargetThreshold;
-
-    [ObservableProperty]
-    private double _retryCount = 20;
 }
 
 public sealed partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
@@ -122,6 +122,9 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
     }
+
+    [RelayCommand]
+    public void Loaded() => Cache = CacheProvider.GetOrDefault<AODWaveformUniformityCache<TParam>>();
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step1Async(CancellationToken cancellationToken)
@@ -220,6 +223,11 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
     [RelayCommand]
     private void Close()
     {
+        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+        if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false)
+            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>), AODWaveformName);
+
         CloseView(true);
     }
 
@@ -369,7 +377,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             item.MeasurePower,
             item.Rate,
             item.IsOk,
-            MeasureCoefficientPowerPoints = new HtmlPlot2DLinesChart([(string.Empty, [..MeasureCoefficientPowerPoints])], string.Empty)
+            MeasureCoefficientPowerPoints = new HtmlPlot2DLinesChart([(string.Empty, [.. MeasureCoefficientPowerPoints])], string.Empty)
         });
     }
 
