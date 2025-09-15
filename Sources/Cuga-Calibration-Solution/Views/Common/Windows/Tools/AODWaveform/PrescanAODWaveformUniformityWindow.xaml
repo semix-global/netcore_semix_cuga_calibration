@@ -270,7 +270,6 @@
                             <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                                 <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Setter Property="Height" Value="250" />
                                 <Style.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
@@ -307,6 +306,31 @@
                                 <GridViewColumn Width="100"
                                                 Header="Rate"
                                                 DisplayMemberBinding="{Binding Rate, StringFormat={}{0:0.###}}" />
+                                <GridViewColumn Header="Profiles">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <ToggleButton x:Name="ToggleButtonProfiles"
+                                                              Content="Profiles"
+                                                              Margin="2"
+                                                              hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                              Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                <Popup Width="800"
+                                                       Height="800"
+                                                       StaysOpen="False"
+                                                       PlacementTarget="{Binding ElementName=ToggleButtonProfiles}"
+                                                       Placement="Right"
+                                                       AllowsTransparency="True"
+                                                       PopupAnimation="Slide"
+                                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                        <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Profiles}" />
+                                                    </Border>
+                                                </Popup>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -315,35 +339,28 @@
                             Padding="0"
                             Style="{StaticResource BorderRegion}"
                             Effect="{StaticResource EffectShadow1}">
-                        <TabControl>
-                            <TabItem Header="Plot">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <scottplot:WpfPlot>
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:WpfPlotMultiBehavior Title="Frequency of Measure Power" Plot0="{Binding MeasurePowerPoints}" />
-                                        </i:Interaction.Behaviors>
-                                    </scottplot:WpfPlot>
-                                    <scottplot:WpfPlot Grid.Column="1">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:WpfPlotMultiBehavior Title="Frequency of Coefficient" Plot0="{Binding CoefficientPoints}" />
-                                        </i:Interaction.Behaviors>
-                                    </scottplot:WpfPlot>
-                                    <scottplot:WpfPlot Grid.Column="2">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:WpfPlotMultiBehavior Title="Coefficient of Measure Power" Plot0="{Binding MeasureCoefficientPowerPoints}" />
-                                        </i:Interaction.Behaviors>
-                                    </scottplot:WpfPlot>
-                                </Grid>
-                            </TabItem>
-                            <TabItem Header="Profiles">
-                                <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding SelectedItem.Profiles, ElementName=ItemsListView}" />
-                            </TabItem>
-                        </TabControl>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <scottplot:WpfPlot>
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="Frequency of Measure Power" Plot0="{Binding MeasurePowerPoints}" />
+                                </i:Interaction.Behaviors>
+                            </scottplot:WpfPlot>
+                            <scottplot:WpfPlot Grid.Column="1">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="Frequency of Coefficient" Plot0="{Binding CoefficientPoints}" />
+                                </i:Interaction.Behaviors>
+                            </scottplot:WpfPlot>
+                            <scottplot:WpfPlot Grid.Column="2">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="Coefficient of Measure Power" Plot0="{Binding MeasureCoefficientPowerPoints}" />
+                                </i:Interaction.Behaviors>
+                            </scottplot:WpfPlot>
+                        </Grid>
                     </Border>
                 </Grid>
             </GroupBox>

@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +9,7 @@ using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
@@ -19,6 +19,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
+using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -30,7 +31,7 @@ public sealed partial class AODWaveformUniformityCache<TParam> : ObservableCache
     private TParam _param = new();
 
     [ObservableProperty]
-    private double _defaultAmplitude;
+    private double _defaultAmplitude = 1;
 
     [ObservableProperty]
     private double _waitTime = 15;
@@ -102,7 +103,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
 
-    public string AODWavefileDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
+    public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     [ObservableProperty]
     private AODWaveformUniformityCache<TParam> _cache = new();
@@ -123,7 +124,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
     protected AbstractAODWaveformUniformityWindowViewModel()
     {
-        ApplicationSetting = HostApplication.GetRequiredService<ApplicationSetting>();
+        ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
         Logger = (ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
@@ -394,7 +395,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         {
             Cache.Param.WithFrequencyFlatness(item.Frequency);
             Cache.Param.Amplitude = item.Amplitude;
-            Cache.Param.DirectoryPath = AODWavefileDirectoryPath;
+            Cache.Param.DirectoryPath = AODWaveformDirectoryPath;
 
             Logger.LogHtmlInformation($"{item.Amplitude}", HtmlHeaderLevelEnum.Header5, new HtmlQuote(Cache.Param.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
