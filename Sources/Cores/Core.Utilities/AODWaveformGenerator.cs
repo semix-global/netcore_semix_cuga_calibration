@@ -236,6 +236,8 @@ public static class AODWaveformGenerator
             Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d, nameof(EndpointSampleCount));
             Guard.IsGreaterThan(GenerateRetryTimes, 0d, nameof(GenerateRetryTimes));
 
+            Guard.IsNotEmpty(OffsetConfigurations, "Offset Configuration is must be not empty.");
+
             foreach (var item in OffsetConfigurations) item.Validate();
             foreach (var item in UniformityConfigurations) item.Validate();
 

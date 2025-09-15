@@ -1,6 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
 using Net.Utilities.Attributes;
@@ -9,8 +10,10 @@ using Net.Utilities.Enums;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(ChirpAODWaveformUniformityWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class ChirpAODWaveformUniformityWindowViewModel : AbstractAODWaveformUniformityWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
+public partial class ChirpAODWaveformUniformityWindowViewModel(ApplicationCookie applicationCookie) : AbstractAODWaveformUniformityWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
 {
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
