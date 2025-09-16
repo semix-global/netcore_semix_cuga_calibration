@@ -173,34 +173,6 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
         BandWidth = value == FunctionMonotonicTypeEnum.Flatness ? 0d : BandWidth;
     }
 
-    protected T CopyPropertiesTo<T>(T obj) where T : AODWaveformGenerator.AbstractAODWaveformParam
-    {
-        obj.BandWidth = BandWidth;
-        obj.CenterFrequency = CenterFrequency;
-        obj.FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum;
-        obj.SampleRate = SampleRate;
-        obj.Amplitude = Amplitude;
-        obj.DirectoryPath = DirectoryPath;
-        obj.FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString();
-        obj.ZeroSampleCount = ZeroSampleCount;
-        obj.EndpointSampleCount = EndpointSampleCount;
-        obj.GenerateRetryTimes = GenerateRetryTimes;
-        obj.OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())];
-        obj.UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())];
-        obj.SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())];
-        obj.SincCoefficient = SincCoefficient;
-        obj.AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient;
-        obj.SphericalAberrationCompensationCoefficient = SphericalAberrationCompensationCoefficient;
-        obj.SecondaryAstigmatismCompensationCoefficient = SecondaryAstigmatismCompensationCoefficient;
-        obj.ComaCompensationCoefficient = ComaCompensationCoefficient;
-        obj.TrefoilCompensationCoefficient = TrefoilCompensationCoefficient;
-        obj.QuadrafoilCompensationCoefficient = QuadrafoilCompensationCoefficient;
-        obj.AlphaOrder = AlphaOrder;
-        obj.AlphaOrderCoefficient = AlphaOrderCoefficient;
-
-        return obj;
-    }
-
     public void WithFrequencyFlatness(double frequency)
     {
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness;

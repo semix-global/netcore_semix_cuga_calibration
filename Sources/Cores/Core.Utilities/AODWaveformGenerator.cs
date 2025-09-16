@@ -91,112 +91,112 @@ public static class AODWaveformGenerator
         /// <summary>
         /// 带宽(MHz)
         /// </summary>
-        public double BandWidth { get; set; }
+        public double BandWidth { get; init; }
 
         /// <summary>
         /// 中心频率(Mhz)
         /// </summary>
-        public double CenterFrequency { get; set; }
+        public double CenterFrequency { get; init; }
 
         /// <summary>
         /// 递增, 递减, 平坦
         /// </summary>
-        public FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum { get; set; }
+        public FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum { get; init; }
 
         /// <summary>
         /// 采样率(Msa/s)
         /// </summary>
-        public double SampleRate { get; set; }
+        public double SampleRate { get; init; }
 
         /// <summary>
         /// 幅值
         /// </summary>
-        public double Amplitude { get; set; }
+        public double Amplitude { get; init; }
 
         /// <summary>
         /// 生成的目录
         /// </summary>
-        public string DirectoryPath { get; set; } = string.Empty;
+        public string DirectoryPath { get; init; } = string.Empty;
 
         /// <summary>
         /// 包含在波形文件名中的可选标识
         /// </summary>
-        public string FileNameSuffix { get; set; } = string.Empty;
+        public string FileNameSuffix { get; init; } = string.Empty;
 
         /// <summary>
         /// 前面添加多少补零采样点个数, 相当于添加延迟(sa)
         /// </summary>
-        public int ZeroSampleCount { get; set; }
+        public int ZeroSampleCount { get; init; }
 
         /// <summary>
         /// 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
         /// </summary>
-        public int EndpointSampleCount { get; set; }
+        public int EndpointSampleCount { get; init; }
 
         /// <summary>
         /// 生成AOD波形文件重试次数
         /// </summary>
-        public int GenerateRetryTimes { get; set; }
+        public int GenerateRetryTimes { get; init; }
 
         /// <summary>
         /// 生成多个AOD波形中每个波形的频率偏移配置集合
         /// </summary>
-        public IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations { get; set; } = [];
+        public IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations { get; init; } = [];
 
         /// <summary>
         /// AOD波形频的率均匀性配置集合
         /// </summary>
-        public IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations { get; set; } = [];
+        public IReadOnlyList<AODWaveformUniformityConfiguration> UniformityConfigurations { get; init; } = [];
 
         /// <summary>
         /// AOD波形的斜率变化率分段的配置项集合
         /// </summary>
-        public IReadOnlyList<AODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; set; } = [];
+        public IReadOnlyList<AODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; init; } = [];
 
         /// <summary>
         /// sin(cx)/cx
         /// </summary>
-        public double SincCoefficient { get; set; }
+        public double SincCoefficient { get; init; }
 
         /// <summary>
         /// 二次补偿系数t^2 散光
         /// </summary>
-        public double AstigmatismCompensationCoefficient { get; set; }
+        public double AstigmatismCompensationCoefficient { get; init; }
 
         /// <summary>
         /// 三次补偿系数t^3 球差
         /// </summary>
-        public double SphericalAberrationCompensationCoefficient { get; set; }
+        public double SphericalAberrationCompensationCoefficient { get; init; }
 
         /// <summary>
         /// 四次补偿系数t^4 二阶散光
         /// </summary>
-        public double SecondaryAstigmatismCompensationCoefficient { get; set; }
+        public double SecondaryAstigmatismCompensationCoefficient { get; init; }
 
         /// <summary>
         /// sin(2πt/T)
         /// </summary>
-        public double ComaCompensationCoefficient { get; set; }
+        public double ComaCompensationCoefficient { get; init; }
 
         /// <summary>
         /// sin(6πt/T)
         /// </summary>
-        public double TrefoilCompensationCoefficient { get; set; }
+        public double TrefoilCompensationCoefficient { get; init; }
 
         /// <summary>
         /// sin(8πt/T)
         /// </summary>
-        public double QuadrafoilCompensationCoefficient { get; set; }
+        public double QuadrafoilCompensationCoefficient { get; init; }
 
         /// <summary>
         /// α次补偿
         /// </summary>
-        public double AlphaOrder { get; set; }
+        public double AlphaOrder { get; init; }
 
         /// <summary>
         /// α次补偿系数t^α
         /// </summary>
-        public double AlphaOrderCoefficient { get; set; }
+        public double AlphaOrderCoefficient { get; init; }
 
         /// <summary>
         /// 低频
