@@ -1,3 +1,5 @@
+%% Chirp SincCoefficient
+
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -8,7 +10,7 @@
 %     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
 %     110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
 %     -1, ... % 平坦时间 (ns), -1 启用chirp
-%     11.2, ... % 音包长度 (mm), -1 启用prescan
+%     10.2, ... % 音包长度 (mm), -1 启用prescan
 %     10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
 %     215, ... % 偏移的频率
 %     0.8, ... % 偏移的频率的2π周期的倍率
@@ -35,7 +37,7 @@
 %     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
 %     110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
 %     -1, ... % 平坦时间 (ns), -1 启用chirp
-%     11.2, ... % 音包长度 (mm), -1 启用prescan
+%     10.2, ... % 音包长度 (mm), -1 启用prescan
 %     10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
 %     215, ... % 偏移的频率
 %     1.5, ... % 偏移的频率的2π周期的倍率
@@ -52,6 +54,9 @@
 %     2000 ... % 重试次数
 % )
 
+%% Chirp SincCoefficient
+
+%% Chirp UniformityConfigurations
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -62,7 +67,7 @@
 %     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
 %     110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
 %     -1, ... % 平坦时间 (ns), -1 启用chirp
-%     11.2, ... % 音包长度 (mm), -1 启用prescan
+%     10.2, ... % 音包长度 (mm), -1 启用prescan
 %     10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
 %     215, ... % 偏移的频率
 %     0.8, ... % 偏移的频率的2π周期的倍率
@@ -89,7 +94,7 @@
 %     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
 %     110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
 %     -1, ... % 平坦时间 (ns), -1 启用chirp
-%     11.2, ... % 音包长度 (mm), -1 启用prescan
+%     10.2, ... % 音包长度 (mm), -1 启用prescan
 %     10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
 %     215, ... % 偏移的频率
 %     1.5, ... % 偏移的频率的2π周期的倍率
@@ -105,61 +110,65 @@
 %     "..\..\..\..\Sources\Cuga-Calibration-Unit-Test\Assets\AODWaveformUniformity.xlsx", ... % 频率幅值文件路径
 %     2000 ... % 重试次数
 % )
+%% Chirp UniformityConfigurations
 
-close all;
-GenerateAodWaveFile( ...
-    210, ... % 带宽 (MHz)
-    200, ... % 中心频率 (MHz)
-    1, ... % 递增, 递减, 平坦: 1, -1, 0
-    10640, ... % 采样率 (Msa/s)
-    0.9, ... % 幅值
-    fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
-    110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
-    1000.3, ... % 平坦时间 (ns), -1 启用chirp
-    -1, ... % 音包长度 (mm), -1 启用prescan
-    10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
-    215, ... % 偏移的频率
-    0.8, ... % 偏移的频率的2π周期的倍率
-    1.1, ... % sinc系数
-    1.2, ... % 二次补偿系数t^2 散光
-    1.3, ... % 三次补偿系数t^3 球差
-    1.4, ... % 四次补偿系数t^4 二阶散光
-    1.55, ... % sin(2πt/T)
-    1.6, ... % sin(6πt/T)
-    1.7, ... % sin(8πt/T)
-    1.8, ... % α次补偿
-    1.9, ... % α次补偿系数t^α
-    "", ... % 频率幅值文件路径
-    2000 ... % 重试次数
-)
+%% Prescan SincCoefficient
+% close all;
+% GenerateAodWaveFile( ...
+%     210, ... % 带宽 (MHz)
+%     200, ... % 中心频率 (MHz)
+%     1, ... % 递增, 递减, 平坦: 1, -1, 0
+%     10640, ... % 采样率 (Msa/s)
+%     0.9, ... % 幅值
+%     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
+%     110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
+%     1000.3, ... % 平坦时间 (ns), -1 启用chirp
+%     -1, ... % 音包长度 (mm), -1 启用prescan
+%     10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
+%     215, ... % 偏移的频率
+%     0.8, ... % 偏移的频率的2π周期的倍率
+%     1.1, ... % sinc系数
+%     1.2, ... % 二次补偿系数t^2 散光
+%     1.3, ... % 三次补偿系数t^3 球差
+%     1.4, ... % 四次补偿系数t^4 二阶散光
+%     1.55, ... % sin(2πt/T)
+%     1.6, ... % sin(6πt/T)
+%     1.7, ... % sin(8πt/T)
+%     1.8, ... % α次补偿
+%     1.9, ... % α次补偿系数t^α
+%     "", ... % 频率幅值文件路径
+%     2000 ... % 重试次数
+% )
 
-close all;
-GenerateAodWaveFile( ...
-    210, ... % 带宽 (MHz)
-    200, ... % 中心频率 (MHz)
-    1, ... % 递增, 递减, 平坦: 1, -1, 0
-    10640, ... % 采样率 (Msa/s)
-    0.9, ... % 幅值
-    fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
-    110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
-    1000.3, ... % 平坦时间 (ns), -1 启用chirp
-    -1, ... % 音包长度 (mm), -1 启用prescan
-    10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
-    215, ... % 偏移的频率
-    1.5, ... % 偏移的频率的2π周期的倍率
-    1.1, ... % sinc系数
-    1.2, ... % 二次补偿系数t^2 散光
-    1.3, ... % 三次补偿系数t^3 球差
-    1.4, ... % 四次补偿系数t^4 二阶散光
-    1.55, ... % sin(2πt/T)
-    1.6, ... % sin(6πt/T)
-    1.7, ... % sin(8πt/T)
-    1.8, ... % α次补偿
-    1.9, ... % α次补偿系数t^α
-    "", ... % 频率幅值文件路径
-    2000 ... % 重试次数
-)
+% close all;
+% GenerateAodWaveFile( ...
+%     210, ... % 带宽 (MHz)
+%     200, ... % 中心频率 (MHz)
+%     1, ... % 递增, 递减, 平坦: 1, -1, 0
+%     10640, ... % 采样率 (Msa/s)
+%     0.9, ... % 幅值
+%     fullfile(char(java.lang.System.getProperty('user.home')), 'Desktop', 'Aod'), ... % 生成文件的目录
+%     110, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
+%     1000.3, ... % 平坦时间 (ns), -1 启用chirp
+%     -1, ... % 音包长度 (mm), -1 启用prescan
+%     10000, ... % 端点头尾添加多少采样点个数, 缓冲(XTC响应不够)(sa)
+%     215, ... % 偏移的频率
+%     1.5, ... % 偏移的频率的2π周期的倍率
+%     1.1, ... % sinc系数
+%     1.2, ... % 二次补偿系数t^2 散光
+%     1.3, ... % 三次补偿系数t^3 球差
+%     1.4, ... % 四次补偿系数t^4 二阶散光
+%     1.55, ... % sin(2πt/T)
+%     1.6, ... % sin(6πt/T)
+%     1.7, ... % sin(8πt/T)
+%     1.8, ... % α次补偿
+%     1.9, ... % α次补偿系数t^α
+%     "", ... % 频率幅值文件路径
+%     2000 ... % 重试次数
+% )
+%% Prescan SincCoefficient
 
+%% Prescan UniformityConfigurations
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -213,3 +222,4 @@ GenerateAodWaveFile( ...
 %     "..\..\..\..\Sources\Cuga-Calibration-Unit-Test\Assets\AODWaveformUniformity.xlsx", ... % 频率幅值文件路径
 %     2000 ... % 重试次数
 % )
+%% Prescan UniformityConfigurations

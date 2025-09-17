@@ -42,8 +42,8 @@ public class AODWaveformUnitTest
             GenerateRetryTimes = 2000,
             ElectrodeConfigurations =
             [
-                new GenerateAODWaveformElectrodeConfiguration { OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 0.8d },
-                new GenerateAODWaveformElectrodeConfiguration { OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 1.5d }
+                new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 0.8d },
+                new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 1.5d }
             ],
             SincCoefficient = 1.1d,
             AstigmatismCompensationCoefficient = 1.2d,
@@ -60,7 +60,7 @@ public class AODWaveformUnitTest
         if (isChirp)
         {
             var temp = (GenerateChirpAODWaveformParam)new GenerateChirpAODWaveformParam().AdaptIn(param);
-            temp.SoundPacketLength = 11.2d;
+            temp.SoundPacketLength = 10.2d;
             temp.SoundSpeed = 5.742d;
 
             param = temp;
