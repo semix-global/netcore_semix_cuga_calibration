@@ -7,85 +7,139 @@ using Net.Utilities.Models.Enums.Maths;
 using System.IO;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
+using MiniExcelLibs;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;
 
 public class AODWaveformUnitTest
 {
-    [Fact]
-    public void Test1()
+    [Theory]
+    [InlineData(false, false, nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
+    [InlineData(false, true, nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
+    [InlineData(true, false, nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
+    [InlineData(true, true, nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
+    public void AODWaveformGeneratorTest(bool isChirp, bool isUseUniformityConfigurations, string expectedName)
     {
-        var sourceDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(AODWaveformGenerator));
-        var destDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "AODWaveformFiles");
-        var generatePrescanAODWaveformParam = new GeneratePrescanAODWaveformParam
+        var baseDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "AODWaveformFiles", isChirp ? "Chirp" : "Prescan");
+        var outputDirectoryPath = Path.Combine(baseDirectoryPath, "Output");
+        var expectedDirectoryPath = Path.Combine(baseDirectoryPath, expectedName);
+        var uniformityConfigurations = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "AODWaveformUniformity.xlsx")).ToArray();
+        Assert.NotEmpty(uniformityConfigurations);
+
+        AbstractGenerateAODWaveformParam param = new GeneratePrescanAODWaveformParam
         {
             OpticsMagTypeEnum = OpticsMagTypeEnum.Middle,
             IsHeaderAndFooter = false,
-            BandWidth = 210,
-            CenterFrequency = 200,
+            BandWidth = 210d,
+            CenterFrequency = 200d,
             FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Increasing,
-            SampleRate = 10640,
-            Amplitude = 0.9,
-            DirectoryPath = sourceDirectory,
+            SampleRate = 10640d,
+            Amplitude = 0.9d,
+            DirectoryPath = outputDirectoryPath,
             ZeroSampleCount = 110,
-            FlatnessTime = 1000,
             EndpointSampleCount = 10000,
             GenerateRetryTimes = 2000,
             ElectrodeConfigurations =
             [
-                new GenerateAODWaveformElectrodeConfiguration { OffsetFrequency = 215, OffsetFrequencyPeriodCoefficient = 0.8 },
-                new GenerateAODWaveformElectrodeConfiguration { OffsetFrequency = 215, OffsetFrequencyPeriodCoefficient = 1.5 }
+                new GenerateAODWaveformElectrodeConfiguration { OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 0.8d },
+                new GenerateAODWaveformElectrodeConfiguration { OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 1.5d }
             ],
-            SincCoefficient = 1.1,
-            AstigmatismCompensationCoefficient = 1.2,
-            SphericalAberrationCompensationCoefficient = 1.3,
-            SecondaryAstigmatismCompensationCoefficient = 1.4,
-            ComaCompensationCoefficient = 1.55,
-            TrefoilCompensationCoefficient = 1.6,
-            QuadrafoilCompensationCoefficient = 1.7,
-            AlphaOrder = 1.8,
-            AlphaOrderCoefficient = 1.9
+            SincCoefficient = 1.1d,
+            AstigmatismCompensationCoefficient = 1.2d,
+            SphericalAberrationCompensationCoefficient = 1.3d,
+            SecondaryAstigmatismCompensationCoefficient = 1.4d,
+            ComaCompensationCoefficient = 1.55d,
+            TrefoilCompensationCoefficient = 1.6d,
+            QuadrafoilCompensationCoefficient = 1.7d,
+            AlphaOrder = 1.8d,
+            AlphaOrderCoefficient = 1.9d,
+            FlatnessTime = 1000.3d
         };
-        var (prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), CancellationToken.None);
 
-        var prescanAODWaveformResultFilePath = $"prescan" +
-                                               $"_{generatePrescanAODWaveformParam.OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
-                                               $"_{generatePrescanAODWaveformParam.FlatnessTime:0.###}ns" +
-                                               $"_{generatePrescanAODWaveformParam.AdaptTo().LowFrequency:0.###}Mhz" +
-                                               $"_{generatePrescanAODWaveformParam.AdaptTo().HighFrequency:0.###}Mhz" +
-                                               $"{AODWaveformGenerator.PrescanAODWaveformFileExtension}";
+        if (isChirp)
+        {
+            var temp = (GenerateChirpAODWaveformParam)new GenerateChirpAODWaveformParam().AdaptIn(param);
+            temp.SoundPacketLength = 11.2d;
+            temp.SoundSpeed = 5.742d;
 
-        Assert.True(prescanAODWaveformResult.IsSuccess);
+            param = temp;
+        }
+
+        if (isUseUniformityConfigurations)
+        {
+            param.UniformityConfigurations = uniformityConfigurations;
+            param.SincCoefficient = 0d;
+        }
+
+        var resultFilePath = isChirp
+            ? $"chirp" +
+              $"_{((GenerateChirpAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
+              $"_{((GenerateChirpAODWaveformParam)param).SoundPacketLength:0.###}mm" +
+              $"_{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz" +
+              $"_{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
+              $"{AODWaveformGenerator.ChirpAODWaveformFileExtension}"
+            : $"prescan" +
+              $"_{((GeneratePrescanAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
+              $"_{((GeneratePrescanAODWaveformParam)param).FlatnessTime:0.###}ns" +
+              $"_{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz" +
+              $"_{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
+              $"{AODWaveformGenerator.PrescanAODWaveformFileExtension}";
+
+        object result;
+        Exception? exception;
+        if (isChirp)
+            (result, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(((GenerateChirpAODWaveformParam)param).AdaptTo(), CancellationToken.None);
+        else
+            (result, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(((GeneratePrescanAODWaveformParam)param).AdaptTo(), CancellationToken.None);
+
+        Assert.True(isChirp
+            ? ((AODWaveformGenerator.ChirpAODWaveformResult)result).IsSuccess
+            : ((AODWaveformGenerator.PrescanAODWaveformResult)result).IsSuccess);
+
         Assert.Null(exception);
 
-        var dateTime = prescanAODWaveformResult.FilePath
-            .TrimStart(sourceDirectory.ToCharArray())
-            .TrimEnd(prescanAODWaveformResultFilePath.ToCharArray())
+        var dateTime = (isChirp
+                ? ((AODWaveformGenerator.ChirpAODWaveformResult)result).FilePath
+                : ((AODWaveformGenerator.PrescanAODWaveformResult)result).FilePath)
+            .TrimStart(outputDirectoryPath.ToCharArray())
+            .TrimEnd(resultFilePath.ToCharArray())
             .Trim(Path.DirectorySeparatorChar);
         Assert.NotNull(DateTimeHelper.String2DateTime(dateTime, Constants.LongFileDateTimeFormat));
 
-        Assert.Equal(prescanAODWaveformResult.FilePath, Path.Combine(sourceDirectory, dateTime, prescanAODWaveformResultFilePath));
+        Assert.Equal(isChirp
+            ? ((AODWaveformGenerator.ChirpAODWaveformResult)result).FilePath
+            : ((AODWaveformGenerator.PrescanAODWaveformResult)result).FilePath, Path.Combine(outputDirectoryPath, dateTime, resultFilePath));
 
-        var prescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
-        Assert.Equal(generatePrescanAODWaveformParam.ElectrodeConfigurations.Count, prescanAODWaveformProfiles.Count);
+        IReadOnlyList<AbstractAODWaveformProfile> profiles = isChirp
+            ? AODWaveformProfileFactory.CreateChirpList((AODWaveformGenerator.ChirpAODWaveformResult)result)
+            : AODWaveformProfileFactory.CreatePrescanList((AODWaveformGenerator.PrescanAODWaveformResult)result);
+        Assert.Equal(param.ElectrodeConfigurations.Count, profiles.Count);
 
-        for (var i = 0; i < generatePrescanAODWaveformParam.ElectrodeConfigurations.Count; i++)
+        for (var i = 0; i < param.ElectrodeConfigurations.Count; i++)
         {
-            var configuration = generatePrescanAODWaveformParam.ElectrodeConfigurations[i];
-            var prescanAODWaveformProfile = prescanAODWaveformProfiles[i];
+            var configuration = param.ElectrodeConfigurations[i];
+            var profile = profiles[i];
 
-            var prescanAODWaveformProfileFilePath = $"prescan_" +
-                                                    $"{generatePrescanAODWaveformParam.OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
-                                                    $"${generatePrescanAODWaveformParam.AdaptTo().NumberOfSamples + generatePrescanAODWaveformParam.ZeroSampleCount}" +
-                                                    $"${generatePrescanAODWaveformParam.ZeroSampleCount:0.###}" +
-                                                    $"$600$02" +
-                                                    $"${configuration.OffsetFrequency:0.###}" +
-                                                    $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
+            var profileFilePath = isChirp
+                ? $"chirp_" +
+                  $"{param.OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
+                  $"${((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
+                  $"${param.ZeroSampleCount:0.###}" +
+                  $"$600$03" +
+                  $"${configuration.OffsetFrequency:0.###}" +
+                  $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt"
+                : $"prescan_" +
+                  $"{param.OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
+                  $"${((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
+                  $"${param.ZeroSampleCount:0.###}" +
+                  $"$600$02" +
+                  $"${configuration.OffsetFrequency:0.###}" +
+                  $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
 
-            Assert.Equal(prescanAODWaveformProfile.FilePath, Path.Combine(sourceDirectory, dateTime, configuration.OpticsAODElectrodeEnum.ToString(), prescanAODWaveformProfileFilePath));
+            Assert.Equal(profile.FilePath, Path.Combine(outputDirectoryPath, dateTime, configuration.OpticsAODElectrodeEnum.ToString(), profileFilePath));
 
-            Assert.Equal(File.ReadAllText(prescanAODWaveformProfile.FilePath), File.ReadAllText(Path.Combine(destDirectory, prescanAODWaveformProfileFilePath)));
+            Assert.Equal(File.ReadAllText(profile.FilePath), File.ReadAllText(Path.Combine(expectedDirectoryPath, profileFilePath)));
         }
     }
 }

@@ -241,6 +241,8 @@ public static class AODWaveformGenerator
             foreach (var item in OffsetConfigurations) item.Validate();
             foreach (var item in UniformityConfigurations) item.Validate();
 
+            if (UniformityConfigurations.Count > 0 && SincCoefficient != 0) ThrowHelper.ThrowArgumentException(nameof(SincCoefficient), "if Uniformity Configurations is not empty then SincCoefficient is must 0");
+
             Guard.IsTrue(EnumerableHelper.IsStrictlyIncreasing(UniformityConfigurations.Select(t => t.Frequency)), "Uniformity Configurations must be sorted by Frequency");
 
             if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness)
@@ -479,7 +481,6 @@ public static class AODWaveformGenerator
     /// 生成PrescanAOD波形
     /// </remarks>
     public static (PrescanAODWaveformResult AODWaveformResult, Exception? Exception) GeneratePrescanAODWaveform(PrescanAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<PrescanAODWaveformResult, PrescanAODWaveformParam>(param, cancellationToken);
-
 
     /// <inheritdoc cref="GenerateAODWaveform{TResult,TParam}"/>
     /// <remarks>

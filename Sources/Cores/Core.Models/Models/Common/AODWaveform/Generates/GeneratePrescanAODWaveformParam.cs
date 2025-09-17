@@ -6,12 +6,15 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public sealed partial class GeneratePrescanAODWaveformParam : AbstractGenerateAODWaveformParam, IAdaptTo<AODWaveformGenerator.PrescanAODWaveformParam>
+public sealed partial class GeneratePrescanAODWaveformParam :
+    AbstractGenerateAODWaveformParam,
+    IAdaptTo<AODWaveformGenerator.PrescanAODWaveformParam>,
+    ICloneable<GeneratePrescanAODWaveformParam>
 {
     [ObservableProperty]
     private double _flatnessTime = 4300;
 
-    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => new (FlatnessTime)
+    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => new(FlatnessTime)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -36,6 +39,15 @@ public sealed partial class GeneratePrescanAODWaveformParam : AbstractGenerateAO
         AlphaOrder = AlphaOrder,
         AlphaOrderCoefficient = AlphaOrderCoefficient
     };
+
+    public GeneratePrescanAODWaveformParam Clone()
+    {
+        var param = (GeneratePrescanAODWaveformParam)new GeneratePrescanAODWaveformParam().AdaptIn(this);
+
+        param.FlatnessTime = FlatnessTime;
+
+        return param;
+    }
 
     public override object ToHtmlAnonymous() => new
     {

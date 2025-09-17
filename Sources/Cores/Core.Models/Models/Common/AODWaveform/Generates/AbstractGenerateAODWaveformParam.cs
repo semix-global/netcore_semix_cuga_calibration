@@ -1,15 +1,16 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Models.Extensions;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Enums.Maths;
 using System.IO;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public abstract partial class AbstractGenerateAODWaveformParam : ObservableCacheBase
+public abstract partial class AbstractGenerateAODWaveformParam :
+    ObservableCacheBase,
+    IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
@@ -221,4 +222,35 @@ public abstract partial class AbstractGenerateAODWaveformParam : ObservableCache
         AlphaOrder,
         AlphaOrderCoefficient
     };
+
+    public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
+    {
+        OpticsMagTypeEnum = obj.OpticsMagTypeEnum;
+        IsHeaderAndFooter = obj.IsHeaderAndFooter;
+        HeaderFrequency = obj.HeaderFrequency;
+        FooterFrequency = obj.FooterFrequency;
+        BandWidth = obj.BandWidth;
+        CenterFrequency = obj.CenterFrequency;
+        FunctionMonotonicTypeEnum = obj.FunctionMonotonicTypeEnum;
+        SampleRate = obj.SampleRate;
+        Amplitude = obj.Amplitude;
+        DirectoryPath = obj.DirectoryPath;
+        ZeroSampleCount = obj.ZeroSampleCount;
+        EndpointSampleCount = obj.EndpointSampleCount;
+        GenerateRetryTimes = obj.GenerateRetryTimes;
+        ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
+        UniformityConfigurations = [.. obj.UniformityConfigurations.Select(t => t.Clone())];
+        SlopeDeltaKConfigurations = [.. obj.SlopeDeltaKConfigurations.Select(t => t.Clone())];
+        SincCoefficient = obj.SincCoefficient;
+        AstigmatismCompensationCoefficient = obj.AstigmatismCompensationCoefficient;
+        SphericalAberrationCompensationCoefficient = obj.SphericalAberrationCompensationCoefficient;
+        SecondaryAstigmatismCompensationCoefficient = obj.SecondaryAstigmatismCompensationCoefficient;
+        ComaCompensationCoefficient = obj.ComaCompensationCoefficient;
+        TrefoilCompensationCoefficient = obj.TrefoilCompensationCoefficient;
+        QuadrafoilCompensationCoefficient = obj.QuadrafoilCompensationCoefficient;
+        AlphaOrder = obj.AlphaOrder;
+        AlphaOrderCoefficient = obj.AlphaOrderCoefficient;
+
+        return this;
+    }
 }

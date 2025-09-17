@@ -7,10 +7,13 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.IO;
 using System.Text;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public abstract class AbstractAODWaveformProfile : ObservableCacheBase
+public abstract class AbstractAODWaveformProfile :
+    ObservableCacheBase,
+    IAdaptIn<AbstractAODWaveformProfile, AbstractAODWaveformProfile>
 {
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
     private string _filePath = string.Empty;
@@ -269,30 +272,30 @@ public abstract class AbstractAODWaveformProfile : ObservableCacheBase
         return filePath;
     }
 
-    protected T CopyPropertiesTo<T>(T obj) where T : AbstractAODWaveformProfile
+    public AbstractAODWaveformProfile AdaptIn(AbstractAODWaveformProfile obj)
     {
-        obj.OpticsAODElectrodeEnum = OpticsAODElectrodeEnum;
-        obj.FilePath = FilePath;
-        obj.ZeroSampleCount = ZeroSampleCount;
-        obj.OffsetFrequency = OffsetFrequency;
-        obj.OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient;
-        obj.ShortList = [.. ShortList];
-        obj.ByteList = [.. ByteList];
+        OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
+        FilePath = obj.FilePath;
+        ZeroSampleCount = obj.ZeroSampleCount;
+        OffsetFrequency = obj.OffsetFrequency;
+        OffsetFrequencyPeriodCoefficient = obj.OffsetFrequencyPeriodCoefficient;
+        ShortList = [.. obj.ShortList];
+        ByteList = [.. obj.ByteList];
 
-        obj.Signals = [.. Signals];
-        obj.FFTSignals = [.. FFTSignals];
-        obj.FrequencyCoefficients = [.. FrequencyCoefficients];
-        obj.FlatnessLinearFrequencySignals = [.. FlatnessLinearFrequencySignals];
-        obj.FlatnessTotalFrequencySignals = [.. FlatnessTotalFrequencySignals];
-        obj.FlatnessAstigmatismCompensationSignals = [.. FlatnessAstigmatismCompensationSignals];
-        obj.FlatnessSphericalAberrationCompensationSignals = [.. FlatnessSphericalAberrationCompensationSignals];
-        obj.FlatnessSecondaryAstigmatismCompensationSignals = [.. FlatnessSecondaryAstigmatismCompensationSignals];
-        obj.FlatnessComaCompensationSignals = [.. FlatnessComaCompensationSignals];
-        obj.FlatnessTrefoilCompensationSignals = [.. FlatnessTrefoilCompensationSignals];
-        obj.FlatnessQuadrafoilCompensationSignals = [.. FlatnessQuadrafoilCompensationSignals];
-        obj.FlatnessAlphaOrderCompensationSignals = [.. FlatnessAlphaOrderCompensationSignals];
+        Signals = [.. obj.Signals];
+        FFTSignals = [.. obj.FFTSignals];
+        FrequencyCoefficients = [.. obj.FrequencyCoefficients];
+        FlatnessLinearFrequencySignals = [.. obj.FlatnessLinearFrequencySignals];
+        FlatnessTotalFrequencySignals = [.. obj.FlatnessTotalFrequencySignals];
+        FlatnessAstigmatismCompensationSignals = [.. obj.FlatnessAstigmatismCompensationSignals];
+        FlatnessSphericalAberrationCompensationSignals = [.. obj.FlatnessSphericalAberrationCompensationSignals];
+        FlatnessSecondaryAstigmatismCompensationSignals = [.. obj.FlatnessSecondaryAstigmatismCompensationSignals];
+        FlatnessComaCompensationSignals = [.. obj.FlatnessComaCompensationSignals];
+        FlatnessTrefoilCompensationSignals = [.. obj.FlatnessTrefoilCompensationSignals];
+        FlatnessQuadrafoilCompensationSignals = [.. obj.FlatnessQuadrafoilCompensationSignals];
+        FlatnessAlphaOrderCompensationSignals = [.. obj.FlatnessAlphaOrderCompensationSignals];
 
-        return obj;
+        return this;
     }
 
     public virtual object ToHtmlAnonymous() => new

@@ -6,15 +6,18 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public sealed partial class GenerateChirpAODWaveformParam : AbstractGenerateAODWaveformParam, IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>
+public sealed partial class GenerateChirpAODWaveformParam :
+    AbstractGenerateAODWaveformParam,
+    IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>,
+    ICloneable<GenerateChirpAODWaveformParam>
 {
     [ObservableProperty]
-    private double _soundPackageLength = 3.2;
+    private double _soundPacketLength = 3.2;
 
     [ObservableProperty]
     private double _soundSpeed = 5.742;
 
-    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => new(SoundPackageLength, SoundSpeed)
+    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -40,9 +43,19 @@ public sealed partial class GenerateChirpAODWaveformParam : AbstractGenerateAODW
         AlphaOrderCoefficient = AlphaOrderCoefficient
     };
 
+    public GenerateChirpAODWaveformParam Clone()
+    {
+        var param = (GenerateChirpAODWaveformParam)new GenerateChirpAODWaveformParam().AdaptIn(this);
+
+        param.SoundPacketLength = SoundPacketLength;
+        param.SoundSpeed = SoundSpeed;
+
+        return param;
+    }
+
     public override object ToHtmlAnonymous() => new
     {
-        SoundPackageLength,
+        SoundPacketLength,
         SoundSpeed,
         Base = new HtmlBullet(base.ToHtmlAnonymous())
     };

@@ -22,12 +22,12 @@
     <ui:GenerateAODWaveformParamUserControl x:Name="GenerateAODWaveformParamUserControl" Header="Chirp">
         <ui:GenerateAODWaveformParamUserControl.HeaderContent>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:NumericUpDown hc:InfoElement.Title="Sound Package Length(mm): "
+                <hc:NumericUpDown hc:InfoElement.Title="Sound Packet Length(mm): "
                                   hc:InfoElement.TitlePlacement="Left"
                                   hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding SoundPackageLength}" />
+                                  Value="{Binding SoundPacketLength}" />
                 <hc:NumericUpDown hc:InfoElement.Title="Sound Speed(mm/us): "
                                   hc:InfoElement.TitlePlacement="Left"
                                   hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"

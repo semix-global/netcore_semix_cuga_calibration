@@ -4,7 +4,10 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public sealed partial class GenerateAODWaveformUniformityConfiguration : ObservableObject, IAdaptTo<AODWaveformGenerator.AODWaveformUniformityConfiguration>
+public sealed partial class GenerateAODWaveformUniformityConfiguration :
+    ObservableObject,
+    IAdaptTo<AODWaveformGenerator.AODWaveformUniformityConfiguration>,
+    ICloneable<GenerateAODWaveformUniformityConfiguration>
 {
     [ObservableProperty]
     private double _frequency;
@@ -13,4 +16,10 @@ public sealed partial class GenerateAODWaveformUniformityConfiguration : Observa
     private double _coefficient;
 
     public AODWaveformGenerator.AODWaveformUniformityConfiguration AdaptTo() => new(Frequency, Coefficient);
+
+    public GenerateAODWaveformUniformityConfiguration Clone() => new()
+    {
+        Frequency = Frequency,
+        Coefficient = Coefficient
+    };
 }

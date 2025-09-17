@@ -9,7 +9,8 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableCacheBase,
     IAdaptTo<AODWaveformGenerator.AODWaveformOffsetConfiguration>,
-    IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>
+    IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
+    ICloneable<GenerateAODWaveformElectrodeConfiguration>
 {
     [ObservableProperty]
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
@@ -30,4 +31,11 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
 
         return this;
     }
+
+    public GenerateAODWaveformElectrodeConfiguration Clone() => new()
+    {
+        OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
+        OffsetFrequency = OffsetFrequency,
+        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient
+    };
 }
