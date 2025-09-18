@@ -15,11 +15,15 @@ namespace CugaCalibrationUnitTest;
 public class AODWaveformUnitTest
 {
     [Theory]
-    [InlineData(false, false, nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
-    [InlineData(false, true, nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
-    [InlineData(true, false, nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
-    [InlineData(true, true, nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
-    public void AODWaveformGeneratorTest(bool isChirp, bool isUseUniformityConfigurations, string expectedName)
+    [InlineData(false, false, new double[0], nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
+    [InlineData(false, true, new double[0], nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
+    [InlineData(true, false, new double[0], nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
+    [InlineData(true, true, new double[0], nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
+    [InlineData(false, false, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(false, true, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(true, false, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(true, true, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    public void AODWaveformGeneratorTest(bool isChirp, bool isUseUniformityConfigurations, IReadOnlyList<double> slopeDeltaKs, string expectedName)
     {
         var baseDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "AODWaveformFiles", isChirp ? "Chirp" : "Prescan");
         var outputDirectoryPath = Path.Combine(baseDirectoryPath, "Output");
@@ -45,6 +49,7 @@ public class AODWaveformUnitTest
                 new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 0.8d },
                 new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 1.5d }
             ],
+            SlopeDeltaKConfigurations = slopeDeltaKs.Select(t => new GenerateAODWaveformSlopeDeltaKConfiguration { DeltaK = t }).ToArray(),
             SincCoefficient = 1.1d,
             AstigmatismCompensationCoefficient = 1.2d,
             SphericalAberrationCompensationCoefficient = 1.3d,

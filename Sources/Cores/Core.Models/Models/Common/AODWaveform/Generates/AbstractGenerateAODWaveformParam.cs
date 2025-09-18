@@ -194,35 +194,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         AlphaOrderCoefficient = 0d;
     }
 
-    public virtual object ToHtmlAnonymous() => new
-    {
-        OpticsMagTypeEnum,
-        IsHeaderAndFooter,
-        HeaderFrequency,
-        FooterFrequency,
-        BandWidth,
-        CenterFrequency,
-        FunctionMonotonicTypeEnum,
-        SampleRate,
-        Amplitude,
-        DirectoryPath,
-        ZeroSampleCount,
-        EndpointSampleCount,
-        GenerateRetryTimes,
-        ElectrodeConfigurations,
-        UniformityConfigurations,
-        SlopeDeltaKConfigurations,
-        SincCoefficient,
-        AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient,
-        AlphaOrder,
-        AlphaOrderCoefficient
-    };
-
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
     {
         OpticsMagTypeEnum = obj.OpticsMagTypeEnum;
@@ -253,4 +224,33 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
         return this;
     }
+
+    public virtual object ToHtmlAnonymous() => new
+    {
+        OpticsMagTypeEnum,
+        IsHeaderAndFooter,
+        HeaderFrequency,
+        FooterFrequency,
+        BandWidth,
+        CenterFrequency,
+        FunctionMonotonicTypeEnum,
+        SampleRate,
+        Amplitude,
+        DirectoryPath,
+        ZeroSampleCount,
+        EndpointSampleCount,
+        GenerateRetryTimes,
+        ElectrodeConfigurations,
+        UniformityConfigurations,
+        SlopeDeltaKConfigurations,
+        SincCoefficient,
+        AstigmatismCompensationCoefficient,
+        SphericalAberrationCompensationCoefficient,
+        SecondaryAstigmatismCompensationCoefficient,
+        ComaCompensationCoefficient,
+        TrefoilCompensationCoefficient,
+        QuadrafoilCompensationCoefficient,
+        AlphaOrder,
+        AlphaOrderCoefficient
+    };
 }

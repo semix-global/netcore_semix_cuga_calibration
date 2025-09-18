@@ -21,6 +21,7 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
         alphaOrder, ... % α次补偿
         alphaOrderCoefficient, ... % α次补偿系数t^α
         frequencyAmplitudeFilePath, ... % 频率幅值文件路径
+        slopeDeltaKs, ... % AOD波形的斜率变化率分段的配置项集合
         generateRetryTimes ... % 重试次数
     )
     %% 参数
@@ -160,7 +161,29 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
 
         switch monotonicTypeEnum
             case {1, -1}
-                dLinearFrequencies = bandWidth / max(t) * t;
+                kSegments = ones(length(flatnessSampleIndices), 1) * (bandWidth / (length(flatnessSampleIndices) -1));
+                slopeDeltaKConfigurationsCount = length(slopeDeltaKs);
+
+                if slopeDeltaKConfigurationsCount > 0
+                    segmentLength = floor(length(flatnessSampleIndices) / slopeDeltaKConfigurationsCount);
+
+                    for i = 1:slopeDeltaKConfigurationsCount
+                        startIndex = (i - 1) * segmentLength + 1;
+
+                        if i == slopeDeltaKConfigurationsCount
+                            endIndex = length(flatnessSampleIndices);
+                        else
+                            endIndex = i * segmentLength;
+                        end
+
+                        kSegments(startIndex:endIndex) = kSegments(startIndex:endIndex) + slopeDeltaKs(i);
+                    end
+
+                end
+
+                % 从0开始积分，结果为[0, bandWidth]
+                kSegments = [0; kSegments(1:end - 1)];
+                dLinearFrequencies = cumsum(kSegments);
                 dAstigmatismFrequencies = astigmatismCompensationCoefficient * t .^ 2;
                 dSphericalAberrationFrequencies = sphericalAberrationCompensationCoefficient * t .^ 3;
                 dSecondaryAstigmatismFrequencies = secondaryAstigmatismCompensationCoefficient * t .^ 4;
