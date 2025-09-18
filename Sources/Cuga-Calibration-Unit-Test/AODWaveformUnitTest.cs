@@ -15,15 +15,17 @@ namespace CugaCalibrationUnitTest;
 public class AODWaveformUnitTest
 {
     [Theory]
-    [InlineData(false, false, new double[0], nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
-    [InlineData(false, true, new double[0], nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
-    [InlineData(true, false, new double[0], nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
-    [InlineData(true, true, new double[0], nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
-    [InlineData(false, false, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
-    [InlineData(false, true, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
-    [InlineData(true, false, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
-    [InlineData(true, true, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
-    public void AODWaveformGeneratorTest(bool isChirp, bool isUseUniformityConfigurations, IReadOnlyList<double> slopeDeltaKs, string expectedName)
+    [InlineData(false, false, false, new double[0], nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
+    [InlineData(false, false, true, new double[0], nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
+    [InlineData(true, false, false, new double[0], nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
+    [InlineData(true, false, true, new double[0], nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations))]
+    [InlineData(false, false, false, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(false, false, true, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(true, false, false, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(true, false, true, new[] { -0.0002d, -0.0001d, 0.0001d, 0.0002d }, $"{nameof(AbstractGenerateAODWaveformParam.UniformityConfigurations)}_{nameof(AbstractGenerateAODWaveformParam.SlopeDeltaKConfigurations)}")]
+    [InlineData(false, true, false, new double[0], nameof(FunctionMonotonicTypeEnum.Flatness))]
+    [InlineData(true, true, false, new double[0], nameof(FunctionMonotonicTypeEnum.Flatness))]
+    public void AODWaveformGeneratorTest(bool isChirp, bool isFunctionMonotonicTypeEnumFlatness, bool isUseUniformityConfigurations, IReadOnlyList<double> slopeDeltaKs, string expectedName)
     {
         var baseDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "AODWaveformFiles", isChirp ? "Chirp" : "Prescan");
         var outputDirectoryPath = Path.Combine(baseDirectoryPath, "Output");
@@ -69,6 +71,23 @@ public class AODWaveformUnitTest
             temp.SoundSpeed = 5.742d;
 
             param = temp;
+        }
+
+        if (isFunctionMonotonicTypeEnumFlatness)
+        {
+            param.FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness;
+            param.BandWidth = 0d;
+            param.UniformityConfigurations = [];
+            param.UniformityConfigurations = [];
+            param.SincCoefficient = 0d;
+            param.AstigmatismCompensationCoefficient = 0d;
+            param.SphericalAberrationCompensationCoefficient = 0d;
+            param.SecondaryAstigmatismCompensationCoefficient = 0d;
+            param.ComaCompensationCoefficient = 0d;
+            param.TrefoilCompensationCoefficient = 0d;
+            param.QuadrafoilCompensationCoefficient = 0d;
+            param.AlphaOrder = 0d;
+            param.AlphaOrderCoefficient = 0d;
         }
 
         if (isUseUniformityConfigurations)

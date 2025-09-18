@@ -1,5 +1,4 @@
 %% Chirp SincCoefficient
-
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -56,6 +55,7 @@
 %     2000 ... % 重试次数
 % )
 
+%% Chirp SincCoefficient with SlopeDeltaK
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -111,7 +111,6 @@
 %     [-0.0002, -0.0001, 0.0001, 0.0002], ... % AOD波形的斜率变化率分段的配置项集合
 %     2000 ... % 重试次数
 % )
-%% Chirp SincCoefficient
 
 %% Chirp UniformityConfigurations
 % close all;
@@ -170,6 +169,7 @@
 %     2000 ... % 重试次数
 % )
 
+%% Chirp UniformityConfigurations with SlopeDeltaK
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -225,7 +225,6 @@
 %     [-0.0002, -0.0001, 0.0001, 0.0002], ... % AOD波形的斜率变化率分段的配置项集合
 %     2000 ... % 重试次数
 % )
-%% Chirp UniformityConfigurations
 
 %% Prescan SincCoefficient
 % close all;
@@ -284,6 +283,7 @@
 %     2000 ... % 重试次数
 % )
 
+%% Prescan SincCoefficient with SlopeDeltaK
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -339,7 +339,6 @@
 %     [-0.0002, -0.0001, 0.0001, 0.0002], ... % AOD波形的斜率变化率分段的配置项集合
 %     2000 ... % 重试次数
 % )
-%% Prescan SincCoefficient
 
 %% Prescan UniformityConfigurations
 % close all;
@@ -398,6 +397,7 @@
 %     2000 ... % 重试次数
 % )
 
+%% Prescan UniformityConfigurations with SlopeDeltaK
 % close all;
 % GenerateAodWaveFile( ...
 %     210, ... % 带宽 (MHz)
@@ -453,4 +453,3 @@
 %     [-0.0002, -0.0001, 0.0001, 0.0002], ... % AOD波形的斜率变化率分段的配置项集合
 %     2000 ... % 重试次数
 % )
-%% Prescan UniformityConfigurations

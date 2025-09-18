@@ -248,6 +248,8 @@ public static class AODWaveformGenerator
             if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness)
             {
                 if (BandWidth != 0d) ThrowHelper.ThrowArgumentException(nameof(BandWidth), "if monotonic is flatness then band Width is must 0");
+                if (UniformityConfigurations.Count > 0) ThrowHelper.ThrowArgumentException(nameof(UniformityConfigurations), "if monotonic is flatness then Uniformity Configurations is must empty");
+                if (SlopeDeltaKConfigurations.Count > 0) ThrowHelper.ThrowArgumentException(nameof(SlopeDeltaKConfigurations), "if monotonic is flatness then Slope Delta K Configurations is must empty");
                 if (SincCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SincCoefficient), "if monotonic is flatness then Sinc Coefficient is must 0");
                 if (AstigmatismCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(AstigmatismCompensationCoefficient), "if monotonic is flatness then Astigmatism Compensation Coefficient is must 0");
                 if (SphericalAberrationCompensationCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(SphericalAberrationCompensationCoefficient), "if monotonic is flatness then Spherical Aberration Compensation Coefficient is must 0");
@@ -258,8 +260,10 @@ public static class AODWaveformGenerator
                 if (AlphaOrder != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrder), "if monotonic is flatness then Alpha Order is must 0");
                 if (AlphaOrderCoefficient != 0d) ThrowHelper.ThrowArgumentException(nameof(AlphaOrderCoefficient), "if monotonic is flatness then Alpha Order Coefficient is must 0");
             }
-
-            if (BandWidth == 0d && FunctionMonotonicTypeEnum is not FunctionMonotonicTypeEnum.Flatness) ThrowHelper.ThrowArgumentException(nameof(FunctionMonotonicTypeEnum), "if band Width is must 0 then monotonic is flatness and band");
+            else
+            {
+                if (BandWidth == 0d) ThrowHelper.ThrowArgumentException(nameof(BandWidth), "if monotonic is not flatness then band Width is must > 0");
+            }
         }
     }
 
