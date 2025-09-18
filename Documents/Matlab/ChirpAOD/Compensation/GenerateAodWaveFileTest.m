@@ -6,7 +6,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpSincCoefficient'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\SincCoefficient'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -34,7 +34,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpSincCoefficient'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\SincCoefficient'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -63,7 +63,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpSincCoefficientWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\SincCoefficient_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -91,7 +91,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpSincCoefficientWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\SincCoefficient_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -120,7 +120,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpUniformityConfigurations'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\UniformityConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -148,7 +148,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpUniformityConfigurations'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\UniformityConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -177,7 +177,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpUniformityConfigurationsWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\UniformityConfigurations_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -205,7 +205,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('ChirpUniformityConfigurationsWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Chirp\UniformityConfigurations_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.CHIRP_MODE, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.SOUND_PACKET_LENGTH, ... % 音包长度 (mm), -1 启用prescan
@@ -234,7 +234,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanSincCoefficient'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\SincCoefficient'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -262,7 +262,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanSincCoefficient'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\SincCoefficient'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -291,7 +291,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanSincCoefficientWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\SincCoefficient_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -319,7 +319,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanSincCoefficientWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\SincCoefficient_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -348,7 +348,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanUniformityConfigurations'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\UniformityConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -376,7 +376,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanUniformityConfigurations'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\UniformityConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -405,7 +405,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanUniformityConfigurationsWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\UniformityConfigurations_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan
@@ -433,7 +433,7 @@ GenerateAodWaveFile( ...
     GenerateAodWaveFileConstants.MONOTONIC_TYPE_INCREASING, ... % 递增, 递减, 平坦: 1, -1, 0
     GenerateAodWaveFileConstants.SAMPLE_RATE, ... % 采样率 (Msa/s)
     GenerateAodWaveFileConstants.AMPLITUDE, ... % 幅值
-    GenerateAodWaveFileConstants.getOutputDirectory('PrescanUniformityConfigurationsWithSlopeDeltaK'), ... % 生成文件的目录
+    GenerateAodWaveFileConstants.getOutputDirectory('Prescan\UniformityConfigurations_SlopeDeltaKConfigurations'), ... % 生成文件的目录
     GenerateAodWaveFileConstants.ZERO_SAMPLE_COUNT, ... % 前面添加多少补零采样点个数, 相当于添加延迟(sa)
     GenerateAodWaveFileConstants.FLATNESS_TIME, ... % 平坦时间 (ns), -1 启用chirp
     GenerateAodWaveFileConstants.PRESCAN_MODE, ... % 音包长度 (mm), -1 启用prescan

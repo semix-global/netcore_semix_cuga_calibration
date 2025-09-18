@@ -97,17 +97,17 @@ public class AODWaveformUnitTest
         }
 
         var resultFilePath = isChirp
-            ? $"chirp" +
-              $"_{((GenerateChirpAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
-              $"_{((GenerateChirpAODWaveformParam)param).SoundPacketLength:0.###}mm" +
-              $"_{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz" +
-              $"_{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
+            ? $"chirp_" +
+              $"{((GenerateChirpAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}_" +
+              $"{((GenerateChirpAODWaveformParam)param).SoundPacketLength:0.###}mm_" +
+              $"{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
+              $"{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
               $"{AODWaveformGenerator.ChirpAODWaveformFileExtension}"
-            : $"prescan" +
-              $"_{((GeneratePrescanAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
-              $"_{((GeneratePrescanAODWaveformParam)param).FlatnessTime:0.###}ns" +
-              $"_{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz" +
-              $"_{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
+            : $"prescan_" +
+              $"{((GeneratePrescanAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}_" +
+              $"{((GeneratePrescanAODWaveformParam)param).FlatnessTime:0.###}ns_" +
+              $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
+              $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
               $"{AODWaveformGenerator.PrescanAODWaveformFileExtension}";
 
         object result;
@@ -161,9 +161,44 @@ public class AODWaveformUnitTest
                   $"${configuration.OffsetFrequency:0.###}" +
                   $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
 
+            var matlabProfileFilePath = isChirp
+                ? $"chirp_" +
+                  $"{((GenerateChirpAODWaveformParam)param).SoundPacketLength:f3}mm_" +
+                  $"{param.BandWidth:f3}BWMhz_" +
+                  $"{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:f3}Mhz_" +
+                  $"{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:f3}Mhz_" +
+                  $"{((GenerateChirpAODWaveformParam)param).AdaptTo().FlatnessTime:f3}ns_" +
+                  $"{param.Amplitude:f3}AMP_" +
+                  $"{param.AstigmatismCompensationCoefficient:f3}astigmatism_" +
+                  $"{param.SphericalAberrationCompensationCoefficient:f3}sphericalAberration_" +
+                  $"{param.SecondaryAstigmatismCompensationCoefficient:f3}secondaryAstigmatism_" +
+                  $"{param.ComaCompensationCoefficient:f3}comaCompensationCoefficient_" +
+                  $"{((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples}Count_" +
+                  $"${((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
+                  $"${param.ZeroSampleCount}" +
+                  $"$600$03" +
+                  $"${configuration.OffsetFrequency:f3}" +
+                  $"${configuration.OffsetFrequencyPeriodCoefficient:f3}$.txt"
+                : $"prescan_" +
+                  $"{param.BandWidth:f3}BWMhz_" +
+                  $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:f3}Mhz_" +
+                  $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:f3}Mhz_" +
+                  $"{((GeneratePrescanAODWaveformParam)param).FlatnessTime:f3}ns_" +
+                  $"{param.Amplitude:f3}AMP_" +
+                  $"{param.AstigmatismCompensationCoefficient:f3}astigmatism_" +
+                  $"{param.SphericalAberrationCompensationCoefficient:f3}sphericalAberration_" +
+                  $"{param.SecondaryAstigmatismCompensationCoefficient:f3}secondaryAstigmatism_" +
+                  $"{param.ComaCompensationCoefficient:f3}comaCompensationCoefficient_" +
+                  $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples}Count_" +
+                  $"${((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
+                  $"${param.ZeroSampleCount}" +
+                  $"$600$02" +
+                  $"${configuration.OffsetFrequency:f3}" +
+                  $"${configuration.OffsetFrequencyPeriodCoefficient:f3}$.txt";
+
             Assert.Equal(profile.FilePath, Path.Combine(outputDirectoryPath, dateTime, configuration.OpticsAODElectrodeEnum.ToString(), profileFilePath));
 
-            Assert.Equal(File.ReadAllText(profile.FilePath), File.ReadAllText(Path.Combine(expectedDirectoryPath, profileFilePath)));
+            Assert.Equal(File.ReadAllText(profile.FilePath), File.ReadAllText(Path.Combine(expectedDirectoryPath, matlabProfileFilePath)));
         }
     }
 }
