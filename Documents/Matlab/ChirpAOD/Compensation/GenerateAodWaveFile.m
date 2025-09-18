@@ -713,6 +713,11 @@ function aodWaveFilePath = GenerateAodWaveFile( ...
     strArray = dec2hex(short, 4);
     lastFourChars = strArray(:, end - 3:end);
     stringArray = string(lastFourChars);
+
+    if exist(aodWaveFilePath, 'file')
+        delete(aodWaveFilePath);
+    end
+
     fileID = fopen(aodWaveFilePath, 'wt');
 
     if fileID == -1
