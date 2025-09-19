@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
@@ -14,36 +16,15 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
-    /// <summary>
-    /// 采样率
-    /// </summary>
-    [ObservableProperty]
-    private double _sampleRate = 1064d;
-
-    /// <summary>
-    /// mag
-    /// </summary>
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
-    private double _chuckRadius = 150000;
-
-    #region 点位
+    private CalChipSiteModelEnum _calChipSiteModelEnum;
 
     [ObservableProperty]
     private Point _findPosition;
 
-    [ObservableProperty]
-    private Point _findPositionLow;
-
-    [ObservableProperty]
-    private Point _findPositionMiddle;
-
-    [ObservableProperty]
-    private Point _findPositionHigh;
-
-    #endregion 点位
 
     #region find EcsX Z轴参数
 
@@ -197,47 +178,7 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
 
     #endregion find EcsY Z轴参数
 
-    #region ChipAOD路径
-
-    /// <summary>
-    /// 默认波形文件路径 Low
-    /// </summary>
-    [ObservableProperty]
-    private string _chirpAodFilePathLow = string.Empty;
-
-    /// <summary>
-    /// 默认波形文件路径 Middle
-    /// </summary>
-    [ObservableProperty]
-    private string _chirpAodFilePathMiddle = string.Empty;
-
-    /// <summary>
-    /// 默认波形文件路径 High
-    /// </summary>
-    [ObservableProperty]
-    private string _chirpAodFilePathHigh = string.Empty;
-
-    #endregion ChipAOD路径
-
     #region 频率参数
-
-    /// <summary>
-    /// 初始chirp AOD波形频率 lowMag
-    /// </summary>
-    [ObservableProperty]
-    private double _defaultAodFrequenceLow;
-
-    /// <summary>
-    /// 初始chirp AOD波形频率 middleMag
-    /// </summary>
-    [ObservableProperty]
-    private double _defaultAodFrequenceMiddle;
-
-    /// <summary>
-    /// 初始chirp AOD波形频率 lowHigh
-    /// </summary>
-    [ObservableProperty]
-    private double _defaultAodFrequenceHigh;
 
     /// <summary>
     /// Chirp AOD波形频率增长次数 lowMag
@@ -275,88 +216,45 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
     [ObservableProperty]
     private double _increaseIntervalHigh;
 
-    /// <summary>
-    /// 补0个数Low
-    /// </summary>
-    [ObservableProperty]
-    private short _zeroNumLow;
-
-    /// <summary>
-    /// 补0个数Middle
-    /// </summary>
-    [ObservableProperty]
-    private short _zeroNumMiddle;
-
-    /// <summary>
-    /// 补0个数High
-    /// </summary>
-    [ObservableProperty]
-    private short _zeroNumHigh;
-
     #endregion 频率参数
-
-    #region FindEcsY频率参数
-
-    /// <summary>
-    /// 补0个数Low Y
-    /// </summary>
-    [ObservableProperty]
-    private short _zeroNumLowY;
-
-    /// <summary>
-    /// 补0个数Middle Y
-    /// </summary>
-    [ObservableProperty]
-    private short _zeroNumMiddleY;
-
-    /// <summary>
-    /// 补0个数High Y
-    /// </summary>
-    [ObservableProperty]
-    private short _zeroNumHighY;
-
-    #endregion FindEcsY频率参数
 
     #region 波形参数
 
-    [ObservableProperty]
-    private short _regNum;
-
     /// <summary>
-    /// 起始chirp AOD波形中心 lowMag
+    /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private double _centerFrequenceLow;
+    private GenerateChirpAodWaveParamDto _lowChirpAodDefaultDto = new();
 
     /// <summary>
-    /// 起始chirp AOD波形中心 middleMag
+    /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private double _centerFrequenceMiddle;
+    private GenerateChirpAodWaveParamDto _middleChirpAodDefaultDto = new();
 
     /// <summary>
-    /// 起始chirp AOD波形中心 lowHigh
+    /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private double _centerFrequenceHigh;
+    private GenerateChirpAodWaveParamDto _highChirpAodDefaultDto = new();
 
     /// <summary>
-    /// 起始chirp AOD 音包长度 lowMag
+    /// 起始频率变化率 lowMag
     /// </summary>
     [ObservableProperty]
-    private double _soundPackageLengthLow;
+    private double _startFrequencyChangeRateLow;
 
     /// <summary>
-    /// 起始chirp AOD 音包长度 middleMag
+    /// 起始频率变化率 middleMag
     /// </summary>
     [ObservableProperty]
-    private double _soundPackageLengthMiddle;
+    private double _startFrequencyChangeRateMiddle;
 
     /// <summary>
-    /// 起始chirp AOD 音包长度 lowHigh
+    /// 起始频率变化率 highMag
     /// </summary>
     [ObservableProperty]
-    private double _soundPackageLengthHigh;
+    private double _startFrequencyChangeRateHigh;
 
     #endregion 波形参数
 
@@ -375,159 +273,18 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
     private double _thresholdMiddle;
 
     /// <summary>
-    /// XY焦距差值允许范围 lowHigh
+    /// XY焦距差值允许范围 highMag
     /// </summary>
     [ObservableProperty]
     private double _thresholdHigh;
 
-    /// <summary>
-    /// Review XY焦距差值允许范围 lowMag
-    /// </summary>
-    [ObservableProperty]
-    private double _thresholdLowReview;
-
-    /// <summary>
-    /// Review XY焦距差值允许范围 middleMag
-    /// </summary>
-    [ObservableProperty]
-    private double _thresholdMiddleReview;
-
-    /// <summary>
-    /// Review XY焦距差值允许范围 lowHigh
-    /// </summary>
-    [ObservableProperty]
-    private double _thresholdHighReview;
-
     #endregion 阈值
-
-    #region 结果
-
-    /// <summary>
-    /// lowMag Ecs结果，x=x得分最高高度值，y=y得分最高高度值
-    /// </summary>
-    [ObservableProperty]
-    private Point _findEcsLow;
-
-    /// <summary>
-    /// middleMag Ecs结果，x=x得分最高高度值，y=y得分最高高度值
-    /// </summary>
-    [ObservableProperty]
-    private Point _findEcsMiddle;
-
-    /// <summary>
-    /// highMag Ecs结果，x=x得分最高高度值，y=y得分最高高度值
-    /// </summary>
-    [ObservableProperty]
-    private Point _findEcsHigh;
-
-    /// <summary>
-    /// lowMag 清晰度最高结果
-    /// </summary>
-    [ObservableProperty]
-    private double _findQualityLow;
-
-    /// <summary>
-    /// MiddleMag 清晰度最高结果
-    /// </summary>
-    [ObservableProperty]
-    private double _findQualityMiddle;
-
-    /// <summary>
-    /// HighMag 清晰度最高结果
-    /// </summary>
-    [ObservableProperty]
-    private double _findQualityHigh;
-
-    /// <summary>
-    /// lowMag xyEcs差值最小的频率增量
-    /// </summary>
-    [ObservableProperty]
-    private double _findFrequenceLow;
-
-    /// <summary>
-    /// MiddleMag xyEcs差值最小的频率增量
-    /// </summary>
-    [ObservableProperty]
-    private double _findFrequenceMiddle;
-
-    /// <summary>
-    /// HighMag xyEcs差值最小的频率增量
-    /// </summary>
-    [ObservableProperty]
-    private double _findFrequenceHigh;
-
-    /// <summary>
-    /// lowMag xyEcs最小差值
-    /// </summary>
-    [ObservableProperty]
-    private double _findEcsErrorLow;
-
-    /// <summary>
-    /// MiddleMag xyEcs最小差值
-    /// </summary>
-    [ObservableProperty]
-    private double _findEcsErrorMiddle;
-
-    /// <summary>
-    /// HighMag xyEcs最小差值
-    /// </summary>
-    [ObservableProperty]
-    private double _findEcsErrorHigh;
-
-    /// <summary>
-    /// 生成AOD的波形
-    /// </summary>
-    [ObservableProperty]
-    private List<(double, double)>? _aodWaveSignal;
-
-    /// <summary>
-    /// 生成AOD的傅里叶变化后波形
-    /// </summary>
-    [ObservableProperty]
-    private List<(double, double)>? _aodWaveSignalFourier;
-
-    /// <summary>
-    /// 关于ecs-quality的结果散点图
-    /// </summary>
-    [ObservableProperty]
-    private List<(double, double)>? _ecsPlotList;
-
-    #endregion 结果
-
-    /// <summary>
-    /// 窗口是否获取成功
-    /// </summary>
-    [ObservableProperty]
-    private bool _isGetWindow = true;
 
     #region 方法
 
-    #region 点位
-
-    public Point SetBrightFieldPosition() =>
-        OpticsMagTypeEnum switch
-        {
-            OpticsMagTypeEnum.Low => FindPositionLow = FindPosition,
-            OpticsMagTypeEnum.Middle => FindPositionMiddle = FindPosition,
-            OpticsMagTypeEnum.High => FindPositionHigh = FindPosition,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-    public Point GetFindPosition() =>
-        OpticsMagTypeEnum switch
-        {
-            OpticsMagTypeEnum.Low => FindPositionLow,
-            OpticsMagTypeEnum.Middle => FindPositionMiddle,
-            OpticsMagTypeEnum.High => FindPositionHigh,
-
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-    #endregion 点位
-
     #region ECS-X
 
-    public (double ZLimitMin, double ZLimitMax, double ZLimitInterval, double FindInitialECS) GetEcsXParams() =>
+    public (double zLimitMin, double zLimitMax, double zLimitInterval, double findInitialECS) GetEcsXParams() =>
         OpticsMagTypeEnum switch
         {
             OpticsMagTypeEnum.Low => (EcsPositionUpperLow, EcsPositionLowerLow, EcsIntervalLow, EcsXLowInitial),
@@ -556,7 +313,7 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
 
     #region ECS-Y
 
-    public (double ZLimitMin, double ZLimitMax, double ZLimitInterval, double FindInitialECS) GetEcsYParams() =>
+    public (double zLimitMin, double zLimitMax, double zLimitInterval, double findInitialECS) GetEcsYParams() =>
         OpticsMagTypeEnum switch
         {
             OpticsMagTypeEnum.Low => (EcsYPositionUpperLow, EcsYPositionLowerLow, EcsYIntervalLow, EcsYLowInitial),
@@ -565,63 +322,41 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
             _ => throw new ArgumentOutOfRangeException()
         };
 
-    public double SetEcsYParams(double value) => OpticsMagTypeEnum switch
+    public void SetEcsYParams(double value)
     {
-        OpticsMagTypeEnum.Low => EcsYLowInitial = value,
-        OpticsMagTypeEnum.Middle => EcsYMidInitial = value,
-        OpticsMagTypeEnum.High => EcsYHighInitial = value,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        _ = OpticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low => EcsYLowInitial = value,
+            OpticsMagTypeEnum.Middle => EcsYMidInitial = value,
+            OpticsMagTypeEnum.High => EcsYHighInitial = value,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
 
-    public (double, double, double, double) SetEcsYParams() => OpticsMagTypeEnum switch
+    public void SetEcsYParams()
     {
-        OpticsMagTypeEnum.Low => (EcsYPositionUpperLow = EcsPositionUpperLow, EcsYPositionLowerLow = EcsPositionLowerLow, EcsIntervalLow = EcsYIntervalLow, EcsYLowInitial = EcsXLowInitial),
-        OpticsMagTypeEnum.Middle => (EcsYPositionUpperMiddle = EcsPositionUpperMiddle, EcsYPositionLowerMiddle = EcsPositionLowerMiddle, EcsIntervalMiddle = EcsYIntervalMiddle, EcsYMidInitial = EcsXMidInitial),
-        OpticsMagTypeEnum.High => (EcsYPositionUpperHigh = EcsPositionUpperHigh, EcsYPositionLowerHigh = EcsPositionLowerHigh, EcsIntervalHigh = EcsYIntervalHigh, EcsYHighInitial = EcsXHighInitial),
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public double GetInitialEcsY() => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => EcsYLowInitial,
-        OpticsMagTypeEnum.Middle => EcsYMidInitial,
-        OpticsMagTypeEnum.High => EcsYHighInitial,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        _ = OpticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low => (EcsYPositionUpperLow = EcsPositionUpperLow, EcsYPositionLowerLow = EcsPositionLowerLow, EcsIntervalLow = EcsYIntervalLow, EcsYLowInitial = EcsXLowInitial),
+            OpticsMagTypeEnum.Middle => (EcsYPositionUpperMiddle = EcsPositionUpperMiddle, EcsYPositionLowerMiddle = EcsPositionLowerMiddle, EcsIntervalMiddle = EcsYIntervalMiddle, EcsYMidInitial = EcsXMidInitial),
+            OpticsMagTypeEnum.High => (EcsYPositionUpperHigh = EcsPositionUpperHigh, EcsYPositionLowerHigh = EcsPositionLowerHigh, EcsIntervalHigh = EcsYIntervalHigh, EcsYHighInitial = EcsXHighInitial),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
 
     #endregion ECS-Y
 
-    #region ChipAOD路径
-
-    public string GetChirpAodFilePath() => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => ChirpAodFilePathLow,
-        OpticsMagTypeEnum.Middle => ChirpAodFilePathMiddle,
-        OpticsMagTypeEnum.High => ChirpAodFilePathHigh,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public string SetChirpAodFilePath(string value) => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => ChirpAodFilePathLow = value,
-        OpticsMagTypeEnum.Middle => ChirpAodFilePathMiddle = value,
-        OpticsMagTypeEnum.High => ChirpAodFilePathHigh = value,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    #endregion ChipAOD路径
-
     #region 频率参数
 
-    public double GetDefaultChirpAodFrequence() => OpticsMagTypeEnum switch
+    public GenerateChirpAodWaveParamDto GetDefaultChirpAodProfile() => OpticsMagTypeEnum switch
     {
-        OpticsMagTypeEnum.Low => DefaultAodFrequenceLow,
-        OpticsMagTypeEnum.Middle => DefaultAodFrequenceMiddle,
-        OpticsMagTypeEnum.High => DefaultAodFrequenceHigh,
+        OpticsMagTypeEnum.Low => LowChirpAodDefaultDto,
+        OpticsMagTypeEnum.Middle => MiddleChirpAodDefaultDto,
+        OpticsMagTypeEnum.High => HighChirpAodDefaultDto,
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    public (int IncreaseCount, double IncreaseInterval) GetFrequenceParams() => OpticsMagTypeEnum switch
+    public (int increaseCount, double increaseInterval) GetFrequencyParams() => OpticsMagTypeEnum switch
     {
         OpticsMagTypeEnum.Low => (IncreaseCountLow, IncreaseIntervalLow),
         OpticsMagTypeEnum.Middle => (IncreaseCountMiddle, IncreaseIntervalMiddle),
@@ -629,65 +364,32 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    public (double CenterFrequence, double SoundPackageLengthm, short ZeroNum) GetInitialChirpAodWaveParams() => OpticsMagTypeEnum switch
+    public double GetStartFrequencyChangeRate() => OpticsMagTypeEnum switch
     {
-        OpticsMagTypeEnum.Low => (CenterFrequenceLow, SoundPackageLengthLow, ZeroNumLowY),
-        OpticsMagTypeEnum.Middle => (CenterFrequenceMiddle, SoundPackageLengthMiddle, ZeroNumMiddleY),
-        OpticsMagTypeEnum.High => (CenterFrequenceHigh, SoundPackageLengthHigh, ZeroNumHighY),
+        OpticsMagTypeEnum.Low => StartFrequencyChangeRateLow,
+        OpticsMagTypeEnum.Middle => StartFrequencyChangeRateMiddle,
+        OpticsMagTypeEnum.High => StartFrequencyChangeRateHigh,
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    public (double, double, short) SetInitialChirpAodWaveParams(double centerFrequence, double soundPackageLength) => OpticsMagTypeEnum switch
+    public void SetStartFrequencyChangeRate(double startFrequencyChangeRate)
     {
-        OpticsMagTypeEnum.Low => (CenterFrequenceLow = centerFrequence, SoundPackageLengthLow = soundPackageLength, ZeroNumLowY = ZeroNumLow),
-        OpticsMagTypeEnum.Middle => (CenterFrequenceMiddle = centerFrequence, SoundPackageLengthMiddle = soundPackageLength, ZeroNumMiddleY = ZeroNumMiddle),
-        OpticsMagTypeEnum.High => (CenterFrequenceHigh = centerFrequence, SoundPackageLengthHigh = soundPackageLength, ZeroNumHighY = ZeroNumHigh),
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public short GetChirpAodDefaultWaveZeroNum() => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => ZeroNumLow,
-        OpticsMagTypeEnum.Middle => ZeroNumMiddle,
-        OpticsMagTypeEnum.High => ZeroNumHigh,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        _ = OpticsMagTypeEnum switch
+        {
+            OpticsMagTypeEnum.Low => StartFrequencyChangeRateLow = startFrequencyChangeRate,
+            OpticsMagTypeEnum.Middle => StartFrequencyChangeRateMiddle = startFrequencyChangeRate,
+            OpticsMagTypeEnum.High => StartFrequencyChangeRateHigh = startFrequencyChangeRate,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
 
     #endregion 频率参数
-
-    #region FindEcsY波形参数
-
-    public short GetChirpAodChangedWaveZeroNum() => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => ZeroNumLowY,
-        OpticsMagTypeEnum.Middle => ZeroNumMiddleY,
-        OpticsMagTypeEnum.High => ZeroNumHighY,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    #endregion FindEcsY波形参数
 
     public double GetThresholdParams() => OpticsMagTypeEnum switch
     {
         OpticsMagTypeEnum.Low => ThresholdLow,
         OpticsMagTypeEnum.Middle => ThresholdMiddle,
         OpticsMagTypeEnum.High => ThresholdHigh,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public double GetReviewThresholdParams() => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => ThresholdLowReview,
-        OpticsMagTypeEnum.Middle => ThresholdMiddleReview,
-        OpticsMagTypeEnum.High => ThresholdHighReview,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public short SetChirpAodRegNum(short count) => OpticsMagTypeEnum switch
-    {
-        OpticsMagTypeEnum.Low => RegNum = (short)(ZeroNumLowY + count),
-        OpticsMagTypeEnum.Middle => RegNum = (short)(ZeroNumMiddleY + count),
-        OpticsMagTypeEnum.High => RegNum = (short)(ZeroNumHighY + count),
         _ => throw new ArgumentOutOfRangeException()
     };
 

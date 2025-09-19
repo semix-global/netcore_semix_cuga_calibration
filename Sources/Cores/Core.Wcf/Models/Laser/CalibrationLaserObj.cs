@@ -3,6 +3,7 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.ComponentModel;
+using Cuga.Data.DataStruct.PMT;
 
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
@@ -353,7 +354,7 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
-    public string ChirpAodWaveFilePath { get; set; } = string.Empty;
+    public CalibrationChirpAODWaveformResult[] ChirpAODWaveformResultList { get; set; }
 }
 
 /// <summary>
@@ -378,4 +379,16 @@ public class CalibrationPrescanAODWaveformResult
     /// 波形文件路径
     /// </summary>
     public string FilePath { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// StageMap矩阵(笛卡尔坐标系)
+/// </summary>
+[Serializable]
+public sealed class CalibrationChirpAODWaveformResult
+{
+    // todo: 待cuga3.0升级
+    public int CgAwgElectrodeEnum { get; set; }
+
+    public string FilePath { get; set; }
 }

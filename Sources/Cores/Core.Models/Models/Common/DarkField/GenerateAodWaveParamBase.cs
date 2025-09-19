@@ -82,6 +82,7 @@ public partial class GenerateAodWaveParamBase : ObservableCacheBase
     [NotifyPropertyChangedFor(nameof(FrequencyAmplitudes))]
     private string _frequencyAmplitudesFilePath = string.Empty;
 
+
     public Point[]? FrequencyAmplitudes
     {
         get

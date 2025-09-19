@@ -52,7 +52,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     protected readonly ICacheProvider RecipeCacheProvider;
     protected readonly ICalibrationStatusService CalibrationStatusService;
     protected readonly ICalibrationRecipeService CalibrationRecipeService;
-    protected readonly ApplicationCookie ApplicationCookie;
     protected readonly CalibrationSetting CalibrationSetting;
     protected readonly string AppHomeDirectory;
 
@@ -123,6 +122,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     private ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
 
     #endregion 重载只读属性
+
+    public ApplicationCookie ApplicationCookie { get; }
+
 
     public CalibrationRecipeDto? CalibrationRecipeDto => ApplicationCookie.CalibrationReviseRecipeDto;
 

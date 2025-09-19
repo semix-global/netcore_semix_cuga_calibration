@@ -9,6 +9,8 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:mag="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
+             xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
+             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXYAstigmatismCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1200"
@@ -44,27 +46,21 @@
                             <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectReviewItemDto.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                        <Setter Property="Value" Value="{Binding Cache.ThresholdLowReview}" />
+                                        <Setter Property="Value" Value="{Binding Cache.ThresholdLow}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding SelectReviewItemDto.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                        <Setter Property="Value" Value="{Binding Cache.ThresholdMiddleReview}" />
+                                        <Setter Property="Value" Value="{Binding Cache.ThresholdMiddle}" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding SelectReviewItemDto.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                        <Setter Property="Value" Value="{Binding Cache.ThresholdHighReview}" />
+                                        <Setter Property="Value" Value="{Binding Cache.ThresholdHigh}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </hc:NumericUpDown.Style>
                     </hc:NumericUpDown>
-                    <TextBox Text="{Binding ChirpAodReviewSelectDto.RateChange, Mode=OneWay, StringFormat={}{0:f3}}"
+                    <TextBox Text="{Binding SelectReviewItemDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}"
                              hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="AOD Frequence: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ChirpAodReviewSelectDto.SoundPackageLength, Mode=OneWay, StringFormat={}{0:f3}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="AOD Package Length: "
+                             hc:InfoElement.Title="AOD Frequency: "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
@@ -116,78 +112,94 @@
         <!--#endregion-->
 
         <GridSplitter Grid.Column="1" Width="5" />
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5*" />
+                <RowDefinition Height="5*" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0" Header="Calibration Data">
+                <ListView d:SelectedIndex="0"
+                          ItemsSource="{Binding ReviewList}"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          SelectedItem="{Binding SelectReviewItemDto}">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Width="120"
+                                            Header="OpticsMagType"
+                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Width="150"
+                                            Header="Frequency Increment"
+                                            DisplayMemberBinding="{Binding FrequencyChangeRate, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Width="80"
+                                            Header="EcsX"
+                                            DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Width="80"
+                                            Header="EcsY"
+                                            DisplayMemberBinding="{Binding EcsY, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Width="80"
+                                            Header="QualityX"
+                                            DisplayMemberBinding="{Binding QualityX, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Width="80"
+                                            Header="QualityY"
+                                            DisplayMemberBinding="{Binding QualityY, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Width="200" Header="Action Review">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <hc:ButtonGroup>
+                                            <Button Content="Image"
+                                                    Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding FilePath}"
+                                                    d:DataContext="{d:DesignInstance Type=coreModels:LaserXYAstigmatismCalibrationItemDto}" />
+                                        </hc:ButtonGroup>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </GroupBox>
+            <Border Grid.Row="1"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
+                <scottplot:WpfPlot>
+                    <i:Interaction.Behaviors>
+                        <behaviors:WpfPlotMultiBehavior Title="History"
+                                                        Plot0Title="Quality"
+                                                        Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                        Plot0="{Binding EcsQualityList}" />
+                    </i:Interaction.Behaviors>
+                </scottplot:WpfPlot>
+            </Border>
+        </Grid>
 
-        <!--#region Right-->
-        <GroupBox Grid.Row="2" Grid.Column="2"
-                  Header="Calibration Data">
-            <ListView d:SelectedIndex="0"
-                      ItemsSource="{Binding ReviewList}"
-                      Style="{StaticResource ListView.Small}"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      SelectedItem="{Binding SelectReviewItemDto}">
-                <i:Interaction.Behaviors>
-                    <behaviors:ListBoxScrollToCurrentBehavior />
-                </i:Interaction.Behaviors>
-                <ListView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                            </Trigger>
-                            <DataTrigger Binding="{Binding IsVerified}" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsVerified}" Value="False">
-                                <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.View>
-                    <GridView>
-                        <GridView.ColumnHeaderContainerStyle>
-                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                            </Style>
-                        </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Width="120"
-                                        Header="OpticsMagType"
-                                        DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                        <GridViewColumn Width="150"
-                                        Header="Frequence Increment"
-                                        DisplayMemberBinding="{Binding FrequenceIncrease, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="80"
-                                        Header="EcsX"
-                                        DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="80"
-                                        Header="EcsY"
-                                        DisplayMemberBinding="{Binding EcsY, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="80"
-                                        Header="QualityX"
-                                        DisplayMemberBinding="{Binding QualityX, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="80"
-                                        Header="QualityY"
-                                        DisplayMemberBinding="{Binding QualityY, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="200" Header="Action Review">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <hc:ButtonGroup>
-                                        <Button Content="Image"
-                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding FilePath}"
-                                                d:DataContext="{d:DesignInstance Type=coreModels:LaserXYAstigmatismCalibrationItemDto}" />
-                                    </hc:ButtonGroup>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

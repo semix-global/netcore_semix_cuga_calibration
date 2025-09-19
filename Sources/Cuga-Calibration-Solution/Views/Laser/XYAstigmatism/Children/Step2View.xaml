@@ -6,6 +6,13 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:mag="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:focus="clr-namespace:Core.Models.Models.Microscope.Focus;assembly=Core.Models"
+             xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
+             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXYAstigmatismCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1300"
@@ -59,58 +66,535 @@
                                FontWeight="Bold"
                                Style="{StaticResource TextBlockDefaultInfo}" />
                 </Expander.Header>
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <Border Style="{StaticResource BorderRegion}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <Expander Header="Frequency(MHz)"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                                      hc:InfoElement.Title="Sound Package Length: "
+                                                      hc:InfoElement.Necessary="True"
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.ShowClearButton="True"
+                                                      Minimum="1">
+                                        <hc:NumericUpDown.Style>
+                                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.SoundPackageLength}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.SoundPackageLength}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.SoundPackageLength}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:NumericUpDown.Style>
+                                    </hc:NumericUpDown>
+                                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                                      hc:InfoElement.Title="Band Width: "
+                                                      hc:InfoElement.Necessary="True"
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.ShowClearButton="True"
+                                                      Minimum="1">
+                                        <hc:NumericUpDown.Style>
+                                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.BandWidth}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.BandWidth}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.BandWidth}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:NumericUpDown.Style>
+                                    </hc:NumericUpDown>
 
-                        <hc:ButtonGroup Width="auto">
-                            <Button Content="Load Default AOD Wave File"
-                                    Command="{Binding ChangeChirpAodFileCommand}"
-                                    CommandParameter="TemplateFilePath2"
-                                    Margin="-1,0,0,0"
-                                    VerticalAlignment="Top" />
-                        </hc:ButtonGroup>
-                        <TextBox Text="{Binding ChirpAodDefaultDto.SoundPackageLength, Mode=OneWay, StringFormat={}{0:f3}}"
-                                 hc:TitleElement.TitleWidth="auto"
-                                 hc:InfoElement.Title="AOD Default Sound Package Length: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
-
-                        <TextBox Text="{Binding ChirpAodDefaultDto.RateChange, Mode=OneWay, StringFormat={}{0:f3}}"
-                                 hc:TitleElement.TitleWidth="180"
-                                 hc:InfoElement.Title="AOD Default RateChange: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <hc:NumericUpDown hc:InfoElement.Title="SampleRate(Msa/s): "
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="180"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.SampleRate}" />
-                        <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.Title="Zero Count: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.ZeroNumLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.ZeroNumMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.ZeroNumHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                    <hc:ComboBox hc:InfoElement.Title="Monotonic: "
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.TitleWidth="180"
+                                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
+                                        <hc:ComboBox.Style>
+                                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" Value="LightGray" />
+                                                    </Trigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="SelectedItem" Value="{Binding Cache.LowChirpAodDefaultDto.FunctionMonotonicTypeEnum}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="SelectedItem" Value="{Binding Cache.MiddleChirpAodDefaultDto.FunctionMonotonicTypeEnum}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="SelectedItem" Value="{Binding Cache.HighChirpAodDefaultDto.FunctionMonotonicTypeEnum}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:ComboBox.Style>
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                                      hc:InfoElement.Title="Center Frequency: "
+                                                      hc:InfoElement.Necessary="True"
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.ShowClearButton="True"
+                                                      Minimum="1">
+                                        <hc:NumericUpDown.Style>
+                                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.CenterFrequency}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.CenterFrequency}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.CenterFrequency}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:NumericUpDown.Style>
+                                    </hc:NumericUpDown>
+                                    <TextBox hc:TitleElement.TitleWidth="180"
+                                             hc:InfoElement.Title="AOD Default Frequency ChangeRate: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             IsReadOnly="True">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander Header="Others"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                                      hc:InfoElement.Title="SampleRate(Msa/s): "
+                                                      hc:InfoElement.Necessary="True"
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.ShowClearButton="True"
+                                                      Minimum="1">
+                                        <hc:NumericUpDown.Style>
+                                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.SampleRate}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.SampleRate}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.SampleRate}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:NumericUpDown.Style>
+                                    </hc:NumericUpDown>
+                                    <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
+                                                      Maximum="1"
+                                                      Minimum="0">
+                                        <hc:NumericUpDown.Style>
+                                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.Amplitude}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.Amplitude}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.Amplitude}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:NumericUpDown.Style>
+                                    </hc:NumericUpDown>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander Header="Compensation"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <TextBox hc:InfoElement.Title="Sinc Compensation: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.SincCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.SincCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.SincCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="0"
+                                            Maximum="10">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.SincCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.SincCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.SincCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Astigmatism Compensation: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.AstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.AstigmatismCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.AstigmatismCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.AstigmatismCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Spherical Aberration Compensation: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.SphericalAberrationCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.SphericalAberrationCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.SphericalAberrationCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Secondary Astigmatism Compensation: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.SecondaryAstigmatismCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.SecondaryAstigmatismCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.SecondaryAstigmatismCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Coma Compensation: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.ComaCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.ComaCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.ComaCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.ComaCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Trefoil Compensation:  "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.TrefoilCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.TrefoilCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.TrefoilCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.TrefoilCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Quadrafoil Compensation:  "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.QuadrafoilCompensationCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.QuadrafoilCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.QuadrafoilCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.QuadrafoilCompensationCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Alpha Order: "
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.AlphaOrder, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.AlphaOrder, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.AlphaOrder, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.AlphaOrder}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.AlphaOrder}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.AlphaOrder}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                    <TextBox hc:InfoElement.Title="Alpha Order Coefficient:"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="240">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.AlphaOrderCoefficient, StringFormat={}{0:0.###############}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <Slider VerticalAlignment="Center"
+                                            Minimum="-100"
+                                            Maximum="100">
+                                        <Slider.Style>
+                                            <Style TargetType="Slider">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
+                                                        <Setter Property="Value" Value="{Binding Cache.LowChirpAodDefaultDto.AlphaOrderCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
+                                                        <Setter Property="Value" Value="{Binding Cache.MiddleChirpAodDefaultDto.AlphaOrderCoefficient}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
+                                                        <Setter Property="Value" Value="{Binding Cache.HighChirpAodDefaultDto.AlphaOrderCoefficient}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Slider.Style>
+                                    </Slider>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
                     </hc:UniformSpacingPanel>
                 </Border>
+
             </Expander>
             <Expander HorizontalAlignment="Center"
                       VerticalAlignment="Top"
@@ -238,5 +722,30 @@
                 </Border>
             </Expander>
         </hc:UniformSpacingPanel>
+
+        <GridSplitter Grid.Column="1" Width="5" />
+
+        <!--#region Right-->
+        <Grid Grid.Column="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="4*" />
+                    <RowDefinition Height="6*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0"
+                        Style="{StaticResource BorderRegion}"
+                        Effect="{StaticResource EffectShadow1}">
+                    <scottplot:WpfPlot>
+                        <b:Interaction.Behaviors>
+                            <behaviors:WpfPlotMultiBehavior Title="History"
+                                                            Plot0Title="Quality"
+                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                            Plot0="{Binding EcsQualityList}" />
+                        </b:Interaction.Behaviors>
+                    </scottplot:WpfPlot>
+                </Border>
+            </Grid>
+        </Grid>
+        <!--#endregion-->
     </Grid>
 </UserControl>
