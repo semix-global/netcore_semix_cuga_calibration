@@ -25,13 +25,13 @@ public interface ICalibrationConfigService
     SxExecuteRet<string> GetCalibrationFilePath();
 
     /// <summary>
-    /// 获取prescan波形列表
+    /// 获取prescan默认波形列表
     /// </summary>
     /// <returns>prescan波形列表</returns>
     SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum);
 
     /// <summary>
-    /// 获取chirp波形列表
+    /// 获取chirp默认波形列表
     /// </summary>
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfileList(OpticsMagTypeEnum opticsMagTypeEnum);

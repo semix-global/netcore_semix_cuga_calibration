@@ -397,7 +397,9 @@ public sealed class LaserViewModel(
                 OpticsMagTypeEnum.High => calibrationSetting.HighMagSettingDarkFieldAutoFocusParam,
                 _ => throw new ArgumentOutOfRangeException(nameof(yOpticsMagTypeEnum), yOpticsMagTypeEnum, null)
             };
-            var isAutofocus = afViewModel.SetDarkFieldAutoFocus(darkAutoFocusParam, yOpticsMagTypeEnum, calChipSiteModelEnum);
+
+            if (isAutoFocus)
+                isAutoFocus = afViewModel.SetDarkFieldAutoFocus(darkAutoFocusParam, yOpticsMagTypeEnum, calChipSiteModelEnum);
 
             if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
@@ -405,7 +407,7 @@ public sealed class LaserViewModel(
             var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
             if (toggleCIBModeRet.IsSuccess == false) throw new CugaException(toggleCIBModeRet.ErrorMsg);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutofocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }

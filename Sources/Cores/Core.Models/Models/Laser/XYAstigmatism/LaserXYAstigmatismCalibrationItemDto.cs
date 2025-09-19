@@ -4,6 +4,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
+using ChirpAODWaveformResult = Core.Models.Models.Common.AODWaveform.ChirpAODWaveformResult;
 
 namespace Core.Models.Models.Laser.XYAstigmatism;
 
@@ -20,7 +21,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
-    private double _frequenceIncrease;
+    private double _frequencyChangeRate;
 
     [ObservableProperty]
     private double _ecsX;
@@ -44,12 +45,12 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     private string _originFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _chirpAodWaveFilePath = string.Empty;
+    private IReadOnlyList<ChirpAODWaveformResult> _chirpAodWaveResultList = [];
 
     public CalibrationLaserXYAstigmatismItem AdaptTo() => new()
     {
         CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        ChirpAodWaveFilePath = ChirpAodWaveFilePath
+        ChirpAODWaveformResultList = ChirpAodWaveResultList.Select(t => new CalibrationChirpAODWaveformResult { CgAwgElectrodeEnum = (int)t.OpticsAODElectrodeEnum, FilePath = t.FilePath }).ToArray()
     };
 
     #region Mapper
@@ -59,7 +60,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
         Index = Index,
         MicroscopeLensInformation = MicroscopeLensInformation,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
-        FrequenceIncrease = FrequenceIncrease,
+        FrequencyChangeRate = FrequencyChangeRate,
         EcsX = EcsX,
         EcsY = EcsY,
         EcsErrorValue = EcsErrorValue,
@@ -67,7 +68,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
         QualityY = QualityY,
         FilePath = FilePath,
         OriginFilePath = OriginFilePath,
-        ChirpAodWaveFilePath = ChirpAodWaveFilePath,
+        ChirpAodWaveResultList = [.. ChirpAodWaveResultList.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
