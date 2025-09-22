@@ -44,4 +44,10 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheSetting
     /// 标题栏菜单名称
     /// </summary>
     public string TitleMenuName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 校准软件更新说明文档名称
+    /// </summary>
+    public string UpdateDocumentPath { get; init; } = string.Empty;
+
 }
