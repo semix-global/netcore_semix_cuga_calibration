@@ -823,10 +823,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         laserLineCentricityItemDto.ReverseDarkMachineCenterPosition = ChuckCenter.NewBFCenterStagePosition + machineOffset;
         laserLineCentricityItemDto.ReverseFilePath = resultImageFilePath;
 
-        if (laserLineCentricityItemDto.PmtId == CalibrationConstantsHelper.MainPmtId)
-        {
-            StageViewModel.SetDarkFieldCenterMachinePositionValue(laserLineCentricityItemDto.ForwardDarkMachineCenterPosition);
-        }
+        //if (laserLineCentricityItemDto.PmtId == CalibrationConstantsHelper.MainPmtId)
+        //{
+        //    StageViewModel.SetDarkFieldCenterMachinePositionValue(laserLineCentricityItemDto.ForwardDarkMachineCenterPosition);
+        //}
 
         laserLineCentricityItemDto.TemplateFilePath = Cache.TemplateFilePath;
         laserLineCentricityItemDto.TemplateImageFilePath = Cache.TemplateImageFilePath;

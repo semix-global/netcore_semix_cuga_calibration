@@ -1,7 +1,10 @@
 using Core.Models.Models.Setting;
+using Core.Utilities.WPF.ApplicationAbout.ViewModel;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Net.Utilities.WPF.MVVM.Providers;
 using SourceGenerator.InjectHostDI;
 
 namespace Core.Services;
