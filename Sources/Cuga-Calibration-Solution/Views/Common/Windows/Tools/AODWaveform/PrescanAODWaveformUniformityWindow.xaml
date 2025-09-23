@@ -96,13 +96,14 @@
                         <GroupBox Header="Step1">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <!--  <hc:ComboBox Margin="5"  -->
-                                    <!--  HorizontalAlignment="Left"  -->
-                                    <!--  hc:InfoElement.TitleWidth="150"  -->
-                                    <!--  hc:InfoElement.TitlePlacement="Left"  -->
-                                    <!--  hc:InfoElement.Title="Coefficient: "  -->
-                                    <!--  SelectedItem="{Binding LaserLightInformation}"  -->
-                                    <!--  ItemsSource="{Binding LaserLightInformationList}" />  -->
+                                    <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                             hc:InfoElement.Title="Measure Machine Position:"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="180"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <Button Content="Refresh Measure Machine Position"
+                                            Command="{Binding RefreshMeasureMachinePositionCommand}"
+                                            Style="{StaticResource ButtonDefault}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Default Amplitude: "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="180"
@@ -112,28 +113,24 @@
                                                       Value="{Binding Cache.DefaultAmplitude}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Wait Time(s): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.ShowClearButton="True"
                                                       hc:InfoElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Start Frequency(Mhz): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.ShowClearButton="True"
                                                       hc:InfoElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StartFrequency}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Step Frequency(Mhz): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.ShowClearButton="True"
                                                       hc:InfoElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepFrequency}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Stop Frequency(Mhz): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.ShowClearButton="True"
                                                       hc:InfoElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
@@ -179,14 +176,12 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <hc:NumericUpDown hc:InfoElement.Title="Target Power(mW): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.ShowClearButton="True"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.TargetMeasurePower}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Retry Count: "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.ShowClearButton="True"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
@@ -324,7 +319,7 @@
                                                        PopupAnimation="Slide"
                                                        IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
                                                     <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                        <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Profiles}" />
+                                                        <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformUniformityItem}" DataContext="{Binding Profiles}" />
                                                     </Border>
                                                 </Popup>
                                             </Grid>

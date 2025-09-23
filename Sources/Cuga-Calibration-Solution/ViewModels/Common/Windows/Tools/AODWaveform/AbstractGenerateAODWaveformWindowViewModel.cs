@@ -45,7 +45,7 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
     }
 
     [RelayCommand]
-    public void Loaded() => Cache = CacheProvider.GetOrDefault<GenerateAODWaveformCache<TParam, TProfile>>();
+    private void Loaded() => Cache = CacheProvider.GetOrDefault<GenerateAODWaveformCache<TParam, TProfile>>();
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task GenerateAODWaveformAsync(CancellationToken cancellationToken)

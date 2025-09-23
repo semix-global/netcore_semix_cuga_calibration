@@ -7,6 +7,7 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
            xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
            Title="Function"
            Width="1000"
            Height="800"
@@ -17,6 +18,11 @@
            WindowStartupLocation="CenterScreen"
            Icon="/Assets/Images/Function.ico"
            mc:Ignorable="d">
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -34,8 +40,8 @@
                     </hc:UniformSpacingPanel.Resources>
                     <Button Content="Stage Map" Command="{Binding StageMapCommand}" />
                     <Button Content="Split Image" Command="{Binding SplitImageCommand}" />
-                    <Button Content="Generate Aod Wave" Command="{Binding GenerateChirpAodWaveCommand}" />
-                    <Button Content="Generate Chirp Aod Wave Training" Command="{Binding GenerateChirpAodWaveTrainingCommand}" />
+                    <Button Content="Prescan AOD Waveform Uniformity" Command="{Binding PrescanAODWaveformUniformityCommand}" />
+                    <Button Content="Chirp AOD Waveform Uniformity" Command="{Binding ChirpAODWaveformUniformityCommand}" />
                     <Button Content="Test Log 1" Command="{Binding TestLog1Command}" />
                     <Button Content="Test Log 2" Command="{Binding TestLog2Command}" />
                     <Button Content="Test Stage Map" Command="{Binding TestStageMapCommand}" />

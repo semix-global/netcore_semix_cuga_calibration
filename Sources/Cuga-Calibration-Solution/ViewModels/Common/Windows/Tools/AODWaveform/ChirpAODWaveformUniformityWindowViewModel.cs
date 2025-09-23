@@ -9,13 +9,18 @@ using Net.Utilities.Enums;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-[IOCAppService(ServiceType = typeof(ChirpAODWaveformUniformityWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class ChirpAODWaveformUniformityWindowViewModel(ApplicationCookie applicationCookie) : AbstractAODWaveformUniformityWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
+public sealed partial class ChirpAODWaveformUniformityCache : AODWaveformUniformityCache<GenerateChirpAODWaveformParam>
 {
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
-
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+}
+
+public sealed class ChirpAODWaveformUniformityItem : AODWaveformUniformityItem<ChirpAODWaveformProfile>;
+
+[IOCAppService(ServiceType = typeof(ChirpAODWaveformUniformityWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public class ChirpAODWaveformUniformityWindowViewModel(ApplicationCookie applicationCookie) : AbstractAODWaveformUniformityWindowViewModel<ChirpAODWaveformUniformityCache, ChirpAODWaveformUniformityItem, GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
+{
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
 
     protected override string AODWaveformName => "Chirp";
 
@@ -28,7 +33,7 @@ public partial class ChirpAODWaveformUniformityWindowViewModel(ApplicationCookie
 
     protected override void SetAODWaveProfiles(GenerateChirpAODWaveformParam param, IReadOnlyList<ChirpAODWaveformProfile> profiles)
     {
-        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(param.OpticsMagTypeEnum, LaserLightInformation.Coefficient);
+        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(param.OpticsMagTypeEnum, Cache.LaserLightInformation.Coefficient);
         LaserViewModel.SetChirpAODWaveProfiles(profiles);
     }
 }

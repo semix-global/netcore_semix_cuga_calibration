@@ -47,6 +47,9 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using CugaCalibration.ViewModels;
+using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using Net.Utilities.WPF.MVVM;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
@@ -63,10 +66,17 @@ public sealed partial class MainWindowViewModel(
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
-    ICalibrationAlgorithmService calibrationAlgorithmService) : ViewModelBase
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    LoadingWindowViewModel loadingWindowViewModel) : ViewModelBase
 {
     [ObservableProperty]
     private CalibrationSetting _calibrationSetting = calibrationSetting;
+
+    [RelayCommand]
+    private async Task LoadedAsync()
+    {
+        await HostApplication.GetRequiredService<LoadingWindowViewModel>().LoadedCommand.ExecuteAsync(null);
+    }
 
     [RelayCommand]
     private void StageMap()
@@ -647,5 +657,21 @@ public sealed partial class MainWindowViewModel(
         };
 
         window.Show();
+    }
+
+
+    [RelayCommand]
+    private void PrescanAODWaveformUniformity()
+    {
+        var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformUniformityWindowViewModel>();
+
+        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    public void ChirpAODWaveformUniformity()
+    {
+        var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformUniformityWindowViewModel>();
+        windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
     }
 }

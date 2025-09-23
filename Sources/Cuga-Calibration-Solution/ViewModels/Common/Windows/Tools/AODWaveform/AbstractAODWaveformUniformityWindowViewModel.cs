@@ -20,15 +20,19 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
+using Core.Models.Models.Laser.OpticalPower;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformUniformityCache<TParam> : ObservableCacheBase
+public partial class AODWaveformUniformityCache<TParam> : ObservableCacheBase
     where TParam : AbstractGenerateAODWaveformParam, new()
 {
     [ObservableProperty]
     private TParam _param = new();
+
+    [ObservableProperty]
+    private Point _measureMaxPowerMachinePosition = Point.Origin;
 
     [ObservableProperty]
     private double _defaultAmplitude = 1;
@@ -61,7 +65,7 @@ public sealed partial class AODWaveformUniformityCache<TParam> : ObservableCache
     public double TargetThresholdRateMax => 1 + TargetThreshold;
 }
 
-public sealed partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
+public partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
     where TProfile : AbstractAODWaveformProfile
 {
     [ObservableProperty]
@@ -93,20 +97,23 @@ public sealed partial class AODWaveformUniformityItem<TProfile> : ObservableCach
     private bool _isOk;
 }
 
-public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
+public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
+    where TCache : AODWaveformUniformityCache<TParam>, new()
+    where TResult : AODWaveformUniformityItem<TProfile>, new()
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
 {
     protected readonly ApplicationSetting ApplicationSetting;
-    protected readonly ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile>> Logger;
+    protected readonly ILogger<AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>> Logger;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
+    protected readonly StageViewModel StageViewModel;
 
     public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     [ObservableProperty]
-    private AODWaveformUniformityCache<TParam> _cache = new();
+    private TCache _cache = new();
 
     [ObservableProperty]
     private Point[] _measureCoefficientPowerPoints = [];
@@ -114,7 +121,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MeasurePowerPoints))]
     [NotifyPropertyChangedFor(nameof(CoefficientPoints))]
-    private AODWaveformUniformityItem<TProfile>[] _items = [];
+    private TResult[] _items = [];
 
     public Point[] MeasurePowerPoints => [.. Items.Select(t => new Point(t.Frequency, t.MeasurePower))];
 
@@ -125,14 +132,33 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
     protected AbstractAODWaveformUniformityWindowViewModel()
     {
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
-        Logger = (ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+        Logger = (ILogger<AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
+        StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
     }
 
     [RelayCommand]
-    public void Loaded() => Cache = CacheProvider.GetOrDefault<AODWaveformUniformityCache<TParam>>();
+    private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
+
+    [RelayCommand]
+    private void RefreshMeasureMachinePosition()
+    {
+        if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerDto>(out var laserOpticalPowerDtos))
+        {
+            var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t => t.OpticsMagTypeEnum == Cache.Param.OpticsMagTypeEnum);
+            if (laserOpticalPowerDto is not null && laserOpticalPowerDto.IsOk)
+            {
+                Cache.MeasureMaxPowerMachinePosition = laserOpticalPowerDto.MeasureMaxPowerPosition;
+
+                return;
+            }
+        }
+
+        Logger.LogWarning("{@Name}: Please Calibrate {@OpticsMagTypeEnum} Optical Power First", nameof(AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>), Cache.Param.OpticsMagTypeEnum);
+        DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.Param.OpticsMagTypeEnum} Optical Power First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step1Async(CancellationToken cancellationToken)
@@ -143,7 +169,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
             foreach (var frequency in Generate.LinearRange(Cache.StartFrequency, Cache.StepFrequency, Cache.StopFrequency))
             {
-                var item = new AODWaveformUniformityItem<TProfile>
+                var item = new TResult
                 {
                     Frequency = frequency,
                     DefaultAmplitude = Cache.DefaultAmplitude,
@@ -179,7 +205,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1OneAsync(AODWaveformUniformityItem<TProfile>? selectItem, CancellationToken cancellationToken)
+    private async Task Step1OneAsync(TResult? selectItem, CancellationToken cancellationToken)
     {
         await InvokeAsync("Step1 Measure Power One", async () =>
         {
@@ -195,7 +221,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2OneAsync(AODWaveformUniformityItem<TProfile>? selectItem, CancellationToken cancellationToken)
+    private async Task Step2OneAsync(TResult? selectItem, CancellationToken cancellationToken)
     {
         await InvokeAsync("Step2 Uniformity One", async () =>
         {
@@ -220,7 +246,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile>), AODWaveformName);
+            Logger.LogError(ex, "{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity", nameof(AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>), AODWaveformName);
             DialogWindowProvider.ShowDialog($"""
                                              Save {AODWaveformName} AOD Waveform Uniformity Failed!
                                              {ex.Message}
@@ -234,9 +260,9 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
         if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false)
-            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>), AODWaveformName);
+            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>), AODWaveformName);
 
-        CloseView(true);
+        CloseView(null);
     }
 
     private async Task InvokeAsync(string stepName, Func<Task<bool>> func)
@@ -306,7 +332,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         }
     }
 
-    private async Task<bool> UniformityAsync(AODWaveformUniformityItem<TProfile> item, CancellationToken cancellationToken)
+    private async Task<bool> UniformityAsync(TResult item, CancellationToken cancellationToken)
     {
         Logger.LogHtmlInformation($"{item.Frequency}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -389,7 +415,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         });
     }
 
-    private async Task UpdateMeasurePowerAsync(AODWaveformUniformityItem<TProfile> item, CancellationToken cancellationToken)
+    private async Task UpdateMeasurePowerAsync(TResult item, CancellationToken cancellationToken)
     {
         try
         {
@@ -409,6 +435,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
             LaserViewModel.ToggleOpticsMagType(Cache.Param.OpticsMagTypeEnum);
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
             var measurePower = LaserViewModel.GetOpticalPowerMeter();
