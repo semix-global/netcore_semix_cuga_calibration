@@ -5,6 +5,7 @@ using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Enums.Maths;
 using System.IO;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -240,9 +241,9 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount,
         EndpointSampleCount,
         GenerateRetryTimes,
-        ElectrodeConfigurations,
-        UniformityConfigurations,
-        SlopeDeltaKConfigurations,
+        ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => new { t.OpticsAODElectrodeEnum, t.OffsetFrequency, t.OffsetFrequencyPeriodCoefficient })]),
+        UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => new { t.Coefficient, t.Frequency })]),
+        SlopeDeltaKConfigurations = new HtmlTable([.. SlopeDeltaKConfigurations.Select(t => new { t.DeltaK })]),
         SincCoefficient,
         AstigmatismCompensationCoefficient,
         SphericalAberrationCompensationCoefficient,

@@ -167,7 +167,6 @@
                                                         Style="{StaticResource ButtonPrimary.Loading}" />
                                                 <Button Content="One Cancel"
                                                         Command="{Binding Step1OneCancelCommand}"
-                                                        CommandParameter="{Binding SelectedItems, ElementName=ItemsListView}"
                                                         hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                         Style="{StaticResource ButtonWarning}" />
                                             </hc:UniformSpacingPanel>
@@ -233,7 +232,6 @@
                                                                     Spacing="10">
                                                 <Button Content="One Action"
                                                         Command="{Binding Step2OneCommand}"
-                                                        CommandParameter="{Binding SelectedItems, ElementName=ItemsListView}"
                                                         hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                         Style="{StaticResource ButtonPrimary.Loading}" />
                                                 <Button Content="One Cancel"
@@ -262,7 +260,8 @@
                               ItemsSource="{Binding Items}"
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
                         <i:Interaction.Behaviors>
                             <behaviors:ListBoxScrollToCurrentBehavior />
                         </i:Interaction.Behaviors>
