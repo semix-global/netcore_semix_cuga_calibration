@@ -239,6 +239,24 @@
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
+                        <GroupBox Header="Step3">
+                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Save"
+                                                        Command="{Binding SaveCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}" />
+                                            </hc:UniformSpacingPanel>
+                                        </hc:UniformSpacingPanel>
+                                    </hc:UniformSpacingPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
                     </hc:UniformSpacingPanel>
                 </hc:ScrollViewer>
             </Border>
@@ -252,7 +270,7 @@
                     </Grid.RowDefinitions>
                     <ListView x:Name="ItemsListView"
                               d:SelectedIndex="0"
-                              ItemsSource="{Binding Items}"
+                              ItemsSource="{Binding Cache.Items}"
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -341,12 +359,12 @@
                             </Grid.ColumnDefinitions>
                             <scottplot:WpfPlot>
                                 <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Frequency of Measure Power" Plot0="{Binding MeasurePowerPoints}" />
+                                    <behaviors:WpfPlotMultiBehavior Title="Frequency of Measure Power" Plot0="{Binding Cache.MeasurePowerPoints}" />
                                 </i:Interaction.Behaviors>
                             </scottplot:WpfPlot>
                             <scottplot:WpfPlot Grid.Column="1">
                                 <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Frequency of Coefficient" Plot0="{Binding CoefficientPoints}" />
+                                    <behaviors:WpfPlotMultiBehavior Title="Frequency of Coefficient" Plot0="{Binding Cache.CoefficientPoints}" />
                                 </i:Interaction.Behaviors>
                             </scottplot:WpfPlot>
                             <scottplot:WpfPlot Grid.Column="2">

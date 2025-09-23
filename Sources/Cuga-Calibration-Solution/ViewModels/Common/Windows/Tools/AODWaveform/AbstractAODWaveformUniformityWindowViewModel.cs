@@ -25,8 +25,10 @@ using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformUniformityCache<TParam> : ObservableCacheBase
+public partial class AODWaveformUniformityCache<TParam, TProfile, TResult> : ObservableCacheBase
     where TParam : AbstractGenerateAODWaveformParam, new()
+    where TProfile : AbstractAODWaveformProfile
+    where TResult : AODWaveformUniformityItem<TProfile>, new()
 {
     [ObservableProperty]
     private TParam _param = new();
@@ -63,6 +65,28 @@ public partial class AODWaveformUniformityCache<TParam> : ObservableCacheBase
     public double TargetThresholdRateMin => 1 - TargetThreshold;
 
     public double TargetThresholdRateMax => 1 + TargetThreshold;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MeasurePowerPoints))]
+    [NotifyPropertyChangedFor(nameof(CoefficientPoints))]
+    private TResult[] _items = [];
+
+    public Point[] MeasurePowerPoints => [.. Items.Select(t => new Point(t.Frequency, t.MeasurePower))];
+
+    public Point[] CoefficientPoints => [.. Items.Select(t => new Point(t.Frequency, t.Coefficient))];
+    
+    public virtual object ToHtmlAnonymous() => new
+    {
+        WaitTime,
+        StartFrequency,
+        StepFrequency,
+        StopFrequency,
+        TargetMeasurePower,
+        TargetThreshold,
+        TargetThresholdRateMin,
+        TargetThresholdRateMax,
+        RetryCount
+    };
 }
 
 public partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
@@ -97,14 +121,14 @@ public partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
     private bool _isOk;
 }
 
-public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
-    where TCache : AODWaveformUniformityCache<TParam>, new()
-    where TResult : AODWaveformUniformityItem<TProfile>, new()
+public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
+    where TResult : AODWaveformUniformityItem<TProfile>, new()
+    where TCache : AODWaveformUniformityCache<TParam, TProfile, TResult>, new()
 {
     protected readonly ApplicationSetting ApplicationSetting;
-    protected readonly ILogger<AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>> Logger;
+    protected readonly ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>> Logger;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
@@ -119,15 +143,6 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
     private Point[] _measureCoefficientPowerPoints = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(MeasurePowerPoints))]
-    [NotifyPropertyChangedFor(nameof(CoefficientPoints))]
-    private TResult[] _items = [];
-
-    public Point[] MeasurePowerPoints => [.. Items.Select(t => new Point(t.Frequency, t.MeasurePower))];
-
-    public Point[] CoefficientPoints => [.. Items.Select(t => new Point(t.Frequency, t.Coefficient))];
-
-    [ObservableProperty]
     private TResult? _selectedItem;
 
     protected Guid HtmlLogUniqueId { get; private set; }
@@ -135,7 +150,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
     protected AbstractAODWaveformUniformityWindowViewModel()
     {
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
-        Logger = (ILogger<AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+        Logger = (ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
@@ -159,7 +174,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             }
         }
 
-        Logger.LogWarning("{@Name}: Please Calibrate {@OpticsMagTypeEnum} Optical Power First", nameof(AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>), Cache.Param.OpticsMagTypeEnum);
+        Logger.LogWarning("{@Name}: Please Calibrate {@OpticsMagTypeEnum} Optical Power First", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>), Cache.Param.OpticsMagTypeEnum);
         DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.Param.OpticsMagTypeEnum} Optical Power First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
     }
 
@@ -168,10 +183,12 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
     {
         await InvokeAsync("Step1 Measure Power", async () =>
         {
-            Items = [];
+            Cache.Items = [];
 
             foreach (var frequency in Generate.LinearRange(Cache.StartFrequency, Cache.StepFrequency, Cache.StopFrequency))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                
                 var item = new TResult
                 {
                     Frequency = frequency,
@@ -182,10 +199,10 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
                 Logger.LogHtmlInformation($"{item.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
 
-                Items = [.. Items, item];
+                Cache.Items = [.. Cache.Items, item];
             }
 
-            Cache.TargetMeasurePower = Items.Min(t => t.MeasurePower);
+            Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
 
             return true;
         });
@@ -197,8 +214,10 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
         await InvokeAsync("Step2 Uniformity", async () =>
         {
             var results = new List<bool>();
-            foreach (var item in Items)
+            foreach (var item in Cache.Items)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                
                 Logger.LogHtmlInformation($"{item.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 results.Add(await UniformityAsync(item, cancellationToken).ConfigureAwait(false));
             }
@@ -217,7 +236,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             Logger.LogHtmlInformation($"{SelectedItem.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             await UpdateMeasurePowerAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
 
-            Cache.TargetMeasurePower = Items.Min(t => t.MeasurePower);
+            Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
 
             return true;
         });
@@ -244,13 +263,13 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             if (dialog == false) return;
 
             FileHelper.DeleteFileIfExists(filePath);
-            MiniExcel.SaveAs(filePath, CoefficientPoints.Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = t.X, Coefficient = t.Y }));
+            MiniExcel.SaveAs(filePath, Cache.CoefficientPoints.Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = t.X, Coefficient = t.Y }));
 
             DialogWindowProvider.ShowDialog($"Save {AODWaveformName} AOD Waveform Uniformity Success!");
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity", nameof(AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>), AODWaveformName);
+            Logger.LogError(ex, "{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>), AODWaveformName);
             DialogWindowProvider.ShowDialog($"""
                                              Save {AODWaveformName} AOD Waveform Uniformity Failed!
                                              {ex.Message}
@@ -264,7 +283,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
         if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false)
-            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractAODWaveformUniformityWindowViewModel<TCache, TResult, TParam, TProfile>), AODWaveformName);
+            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>), AODWaveformName);
 
         CloseView(null);
     }
@@ -275,18 +294,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
 
         Logger.LogHtmlInformation(AODWaveformName, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
         Logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-        {
-            Cache.WaitTime,
-            Cache.StartFrequency,
-            Cache.StepFrequency,
-            Cache.StopFrequency,
-            Cache.TargetMeasurePower,
-            Cache.TargetThreshold,
-            Cache.TargetThresholdRateMin,
-            Cache.TargetThresholdRateMax,
-            Cache.RetryCount
-        }), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
         var result = false;
         try
@@ -294,7 +302,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             await func();
 
             Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([
-                .. Items.Select(t => new
+                .. Cache.Items.Select(t => new
                 {
                     t.Frequency,
                     t.DefaultAmplitude,
@@ -309,8 +317,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
             {
                 Param = new HtmlQuote(Cache.Param.ToHtmlAnonymous()),
-                MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, MeasurePowerPoints)], string.Empty),
-                CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, CoefficientPoints)], string.Empty)
+                MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.MeasurePowerPoints)], string.Empty),
+                CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
 
             result = true;

@@ -6,12 +6,12 @@ using Net.Utilities.Enums;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed class PrescanAODWaveformUniformityCache : AODWaveformUniformityCache<GeneratePrescanAODWaveformParam>;
+public sealed class PrescanAODWaveformUniformityCache : AODWaveformUniformityCache<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile, PrescanAODWaveformUniformityItem>;
 
 public sealed class PrescanAODWaveformUniformityItem : AODWaveformUniformityItem<PrescanAODWaveformProfile>;
 
 [IOCAppService(ServiceType = typeof(PrescanAODWaveformUniformityWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUniformityWindowViewModel<PrescanAODWaveformUniformityCache, PrescanAODWaveformUniformityItem, GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>
+public sealed class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUniformityWindowViewModel<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile, PrescanAODWaveformUniformityItem, PrescanAODWaveformUniformityCache>
 {
     protected override string AODWaveformName => "Prescan";
 
