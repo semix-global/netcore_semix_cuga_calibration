@@ -53,9 +53,6 @@ public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
     private Point _findPosition;
 
     [ObservableProperty]
-    private string _prescanFilePath = string.Empty;
-
-    [ObservableProperty]
     private string _filePath = string.Empty;
 
     [ObservableProperty]

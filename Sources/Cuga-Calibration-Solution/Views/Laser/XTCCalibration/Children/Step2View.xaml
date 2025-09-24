@@ -45,16 +45,6 @@
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                            <TextBox Text="{Binding Cache.PrescanFilePath}"
-                                     Height="50"
-                                     TextWrapping="Wrap"
-                                     hc:InfoElement.Title="FileName : "
-                                     hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <Button Content="Change" Command="{Binding ChangePrescanFileCommand}" />
-                            <Separator />
                             <hc:NumericUpDown hc:InfoElement.Title="Prescan Max Start Index: "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:InfoElement.TitlePlacement="Left"
