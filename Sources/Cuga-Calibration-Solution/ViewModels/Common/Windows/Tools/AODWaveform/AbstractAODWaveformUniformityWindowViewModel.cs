@@ -229,7 +229,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
 
             return true;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -247,7 +247,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             }
 
             return results.All(t => t);
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -265,7 +265,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
 
             return true;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -277,7 +277,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
             Logger.LogHtmlInformation($"{SelectedItem.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             return await UniformityAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -322,46 +322,49 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
     private async Task InvokeAsync(string stepName, Func<Task<bool>> func)
     {
-        HtmlLogUniqueId = Guid.NewGuid();
-
-        Logger.LogHtmlInformation(AODWaveformName, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-        Logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-        var result = false;
-        try
+        await Task.Run(async () =>
         {
-            await func();
+            HtmlLogUniqueId = Guid.NewGuid();
 
-            Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.Items.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+            Logger.LogHtmlInformation(AODWaveformName, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+            var result = false;
+            try
             {
-                MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.MeasurePowerPoints)], string.Empty),
-                CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
+                await func().ConfigureAwait(false);
 
-            result = true;
-        }
-        catch (Exception ex)
-        {
-            if (ex is OperationCanceledException)
-            {
-                DialogWindowProvider.ShowDialog($"{AODWaveformName} {stepName} Canceled!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlWarning($"{AODWaveformName}{stepName}  Canceled!", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.Items.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+                {
+                    MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.MeasurePowerPoints)], string.Empty),
+                    CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
 
-                return;
+                result = true;
             }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{AODWaveformName} {stepName} Canceled!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    Logger.LogHtmlWarning($"{AODWaveformName}{stepName}  Canceled!", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            DialogWindowProvider.ShowDialog($"""
-                                             {AODWaveformName} {stepName} Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-        }
-        finally
-        {
-            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{AODWaveformName}_{stepName}_{(result ? "OK" : "Failed")}"));
-        }
+                    return;
+                }
+
+                DialogWindowProvider.ShowDialog($"""
+                                                 {AODWaveformName} {stepName} Failed!
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            }
+            finally
+            {
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{AODWaveformName}_{stepName}_{(result ? "OK" : "Failed")}"));
+            }
+        }).ConfigureAwait(false);
     }
 
     private async Task<bool> UniformityAsync(TResult item, CancellationToken cancellationToken)
