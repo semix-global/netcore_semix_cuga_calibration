@@ -10,10 +10,10 @@
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
            Width="1500"
            Height="1000"
-           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetWindowViewModel,
-                                            IsDesignTimeCreatable=True}"
+           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetWindowViewModel}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
            ResizeMode="NoResize"
@@ -144,19 +144,16 @@
                                     <hc:NumericUpDown hc:InfoElement.Title="Start Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
-                                                      Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StartLowFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Step Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
-                                                      Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepLowFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Stop Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
-                                                      Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopLowFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <StackPanel>
@@ -167,19 +164,16 @@
                                     <hc:NumericUpDown hc:InfoElement.Title="Start Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
-                                                      Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StartHighFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Step Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
-                                                      Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepHighFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Stop Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
-                                                      Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopHighFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
@@ -232,130 +226,138 @@
                     </Grid.RowDefinitions>
                     <TabControl>
                         <TabItem Header="Low Frequency">
-                            <ListView d:SelectedIndex="0"
-                                      ItemsSource="{Binding Cache.LowFrequencyItems}"
-                                      Style="{StaticResource ListView.Small}"
-                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                                <ListView.ItemContainerStyle>
-                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.View>
-                                    <GridView>
-                                        <GridView.ColumnHeaderContainerStyle>
-                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                            </Style>
-                                        </GridView.ColumnHeaderContainerStyle>
-                                        <GridViewColumn Width="150"
-                                                        Header="Frequency(MHz)"
-                                                        DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Width="100"
-                                                        Header="Amplitude"
-                                                        DisplayMemberBinding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Width="120"
-                                                        Header="Measure Power(mW)"
-                                                        DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Header="Profiles">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <ToggleButton x:Name="ToggleButtonProfiles"
-                                                                      Content="Profiles"
-                                                                      Margin="2"
-                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                                                      Style="{StaticResource ToggleButtonDefault.Small}" />
-                                                        <Popup Width="800"
-                                                               Height="800"
-                                                               StaysOpen="False"
-                                                               PlacementTarget="{Binding ElementName=ToggleButtonProfiles}"
-                                                               Placement="Right"
-                                                               AllowsTransparency="True"
-                                                               PopupAnimation="Slide"
-                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
-                                                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetItem}" DataContext="{Binding Profiles}" />
-                                                            </Border>
-                                                        </Popup>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                            <Border Padding="0"
+                                    Style="{StaticResource BorderRegion}"
+                                    Effect="{StaticResource EffectShadow1}">
+                                <ListView d:SelectedIndex="0"
+                                          ItemsSource="{Binding Cache.LowFrequencyItems}"
+                                          Style="{StaticResource ListView.Small}"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:ListBoxScrollToCurrentBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <ListView.ItemContainerStyle>
+                                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridView.ColumnHeaderContainerStyle>
+                                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                </Style>
+                                            </GridView.ColumnHeaderContainerStyle>
+                                            <GridViewColumn Width="150"
+                                                            Header="Frequency(MHz)"
+                                                            DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
+                                            <GridViewColumn Width="100"
+                                                            Header="Amplitude"
+                                                            DisplayMemberBinding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" />
+                                            <GridViewColumn Width="120"
+                                                            Header="Measure Power(mW)"
+                                                            DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
+                                            <GridViewColumn Header="Profiles">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <ToggleButton x:Name="ToggleButtonProfiles"
+                                                                          Content="Profiles"
+                                                                          Margin="2"
+                                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                          Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                            <Popup Width="800"
+                                                                   Height="800"
+                                                                   StaysOpen="False"
+                                                                   PlacementTarget="{Binding ElementName=ToggleButtonProfiles}"
+                                                                   Placement="Right"
+                                                                   AllowsTransparency="True"
+                                                                   PopupAnimation="Slide"
+                                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                    <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetItem}" DataContext="{Binding Profiles}" />
+                                                                </Border>
+                                                            </Popup>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </Border>
                         </TabItem>
                         <TabItem Header="High Frequency">
-                            <ListView d:SelectedIndex="0"
-                                      ItemsSource="{Binding Cache.HighFrequencyItems}"
-                                      Style="{StaticResource ListView.Small}"
-                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                                <ListView.ItemContainerStyle>
-                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.View>
-                                    <GridView>
-                                        <GridView.ColumnHeaderContainerStyle>
-                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                            </Style>
-                                        </GridView.ColumnHeaderContainerStyle>
-                                        <GridViewColumn Header="Frequency(MHz)" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Header="Amplitude" DisplayMemberBinding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Header="Measure Power(mW)" DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Header="Profiles">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <ToggleButton x:Name="ToggleButtonProfiles"
-                                                                      Content="Profiles"
-                                                                      Margin="2"
-                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                                                      Style="{StaticResource ToggleButtonDefault.Small}" />
-                                                        <Popup Width="800"
-                                                               Height="800"
-                                                               StaysOpen="False"
-                                                               PlacementTarget="{Binding ElementName=ToggleButtonProfiles}"
-                                                               Placement="Right"
-                                                               AllowsTransparency="True"
-                                                               PopupAnimation="Slide"
-                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
-                                                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetItem}" DataContext="{Binding Profiles}" />
-                                                            </Border>
-                                                        </Popup>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                            <Border Padding="0"
+                                    Style="{StaticResource BorderRegion}"
+                                    Effect="{StaticResource EffectShadow1}">
+                                <ListView d:SelectedIndex="0"
+                                          ItemsSource="{Binding Cache.HighFrequencyItems}"
+                                          Style="{StaticResource ListView.Small}"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:ListBoxScrollToCurrentBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <ListView.ItemContainerStyle>
+                                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridView.ColumnHeaderContainerStyle>
+                                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                </Style>
+                                            </GridView.ColumnHeaderContainerStyle>
+                                            <GridViewColumn Header="Frequency(MHz)" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
+                                            <GridViewColumn Header="Amplitude" DisplayMemberBinding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" />
+                                            <GridViewColumn Header="Measure Power(mW)" DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
+                                            <GridViewColumn Header="Profiles">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <ToggleButton x:Name="ToggleButtonProfiles"
+                                                                          Content="Profiles"
+                                                                          Margin="2"
+                                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                          Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                            <Popup Width="800"
+                                                                   Height="800"
+                                                                   StaysOpen="False"
+                                                                   PlacementTarget="{Binding ElementName=ToggleButtonProfiles}"
+                                                                   Placement="Right"
+                                                                   AllowsTransparency="True"
+                                                                   PopupAnimation="Slide"
+                                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                    <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetItem}" DataContext="{Binding Profiles}" />
+                                                                </Border>
+                                                            </Popup>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </Border>
                         </TabItem>
                     </TabControl>
                     <GridSplitter Grid.Row="1" Height="5" />
@@ -363,22 +365,17 @@
                             Padding="0"
                             Style="{StaticResource BorderRegion}"
                             Effect="{StaticResource EffectShadow1}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <scottplot:WpfPlot>
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Low Frequency" Plot0="{Binding Cache.LowFrequencyPoints}" />
-                                </i:Interaction.Behaviors>
-                            </scottplot:WpfPlot>
-                            <scottplot:WpfPlot Grid.Column="1">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="High Frequency" Plot0="{Binding Cache.HighFrequencyPoints}" />
-                                </i:Interaction.Behaviors>
-                            </scottplot:WpfPlot>
-                        </Grid>
+                        <scottplot:WpfPlot>
+                            <i:Interaction.Behaviors>
+                                <behaviors:WpfPlotMultiBehavior Title="Frequency"
+                                                                Plot0Title="Low Frequency"
+                                                                Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                Plot0="{Binding Cache.LowFrequencyPoints}"
+                                                                Plot1Title="HighFrequency"
+                                                                Plot1Color="{x:Static scottPlot:Colors.Red}"
+                                                                Plot1="{Binding Cache.HighFrequencyPoints}" />
+                            </i:Interaction.Behaviors>
+                        </scottplot:WpfPlot>
                     </Border>
                 </Grid>
             </GroupBox>

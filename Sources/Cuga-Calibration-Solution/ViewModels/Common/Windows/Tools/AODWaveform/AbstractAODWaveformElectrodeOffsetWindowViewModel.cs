@@ -229,7 +229,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     }
 
     [RelayCommand]
-    private void Step2(CancellationToken cancellationToken)
+    private void Step2()
     {
         /*Guard.IsNotEmpty(Cache.LowFrequencyItems);
         Guard.IsNotEmpty(Cache.HighFrequencyItems);
@@ -268,12 +268,23 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             {
                 await func().ConfigureAwait(false);
 
-                Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
-                Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => new
+                {
+                    t.AODWaveformResultFilePath,
+                    t.Frequency,
+                    t.MeasurePower,
+                    //AODWaveform = new HtmlTable([.. t.Profiles.Select(t => t.ToHtmlAnonymous())])
+                })]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => new
+                {
+                    t.AODWaveformResultFilePath,
+                    t.Frequency,
+                    t.MeasurePower,
+                    //AODWaveform = new HtmlTable([.. t.Profiles.Select(t => t.ToHtmlAnonymous())])
+                })]), HtmlLogUniqueId.LoggingHtml());
                 Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
                 {
-                    LowFrequencyPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.LowFrequencyPoints)], string.Empty),
-                    HighFrequencyPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.HighFrequencyPoints)], string.Empty)
+                    FrequencyPoints = new HtmlPlot2DLinesChart([(nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints)], string.Empty),
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 result = true;
@@ -342,7 +353,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             item.MeasurePower = measurePower;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(new HtmlQuote(new
+            {
+                item.AODWaveformResultFilePath,
+                item.Frequency,
+                item.MeasurePower,
+                //AODWaveform = new HtmlTable([.. item.Profiles.Select(t => t.ToHtmlAnonymous())])
+            })), HtmlLogUniqueId.LoggingHtml());
         }
         finally
         {

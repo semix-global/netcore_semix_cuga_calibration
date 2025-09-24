@@ -141,7 +141,7 @@ public partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
         MeasurePower,
         Rate,
         IsOk,
-        AODWaveform = new HtmlTable([..Profiles.Select(t => t.ToHtmlAnonymous())])
+        AODWaveform = new HtmlTable([.. Profiles.Select(t => t.ToHtmlAnonymous())])
     });
 }
 
@@ -335,7 +335,19 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             {
                 await func().ConfigureAwait(false);
 
-                Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.Items.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([
+                    .. Cache.Items.Select(t => new
+                {
+                    t.Frequency,
+                    t.DefaultAmplitude,
+                    t.Amplitude,
+                    t.Coefficient,
+                    t.MeasurePower,
+                    t.Rate,
+                    t.IsOk,
+                    AODWaveform = new HtmlTable([.. t.Profiles.Select(tt => tt.ToHtmlAnonymous())]),
+                })
+                ]), HtmlLogUniqueId.LoggingHtml());
                 Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
                 {
                     MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.MeasurePowerPoints)], string.Empty),
@@ -436,7 +448,13 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
         HtmlQuote GetHtmlQuote() => new(new
         {
-            item = new HtmlBullet(item.ToHtmlAnonymous()),
+            item.Frequency,
+            item.DefaultAmplitude,
+            item.Amplitude,
+            item.Coefficient,
+            item.MeasurePower,
+            item.Rate,
+            item.IsOk,
             MeasureCoefficientPowerPoints = new HtmlPlot2DLinesChart([(string.Empty, [.. MeasureCoefficientPowerPoints])], string.Empty)
         });
     }
@@ -469,7 +487,14 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
             item.MeasurePower = measurePower;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
+            {
+                item.AODWaveformResultFilePath,
+                item.Frequency,
+                item.Amplitude,
+                item.MeasurePower,
+                AODWaveform = new HtmlTable([.. item.Profiles.Select(t => t.ToHtmlAnonymous())])
+            }), HtmlLogUniqueId.LoggingHtml());
         }
         finally
         {
