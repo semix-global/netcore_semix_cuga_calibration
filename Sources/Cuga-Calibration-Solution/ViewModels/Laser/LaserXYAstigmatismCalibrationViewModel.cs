@@ -20,10 +20,11 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using HalconDotNet;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -194,7 +195,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -538,7 +541,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     var findItemByNotFit = plotList.OrderBy(t => Math.Abs(t.EcsErrorValue)).First();
                     var listRow = plotList.Select(t => t.EcsY).ToList();
                     var listCol = plotList.Select(t => 1 / t.FrequencyChangeRate).ToList();
-                    var (k, b, _, _) = PolyFit.Poly1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
+                    var (k, b, _, _) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
                     var calibrationResult = Math.Abs(findItemByNotFit.EcsErrorValue) < setErrorThreshold;
 
                     var circleCount = 0;
@@ -788,10 +791,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             itemDto.Clone()
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {
@@ -1057,7 +1059,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             var channel3DarkFieldImageDto = list.Single(t => t.ChannelId == 3);
 
 
-            var size = HalconHelper.GetSize(channel3DarkFieldImageDto.Image);
+            var size = channel3DarkFieldImageDto.Image.GetSize();
             var roi = new Rect(0, 0, size.Width, size.Height);
 
             var (ch3XQuality, _) = CalibrationAlgorithmService.GetXyQuality(channel3DarkFieldImageDto.Image);
@@ -1073,14 +1075,14 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             xyAstigmatismItemDto.QualityY = qualityY;
 
             FileHelper.Save(channel3DarkFieldImageDto.Bytes, xyAstigmatismItemDto.OriginFilePath);
-            HalconHelper.Save(channel3DarkFieldImageDto.Image, xyAstigmatismItemDto.FilePath);
+            channel3DarkFieldImageDto.Image.Save(xyAstigmatismItemDto.FilePath);
 
             var ch1FilePath =
                 $"{ImageFileDirectory}\\Ch1_ECS({xyAstigmatismItemDto.EcsX})__FrequencyChangeRate({xyAstigmatismItemDto.FrequencyChangeRate})_Guid({HtmlLogUniqueId}).jpg";
             var ch2FilePath =
                 $"{ImageFileDirectory}\\Ch2_ECS({xyAstigmatismItemDto.EcsX})__FrequencyChangeRate({xyAstigmatismItemDto.FrequencyChangeRate})_Guid({HtmlLogUniqueId}).jpg";
-            HalconHelper.Save(channel1DarkFieldImageDto.Image, ch1FilePath);
-            HalconHelper.Save(channel2DarkFieldImageDto.Image, ch2FilePath);
+            channel1DarkFieldImageDto.Image.Save(ch1FilePath);
+            channel2DarkFieldImageDto.Image.Save(ch2FilePath);
 
             HOperatorSet.WriteObject(channel1DarkFieldImageDto.Image, ch1FilePath.Replace(".jpg", ".hobj"));
             HOperatorSet.WriteObject(channel2DarkFieldImageDto.Image, ch2FilePath.Replace(".jpg", ".hobj"));

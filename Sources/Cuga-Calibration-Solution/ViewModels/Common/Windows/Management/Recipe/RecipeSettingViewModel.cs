@@ -16,14 +16,14 @@ using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.NoSQL.DB.Providers.Helper;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
@@ -50,7 +50,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 [IOCAppService(ServiceType = typeof(RecipeSettingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class RecipeSettingViewModel(
     ICacheProvider cacheProvider,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
     ILogger<RecipeSettingViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
@@ -60,8 +60,8 @@ public sealed partial class RecipeSettingViewModel(
     ICalibrationRecipeService calibrationRecipeService,
     IOptions<ApplicationSetting> options,
     ISysRecipeInformationService sysRecipeInformationService,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
-    ILiteDatabaseProvider liteDatabaseProvider,
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+    ICacheDatabaseProvider cacheDatabaseProvider,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     StageViewModel stageViewModel,
@@ -299,9 +299,10 @@ public sealed partial class RecipeSettingViewModel(
 
         // todo:判断校准状态都为ok时才可以编辑
         IsEditWaferMapEnable = CalibrationRecipeDto.WaferDto.RequireActionIsOk();
-        WaferMapCanvasViewModel.Document.Settings.IsCanToggleAxes = true;
-        WaferMapCanvasViewModel.Document.Settings.IsCanToggleCursor = true;
-        WaferMapCanvasViewModel.Document.Settings.IsCanToggleGrid = true;
+
+        WaferMapCanvasViewModel.Document.Settings.IsShowToggleControlOfIsShowAxes = true;
+        WaferMapCanvasViewModel.Document.Settings.IsShowToggleControlOfIsShowCursor = true;
+        WaferMapCanvasViewModel.Document.Settings.IsShowToggleControlOfIsShowGrid = true;
 
         CalibrationRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
         WaferMapCanvasViewModel.Document = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument;
@@ -356,17 +357,12 @@ public sealed partial class RecipeSettingViewModel(
                 if (SelectRecipeDtoBackup!.CalibrationRecipeInfoDto.RecipeName != recipeInfo.RecipeName
                     && SelectRecipeDtoBackup!.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource != string.Empty)
                 {
-                    liteDatabaseProvider.Dispose();
                     var backupDbDirectoryPath = Path.GetDirectoryName(SelectRecipeDtoBackup!.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource);
                     Directory.Move(backupDbDirectoryPath, Path.GetDirectoryName(recipeInfo.RecipeNosqlRecipeDbDataSource));
                 }
 
                 // 写入nosql数据库
-                if (liteDatabaseProvider.ModifyLiteDatabase(recipeInfo.RecipeNosqlRecipeDbDataSource) == false)
-                {
-                    dialogWindowProvider.ShowDialog("Get lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
+                cacheDatabaseProvider.ChangeDatabase(recipeInfo.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
 
                 recipeCacheProvider.Set(CalibrationRecipeDto, CancellationToken.None);
             }
@@ -859,7 +855,7 @@ public sealed partial class RecipeSettingViewModel(
             var templateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\DarkField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}_{Guid.NewGuid()}";
             var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
 
-            HalconHelper.Save(darkFieldImageDto.Image, templateImageFilePath);
+            darkFieldImageDto.Image.Save(templateImageFilePath);
 
             createDarkImageTemplateWindowViewModel.ImageFilePath = templateImageFilePath;
             createDarkImageTemplateWindowViewModel.TemplateFilePath = templateFilePath;

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -62,8 +63,10 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsPressureGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsPressureGainsDto>();
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -291,8 +294,8 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         update(Cache);
 
         Calibration = dto.Clone();
-
-        return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

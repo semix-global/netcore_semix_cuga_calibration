@@ -76,6 +76,12 @@ public static class CalibrationConstantsHelper
     /// </summary>
     public const int FpsMonitorMilliseconds = 1000;
 
+    /// <summary>
+    /// 配方数据库注入的key
+    /// </summary>
+    public const string RecipeDbKey = "Recipe";
+
+
     #region 方法
 
     #region 规则

@@ -11,7 +11,7 @@ using Core.Utilities;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -24,7 +24,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using AodWaveGenerator = Net.Utilities.Algorithms.Modules.AodWaveGenerator;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -231,7 +230,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                 using var _ = darkFieldImageDto;
 
                 var filePath = $"{detectImageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                darkFieldImageDto.Image.Save(filePath);
                 createRoiWindowViewModel.ImageFilePath = filePath;
 
                 var showDialog = windowManagerService.ShowDialog(createRoiWindowViewModel);
@@ -677,9 +676,9 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                                    $".jpg";
                     filePath = FileHelper.GetEnsureLongPathSupport(filePath);
 
-                    HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                    darkFieldImageDto.Image.Save(filePath);
 
-                    var (maxGrayValue, maxGrayPoints, _, _) = HalconHelper.GetMaxMinGrayValue(darkFieldImageDto.Image, RoiRect);
+                    var (maxGrayValue, maxGrayPoints, _, _) = darkFieldImageDto.Image.GetMaxMinGrayValue(RoiRect);
                     item.Items =
                     [
                         .. item.Items,
@@ -729,7 +728,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
             {
                 item.Items = [];
 
-                var (aodWaveFilePath,
+                var (isSuccess
+                    , aodWaveFilePath,
                     aodWaveFlatnessLinearFrequencySignals,
                     aodWaveFlatnessTotalFrequencySignals,
                     aodWaveFlatnessAstigmatismCompensationSignals,
@@ -741,7 +741,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                     _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    _) = AodWaveGenerator.GenerateChirpAodWaveFile(
+                    _,
+                    exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
                     GenerateChirpAodWaveParamDto.BandWidth,
                     GenerateChirpAodWaveParamDto.CenterFrequency,
                     GenerateChirpAodWaveParamDto.SoundPackageLength,
@@ -758,6 +759,8 @@ public sealed partial class AodGenerateWaveFileTrainingChirpWindowViewModel(
                     trefoilCompensationCoefficient: item.TrefoilCompensationCoefficient,
                     quadrafoilCompensationCoefficient: item.QuadrafoilCompensationCoefficient,
                     generateRetryTimes: 1000);
+                if (isSuccess == false)
+                    throw exception ?? new Exception("Generate Chirp Aod Wave File Failed!");
 
                 item.ChirpAodWaveFilePath = aodWaveFilePath;
                 item.AodWaveFlatnessLinearFrequencySignals = aodWaveFlatnessLinearFrequencySignals;

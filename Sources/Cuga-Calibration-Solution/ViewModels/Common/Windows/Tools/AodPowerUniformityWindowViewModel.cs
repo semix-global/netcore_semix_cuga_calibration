@@ -20,7 +20,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using AodWaveGenerator = Net.Utilities.Algorithms.Modules.AodWaveGenerator;
 using Constants = Net.Utilities.Models.Constants;
 
 // ReSharper disable All
@@ -358,7 +357,8 @@ public partial class AodPowerUniformityWindowViewModel(
         {
             try
             {
-                var (aodWaveFilePath,
+                var (isSuccess,
+                    aodWaveFilePath,
                     _,
                     _,
                     _,
@@ -370,7 +370,8 @@ public partial class AodPowerUniformityWindowViewModel(
                     _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    _) = OpticsAODTypeEnum == OpticsAODTypeEnum.Chirp
+                    _,
+                    exception) = OpticsAODTypeEnum == OpticsAODTypeEnum.Chirp
                     ? AodWaveGenerator.GenerateChirpAodWaveFile(
                         0,
                         item.CenterFrequency,
@@ -393,6 +394,9 @@ public partial class AodPowerUniformityWindowViewModel(
                         zeroSampleCount: item.ZeroNum,
                         endpointSampleCount: 0,
                         generateRetryTimes: AodWaveGenerateRetryCount);
+
+                if (isSuccess == false)
+                    throw exception ?? new Exception("Generate Chirp Aod Wave File Failed!");
 
                 item.AodWaveFilePath = aodWaveFilePath;
                 item.AodWaveSignals = aodWaveSignals;

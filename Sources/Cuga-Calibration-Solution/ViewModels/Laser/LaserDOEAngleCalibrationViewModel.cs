@@ -19,6 +19,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using MoreLinq.Extensions;
@@ -205,7 +206,9 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
         StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition), Cache.CalChipSiteModelEnum);
 
         if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -541,7 +544,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
 
             var xVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => (t.PmtId - 1) * Cache.PmtInterval)]);
             var yVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => t.AfOffset * Cache.EcsPerAfOffset * Cache.UmPerEcs)]);
-            var (slope, intercept, _, _) = PolyFit.Poly1Fit(xVector, yVector);
+            var (slope, intercept, _, _) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
 
             var doeReviseAngle = Math.Atan(slope / Math.Sin(Cache.ObliqueAngle * Math.PI / 180)) * 180 / Math.PI;
 
@@ -597,7 +600,8 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion

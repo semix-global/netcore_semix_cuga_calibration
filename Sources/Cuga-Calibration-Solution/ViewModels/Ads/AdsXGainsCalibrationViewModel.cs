@@ -7,6 +7,7 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Common.Status;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -137,7 +138,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsXGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsXGainsItemDto>();
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -618,7 +621,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 var X = Vector<double>.Build.DenseOfEnumerable(SpeedValueList);
                 var Y1 = Vector<double>.Build.DenseOfEnumerable(x1List);
                 var Y2 = Vector<double>.Build.DenseOfEnumerable(x2List);
-                var (p0, p1, p2, _, yPredicted1) = PolyFit.Poly2Fit(X, Y1);
+                var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
                 for (var i = 0; i < SpeedValueList.Count; i++)
                 {
                     x1SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted1[i]));
@@ -629,7 +632,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 adsXGainsItemDto.SetX1P3(p0);
                 adsXGainsItemDto.SetX1Plots(x1PlotList);
                 adsXGainsItemDto.SetX1SmoothPlots(x1SmoothPlotList);
-                var (p3, p4, p5, _, yPredicted2) = PolyFit.Poly2Fit(X, Y2);
+                var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
                 for (var i = 0; i < SpeedValueList.Count; i++)
                 {
                     x2SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted2[i]));
@@ -1103,7 +1106,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
 
-        var (p0, p1, p2, p3, p4, p5, _, yPredictedZ) = PolyFit.Poly5Fit(x, sgolayfiltListZ);
+        var (p0, p1, p2, p3, p4, p5, _, yPredictedZ) = PolynomialLeastSquares.Polynomial5Fit(x, sgolayfiltListZ);
 
         List<double> smoothZ = [.. yPredictedZ];
 
@@ -1118,7 +1121,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         var areaZ = kkValue - areaThreshold;
 
         //// 调用梯形法计算积分
-        //var areaZ = PolyFit.TrapezoidalRule(f, 0, smoothZ.Count, 1000) -
+        //var areaZ = PolynomialLeastSquares.TrapezoidalRule(f, 0, smoothZ.Count, 1000) -
         //            areaThreshold * smoothZ.Count;
         double maxValue, minValue = 0;
         int maxIndex, minIndex = 0;
@@ -1178,7 +1181,8 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         Calibration = itemDto.Clone();
 
-        return CacheProvider.Set(Calibration, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(Calibration, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

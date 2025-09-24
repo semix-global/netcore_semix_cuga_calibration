@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Laser.BeamStabilizer;
+using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -67,7 +68,9 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
         FirstLaserBeamStabilizerObjDto = new LaserBeamStabilizerObjDto { Interval = 30 };
         SynchronizationContextProvider.Send(LaserBeamStabilizerObjDtoList.Clear);
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -203,11 +206,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
             ReviewDto.IsVerified = false;
 
-            if (CacheProvider.Set(Cache, cancellationToken) == false)
-            {
-                DialogWindowProvider.ShowDialog("Save Threshold Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                return false;
-            }
+            CacheProvider.Set(Cache, cancellationToken);
 
             SynchronizationContextProvider.Send(LaserBeamStabilizerObjDtoList.Clear);
 
@@ -330,7 +329,8 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

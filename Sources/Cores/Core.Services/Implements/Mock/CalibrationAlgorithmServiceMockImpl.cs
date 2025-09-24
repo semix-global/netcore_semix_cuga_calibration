@@ -4,8 +4,10 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Services.Interfaces;
 using HalconDotNet;
+using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -19,37 +21,39 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 {
     private static readonly Random Random = new();
 
+    private readonly Algorithm _algorithm = new();
+
     public string Version => HAlgorithm.Algorithm.Version;
 
-    public double GetQuality(HObject image)
+    public double GetQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
 
-    public double GetDarkFieldQuality(HObject image)
+    public double GetDarkFieldQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
 
-    public (double XQuality, double YQuality) GetXyQuality(HObject image)
+    public (double XQuality, double YQuality) GetXyQuality(HImage image)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
     }
 
-    public (double MtfX, double MtfY) ModulationTransferFunction(HObject image, Rect roiRect)
+    public (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
     }
 
-    public (double Width, double Height) GetLightQuality(HObject image, Rect roiRect)
+    public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
     }
 
-    public Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle)
+    public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Next(1, 10), Random.Next(1, 10));
-        drawingImage = HalconHelper.Copy(image);
+        drawingImage = image.Copy();
         angle = Random.NextDouble();
         return pixelSize;
     }
@@ -59,19 +63,19 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return Random.NextDouble();
     }
 
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, string templateFilePath, Rect rect, out HObject templateImage)
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage)
     {
-        templateImage = HalconHelper.ToRoi(image, rect);
+        templateImage = image.ToRoi(rect);
         templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
 
         switch (algorithmTemplateTypeEnum)
         {
             case AlgorithmTemplateTypeEnum.Sharpe:
-                HalconHelper.SaveSharpeTemplate(templateImage, templateFilePath);
+                templateImage.SaveSharpeTemplate(templateFilePath);
                 break;
 
             case AlgorithmTemplateTypeEnum.Ncc:
-                HalconHelper.SaveNccTemplate(templateImage, templateFilePath);
+                templateImage.SaveNccTemplate(templateFilePath);
                 break;
 
             default:
@@ -83,60 +87,46 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     public bool TryReadTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, out HTuple templateId)
     {
-        templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
-        if (File.Exists(templateFilePath) == false) throw new FileNotFoundException(nameof(templateFilePath), templateFilePath);
+        templateId = HalconFactory.EmptyHTuple;
 
-        templateId = algorithmTemplateTypeEnum switch
-        {
-            AlgorithmTemplateTypeEnum.Sharpe => HalconHelper.ReadSharpeTemplate(templateFilePath),
-            AlgorithmTemplateTypeEnum.Ncc => HalconHelper.ReadNccTemplate(templateFilePath),
-            _ => throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null)
-        };
+        var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
+        if (File.Exists(temp) == false) throw new FileNotFoundException(nameof(templateFilePath), temp);
+
+        _algorithm.HReadModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, out templateId);
 
         return true;
     }
 
     public bool TryCleanTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HTuple templateId)
     {
-        switch (algorithmTemplateTypeEnum)
-        {
-            case AlgorithmTemplateTypeEnum.Sharpe:
-                HalconHelper.CleanSharpeTemplate(templateId);
-                break;
-
-            case AlgorithmTemplateTypeEnum.Ncc:
-                HalconHelper.CleanNccTemplate(templateId);
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null);
-        }
+        _algorithm.HClearModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId);
 
         return true;
     }
 
-    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
+
+    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
         score = Random.NextDouble() * 10;
         angle = Random.Next(1, 10);
         offsetPoint = new Point(Random.Next(1, 10), Random.Next(1, 10));
 
-        var size = HalconHelper.GetSize(image);
+        var size = image.GetSize();
         markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
 
         return true;
     }
 
-    public bool TryGenerateProjectionTemplate(HObject image, string templateFilePath, out HObject templateImage)
+    public bool TryGenerateProjectionTemplate(HImage image, string templateFilePath, out HImage templateImage)
     {
-        templateImage = HalconHelper.Copy(image);
+        templateImage = image.Copy();
         return true;
     }
 
     public bool TryReadProjectionTemplate(string templateFilePath, out HTuple templateXId, out HTuple templateYId)
     {
-        templateXId = HalconHelper.EmptyHTuple;
-        templateYId = HalconHelper.EmptyHTuple;
+        templateXId = HalconFactory.EmptyHTuple;
+        templateYId = HalconFactory.EmptyHTuple;
 
         return true;
     }
@@ -146,11 +136,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return true;
     }
 
-    public bool TryProjectionTemplateMatchToOffset(HObject image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
+    public bool TryProjectionTemplateMatchToOffset(HImage image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
     {
         offsetPoint = new Point(Random.Next(1, 10), Random.Next(1, 10));
 
-        var size = HalconHelper.GetSize(image);
+        var size = image.GetSize();
         markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
 
         return true;
@@ -166,14 +156,14 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return Utilities.RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
     }
 
-    public (HObject Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
+    public (HImage Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
     {
         var (matrix, _) = Utilities.RawImageHelper.ToMatrix(rawBytes);
 
         return (Utilities.RawImageHelper.CreateImage(rawBytes), matrix);
     }
 
-    public (HObject Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
+    public (HImage Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
     {
         var (matrix, horizontalFlipRawBytes, _) = Utilities.RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
 
@@ -185,7 +175,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return ([], []);
     }
 
-    public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HObject> image)
+    public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
     {
         var ch1YList = new List<double>();
         var ch2YList = new List<double>();

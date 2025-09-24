@@ -7,6 +7,7 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using MoreLinq;

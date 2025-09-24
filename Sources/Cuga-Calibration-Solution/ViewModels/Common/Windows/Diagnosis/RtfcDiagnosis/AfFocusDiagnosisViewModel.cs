@@ -18,9 +18,10 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -288,7 +289,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                 else
                                 {
                                     var filePath = $"{detectImageDirectory}\\DarkFieldTemplateOriginImage_{Guid.NewGuid()}).jpg";
-                                    HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                                    darkFieldImageDto.Image.Save(filePath);
                                     createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
                                     createDarkImageTemplateWindowViewModel.TemplateFilePath = FocusShiftCache.DarkFiledTemplateFilePath;
 
@@ -812,7 +813,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     StageCoordinateSystemEnum.Machine);
                 var nscDarkFieldImageFilePath =
                     $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, nscDarkFieldImageFilePath);
+                darkFieldImageDto.Image.Save(nscDarkFieldImageFilePath);
 
                 Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
@@ -962,7 +963,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 3,
                 StageCoordinateSystemEnum.Dark);
 
-            using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
+            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
@@ -972,7 +973,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             rtfcItemDto.Quality = qualityX;
 
             FileHelper.Save(darkFieldImageDto.Bytes, rtfcItemDto.DarkFieldOriginImageFilePath);
-            HalconHelper.Save(darkFieldImageDto.Image, rtfcItemDto.DarkFieldImageFilePath);
+            darkFieldImageDto.Image.Save(rtfcItemDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
@@ -1223,10 +1224,12 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
     public override async Task<bool> SavingAsync()
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        if (CacheProvider.Set(ResultRtfcDto, CancellationToken.None) == false) return false;
-        if (CacheProvider.Set(ResultFocusShiftDto, CancellationToken.None) == false) return false;
-        if (CacheProvider.Set(Cache, CancellationToken.None) == false) return false;
-        if (CacheProvider.Set(FocusShiftCache, CancellationToken.None) == false) return false;
+
+        CacheProvider.Set(ResultRtfcDto, CancellationToken.None);
+        CacheProvider.Set(ResultFocusShiftDto, CancellationToken.None);
+        CacheProvider.Set(Cache, CancellationToken.None);
+        CacheProvider.Set(FocusShiftCache, CancellationToken.None);
+
         return true;
     }
 

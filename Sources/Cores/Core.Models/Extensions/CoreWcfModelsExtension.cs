@@ -35,6 +35,7 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Wcf.Models;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MoreLinq;
 using Net.Utilities.Helpers.Helpers.Structs;

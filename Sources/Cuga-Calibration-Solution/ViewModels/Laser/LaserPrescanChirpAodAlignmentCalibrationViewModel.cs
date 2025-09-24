@@ -13,12 +13,14 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -151,7 +153,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
         if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -358,7 +362,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var item = new LaserPrescanChirpAodAlignmentItemDto();
-                var (aodWaveFilePath,
+                var (isSuccess,
+                    aodWaveFilePath,
                     _,
                     _,
                     _,
@@ -370,7 +375,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                     _,
                     aodWaveSignals,
                     aodWaveSignalsFourier,
-                    _) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                    _,
+                    exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
                     0,
                     centerFrequency,
                     Cache.PrescanFlatnessTime,
@@ -381,6 +387,11 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                     zeroSampleCount: Cache.PrescanZeroNum,
                     endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
                     generateRetryTimes: Cache.PrescanGenerateRetryCount);
+                if (isSuccess == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Generate Prescan Aod Wave File Error! {exception}"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
 
                 item.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
                 item.PrescanCenterFrequency = centerFrequency;
@@ -390,7 +401,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
                 var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
 
-                var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
+                (isSuccess, var channel1DarkFieldImageDto, var channel2DarkFieldImageDto, var channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
                 if (isSuccess == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Get Dark Field Line Scan Image Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -402,11 +413,11 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 using var _3 = channel3DarkFieldImageDto;
                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 item.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_Channel1_{item.PrescanCenterFrequency:0.###}).jpg";
-                HalconHelper.Save(channel1DarkFieldImageDto.Image, item.Channel1ImageFilePath);
+                channel1DarkFieldImageDto.Image.Save(item.Channel1ImageFilePath);
                 item.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_Channel2_{item.PrescanCenterFrequency:0.###}).jpg";
-                HalconHelper.Save(channel2DarkFieldImageDto.Image, item.Channel2ImageFilePath);
+                channel2DarkFieldImageDto.Image.Save(item.Channel2ImageFilePath);
                 item.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_Channel3_{item.PrescanCenterFrequency:0.###}).jpg";
-                HalconHelper.Save(channel3DarkFieldImageDto.Image, item.Channel3ImageFilePath);
+                channel3DarkFieldImageDto.Image.Save(item.Channel3ImageFilePath);
                 item.Channel1DarkFieldImageProjectionYs = channel1DarkFieldImageDto.ProjectionYs;
                 item.Channel2DarkFieldImageProjectionYs = channel2DarkFieldImageDto.ProjectionYs;
                 item.Channel3DarkFieldImageProjectionYs = channel3DarkFieldImageDto.ProjectionYs;
@@ -443,14 +454,15 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
             var itemPoints = ResultCalibrateDto.ItemPoints.Skip(1).SkipLast(1).ToArray();
             var (slope, intercept, rSquared, yPredicted) = HostEnvironment.IsDevelopment()
-                ? PolyFit.Poly1Fit(Vector<double>.Build.DenseOfArray([190, 195, 200, 205, 210, 215]), Vector<double>.Build.DenseOfArray([125, 233, 349, 452, 545, 654]))
-                : PolyFit.Poly1Fit(Vector<double>.Build.DenseOfEnumerable(itemPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(itemPoints.Select(t => t.Y)));
+                ? PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfArray([190, 195, 200, 205, 210, 215]), Vector<double>.Build.DenseOfArray([125, 233, 349, 452, 545, 654]))
+                : PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(itemPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(itemPoints.Select(t => t.Y)));
             ResultCalibrateDto.Slope = slope;
             ResultCalibrateDto.Intercept = intercept;
             ResultCalibrateDto.RSquared = rSquared;
             ResultCalibrateDto.ItemFitPoints = [.. itemPoints.Select((t, i) => new Point(t.X, yPredicted[i]))];
 
-            var (aodWaveFilePathResult,
+            var (isGenerateSuccess
+                , aodWaveFilePathResult,
                 _,
                 _,
                 _,
@@ -462,7 +474,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 _,
                 aodWaveSignalsResult,
                 aodWaveSignalsFourierResult,
-                _) = AodWaveGenerator.GeneratePrescanAodWaveFile(
+                _,
+                exceptionResult) = AodWaveGenerator.GeneratePrescanAodWaveFile(
                 Math.Abs(yPixelHeight / ResultCalibrateDto.Slope),
                 (yPixelHeight / 2d - ResultCalibrateDto.Intercept) / ResultCalibrateDto.Slope,
                 yPixelHeight * 4d,
@@ -473,6 +486,12 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 zeroSampleCount: Cache.PrescanZeroNum,
                 endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
                 generateRetryTimes: Cache.PrescanGenerateRetryCount);
+
+            if (isGenerateSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Generate Prescan Aod Wave File Error! {exceptionResult}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
 
             ResultCalibrateDto.PrescanSignals = aodWaveSignalsResult;
             ResultCalibrateDto.PrescanFouriers = aodWaveSignalsFourierResult;
@@ -574,10 +593,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             dto.Clone()
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

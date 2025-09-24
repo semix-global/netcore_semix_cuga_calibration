@@ -12,7 +12,7 @@ using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -197,8 +197,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                 {
                     using var _ = darkFieldImageDto;
                     var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{LaserLightInformation}\\{CIBConfiguration.Gain}\\{htmlLogUniqueId}.jpg";
-                    HalconHelper.Save(darkFieldImageDto.Image, filePath);
-                    var size = HalconHelper.GetSize(darkFieldImageDto.Image);
+                    darkFieldImageDto.Image.Save(filePath);
+                    var size = darkFieldImageDto.Image.GetSize();
                     darkFieldImageList.Add(new DarkFieldImage
                     {
                         ByteArray = darkFieldImageDto.Bytes,

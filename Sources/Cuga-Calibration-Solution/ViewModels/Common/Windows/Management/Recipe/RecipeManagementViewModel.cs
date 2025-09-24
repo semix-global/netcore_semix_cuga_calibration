@@ -3,11 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
+using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Setting;
 using Core.Utilities;
-using Local.NoSQL.DB.Providers.Helper;
+using Local.NoSQL.DB.Providers.Extensions;
+
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
@@ -50,7 +52,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
     private readonly ISynchronizationContextProvider _contextProvider;
     private readonly IMessenger _messenger;
     private readonly ISysRecipeInformationService _sysRecipeInformationService;
-    private readonly ILiteDatabaseProvider _liteDatabaseProvider;
+    private readonly ICacheDatabaseProvider _cacheDatabaseProvider;
     private readonly IOptions<ApplicationSetting> _options;
     private readonly RecipeSettingViewModel _recipeSettingViewModel;
 
@@ -60,20 +62,20 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
         ISynchronizationContextProvider contextProvider,
         IMessenger messenger,
         ISysRecipeInformationService sysRecipeInformationService,
-        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
-        ILiteDatabaseProvider liteDatabaseProvider,
+        [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+        ICacheDatabaseProvider cacheDatabaseProvider,
         IOptions<ApplicationSetting> options,
         RecipeSettingViewModel recipeSettingViewModel,
         ApplicationCookie applicationCookie,
         CalibrationSetting calibrationSetting)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
         _windowManagerService = windowManagerService;
         _contextProvider = contextProvider;
         _messenger = messenger;
         _sysRecipeInformationService = sysRecipeInformationService;
-        _liteDatabaseProvider = liteDatabaseProvider;
+        _cacheDatabaseProvider = cacheDatabaseProvider;
         _options = options;
         _recipeSettingViewModel = recipeSettingViewModel;
         _applicationCookie = applicationCookie;
@@ -90,17 +92,12 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
             var resultList = await _sysRecipeInformationService.GetAllAsync().ConfigureAwait(false);
             if (resultList.Count == 0)
             {
-                if (_liteDatabaseProvider.ModifyLiteDatabase(_options.Value.NosqlDbDataSource) == false)
-                {
-                    _dialogWindowProvider.ShowDialog("Get default lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
+                _cacheDatabaseProvider.ChangeDatabase(_options.Value.NosqlDbDataSource, CancellationToken.None);
 
                 _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
 
                 var defaultRecipeInfo = calibrationRecipeDto.CalibrationRecipeInfoDto.AdaptTo();
 
-                _liteDatabaseProvider.Dispose();
                 var backupFilePath = Path.Combine(_options.Value.NosqlDbDataSourceDirectory, defaultRecipeInfo.RecipeDbName, Path.GetFileName(_options.Value.NosqlDbDataSource));
 
                 if (System.IO.File.Exists(backupFilePath) == false)
@@ -141,11 +138,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                 var calibrationRecipeDto = new CalibrationRecipeDto();
                 if (SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource != string.Empty)
                 {
-                    if (_liteDatabaseProvider.ModifyLiteDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource) == false)
-                    {
-                        _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        return;
-                    }
+                    _cacheDatabaseProvider.ChangeDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
 
                     _recipeCacheProvider.TryGetOrDefault(out calibrationRecipeDto);
                 }
@@ -192,7 +185,6 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                 return;
             }
 
-            _liteDatabaseProvider.Dispose();
             var deleteDbDirectoryPath = Path.GetDirectoryName(SelectRecipeInfoDto.RecipeNosqlRecipeDbDataSource);
             var deleteName = $"{SelectRecipeInfoDto.RecipeDbName}_delete";
             var parentPath = Path.GetDirectoryName(deleteDbDirectoryPath);
@@ -282,11 +274,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
             {
                 if (_dialogWindowProvider.TryShowSelectFilePathDialog(".db", out var filePath) == false)
                     return;
-                if (_liteDatabaseProvider.ModifyLiteDatabase(filePath) == false)
-                {
-                    _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
+                _cacheDatabaseProvider.ChangeDatabase(filePath, CancellationToken.None);
 
                 _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
                 var recipeInfoDto = calibrationRecipeDto.CalibrationRecipeInfoDto.AdaptTo();
@@ -327,11 +315,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                     return;
                 }
 
-                if (_liteDatabaseProvider.ModifyLiteDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource) == false)
-                {
-                    _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
+                _cacheDatabaseProvider.ChangeDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
 
                 _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
                 ApplicationCookie.CalibrationRecipeDto = calibrationRecipeDto.Clone();
@@ -413,11 +397,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
 
         void UpdateCalibrationRecipeDto(SysRecipeInformationDto recipeInfoDto)
         {
-            if (_liteDatabaseProvider.ModifyLiteDatabase(recipeInfoDto.RecipeNosqlRecipeDbDataSource) == false)
-            {
-                _dialogWindowProvider.ShowDialog("Get select lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
+            _cacheDatabaseProvider.ChangeDatabase(recipeInfoDto.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
 
             _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
             calibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName = recipeInfoDto.RecipeDbName;
@@ -430,10 +410,13 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
     {
         try
         {
-            if (ApplicationCookie.CalibrationRecipeDto is not null && _liteDatabaseProvider.ModifyLiteDatabase(ApplicationCookie.CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource) == false)
+            if (ApplicationCookie.CalibrationRecipeDto is  null)
             {
                 _dialogWindowProvider.ShowDialog("Get apply lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return;
             }
+
+            _cacheDatabaseProvider.ChangeDatabase(ApplicationCookie.CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
         }
         catch (Exception ex)
         {

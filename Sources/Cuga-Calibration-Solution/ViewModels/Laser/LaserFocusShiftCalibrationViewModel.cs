@@ -26,9 +26,10 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -242,7 +243,9 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -523,7 +526,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             else
             {
                 var filePath = $"{detectImageDirectory}\\DarkFieldTemplateOriginImage_{Guid.NewGuid()}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                darkFieldImageDto.Image.Save(filePath);
                 createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
                 createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.DarkFiledTemplateFilePath;
 
@@ -956,7 +959,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 StageCoordinateSystemEnum.Dark,
                 isAutoFocus: false);
 
-            using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
+            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
             //var path = $"{ImageFileDirectory}\\ECS({focusShiftDto.DarkFieldEcsValue})_Guid({HtmlLogUniqueId}).hobj";
             //HOperatorSet.WriteObject(scaleImage, path);
@@ -967,7 +970,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             focusShiftDto.DarkFieldQuality = qualityX;
 
             FileHelper.Save(darkFieldImageDto.Bytes, focusShiftDto.DarkFieldOriginImageFilePath);
-            HalconHelper.Save(darkFieldImageDto.Image, focusShiftDto.DarkFieldImageFilePath);
+            darkFieldImageDto.Image.Save(focusShiftDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
@@ -988,7 +991,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         }
     }
 
-    private bool Save(FocusShiftDto itemDto, CancellationToken cancellationToken, bool isSave = true) => InvokeSave(update =>
+    private bool Save(FocusShiftDto itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(itemDto);
         update(Cache);
@@ -1001,12 +1004,10 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             itemDto.Clone()
         ];
 
-        if (isSave == false) return true;
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

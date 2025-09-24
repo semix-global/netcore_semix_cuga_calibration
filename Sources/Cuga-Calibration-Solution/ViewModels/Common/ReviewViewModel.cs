@@ -10,9 +10,10 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -72,7 +73,7 @@ public sealed partial class ReviewViewModel(
         return ret.Anything;
     }
 
-    public HObject GetBrightFieldImage()
+    public HImage GetBrightFieldImage()
     {
         var ret = calibrationReviewService.GetBrightFieldImage();
 
@@ -83,7 +84,7 @@ public sealed partial class ReviewViewModel(
     {
         using var imageMatchResult = GetBrightFieldImage();
 
-        HalconHelper.Save(imageMatchResult, filePath);
+        imageMatchResult.Save(filePath);
     }
 
     public Size GetBrightFieldImagePixelSize()
@@ -93,7 +94,7 @@ public sealed partial class ReviewViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetQuality(HObject image)
+    public double GetQuality(HImage image)
     {
         var quality = calibrationAlgorithmService.GetQuality(image);
         return quality;
@@ -112,7 +113,7 @@ public sealed partial class ReviewViewModel(
     {
         using var image = GetBrightFieldImage();
 
-        var size = HalconHelper.GetSize(image);
+        var size = image.GetSize();
         var rect = new Rect(size.Width / 2d - Convert.ToInt32(algorithmTemplateSizeEnum) / 2d, size.Height / 2d - Convert.ToInt32(algorithmTemplateSizeEnum) / 2d, Convert.ToInt32(algorithmTemplateSizeEnum), Convert.ToInt32(algorithmTemplateSizeEnum));
 
         return TryGenerateTemplate(image, algorithmTemplateTypeEnum, templateFilePath, rect);
@@ -126,9 +127,9 @@ public sealed partial class ReviewViewModel(
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="rect">ROI尺寸</param>
     /// <returns>是否成功</returns>
-    public bool TryGenerateTemplate(HObject image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect)
+    public bool TryGenerateTemplate(HImage image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect)
     {
-        var size = HalconHelper.GetSize(image);
+        var size = image.GetSize();
         if (new Rect(Point.Origin, size).Contains(rect) == false)
         {
             logger.LogError("{@Name}: Out of Image Area", nameof(ReviewViewModel));
@@ -139,7 +140,7 @@ public sealed partial class ReviewViewModel(
         using var _ = roiImage;
         if (isSuccess == false) throw new AlgorithmException("Generate Template Error");
 
-        HalconHelper.Save(roiImage, CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
+        roiImage.Save(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
         return true;
     }
 
@@ -149,13 +150,13 @@ public sealed partial class ReviewViewModel(
     /// <param name="image">图片</param>
     /// <param name="templateFilePath">模板路径</param>
     /// <returns>是否成功</returns>
-    public bool TryGenerateProjectionTemplate(HObject image, string templateFilePath)
+    public bool TryGenerateProjectionTemplate(HImage image, string templateFilePath)
     {
         var isSuccess = calibrationAlgorithmService.TryGenerateProjectionTemplate(image, templateFilePath, out var roiImage);
         using var _ = roiImage;
         if (isSuccess == false) throw new AlgorithmException("Generate Projection Template Error");
 
-        HalconHelper.Save(roiImage, CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
+        roiImage.Save(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
         return true;
     }
 
@@ -235,7 +236,7 @@ public sealed partial class ReviewViewModel(
             {
                 var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
                 originImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                HalconHelper.Save(image, originImageFilePath);
+                image.Save(originImageFilePath);
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
@@ -262,7 +263,7 @@ public sealed partial class ReviewViewModel(
             if (saveResultImageFileDirectory is not null)
             {
                 originImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
-                HalconHelper.Save(image, originImageFilePath);
+                image.Save(originImageFilePath);
 
                 resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
                 SaveCurrentBrightFieldImage(resultImageFilePath);
@@ -377,9 +378,9 @@ public sealed partial class ReviewViewModel(
     {
         await Task.Run(() =>
         {
-            var hObject = GetBrightFieldImage();
-            using var _ = hObject;
-            Quality = GetQuality(hObject);
+            var HImage = GetBrightFieldImage();
+            using var _ = HImage;
+            Quality = GetQuality(HImage);
         }).ConfigureAwait(false);
     }
 

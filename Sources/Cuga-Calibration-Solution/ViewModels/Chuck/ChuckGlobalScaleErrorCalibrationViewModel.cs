@@ -13,6 +13,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
@@ -140,7 +141,10 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             Cache.HighGlobalScaleErrorCacheItem.LensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
                 ? ApplicationCookie.MicroscopeLensInformationList[^1]
                 : ApplicationCookie.MicroscopeLensInformationList[2];
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -752,10 +756,9 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.Set(dto, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

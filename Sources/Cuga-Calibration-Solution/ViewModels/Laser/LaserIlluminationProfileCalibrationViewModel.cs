@@ -22,11 +22,12 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using Humanizer;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -239,7 +240,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -1541,12 +1544,12 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
         laserIlluminationProfileItemDto.Channel1DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.ProjectionYs]);
         laserIlluminationProfileItemDto.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel1_{laserIlluminationProfileItemDto.Index}).jpg";
-        HalconHelper.Save(channel1DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel1ImageFilePath);
+        channel1DarkFieldImageDto.Image.Save(laserIlluminationProfileItemDto.Channel1ImageFilePath);
         laserIlluminationProfileItemDto.Channel2DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.ProjectionYs]);
         laserIlluminationProfileItemDto.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel2_{laserIlluminationProfileItemDto.Index}).jpg";
-        HalconHelper.Save(channel2DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel2ImageFilePath);
+        channel2DarkFieldImageDto.Image.Save(laserIlluminationProfileItemDto.Channel2ImageFilePath);
         laserIlluminationProfileItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel3_{laserIlluminationProfileItemDto.Index}).jpg";
-        HalconHelper.Save(channel3DarkFieldImageDto.Image, laserIlluminationProfileItemDto.Channel3ImageFilePath);
+        channel3DarkFieldImageDto.Image.Save(laserIlluminationProfileItemDto.Channel3ImageFilePath);
         //是否需要进行反转
         if (Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan)
         {
@@ -1698,10 +1701,10 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             itemDto.Clone()
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
+
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

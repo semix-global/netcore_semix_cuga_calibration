@@ -1,7 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
 
@@ -117,7 +117,8 @@ public sealed partial class DarkFieldChirpAodWaveDto : ObservableCacheBase, IClo
 
         Guard.IsNotNullOrWhiteSpace(directoryName, nameof(directoryName));
 
-        var (aodWaveFilePath,
+        var (isSuccess,
+            aodWaveFilePath,
             _,
             _,
             _,
@@ -129,7 +130,8 @@ public sealed partial class DarkFieldChirpAodWaveDto : ObservableCacheBase, IClo
             _,
             aodWaveSignals,
             aodWaveSignalsFourier,
-            _) = AodWaveGenerator.GenerateChirpAodWaveFile(
+            _,
+            exception) = AodWaveGenerator.GenerateChirpAodWaveFile(
             RateChange * SoundPackageLength,
             CenterFrequency,
             SoundPackageLength,

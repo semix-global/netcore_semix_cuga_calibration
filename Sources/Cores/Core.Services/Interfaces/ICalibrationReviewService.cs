@@ -16,7 +16,7 @@ public interface ICalibrationReviewService
     /// 获取halcon图片
     /// </summary>
     /// <returns>halcon图片</returns>
-    SxExecuteRet<HObject> GetBrightFieldImage();
+    SxExecuteRet<HImage> GetBrightFieldImage();
 
     /// <summary>
     /// 获取bitmap memory byte array

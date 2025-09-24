@@ -20,7 +20,6 @@ using Core.Models.Models.Microscope.Focus;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -33,6 +32,8 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using Local.NoSQL.DB.Providers.Extensions;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
@@ -192,7 +193,9 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -251,6 +254,11 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                         LaserXTCCalibrationItemDto.IsCalibrated = true;
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
+                    }
+
+                    if (EnableDependedCalibrationItems(cancellationToken) == false)
+                    {
+                        Logger.LogError("{@Name} Error: Enable Depended Calibration Items Failed!", Name);
                     }
                 }
 
@@ -796,11 +804,11 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         using var _3 = channel3DarkFieldImageDto;
         var dateTime2String = DateTimeHelper.DateTime2String(DateTime.Now, "yyyyMMddHHmmss");
         laserXTCCalibrationItemDto.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{dateTime2String}_Channel1).jpg";
-        HalconHelper.Save(channel1DarkFieldImageDto.Image, laserXTCCalibrationItemDto.Channel1ImageFilePath);
+        channel1DarkFieldImageDto.Image.Save(laserXTCCalibrationItemDto.Channel1ImageFilePath);
         laserXTCCalibrationItemDto.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{dateTime2String}_Channel2).jpg";
-        HalconHelper.Save(channel2DarkFieldImageDto.Image, laserXTCCalibrationItemDto.Channel2ImageFilePath);
+        channel2DarkFieldImageDto.Image.Save(laserXTCCalibrationItemDto.Channel2ImageFilePath);
         laserXTCCalibrationItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{dateTime2String}_Channel3).jpg";
-        HalconHelper.Save(channel3DarkFieldImageDto.Image, laserXTCCalibrationItemDto.Channel3ImageFilePath);
+        channel3DarkFieldImageDto.Image.Save(laserXTCCalibrationItemDto.Channel3ImageFilePath);
 
         laserXTCCalibrationItemDto.Channel1DarkFieldImageProjectionYs = channel1DarkFieldImageDto.ProjectionYs;
         laserXTCCalibrationItemDto.Channel2DarkFieldImageProjectionYs = channel2DarkFieldImageDto.ProjectionYs;
@@ -881,11 +889,10 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum) == false),
             itemDto.Clone()
         ];
-        if (isSave == false) return true;
+        if (isSave == false) return;
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()
