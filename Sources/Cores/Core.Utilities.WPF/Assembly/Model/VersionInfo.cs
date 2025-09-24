@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Mapper.Interfaces;
 using System.Text.Json.Serialization;
 
@@ -7,7 +6,7 @@ namespace Core.Utilities.WPF.Assembly.Model;
 /// <summary>
 /// 版本信息输出模型
 /// </summary>
-public class VersionInfo :ICloneable<VersionInfo>
+public class VersionInfo : ICloneable<VersionInfo>
 {
     /// <summary>
     /// 元数据信息

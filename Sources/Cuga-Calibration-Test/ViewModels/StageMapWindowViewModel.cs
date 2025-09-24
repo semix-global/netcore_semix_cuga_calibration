@@ -8,7 +8,8 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Implements;
 using Core.Services.Interfaces;
-using Local.NoSQL.DB.Providers.Helper;
+using Local.NoSQL.DB.Providers.Extensions;
+
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,10 +57,10 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
 
     public StageMapWindowViewModel(
         ICacheProvider cacheProvider,
-        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+        [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
         ICacheProvider recipeCacheProvider,
-        [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
-        ILiteDatabaseProvider recipeLiteDataBaseProvider,
+        [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+        ICacheDatabaseProvider recipeLiteDataBaseProvider,
         IDialogWindowProvider dialogWindowProvider,
         ICalibrationAlgorithmService calibrationAlgorithmService,
         ILogger<StageMapWindowViewModel> logger,
@@ -73,7 +74,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         _logger = logger;
         _affineTransformation = affineTransformation;
 
-        recipeLiteDataBaseProvider.ModifyLiteDatabase(@"D:\Nano\Cuga-Calibration\Database\DSW\cache.db");
+        recipeLiteDataBaseProvider.ChangeDatabase(@"D:\Nano\Cuga-Calibration\Database\DSW\cache.db", CancellationToken.None);
     }
 
     [RelayCommand]

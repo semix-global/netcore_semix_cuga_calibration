@@ -5,6 +5,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -174,5 +175,16 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
         CloseView(true);
     }
 
-    public bool SaveSetting() => _cacheProvider.Set(_calibrationSetting, CancellationToken.None);
+    public bool SaveSetting()
+    {
+        try
+        {
+            _cacheProvider.Set(_calibrationSetting, CancellationToken.None);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

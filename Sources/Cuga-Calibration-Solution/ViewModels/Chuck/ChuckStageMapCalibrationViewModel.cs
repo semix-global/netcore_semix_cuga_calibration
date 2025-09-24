@@ -29,9 +29,11 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -267,7 +269,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             Cache.HighMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
                 ? ApplicationCookie.MicroscopeLensInformationList[^1]
                 : ApplicationCookie.MicroscopeLensInformationList[2];
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -602,7 +607,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         else
         {
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-            HalconHelper.Save(darkFieldImageDto.Image, filePath);
+            darkFieldImageDto.Image.Save(filePath);
             createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
             createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
 
@@ -1235,9 +1240,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     private void DarkFieldGetStageMap(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken)
     {
-        var templateXId = HalconHelper.EmptyHTuple;
-        var templateYId = HalconHelper.EmptyHTuple;
-        var templateId = HalconHelper.EmptyHTuple;
+        var templateXId = HalconFactory.EmptyHTuple;
+        var templateYId = HalconFactory.EmptyHTuple;
+        var templateId = HalconFactory.EmptyHTuple;
 
         if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
         {
@@ -1336,7 +1341,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.XStageSpeedEnum == Cache.StageSpeedEnum && t.IsOk).XPixelSize;
 
                             var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-                            HalconHelper.Save(darkFieldImageDto.Image, originImageFilePath);
+                            darkFieldImageDto.Image.Save(originImageFilePath);
 
                             if ((Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection
                                     ? CalibrationAlgorithmService.TryProjectionTemplateMatchToOffset(darkFieldImageDto.Image, templateXId, templateYId, out var point, out var offset)
@@ -1460,10 +1465,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.Set(dto, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

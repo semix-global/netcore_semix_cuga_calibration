@@ -13,6 +13,7 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -163,7 +164,9 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserPmtGainCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserPmtGainDto>();
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -649,9 +652,10 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
             itemDto.Clone()
         ];
 
-        if (isSave == false) return true;
+        if (isSave == false) return;
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

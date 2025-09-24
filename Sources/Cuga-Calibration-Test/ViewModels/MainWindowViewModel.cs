@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Helper;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.Chuck.DarkFieldStageMap;
@@ -21,7 +22,8 @@ using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using HalconDotNet;
 using HAlgorithm;
-using Local.NoSQL.DB.Providers.Helper;
+using Local.NoSQL.DB.Providers.Extensions;
+
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,7 +64,7 @@ public sealed partial class MainWindowViewModel(
     ReviewViewModel reviewViewModel,
     ILogger<MainWindowViewModel> logger,
     ICacheProvider cacheProvider,
-    [FromKeyedServices(LiteDbConstantHelper.RecipeDbKey)]
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService) : ViewModelBase
 {
@@ -469,7 +471,7 @@ public sealed partial class MainWindowViewModel(
 
         double[] y;
         var extension = Path.GetExtension(openFileDialog.FileName);
-        HObject image = HalconHelper.EmptyHObject;
+        HImage image = HalconFactory.EmptyHImage;
         switch (extension)
         {
             case ".jpg":

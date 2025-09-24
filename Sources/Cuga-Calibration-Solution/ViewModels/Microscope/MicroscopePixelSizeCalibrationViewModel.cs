@@ -6,8 +6,9 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -91,7 +92,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
-        var isHasCache = false;
         await Task.Run(() =>
         {
             if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
@@ -106,7 +106,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 return;
             }
 
-            (isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
+            (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
             Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
 
             Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
@@ -124,7 +124,15 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                     .IsCalibrated = calibrationStatus.IsCalibrated;
             }
         }).ConfigureAwait(false);
-        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        if (Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList) == false)
+        {
+            Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
+        } 
+        
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -419,8 +427,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                     PixelSize = pixelSize
                 };
 
-                HalconHelper.Save(image, microscopePixelSizeItemDto.OriginFilePath);
-                HalconHelper.Save(drawingImage, microscopePixelSizeItemDto.FilePath);
+                image.Save(microscopePixelSizeItemDto.OriginFilePath);
+                drawingImage.Save(microscopePixelSizeItemDto.FilePath);
 
                 var htmlBulletList = new HtmlBullet(new
                 {
@@ -460,10 +468,10 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             itemDto.Clone()
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

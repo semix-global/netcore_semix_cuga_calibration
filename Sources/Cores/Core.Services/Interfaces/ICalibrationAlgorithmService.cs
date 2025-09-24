@@ -20,21 +20,21 @@ public interface ICalibrationAlgorithmService
     /// </summary>
     /// <param name="image">图片</param>
     /// <returns>清晰度</returns>
-    double GetQuality(HObject image);
+    double GetQuality(HImage image);
 
     /// <summary>
     /// 获取图片清晰度, 适应彩色和灰度图像, 方差越大, 说明图像越清晰
     /// </summary>
     /// <param name="image">图片</param>
     /// <returns>清晰度</returns>
-    double GetDarkFieldQuality(HObject image);
+    double GetDarkFieldQuality(HImage image);
 
     /// <summary>
     /// 获得暗场图片清晰度得分
     /// </summary>
     /// <param name="image">图片</param>
     /// <returns>清晰度</returns>
-    (double XQuality, double YQuality) GetXyQuality(HObject image);
+    (double XQuality, double YQuality) GetXyQuality(HImage image);
 
     /// <summary>
     /// 获得暗场图片调制传递函数
@@ -42,7 +42,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="image">图片</param>
     /// <param name="roiRect">ROI</param>
     /// <returns>MTF</returns>
-    (double MtfX, double MtfY) ModulationTransferFunction(HObject image, Rect roiRect);
+    (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect);
 
     /// <summary>
     /// 获得暗场图片光斑大小
@@ -50,7 +50,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="image">图片</param>
     /// <param name="roiRect">ROI</param>
     /// <returns>光斑大小</returns>
-    (double Width, double Height) GetLightQuality(HObject image, Rect roiRect);
+    (double Width, double Height) GetLightQuality(HImage image, Rect roiRect);
 
     #endregion 清晰度
 
@@ -64,7 +64,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="drawingImage">绘图图片</param>
     /// <param name="angle">网格水平夹角</param>
     /// <returns>像素尺寸um</returns>
-    Size GetPixelSize(HObject image, Size standardMaskSquareSize, out HObject drawingImage, out double angle);
+    Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle);
 
     /// <summary>
     /// 传入图片获取Y像素尺寸um
@@ -87,7 +87,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="rect">尺寸</param>
     /// <param name="templateImage">模板图片</param>
     /// <returns>是否成功</returns>
-    bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, string templateFilePath, Rect rect, out HObject templateImage);
+    bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage);
 
     /// <summary>
     /// 读取模板
@@ -117,7 +117,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="score">匹配得分</param>
     /// <param name="angle">匹配角度</param>
     /// <returns>是否成功</returns>
-    bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HObject image, HTuple templateId, out Point markPoint, out Point offset, out double score, out double angle);
+    bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offset, out double score, out double angle);
 
     #region Projection
 
@@ -128,7 +128,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="templateImage">模板图片</param>
     /// <returns>是否成功</returns>
-    bool TryGenerateProjectionTemplate(HObject image, string templateFilePath, out HObject templateImage);
+    bool TryGenerateProjectionTemplate(HImage image, string templateFilePath, out HImage templateImage);
 
     /// <summary>
     /// 读取模板
@@ -156,7 +156,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="point">位置px</param>
     /// <param name="offset">与中心偏移</param>
     /// <returns>是否成功</returns>
-    bool TryProjectionTemplateMatchToOffset(HObject image, HTuple templateXId, HTuple templateYId, out Point point, out Point offset);
+    bool TryProjectionTemplateMatchToOffset(HImage image, HTuple templateXId, HTuple templateYId, out Point point, out Point offset);
 
     #endregion Projection
 
@@ -184,14 +184,14 @@ public interface ICalibrationAlgorithmService
     /// </summary>
     /// <param name="rawBytes">raw bytes</param>
     /// <returns>暗场图片</returns>
-    (HObject Image, short[,] Matrix) ToImageInfo(byte[] rawBytes);
+    (HImage Image, short[,] Matrix) ToImageInfo(byte[] rawBytes);
 
     /// <summary>
     /// raw bytes to 暗场图片
     /// </summary>
     /// <param name="rawBytes">raw bytes</param>
     /// <returns>暗场图片</returns>
-    (HObject Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes);
+    (HImage Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes);
 
     /// <summary>
     /// 计算PMTGain数据
@@ -199,7 +199,7 @@ public interface ICalibrationAlgorithmService
     /// <returns>是否成功</returns>
     (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue);
 
-    (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HObject> image);
+    (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image);
 
     #endregion 暗场
 

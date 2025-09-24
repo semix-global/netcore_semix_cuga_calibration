@@ -4,6 +4,7 @@ using Core.Models.Models;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Common.Pattern;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -88,7 +89,9 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
                 ? ApplicationCookie.MicroscopeLensInformationList[^1]
                 : ApplicationCookie.MicroscopeLensInformationList[2];
 
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -476,7 +479,8 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

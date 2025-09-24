@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPower;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -106,7 +107,9 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -215,11 +218,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         {
             ReviewDto.IsVerified = false;
 
-            if (CacheProvider.Set(Cache, cancellationToken) == false)
-            {
-                DialogWindowProvider.ShowDialog("Save Cache File Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                return false;
-            }
+            CacheProvider.Set(Cache, cancellationToken);
 
             ReviewDto.IsVerified = true;
 
@@ -315,7 +314,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
             ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [];
         }
 
-        var (_, _, YPredicted) = PolyFit.PolyFitFunc(Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.Y)),
+        var (_, _, YPredicted) = PolynomialLeastSquares.PolynomialFit(Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.Y)),
             3);
         ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [.. ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select((t, i) => new Point(t.X, YPredicted[i]))];
 
@@ -336,7 +335,8 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
             itemDto.Clone()
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

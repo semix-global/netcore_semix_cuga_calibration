@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums;
 using Core.Models.Events;
+using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Recipe;
@@ -15,7 +16,7 @@ using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Humanizer;
-using Local.NoSQL.DB.Providers.Helper;
+
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Hosting;
@@ -263,7 +264,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         SynchronizationContextProvider = HostApplication.GetRequiredService<ISynchronizationContextProvider>();
         CalibrationAlgorithmService = HostApplication.GetRequiredService<ICalibrationAlgorithmService>();
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-        RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey);
+        RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
         ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -749,17 +750,25 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    protected bool InvokeSave(Func<Action<ICacheItem>, bool> func)
+    protected bool InvokeSave(Action<Action<ICacheItem>> action)
     {
         while (true)
         {
-            if (func(UpdateIsInsert)) return true;
+            try
+            {
+                action(UpdateIsInsert);
 
-            DialogWindowProvider.TryShowDialog("Save Failed!", out var dialogResultEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "{@Name}: Save Exception", Name);
 
-            if (dialogResultEnum == DialogResultEnum.Retry) continue;
+                DialogWindowProvider.TryShowDialog("Save Failed!", out var dialogResultEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
+                if (dialogResultEnum == DialogResultEnum.Retry) continue;
 
-            return false;
+                return false;
+            }
         }
 
         void UpdateIsInsert(ICacheItem cacheItem)

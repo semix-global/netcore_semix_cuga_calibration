@@ -24,7 +24,7 @@ public static class UtilitiesSizeExtension
 
     public static System.Drawing.Size ToSystemDrawingSize(this Size size)
     {
-        var (width, height) = size.DeconstructToInt32();
+        var (width, height) = (SizeI)size;
 
         return new System.Drawing.Size(width, height);
     }

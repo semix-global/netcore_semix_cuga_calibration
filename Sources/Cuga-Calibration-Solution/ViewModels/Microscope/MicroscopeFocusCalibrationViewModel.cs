@@ -5,9 +5,11 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -95,7 +97,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
+        (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
 
         Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
@@ -114,7 +116,14 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList) == false)
+        {
+            Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
+        }
+       
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -526,8 +535,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         microscopeFocusItemDto.FilePath =
             $"{microscopeFocusItemDto.FilePath}\\Index({microscopeFocusItemDto.Index})_Ecs({microscopeFocusItemDto.EcsValue:F3})_Quality({microscopeFocusItemDto.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
 
-        HalconHelper.Save(image, microscopeFocusItemDto.FilePath);
-        using var localImage = HalconHelper.ReadImage(microscopeFocusItemDto.FilePath);
+        image.Save(microscopeFocusItemDto.FilePath);
+        using var localImage = HalconFactory.CreateImage(microscopeFocusItemDto.FilePath);
         var quality = ReviewViewModel.GetQuality(image);
         microscopeFocusItemDto.Quality = quality;
         SynchronizationContextProvider.Send(() =>
@@ -562,7 +571,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             itemDto.Clone()
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

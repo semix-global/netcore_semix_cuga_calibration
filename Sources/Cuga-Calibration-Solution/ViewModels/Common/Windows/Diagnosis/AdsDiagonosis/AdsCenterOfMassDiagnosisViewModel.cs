@@ -7,6 +7,7 @@ using Core.Models.Models.Ads.CenterOfMass;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -476,7 +477,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var listRow = plotList.Select(t => Cache.IsFindX ? t.StartPosition.X : t.StartPosition.Y).ToList();
             var listCol = plotList.Select(t => isGetDeltaX ? t.DeltaX : t.DeltaY).ToList();
 
-            var (fitLineK, fitLineB, _, _) = PolyFit.Poly1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
+            var (fitLineK, fitLineB, _, _) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
             fitFuncList.AddRange(listRow.Select(t => new Point(t, fitLineK * t + fitLineB)));
 
             var isSuccess = fitLineK != 0;

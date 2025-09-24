@@ -13,9 +13,10 @@ using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -775,13 +776,13 @@ public sealed class LaserViewModel(
 
             var originImageFilePath = string.Empty;
 
-            using var image = isForward ? darkFieldImageDto.Image : HalconHelper.HorizontalFlip(darkFieldImageDto.Image);
+            using var image = isForward ? darkFieldImageDto.Image : darkFieldImageDto.Image.HorizontalFlip();
             isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var markPoint, out var offset, out resultScore, out resultAngle);
             if (isSuccess == false)
             {
                 var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
                 originImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, originImageFilePath);
+                darkFieldImageDto.Image.Save(originImageFilePath);
                 File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(originImageFilePath), darkFieldImageDto.Bytes);
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
@@ -809,7 +810,7 @@ public sealed class LaserViewModel(
             if (saveResultImageFileDirectory is not null)
             {
                 originImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, originImageFilePath);
+                darkFieldImageDto.Image.Save(originImageFilePath);
                 File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(originImageFilePath), darkFieldImageDto.Bytes);
             }
 
@@ -838,7 +839,7 @@ public sealed class LaserViewModel(
             if (saveResultImageFileDirectory is not null)
             {
                 resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                HalconHelper.Save(darkFieldImageDtoResult.Image, resultImageFilePath);
+                darkFieldImageDtoResult.Image.Save(resultImageFilePath);
                 File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDtoResult.Bytes);
             }
 

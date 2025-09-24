@@ -3,7 +3,7 @@ using Net.Utilities.Models;
 
 namespace Core.Utilities;
 
-public sealed record ApplicationSetting : BaseApplicationSetting, ICacheSetting
+public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfiguration
 {
     /// <summary>
     /// 软件脚本的主路径
@@ -34,6 +34,11 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheSetting
     /// 缓存最大存档天数
     /// </summary>
     public int CacheMaxArchiveDays { get; init; }
+
+    /// <summary>
+    /// 移除过期缓存时，保留的缓存数量
+    /// </summary>
+    public int RemoveExpirationCacheKeepCount { get; init; }
 
     /// <summary>
     /// 校准菜单名称

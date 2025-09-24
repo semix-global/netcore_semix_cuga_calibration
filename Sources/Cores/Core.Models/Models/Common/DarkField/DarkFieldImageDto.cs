@@ -4,6 +4,7 @@ using HalconDotNet;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 
@@ -26,7 +27,7 @@ public sealed partial class DarkFieldImageDto :
     IAdaptIn<DarkFieldRawScanImageDto, DarkFieldImageDto>,
     IDisposable
 {
-    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconHelper.EmptyHObject };
+    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconFactory.EmptyHImage };
 
     /// <summary>
     /// PMT Id
@@ -66,7 +67,7 @@ public sealed partial class DarkFieldImageDto :
     /// <summary>
     /// 图片
     /// </summary>
-    public required HObject Image { get; init; }
+    public required HImage Image { get; init; }
 
     /// <summary>
     /// 向Y轴投影后的点均值列表
@@ -92,7 +93,7 @@ public sealed partial class DarkFieldImageDto :
             Height = Height,
             Bytes = [.. Bytes],
             Matrix = MatrixUtils.Clone(Matrix),
-            Image = HalconHelper.Copy(Image),
+            Image = Image.Copy(),
             Id = Id,
             Expiration = Expiration
         };
@@ -158,7 +159,7 @@ public sealed partial class DarkFieldRawScanImageDto :
     IAdaptTo<M2CImgSysCollectImgDTO>,
     IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDto>
 {
-    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconHelper.EmptyHObject };
+    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconFactory.EmptyHImage };
 
     /// <summary>
     /// PMT Id

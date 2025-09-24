@@ -136,7 +136,7 @@ public static class StrehlRatioUtility
 
     public static ((double StrehlRatio, double[] Line, double[] FitLine) XStrehlRatio, (double StrehlRatio, double[] Line, double[] FitLine) YStrehlRatio) GetStrehlRatio(short[,] image, Rect rect, double xPixelSize, double yPixelSize, double potDiameter, double xPointDiameter, double yPointDiameter)
     {
-        var (x, y, width, height) = rect.DeconstructToInt32();
+        var (x, y, width, height) = (RectI)rect;
         var subMatrix = Matrix<double>.Build.DenseOfArray(image).SubMatrix(x, width, y, height);
 
         var xStrehlRatioList = new List<(double StrehlRatio, double[] Line, double[] FitLine)>();

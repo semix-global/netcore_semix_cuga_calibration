@@ -9,7 +9,7 @@ using Core.Utilities;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
@@ -87,8 +87,8 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                 {
                     using var _ = darkFieldImageDto;
                     var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImagePointToPointWindowViewModel)}\\{positionList[index]}_row_scan.jpg";
-                    HalconHelper.Save(darkFieldImageDto.Image, filePath);
-                    var size = HalconHelper.GetSize(darkFieldImageDto.Image);
+                    darkFieldImageDto.Image.Save(filePath);
+                    var size = darkFieldImageDto.Image.GetSize();
                     contextProvider.Send(() => DarkFieldRowScanImageList.Add(new DarkFieldCropImage
                     {
                         Position = positionList[index],
@@ -137,8 +137,8 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                         stageCoordinateSystemEnum: StageCoordinateSystemEnum);
 
                     var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{resultPosition}.jpg";
-                    HalconHelper.Save(darkFieldImageDto.Image, filePath);
-                    var size = HalconHelper.GetSize(darkFieldImageDto.Image);
+                    darkFieldImageDto.Image.Save(filePath);
+                    var size = darkFieldImageDto.Image.GetSize();
                     var byteArray = darkFieldImageDto.Bytes;
                     var projectionYs = darkFieldImageDto.ProjectionYs;
                     contextProvider.Send(() =>

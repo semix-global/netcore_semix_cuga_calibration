@@ -30,6 +30,7 @@ using Core.Wcf.Models.Chuck;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
 using CugaCalibration.Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -110,23 +111,26 @@ public class CalibrationCacheProviderServiceImpl(
         }
     }
 
+    // todo:delete
     public bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new()
     {
         return InvokeSave(update =>
         {
             update(dto);
-
-            return cacheProvider.Set(dto, cancellationToken);
+            cacheProvider.Set(dto, cancellationToken);
+            return true;
         }, typeof(T).Name);
     }
 
+    // todo:delete
     public bool TrySetArray<T>(T[] dtoList, CancellationToken cancellationToken) where T : class, ICacheItem, new()
     {
         return InvokeSave(update =>
         {
             foreach (var dto in dtoList) update(dto);
 
-            return cacheProvider.SetArray(dtoList, cancellationToken);
+            cacheProvider.SetArray(dtoList, cancellationToken);
+            return true;
         }, typeof(T).Name);
     }
 

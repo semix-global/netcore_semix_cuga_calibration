@@ -464,7 +464,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     pointerTemp -= pointerTemp % heightPixelOfByte; // dieWidthPixel不是整数倍, 需要对齐
 
                     fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                    array = binaryReader.ReadBytes();
+                    array = binaryReader.ReadRemainingBytes();
                 }
                 else
                 {

@@ -5,8 +5,9 @@ using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -111,7 +112,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         StageViewModel.SetAbsoluteStageTheta(0);
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -801,7 +804,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         microscopeFocusItemDto.FilePath =
             $"{microscopeFocusItemDto.FilePath}\\Index({microscopeFocusItemDto.Index})_Ecs({microscopeFocusItemDto.EcsValue:F3})_Quality({microscopeFocusItemDto.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
 
-        HalconHelper.Save(image, microscopeFocusItemDto.FilePath);
+        image.Save(microscopeFocusItemDto.FilePath);
         SynchronizationContextProvider.Send(() =>
         {
             MicroscopeFocusItemDtoList.Add(microscopeFocusItemDto);
@@ -829,7 +832,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()
