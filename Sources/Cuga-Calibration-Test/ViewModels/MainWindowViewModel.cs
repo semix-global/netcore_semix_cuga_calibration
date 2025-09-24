@@ -674,4 +674,19 @@ public sealed partial class MainWindowViewModel(
         var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformUniformityWindowViewModel>();
         windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
     }
+
+    [RelayCommand]
+    private void PrescanAODWaveformElectrodeOffset()
+    {
+        var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformElectrodeOffsetWindowViewModel>();
+
+        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    public void ChirpAODWaveformElectrodeOffset()
+    {
+        var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformElectrodeOffsetWindowViewModel>();
+        windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
+    }
 }
