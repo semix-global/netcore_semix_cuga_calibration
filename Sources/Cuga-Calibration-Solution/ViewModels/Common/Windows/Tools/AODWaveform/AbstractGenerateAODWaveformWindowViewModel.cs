@@ -9,6 +9,7 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -26,7 +27,7 @@ public sealed partial class GenerateAODWaveformCache<TParam, TProfile> : Observa
     private string _aODWaveformResultFilePath = string.Empty;
 }
 
-public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
+public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : ViewModelBase
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
 {
@@ -36,6 +37,12 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
 
     [ObservableProperty]
     private GenerateAODWaveformCache<TParam, TProfile> _cache = new();
+
+    protected abstract string AODWaveformName { get; }
+
+    protected abstract (bool IsSuccess, IReadOnlyList<TProfile> Result, string ResultFilePath, Exception? Exception) GenerateAODWaveform(TParam param, CancellationToken cancellationToken);
+
+    protected abstract void SetAODWaveProfiles(TParam param, IReadOnlyList<TProfile> profiles);
 
     protected AbstractGenerateAODWaveformWindowViewModel()
     {

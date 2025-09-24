@@ -8,7 +8,6 @@ using Core.Utilities;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Nlog.Entities.HtmlElements;
-using System.Threading;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
