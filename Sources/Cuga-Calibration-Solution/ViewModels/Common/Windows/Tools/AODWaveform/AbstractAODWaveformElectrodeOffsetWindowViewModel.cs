@@ -18,16 +18,17 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
-using CommunityToolkit.Diagnostics;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformElectrodeCache<TParam, TProfile, TResult> : ObservableCacheBase
+public partial class AODWaveformElectrodeOffsetCache<TParam, TProfile, TResult> : ObservableCacheBase
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
-    where TResult : AODWaveformElectrodeItem<TProfile>, new()
+    where TResult : AODWaveformElectrodeOffsetItem<TProfile>, new()
 {
+    #region Param
+
     [ObservableProperty]
     private TParam _param = new();
 
@@ -50,39 +51,60 @@ public partial class AODWaveformElectrodeCache<TParam, TProfile, TResult> : Obse
     private double _offsetFrequency;
 
     [ObservableProperty]
-    private double _startOffsetFrequencyPeriodCoefficient;
+    private double _startLowFrequencyOffsetFrequencyPeriodCoefficient;
 
     [ObservableProperty]
-    private double _stepOffsetFrequencyPeriodCoefficient;
+    private double _stepLowFrequencyOffsetFrequencyPeriodCoefficient;
 
     [ObservableProperty]
-    private double _stopOffsetFrequencyPeriodCoefficient;
+    private double _stopLowFrequencyOffsetFrequencyPeriodCoefficient;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(LowPoints))]
-    private TResult[] _lowItems = [];
+    private double _startHighFrequencyOffsetFrequencyPeriodCoefficient;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HighPoints))]
-    private TResult[] _highItems = [];
+    private double _stepHighFrequencyOffsetFrequencyPeriodCoefficient;
 
-    public Point[] LowPoints => [.. LowItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))];
+    [ObservableProperty]
+    private double _stopHighFrequencyOffsetFrequencyPeriodCoefficient;
 
-    public Point[] HighPoints => [.. HighItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))];
+    #endregion Param
+
+    #region Result
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LowFrequencyPoints))]
+    private TResult[] _lowFrequencyItems = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HighFrequencyPoints))]
+    private TResult[] _highFrequencyItems = [];
+
+    public Point[] LowFrequencyPoints => [.. LowFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))];
+
+    public Point[] HighFrequencyPoints => [.. HighFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))];
+
+    #endregion Result
 
     public virtual object ToHtmlAnonymous() => new
     {
+        MeasureMaxPowerMachinePosition,
+        DefaultAmplitude,
         WaitTime,
         LowFrequency,
         HighFrequency,
         OffsetFrequency,
-        StartOffsetFrequencyPeriodCoefficient,
-        StepOffsetFrequencyPeriodCoefficient,
-        StopOffsetFrequencyPeriodCoefficient,
+        StartLowFrequencyOffsetFrequencyPeriodCoefficient,
+        StepLowFrequencyOffsetFrequencyPeriodCoefficient,
+        StopLowFrequencyOffsetFrequencyPeriodCoefficient,
+        StartHighFrequencyOffsetFrequencyPeriodCoefficient,
+        StepHighFrequencyOffsetFrequencyPeriodCoefficient,
+        StopHighFrequencyOffsetFrequencyPeriodCoefficient,
+        Param = Param.ToHtmlAnonymous()
     };
 }
 
-public partial class AODWaveformElectrodeItem<TProfile> : ObservableCacheBase
+public partial class AODWaveformElectrodeOffsetItem<TProfile> : ObservableCacheBase
     where TProfile : AbstractAODWaveformProfile
 {
     [ObservableProperty]
@@ -99,16 +121,24 @@ public partial class AODWaveformElectrodeItem<TProfile> : ObservableCacheBase
 
     [ObservableProperty]
     private double _measurePower;
+
+    public virtual object ToHtmlAnonymous() => new HtmlQuote(new
+    {
+        AODWaveformResultFilePath,
+        Frequency,
+        MeasurePower,
+        AODWaveform = new HtmlTable([.. Profiles.Select(t => t.ToHtmlAnonymous())])
+    });
 }
 
-public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam, TProfile, TResult, TCache> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
+public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<TParam, TProfile, TResult, TCache> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
-    where TResult : AODWaveformElectrodeItem<TProfile>, new()
-    where TCache : AODWaveformElectrodeCache<TParam, TProfile, TResult>, new()
+    where TResult : AODWaveformElectrodeOffsetItem<TProfile>, new()
+    where TCache : AODWaveformElectrodeOffsetCache<TParam, TProfile, TResult>, new()
 {
     protected readonly ApplicationSetting ApplicationSetting;
-    protected readonly ILogger<AbstractAODWaveformElectrodeWindowViewModel<TParam, TProfile, TResult, TCache>> Logger;
+    protected readonly ILogger<AbstractAODWaveformElectrodeOffsetWindowViewModel<TParam, TProfile, TResult, TCache>> Logger;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
@@ -121,10 +151,10 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
 
     protected Guid HtmlLogUniqueId { get; private set; }
 
-    protected AbstractAODWaveformElectrodeWindowViewModel()
+    protected AbstractAODWaveformElectrodeOffsetWindowViewModel()
     {
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
-        Logger = (ILogger<AbstractAODWaveformElectrodeWindowViewModel<TParam, TProfile, TResult, TCache>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+        Logger = (ILogger<AbstractAODWaveformElectrodeOffsetWindowViewModel<TParam, TProfile, TResult, TCache>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
@@ -148,7 +178,7 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
             }
         }
 
-        Logger.LogWarning("{@Name}: Please Calibrate {@OpticsMagTypeEnum} Optical Power First", nameof(AbstractAODWaveformElectrodeWindowViewModel<TParam, TProfile, TResult, TCache>), Cache.Param.OpticsMagTypeEnum);
+        Logger.LogWarning("{@Name}: Please Calibrate {@OpticsMagTypeEnum} Optical Power First", nameof(AbstractAODWaveformElectrodeOffsetWindowViewModel<TParam, TProfile, TResult, TCache>), Cache.Param.OpticsMagTypeEnum);
         DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.Param.OpticsMagTypeEnum} Optical Power First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
     }
 
@@ -157,11 +187,10 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
     {
         await InvokeAsync("Step1 Measure Power", async () =>
         {
-            Cache.LowItems = [];
-            Cache.HighItems = [];
+            Cache.LowFrequencyItems = [];
 
             Logger.LogHtmlInformation($"{Cache.LowFrequency}MHz", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-            foreach (var offsetFrequencyPeriodCoefficient in Generate.LinearRange(Cache.StartOffsetFrequencyPeriodCoefficient, Cache.StepOffsetFrequencyPeriodCoefficient, Cache.StopOffsetFrequencyPeriodCoefficient))
+            foreach (var offsetFrequencyPeriodCoefficient in Generate.LinearRange(Cache.StartLowFrequencyOffsetFrequencyPeriodCoefficient, Cache.StepLowFrequencyOffsetFrequencyPeriodCoefficient, Cache.StopLowFrequencyOffsetFrequencyPeriodCoefficient))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -174,11 +203,12 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
                 Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
 
-                Cache.LowItems = [.. Cache.LowItems, item];
+                Cache.LowFrequencyItems = [.. Cache.LowFrequencyItems, item];
             }
 
+            Cache.HighFrequencyItems = [];
             Logger.LogHtmlInformation($"{Cache.HighFrequency}MHz", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-            foreach (var offsetFrequencyPeriodCoefficient in Generate.LinearRange(Cache.StartOffsetFrequencyPeriodCoefficient, Cache.StepOffsetFrequencyPeriodCoefficient, Cache.StopOffsetFrequencyPeriodCoefficient))
+            foreach (var offsetFrequencyPeriodCoefficient in Generate.LinearRange(Cache.StartHighFrequencyOffsetFrequencyPeriodCoefficient, Cache.StepHighFrequencyOffsetFrequencyPeriodCoefficient, Cache.StopHighFrequencyOffsetFrequencyPeriodCoefficient))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -191,9 +221,8 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
                 Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
 
-                Cache.LowItems = [.. Cache.LowItems, item];
+                Cache.HighFrequencyItems = [.. Cache.HighFrequencyItems, item];
             }
-
 
             return true;
         });
@@ -202,15 +231,15 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
     [RelayCommand]
     private void Step2(CancellationToken cancellationToken)
     {
-        Guard.IsNotEmpty(Cache.LowItems);
-        Guard.IsNotEmpty(Cache.HighItems);
-        Guard.IsTrue(Cache.LowItems.Length == Cache.HighItems.Length);
+        /*Guard.IsNotEmpty(Cache.LowFrequencyItems);
+        Guard.IsNotEmpty(Cache.HighFrequencyItems);
+        Guard.IsTrue(Cache.LowFrequencyItems.Length == Cache.HighFrequencyItems.Length);
 
-        var orderByItems = Cache.LowItems
-            .Zip(Cache.HighItems, (low, high) => (Low: low, High: high))
-            .OrderByDescending(t => t.Low.MeasurePower + t.High.MeasurePower).ToArray();
+        var orderByItems = Cache.LowFrequencyItems
+            .Zip(Cache.HighFrequencyItems, (t1, t2) => (LowFrequencyItem: t1, HighFrequencyItem: t2))
+            .OrderByDescending(t => t.LowFrequencyItem.MeasurePower + t.HighFrequencyItem.MeasurePower).ToArray();
 
-        DialogWindowProvider.ShowDialog($"{orderByItems[0].Low.OffsetFrequencyPeriodCoefficient:f3}");
+        DialogWindowProvider.ShowDialog($"{orderByItems[0].Low.OffsetFrequencyPeriodCoefficient:f3}");*/
     }
 
     [RelayCommand]
@@ -219,7 +248,7 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
         if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false)
-            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractAODWaveformElectrodeWindowViewModel<TParam, TProfile, TResult, TCache>), AODWaveformName);
+            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Electrode Offset Param Failed", nameof(AbstractAODWaveformElectrodeOffsetWindowViewModel<TParam, TProfile, TResult, TCache>), AODWaveformName);
 
         CloseView(null);
     }
@@ -237,10 +266,12 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
         {
             await func();
 
+            Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
             {
-                LowItems = new HtmlPlot2DLinesChart([(string.Empty, [..Cache.LowItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))])], string.Empty),
-                HighItems = new HtmlPlot2DLinesChart([(string.Empty, [..Cache.HighItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))])], string.Empty)
+                LowFrequencyPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.LowFrequencyPoints)], string.Empty),
+                HighFrequencyPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.HighFrequencyPoints)], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
 
             result = true;
@@ -308,14 +339,7 @@ public abstract partial class AbstractAODWaveformElectrodeWindowViewModel<TParam
 
             item.MeasurePower = measurePower;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
-            {
-                item.AODWaveformResultFilePath,
-                item.Frequency,
-                item.OffsetFrequencyPeriodCoefficient,
-                item.MeasurePower,
-                AODWaveform = new HtmlTable([.. item.Profiles.Select(t => t.ToHtmlAnonymous())])
-            }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
         }
         finally
         {

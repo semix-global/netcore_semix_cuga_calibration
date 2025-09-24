@@ -1,8 +1,8 @@
 namespace CugaCalibration.Views.Common.Windows.Tools.AODWaveform;
 
-public partial class ChirpAODWaveformElectrodeWindow
+public partial class ChirpAODWaveformElectrodeOffsetWindow
 {
-    public ChirpAODWaveformElectrodeWindow()
+    public ChirpAODWaveformElectrodeOffsetWindow()
     {
         InitializeComponent();
     }

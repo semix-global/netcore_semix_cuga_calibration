@@ -309,7 +309,7 @@
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn Width="150"
-                                                Header="Frequency"
+                                                Header="Frequency(MHz)"
                                                 DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
                                 <GridViewColumn Width="100"
                                                 Header="Amplitude"
@@ -318,7 +318,7 @@
                                                 Header="Coefficient"
                                                 DisplayMemberBinding="{Binding Coefficient, StringFormat={}{0:0.###}}" />
                                 <GridViewColumn Width="120"
-                                                Header="Measure Power"
+                                                Header="Measure Power(mW)"
                                                 DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
                                 <GridViewColumn Width="100"
                                                 Header="Rate"

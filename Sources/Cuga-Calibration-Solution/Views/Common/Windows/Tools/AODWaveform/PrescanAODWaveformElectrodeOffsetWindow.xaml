@@ -1,4 +1,4 @@
-﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.ChirpAODWaveformElectrodeWindow"
+﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.PrescanAODWaveformElectrodeOffsetWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,7 +12,7 @@
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
-           d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeWindowViewModel,
+           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetWindowViewModel,
                                             IsDesignTimeCreatable=True}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
@@ -50,7 +50,7 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="Chirp AOD Waveform Electrode"
+                <TextBlock Text="Prescan AOD Waveform Electrode Offset"
                            HorizontalAlignment="Center"
                            FontSize="13"
                            FontWeight="Bold"
@@ -86,79 +86,102 @@
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleFrequency="False"
-                                                                          IsVisibleAmplitude="False"
-                                                                          IsVisibleDirectoryPath="False"
-                                                                          IsVisibleElectrodeConfiguration="False"
-                                                                          IsVisibleUniformityConfiguration="False"
-                                                                          IsVisibleSlopeDeltaKConfiguration="False"
-                                                                          IsVisibleCompensation="False"
-                                                                          DataContext="{Binding Cache.Param}" />
+                        <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleFrequency="False"
+                                                                            IsVisibleAmplitude="False"
+                                                                            IsVisibleDirectoryPath="False"
+                                                                            IsVisibleElectrodeConfiguration="False"
+                                                                            IsVisibleUniformityConfiguration="False"
+                                                                            IsVisibleSlopeDeltaKConfiguration="False"
+                                                                            IsVisibleCompensation="False"
+                                                                            DataContext="{Binding Cache.Param}" />
                         <GroupBox Header="Step1">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:ComboBox hc:InfoElement.TitlePlacement="Left"
-                                                 hc:InfoElement.TitleWidth="180"
-                                                 hc:InfoElement.Title="Prescan Coefficient: "
-                                                 SelectedItem="{Binding Cache.LaserLightInformation}"
-                                                 ItemsSource="{Binding LaserLightInformationList}" />
                                     <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:InfoElement.Title="Measure Machine Position:"
                                              hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="180"
+                                             hc:InfoElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />
                                     <Button Content="Refresh Measure Machine Position"
                                             Command="{Binding RefreshMeasureMachinePositionCommand}"
                                             Style="{StaticResource ButtonDefault}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Default Amplitude: "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Minimum="0"
                                                       Value="{Binding Cache.DefaultAmplitude}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Wait Time(s): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Low Frequency(Mhz): "
+                                    <hc:NumericUpDown hc:InfoElement.Title="Low Frequency(MHz): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.LowFrequency}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="High Frequency(Mhz): "
+                                    <hc:NumericUpDown hc:InfoElement.Title="High Frequency(MHz): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.HighFrequency}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Start Frequency(Mhz): "
+                                    <hc:NumericUpDown hc:InfoElement.Title="Offset Frequency(MHz): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.OffsetFrequency}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Start Frequency(Mhz): "
+                                    <StackPanel>
+                                        <TextBlock Text="Low Frequency"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <hc:NumericUpDown hc:InfoElement.Title="Start Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StartOffsetFrequencyPeriodCoefficient}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Step Frequency(Mhz): "
+                                                      Value="{Binding Cache.StartLowFrequencyOffsetFrequencyPeriodCoefficient}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Step Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StepOffsetFrequencyPeriodCoefficient}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Stop Frequency(Mhz): "
+                                                      Value="{Binding Cache.StepLowFrequencyOffsetFrequencyPeriodCoefficient}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Stop Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StopOffsetFrequencyPeriodCoefficient}" />
+                                                      Value="{Binding Cache.StopLowFrequencyOffsetFrequencyPeriodCoefficient}" />
+                                    <StackPanel>
+                                        <TextBlock Text="High Frequency"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <hc:NumericUpDown hc:InfoElement.Title="Start Offset Period(2pi): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StartHighFrequencyOffsetFrequencyPeriodCoefficient}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Step Offset Period(2pi): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StepHighFrequencyOffsetFrequencyPeriodCoefficient}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Stop Offset Period(2pi): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StopHighFrequencyOffsetFrequencyPeriodCoefficient}" />
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                                             <hc:UniformSpacingPanel HorizontalAlignment="Left"
@@ -207,17 +230,10 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="2"
-                            Padding="0"
-                            Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                    <TabControl>
+                        <TabItem Header="Low Frequency">
                             <ListView d:SelectedIndex="0"
-                                      ItemsSource="{Binding Cache.LowItems}"
+                                      ItemsSource="{Binding Cache.LowFrequencyItems}"
                                       Style="{StaticResource ListView.Small}"
                                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                                       ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -270,7 +286,7 @@
                                                                PopupAnimation="Slide"
                                                                IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
                                                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                <profileUI:ChirpAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeItem}" DataContext="{Binding Profiles}" />
+                                                                <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetItem}" DataContext="{Binding Profiles}" />
                                                             </Border>
                                                         </Popup>
                                                     </Grid>
@@ -280,9 +296,10 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
-                            <ListView Grid.Column="1"
-                                      d:SelectedIndex="0"
-                                      ItemsSource="{Binding Cache.HigItems}"
+                        </TabItem>
+                        <TabItem Header="High Frequency">
+                            <ListView d:SelectedIndex="0"
+                                      ItemsSource="{Binding Cache.HighFrequencyItems}"
                                       Style="{StaticResource ListView.Small}"
                                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                                       ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -308,15 +325,9 @@
                                                 <Setter Property="VerticalContentAlignment" Value="Center" />
                                             </Style>
                                         </GridView.ColumnHeaderContainerStyle>
-                                        <GridViewColumn Width="150"
-                                                        Header="Frequency(MHz)"
-                                                        DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Width="100"
-                                                        Header="Amplitude"
-                                                        DisplayMemberBinding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" />
-                                        <GridViewColumn Width="120"
-                                                        Header="Measure Power(mW)"
-                                                        DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
+                                        <GridViewColumn Header="Frequency(MHz)" DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
+                                        <GridViewColumn Header="Amplitude" DisplayMemberBinding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" />
+                                        <GridViewColumn Header="Measure Power(mW)" DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
                                         <GridViewColumn Header="Profiles">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
@@ -335,7 +346,7 @@
                                                                PopupAnimation="Slide"
                                                                IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
                                                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                <profileUI:ChirpAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeItem}" DataContext="{Binding Profiles}" />
+                                                                <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetItem}" DataContext="{Binding Profiles}" />
                                                             </Border>
                                                         </Popup>
                                                     </Grid>
@@ -345,8 +356,8 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
-                        </Grid>
-                    </Border>
+                        </TabItem>
+                    </TabControl>
                     <GridSplitter Grid.Row="1" Height="5" />
                     <Border Grid.Row="2"
                             Padding="0"
@@ -359,12 +370,12 @@
                             </Grid.ColumnDefinitions>
                             <scottplot:WpfPlot>
                                 <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Low Frequency" Plot0="{Binding Cache.LowPoints}" />
+                                    <behaviors:WpfPlotMultiBehavior Title="Low Frequency" Plot0="{Binding Cache.LowFrequencyPoints}" />
                                 </i:Interaction.Behaviors>
                             </scottplot:WpfPlot>
                             <scottplot:WpfPlot Grid.Column="1">
                                 <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="High Frequency" Plot0="{Binding Cache.HighPoints}" />
+                                    <behaviors:WpfPlotMultiBehavior Title="High Frequency" Plot0="{Binding Cache.HighFrequencyPoints}" />
                                 </i:Interaction.Behaviors>
                             </scottplot:WpfPlot>
                         </Grid>

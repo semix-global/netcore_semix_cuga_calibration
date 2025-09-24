@@ -10,7 +10,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformElectrodeCache : AODWaveformElectrodeCache<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile, ChirpAODWaveformElectrodeItem>
+public sealed partial class ChirpAODWaveformElectrodeOffsetCache : AODWaveformElectrodeOffsetCache<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile, ChirpAODWaveformElectrodeOffsetItem>
 {
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
@@ -22,10 +22,10 @@ public sealed partial class ChirpAODWaveformElectrodeCache : AODWaveformElectrod
     };
 }
 
-public sealed class ChirpAODWaveformElectrodeItem : AODWaveformElectrodeItem<ChirpAODWaveformProfile>;
+public sealed class ChirpAODWaveformElectrodeOffsetItem : AODWaveformElectrodeOffsetItem<ChirpAODWaveformProfile>;
 
-[IOCAppService(ServiceType = typeof(ChirpAODWaveformElectrodeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public class ChirpAODWaveformElectrodeWindowViewModel(ApplicationCookie applicationCookie) : AbstractAODWaveformElectrodeWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile, ChirpAODWaveformElectrodeItem, ChirpAODWaveformElectrodeCache>
+[IOCAppService(ServiceType = typeof(ChirpAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public class ChirpAODWaveformElectrodeOffsetWindowViewModel(ApplicationCookie applicationCookie) : AbstractAODWaveformElectrodeOffsetWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile, ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetCache>
 {
     public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
 
