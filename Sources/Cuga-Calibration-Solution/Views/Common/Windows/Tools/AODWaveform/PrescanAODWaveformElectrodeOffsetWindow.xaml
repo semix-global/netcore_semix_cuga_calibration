@@ -64,7 +64,7 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Width="100" Header="Amplitude(AMP)">
+                            <GridViewColumn Width="100" Header="Period(2pi)">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetItem}">
                                         <TextBlock Text="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
@@ -84,7 +84,7 @@
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                           Content="Profiles"
-                                                          Margin="0,5"
+                                                          Margin="0,2"
                                                           HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
                                             <Popup Width="800"
@@ -94,7 +94,7 @@
                                                    Placement="Right"
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                                     <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
                                                 </Border>
@@ -303,21 +303,15 @@
                                                       hc:InfoElement.TitleWidth="200"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopOffsetFrequencyPeriodCoefficient}" />
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="All Action"
-                                                        Command="{Binding Step1Command}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                                <Button Content="All Cancel"
-                                                        Command="{Binding Step1CancelCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                        Style="{StaticResource ButtonWarning}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding Step1Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="All Cancel"
+                                                Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
                                                   Content="{StaticResource SecondaryParamTitleString}"
@@ -382,9 +376,9 @@
                                                                 Plot1Title="High Frequency"
                                                                 Plot1Color="{x:Static scottPlot:Colors.Red}"
                                                                 Plot1="{Binding Cache.HighFrequencyPoints}"
-                                                                Plot3Title="Merge"
-                                                                Plot3Color="{x:Static scottPlot:Colors.Blue}"
-                                                                Plot3="{Binding Cache.ResultPoints}" />
+                                                                Plot2Title="Merge Frequency"
+                                                                Plot2Color="{x:Static scottPlot:Colors.Blue}"
+                                                                Plot2="{Binding Cache.MergeFrequencyPoints}" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                     </Border>

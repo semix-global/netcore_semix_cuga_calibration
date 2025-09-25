@@ -280,7 +280,9 @@ public static class AODWaveformGenerator
     {
         internal override void Initialize()
         {
-            var fileName = $"prescan" +
+            const string prescan = nameof(prescan);
+
+            var fileName = prescan +
                            $"_{Param.FileNameSuffix}" +
                            $"_{Param.FlatnessTime:0.###}ns" +
                            $"_{Param.FunctionMonotonicTypeEnum switch
@@ -294,18 +296,18 @@ public static class AODWaveformGenerator
 
             if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(fileName)));
+            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
             foreach (var item in Param.OffsetConfigurations)
             {
-                fileName = $"prescan" +
+                fileName = prescan +
                            $"_{Param.FileNameSuffix}" +
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
 
                 if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -321,7 +323,9 @@ public static class AODWaveformGenerator
     {
         internal override void Initialize()
         {
-            var fileName = $"chirp" +
+            const string chirp = nameof(chirp);
+
+            var fileName = chirp +
                            $"_{Param.FileNameSuffix}" +
                            $"_{Param.SoundPacketLength:0.###}mm" +
                            $"_{Param.FunctionMonotonicTypeEnum switch
@@ -335,17 +339,17 @@ public static class AODWaveformGenerator
 
             if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(fileName)));
+            FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
             foreach (var item in Param.OffsetConfigurations)
             {
-                fileName = $"chirp" +
+                fileName = chirp +
                            $"_{Param.FileNameSuffix}" +
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
                 if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -364,7 +368,7 @@ public static class AODWaveformGenerator
         /// <summary>
         /// AOD波形结果项集合
         /// </summary>
-        public IReadOnlyList<AODWaveformResultItem> Items { get; protected set; } = [];
+        public List<AODWaveformResultItem> Items { get; protected set; } = [];
 
         /// <summary>
         /// AOD波形结果文件

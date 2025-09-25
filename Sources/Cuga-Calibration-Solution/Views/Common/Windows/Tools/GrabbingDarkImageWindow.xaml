@@ -15,8 +15,9 @@
            xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
-           Width="1240"
-           Height="935"
+           xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           Width="1500"
+           Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:GrabbingDarkImageWindowViewModel}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
@@ -230,13 +231,13 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
-
                 <GridSplitter Grid.Column="1" Width="10" />
-
-                <hc:UniformSpacingPanel Grid.Column="2"
-                                        Orientation="Vertical"
-                                        Spacing="10">
-                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <Border Grid.Column="2"
+                        Style="{StaticResource BorderRegion}"
+                        Effect="{StaticResource EffectShadow1}">
+                    <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                     IsInertiaEnabled="True"
+                                     VerticalScrollBarVisibility="Auto">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                             <StackPanel>
                                 <TextBlock Text="Param"
@@ -257,50 +258,59 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <hc:TransitioningContentControl TransitionStoryboard="{StaticResource Left2RightWithFadeTransition}">
-                                <Border Margin="-5"
-                                        Padding="5"
-                                        Style="{StaticResource BorderRegion}">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Is PTP:  "
-                                                       Width="150"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsPtp}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource InfoBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                Spacing="8"
-                                                                Visibility="{Binding IsPtp, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBox Text="{Binding StartPosition, Converter={StaticResource PointToStringConverter}}"
-                                                     hc:InfoElement.Title="Start Position(um): "
-                                                     hc:InfoElement.TitleWidth="150"
-                                                     hc:InfoElement.TitlePlacement="Left"
-                                                     Style="{StaticResource TextBoxExtend}" />
-                                            <TextBox Text="{Binding EndPosition, Converter={StaticResource PointToStringConverter}}"
-                                                     hc:InfoElement.Title="End Position(um): "
-                                                     hc:InfoElement.TitleWidth="150"
-                                                     hc:InfoElement.TitlePlacement="Left"
-                                                     Style="{StaticResource TextBoxExtend}" />
-                                        </hc:UniformSpacingPanel>
-                                        <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                Spacing="8"
-                                                                Visibility="{Binding IsPtp, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                                            <hc:NumericUpDown hc:InfoElement.ShowClearButton="True"
-                                                              hc:InfoElement.Title="Width: "
-                                                              hc:InfoElement.TitlePlacement="Left"
-                                                              hc:TitleElement.TitleWidth="150"
-                                                              Minimum="10"
-                                                              Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding XWidth}" />
-                                        </hc:UniformSpacingPanel>
+                            <Border Margin="-5"
+                                    Padding="5"
+                                    Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Is PTP:  "
+                                                   Width="150"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ToggleButton IsChecked="{Binding IsPtp}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Background="{StaticResource InfoBrush}"
+                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                    </StackPanel>
+                                    <hc:UniformSpacingPanel Orientation="Vertical"
+                                                            Spacing="8"
+                                                            Visibility="{Binding IsPtp, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBox Text="{Binding StartPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:InfoElement.Title="Start Position(um): "
+                                                 hc:InfoElement.TitleWidth="150"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding EndPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:InfoElement.Title="End Position(um): "
+                                                 hc:InfoElement.TitleWidth="150"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
-                                </Border>
-                            </hc:TransitioningContentControl>
+                                    <hc:UniformSpacingPanel Orientation="Vertical"
+                                                            Spacing="8"
+                                                            Visibility="{Binding IsPtp, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                                        <hc:NumericUpDown hc:InfoElement.ShowClearButton="True"
+                                                          hc:InfoElement.Title="Width(px): "
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="150"
+                                                          Minimum="10"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding XWidth}" />
+                                    </hc:UniformSpacingPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Forward: "
+                                                   Width="150"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ToggleButton IsChecked="{Binding IsForward}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Background="{StaticResource DangerBrush}"
+                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                    </StackPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"
@@ -355,35 +365,76 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Forward: "
-                                           Width="150"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding IsForward}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Background="{StaticResource DangerBrush}"
-                                              Style="{StaticResource ToggleButtonSwitch}" />
-                            </StackPanel>
-                            <TextBox Text="{Binding PrescanFilePath}"
+                            <Separator />
+                            <TextBox Text="{Binding PrescanAODWaveformResultFilePath}"
                                      Height="50"
                                      TextWrapping="Wrap"
-                                     hc:InfoElement.Title="Prescan File: "
-                                     hc:TitleElement.TitleWidth="90"
+                                     hc:InfoElement.Title="Prescan File Path: "
+                                     hc:TitleElement.TitleWidth="150"
                                      hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Button Content="Change" Command="{Binding ChangePrescanFileCommand}" />
-                            <TextBox Text="{Binding ChirpFilePath}"
+                            <hc:UniformSpacingPanel Spacing="10">
+                                <Button Content="Prescan"
+                                        Command="{Binding ChangedPrescanAODWaveformProfilesCommand}"
+                                        hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                <Button Content="Clear"
+                                        Command="{Binding ClearPrescanAODWaveformProfilesCommand}"
+                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
+                                <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                              Content="Profiles"
+                                              Margin="0,5"
+                                              HorizontalAlignment="Left"
+                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                <Popup Width="800"
+                                       Height="800"
+                                       StaysOpen="False"
+                                       PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                       Placement="Right"
+                                       AllowsTransparency="True"
+                                       PopupAnimation="Slide"
+                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                        <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                    </Border>
+                                </Popup>
+                            </hc:UniformSpacingPanel>
+                            <TextBox Text="{Binding ChirpAODWaveformResultFilePath}"
                                      Height="50"
                                      TextWrapping="Wrap"
-                                     hc:InfoElement.Title="Chirp File: "
-                                     hc:TitleElement.TitleWidth="90"
+                                     hc:InfoElement.Title="Chirp File Path: "
+                                     hc:TitleElement.TitleWidth="150"
                                      hc:InfoElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Button Content="Change" Command="{Binding ChangeChirpFileCommand}" />
+                            <hc:UniformSpacingPanel Spacing="10">
+                                <Button Content="Chirp"
+                                        Command="{Binding ChangedChirpAODWaveformProfilesCommand}"
+                                        hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                <Button Content="Clear"
+                                        Command="{Binding ClearChirpAODWaveformProfilesCommand}"
+                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
+                                <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                              Content="Profiles"
+                                              Margin="0,5"
+                                              HorizontalAlignment="Left"
+                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                <Popup Width="800"
+                                       Height="800"
+                                       StaysOpen="False"
+                                       PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                                       Placement="Right"
+                                       AllowsTransparency="True"
+                                       PopupAnimation="Slide"
+                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                        <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                    </Border>
+                                </Popup>
+                            </hc:UniformSpacingPanel>
+                            <Separator />
                             <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
                                                                 hc:InfoElement.TitleWidth="150"
                                                                 hc:InfoElement.TitlePlacement="Left"
@@ -398,8 +449,8 @@
                                         Style="{StaticResource ButtonPrimary.Loading}" />
                             </hc:SimplePanel>
                         </hc:UniformSpacingPanel>
-                    </Border>
-                </hc:UniformSpacingPanel>
+                    </hc:ScrollViewer>
+                </Border>
             </Grid>
         </Border>
         <!--#endregion-->

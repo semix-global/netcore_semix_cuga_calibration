@@ -24,7 +24,7 @@ public sealed partial class PrescanAODWaveformElectrodeOffsetCache : AODWaveform
 
     public override object ToHtmlAnonymous() => new
     {
-        PrescanParam = new HtmlBullet(base.ToHtmlAnonymous()),
+        PrescanParam = new HtmlQuote(base.ToHtmlAnonymous()),
         ChirpAODWaveformResultFilePath,
         ChirpAODWaveformProfiles = new HtmlTable([.. ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
     };
@@ -40,7 +40,7 @@ public sealed partial class PrescanAODWaveformElectrodeOffsetItem : AODWaveformE
 
     public override object ToHtmlAnonymous() => new
     {
-        Base = new HtmlBullet(base.ToHtmlAnonymous()),
+        Base = new HtmlQuote(base.ToHtmlAnonymous()),
         PrescanAODWaveformResultFilePath,
         PrescanAODWaveformProfiles = new HtmlTable([.. PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
     };

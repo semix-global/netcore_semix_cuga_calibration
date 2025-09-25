@@ -78,10 +78,16 @@ public partial class GrabbingDarkImageWindowViewModel(
     private bool _isForward = true;
 
     [ObservableProperty]
-    private string _prescanFilePath = string.Empty;
+    private string _prescanAODWaveformResultFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _chirpFilePath = string.Empty;
+    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+
+    [ObservableProperty]
+    private string _chirpAODWaveformResultFilePath = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 
     [ObservableProperty]
     private ObservableCollection<GrabbingDarkImageDto> _grabbingDarkImageList = [];
@@ -93,21 +99,63 @@ public partial class GrabbingDarkImageWindowViewModel(
     private CIBConfiguration _cIBConfiguration = new();
 
     [RelayCommand]
-    private void ChangePrescanFile()
+    private void ChangedPrescanAODWaveformProfiles()
     {
-        var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".txt", out var filePath);
-        if (dialog == false) return;
+        try
+        {
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator.PrescanAODWaveformFileExtension, out var filePath);
+            if (dialog == false) return;
 
-        PrescanFilePath = filePath;
+            PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(filePath);
+            PrescanAODWaveformResultFilePath = filePath;
+        }
+        catch (Exception ex)
+        {
+            ClearPrescanAODWaveformProfiles();
+
+            logger.LogError(ex, "{@Name}: Changed Prescan AOD Waveform Profiles Failed", nameof(GrabbingDarkImageWindowViewModel));
+            dialogWindowProvider.ShowDialog($"""
+                                             Changed Prescan AOD Waveform Profiles Failed
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
     }
 
     [RelayCommand]
-    private void ChangeChirpFile()
+    private void ClearPrescanAODWaveformProfiles()
     {
-        var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".txt", out var filePath);
-        if (dialog == false) return;
+        PrescanAODWaveformProfiles = [];
+        PrescanAODWaveformResultFilePath = string.Empty;
+    }
 
-        ChirpFilePath = filePath;
+    [RelayCommand]
+    private void ChangedChirpAODWaveformProfiles()
+    {
+        try
+        {
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator.ChirpAODWaveformFileExtension, out var filePath);
+            if (dialog == false) return;
+
+            ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(filePath);
+            ChirpAODWaveformResultFilePath = filePath;
+        }
+        catch (Exception ex)
+        {
+            ClearChirpAODWaveformProfiles();
+
+            logger.LogError(ex, "{@Name}: Changed Chirp AOD Waveform Profiles Failed", nameof(GrabbingDarkImageWindowViewModel));
+            dialogWindowProvider.ShowDialog($"""
+                                             Changed Chirp AOD Waveform Profiles Failed
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private void ClearChirpAODWaveformProfiles()
+    {
+        ChirpAODWaveformProfiles = [];
+        ChirpAODWaveformResultFilePath = string.Empty;
     }
 
     [RelayCommand]
@@ -139,20 +187,21 @@ public partial class GrabbingDarkImageWindowViewModel(
                                                         {nameof(CIBConfiguration.IsL0K)}: {CIBConfiguration.IsL0K}
                                                         {nameof(CIBConfiguration.IsAutoGainControl)}: {CIBConfiguration.IsAutoGainControl}
                                                         {nameof(IsForward)}: {IsForward}
-                                                        {(string.IsNullOrWhiteSpace(PrescanFilePath) ? string.Empty : $"{nameof(PrescanFilePath)}: {PrescanFilePath}")}
-                                                        {(string.IsNullOrWhiteSpace(ChirpFilePath) ? string.Empty : $"{nameof(ChirpFilePath)}: {ChirpFilePath}")}
+                                                        {(string.IsNullOrWhiteSpace(PrescanAODWaveformResultFilePath) ? string.Empty : $"{nameof(PrescanAODWaveformResultFilePath)}: {PrescanAODWaveformResultFilePath}")}
+                                                        {(string.IsNullOrWhiteSpace(ChirpAODWaveformResultFilePath) ? string.Empty : $"{nameof(ChirpAODWaveformResultFilePath)}: {ChirpAODWaveformResultFilePath}")}
                                                         """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
 
-                var isCustomPrescanAod = string.IsNullOrWhiteSpace(PrescanFilePath) == false;
+                var isCustomPrescanAod = PrescanAODWaveformProfiles.Count > 0 && string.IsNullOrWhiteSpace(PrescanAODWaveformResultFilePath) == false;
                 if (isCustomPrescanAod)
                 {
-                    laserViewModel.SetPrescanAODWaveProfiles([AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, PrescanFilePath, LaserLightInformation.Coefficient)]);
+                    foreach (var prescanAODWaveformProfile in PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(LaserLightInformation.Coefficient);
+                    laserViewModel.SetPrescanAODWaveProfiles(PrescanAODWaveformProfiles);
                 }
 
-                var isCustomChirpAod = string.IsNullOrWhiteSpace(ChirpFilePath) == false;
+                var isCustomChirpAod = ChirpAODWaveformProfiles.Count > 0 && string.IsNullOrWhiteSpace(ChirpAODWaveformResultFilePath) == false;
                 if (isCustomChirpAod)
                 {
-                    laserViewModel.SetChirpAODWaveProfiles([AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, ChirpFilePath)]);
+                    laserViewModel.SetChirpAODWaveProfiles(ChirpAODWaveformProfiles);
                 }
 
                 var resultPosition = StageCoordinateSystemEnum switch
@@ -228,8 +277,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                     XWidth = IsPtp ? string.Empty : XWidth.ToString(),
                     StartPosition = IsPtp ? StartPosition.ToString() : string.Empty,
                     EndPosition = IsPtp ? EndPosition.ToString() : string.Empty,
-                    PrescanFilePath = PrescanFilePath,
-                    ChirpFilePath = ChirpFilePath,
+                    PrescanFilePath = PrescanAODWaveformResultFilePath,
+                    ChirpFilePath = ChirpAODWaveformResultFilePath,
                     DarkFieldImageList = darkFieldImageList,
                     PlotList = plotList
                 };

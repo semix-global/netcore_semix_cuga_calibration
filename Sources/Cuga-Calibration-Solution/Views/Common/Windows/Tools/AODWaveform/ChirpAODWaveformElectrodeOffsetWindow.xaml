@@ -64,7 +64,7 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Width="150" Header="Amplitude(AMP)">
+                            <GridViewColumn Width="150" Header="Period(2pi)">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetItem}">
                                         <TextBlock Text="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
@@ -84,7 +84,7 @@
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
                                                           Content="Profiles"
-                                                          Margin="0,5"
+                                                          Margin="0,2"
                                                           HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
                                             <Popup Width="800"
@@ -303,24 +303,18 @@
                                                       hc:InfoElement.TitleWidth="200"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopOffsetFrequencyPeriodCoefficient}" />
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="All Action"
-                                                        Command="{Binding Step1Command}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                                <Button Content="All Cancel"
-                                                        Command="{Binding Step1CancelCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                        Style="{StaticResource ButtonWarning}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding Step1Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="All Cancel"
+                                                Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                                  Content="{StaticResource PrimaryParamTitleString}"
+                                                  Content="{StaticResource SecondaryParamTitleString}"
                                                   Margin="0,5"
                                                   HorizontalAlignment="Left"
                                                   hc:IconElement.Geometry="{StaticResource AllGeometry}" />
@@ -382,9 +376,9 @@
                                                                 Plot1Title="High Frequency"
                                                                 Plot1Color="{x:Static scottPlot:Colors.Red}"
                                                                 Plot1="{Binding Cache.HighFrequencyPoints}"
-                                                                Plot3Title="Merge"
-                                                                Plot3Color="{x:Static scottPlot:Colors.Blue}"
-                                                                Plot3="{Binding Cache.ResultPoints}" />
+                                                                Plot2Title="Merge Frequency"
+                                                                Plot2Color="{x:Static scottPlot:Colors.Blue}"
+                                                                Plot2="{Binding Cache.MergeFrequencyPoints}" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                     </Border>

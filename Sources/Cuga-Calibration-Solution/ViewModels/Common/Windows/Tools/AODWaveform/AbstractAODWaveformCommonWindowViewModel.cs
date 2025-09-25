@@ -73,7 +73,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly LaserViewModel LaserViewModel;
     protected readonly StageViewModel StageViewModel;
 
-    protected string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
+    protected string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
     [ObservableProperty]
     private TCache _cache = new();

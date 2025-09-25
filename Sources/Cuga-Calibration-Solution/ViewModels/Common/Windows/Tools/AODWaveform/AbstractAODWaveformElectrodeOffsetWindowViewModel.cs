@@ -37,19 +37,19 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LowFrequencyPoints))]
-    [NotifyPropertyChangedFor(nameof(ResultPoints))]
+    [NotifyPropertyChangedFor(nameof(MergeFrequencyPoints))]
     private TItem[] _lowFrequencyItems = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HighFrequencyPoints))]
-    [NotifyPropertyChangedFor(nameof(ResultPoints))]
+    [NotifyPropertyChangedFor(nameof(MergeFrequencyPoints))]
     private TItem[] _highFrequencyItems = [];
 
     public Point[] LowFrequencyPoints => [.. LowFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))];
 
     public Point[] HighFrequencyPoints => [.. HighFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))];
 
-    public Point[] ResultPoints => LowFrequencyItems.Concat(HighFrequencyItems)
+    public Point[] MergeFrequencyPoints => LowFrequencyItems.Concat(HighFrequencyItems)
         .GroupBy(t => t.OffsetFrequencyPeriodCoefficient)
         .Select(g => new Point(
             g.Key,
@@ -67,7 +67,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         StartOffsetFrequencyPeriodCoefficient,
         StepOffsetFrequencyPeriodCoefficient,
         StopOffsetFrequencyPeriodCoefficient,
-        Base = new HtmlBullet(base.ToHtmlAnonymous())
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
 
@@ -83,7 +83,7 @@ public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
     {
         Frequency,
         OffsetFrequencyPeriodCoefficient,
-        Base = new HtmlBullet(base.ToHtmlAnonymous())
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
 
@@ -96,11 +96,17 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
         Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
 
+        var maxMergeFrequencyPoint = Cache.MergeFrequencyPoints.OrderByDescending(t => t.Y).First();
+        var maxMergeFrequencyOffsetFrequencyPeriodCoefficient = maxMergeFrequencyPoint.X;
+        var maxMergeFrequencyMeasurePower = maxMergeFrequencyPoint.Y;
+
+        DialogWindowProvider.ShowDialog($"Max Merge Period: {maxMergeFrequencyOffsetFrequencyPeriodCoefficient}(2pi)  Power: {maxMergeFrequencyMeasurePower}(mW)");
+
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            FrequencyPoints = new HtmlPlot2DLinesChart([(nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints)], string.Empty),
-            ResultPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.ResultPoints)], string.Empty),
-            Result = Cache.ResultPoints.OrderByDescending(t => t.Y).First()
+            FrequencyPoints = new HtmlPlot2DLinesChart([(nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.MergeFrequencyPoints)], string.Empty),
+            maxMergeFrequencyOffsetFrequencyPeriodCoefficient = $"{maxMergeFrequencyOffsetFrequencyPeriodCoefficient}(2pi)",
+            maxMergeFrequencyMeasurePower = $"{maxMergeFrequencyMeasurePower}(mW)"
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -148,7 +154,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
                 };
 
-                Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                 await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
 
                 Cache.HighFrequencyItems = [.. Cache.HighFrequencyItems, item];

@@ -65,7 +65,7 @@ public partial class AODWaveformUniformityCache<TItem> : AODWaveformCommonCache
         TargetThreshold,
         TargetThresholdRateMin,
         TargetThresholdRateMax,
-        Base = new HtmlBullet(base.ToHtmlAnonymous())
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
 
@@ -96,7 +96,7 @@ public partial class AODWaveformUniformityItem : AODWaveformCommonItem
         DefaultAmplitude,
         Amplitude,
         Coefficient,
-        Base = new HtmlBullet(base.ToHtmlAnonymous()),
+        Base = new HtmlQuote(base.ToHtmlAnonymous()),
         Rate,
         IsOk
     };
@@ -153,6 +153,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             }
 
             Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
+
+            foreach (var item in Cache.Items) item.Rate = item.MeasurePower / Cache.TargetMeasurePower;
 
             return true;
         }).ConfigureAwait(false);
@@ -301,7 +303,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
 
         HtmlQuote GetHtmlQuote() => new(new
         {
-            item = new HtmlBullet(item.ToHtmlAnonymous()),
+            item = new HtmlQuote(item.ToHtmlAnonymous()),
             MeasureCoefficientPowerPoints = new HtmlPlot2DLinesChart([(string.Empty, [.. MeasureCoefficientPowerPoints])], string.Empty)
         });
     }

@@ -207,37 +207,25 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopFrequency}" />
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="All Action"
-                                                        Command="{Binding Step1Command}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                                <Button Content="All Cancel"
-                                                        Command="{Binding Step1CancelCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                        Style="{StaticResource ButtonWarning}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding Step1Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="All Cancel"
+                                                Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="One Action"
-                                                        Command="{Binding Step1OneCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                                <Button Content="One Cancel"
-                                                        Command="{Binding Step1OneCancelCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                        Style="{StaticResource ButtonWarning}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="One Action"
+                                                Command="{Binding Step1OneCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="One Cancel"
+                                                Command="{Binding Step1OneCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
                                                   Content="{StaticResource SecondaryParamTitleString}"
@@ -293,55 +281,37 @@
                                                       IsReadOnly="True"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.TargetThresholdRateMax, Mode=OneWay}" />
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="All Action"
-                                                        Command="{Binding Step2Command}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                                <Button Content="All Cancel"
-                                                        Command="{Binding Step2CancelCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                        Style="{StaticResource ButtonWarning}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding Step2Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="All Cancel"
+                                                Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="One Action"
-                                                        Command="{Binding Step2OneCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                                <Button Content="One Cancel"
-                                                        Command="{Binding Step2OneCancelCommand}"
-                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                        Style="{StaticResource ButtonWarning}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="One Action"
+                                                Command="{Binding Step2OneCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="One Cancel"
+                                                Command="{Binding Step2OneCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
                         <GroupBox Header="Step3">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                    VerticalAlignment="Top"
-                                                                    Spacing="10">
-                                                <Button Content="Save"
-                                                        Command="{Binding Step3Command}"
-                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                            </hc:UniformSpacingPanel>
-                                        </hc:UniformSpacingPanel>
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Save"
+                                                Command="{Binding Step3Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
                                     </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
                             </Border>
@@ -413,7 +383,7 @@
                                             <Grid>
                                                 <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                               Content="Profiles"
-                                                              Margin="0,5"
+                                                              Margin="0,2"
                                                               HorizontalAlignment="Left"
                                                               hc:IconElement.Geometry="{StaticResource AllGeometry}" />
                                                 <Popup Width="800"

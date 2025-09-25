@@ -57,6 +57,6 @@ public sealed partial class GenerateChirpAODWaveformParam :
     {
         SoundPacketLength,
         SoundSpeed,
-        Base = new HtmlBullet(base.ToHtmlAnonymous())
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }

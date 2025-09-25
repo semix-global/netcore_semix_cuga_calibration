@@ -53,6 +53,6 @@ public sealed partial class GeneratePrescanAODWaveformParam :
     {
         FlatnessTime,
         OpticsMagTypeEnum,
-        Base = new HtmlBullet(base.ToHtmlAnonymous())
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
