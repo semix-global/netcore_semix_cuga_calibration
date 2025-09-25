@@ -62,11 +62,6 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
         {
             try
             {
-                Cache = new GenerateAODWaveformCache<TParam, TProfile>
-                {
-                    Param = Cache.Param
-                };
-
                 GenerateAODWaveform(cancellationToken);
 
                 DialogWindowProvider.ShowDialog($"{Name}: Generate Success");

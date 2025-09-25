@@ -29,6 +29,7 @@
             <system:String x:Key="PrimaryParamTitleString">Changed Chirp AOD Waveform</system:String>
             <system:String x:Key="SecondaryParamTitleString">Fixed Prescan AOD Waveform</system:String>
             <Style x:Key="FrequencyItemsListViewStyle"
+                   x:Shared="False"
                    TargetType="ListView"
                    BasedOn="{StaticResource ListView.Small}">
                 <Setter Property="Margin" Value="5" />
@@ -93,7 +94,7 @@
                                                    Placement="Right"
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                                     <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
                                                 </Border>
@@ -166,7 +167,7 @@
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="450"
+            <Border Width="500"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
@@ -330,7 +331,7 @@
                                            Placement="Right"
                                            AllowsTransparency="True"
                                            PopupAnimation="Slide"
-                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                             <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
                                         </Border>

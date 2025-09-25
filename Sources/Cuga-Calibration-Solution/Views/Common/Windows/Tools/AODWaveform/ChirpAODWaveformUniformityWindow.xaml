@@ -87,7 +87,7 @@
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="450"
+            <Border Width="500"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
@@ -130,7 +130,6 @@
                                                                                                   IsVisibleFrequency="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
-                                                                                                  IsVisibleElectrodeConfiguration="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
                                                                                                   IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                   IsVisibleCompensation="False"
@@ -252,7 +251,7 @@
                                            Placement="Right"
                                            AllowsTransparency="True"
                                            PopupAnimation="Slide"
-                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                             <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
                                         </Border>
@@ -424,7 +423,7 @@
                                                        Placement="Right"
                                                        AllowsTransparency="True"
                                                        PopupAnimation="Slide"
-                                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
                                                     <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                                         <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
                                                     </Border>

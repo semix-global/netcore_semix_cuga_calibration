@@ -14,6 +14,9 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
 
     protected override void GenerateAODWaveform(CancellationToken cancellationToken)
     {
+        Cache.Profiles = [];
+        Cache.AODWaveformResultFilePath = string.Empty;
+
         var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
 

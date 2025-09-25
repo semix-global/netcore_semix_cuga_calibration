@@ -76,7 +76,7 @@
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="450"
+            <Border Width="500"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"

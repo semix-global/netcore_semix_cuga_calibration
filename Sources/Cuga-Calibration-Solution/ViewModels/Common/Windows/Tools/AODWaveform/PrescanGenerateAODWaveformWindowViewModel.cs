@@ -14,6 +14,9 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
 
     protected override void GenerateAODWaveform(CancellationToken cancellationToken)
     {
+        Cache.Profiles = [];
+        Cache.AODWaveformResultFilePath = string.Empty;
+
         var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
 

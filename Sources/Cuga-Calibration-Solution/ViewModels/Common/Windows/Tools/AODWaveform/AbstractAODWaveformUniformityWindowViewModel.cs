@@ -130,6 +130,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
         {
             Cache.Items = [];
 
+            GenerateFixedAODWaveform(cancellationToken);
+
             var frequencies = Generate.LinearRange(Cache.StartFrequency, Cache.StepFrequency, Cache.StopFrequency);
             Guard.IsNotEmpty(frequencies);
 

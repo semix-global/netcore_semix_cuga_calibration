@@ -20,12 +20,12 @@ public sealed partial class PrescanAODWaveformUniformityCache : AODWaveformUnifo
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 
-    public override object ToHtmlAnonymous() => new HtmlQuote(new
+    public override object ToHtmlAnonymous() => new
     {
         PrescanParam = new HtmlBullet(base.ToHtmlAnonymous()),
         ChirpAODWaveformResultFilePath,
         ChirpAODWaveformProfiles = new HtmlTable([.. ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-    });
+    };
 }
 
 public sealed partial class PrescanAODWaveformUniformityItem : AODWaveformUniformityItem
@@ -36,12 +36,12 @@ public sealed partial class PrescanAODWaveformUniformityItem : AODWaveformUnifor
     [ObservableProperty]
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 
-    public override object ToHtmlAnonymous() => new HtmlQuote(new
+    public override object ToHtmlAnonymous() => new
     {
         Base = new HtmlBullet(base.ToHtmlAnonymous()),
         PrescanAODWaveformResultFilePath,
         PrescanAODWaveformProfiles = new HtmlTable([.. PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-    });
+    };
 }
 
 [IOCAppService(ServiceType = typeof(PrescanAODWaveformUniformityWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
@@ -51,6 +51,9 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
 
     protected override void GenerateFixedAODWaveform(CancellationToken cancellationToken)
     {
+        Cache.ChirpAODWaveformProfiles = [];
+        Cache.ChirpAODWaveformResultFilePath = string.Empty;
+
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.GenerateChirpAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;

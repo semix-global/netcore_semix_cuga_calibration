@@ -79,12 +79,12 @@ public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
     [ObservableProperty]
     private double _offsetFrequencyPeriodCoefficient;
 
-    public override object ToHtmlAnonymous() => new HtmlQuote(new
+    public override object ToHtmlAnonymous() => new
     {
         Frequency,
         OffsetFrequencyPeriodCoefficient,
         Base = new HtmlBullet(base.ToHtmlAnonymous())
-    });
+    };
 }
 
 public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<TCache, TItem> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
@@ -109,13 +109,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         await InvokeAsync("Step1 Electrode Offset", async () =>
         {
+            Cache.LowFrequencyItems = [];
+            Cache.HighFrequencyItems = [];
+
             GenerateFixedAODWaveform(cancellationToken);
 
             var offsetFrequencyPeriodCoefficients = Generate.LinearRange(Cache.StartOffsetFrequencyPeriodCoefficient, Cache.StepOffsetFrequencyPeriodCoefficient, Cache.StopOffsetFrequencyPeriodCoefficient);
             Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
-
-            Cache.LowFrequencyItems = [];
-            Cache.HighFrequencyItems = [];
 
             Logger.LogHtmlInformation($"{Cache.LowFrequency}(MHz)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
