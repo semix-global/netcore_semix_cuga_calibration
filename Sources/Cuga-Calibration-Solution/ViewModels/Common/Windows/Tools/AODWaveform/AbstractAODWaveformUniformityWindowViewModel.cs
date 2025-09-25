@@ -1,48 +1,20 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
-using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Models.Models.Laser.OpticalPower;
-using Core.Utilities;
-using Local.NoSQL.DB.Providers.Bases;
-using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM;
-using Net.Utilities.WPF.MVVM.Providers;
-using System.IO;
-using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformUniformityCache<TParam, TProfile, TResult> : ObservableCacheBase
-    where TParam : AbstractGenerateAODWaveformParam, new()
-    where TProfile : AbstractAODWaveformProfile
-    where TResult : AODWaveformUniformityItem<TProfile>, new()
+public partial class AODWaveformUniformityCache<TItem> : AODWaveformCommonCache
+    where TItem : AODWaveformUniformityItem, new()
 {
     #region Param
-
-    [ObservableProperty]
-    private TParam _param = new();
-
-    [ObservableProperty]
-    private Point _measureMaxPowerMachinePosition = Point.Origin;
-
-    [ObservableProperty]
-    private double _defaultAmplitude = 1;
-
-    [ObservableProperty]
-    private double _waitTime = 15;
 
     [ObservableProperty]
     private double _startFrequency;
@@ -75,7 +47,7 @@ public partial class AODWaveformUniformityCache<TParam, TProfile, TResult> : Obs
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MeasurePowerPoints))]
     [NotifyPropertyChangedFor(nameof(CoefficientPoints))]
-    private TResult[] _items = [];
+    private TItem[] _items = [];
 
     public Point[] MeasurePowerPoints => [.. Items.Select(t => new Point(t.Frequency, t.MeasurePower))];
 
@@ -83,11 +55,8 @@ public partial class AODWaveformUniformityCache<TParam, TProfile, TResult> : Obs
 
     #endregion Result
 
-    public virtual object ToHtmlAnonymous() => new
+    public override object ToHtmlAnonymous() => new
     {
-        MeasureMaxPowerMachinePosition,
-        DefaultAmplitude,
-        WaitTime,
         StartFrequency,
         StepFrequency,
         StopFrequency,
@@ -96,19 +65,12 @@ public partial class AODWaveformUniformityCache<TParam, TProfile, TResult> : Obs
         TargetThreshold,
         TargetThresholdRateMin,
         TargetThresholdRateMax,
-        Param = new HtmlQuote(Param.ToHtmlAnonymous())
+        Base = new HtmlBullet(base.ToHtmlAnonymous())
     };
 }
 
-public partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
-    where TProfile : AbstractAODWaveformProfile
+public partial class AODWaveformUniformityItem : AODWaveformCommonItem
 {
-    [ObservableProperty]
-    private IReadOnlyList<TProfile> _profiles = [];
-
-    [ObservableProperty]
-    private string _aODWaveformResultFilePath = string.Empty;
-
     [ObservableProperty]
     private double _frequency;
 
@@ -123,83 +85,42 @@ public partial class AODWaveformUniformityItem<TProfile> : ObservableCacheBase
     public double Coefficient => Amplitude <= DefaultAmplitude ? Amplitude / DefaultAmplitude : ThrowHelper.ThrowArgumentException<double>(nameof(Amplitude), "Amplitude must be greater than DefaultAmplitude");
 
     [ObservableProperty]
-    private double _measurePower;
-
-    [ObservableProperty]
     private double _rate;
 
     [ObservableProperty]
     private bool _isOk;
 
-    public virtual object ToHtmlAnonymous() => new HtmlQuote(new
+    public override object ToHtmlAnonymous() => new
     {
-        AODWaveformResultFilePath,
         Frequency,
         DefaultAmplitude,
         Amplitude,
         Coefficient,
-        MeasurePower,
+        Base = new HtmlBullet(base.ToHtmlAnonymous()),
         Rate,
-        IsOk,
-        AODWaveform = new HtmlTable([.. Profiles.Select(t => t.ToHtmlAnonymous())])
-    });
+        IsOk
+    };
 }
 
-public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache> : AbstractAODWaveformCommonViewModel<TParam, TProfile>
-    where TParam : AbstractGenerateAODWaveformParam, new()
-    where TProfile : AbstractAODWaveformProfile
-    where TResult : AODWaveformUniformityItem<TProfile>, new()
-    where TCache : AODWaveformUniformityCache<TParam, TProfile, TResult>, new()
+public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCache, TItem> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
+    where TCache : AODWaveformUniformityCache<TItem>, new()
+    where TItem : AODWaveformUniformityItem, new()
 {
-    protected readonly ApplicationSetting ApplicationSetting;
-    protected readonly ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>> Logger;
-    protected readonly ICacheProvider CacheProvider;
-    protected readonly IDialogWindowProvider DialogWindowProvider;
-    protected readonly LaserViewModel LaserViewModel;
-    protected readonly StageViewModel StageViewModel;
-
-    public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
-
-    [ObservableProperty]
-    private TCache _cache = new();
-
     [ObservableProperty]
     private Point[] _measureCoefficientPowerPoints = [];
 
     [ObservableProperty]
-    private TResult? _selectedItem;
+    private TItem? _selectedItem;
 
-    protected Guid HtmlLogUniqueId { get; private set; }
-
-    protected AbstractAODWaveformUniformityWindowViewModel()
+    protected override void LoggerResult()
     {
-        ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
-        Logger = (ILogger<AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
-        CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-        DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
-        LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
-        StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
-    }
-
-    [RelayCommand]
-    private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
-
-    [RelayCommand]
-    private void RefreshMeasureMachinePosition()
-    {
-        if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerDto>(out var laserOpticalPowerDtos))
+        Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.Items.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t => t.OpticsMagTypeEnum == Cache.Param.OpticsMagTypeEnum);
-            if (laserOpticalPowerDto is not null && laserOpticalPowerDto.IsOk)
-            {
-                Cache.MeasureMaxPowerMachinePosition = laserOpticalPowerDto.MeasureMaxPowerPosition;
-
-                return;
-            }
-        }
-
-        Logger.LogWarning("{@Name}: Please Calibrate {@OpticsMagTypeEnum} Optical Power First", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>), Cache.Param.OpticsMagTypeEnum);
-        DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.Param.OpticsMagTypeEnum} Optical Power First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            Cache.TargetMeasurePower,
+            MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.MeasurePowerPoints)], string.Empty),
+            CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -209,22 +130,43 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         {
             Cache.Items = [];
 
-            foreach (var frequency in Generate.LinearRange(Cache.StartFrequency, Cache.StepFrequency, Cache.StopFrequency))
+            var frequencies = Generate.LinearRange(Cache.StartFrequency, Cache.StepFrequency, Cache.StopFrequency);
+            Guard.IsNotEmpty(frequencies);
+
+            foreach (var frequency in frequencies)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var item = new TResult
+                var item = new TItem
                 {
                     Frequency = frequency,
                     DefaultAmplitude = Cache.DefaultAmplitude,
                     Amplitude = Cache.DefaultAmplitude
                 };
 
-                Logger.LogHtmlInformation($"{item.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{item.Frequency}(MHz) {item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
 
                 Cache.Items = [.. Cache.Items, item];
             }
+
+            Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
+
+            return true;
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step1OneAsync(CancellationToken cancellationToken)
+    {
+        await InvokeAsync("Step1 Measure Power One", async () =>
+        {
+            if (SelectedItem is null) return false;
+
+            foreach (var item in Cache.Items) item.IsOk = false;
+
+            Logger.LogHtmlInformation($"{SelectedItem.Frequency}(MHz) {SelectedItem.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            await UpdateMeasurePowerAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
 
             Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
 
@@ -242,29 +184,11 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Logger.LogHtmlInformation($"{item.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{item.Frequency}(MHz) {item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 results.Add(await UniformityAsync(item, cancellationToken).ConfigureAwait(false));
             }
 
             return results.All(t => t);
-        }).ConfigureAwait(false);
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1OneAsync(CancellationToken cancellationToken)
-    {
-        await InvokeAsync("Step1 Measure Power One", async () =>
-        {
-            if (SelectedItem is null) return false;
-
-            foreach (var item in Cache.Items) item.IsOk = false;
-
-            Logger.LogHtmlInformation($"{SelectedItem.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-            await UpdateMeasurePowerAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
-
-            Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
-
-            return true;
         }).ConfigureAwait(false);
     }
 
@@ -275,111 +199,37 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         {
             if (SelectedItem is null) return false;
 
-            Logger.LogHtmlInformation($"{SelectedItem.Frequency}MHz", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation($"{SelectedItem.Frequency}(MHz) {SelectedItem.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
             return await UniformityAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
-    [RelayCommand]
-    private void Save()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step3Async(CancellationToken cancellationToken)
     {
-        try
+        await InvokeAsync("Step3 Save", () =>
         {
-            if (Cache.Items.All(t => t.IsOk) == false)
-            {
-                DialogWindowProvider.ShowDialog("Please Ensure All Frequency Is OK First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
+            if (SelectedItem is null) return Task.FromResult(false);
+
+            Guard.IsTrue(Cache.Items.All(t => t.IsOk));
 
             var dialog = DialogWindowProvider.TryShowSaveFilePathDialog(".xlsx", out var filePath);
-            if (dialog == false) return;
+            if (dialog == false) return Task.FromResult(false);
 
             FileHelper.DeleteFileIfExists(filePath);
             MiniExcel.SaveAs(filePath, Cache.CoefficientPoints.Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = t.X, Coefficient = t.Y }));
 
-            DialogWindowProvider.ShowDialog($"Save {AODWaveformName} AOD Waveform Uniformity Success!");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>), AODWaveformName);
-            DialogWindowProvider.ShowDialog($"""
-                                             Save {AODWaveformName} AOD Waveform Uniformity Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
-    }
-
-    [RelayCommand]
-    private void Close()
-    {
-        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-
-        if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false)
-            Logger.LogWarning("{@Name}: Save {@AODWaveformName} AOD Waveform Uniformity Param Failed", nameof(AbstractAODWaveformUniformityWindowViewModel<TParam, TProfile, TResult, TCache>), AODWaveformName);
-
-        CloseView(null);
-    }
-
-    private async Task InvokeAsync(string stepName, Func<Task<bool>> func)
-    {
-        await Task.Run(async () =>
-        {
-            HtmlLogUniqueId = Guid.NewGuid();
-
-            Logger.LogHtmlInformation(AODWaveformName, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-            var result = false;
-            try
+            Logger.LogHtmlInformation("Save", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                await func().ConfigureAwait(false);
+                filePath
+            }), HtmlLogUniqueId.LoggingHtml());
 
-                Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([
-                    .. Cache.Items.Select(t => new
-                {
-                    t.Frequency,
-                    t.DefaultAmplitude,
-                    t.Amplitude,
-                    t.Coefficient,
-                    t.MeasurePower,
-                    t.Rate,
-                    t.IsOk,
-                    AODWaveform = new HtmlTable([.. t.Profiles.Select(tt => tt.ToHtmlAnonymous())]),
-                })
-                ]), HtmlLogUniqueId.LoggingHtml());
-                Logger.LogHtmlInformation("Plot", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-                {
-                    MeasurePowerPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.MeasurePowerPoints)], string.Empty),
-                    CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                result = true;
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    DialogWindowProvider.ShowDialog($"{AODWaveformName} {stepName} Canceled!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlWarning($"{AODWaveformName}{stepName}  Canceled!", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                    return;
-                }
-
-                DialogWindowProvider.ShowDialog($"""
-                                                 {AODWaveformName} {stepName} Failed!
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-            }
-            finally
-            {
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{AODWaveformName}_{stepName}_{(result ? "OK" : "Failed")}"));
-            }
+            return Task.FromResult(true);
         }).ConfigureAwait(false);
     }
 
-    private async Task<bool> UniformityAsync(TResult item, CancellationToken cancellationToken)
+    private async Task<bool> UniformityAsync(TItem item, CancellationToken cancellationToken)
     {
         item.IsOk = false;
         MeasureCoefficientPowerPoints = [];
@@ -388,7 +238,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
         {
             item.IsOk = true;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, GetHtmlQuote(), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, GetHtmlQuote(), HtmlLogUniqueId.LoggingHtml());
 
             return true;
         }
@@ -405,6 +255,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             var midAmplitude = (highAmplitude + lowAmplitude) / 2;
             item.Amplitude = midAmplitude;
 
+            Logger.LogHtmlInformation($"{item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
             await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
 
             MeasureCoefficientPowerPoints = [.. MeasureCoefficientPowerPoints, new Point(midAmplitude, item.MeasurePower)];
@@ -415,7 +266,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             {
                 item.IsOk = true;
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, GetHtmlQuote(), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, GetHtmlQuote(), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
             }
@@ -434,7 +285,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
             if (retryCount > Cache.RetryCount) break;
         }
 
-        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, GetHtmlQuote(), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, GetHtmlQuote(), HtmlLogUniqueId.LoggingHtml());
 
         return false;
 
@@ -448,57 +299,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TPara
 
         HtmlQuote GetHtmlQuote() => new(new
         {
-            item.Frequency,
-            item.DefaultAmplitude,
-            item.Amplitude,
-            item.Coefficient,
-            item.MeasurePower,
-            item.Rate,
-            item.IsOk,
+            item = new HtmlBullet(item.ToHtmlAnonymous()),
             MeasureCoefficientPowerPoints = new HtmlPlot2DLinesChart([(string.Empty, [.. MeasureCoefficientPowerPoints])], string.Empty)
         });
-    }
-
-    private async Task UpdateMeasurePowerAsync(TResult item, CancellationToken cancellationToken)
-    {
-        try
-        {
-            Cache.Param.WithFrequencyFlatness(item.Frequency);
-            Cache.Param.Amplitude = item.Amplitude;
-            Cache.Param.DirectoryPath = AODWaveformDirectoryPath;
-
-            Logger.LogHtmlInformation($"{nameof(item.Amplitude)}：{item.Amplitude}", HtmlHeaderLevelEnum.Header5, new HtmlQuote(Cache.Param.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-            var (isSuccess, result, resultFilePath, exception) = GenerateAODWaveform(Cache.Param, cancellationToken);
-            if (isSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
-
-            item.Profiles = result;
-            item.AODWaveformResultFilePath = resultFilePath;
-
-            SetAODWaveProfiles(Cache.Param, item.Profiles);
-
-            LaserViewModel.ToggleOpticsMagType(Cache.Param.OpticsMagTypeEnum);
-            LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-
-            await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-
-            var measurePower = LaserViewModel.GetOpticalPowerMeter();
-
-            item.MeasurePower = measurePower;
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
-            {
-                item.AODWaveformResultFilePath,
-                item.Frequency,
-                item.Amplitude,
-                item.MeasurePower,
-                AODWaveform = new HtmlTable([.. item.Profiles.Select(t => t.ToHtmlAnonymous())])
-            }), HtmlLogUniqueId.LoggingHtml());
-        }
-        finally
-        {
-            LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Scan);
-        }
     }
 }

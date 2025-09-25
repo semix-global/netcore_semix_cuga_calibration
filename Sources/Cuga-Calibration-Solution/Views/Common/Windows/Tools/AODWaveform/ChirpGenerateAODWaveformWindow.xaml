@@ -10,8 +10,7 @@
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            Width="1500"
            Height="1000"
-           d:DataContext="{d:DesignInstance Type=viewModels:ChirpGenerateAODWaveformWindowViewModel,
-                                            IsDesignTimeCreatable=True}"
+           d:DataContext="{d:DesignInstance Type=viewModels:ChirpGenerateAODWaveformWindowViewModel}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
            ResizeMode="NoResize"
@@ -48,7 +47,7 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="Generate Chirp AOD Waveform"
+                <TextBlock Text="{Binding Name}"
                            HorizontalAlignment="Center"
                            FontSize="13"
                            FontWeight="Bold"

@@ -80,9 +80,13 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     protected Guid HtmlLogUniqueId { get; private set; }
 
-    protected abstract string Name { get; }
+    public abstract string Name { get; }
 
-    protected abstract void SetAODWaveform(TCache cache, TItem item, CancellationToken cancellationToken);
+    protected abstract void GenerateFixedAODWaveform(CancellationToken cancellationToken);
+
+    protected abstract void GenerateChangedAODWaveform(TItem item, CancellationToken cancellationToken);
+
+    protected abstract void SetAODWaveformProfiles(TItem item);
 
     protected abstract void LoggerResult();
 
@@ -113,7 +117,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             }
         }
 
-        DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.OpticsMagTypeEnum} Laser Optical Power First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.OpticsMagTypeEnum} Laser Optical Power First", DialogButtonsEnum.OK, DialogIconEnum.Warning);
     }
 
     [RelayCommand]
@@ -141,23 +145,26 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 result = await func().ConfigureAwait(false);
 
+                if (result) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
+                else DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
                 LoggerResult();
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    DialogWindowProvider.ShowDialog($"{Name} {stepName} Canceled!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlWarning($"{Name}{stepName}  Canceled!", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    DialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                     return;
                 }
 
                 DialogWindowProvider.ShowDialog($"""
-                                                 {Name} {stepName} Failed!
+                                                 {Name}: {stepName} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Failed", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             }
             finally
             {
@@ -170,9 +177,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     {
         try
         {
-            SetAODWaveform(Cache, item, cancellationToken);
-
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header6, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            GenerateChangedAODWaveform(item, cancellationToken);
+            SetAODWaveformProfiles(item);
 
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);

@@ -3,20 +3,23 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(PrescanGenerateAODWaveformWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class PrescanGenerateAODWaveformWindowViewModel(LaserViewModel laserViewModel) : AbstractGenerateAODWaveformWindowViewModel<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>
+public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>
 {
-    protected override string AODWaveformName => "Prescan";
+    public override string Name => "Generate Prescan AOD Waveform";
 
-    protected override (bool IsSuccess, IReadOnlyList<PrescanAODWaveformProfile> Result, string ResultFilePath, Exception? Exception) GenerateAODWaveform(GeneratePrescanAODWaveformParam param, CancellationToken cancellationToken)
+    protected override void GenerateAODWaveform(CancellationToken cancellationToken)
     {
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(param.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
+        if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
 
-        return (aodWaveformResult.IsSuccess, AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult), aodWaveformResult.FilePath, exception);
+        Cache.Profiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
+        Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
     }
 
-    protected override void SetAODWaveProfiles(GeneratePrescanAODWaveformParam param, IReadOnlyList<PrescanAODWaveformProfile> profiles) => laserViewModel.SetPrescanAODWaveProfiles(profiles);
+    protected override void SetAODWaveformProfiles() => LaserViewModel.SetPrescanAODWaveProfiles(Cache.Profiles);
 }

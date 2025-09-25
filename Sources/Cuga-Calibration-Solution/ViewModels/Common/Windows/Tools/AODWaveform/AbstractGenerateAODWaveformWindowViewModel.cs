@@ -5,7 +5,6 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -34,21 +33,23 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
     protected readonly ILogger<AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>> Logger;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IDialogWindowProvider DialogWindowProvider;
+    protected readonly LaserViewModel LaserViewModel;
 
     [ObservableProperty]
     private GenerateAODWaveformCache<TParam, TProfile> _cache = new();
 
-    protected abstract string AODWaveformName { get; }
+    public abstract string Name { get; }
 
-    protected abstract (bool IsSuccess, IReadOnlyList<TProfile> Result, string ResultFilePath, Exception? Exception) GenerateAODWaveform(TParam param, CancellationToken cancellationToken);
+    protected abstract void GenerateAODWaveform(CancellationToken cancellationToken);
 
-    protected abstract void SetAODWaveProfiles(TParam param, IReadOnlyList<TProfile> profiles);
+    protected abstract void SetAODWaveformProfiles();
 
     protected AbstractGenerateAODWaveformWindowViewModel()
     {
         Logger = (ILogger<AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+        LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
     }
 
     [RelayCommand]
@@ -66,19 +67,15 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
                     Param = Cache.Param
                 };
 
-                var (isSuccess, result, resultFilePath, exception) = GenerateAODWaveform(Cache.Param, cancellationToken);
+                GenerateAODWaveform(cancellationToken);
 
-                Cache.Profiles = result;
-                Cache.AODWaveformResultFilePath = resultFilePath;
-
-                if (isSuccess) DialogWindowProvider.ShowDialog($"Generate {AODWaveformName} AOD Waveform Success!");
-                else throw GuardUtils.IsNotNullAndReturn(exception);
+                DialogWindowProvider.ShowDialog($"{Name}: Generate Success");
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "{@Name}: Generate {@AODWaveformName} AOD Waveform", nameof(AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>), AODWaveformName);
+                Logger.LogError(ex, "{@Name}: Generate Failed", Name);
                 DialogWindowProvider.ShowDialog($"""
-                                                 Generate {AODWaveformName} AOD Waveform Failed!
+                                                 {Name}: Generate Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             }
@@ -92,21 +89,15 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
         {
             try
             {
-                if (Cache.Profiles.Count <= 0)
-                {
-                    DialogWindowProvider.ShowDialog($"{AODWaveformName} AOD Waveform Is Empty");
-                    return;
-                }
+                SetAODWaveformProfiles();
 
-                SetAODWaveProfiles(Cache.Param, Cache.Profiles);
-
-                DialogWindowProvider.ShowDialog($"Send {AODWaveformName} AOD Waveform Success!");
+                DialogWindowProvider.ShowDialog($"{Name}: Set Success");
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "{@Name}: Set {@AODWaveformName} AOD Waveform", nameof(AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>), AODWaveformName);
+                Logger.LogError(ex, "{@Name}: Set Failed", Name);
                 DialogWindowProvider.ShowDialog($"""
-                                                 Set {AODWaveformName} AOD Waveform Failed!
+                                                 {Name}: Set Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             }
@@ -118,8 +109,7 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
     {
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false)
-            Logger.LogWarning("{@Name}: Save Generate {@AODWaveformName} AOD Waveform Param Failed", nameof(AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>), AODWaveformName);
+        if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false) Logger.LogWarning("{@Name}: Save Param Failed", Name);
 
         CloseView(true);
     }

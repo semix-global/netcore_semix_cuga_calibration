@@ -93,13 +93,24 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 {
     protected override void LoggerResult()
     {
+        Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        {
+            FrequencyPoints = new HtmlPlot2DLinesChart([(nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints)], string.Empty),
+            ResultPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.ResultPoints)], string.Empty),
+            Result = Cache.ResultPoints.OrderByDescending(t => t.Y).First()
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2Async(CancellationToken cancellationToken)
+    private async Task Step1Async(CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step2 Electrode Offset", async () =>
+        await InvokeAsync("Step1 Electrode Offset", async () =>
         {
+            GenerateFixedAODWaveform(cancellationToken);
+
             var offsetFrequencyPeriodCoefficients = Generate.LinearRange(Cache.StartOffsetFrequencyPeriodCoefficient, Cache.StepOffsetFrequencyPeriodCoefficient, Cache.StopOffsetFrequencyPeriodCoefficient);
             Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
 
@@ -142,16 +153,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 Cache.HighFrequencyItems = [.. Cache.HighFrequencyItems, item];
             }
-
-            Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                FrequencyPoints = new HtmlPlot2DLinesChart([(nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints)], string.Empty),
-                ResultPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.ResultPoints)], string.Empty),
-                Result = Cache.ResultPoints.OrderBy(t => t.Y).First()
-            }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
         }).ConfigureAwait(false);

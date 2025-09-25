@@ -37,7 +37,8 @@
                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                  SelectedItem="{Binding OpticsMagTypeEnum}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}"
+                                 Visibility="{Binding IsVisibleOpticsMagTypeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />

@@ -8,12 +8,14 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-           xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:wpf="http://schemas.scottplot.net/2008/xaml/presentation"
+           xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:system="clr-namespace:System;assembly=mscorlib"
            Width="1500"
            Height="1000"
-           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformUniformityWindowViewModel,
-                                            IsDesignTimeCreatable=True}"
+           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformUniformityWindowViewModel}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
            ResizeMode="NoResize"
@@ -21,6 +23,12 @@
            WindowStartupLocation="CenterScreen"
            WindowStyle="None"
            mc:Ignorable="d">
+    <hc:Window.Resources>
+        <ResourceDictionary>
+            <system:String x:Key="PrimaryParamTitleString">Changed Prescan AOD Waveform</system:String>
+            <system:String x:Key="SecondaryParamTitleString">Fixed Chirp AOD Waveform</system:String>
+        </ResourceDictionary>
+    </hc:Window.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
@@ -50,7 +58,7 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="Prescan AOD Waveform Uniformity"
+                <TextBlock Text="{Binding Name}"
                            HorizontalAlignment="Center"
                            FontSize="13"
                            FontWeight="Bold"
@@ -86,37 +94,102 @@
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleFrequency="False"
-                                                                            IsVisibleAmplitude="False"
-                                                                            IsVisibleDirectoryPath="False"
-                                                                            IsVisibleUniformityConfiguration="False"
-                                                                            IsVisibleSlopeDeltaKConfiguration="False"
-                                                                            IsVisibleCompensation="False"
-                                                                            DataContext="{Binding Cache.Param}" />
+                        <GroupBox Header="AOD Waveform Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
+                                                     hc:InfoElement.TitlePlacement="Left"
+                                                     hc:InfoElement.TitleWidth="200"
+                                                     SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
+                                            <hc:ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataTemplate>
+                                            </hc:ComboBox.ItemTemplate>
+                                        </hc:ComboBox>
+                                        <hc:NumericUpDown hc:InfoElement.Title="Default Amplitude: "
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.TitleWidth="200"
+                                                          Maximum="1"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Minimum="0"
+                                                          Value="{Binding Cache.DefaultAmplitude}" />
+                                    </hc:UniformSpacingPanel>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="{StaticResource PrimaryParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                                                                    IsVisibleFrequency="False"
+                                                                                                    IsVisibleAmplitude="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    IsVisibleElectrodeConfiguration="False"
+                                                                                                    IsVisibleUniformityConfiguration="False"
+                                                                                                    IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                                    IsVisibleCompensation="False"
+                                                                                                    DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="{StaticResource SecondaryParamTitleString}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:UniformSpacingPanel Margin="11,0"
+                                                                        Orientation="Vertical"
+                                                                        Spacing="2">
+                                                    <hc:NumericUpDown hc:InfoElement.Title="Chirp Frequency(MHz): "
+                                                                      hc:InfoElement.TitlePlacement="Left"
+                                                                      hc:InfoElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.ChirpFrequency}" />
+                                                </hc:UniformSpacingPanel>
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                                                                  IsVisibleFrequency="False"
+                                                                                                  IsVisibleAmplitude="False"
+                                                                                                  IsVisibleDirectoryPath="False"
+                                                                                                  IsVisibleUniformityConfiguration="False"
+                                                                                                  IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                                  IsVisibleCompensation="False"
+                                                                                                  DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
                         <GroupBox Header="Step1">
-                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:InfoElement.Title="Measure Machine Position:"
                                              hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="180"
+                                             hc:InfoElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />
                                     <Button Content="Refresh Measure Machine Position"
                                             Command="{Binding RefreshMeasureMachinePositionCommand}"
                                             Style="{StaticResource ButtonDefault}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Default Amplitude: "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
-                                                      Maximum="1"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Minimum="0"
-                                                      Value="{Binding Cache.DefaultAmplitude}" />
                                     <hc:NumericUpDown hc:InfoElement.Title="Wait Time(s): "
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                                      hc:InfoElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
+                                    <StackPanel>
+                                        <TextBlock Text="{StaticResource PrimaryParamTitleString}"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
                                     <hc:NumericUpDown hc:InfoElement.Title="Start Frequency(Mhz): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="180"
@@ -167,6 +240,23 @@
                                             </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
                                     </hc:UniformSpacingPanel>
+                                    <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                                  Content="{StaticResource SecondaryParamTitleString}"
+                                                  Margin="0,5"
+                                                  HorizontalAlignment="Left"
+                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                    <Popup Width="800"
+                                           Height="800"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                                           Placement="Right"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Slide"
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
+                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                            <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
+                                        </Border>
+                                    </Popup>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -248,7 +338,7 @@
                                                                     VerticalAlignment="Top"
                                                                     Spacing="10">
                                                 <Button Content="Save"
-                                                        Command="{Binding SaveCommand}"
+                                                        Command="{Binding Step3Command}"
                                                         hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                         Style="{StaticResource ButtonPrimary.Loading}" />
                                             </hc:UniformSpacingPanel>
@@ -306,37 +396,37 @@
                                 <GridViewColumn Width="150"
                                                 Header="Frequency(MHz)"
                                                 DisplayMemberBinding="{Binding Frequency, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Amplitude"
+                                <GridViewColumn Width="150"
+                                                Header="Amplitude(AMP)"
                                                 DisplayMemberBinding="{Binding Amplitude, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Width="100"
+                                <GridViewColumn Width="150"
                                                 Header="Coefficient"
                                                 DisplayMemberBinding="{Binding Coefficient, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Width="120"
+                                <GridViewColumn Width="150"
                                                 Header="Measure Power(mW)"
                                                 DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Width="100"
+                                <GridViewColumn Width="150"
                                                 Header="Rate"
                                                 DisplayMemberBinding="{Binding Rate, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Header="Profiles">
+                                <GridViewColumn Header="{StaticResource PrimaryParamTitleString}">
                                     <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformUniformityItem}">
                                             <Grid>
-                                                <ToggleButton x:Name="ToggleButtonProfiles"
+                                                <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                               Content="Profiles"
-                                                              Margin="2"
-                                                              hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                                              Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                              Margin="0,5"
+                                                              HorizontalAlignment="Left"
+                                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
                                                 <Popup Width="800"
                                                        Height="800"
                                                        StaysOpen="False"
-                                                       PlacementTarget="{Binding ElementName=ToggleButtonProfiles}"
+                                                       PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
                                                        Placement="Right"
                                                        AllowsTransparency="True"
                                                        PopupAnimation="Slide"
                                                        IsOpen="{Binding IsChecked, ElementName=ToggleButtonProfiles, Mode=TwoWay}">
                                                     <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                        <profileUI:PrescanAODWaveformProfilesUserControl d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformUniformityItem}" DataContext="{Binding Profiles}" />
+                                                        <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
                                                     </Border>
                                                 </Popup>
                                             </Grid>
@@ -357,21 +447,21 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <scottplot:WpfPlot>
+                            <wpf:WpfPlot>
                                 <i:Interaction.Behaviors>
                                     <behaviors:WpfPlotMultiBehavior Title="Frequency of Measure Power" Plot0="{Binding Cache.MeasurePowerPoints}" />
                                 </i:Interaction.Behaviors>
-                            </scottplot:WpfPlot>
-                            <scottplot:WpfPlot Grid.Column="1">
+                            </wpf:WpfPlot>
+                            <wpf:WpfPlot Grid.Column="1">
                                 <i:Interaction.Behaviors>
                                     <behaviors:WpfPlotMultiBehavior Title="Frequency of Coefficient" Plot0="{Binding Cache.CoefficientPoints}" />
                                 </i:Interaction.Behaviors>
-                            </scottplot:WpfPlot>
-                            <scottplot:WpfPlot Grid.Column="2">
+                            </wpf:WpfPlot>
+                            <wpf:WpfPlot Grid.Column="2">
                                 <i:Interaction.Behaviors>
                                     <behaviors:WpfPlotMultiBehavior Title="Coefficient of Measure Power" Plot0="{Binding MeasureCoefficientPowerPoints}" />
                                 </i:Interaction.Behaviors>
-                            </scottplot:WpfPlot>
+                            </wpf:WpfPlot>
                         </Grid>
                     </Border>
                 </Grid>

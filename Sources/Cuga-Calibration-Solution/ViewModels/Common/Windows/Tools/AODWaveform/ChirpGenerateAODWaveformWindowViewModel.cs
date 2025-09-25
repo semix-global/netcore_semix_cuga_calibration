@@ -3,20 +3,23 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(ChirpGenerateAODWaveformWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class ChirpGenerateAODWaveformWindowViewModel(LaserViewModel laserViewModel) : AbstractGenerateAODWaveformWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
+public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
 {
-    protected override string AODWaveformName => "Chirp";
+    public override string Name => "Generate Chirp AOD Waveform";
 
-    protected override (bool IsSuccess, IReadOnlyList<ChirpAODWaveformProfile> Result, string ResultFilePath, Exception? Exception) GenerateAODWaveform(GenerateChirpAODWaveformParam param, CancellationToken cancellationToken)
+    protected override void GenerateAODWaveform(CancellationToken cancellationToken)
     {
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(param.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
+        if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
 
-        return (aodWaveformResult.IsSuccess, AODWaveformProfileFactory.CreateChirpList(aodWaveformResult), aodWaveformResult.FilePath, exception);
+        Cache.Profiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
+        Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
     }
 
-    protected override void SetAODWaveProfiles(GenerateChirpAODWaveformParam param, IReadOnlyList<ChirpAODWaveformProfile> profiles) => laserViewModel.SetChirpAODWaveProfiles(profiles);
+    protected override void SetAODWaveformProfiles() => LaserViewModel.SetChirpAODWaveProfiles(Cache.Profiles);
 }
