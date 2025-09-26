@@ -31,7 +31,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.LowFindPosition1, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.LowFindPosition2, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              Margin="5"
                              hc:InfoElement.Title="Position2(um): "

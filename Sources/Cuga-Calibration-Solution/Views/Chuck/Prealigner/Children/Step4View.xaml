@@ -31,7 +31,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.HighFindPosition1, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.HighFindPosition2, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              Margin="5"
                              hc:InfoElement.Title="Position2(um): "
@@ -43,12 +43,12 @@
                                                 Spacing="10">
                             <Button x:Name="ActionButton"
                                     Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
+                                    Command="{Binding Step4CalibrateActionCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button x:Name="CancelButton"
                                     Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
+                                    Command="{Binding Step4CalibrateActionCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
