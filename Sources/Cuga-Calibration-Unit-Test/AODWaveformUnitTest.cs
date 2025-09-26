@@ -136,10 +136,12 @@ public class AODWaveformUnitTest
         var dateTime = (isChirp
                 ? ((AODWaveformGenerator.ChirpAODWaveformResult)result).FilePath
                 : ((AODWaveformGenerator.PrescanAODWaveformResult)result).FilePath)
-            .TrimStart(outputDirectoryPath.ToCharArray())
-            .TrimEnd(resultFilePath.ToCharArray())
+            .Replace(outputDirectoryPath, string.Empty)
+            .Replace(resultFilePath, string.Empty)
             .Trim(Path.DirectorySeparatorChar);
-        Assert.NotNull(DateTimeHelper.String2DateTime(dateTime, Constants.LongFileDateTimeFormat));
+        Assert.NotNull(DateTimeHelper.String2DateTime(isChirp 
+            ? dateTime.Replace("chirp", string.Empty)
+            : dateTime.Replace("prescan", string.Empty), Constants.LongFileDateTimeFormat));
 
         Assert.Equal(isChirp
             ? ((AODWaveformGenerator.ChirpAODWaveformResult)result).FilePath
@@ -179,11 +181,10 @@ public class AODWaveformUnitTest
                   $"{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:f3}Mhz_" +
                   $"{((GenerateChirpAODWaveformParam)param).AdaptTo().FlatnessTime:f3}ns_" +
                   $"{param.Amplitude:f3}AMP_" +
-                  $"{param.AstigmatismCompensationCoefficient:f3}astigmatism_" +
-                  $"{param.SphericalAberrationCompensationCoefficient:f3}sphericalAberration_" +
-                  $"{param.SecondaryAstigmatismCompensationCoefficient:f3}secondaryAstigmatism_" +
-                  $"{param.ComaCompensationCoefficient:f3}comaCompensationCoefficient_" +
-                  $"{((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples}Count_" +
+                  $"{param.AstigmatismCompensationCoefficient:f3}_" +
+                  $"{param.SphericalAberrationCompensationCoefficient:f3}_" +
+                  $"{param.SecondaryAstigmatismCompensationCoefficient:f3}_" +
+                  $"{param.ComaCompensationCoefficient:f3}_" +
                   $"${((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount}" +
                   $"$600$03" +
@@ -195,11 +196,10 @@ public class AODWaveformUnitTest
                   $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:f3}Mhz_" +
                   $"{((GeneratePrescanAODWaveformParam)param).FlatnessTime:f3}ns_" +
                   $"{param.Amplitude:f3}AMP_" +
-                  $"{param.AstigmatismCompensationCoefficient:f3}astigmatism_" +
-                  $"{param.SphericalAberrationCompensationCoefficient:f3}sphericalAberration_" +
-                  $"{param.SecondaryAstigmatismCompensationCoefficient:f3}secondaryAstigmatism_" +
-                  $"{param.ComaCompensationCoefficient:f3}comaCompensationCoefficient_" +
-                  $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples}Count_" +
+                  $"{param.AstigmatismCompensationCoefficient:f3}_" +
+                  $"{param.SphericalAberrationCompensationCoefficient:f3}_" +
+                  $"{param.SecondaryAstigmatismCompensationCoefficient:f3}_" +
+                  $"{param.ComaCompensationCoefficient:f3}_" +
                   $"${((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount}" +
                   $"$600$02" +
