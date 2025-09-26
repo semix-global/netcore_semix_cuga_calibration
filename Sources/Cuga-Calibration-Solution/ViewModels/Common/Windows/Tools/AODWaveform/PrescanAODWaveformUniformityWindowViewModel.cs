@@ -54,6 +54,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
         Cache.ChirpAODWaveformProfiles = [];
         Cache.ChirpAODWaveformResultFilePath = string.Empty;
 
+        Cache.GenerateChirpAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.GenerateChirpAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -69,6 +70,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
 
     protected override void GenerateChangedAODWaveform(PrescanAODWaveformUniformityItem item, CancellationToken cancellationToken)
     {
+        Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GeneratePrescanAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;

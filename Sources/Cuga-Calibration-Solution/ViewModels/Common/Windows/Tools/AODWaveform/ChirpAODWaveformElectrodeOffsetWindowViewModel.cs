@@ -57,6 +57,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
         Cache.PrescanAODWaveformProfiles = [];
         Cache.PrescanAODWaveformResultFilePath = string.Empty;
 
+        Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
         Cache.GeneratePrescanAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -72,6 +73,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
     protected override void GenerateChangedAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
     {
+        Cache.GenerateChirpAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GenerateChirpAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;

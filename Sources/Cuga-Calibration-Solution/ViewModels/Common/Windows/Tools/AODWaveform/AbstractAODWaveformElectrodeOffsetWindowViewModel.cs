@@ -93,9 +93,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 {
     protected override void LoggerResult()
     {
-        Logger.LogHtmlInformation("Low Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.LowFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
-        Logger.LogHtmlInformation("High Frequency Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.HighFrequencyItems.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
-
         var maxMergeFrequencyPoint = Cache.MergeFrequencyPoints.OrderByDescending(t => t.Y).First();
         var maxMergeFrequencyOffsetFrequencyPeriodCoefficient = maxMergeFrequencyPoint.X;
         var maxMergeFrequencyMeasurePower = maxMergeFrequencyPoint.Y;

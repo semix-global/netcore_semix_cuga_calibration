@@ -73,7 +73,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly LaserViewModel LaserViewModel;
     protected readonly StageViewModel StageViewModel;
 
-    protected string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
+    protected string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     [ObservableProperty]
     private TCache _cache = new();
@@ -180,9 +180,9 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             GenerateChangedAODWaveform(item, cancellationToken);
             SetAODWaveformProfiles(item);
 
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
             LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 

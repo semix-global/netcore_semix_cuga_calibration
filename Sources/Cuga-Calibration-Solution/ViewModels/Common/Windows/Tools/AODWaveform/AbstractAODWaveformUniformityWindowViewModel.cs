@@ -114,7 +114,6 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
 
     protected override void LoggerResult()
     {
-        Logger.LogHtmlInformation("Table", HtmlHeaderLevelEnum.Header3, new HtmlTable([.. Cache.Items.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.TargetMeasurePower,
