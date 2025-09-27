@@ -306,7 +306,7 @@
                         </GroupBox>
                         <GroupBox Header="Step3">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Save"
                                                 Command="{Binding Step3Command}"

@@ -303,6 +303,25 @@
                                                       hc:InfoElement.TitleWidth="200"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopOffsetFrequencyPeriodCoefficient}" />
+                                    <Separator />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Result Start Frequency(Mhz): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ResultStartFrequency}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Result Step Frequency(Mhz): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ResultStepFrequency}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Result Stop Frequency(Mhz): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ResultStopFrequency}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="All Action"
                                                 Command="{Binding Step1Command}"
@@ -330,6 +349,25 @@
                                             <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
                                         </Border>
                                     </Popup>
+                                    <StackPanel>
+                                        <TextBlock Text="Result"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <TextBox Text="{Binding Cache.ResultOffsetFrequencyPeriodCoefficient}"
+                                             hc:InfoElement.Title="Result Offset Period(2pi):"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.ResultFrequencyMeasurePower}"
+                                             hc:InfoElement.Title="Result Power(mW):"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Style="{StaticResource TextBoxExtend}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -361,26 +399,44 @@
                                 </i:Interaction.Behaviors>
                             </ListView>
                         </TabItem>
+                        <TabItem Header="Result">
+                            <ListView ItemsSource="{Binding Cache.ResultItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
+                            </ListView>
+                        </TabItem>
                     </TabControl>
                     <GridSplitter Grid.Row="1" Height="5" />
                     <Border Grid.Row="2"
                             Padding="0"
                             Style="{StaticResource BorderRegion}"
                             Effect="{StaticResource EffectShadow1}">
-                        <wpf:WpfPlot>
-                            <i:Interaction.Behaviors>
-                                <behaviors:WpfPlotMultiBehavior Title="Result"
-                                                                Plot0Title="Low Frequency"
-                                                                Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                Plot0="{Binding Cache.LowFrequencyPoints}"
-                                                                Plot1Title="High Frequency"
-                                                                Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                Plot1="{Binding Cache.HighFrequencyPoints}"
-                                                                Plot2Title="Merge Frequency"
-                                                                Plot2Color="{x:Static scottPlot:Colors.Blue}"
-                                                                Plot2="{Binding Cache.MergeFrequencyPoints}" />
-                            </i:Interaction.Behaviors>
-                        </wpf:WpfPlot>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <wpf:WpfPlot>
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="Offset Period"
+                                                                    Plot0Title="Low Frequency"
+                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                    Plot0="{Binding Cache.LowFrequencyPoints}"
+                                                                    Plot1Title="High Frequency"
+                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
+                                                                    Plot1="{Binding Cache.HighFrequencyPoints}"
+                                                                    Plot2Title="Merge Frequency"
+                                                                    Plot2Color="{x:Static scottPlot:Colors.Blue}"
+                                                                    Plot2="{Binding Cache.MergeFrequencyPoints}" />
+                                </i:Interaction.Behaviors>
+                            </wpf:WpfPlot>
+                            <wpf:WpfPlot Grid.Column="1">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="Result" Plot0="{Binding Cache.ResultMeasurePowerPoints}" />
+                                </i:Interaction.Behaviors>
+                            </wpf:WpfPlot>
+                        </Grid>
                     </Border>
                 </Grid>
             </GroupBox>
