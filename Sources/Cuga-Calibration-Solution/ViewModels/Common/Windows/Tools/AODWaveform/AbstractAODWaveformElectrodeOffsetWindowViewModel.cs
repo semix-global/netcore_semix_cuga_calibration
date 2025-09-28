@@ -115,7 +115,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TCache : AODWaveformElectrodeOffsetCache<TItem>, new()
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
-    protected string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "csv", $"{GetType().Name}.csv");
+    protected string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
 
     protected override void LoggerResult()
     {
@@ -136,6 +136,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Cache.LowFrequencyItems = [];
             Cache.HighFrequencyItems = [];
             Cache.ResultItems = [];
+            Cache.ResultOffsetFrequencyPeriodCoefficient = -1;
+            Cache.ResultFrequencyMeasurePower = -1;
 
             GenerateFixedAODWaveform(cancellationToken);
 
@@ -203,16 +205,21 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 Cache.ResultItems = [.. Cache.ResultItems, item];
             }
 
-            await MiniExcel.InsertAsync(AODWaveformCsvResultFilePath, new
+            var value = new
             {
-                DateTime = DateTime.Now.ToString(Constants.LongFileDateTimeFormat),
+                DateTime = DateTime.Now.ToString(Constants.DateTimeFormat),
                 Cache.ResultOffsetFrequencyPeriodCoefficient,
                 Cache.ResultFrequencyMeasurePower,
                 LowFrequencyPoints = string.Join(";", Cache.LowFrequencyPoints.Select(t => $"{t.X}(2pi) {t.Y}(mW)")),
                 HighFrequencyPoints = string.Join(";", Cache.HighFrequencyPoints.Select(t => $"{t.X}(2pi) {t.Y}(mW)")),
                 MergeFrequencyPoints = string.Join(";", Cache.MergeFrequencyPoints.Select(t => $"{t.X}(2pi) {t.Y}(mW)")),
                 ResultMeasurePowerPoints = string.Join(";", Cache.ResultMeasurePowerPoints.Select(t => $"{t.X}(MHz) {t.Y}(mW)"))
-            }, cancellationToken: cancellationToken);
+            };
+
+            if (System.IO.File.Exists(AODWaveformCsvResultFilePath))
+                await MiniExcel.InsertAsync(AODWaveformCsvResultFilePath, value, excelType: ExcelType.CSV, cancellationToken: cancellationToken);
+            else
+                await MiniExcel.SaveAsAsync(AODWaveformCsvResultFilePath, (object[])[value], excelType: ExcelType.CSV, cancellationToken: cancellationToken);
 
             DialogWindowProvider.ShowDialog($"Result Period: {Cache.ResultOffsetFrequencyPeriodCoefficient}(2pi)  Power: {Cache.ResultFrequencyMeasurePower}(mW)");
 

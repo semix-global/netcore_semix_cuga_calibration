@@ -67,6 +67,13 @@ public partial class AODWaveformUniformityCache<TItem> : AODWaveformCommonCache
         TargetThresholdRateMax,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
+
+    public void NotifyPropertyChanged()
+    {
+        OnPropertyChanged(nameof(Items));
+        OnPropertyChanged(nameof(MeasurePowerPoints));
+        OnPropertyChanged(nameof(CoefficientPoints));
+    }
 }
 
 public partial class AODWaveformUniformityItem : AODWaveformCommonItem
@@ -173,6 +180,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
 
             Cache.TargetMeasurePower = Cache.Items.Min(t => t.MeasurePower);
 
+            Cache.NotifyPropertyChanged();
+
             return true;
         }).ConfigureAwait(false);
     }
@@ -189,6 +198,8 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
 
                 Logger.LogHtmlInformation($"{item.Frequency}(MHz) {item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 results.Add(await UniformityAsync(item, cancellationToken).ConfigureAwait(false));
+
+                Cache.NotifyPropertyChanged();
             }
 
             return results.All(t => t);
@@ -204,7 +215,11 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
 
             Logger.LogHtmlInformation($"{SelectedItem.Frequency}(MHz) {SelectedItem.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            return await UniformityAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
+            var isSuccess = await UniformityAsync(SelectedItem, cancellationToken).ConfigureAwait(false);
+
+            Cache.NotifyPropertyChanged();
+
+            return isSuccess;
         }).ConfigureAwait(false);
     }
 

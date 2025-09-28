@@ -21,13 +21,6 @@ public sealed partial class PrescanAODWaveformElectrodeOffsetCache : AODWaveform
 
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
-
-    public override object ToHtmlAnonymous() => new
-    {
-        PrescanParam = new HtmlQuote(base.ToHtmlAnonymous()),
-        ChirpAODWaveformResultFilePath,
-        ChirpAODWaveformProfiles = new HtmlTable([.. ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-    };
 }
 
 public sealed partial class PrescanAODWaveformElectrodeOffsetItem : AODWaveformElectrodeOffsetItem
@@ -37,13 +30,6 @@ public sealed partial class PrescanAODWaveformElectrodeOffsetItem : AODWaveformE
 
     [ObservableProperty]
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
-
-    public override object ToHtmlAnonymous() => new
-    {
-        Base = new HtmlQuote(base.ToHtmlAnonymous()),
-        PrescanAODWaveformResultFilePath,
-        PrescanAODWaveformProfiles = new HtmlTable([.. PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-    };
 }
 
 [IOCAppService(ServiceType = typeof(PrescanAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
@@ -67,7 +53,12 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
         Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         Cache.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
-        Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+            Cache.ChirpAODWaveformResultFilePath,
+            ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 
     protected override void GenerateChangedAODWaveform(PrescanAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
@@ -98,7 +89,12 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
         item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
         item.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
-        Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+            item.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 
     protected override void SetAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetItem item)

@@ -45,9 +45,7 @@ public partial class AODWaveformCommonCache : ObservableCacheBase
         OpticsMagTypeEnum,
         DefaultAmplitude,
         MeasureMaxPowerMachinePosition,
-        WaitTime,
-        GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
-        GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToHtmlAnonymous())
+        WaitTime
     };
 }
 
