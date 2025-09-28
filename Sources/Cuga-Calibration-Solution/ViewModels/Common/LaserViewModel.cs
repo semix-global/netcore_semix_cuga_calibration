@@ -774,16 +774,14 @@ public sealed class LaserViewModel(
                 isForward: isForward,
                 isAutoFocus: isAutoFocus); // 模板匹配只能通道3(1, 2特征不明显)
 
-            var originImageFilePath = string.Empty;
-
             using var image = isForward ? darkFieldImageDto.Image : darkFieldImageDto.Image.HorizontalFlip();
             isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var markPoint, out var offset, out resultScore, out resultAngle);
             if (isSuccess == false)
             {
                 var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
-                originImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                darkFieldImageDto.Image.Save(originImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(originImageFilePath), darkFieldImageDto.Bytes);
+                resultImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
+                darkFieldImageDto.Image.Save(resultImageFilePath);
+                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
@@ -798,7 +796,7 @@ public sealed class LaserViewModel(
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
                         HtmlTab = new HtmlTab(new
                         {
-                            OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                            OriginImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                             TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     }), logGuid.Value.LoggingHtml());
@@ -809,46 +807,25 @@ public sealed class LaserViewModel(
 
             if (saveResultImageFileDirectory is not null)
             {
-                originImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                darkFieldImageDto.Image.Save(originImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(originImageFilePath), darkFieldImageDto.Bytes);
+                resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
+                using var temp = darkFieldImageDto.Image.DrawCrossLine(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y));
+
+                temp.Save(resultImageFilePath);
+                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
             }
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
             {
-                var (xDirection, _) = stageViewModel.GetMachineDirection();
-                offset = new Point(xDirection * offset.X, offset.Y);
+                var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+                offset = new Point(xDirection * offset.X, yDirection * offset.Y);
             }
 
             var actualOffset = new Point(offset.X * xSize.XPixelSize, offset.Y * ySize.YPixelSize);
             resultPosition = position + (Vector)actualOffset;
-            using var darkFieldImageDtoResult = GetDarkFieldLineScanImage(
-                calChipSiteModelEnum,
-                resultPosition,
-                (false, laserLightInformation),
-                false,
-                cibConfiguration,
-                xWidthPixel,
-                yOpticsMagTypeEnum,
-                xStageSpeedEnum,
-                pmtId,
-                stageCoordinateSystemEnum: stageCoordinateSystemEnum,
-                isForward: isForward,
-                isAutoFocus: isAutoFocus); // 模板匹配只能通道3(1, 2特征不明显)
-
-            if (saveResultImageFileDirectory is not null)
-            {
-                resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                darkFieldImageDtoResult.Image.Save(resultImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDtoResult.Bytes);
-            }
 
             if (logGuid is not null && logName is not null && logResultTitle is not null)
                 logger.LogHtmlInformation($"{logName} Match Template:{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                 {
-                    darkFieldImageDtoResult.PmtId,
-                    darkFieldImageDtoResult.ChannelId,
-                    darkFieldImageDtoResult.Width,
                     XWidthPixel = xWidthPixel,
                     OpticsMagTypeEnum = yOpticsMagTypeEnum,
                     StageSpeedEnum = xStageSpeedEnum,
@@ -859,8 +836,7 @@ public sealed class LaserViewModel(
                     ResultAngle = resultAngle,
                     HtmlTab = new HtmlTab(new
                     {
-                        ResultImage = new HtmlImage(originImageFilePath, description: "ResultImage", htmlImageOverlays: [new HtmlImageCrossOverlay(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y))]),
-                        OriginImage = new HtmlImage(originImageFilePath, description: "OriginImage", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        ResultImage = new HtmlImage(resultImageFilePath, description: "ResultImage", htmlImageOverlays: [new HtmlImageCrossOverlay(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y)), new HtmlImageCrossOverlay(true)]),
                         TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), description: "TemplateImage", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), logGuid.Value.LoggingHtml());

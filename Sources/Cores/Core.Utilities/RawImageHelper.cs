@@ -64,7 +64,7 @@ public static class RawImageHelper
     public static byte[] BodyAddHeaderFooter(byte[] bodyBytes, Size size)
     {
         var (width, height) = (SizeI)size;
-        if (bodyBytes.Length != width * height * 2) ThrowHelper.ThrowArgumentOutOfRangeException("Invalid data block bytes length");
+        if (bodyBytes.Length != 2L * width * height) ThrowHelper.ThrowArgumentOutOfRangeException("Invalid data block bytes length");
 
         var random = new Random();
         var randomSize = Convert.ToInt16(random.Next(1, 100));
