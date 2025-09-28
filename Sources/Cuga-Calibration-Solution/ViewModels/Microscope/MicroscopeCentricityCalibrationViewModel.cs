@@ -6,6 +6,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
@@ -115,14 +116,21 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             ]);
         });
         MicroscopePixelSizeItems = microscopePixelSizeItems;
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
+        (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
         Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
         if (Cache.MicroscopeLensInformation.LensCode == -1)
             Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        return (isHasCache && Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList)) || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList) == false)
+        {
+            Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
+        }
+
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -572,7 +580,8 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 .Concat([itemDto.Clone()])
         ];
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken) && RecipeCacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

@@ -3,30 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Events;
-using Core.Models.Models.Ads.PressureGains;
-using Core.Models.Models.Ads.XGains;
-using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.Prealigner;
-using Core.Models.Models.Chuck.RotateScaleError;
-using Core.Models.Models.Chuck.StageMap;
-using Core.Models.Models.Laser.AodDelay;
-using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.IlluminationProfile;
-using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.OpticalPower;
-using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.PmtAgcDelay;
-using Core.Models.Models.Laser.XPixelSize;
-using Core.Models.Models.Laser.XTCCalibration;
-using Core.Models.Models.Laser.XYAstigmatism;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Helper;
+using Core.Models.Models;
 using Core.Wcf.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -38,8 +16,6 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
@@ -127,33 +103,38 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
             try
             {
                 _synchronizationContextProvider.Send(CalibrationCategories.Clear);
-                foreach (var propertyInfo in typeof(CalibrationObj).GetProperties())
+
+                var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
+
+                foreach (var calibrationCategory in calibrationCategoryList)
                 {
-                    var calibrationCategoryValue = GuardUtils.IsNotNullAndReturn(propertyInfo.GetValue(_calibrationObj));
-
                     var items = new List<CalibrationCategoryItem>();
-                    var calibrationCategory = new CalibrationCategory(propertyInfo.GetCustomAttribute<DescriptionAttribute>()!.Description, items);
+                    var calibrationCategoryObj = new CalibrationCategory(calibrationCategory.Description, items);
 
-                    foreach (var property in propertyInfo.PropertyType.GetProperties())
+                    foreach (var calibrationCategoryItem in calibrationCategory.Items)
                     {
-                        var calibrationCategoryItemValue = GuardUtils.IsNotNullAndReturn(property.GetValue(calibrationCategoryValue));
-
-                        var isArray = calibrationCategoryItemValue is IEnumerable<CalibrationBase>;
-                        if (isArray)
+                        var calibrationCategoryItemObj = new CalibrationCategoryItem()
                         {
-                            var calibrationBases = GuardUtils.IsNotNullAndReturn(calibrationCategoryItemValue as IEnumerable<CalibrationBase>).ToArray();
-
-                            items.Add(new CalibrationCategoryItem(property.GetCustomAttribute<DescriptionAttribute>()!.Description, calibrationBases.Length > 0, true));
+                            Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last(),
+                            IsAnyOk = false,
+                            IsArray = calibrationCategoryItem.IsArray,
+                            Type = calibrationCategoryItem.CalibrationDtoType
+                        };
+                        if (calibrationCategoryItem.IsArray)
+                        {
+                            var calibrationDtoItems = GuardUtils.IsNotNullAndReturn(_cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType));
+                            calibrationCategoryItemObj.IsAnyOk = calibrationDtoItems.Length > 0;
                         }
                         else
                         {
-                            var calibrationBase = GuardUtils.IsNotNullAndReturn(calibrationCategoryItemValue as CalibrationBase);
-
-                            items.Add(new CalibrationCategoryItem(property.GetCustomAttribute<DescriptionAttribute>()!.Description, calibrationBase.IsOk, false));
+                            var calibrationDto = GuardUtils.IsNotNullAndReturn(_cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType) as CalibrationDtoBase);
+                            calibrationCategoryItemObj.IsAnyOk = calibrationDto.IsCalibrated;
                         }
+
+                        items.Add(calibrationCategoryItemObj);
                     }
 
-                    _synchronizationContextProvider.Send(() => CalibrationCategories.Add(calibrationCategory));
+                    _synchronizationContextProvider.Send(() => CalibrationCategories.Add(calibrationCategoryObj));
                 }
 
                 return true;
@@ -168,7 +149,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
 
     public override Task<bool> SavingAsync()
     {
-        return Task.Run(async () =>
+        return Task.Run(() =>
         {
             if (_isLoadSuccess == false) return true; // 未加载缓存成功，不保存
 
@@ -192,129 +173,25 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
 
             Guard.IsNotNull(_calibrationObj, nameof(_calibrationObj));
 
-            if (_getResultFileService.TrySaveBackUp(_calibrationObj) == false) // 备份result
+            // 备份result
+            if (_getResultFileService.TrySaveBackUp(_calibrationObj) == false)
             {
                 _logger.LogError("Save BackUp Result File Failed!");
                 return false;
             }
 
+            // 禁用项写入db
             foreach (var calibrationCategory in CalibrationCategories)
             {
-                switch (calibrationCategory.Description)
+                foreach (var calibrationCategoryItem in calibrationCategory.Items)
                 {
-                    case WcfConstantHelper.AdsNodeCalibrationName:
-                        foreach (var calibrationCategoryItem in calibrationCategory.Items)
-                        {
-                            switch (calibrationCategoryItem.Description)
-                            {
-                                case WcfConstantHelper.AdsXGainCalibrationName:
-                                    calibrationCategoryItem.Save<AdsXGainsItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.AdsYGainCalibrationName:
-                                    calibrationCategoryItem.Save<AdsYGainsItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.AdsPressureCalibrationName:
-                                    calibrationCategoryItem.Save<AdsPressureGainsDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                            }
-                        }
-
-                        break;
-                    case WcfConstantHelper.MicroscopeNodeCalibrationName:
-                        foreach (var calibrationCategoryItem in calibrationCategory.Items)
-                        {
-                            switch (calibrationCategoryItem.Description)
-                            {
-                                case WcfConstantHelper.MicroscopeFocusCalibrationName:
-                                    calibrationCategoryItem.Save<MicroscopeFocusItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.MicroscopePixelSizeCalibrationName:
-                                    calibrationCategoryItem.Save<MicroscopePixelSizeItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.MicroscopeCentricityCalibrationName:
-                                    calibrationCategoryItem.Save<MicroscopeCentricityItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.MicroscopeCalChipCalibrationName:
-                                    calibrationCategoryItem.Save<MicroscopeCalChipDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                            }
-                        }
-
-                        break;
-                    case WcfConstantHelper.ChuckNodeCalibrationName:
-                        foreach (var calibrationCategoryItem in calibrationCategory.Items)
-                        {
-                            switch (calibrationCategoryItem.Description)
-                            {
-                                case WcfConstantHelper.ChuckGantryCalibrationName:
-                                    calibrationCategoryItem.Save<ChuckGantryDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.ChuckCenterCalibrationName:
-                                    calibrationCategoryItem.Save<ChuckCenterObjDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.ChuckPrealignerCalibrationName:
-                                    calibrationCategoryItem.Save<ChuckPrealignerObjDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.ChuckStageMapCalibrationName:
-                                    calibrationCategoryItem.Save<ChuckStageMapDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.ChuckGlobalScaleErrorCalibrationName:
-                                    calibrationCategoryItem.Save<ChuckGlobalScaleErrorDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.ChuckRotateScaleErrorCalibrationName:
-                                    calibrationCategoryItem.Save<ChuckRotateScaleErrorDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                            }
-                        }
-
-                        break;
-                    case WcfConstantHelper.LaserNodeCalibrationName:
-                        foreach (var calibrationCategoryItem in calibrationCategory.Items)
-                        {
-                            switch (calibrationCategoryItem.Description)
-                            {
-                                case WcfConstantHelper.LaserAutoFocusCalibrationName:
-                                    calibrationCategoryItem.Save<LaserAutoFocusDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserPixelSizeCalibrationName:
-                                    calibrationCategoryItem.Save<LaserPixelSizeItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserLineCentricityCalibrationName:
-                                    calibrationCategoryItem.Save<LaserLineCentricityItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserAodDelayCalibrationName:
-                                    calibrationCategoryItem.Save<LaserAodDelayItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserIlluminationProfileCalibrationName:
-                                    calibrationCategoryItem.Save<LaserIlluminationProfileItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserOpticalPowerCalibrationName:
-                                    calibrationCategoryItem.Save<LaserOpticalPowerDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserAttenuatorCalibrationName:
-                                    calibrationCategoryItem.Save<LaserAttenuatorObjDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserXyAstigmatismCalibrationName:
-                                    calibrationCategoryItem.Save<LaserXYAstigmatismCalibrationItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserXPixelSizeCalibrationName:
-                                    calibrationCategoryItem.Save<LaserXPixelSizeItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserXtcCalibrationName:
-                                    calibrationCategoryItem.Save<LaserXTCCalibrationItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                                case WcfConstantHelper.LaserAgcDelayCalibrationName:
-                                    calibrationCategoryItem.Save<LaserPmtAgcDelayItemDto>(_cacheProvider, CancellationToken.None);
-                                    break;
-                            }
-                        }
-
-                        break;
+                    calibrationCategoryItem.Save(_cacheProvider, CancellationToken.None);
                 }
             }
 
-            // 序列化
-            var save = await _calibrationCacheProviderService.TrySaveAsync().ConfigureAwait(false);
+            // 序列化覆盖原先的result
+            var appliedFilePath = _configViewModel.GetAppliedCalibrateResultFilePath();
+            var save = _calibrationCacheProviderService.TrySave(appliedFilePath);
             if (save)
                 _dialogWindowProvider.ShowDialog("Save Success.");
             else
@@ -328,17 +205,21 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
     public override bool Closing()
     {
         _calibrationObj = null;
+
         return true;
     }
 }
 
-public partial class CalibrationCategoryItem(string description, bool isAnyOk, bool isArray) : ObservableObject
+public partial class CalibrationCategoryItem : ObservableObject
 {
     [ObservableProperty]
-    private string _description = description;
+    private string _description = string.Empty;
 
     [ObservableProperty]
-    private bool _isAnyOk = isAnyOk;
+    private bool _isAnyOk;
+
+    public bool IsArray { get; init; }
+    public Type? Type { get; init; }
 
     public bool IsChanged { get; private set; }
 
@@ -348,11 +229,19 @@ public partial class CalibrationCategoryItem(string description, bool isAnyOk, b
         else IsAnyOk = true;
     }
 
-    public void Save<T>(ICacheProvider cacheProvider, CancellationToken cancellationToken) where T : class, ICacheItem, new()
+    public void Save(ICacheProvider cacheProvider, CancellationToken cancellationToken)
     {
         if (IsChanged == false) return;
 
-        if (isArray) cacheProvider.SetArray<T>([], cancellationToken);
-        else cacheProvider.Set(new T(), cancellationToken);
+        if (IsArray)
+        {
+            if (Type is not null)
+                cacheProvider.SetArray([], Type, cancellationToken);
+        }
+        else
+        {
+            if (Type is not null)
+                cacheProvider.Set(Activator.CreateInstance(Type) ?? new(), Type, cancellationToken);
+        }
     }
 }

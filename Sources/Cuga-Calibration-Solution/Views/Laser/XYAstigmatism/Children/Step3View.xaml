@@ -10,6 +10,7 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXYAstigmatismCalibrationViewModel}"
              d:DesignHeight="850"
              d:DesignWidth="1300"
@@ -31,7 +32,7 @@
                            Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Find Focus Position: "
+                           Subject="Find Position: "
                            Color="{StaticResource SuccessBrush}">
                     <hc:Shield.Style>
                         <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
@@ -139,7 +140,7 @@
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="1"
-                                          Maximum="{Binding ElementName=threshold, Path=Value}">
+                                          Maximum="{Binding ElementName=Threshold, Path=Value}">
                             <hc:NumericUpDown.Style>
                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                     <Style.Triggers>
@@ -156,7 +157,7 @@
                                 </Style>
                             </hc:NumericUpDown.Style>
                         </hc:NumericUpDown>
-                        <hc:NumericUpDown x:Name="threshold"
+                        <hc:NumericUpDown x:Name="Threshold"
                                           hc:InfoElement.Title="Threshold: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
@@ -220,80 +221,25 @@
                 </Expander.Header>
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.Title="AOD Center Frequence:"
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
+                        <TextBox hc:TitleElement.TitleWidth="180"
+                                 hc:InfoElement.Title="AOD Default Frequency ChangeRate: "
+                                 hc:InfoElement.TitlePlacement="Left">
+                            <TextBox.Style>
+                                <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.CenterFrequenceLow}" />
+                                            <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.CenterFrequenceMiddle}" />
+                                            <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.CenterFrequenceHigh}" />
+                                            <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown hc:TitleElement.TitleWidth="auto"
-                                          hc:InfoElement.Title="AOD Sound Package Length:"
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.SoundPackageLengthLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.SoundPackageLengthMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.SoundPackageLengthHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.Title="Zero Count: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.ZeroNumLowY}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.ZeroNumMiddleY}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.ZeroNumHighY}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <TextBox Text="{Binding Cache.RegNum}"
-                                 hc:TitleElement.TitleWidth="180"
-                                 hc:InfoElement.Title="Register Count: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Style="{StaticResource TextBoxExtend}" />
+                            </TextBox.Style>
+                        </TextBox>
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="AOD Start RateChange: "
                                           hc:InfoElement.Necessary="True"
@@ -305,35 +251,18 @@
                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.DefaultAodFrequenceLow}" />
+                                            <Setter Property="Value" Value="{Binding Cache.StartFrequencyChangeRateLow}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.DefaultAodFrequenceMiddle}" />
+                                            <Setter Property="Value" Value="{Binding Cache.StartFrequencyChangeRateMiddle}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.DefaultAodFrequenceHigh}" />
+                                            <Setter Property="Value" Value="{Binding Cache.StartFrequencyChangeRateHigh}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </hc:NumericUpDown.Style>
                         </hc:NumericUpDown>
-                        <!--<hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value"
-                                                    Value="{Binding Cache.RegNumLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.RegNumMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.RegNumHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>-->
-                        <!--</hc:NumericUpDown>-->
 
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Chirp AOD IncreaseInterval: "
@@ -400,18 +329,6 @@
                 </Expander.Header>
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.QualityX, StringFormat={}{0:f3}}"
-                                 hc:TitleElement.TitleWidth="180"
-                                 hc:InfoElement.Title="Find X Optimum Quality: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.QualityY, StringFormat={}{0:f3}}"
-                                 hc:TitleElement.TitleWidth="180"
-                                 hc:InfoElement.Title="Find Y Optimum Quality: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.EcsX, StringFormat={}{0:f3}}"
                                  hc:TitleElement.TitleWidth="180"
                                  hc:InfoElement.Title="Find X ECS: "
@@ -426,12 +343,12 @@
                                  Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.EcsErrorValue, StringFormat={}{0:f3}}"
                                  hc:TitleElement.TitleWidth="180"
-                                 hc:InfoElement.Title="Find ECS Error: "
+                                 hc:InfoElement.Title="ECS Error: "
                                  hc:InfoElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.FrequenceIncrease, StringFormat={}{0:f3}}"
-                                 hc:InfoElement.Title="Find AOD Frequence RateChange: "
+                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.FrequencyChangeRate, StringFormat={}{0:f3}}"
+                                 hc:InfoElement.Title="Find AOD Frequency RateChange: "
                                  hc:InfoElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Style="{StaticResource TextBoxExtend}" />
@@ -460,9 +377,9 @@
             <GroupBox Header="History">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="5" />
-                        <RowDefinition Height="2.5*" />
+                        <RowDefinition Height="5*" />
+                        <RowDefinition Height="5*" />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <ListView Grid.Row="0"
                               d:SelectedIndex="0"
@@ -470,7 +387,6 @@
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                        <!--  SelectedItem="{Binding SelectedlaserXYAstigmatismItemDto, Mode=OneWay}"  -->
                         <i:Interaction.Behaviors>
                             <behaviors:ListBoxScrollToCurrentBehavior />
                         </i:Interaction.Behaviors>
@@ -500,8 +416,8 @@
                                                 Header="OpticsMagType"
                                                 DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                 <GridViewColumn Width="150"
-                                                Header="Frequence Increment"
-                                                DisplayMemberBinding="{Binding FrequenceIncrease, StringFormat={}{0:f3}}" />
+                                                Header="Frequency Increment"
+                                                DisplayMemberBinding="{Binding FrequencyChangeRate, StringFormat={}{0:f3}}" />
                                 <GridViewColumn Width="80"
                                                 Header="EcsX"
                                                 DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />
@@ -529,61 +445,45 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <GridSplitter Grid.Row="1" Height="5" />
-                    <TabControl x:Name="TabControlDetails" Grid.Row="3">
-                        <TabItem Header="Action Details Result">
+                    <TabControl x:Name="TabControlDetails" Grid.Row="1">
+                        <!-- <TabItem Header="Action Details Result"> -->
+                        <!--  <Border Padding="0"  -->
+                        <!--  Style="{StaticResource BorderRegion}"  -->
+                        <!--  Effect="{StaticResource EffectShadow1}">  -->
+                        <!--         <wpf:WpfPlot x:Name="WpfPlotResultDtoListOfWindow" Margin="5" /> -->
+                        <!--     </Border> -->
+                        <!-- </TabItem> -->
+                        <TabItem Header="Ecs Quality List">
                             <Border Padding="0"
                                     Style="{StaticResource BorderRegion}"
-                                    Effect="{StaticResource EffectShadow1}"
-                                    IsEnabled="{Binding Cache.IsGetWindow}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-                                    <wpf:WpfPlot x:Name="WpfPlotResultDtoListOfWindow" Margin="5" />
-                                </Grid>
+                                    Effect="{StaticResource EffectShadow1}">
+                                <wpf:WpfPlot>
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:WpfPlotMultiBehavior Title="Focus"
+                                                                        Plot0Title="Quality"
+                                                                        Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                        Plot0="{Binding EcsQualityList}" />
+                                    </i:Interaction.Behaviors>
+                                </wpf:WpfPlot>
                             </Border>
                         </TabItem>
-                        <TabItem Header="Generate Chirp Aod Wave Details">
+                        <TabItem Header="Frequency Ecs List">
                             <Border Padding="0"
                                     Style="{StaticResource BorderRegion}"
-                                    Effect="{StaticResource EffectShadow1}"
-                                    IsEnabled="{Binding Cache.IsGetWindow}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <wpf:WpfPlot x:Name="WpfPlotAodWaveSignalListOfWindow" Margin="5" />
-                                    <wpf:WpfPlot x:Name="WpfPlotAodWaveSignalFourierListOfWindow" Grid.Column="1"
-                                                 Margin="5" />
-                                </Grid>
+                                    Effect="{StaticResource EffectShadow1}">
+                                <wpf:WpfPlot>
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:WpfPlotMultiBehavior Title="History"
+                                                                        Plot0Title="Ecs"
+                                                                        Plot0Color="{x:Static scottPlot:Colors.Blue}"
+                                                                        Plot0="{Binding FrequencyEcsList}" />
+                                    </i:Interaction.Behaviors>
+                                </wpf:WpfPlot>
                             </Border>
                         </TabItem>
                     </TabControl>
                 </Grid>
             </GroupBox>
-            <ToggleButton x:Name="ToggleButton"
-                          Content="Function Image"
-                          Margin="3.5"
-                          HorizontalAlignment="Right"
-                          VerticalAlignment="Top"
-                          hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                          Style="{StaticResource ToggleButtonDefault.Small}" />
-            <Popup StaysOpen="False"
-                   PlacementTarget="{Binding ElementName=ToggleButton}"
-                   Placement="Top"
-                   AllowsTransparency="True"
-                   PopupAnimation="Slide"
-                   IsOpen="{Binding IsChecked, ElementName=ToggleButton, Mode=TwoWay}">
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot Width="500" Height="400">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="ECS" Plot0="{Binding EcsList}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                </Border>
-            </Popup>
         </Grid>
         <!--#endregion-->
     </Grid>

@@ -22,8 +22,9 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -226,7 +227,9 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 : ApplicationCookie.MicroscopeLensInformationList[2];
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -527,7 +530,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         else
         {
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-            HalconHelper.Save(darkFieldImageDto.Image, filePath);
+            darkFieldImageDto.Image.Save(filePath);
             createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
             createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
 
@@ -744,6 +747,12 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 selectReviewItemDto.IsVerified = false;
                 return false;
             }
+
+            if (EnableDependedCalibrationItems(cancellationToken) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Enable Depended Calibration Items Failed!"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
         }
 
         var selectListAllResult = verifyResultList.All(t => t);
@@ -823,10 +832,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         laserLineCentricityItemDto.ReverseDarkMachineCenterPosition = ChuckCenter.NewBFCenterStagePosition + machineOffset;
         laserLineCentricityItemDto.ReverseFilePath = resultImageFilePath;
 
-        if (laserLineCentricityItemDto.PmtId == CalibrationConstantsHelper.MainPmtId)
-        {
-            StageViewModel.SetDarkFieldCenterMachinePositionValue(laserLineCentricityItemDto.ForwardDarkMachineCenterPosition);
-        }
+        //if (laserLineCentricityItemDto.PmtId == CalibrationConstantsHelper.MainPmtId)
+        //{
+        //    StageViewModel.SetDarkFieldCenterMachinePositionValue(laserLineCentricityItemDto.ForwardDarkMachineCenterPosition);
+        //}
 
         laserLineCentricityItemDto.TemplateFilePath = Cache.TemplateFilePath;
         laserLineCentricityItemDto.TemplateImageFilePath = Cache.TemplateImageFilePath;
@@ -859,11 +868,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.StageSpeedEnum == itemDto.StageSpeedEnum) == false),
             itemDto.Clone()
         ];
-        if (isSave == false) return true;
+        if (isSave == false) return;
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

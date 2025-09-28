@@ -89,7 +89,7 @@ public sealed partial class StageViewModel(
         var result = GetBrightFieldStagePosition();
         result = BrightFieldToMachinePosition(result + (Vector)point);
 
-        SetSpeed(StageSpeedEnum.High, OpticsMagTypeEnum.High);
+        SetSpeed(StageSpeedEnum.Low, OpticsMagTypeEnum.Low);
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(result);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
@@ -140,7 +140,7 @@ public sealed partial class StageViewModel(
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
-        if (isAutoSpeedMove) SetSpeed(StageSpeedEnum.High, OpticsMagTypeEnum.High);
+        if (isAutoSpeedMove) SetSpeed(StageSpeedEnum.Low, OpticsMagTypeEnum.Low);
 
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
@@ -203,7 +203,7 @@ public sealed partial class StageViewModel(
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
-        SetSpeed(StageSpeedEnum.High, OpticsMagTypeEnum.High);
+        SetSpeed(StageSpeedEnum.Low, OpticsMagTypeEnum.Low);
 
         var ret = calibrationStageService.SetDarkFieldAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Alignment;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -154,14 +155,16 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
 
     private void Save()
     {
-        Cache.IsOk = true;
-        if (RecipeCacheProvider.Set(Cache, CancellationToken.None) == false)
+        try
+        {
+            Cache.IsOk = true;
+            RecipeCacheProvider.Set(Cache, CancellationToken.None);
+        }
+        catch (Exception ex)
         {
             Cache.IsOk = false;
+            Logger.LogError(ex, "{@Name}: Save Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
             DialogWindowProvider.ShowDialog("Failed to save cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return;
         }
-
-        //DialogWindowProvider.ShowDialog("Save Ok");
     }
 }

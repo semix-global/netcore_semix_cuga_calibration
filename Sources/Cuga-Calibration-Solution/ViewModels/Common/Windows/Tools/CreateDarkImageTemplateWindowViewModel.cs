@@ -4,6 +4,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Helper;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -68,8 +69,8 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
                     return;
                 }
 
-                using var image = HalconHelper.ReadImage(ImageFilePath);
-                if (new Rect(Point.Origin, HalconHelper.GetSize(image)).Contains(Rect) == false)
+                using var image = HalconFactory.CreateImage(ImageFilePath);
+                if (new Rect(Point.Origin, image.GetSize()).Contains(Rect) == false)
                 {
                     dialogWindowProvider.ShowDialog("Error: The ROI is out of the size of the image", DialogButtonsEnum.OK, DialogIconEnum.Error);
                     return;

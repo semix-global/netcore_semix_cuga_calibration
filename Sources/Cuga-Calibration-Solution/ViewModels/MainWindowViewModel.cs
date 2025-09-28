@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
 using Core.Models.Extensions;
+using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
@@ -52,7 +53,9 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using CugaCalibration.ViewModels.Laser;
 using CugaCalibration.ViewModels.Microscope;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -74,6 +77,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly ISynchronizationContextProvider _contextProvider;
     private readonly ICacheProvider _cacheProvider;
+    private readonly ICacheProvider _recipeCacheProvider;
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly IWindowManagerService _windowManagerService;
     private readonly IMessenger _messenger;
@@ -160,6 +164,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         ILogger<MainWindowViewModel> logger,
         ISynchronizationContextProvider contextProvider,
         ICacheProvider cacheProvider,
+        [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+        ICacheProvider recipeCacheProvider,
         IDialogWindowProvider dialogWindowProvider,
         IWindowManagerService windowManagerService,
         ICalibrationCacheProvider calibrationCacheProviderService,
@@ -175,6 +181,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         _logger = logger;
         _contextProvider = contextProvider;
         _cacheProvider = cacheProvider;
+        _recipeCacheProvider = recipeCacheProvider;
         _dialogWindowProvider = dialogWindowProvider;
         _windowManagerService = windowManagerService;
         _calibrationCacheProviderService = calibrationCacheProviderService;
@@ -226,6 +233,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private void Closed()
     {
         _messenger.UnregisterAll(this);
+        _recipeCacheProvider.Dispose();
         _cacheProvider.Dispose();
     }
 
@@ -406,7 +414,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
-    private async Task OpenToolMenuAsync(string viewModel)
+    private void OpenToolMenu(string viewModel)
     {
         try
         {
@@ -417,7 +425,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             switch (viewModelBase)
             {
                 case MainWindowViewModel:
-                    var save = await _calibrationCacheProviderService.TrySaveAsync().ConfigureAwait(false);
+                    var save = _calibrationCacheProviderService.TrySave();
                     if (save)
                         _dialogWindowProvider.ShowDialog("Save Success.");
                     else
@@ -443,6 +451,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                     createDarkImageTemplateWindowViewModel.TemplateFilePath = $"{FileHelper.GetFileFullName(filePath)}_Template";
                     _windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
 
+                    break;
+                case ApplicationAboutWindowViewModel applicationAboutWindowViewModel:
+                    _windowManagerService.ShowDialog(applicationAboutWindowViewModel);
                     break;
 
                 default:

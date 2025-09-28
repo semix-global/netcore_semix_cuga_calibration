@@ -12,9 +12,10 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -135,7 +136,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -192,6 +195,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     {
                         LaserXPixelSizeItem.IsCalibrated = false;
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
+                        return false;
+                    }
+
+                    if (EnableDependedCalibrationItems(cancellationToken) == false)
+                    {
+                        Logger.LogError("{@Name} Error: Enable Depended Calibration Items Failed!", Name);
                         return false;
                     }
                 }
@@ -487,7 +496,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             else
             {
                 var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                darkFieldImageDto.Image.Save(filePath);
                 createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
                 createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
 
@@ -542,7 +551,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 laserXPixelSizeItem.FindEndPosition = Cache.FindEndPosition;
                 laserXPixelSizeItem.FilePath = Cache.TemplateFilePath;
                 laserXPixelSizeItem.FileTemplatePath = Cache.TemplateImageFilePath;
-                using var templateId = HalconHelper.ReadNccTemplate(Cache.TemplateFilePath);
+                using var templateId = Cache.TemplateFilePath.ReadNccTemplate();
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
@@ -649,12 +658,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         using var binaryReader = new BinaryReader(fileSteam);
 
         var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.TemplateImageFilePath);
-        using var templateId = HalconHelper.ReadNccTemplate(Cache.TemplateFilePath);
+        using var templateId = Cache.TemplateFilePath.ReadNccTemplate();
         var detectImageDirectory = $"{ImageFileDirectory}\\{Cache.OpticsMagTypeEnum}\\PmtId(8)_Guid({guid}).jpg";
         matchPoint = new List<Point>();
 
         var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageHelper.GetSize(binaryReader);
-        var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
+        var (_, calUmPerPixelHeightPixel) = (SizeI)calUmPerPixelBodyBytesSize;
 
         var calUmPerPixelDieWidthPixel = Cache.DieWidthUm / xPixelSize;
         var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
@@ -687,7 +696,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
 
                 fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                array = binaryReader.ReadBytes();
+                array = binaryReader.ReadRemainingBytes();
             }
             else
             {
@@ -701,8 +710,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
             using var _ = image;
             var originImageFilePath = Path.Combine(ImageFileDirectory, Path.GetFileNameWithoutExtension(detectImageDirectory), $"calUmPerPixelImage_{index + 1}.jpg");
-            HalconHelper.Save(image, originImageFilePath);
-            //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
+            image.Save(originImageFilePath);
+            //HalconFactory.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
             var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
             if (!isSuccess || resultScore < Cache.NccScoreThreshold)
             {
@@ -760,11 +769,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             itemDto.Clone()
         ];
 
-        if (isSave == false) return true;
+        if (isSave == false) return;
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

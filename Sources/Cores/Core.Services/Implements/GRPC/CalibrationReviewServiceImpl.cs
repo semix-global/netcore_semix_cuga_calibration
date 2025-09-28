@@ -30,16 +30,16 @@ public sealed class CalibrationReviewServiceImpl : BaseService<ICgCalibReviewSer
         });
     }
 
-    public SxExecuteRet<HObject> GetBrightFieldImage()
+    public SxExecuteRet<HImage> GetBrightFieldImage()
     {
         var bytes = Invoke(() => Service?.GetBrightFieldImageMemoryByteArray());
         var size = GetBrightFieldImagePixelSize();
         var channels = GetChannels();
 
-        if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, HalconHelper.EmptyHObject);
+        if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, HalconFactory.EmptyHImage);
 
-        var (width, height) = size.Anything.DeconstructToInt32();
-        return SxExecuteRetHelper.CreateSuccess(HalconHelper.ImageRawBytesToHObject(bytes.Anything, width, height, channels.Anything));
+        var (width, height) = (SizeI)size.Anything;
+        return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes.Anything, width, height, channels.Anything, 8));
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()

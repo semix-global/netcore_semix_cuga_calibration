@@ -4,6 +4,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.YGains;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
@@ -133,8 +134,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsYGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsYGainsItemDto>();
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        return true;
     }
 
     protected override Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -618,9 +620,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 var Y1 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y1List);
                 var Y2 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y2List);
                 var Y3 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y3List);
-                var (p0, p1, p2, _, yPredicted1) = PolyFit.Poly2Fit(X, Y1);
-                var (p3, p4, p5, _, yPredicted2) = PolyFit.Poly2Fit(X, Y2);
-                var (p6, p7, p8, _, yPredicted3) = PolyFit.Poly2Fit(X, Y3);
+                var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
+                var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
+                var (p6, p7, p8, _, yPredicted3) = PolynomialLeastSquares.Polynomial2Fit(X, Y3);
                 for (var i = 0; i < SpeedValueList.Count; i++)
                 {
                     y1SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted1[i]));
@@ -849,7 +851,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
         var x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
 
-        var (p0, p1, p2, p3, p4, p5, _, yPredictedZ) = PolyFit.Poly5Fit(x, sgolayfiltListZ);
+        var (p0, p1, p2, p3, p4, p5, _, yPredictedZ) = PolynomialLeastSquares.Polynomial5Fit(x, sgolayfiltListZ);
 
         List<double> smoothZ = [.. yPredictedZ];
 
@@ -1065,7 +1067,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
         Calibration = itemDto.Clone();
 
-        return CacheProvider.Set(Calibration, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(Calibration, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

@@ -164,7 +164,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodColumnList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolyFit.Poly1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
             foreach (var badColumn in badColumnList)
             {
                 var badValue = errorXTempMatrix[row, badColumn];
@@ -202,7 +202,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodRowList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolyFit.Poly1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
             var badValue = errorXTempMatrix[badRow, badColumn];
             errorXTempMatrix[badRow, badColumn] = k * badRow + b;
             badXLogList.Add((badRow, badColumn, badValue, errorXTempMatrix[badRow, badColumn],
@@ -225,7 +225,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                         t.BadValue,
                         t.NewValue,
                         FitReal = new HtmlPlot2DLinesChart([..t.FitLine], "unit: um")
-                    }).Cast<object>()
+                    })
                 ]),
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXTempMatrix, errorYTempMatrix, "Delete x bad point"),
                 ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorXTempMatrix, "Delete x bad point error x")
@@ -271,7 +271,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodColumnList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolyFit.Poly1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
             foreach (var badColumn in badColumnList)
             {
                 var badValue = errorYTempMatrix[row, badColumn];
@@ -309,7 +309,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodRowList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolyFit.Poly1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
             var badValue = errorYTempMatrix[badRow, badColumn];
             errorYTempMatrix[badRow, badColumn] = k * badRow + b;
             badYLogList.Add((badRow, badColumn, badValue, errorYTempMatrix[badRow, badColumn],
@@ -332,7 +332,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                         t.BadValue,
                         t.NewValue,
                         FitReal = new HtmlPlot2DLinesChart([..t.FitLine], "unit: um")
-                    }).Cast<object>()
+                    })
                 ]),
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXTempMatrix, errorYTempMatrix, "Delete y bad point"),
                 ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorYTempMatrix, "Delete y bad point error x")
@@ -369,8 +369,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var idealYRow = FilterRow(idealYMatrix, row).Result;
             var realXRow = FilterRow(realXMatrix, row).Result;
             var realYCol = FilterRow(realYMatrix, row).Result;
-            var (k1, _, _, _) = PolyFit.Poly1Fit(idealXRow, idealYRow);
-            var (k2, b2, rSquared2, yPredicted2) = PolyFit.Poly1Fit(realXRow, realYCol);
+            var (k1, _, _, _) = PolynomialLeastSquares.Polynomial1Fit(idealXRow, idealYRow);
+            var (k2, b2, rSquared2, yPredicted2) = PolynomialLeastSquares.Polynomial1Fit(realXRow, realYCol);
             alignmentRealLineList.Add(($"row {row}", ToPoints(realXRow, realYCol)));
             alignmentRealLineList.Add(($"row {row}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realXRow, yPredicted2)));
 
@@ -467,8 +467,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var idealXColumn = FilterColumn(idealXMatrix, column).Result;
             var realYColumn = FilterColumn(realYMatrix, column).Result;
             var realXColumn = FilterColumn(realXMatrix, column).Result;
-            var (k1, _, _, _) = PolyFit.Poly1Fit(idealYColumn, idealXColumn);
-            var (k2, b2, rSquared2, yPredicted2) = PolyFit.Poly1Fit(realYColumn, realXColumn);
+            var (k1, _, _, _) = PolynomialLeastSquares.Polynomial1Fit(idealYColumn, idealXColumn);
+            var (k2, b2, rSquared2, yPredicted2) = PolynomialLeastSquares.Polynomial1Fit(realYColumn, realXColumn);
             gantryLineList.Add(($"column {column}", ToPoints(realYColumn, realXColumn)));
             gantryLineList.Add(($"column {column}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realYColumn, yPredicted2)));
 
@@ -576,7 +576,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             // 因为编码器非线形误差，所以不可能是y=x的关系, 所以可能会多走少走
             var idealXRow = FilterRow(idealXMatrix, row).Result;
             var realXRow = FilterRow(realXMatrix, row).Result;
-            var (k, b, rSquared, yPredicted) = PolyFit.Poly1Fit(idealXRow, realXRow);
+            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(idealXRow, realXRow);
             scaleXLineList.Add(($"row {row}: y = {k:f10}x + {b:f3}, r^2 = {rSquared}", ToPoints(idealXRow, yPredicted)));
 
             xScaleVector[row - minRowIndex] = k;
@@ -593,7 +593,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         {
             var idealYColumn = FilterColumn(idealYMatrix, column).Result;
             var realYColumn = FilterColumn(realYMatrix, column).Result;
-            var (k, b, rSquared, yPredicted) = PolyFit.Poly1Fit(idealYColumn, realYColumn);
+            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(idealYColumn, realYColumn);
             scaleYLineList.Add(($"column {column}: y = {k:f10}x + {b:f3}, r^2 = {rSquared}", ToPoints(idealYColumn, yPredicted)));
 
             yScaleVector[column - minColumnIndex] = k;
@@ -772,7 +772,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             if (isSuccess == false) continue;
             var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, errorXRow.Count).Select(x => (double)x));
 
-            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolyFit.Poly5Fit(x, errorXRow);
+            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial5Fit(x, errorXRow);
             polyErrorXLineList.Add(($"row {row}", ToPoints(x, errorXRow)));
             polyErrorXLineList.Add(($"row {row}: y = {p0} + {p1}*x + {p2}*x^2 + {p3}*x^3 + {p4}*x^4 + {p5}*x^5, r^2 = {rSquared}", ToPoints(x, yPredicted)));
 
@@ -789,7 +789,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             if (isSuccess == false) continue;
             var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, errorYRow.Count).Select(x => (double)x));
 
-            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolyFit.Poly5Fit(x, errorYRow);
+            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial5Fit(x, errorYRow);
             polyErrorYLineList.Add(($"row {row}", ToPoints(x, errorYRow)));
             polyErrorYLineList.Add(($"row {row}: y = {p0} + {p1}*x + {p2}*x^2 + {p3}*x^3 + {p4}*x^4 + {p5}*x^5, r^2 = {rSquared}", ToPoints(x, yPredicted)));
 

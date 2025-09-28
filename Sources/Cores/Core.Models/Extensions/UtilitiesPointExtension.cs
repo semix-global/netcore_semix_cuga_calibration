@@ -32,7 +32,7 @@ public static class UtilitiesPointExtension
 
     public static System.Drawing.Point ToSystemDrawingPoint(this Point point)
     {
-        var (x, y) = point.DeconstructToInt32();
+        var (x, y) = (PointI)point;
 
         return new System.Drawing.Point(x, y);
     }

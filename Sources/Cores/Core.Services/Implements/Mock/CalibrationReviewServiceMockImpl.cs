@@ -30,12 +30,12 @@ public sealed class CalibrationReviewServiceMockImpl(ISynchronizationContextProv
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<HObject> GetBrightFieldImage()
+    public SxExecuteRet<HImage> GetBrightFieldImage()
     {
         var bitmapMemoryByteArray = GetBrightFieldImageMemoryByteArray().Anything;
         var bytes = BitmapSourceHelper.BitmapSourceToByteRawArray(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(bitmapMemoryByteArray));
 
-        return SxExecuteRetHelper.CreateSuccess(HalconHelper.ImageRawBytesToHObject(bytes, Width, Height, Channels));
+        return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes, Width, Height, Channels, 32));
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()

@@ -1,28 +1,7 @@
+using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Ads.PressureGains;
-using Core.Models.Models.Ads.XGains;
-using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.Prealigner;
-using Core.Models.Models.Chuck.RotateScaleError;
-using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Laser.AodDelay;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.DOEAngle;
-using Core.Models.Models.Laser.IlluminationProfile;
-using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.OpticalPower;
-using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.XPixelSize;
-using Core.Models.Models.Laser.XTCCalibration;
-using Core.Models.Models.Laser.XYAstigmatism;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Setting;
 using Core.Utilities;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;
@@ -30,6 +9,7 @@ using Core.Wcf.Models.Chuck;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
 using CugaCalibration.Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -51,16 +31,15 @@ public class CalibrationCacheProviderServiceImpl(
     ICacheProvider cacheProvider,
     ILogger<CalibrationCacheProviderServiceImpl> logger,
     IDialogWindowProvider dialogWindowProvider,
-    ApplicationCookie applicationCookie) : ICalibrationCacheProvider
+    ApplicationCookie applicationCookie,
+    CalibrationSetting calibrationSetting) : ICalibrationCacheProvider
 {
     private readonly string _saveResultDirectory = Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult");
 
-    public async Task<bool> TrySaveAsync()
+    public bool TrySave(string? filePath = null)
     {
         try
         {
-            var tasks = new List<Task>();
-
             var calibrationObj = new CalibrationObj
             {
                 CalibrationAdsObj = new CalibrationAdsObj(),
@@ -69,37 +48,49 @@ public class CalibrationCacheProviderServiceImpl(
                 CalibrationLaserObj = new CalibrationLaserObj()
             };
 
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationAdsObj.CalibrationAdsPressureGains = cacheProvider.GetOrDefault<AdsPressureGainsDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationAdsObj.CalibrationAdsXGains = cacheProvider.GetOrDefault<AdsXGainsItemDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationAdsObj.CalibrationAdsYGains = cacheProvider.GetOrDefault<AdsYGainsItemDto>().AdaptTo()));
+            var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
+            var wcfObjProperties = calibrationObj.GetType().GetProperties();
+            var calibrationBase = new CalibrationBase();
+            foreach (var calibrationCategory in calibrationCategoryList)
+            {
+                var parentCalibrationRequiredCache = calibrationSetting.SettingRequiredCalibrationParamList.Single(t => t.Description == calibrationCategory.Description);
+                var wcfCategoryPropertyInfo = wcfObjProperties.Single(t => t.PropertyType == calibrationCategory.WcfCategoryType);
+                foreach (var calibrationCategoryItem in calibrationCategory.Items)
+                {
+                    var childCalibrationRequiredCache = parentCalibrationRequiredCache.CategoryItems.Single(t => t.TypeInstance == calibrationCategoryItem.CalibrationDtoType);
+                    if (calibrationCategoryItem.IsArray)
+                    {
+                        var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
+                        var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
+                        var wcfItems = dtoItems?.Select(t =>
+                        {
+                            var value = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
+                            GuardUtils.IsNotNullAndReturn(value.GetType().GetProperty(nameof(calibrationBase.IsRequiredSelfCheck))).SetValue(value, childCalibrationRequiredCache.IsRequired);
+                            return value;
+                        }).ToArray();
+                        if (wcfItems is not null && wcfItems.Length > 0)
+                        {
+                            var values = ObjectHelper.ObjectToArray(calibrationCategoryItem.WcfModelType, wcfItems);
+                            childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
+                        }
+                    }
+                    else
+                    {
+                        var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
+                        var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType);
+                        var wcfModel = calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null);
+                        if (wcfModel is not null)
+                        {
+                            GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(calibrationBase.IsRequiredSelfCheck))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
+                            childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
+                        }
+                    }
+                }
 
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeFocusItemList = [.. cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeCalChip = cacheProvider.GetOrDefault<MicroscopeCalChipDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopePixelSizeItemList = [.. cacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationMicroscopeObj.CalibrationMicroscopeCentricityItemList = [.. cacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>().Select(t => t.AdaptTo())]));
+                wcfCategoryPropertyInfo.SetValue(calibrationObj, wcfCategoryPropertyInfo.GetValue(calibrationObj));
+            }
 
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckGantry = cacheProvider.GetOrDefault<ChuckGantryDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationCenterObj = cacheProvider.GetOrDefault<ChuckCenterObjDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationPrealignerObj = cacheProvider.GetOrDefault<ChuckPrealignerObjDto>().AdaptTo()));
-
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckStageMap = cacheProvider.GetOrDefault<ChuckStageMapDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckGlobalScaleError = cacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationChuckObj.CalibrationChuckRotateScaleError = cacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>().AdaptTo()));
-
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserAutoFocus = cacheProvider.GetOrDefault<LaserAutoFocusDto>().AdaptTo()));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserAodDelayItemList = [.. cacheProvider.GetOrDefaultArray<LaserAodDelayItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserXtcCalibrationItemList = [.. cacheProvider.GetOrDefaultArray<LaserXTCCalibrationItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserPixelSizeItemList = [.. cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserXPixelSizeList = [.. cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserLineCentricityItemList = [.. cacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserIlluminationProfileItemList = [.. cacheProvider.GetOrDefaultArray<LaserIlluminationProfileItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserOpticalPowerList = [.. cacheProvider.GetOrDefaultArray<LaserOpticalPowerDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserXYAstigmatismItemList = [.. cacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>().Select(t => t.AdaptTo())]));
-            tasks.Add(Task.Run(() => calibrationObj.CalibrationLaserObj.CalibrationLaserDoeAngle = cacheProvider.GetOrDefault<LaserDOEAngleDto>().AdaptTo()));
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
+            FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, filePath ?? $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
 
             return true;
         }
@@ -110,23 +101,26 @@ public class CalibrationCacheProviderServiceImpl(
         }
     }
 
+    // todo:delete
     public bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new()
     {
         return InvokeSave(update =>
         {
             update(dto);
-
-            return cacheProvider.Set(dto, cancellationToken);
+            cacheProvider.Set(dto, cancellationToken);
+            return true;
         }, typeof(T).Name);
     }
 
+    // todo:delete
     public bool TrySetArray<T>(T[] dtoList, CancellationToken cancellationToken) where T : class, ICacheItem, new()
     {
         return InvokeSave(update =>
         {
             foreach (var dto in dtoList) update(dto);
 
-            return cacheProvider.SetArray(dtoList, cancellationToken);
+            cacheProvider.SetArray(dtoList, cancellationToken);
+            return true;
         }, typeof(T).Name);
     }
 

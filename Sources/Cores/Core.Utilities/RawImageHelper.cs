@@ -63,7 +63,7 @@ public static class RawImageHelper
     /// <returns>raw bytes</returns>
     public static byte[] BodyAddHeaderFooter(byte[] bodyBytes, Size size)
     {
-        var (width, height) = size.DeconstructToInt32();
+        var (width, height) = (SizeI)size;
         if (bodyBytes.Length != width * height * 2) ThrowHelper.ThrowArgumentOutOfRangeException("Invalid data block bytes length");
 
         var random = new Random();
@@ -128,7 +128,7 @@ public static class RawImageHelper
     public static (short[,] Matrix, Size size) ToMatrix(byte[] rawBytes)
     {
         var (size, bodyBytesStartIndex, bodyBytesLength) = GetSize(rawBytes);
-        var (width, height) = size.DeconstructToInt32();
+        var (width, height) = (SizeI)size;
         var bodySpan = rawBytes.AsSpan().Slice(Convert.ToInt32(bodyBytesStartIndex), Convert.ToInt32(bodyBytesLength));
 
         /* 线扫相机扫图是一列一列的拼接上去的
@@ -203,7 +203,7 @@ public static class RawImageHelper
     public static (short[,] Matrix, byte[] RawBytes, Size size) ToHorizontalFlipMatrix(byte[] rawBytes)
     {
         var (size, bodyBytesStartIndex, bodyBytesLength) = GetSize(rawBytes);
-        var (width, height) = size.DeconstructToInt32();
+        var (width, height) = (SizeI)size;
         var bodySpan = rawBytes.AsSpan().Slice(Convert.ToInt32(bodyBytesStartIndex), Convert.ToInt32(bodyBytesLength));
 
         /* 线扫相机扫图是一列一列的拼接上去的
@@ -288,7 +288,7 @@ public static class RawImageHelper
     public static HImage CreateImage(byte[] rawBytes)
     {
         var (size, bodyBytesStartIndex, _) = GetSize(rawBytes);
-        var (width, height) = size.DeconstructToInt32();
+        var (width, height) = (SizeI)size;
 
         // 16位单通道raw body bytes((16位图片0-65535, 并且是单通道), 实际上我们线扫相机是12bit(0-4095)[为了明暗差别大], 为了解析方便解析16bit浪费多余的传输带宽)
         /* 线扫相机扫图是一列一列的拼接上去的(从上到下垂直扫描的16位单通道数组)

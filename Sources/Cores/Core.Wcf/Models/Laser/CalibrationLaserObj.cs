@@ -2,7 +2,7 @@ using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
-using System.ComponentModel;
+using Cuga.Data.DataStruct.PMT;
 
 #if NET
 using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
@@ -22,67 +22,56 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场自动聚焦, AB两路灯亮度校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserAutoFocusCalibrationName)]
     public CalibrationLaserAutoFocus CalibrationLaserAutoFocus { get; set; } = new CalibrationLaserAutoFocus();
 
     /// <summary>
     /// 台面功率计校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserOpticalPowerCalibrationName)]
     public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = Array.Empty<CalibrationLaserOpticalPower>();
 
     /// <summary>
     /// AOD延迟时间校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserAodDelayCalibrationName)]
     public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = Array.Empty<CalibrationLaserAodDelayItem>();
 
     /// <summary>
     /// 均匀性校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserIlluminationProfileCalibrationName)]
     public CalibrationLaserIlluminationProfileItem[] CalibrationLaserIlluminationProfileItemList { get; set; } = Array.Empty<CalibrationLaserIlluminationProfileItem>();
 
     /// <summary>
     /// XTC
     /// </summary>
-    [Description(WcfConstantHelper.LaserXtcCalibrationName)]
     public CalibrationLaserXTCCalibrationItem[] CalibrationLaserXtcCalibrationItemList { get; set; } = Array.Empty<CalibrationLaserXTCCalibrationItem>();
 
     /// <summary>
     /// AGC延迟时间校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserAgcDelayCalibrationName)]
     public CalibrationLaserPmtAgcDelayItem[] CalibrationLaserPmtAgcDelayItemList { get; set; } = Array.Empty<CalibrationLaserPmtAgcDelayItem>();
 
     /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserPixelSizeCalibrationName)]
     public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = Array.Empty<CalibrationLaserPixelSizeItem>();
 
     /// <summary>
     /// XPixelSizer校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserXPixelSizeCalibrationName)]
     public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = Array.Empty<CalibrationLaserXPixelSizeItem>();
 
     /// <summary>
     /// 暗场相机的像素尺寸校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserLineCentricityCalibrationName)]
     public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = Array.Empty<CalibrationLaserLineCentricityItem>();
 
     /// <summary>
     /// 暗场AOD散光校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserXyAstigmatismCalibrationName)]
     public CalibrationLaserXYAstigmatismItem[] CalibrationLaserXYAstigmatismItemList { get; set; } = Array.Empty<CalibrationLaserXYAstigmatismItem>();
 
     /// <summary>
     /// 暗场DOE角度校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserDOEAngleCalibrationName)]
     public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
 }
 
@@ -353,7 +342,7 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
-    public string ChirpAodWaveFilePath { get; set; } = string.Empty;
+    public CalibrationChirpAODWaveformResult[] ChirpAODWaveformResultList { get; set; }
 }
 
 /// <summary>
@@ -378,4 +367,16 @@ public class CalibrationPrescanAODWaveformResult
     /// 波形文件路径
     /// </summary>
     public string FilePath { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// StageMap矩阵(笛卡尔坐标系)
+/// </summary>
+[Serializable]
+public sealed class CalibrationChirpAODWaveformResult
+{
+    // todo: 待cuga3.0升级
+    public int CgAwgElectrodeEnum { get; set; }
+
+    public string FilePath { get; set; }
 }

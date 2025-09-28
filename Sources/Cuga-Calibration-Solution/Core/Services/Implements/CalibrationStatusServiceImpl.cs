@@ -19,6 +19,7 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Setting;
 using CugaCalibration.Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

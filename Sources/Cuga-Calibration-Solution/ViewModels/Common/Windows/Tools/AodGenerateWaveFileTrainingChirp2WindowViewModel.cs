@@ -16,7 +16,7 @@ using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -176,7 +176,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                 using var _ = darkFieldImageDto;
 
                 var filePath = $"{detectImageDirectory}\\{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                darkFieldImageDto.Image.Save(filePath);
                 createRoiWindowViewModel.ImageFilePath = filePath;
 
                 var showDialog = windowManagerService.ShowDialog(createRoiWindowViewModel);
@@ -389,7 +389,7 @@ public sealed partial class AodGenerateWaveFileTrainingChirp2WindowViewModel(
                                $"_{string.Join(",", item.DeltaKs)}" +
                                $".jpg";
                 filePath = FileHelper.GetEnsureLongPathSupport(filePath);
-                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                darkFieldImageDto.Image.Save(filePath);
 
                 item.ImageFilePath = filePath;
 

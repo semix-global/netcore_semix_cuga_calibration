@@ -82,40 +82,11 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
-                    <TextBox Width="275"
+                    <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
                              hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPositionLow, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPositionMiddle, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPositionHigh, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <!--<DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification5X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPosition5X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification10X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPosition10X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification50X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPosition50X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification100X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPosition100X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.MicroscopeMagnificationEnum}" Value="{x:Static microscope:MicroscopeMagnificationEnum.Magnification150X}">
-                                        <Setter Property="Text" Value="{Binding Cache.FindPosition150X, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>-->
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                             hc:InfoElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}" />
                     <UniformGrid Width="275">
                         <hc:UniformSpacingPanel Margin="5"
                                                 HorizontalAlignment="Center"

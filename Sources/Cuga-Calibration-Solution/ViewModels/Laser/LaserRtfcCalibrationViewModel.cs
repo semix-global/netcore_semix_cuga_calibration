@@ -27,9 +27,10 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -282,8 +283,10 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        return (isHasCache || CacheProvider.Set(Cache, cancellationToken))
-               && (isHasFocusShiftCache || CacheProvider.Set(FocusShiftCache, cancellationToken));
+        if (isHasCache) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasFocusShiftCache) CacheProvider.Set(FocusShiftCache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -589,7 +592,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             else
             {
                 var filePath = $"{detectImageDirectory}\\DarkFieldTemplateOriginImage_{Guid.NewGuid()}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, filePath);
+                darkFieldImageDto.Image.Save(filePath);
                 createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
                 createDarkImageTemplateWindowViewModel.TemplateFilePath = FocusShiftCache.DarkFiledTemplateFilePath;
 
@@ -753,7 +756,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 var path = $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
                 var nscDarkFieldImageFilePath =
                     $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
-                HalconHelper.Save(darkFieldImageDto.Image, nscDarkFieldImageFilePath);
+                darkFieldImageDto.Image.Save(nscDarkFieldImageFilePath);
 
                 Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
@@ -1156,7 +1159,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 3,
                 StageCoordinateSystemEnum.Dark);
 
-            using var scaleImage = HalconHelper.ScaleImageTo8Bit(darkFieldImageDto.Image);
+            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
             var path = $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).hobj";
             //HOperatorSet.WriteObject(scaleImage, path);
@@ -1167,7 +1170,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             rtfcItemDto.Quality = qualityX;
 
             FileHelper.Save(darkFieldImageDto.Bytes, rtfcItemDto.DarkFieldOriginImageFilePath);
-            HalconHelper.Save(darkFieldImageDto.Image, rtfcItemDto.DarkFieldImageFilePath);
+            darkFieldImageDto.Image.Save(rtfcItemDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
@@ -1200,13 +1203,13 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             itemDto.Clone()
         ];
 
-        if (isSave == false) return true;
+        if (isSave == false) return;
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && CacheProvider.Set(Cache, cancellationToken)
-               && CacheProvider.Set(FocusShiftCache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(FocusShiftCache, cancellationToken);
+
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

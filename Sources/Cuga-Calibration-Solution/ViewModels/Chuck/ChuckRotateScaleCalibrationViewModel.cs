@@ -13,6 +13,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
@@ -145,8 +146,10 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
                 ? ApplicationCookie.MicroscopeLensInformationList[^1]
                 : ApplicationCookie.MicroscopeLensInformationList[2];
 
-        return (isHasIdealCache || RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken))
-               && (isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken));
+        if (isHasIdealCache == false) RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -780,9 +783,9 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken)
-               && RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

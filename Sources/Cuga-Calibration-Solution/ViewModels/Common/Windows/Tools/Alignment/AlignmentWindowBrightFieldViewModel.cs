@@ -6,7 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
-using Local.NoSQL.DB.Providers.Helper;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -118,7 +118,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         ApplicationCookie applicationCookie)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(LiteDbConstantHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
         _logger = logger;
         _contextProvider = contextProvider;
         _alignmentParamWindowBrightFieldViewModel = alignmentParamWindowBrightFieldViewModel;
@@ -343,15 +343,18 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         return InvokeAsync(() =>
         {
             Cache.IsOk = true;
-            if (_recipeCacheProvider.Set(Cache, CancellationToken.None) == false)
+            try
+            {
+                _recipeCacheProvider.Set(Cache, CancellationToken.None);
+                _dialogWindowProvider.ShowDialog("Save Ok");
+                Close();
+            }
+            catch (Exception ex)
             {
                 Cache.IsOk = false;
+                _logger.LogError(ex, "{@Name}: Failed to save alignment cache!", nameof(AlignmentWindowBrightFieldViewModel));
                 _dialogWindowProvider.ShowDialog("Failed to save alignment cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
             }
-
-            _dialogWindowProvider.ShowDialog("Save Ok");
-            Close();
         });
     }
 

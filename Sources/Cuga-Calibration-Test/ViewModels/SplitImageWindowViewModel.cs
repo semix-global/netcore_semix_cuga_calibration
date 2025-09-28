@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -63,7 +63,7 @@ public sealed partial class SplitImageWindowViewModel(
             var detectImageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", nameof(SplitImageWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
             try
             {
-                using var templateId = HalconHelper.ReadNccTemplate(TemplateFilePath);
+                using var templateId = TemplateFilePath.ReadNccTemplate();
                 var (_, templateImageSize) = ImageHelper.GetImageInfo(TemplateImageFilePath);
 
                 #region Get Um Per Pixel
@@ -83,7 +83,7 @@ public sealed partial class SplitImageWindowViewModel(
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);
-                var (_, calUmPerPixelHeightPixel) = calUmPerPixelBodyBytesSize.DeconstructToInt32();
+                var (_, calUmPerPixelHeightPixel) = (SizeI)calUmPerPixelBodyBytesSize;
 
                 var calUmPerPixelDieWidthPixel = DieWidthUm / IdealUmPerPixel;
                 var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
@@ -118,7 +118,7 @@ public sealed partial class SplitImageWindowViewModel(
                         pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
 
                         fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                        array = binaryReader.ReadBytes();
+                        array = binaryReader.ReadRemainingBytes();
                     }
                     else
                     {
@@ -133,8 +133,8 @@ public sealed partial class SplitImageWindowViewModel(
                     var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
                     using var _ = image;
                     var originImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(TemplateImageFilePath), $"calUmPerPixelImage_{index + 1}.jpg");
-                    HalconHelper.Save(image, originImageFilePath);
-                    HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
+                    image.Save(originImageFilePath);
+                    image.TryNccTemplateMathToOffset(templateId, out var result, out var score, out var _);
                     var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
                     logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
@@ -178,7 +178,7 @@ public sealed partial class SplitImageWindowViewModel(
                 }), guid.LoggingHtml());
 
                 var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);
-                var (_, heightPixel) = bodyBytesSize.DeconstructToInt32();
+                var (_, heightPixel) = (SizeI)bodyBytesSize;
 
                 var dieWidthPixel = DieWidthUm / RealUmPerPixel;
                 var heightPixelByteLength = heightPixel * 2;
@@ -205,7 +205,7 @@ public sealed partial class SplitImageWindowViewModel(
                         pointerTemp -= pointerTemp % heightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
 
                         fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                        array = binaryReader.ReadBytes();
+                        array = binaryReader.ReadRemainingBytes();
                     }
                     else
                     {
@@ -221,8 +221,8 @@ public sealed partial class SplitImageWindowViewModel(
                     var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
                     using var _ = image;
                     var originImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(TemplateImageFilePath), $"{index + 1}.jpg");
-                    HalconHelper.Save(image, originImageFilePath);
-                    HalconHelper.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
+                    image.Save(originImageFilePath);
+                    image.TryNccTemplateMathToOffset(templateId, out var result, out var score, out var _);
                     var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
                     matchPoint.Add(point);
                     matchOffsetPoint.Add(new Point(result.X, result.Y) - (Vector)size / 2);

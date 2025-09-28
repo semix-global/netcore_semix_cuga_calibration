@@ -8,6 +8,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
@@ -129,7 +130,9 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
-        return isHasCache || CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -1030,7 +1033,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         Calibration = dto.Clone();
 
-        return CacheProvider.Set(dto, cancellationToken) && CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.Set(dto, cancellationToken);
+        CacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

@@ -17,8 +17,9 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using CugaCalibration.ViewModels.Common.Windows.View;
+using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -169,7 +170,9 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
-        return isHasCache || RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
     }
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
@@ -545,7 +548,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
         laserPixelSizeItemDto.OriginFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(laserPixelSizeItemDto.FilePath);
 
         FileHelper.Save(darkFieldImageDto.Bytes, laserPixelSizeItemDto.OriginFilePath);
-        HalconHelper.Save(darkFieldImageDto.Image, laserPixelSizeItemDto.FilePath);
+        darkFieldImageDto.Image.Save(laserPixelSizeItemDto.FilePath);
 
         Logger.LogHtmlInformation($"Get Y Pixel Size Success:PMT ID {laserPixelSizeItemDto.PmtId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
@@ -579,12 +582,11 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             itemDto.Clone()
         ];
 
-        if (isSave == false) return true;
+        if (isSave == false) return;
 
-        return CacheProvider.SetArray(Calibrations, cancellationToken)
-               && RecipeCacheProvider.Set(Cache, cancellationToken)
-               && EnableDependedCalibrationItems(cancellationToken);
-    });
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+    }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {
