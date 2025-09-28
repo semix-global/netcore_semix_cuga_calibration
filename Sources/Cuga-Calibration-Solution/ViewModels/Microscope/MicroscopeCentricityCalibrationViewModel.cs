@@ -313,7 +313,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 ResultMicroscopeCentricityItemDto = SelectMicroscopeCentricityItemDto.Clone();
                 ResultMicroscopeCentricityItemDto.CentricityPosition = averageCentricityPosition;
 
-                var maxMagnification = Cache.MicroscopeCentricityCacheItem.Last().LensInformation;
+                var maxMagnification = Cache.MicroscopeCentricityCacheItem.OrderBy(t=>t.LensInformation.ObjectiveMagnification).Last().LensInformation;
 
                 ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.LensInformation != maxMagnification
                     ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.LensInformation == maxMagnification).CentricityPosition
@@ -385,7 +385,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
                 selectReviewItemDto.IsVerified = false;
 
-                var centricityItemMaxDto = ReviewList.Single(t => t.LensInformation == Cache.MicroscopeCentricityCacheItem.Last().LensInformation);
+                var centricityItemMaxDto = ReviewList.Single(t => t.LensInformation == Cache.MicroscopeCentricityCacheItem.OrderBy(t => t.LensInformation.ObjectiveMagnification).Last().LensInformation);
 
                 if (IsAutoCalibrate) // 定位最高倍的位置
                 {
@@ -481,7 +481,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 var varifiedDtoList = Calibrations.Where(t => t.IsOk).ToList();
                 if (varifiedDtoList.Count >= 2)
                 {
-                    var concentricOffset = Calibrations.Max(t => t.Offset.ToOriginLength) - Calibrations.Min(t => t.Offset.ToOriginLength);
+                    var concentricOffset = varifiedDtoList.Max(t => t.Offset.ToOriginLength) - varifiedDtoList.Min(t => t.Offset.ToOriginLength);
                     result = Math.Abs(concentricOffset) <= Cache.ConcentricThreshold;
                     if (result == false)
                     {
@@ -520,7 +520,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var maxMagnificationCacheItem = Cache.MicroscopeCentricityCacheItem.Last();
+            var maxMagnificationCacheItem = Cache.MicroscopeCentricityCacheItem.OrderBy(t => t.LensInformation.ObjectiveMagnification).Last();
             foreach (var times in Enumerable.Range(1, repeatCount))
             {
                 cancellationToken.ThrowIfCancellationRequested();

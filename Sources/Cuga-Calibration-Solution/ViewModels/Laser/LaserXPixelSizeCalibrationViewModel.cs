@@ -569,7 +569,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(laserXPixelSizeItem.FindStartPosition, CalChipSiteModelEnum.ChuckModel);
                 var startMachinePosition = StageViewModel.GetMachineStagePosition();
-                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(laserXPixelSizeItem.FindEndPosition, CalChipSiteModelEnum.ChuckModel);
+                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(new Point(Cache.ChuckRadius - 10, laserXPixelSizeItem.FindStartPosition.Y), CalChipSiteModelEnum.ChuckModel);
                 var endMachinePosition = StageViewModel.GetMachineStagePosition();
 
                 var extendWidth = Cache.SplitWidthPixel * Cache.IdealUmPerPixel / 2.0;
@@ -577,7 +577,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 var (xDirection, _) = StageViewModel.GetMachineDirection();
                 // 计算采图的起点终点机械坐标
                 startMachinePosition -= new Vector(xDirection * extendWidth, 0);
-                endMachinePosition += new Vector(xDirection * 3 * extendWidth, 0);
+                //endMachinePosition += new Vector(xDirection * 3 * extendWidth, 0);
                 //采集长图
                 var resultImage = LaserViewModel.GetDarkFieldLineScanImageList(
                     startMachinePosition,
@@ -690,13 +690,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             {
                 if (index != calUmPerPixelPointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
 
-                var offset = calUmPerPixelSplitImageWidthPixel - (calUmPerPixelBodyBytesLength - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
-
-                pointerTemp += offset * calUmPerPixelHeightPixelByteLength; // 那么左边也去掉这么多像素
-                pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+                var length = (calUmPerPixelBodyBytesLength - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
 
                 fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                array = binaryReader.ReadRemainingBytes();
+                array = binaryReader.ReadBytes((int)length * calUmPerPixelHeightPixelByteLength);
             }
             else
             {
@@ -706,6 +703,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
             var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
             var calUmPerPixelSplitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(array, new Size(currentWidthPixel, calUmPerPixelHeightPixel));
+
             var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelSplitImageRawBytes);
             var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
             using var _ = image;

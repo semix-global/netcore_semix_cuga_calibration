@@ -589,22 +589,22 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 TemplateFileDirectory = tempImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
+            var centerPmt = new LaserLineCentricityItemDto
+            {
+                MicroscopeLensInformation = Cache.MicroscopeLensInformation,
+                OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
+                StageSpeedEnum = Cache.StageSpeedEnum,
+                PmtId = 8,
+                FindBrightMachinePosition = Cache.FindBrightMachinePosition,
+                FindPosition = Cache.FindPosition,
+                ForwardFilePath = detectImageDirectory + "Forward",
+                ReverseFilePath = detectImageDirectory + "Reverse",
+                TemplateFilePath = tempImageDirectory
+            };
+            centerPmt.ReverseFindDarkMachinePosition = centerPmt.ForwardFindDarkMachinePosition = StageViewModel.DarkFieldToMachinePosition(centerPmt.FindPosition);
+
             // 先从第8个PMT开始，然后调整偏移量 把前7和后7确认好
-            List<LaserLineCentricityItemDto> pmtList =
-            [
-                new()
-                {
-                    MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    StageSpeedEnum = Cache.StageSpeedEnum,
-                    PmtId = 8,
-                    FindBrightMachinePosition = Cache.FindBrightMachinePosition,
-                    FindPosition = Cache.FindPosition,
-                    ForwardFilePath = detectImageDirectory + "Forward",
-                    ReverseFilePath = detectImageDirectory + "Reverse",
-                    TemplateFilePath = tempImageDirectory
-                }
-            ];
+            var pmtList = new List<LaserLineCentricityItemDto> { centerPmt };
 
             // 前7倒叙计算
             for (var i = 7; i >= 1; i--)
@@ -621,6 +621,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     ReverseFilePath = detectImageDirectory + "Reverse",
                     TemplateFilePath = tempImageDirectory
                 };
+                pmt.ReverseFindDarkMachinePosition = pmt.ForwardFindDarkMachinePosition = StageViewModel.DarkFieldToMachinePosition(pmt.FindPosition);
                 pmtList.Add(pmt);
             }
 
@@ -639,6 +640,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     ReverseFilePath = detectImageDirectory + "Reverse",
                     TemplateFilePath = tempImageDirectory
                 };
+                pmt.ReverseFindDarkMachinePosition = pmt.ForwardFindDarkMachinePosition = StageViewModel.DarkFieldToMachinePosition(pmt.FindPosition);
                 pmtList.Add(pmt);
             }
 
@@ -773,7 +775,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 Cache.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
                 laserLineCentricityItemDto.PmtId,
-                laserLineCentricityItemDto.FindPosition,
+                laserLineCentricityItemDto.ForwardFindDarkMachinePosition,
                 Cache.TemplateFilePath,
                 laserLineCentricityItemDto.ForwardFilePath,
                 HtmlLogUniqueId,
@@ -787,14 +789,14 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 true,
                 Cache.XWidthPixel,
                 laserLineCentricityItemDto.OpticsMagTypeEnum,
-                Cache.StageSpeedEnum) == false)
+                Cache.StageSpeedEnum,
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
-        var result = StageViewModel.DarkFieldToMachinePosition(position);
-        laserLineCentricityItemDto.ForwardFindDarkMachinePosition = result;
+        laserLineCentricityItemDto.ForwardFindDarkMachinePosition = position;
 
         var machineOffset = laserLineCentricityItemDto.ForwardFindDarkMachinePosition - laserLineCentricityItemDto.FindBrightMachinePosition; // 明暗场offset(暗-明)
         laserLineCentricityItemDto.ForwardDarkMachineCenterPosition = ChuckCenter.NewBFCenterStagePosition + machineOffset;
@@ -804,7 +806,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 Cache.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
                 laserLineCentricityItemDto.PmtId,
-                laserLineCentricityItemDto.FindPosition,
+                laserLineCentricityItemDto.ReverseFindDarkMachinePosition,
                 Cache.TemplateFilePath,
                 laserLineCentricityItemDto.ForwardFilePath,
                 HtmlLogUniqueId,
@@ -818,15 +820,14 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 false,
                 Cache.XWidthPixel,
                 laserLineCentricityItemDto.OpticsMagTypeEnum,
-                Cache.StageSpeedEnum) == false)
+                Cache.StageSpeedEnum,
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
-        result = StageViewModel.DarkFieldToMachinePosition(position);
-
-        laserLineCentricityItemDto.ReverseFindDarkMachinePosition = result;
+        laserLineCentricityItemDto.ReverseFindDarkMachinePosition = position;
 
         machineOffset = laserLineCentricityItemDto.ReverseFindDarkMachinePosition - laserLineCentricityItemDto.FindBrightMachinePosition; // 明暗场offset(暗-明)
         laserLineCentricityItemDto.ReverseDarkMachineCenterPosition = ChuckCenter.NewBFCenterStagePosition + machineOffset;

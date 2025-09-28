@@ -296,6 +296,7 @@ public sealed class CalibrationStageServiceImpl(
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
+        site.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         var sxExecuteRet = Invoke(() => Service!.MarkAlignSite2(site.AdaptTo()));
 
         return sxExecuteRet.IsSuccess == false
