@@ -849,8 +849,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             var isFastMatch = true;
             var lowResultPosition = Point.Origin;
             var lowResultImageFilePath = string.Empty;
-            if (highSitePosition == Point.Origin) // 快速匹配，避免来回切倍镜
-            {
+            //if (highSitePosition == Point.Origin) // 快速匹配，避免来回切倍镜
+            //{
                 var (lowTemplateFilePath, _) = Cache.GetTemplate(Cache.LowGlobalScaleErrorCacheItem.LensInformation);
                 if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, ideaPosition - (Vector)Cache.LowToHighMagnificationOffset, Cache.LowGlobalScaleErrorCacheItem.LensInformation, lowTemplateFilePath, ImageFileDirectory,
                         null, Name,
@@ -862,11 +862,11 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
                 highSitePosition = lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset;
                 isFastMatch = false;
-            }
-            else
-            {
-                highSitePosition = new Point(highSitePosition.X / resultDto.ScaleX, highSitePosition.Y / resultDto.ScaleY);
-            }
+            //}
+            //else
+            //{
+            //    highSitePosition = new Point(highSitePosition.X / resultDto.ScaleX, highSitePosition.Y / resultDto.ScaleY);
+            //}
 
             var (highTemplateFilePath, _) = Cache.GetTemplate(Cache.HighGlobalScaleErrorCacheItem.LensInformation);
             if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, highSitePosition, Cache.HighGlobalScaleErrorCacheItem.LensInformation, highTemplateFilePath, ImageFileDirectory,
