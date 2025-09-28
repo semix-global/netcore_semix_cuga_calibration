@@ -410,7 +410,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
     {
         try
         {
-            if (ApplicationCookie.CalibrationRecipeDto is  null)
+            if (ApplicationCookie.CalibrationRecipeDto is null)
             {
                 _dialogWindowProvider.ShowDialog("Get apply lite database failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;

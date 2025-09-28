@@ -1,7 +1,6 @@
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Stage;
 using System;
-using System.ComponentModel;
 
 namespace Core.Wcf.Models.Microscope;
 
@@ -14,25 +13,21 @@ public sealed class CalibrationMicroscopeObj
     /// <summary>
     /// Focus校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.MicroscopeFocusCalibrationName)]
     public CalibrationMicroscopeFocusItem[] CalibrationMicroscopeFocusItemList { get; set; } = Array.Empty<CalibrationMicroscopeFocusItem>();
 
     /// <summary>
     /// Cal Chip校准对象
     /// </summary>
-    [Description(WcfConstantHelper.MicroscopeCalChipCalibrationName)]
     public CalibrationMicroscopeCalChip CalibrationMicroscopeCalChip { get; set; } = new CalibrationMicroscopeCalChip();
 
     /// <summary>
     /// PixelSize校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.MicroscopePixelSizeCalibrationName)]
     public CalibrationMicroscopePixelSizeItem[] CalibrationMicroscopePixelSizeItemList { get; set; } = Array.Empty<CalibrationMicroscopePixelSizeItem>();
 
     /// <summary>
     /// Centricity校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.MicroscopeCentricityCalibrationName)]
     public CalibrationMicroscopeCentricityItem[] CalibrationMicroscopeCentricityItemList { get; set; } = Array.Empty<CalibrationMicroscopeCentricityItem>();
 }
 
@@ -56,6 +51,8 @@ public sealed class CalibrationMicroscopeFocusItem : CalibrationBase
     /// 当前镜头的显微镜相像差镜头电压值(像差镜头绝对位置), **需要下发Microscope硬件**
     /// </summary>
     public double MicroscopeVoltage { get; set; }
+
+
 }
 
 /// <summary>

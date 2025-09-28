@@ -127,7 +127,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
         }
 
         SettingPmtConfigViewModel.SettingPmtConfigParam = _calibrationSetting.SettingPmtConfigParam;
-        SettingRequiredCalibrationViewModel.CacheRequiredCalibrationParam = _calibrationSetting.SettingRequiredCalibrationParam;
     }
 
     [RelayCommand]
@@ -140,7 +139,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
         MiddleMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.MiddleMagSettingDarkFieldAutoFocusParam;
         HighMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.HighMagSettingDarkFieldAutoFocusParam;
         SettingPmtConfigViewModel.SettingPmtConfigParam = _calibrationSetting.SettingPmtConfigParam;
-        SettingRequiredCalibrationViewModel.CacheRequiredCalibrationParam = _calibrationSetting.SettingRequiredCalibrationParam;
         SettingCommonViewModel.SettingCommonParam.IsDebugEnvironment = true; // todo:更改为管理员权限
     }
 
@@ -182,7 +180,7 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
             _cacheProvider.Set(_calibrationSetting, CancellationToken.None);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             return false;
         }

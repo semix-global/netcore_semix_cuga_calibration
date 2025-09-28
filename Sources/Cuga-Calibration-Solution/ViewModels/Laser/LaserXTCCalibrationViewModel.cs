@@ -18,8 +18,10 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -32,8 +34,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
-using Local.NoSQL.DB.Providers.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;

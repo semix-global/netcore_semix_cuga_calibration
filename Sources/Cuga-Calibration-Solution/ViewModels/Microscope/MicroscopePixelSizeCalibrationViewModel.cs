@@ -128,8 +128,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         if (Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList) == false)
         {
             Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
-        } 
-        
+        }
+
         RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;

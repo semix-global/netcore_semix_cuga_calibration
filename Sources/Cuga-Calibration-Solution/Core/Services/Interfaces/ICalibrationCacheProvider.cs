@@ -5,7 +5,7 @@ namespace CugaCalibration.Core.Services.Interfaces;
 
 public interface ICalibrationCacheProvider
 {
-    Task<bool> TrySaveAsync();
+    bool TrySave(string? filePath = null);
 
     bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new();
 

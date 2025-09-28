@@ -10,37 +10,18 @@
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <ControlTemplate x:Key="CustomItemsControlTemplate" TargetType="ItemsControl">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ItemsPresenter />
+            </ScrollViewer>
+        </ControlTemplate>
+    </UserControl.Resources>
     <i:Interaction.Triggers>
-        <!--  Loaded每次都执行  -->
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <UserControl.Resources>
-        <Style x:Key="ListboxItemStyle" TargetType="ListBoxItem">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-            <!--  默认边框颜色  -->
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <!--  默认边框厚度  -->
-            <Setter Property="BorderThickness" Value="1" />
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <!--  选中项的边框颜色  -->
-                    <Setter Property="Background" Value="Gray" />
-                </Trigger>
-                <Trigger Property="IsSelected" Value="False">
-                    <!--  未选中项的边框颜色  -->
-                    <Setter Property="Background" Value="Transparent" />
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <!--  鼠标悬停时的边框颜色  -->
-                    <Setter Property="Background" Value="LightGray" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
     <Border>
         <Grid>
             <Grid.Resources>
@@ -51,109 +32,50 @@
                     </Style.Setters>
                 </Style>
             </Grid.Resources>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <GroupBox Header="ADS">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <ListBox Width="auto"
-                             Height="auto"
-                             ItemsSource="{Binding RequiredCalibrationParam.AdsRequiredCalibrationList}"
-                             ItemContainerStyle="{StaticResource ListboxItemStyle}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <hc:SimplePanel Height="30" Margin="8">
-                                    <TextBlock Text="{Binding CalibrationName}"
-                                               MinWidth="300"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton IsChecked="{Binding IsRequired}"
-                                                  HorizontalAlignment="Right"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DangerBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </hc:SimplePanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </hc:UniformSpacingPanel>
-            </GroupBox>
-            <GroupBox Grid.Column="1" Header="Microscope">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <ListBox Width="auto"
-                             Height="auto"
-                             ItemContainerStyle="{StaticResource ListboxItemStyle}"
-                             ItemsSource="{Binding RequiredCalibrationParam.MicroscopeRequiredCalibrationList}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <hc:SimplePanel Height="30" Margin="8">
-                                    <TextBlock Text="{Binding CalibrationName}"
-                                               MinWidth="300"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton x:Name="toggle"
-                                                  IsChecked="{Binding IsRequired}"
-                                                  HorizontalAlignment="Right"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DangerBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </hc:SimplePanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </hc:UniformSpacingPanel>
-            </GroupBox>
-            <GroupBox Grid.Column="2" Header="Chuck">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <ListBox Width="auto"
-                             Height="auto"
-                             ItemContainerStyle="{StaticResource ListboxItemStyle}"
-                             ItemsSource="{Binding RequiredCalibrationParam.ChuckRequiredCalibrationList}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <hc:SimplePanel Height="30" Margin="8">
-                                    <TextBlock Text="{Binding CalibrationName}"
-                                               MinWidth="300"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton IsChecked="{Binding IsRequired}"
-                                                  HorizontalAlignment="Right"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DangerBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </hc:SimplePanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </hc:UniformSpacingPanel>
-            </GroupBox>
-            <GroupBox Grid.Column="3" Header="Laser">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                    <ListBox Width="auto"
-                             Height="auto"
-                             ItemContainerStyle="{StaticResource ListboxItemStyle}"
-                             ItemsSource="{Binding RequiredCalibrationParam.LaserRequiredCalibrationList}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <hc:SimplePanel Height="30" Margin="8">
-                                    <TextBlock Text="{Binding CalibrationName}"
-                                               MinWidth="300"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton IsChecked="{Binding IsRequired}"
-                                                  HorizontalAlignment="Right"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DangerBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </hc:SimplePanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </hc:UniformSpacingPanel>
-            </GroupBox>
+
+            <!--  使用ItemsControl展示所有类别  -->
+            <ItemsControl ItemsSource="{Binding SettingRequiredCalibrationParamList}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="4" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!--  每个类别显示为一个GroupBox  -->
+                        <GroupBox Header="{Binding Description}">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                <!--  类别内的项目使用ItemsControl显示  -->
+                                <ItemsControl ItemsSource="{Binding CategoryItems}" Template="{StaticResource CustomItemsControlTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter" />
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <hc:SimplePanel Height="30" Margin="8">
+                                                <TextBlock Text="{Binding Path=Description}"
+                                                           MinWidth="300"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center" />
+                                                <ToggleButton IsChecked="{Binding IsRequired}"
+                                                              HorizontalAlignment="Right"
+                                                              VerticalAlignment="Center"
+                                                              Background="{StaticResource DangerBrush}"
+                                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                            </hc:SimplePanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </hc:UniformSpacingPanel>
+                        </GroupBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
     </Border>
 </UserControl>

@@ -37,7 +37,12 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<MicroscopeLensInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<MicroscopeLensInformation>>("Microscope Lens Information is empty", []);
 
-        _microscopeLensInformationList = [.. sxExecuteRet.Anything.Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t))];
+        _microscopeLensInformationList =
+        [
+            ..sxExecuteRet.Anything.Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t))
+                                    .OrderBy(t => t.ObjectiveMagnification)
+                                    .ThenBy(t => t.LensCode)
+        ];
 
         Guard.IsTrue(_microscopeLensInformationList.Select(t => t.LensCode).Distinct().Count() == _microscopeLensInformationList.Count, "Microscope Lens Information Lens Code is not unique");
 

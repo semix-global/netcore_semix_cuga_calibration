@@ -63,16 +63,16 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     private SettingPmtConfigParam _settingPmtConfigParam = new();
 
     /// <summary>
-    /// 配置Cuga自检使用的配置参数
-    /// </summary>
-    [ObservableProperty]
-    private SettingRequiredCalibrationParam _settingRequiredCalibrationParam = new();
-
-    /// <summary>
     /// 高倍暗场增益参数
     /// </summary>
     [ObservableProperty]
     private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationItems = [];
+
+    /// <summary>
+    /// 配置Cuga自检使用的配置参数
+    /// </summary>
+    [ObservableProperty]
+    private ObservableCollection<SettingRequiredCalibrationParam> _settingRequiredCalibrationParamList = [];
 
     #region Mapper
 
@@ -87,7 +87,7 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
         MiddleMagSettingDarkFieldGainParam = [.. obj.MiddleMagSettingDarkFieldGainParam.Select(x => new SettingDarkFieldGainParam().AdaptIn(x))];
         HighMagSettingDarkFieldGainParam = [.. obj.HighMagSettingDarkFieldGainParam.Select(x => new SettingDarkFieldGainParam().AdaptIn(x))];
         SettingPmtConfigParam = new SettingPmtConfigParam().AdaptIn(obj.SettingPmtConfigParam);
-        SettingRequiredCalibrationParam = new SettingRequiredCalibrationParam().AdaptIn(obj.SettingRequiredCalibrationParam);
+        SettingRequiredCalibrationParamList = [.. obj.SettingRequiredCalibrationParamList.Select(x => new SettingRequiredCalibrationParam().AdaptIn(x))];
         return obj;
     }
 

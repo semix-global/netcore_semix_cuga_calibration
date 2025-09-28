@@ -127,7 +127,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
         }
-            
+
         RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
