@@ -1,71 +1,48 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Utilities.WPF.Assembly.Model;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
-using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Setting;
 
 public sealed partial class SettingRequiredCalibrationParam : ObservableCacheBase, ICloneable<SettingRequiredCalibrationParam>, IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
 {
     [ObservableProperty]
-    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.AdsNodeCalibrationName)]
-    private ObservableCollection<RequiredCalibrationParam> _adsRequiredCalibrationList = [];
+    private string _description = string.Empty;
 
-    [ObservableProperty]
-    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.MicroscopeNodeCalibrationName)]
-    private ObservableCollection<RequiredCalibrationParam> _microscopeRequiredCalibrationList = [];
-
-    [ObservableProperty]
-    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.ChuckNodeCalibrationName)]
-    private ObservableCollection<RequiredCalibrationParam> _chuckRequiredCalibrationList = [];
-
-    [ObservableProperty]
-    [property: System.ComponentModel.Description(Wcf.Models.WcfConstantHelper.LaserNodeCalibrationName)]
-    private ObservableCollection<RequiredCalibrationParam> _laserRequiredCalibrationList = [];
-
-    #region Mapper
-
-    public SettingRequiredCalibrationParam AdaptIn(SettingRequiredCalibrationParam obj)
-    {
-        AdsRequiredCalibrationList = [.. obj.AdsRequiredCalibrationList.Select(x => new RequiredCalibrationParam().AdaptIn(x))];
-        MicroscopeRequiredCalibrationList = [.. obj.MicroscopeRequiredCalibrationList.Select(x => new RequiredCalibrationParam().AdaptIn(x))];
-        ChuckRequiredCalibrationList = [.. obj.ChuckRequiredCalibrationList.Select(x => new RequiredCalibrationParam().AdaptIn(x))];
-        LaserRequiredCalibrationList = [.. obj.LaserRequiredCalibrationList.Select(x => new RequiredCalibrationParam().AdaptIn(x))];
-
-        return obj;
-    }
+    public IReadOnlyList<SettingRequiredCalibrationCategoryItem> CategoryItems { get; set; } = [];
 
     public SettingRequiredCalibrationParam Clone() => new()
     {
-        AdsRequiredCalibrationList = [.. AdsRequiredCalibrationList.Select(t => t)],
-        MicroscopeRequiredCalibrationList = [.. MicroscopeRequiredCalibrationList.Select(t => t)],
-        ChuckRequiredCalibrationList = [.. ChuckRequiredCalibrationList.Select(t => t)],
-        LaserRequiredCalibrationList = [.. LaserRequiredCalibrationList.Select(t => t)]
+        Description = Description,
+        CategoryItems = CategoryItems.Select(t => t.Clone()).ToList().AsReadOnly()
     };
 
-    #endregion Mapper
+    public SettingRequiredCalibrationParam AdaptIn(SettingRequiredCalibrationParam obj)
+    {
+        Description = obj.Description;
+        CategoryItems = obj.CategoryItems.Select(t => t.AdaptIn(t)).ToList().AsReadOnly();
+        return obj;
+    }
 }
 
-public sealed partial class RequiredCalibrationParam : ObservableCacheBase, IAdaptIn<RequiredCalibrationParam, RequiredCalibrationParam>
+public partial class SettingRequiredCalibrationCategoryItem : TypeInfo, ICloneable<SettingRequiredCalibrationCategoryItem>, IAdaptIn<SettingRequiredCalibrationCategoryItem, SettingRequiredCalibrationCategoryItem>
 {
     [ObservableProperty]
     private bool _isRequired;
 
-    [ObservableProperty]
-    private string _calibrationName = string.Empty;
+    public SettingRequiredCalibrationCategoryItem Clone() => new()
+    {
+        Description = Description,
+        IsRequired = IsRequired,
+        AssemblyQualifiedName = AssemblyQualifiedName
+    };
 
-    [ObservableProperty]
-    private string _calibrationClassName = string.Empty;
-
-    #region Mapper
-
-    public RequiredCalibrationParam AdaptIn(RequiredCalibrationParam obj)
+    public SettingRequiredCalibrationCategoryItem AdaptIn(SettingRequiredCalibrationCategoryItem obj)
     {
         IsRequired = obj.IsRequired;
-        Id = obj.Id;
-
+        Description = obj.Description;
+        AssemblyQualifiedName = obj.AssemblyQualifiedName;
         return obj;
     }
-
-    #endregion Mapper
 }

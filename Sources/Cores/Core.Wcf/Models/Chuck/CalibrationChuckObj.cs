@@ -2,7 +2,6 @@ using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
-using System.ComponentModel;
 using System.Linq;
 
 #if NET
@@ -23,37 +22,31 @@ public sealed class CalibrationChuckObj
     /// <summary>
     /// Gantry正交校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChuckGantryCalibrationName)]
     public CalibrationChuckGantry CalibrationChuckGantry { get; set; } = new CalibrationChuckGantry();
 
     /// <summary>
     /// Chuck 全局比例误差校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChuckGlobalScaleErrorCalibrationName)]
     public CalibrationChuckGlobalScaleError CalibrationChuckGlobalScaleError { get; set; } = new CalibrationChuckGlobalScaleError();
 
     /// <summary>
     /// Chuck Center校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChuckCenterCalibrationName)]
     public CalibrationCenterObj CalibrationCenterObj { get; set; } = new CalibrationCenterObj();
 
     /// <summary>
     /// Prealigner校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChuckPrealignerCalibrationName)]
     public CalibrationPrealignerObj CalibrationPrealignerObj { get; set; } = new CalibrationPrealignerObj();
 
     /// <summary>
     /// Chuck 旋转比例误差校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChuckRotateScaleErrorCalibrationName)]
     public CalibrationChuckRotateScaleError CalibrationChuckRotateScaleError { get; set; } = new CalibrationChuckRotateScaleError();
 
     /// <summary>
     /// Stage Map 校准对象
     /// </summary>
-    [Description(WcfConstantHelper.ChuckStageMapCalibrationName)]
     public CalibrationChuckStageMap CalibrationChuckStageMap { get; set; } = new CalibrationChuckStageMap();
 }
 

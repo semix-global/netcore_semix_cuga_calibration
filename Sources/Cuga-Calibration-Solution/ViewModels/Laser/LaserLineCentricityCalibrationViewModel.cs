@@ -872,7 +872,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) ;
+    });
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
     {

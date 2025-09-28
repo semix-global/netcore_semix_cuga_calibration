@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 
 namespace Core.Wcf.Models.Ads;
 
@@ -12,19 +11,16 @@ public sealed class CalibrationAdsObj
     /// <summary>
     /// 压力前馈校准对象
     /// </summary>
-    [Description(WcfConstantHelper.AdsPressureCalibrationName)]
     public CalibrationAdsPressureGains CalibrationAdsPressureGains { get; set; } = new CalibrationAdsPressureGains();
 
     /// <summary>
     /// X方向速度前馈校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.AdsXGainCalibrationName)]
     public CalibrationAdsXGainsItem CalibrationAdsXGains { get; set; } = new CalibrationAdsXGainsItem();
 
     /// <summary>
     /// Y方向速度前馈校准对象
     /// </summary>
-    [Description(WcfConstantHelper.AdsYGainCalibrationName)]
     public CalibrationAdsYGainsItem CalibrationAdsYGains { get; set; } = new CalibrationAdsYGainsItem();
 }
 
