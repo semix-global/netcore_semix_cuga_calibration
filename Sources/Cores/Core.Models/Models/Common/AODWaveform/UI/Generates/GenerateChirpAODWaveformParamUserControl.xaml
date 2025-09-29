@@ -34,6 +34,12 @@
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding SoundSpeed}" />
+                <hc:NumericUpDown hc:InfoElement.Title="Spectral Density(MHz/mm): "
+                                  hc:InfoElement.TitlePlacement="Left"
+                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                  Minimum="0"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding SpectralDensity}" />
             </hc:UniformSpacingPanel>
         </ui:GenerateAODWaveformParamUserControl.HeaderContent>
     </ui:GenerateAODWaveformParamUserControl>

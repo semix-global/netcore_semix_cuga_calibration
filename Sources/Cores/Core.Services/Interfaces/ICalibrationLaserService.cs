@@ -68,21 +68,6 @@ public interface ICalibrationLaserService
     /// <returns>激光光强的信息</returns>
     SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient);
 
-    /// <summary>
-    /// 通过chirpAod波形文件路径命名，获得dto参数
-    /// </summary>
-    /// <param name="filePath">chirpAod波形文件路径</param>
-    /// <returns>ChirpAOD波形</returns>
-    public SxExecuteRet<DarkFieldChirpAodWaveDto> ReadChirpAodByCustomFile(string filePath);
-
-    /// <summary>
-    /// 从当前的波形文件的路径中查找是否存在和输入音包长度和输入变化率相同的波形文件
-    /// </summary>
-    /// <param name="currentDarkFieldChirpAodWaveDto">当前的波形文件</param>
-    /// <param name="rateChange">变化率</param>
-    /// <returns>符合条件的ChirpAOD波形</returns>
-    SxExecuteRet<DarkFieldChirpAodWaveDto> GetChirpAodByChangeRateFromFile(DarkFieldChirpAodWaveDto currentDarkFieldChirpAodWaveDto, double rateChange);
-
     #endregion 激光功率
 
     #region 任意波形发生器Arbitrary Waveform Generator
@@ -151,7 +136,6 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 根据prescan参数生成prescan波形列表
     /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="generatePrescanAODWaveformParam">prescan参数</param>
     /// <returns>prescan波形列表</returns>
     SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam);
@@ -159,7 +143,6 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 根据chirp参数生成chirp波形列表
     /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="generateChirpAODWaveformParam">chirp参数</param>
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam);

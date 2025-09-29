@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -14,9 +15,6 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
 
     [ObservableProperty]
     private Point _findPosition;
-
-    [ObservableProperty]
-    private LaserLightInformation _prescanLaserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private double _gain;
@@ -40,13 +38,10 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
     private Point[] _itemFitPoints = [];
 
     [ObservableProperty]
-    private Point[] _prescanSignals = [];
+    private string _prescanAODWaveformResultFilePath = string.Empty;
 
     [ObservableProperty]
-    private Point[] _prescanFouriers = [];
-
-    [ObservableProperty]
-    private string _prescanFilePath = string.Empty;
+    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 
     #region Mapper
 
@@ -54,16 +49,14 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         FindPosition = FindPosition,
-        PrescanLaserLightInformation = PrescanLaserLightInformation.Clone(),
         Gain = Gain,
         Items = [.. Items.Select(x => x.Clone())],
         Slope = Slope,
         Intercept = Intercept,
         RSquared = RSquared,
         ItemFitPoints = [.. ItemFitPoints],
-        PrescanSignals = [.. PrescanSignals],
-        PrescanFouriers = [.. PrescanFouriers],
-        PrescanFilePath = PrescanFilePath,
+        PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
+        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -80,9 +73,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
         Intercept = 0;
         RSquared = 0;
         ItemFitPoints = [];
-        PrescanSignals = [];
-        PrescanFouriers = [];
-        PrescanFilePath = string.Empty;
+        PrescanAODWaveformResultFilePath = string.Empty;
+        PrescanAODWaveformProfiles = [];
     }
 }
 
@@ -95,13 +87,10 @@ public sealed partial class LaserPrescanChirpAodAlignmentItemDto : ObservableCac
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
-    private Point[] _prescanSignals = [];
+    private string _prescanAODWaveformResultFilePath = string.Empty;
 
     [ObservableProperty]
-    private Point[] _prescanFouriers = [];
-
-    [ObservableProperty]
-    private string _prescanFilePath = string.Empty;
+    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 
     [ObservableProperty]
     private string _channel1ImageFilePath = string.Empty;
@@ -133,9 +122,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentItemDto : ObservableCac
     {
         PrescanCenterFrequency = PrescanCenterFrequency,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
-        PrescanSignals = [.. PrescanSignals],
-        PrescanFouriers = [.. PrescanFouriers],
-        PrescanFilePath = PrescanFilePath,
+        PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
+        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         Channel1ImageFilePath = Channel1ImageFilePath,
         Channel1DarkFieldImageProjectionYs = [.. Channel1DarkFieldImageProjectionYs],
         Channel2ImageFilePath = Channel2ImageFilePath,

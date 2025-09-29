@@ -100,20 +100,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public DarkFieldChirpAodWaveDto ReadChirpAodByCustomFile(string filePath)
-    {
-        var ret = calibrationLaserService.ReadChirpAodByCustomFile(filePath);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public DarkFieldChirpAodWaveDto GetChirpAodByChangeRateFromFile(DarkFieldChirpAodWaveDto currentDarkFieldChirpAodWaveDto, double rateChange)
-    {
-        var ret = calibrationLaserService.GetChirpAodByChangeRateFromFile(currentDarkFieldChirpAodWaveDto, rateChange);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public void ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationLaserService.ToggleOpticsMagType(opticsMagTypeEnum);

@@ -228,13 +228,13 @@
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
+                                            <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
+                                            <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}" />
+                                            <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -251,13 +251,13 @@
                                 <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.StartFrequencyChangeRateLow}" />
+                                            <Setter Property="Value" Value="{Binding Cache.StartSpectralDensityRateLow}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.StartFrequencyChangeRateMiddle}" />
+                                            <Setter Property="Value" Value="{Binding Cache.StartSpectralDensityRateMiddle}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.StartFrequencyChangeRateHigh}" />
+                                            <Setter Property="Value" Value="{Binding Cache.StartSpectralDensityRateHigh}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -347,7 +347,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.FrequencyChangeRate, StringFormat={}{0:f3}}"
+                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.SpectralDensity, StringFormat={}{0:f3}}"
                                  hc:InfoElement.Title="Find AOD Frequency RateChange: "
                                  hc:InfoElement.TitlePlacement="Left"
                                  IsReadOnly="True"
@@ -417,7 +417,7 @@
                                                 DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                 <GridViewColumn Width="150"
                                                 Header="Frequency Increment"
-                                                DisplayMemberBinding="{Binding FrequencyChangeRate, StringFormat={}{0:f3}}" />
+                                                DisplayMemberBinding="{Binding SpectralDensity, StringFormat={}{0:f3}}" />
                                 <GridViewColumn Width="80"
                                                 Header="EcsX"
                                                 DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />

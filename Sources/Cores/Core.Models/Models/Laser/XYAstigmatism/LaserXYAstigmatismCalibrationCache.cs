@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -224,37 +225,37 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
     /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _lowChirpAodDefaultDto = new();
+    private GenerateChirpAODWaveformParam _lowChirpAodDefaultDto = new();
 
     /// <summary>
     /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _middleChirpAodDefaultDto = new();
+    private GenerateChirpAODWaveformParam _middleChirpAodDefaultDto = new();
 
     /// <summary>
     /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private GenerateChirpAodWaveParamDto _highChirpAodDefaultDto = new();
+    private GenerateChirpAODWaveformParam _highChirpAodDefaultDto = new();
 
     /// <summary>
     /// 起始频率变化率 lowMag
     /// </summary>
     [ObservableProperty]
-    private double _startFrequencyChangeRateLow;
+    private double _startSpectralDensityLow;
 
     /// <summary>
     /// 起始频率变化率 middleMag
     /// </summary>
     [ObservableProperty]
-    private double _startFrequencyChangeRateMiddle;
+    private double _startSpectralDensityMiddle;
 
     /// <summary>
     /// 起始频率变化率 highMag
     /// </summary>
     [ObservableProperty]
-    private double _startFrequencyChangeRateHigh;
+    private double _startSpectralDensityHigh;
 
     #endregion 波形参数
 
@@ -348,7 +349,7 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
 
     #region 频率参数
 
-    public GenerateChirpAodWaveParamDto GetDefaultChirpAodProfile() => OpticsMagTypeEnum switch
+    public GenerateChirpAODWaveformParam GetDefaultChirpAodProfile() => OpticsMagTypeEnum switch
     {
         OpticsMagTypeEnum.Low => LowChirpAodDefaultDto,
         OpticsMagTypeEnum.Middle => MiddleChirpAodDefaultDto,
@@ -364,21 +365,21 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    public double GetStartFrequencyChangeRate() => OpticsMagTypeEnum switch
+    public double GetStartSpectralDensity() => OpticsMagTypeEnum switch
     {
-        OpticsMagTypeEnum.Low => StartFrequencyChangeRateLow,
-        OpticsMagTypeEnum.Middle => StartFrequencyChangeRateMiddle,
-        OpticsMagTypeEnum.High => StartFrequencyChangeRateHigh,
+        OpticsMagTypeEnum.Low => StartSpectralDensityLow,
+        OpticsMagTypeEnum.Middle => StartSpectralDensityMiddle,
+        OpticsMagTypeEnum.High => StartSpectralDensityHigh,
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    public void SetStartFrequencyChangeRate(double startFrequencyChangeRate)
+    public void SetStartSpectralDensity(double startSpectralDensity)
     {
         _ = OpticsMagTypeEnum switch
         {
-            OpticsMagTypeEnum.Low => StartFrequencyChangeRateLow = startFrequencyChangeRate,
-            OpticsMagTypeEnum.Middle => StartFrequencyChangeRateMiddle = startFrequencyChangeRate,
-            OpticsMagTypeEnum.High => StartFrequencyChangeRateHigh = startFrequencyChangeRate,
+            OpticsMagTypeEnum.Low => StartSpectralDensityLow = startSpectralDensity,
+            OpticsMagTypeEnum.Middle => StartSpectralDensityMiddle = startSpectralDensity,
+            OpticsMagTypeEnum.High => StartSpectralDensityHigh = startSpectralDensity,
             _ => throw new ArgumentOutOfRangeException()
         };
     }

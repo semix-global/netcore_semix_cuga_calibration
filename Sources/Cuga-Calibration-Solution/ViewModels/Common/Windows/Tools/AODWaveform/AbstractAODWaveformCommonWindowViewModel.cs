@@ -15,6 +15,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
+using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -121,9 +122,16 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand]
     private void Close()
     {
-        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        try
+        {
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false) Logger.LogWarning("{@Name}: Save Param Failed", Name);
+            CacheProvider.Set(Cache, cancellationTokenSource.Token);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save cache");
+        }
 
         CloseView(null);
     }

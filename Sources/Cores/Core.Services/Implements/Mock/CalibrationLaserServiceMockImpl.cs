@@ -19,7 +19,6 @@ using CommunityToolkit.Diagnostics;
 
 #if NET
 using Core.Services.Implements.GRPC;
-
 #else
 using Core.Services.Implements.WCF;
 
@@ -123,16 +122,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         return result is null
             ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
-    }
-
-    public SxExecuteRet<DarkFieldChirpAodWaveDto> ReadChirpAodByCustomFile(string filePath)
-    {
-        return _calibrationLaserServiceImpl.ReadChirpAodByCustomFile(filePath);
-    }
-
-    public SxExecuteRet<DarkFieldChirpAodWaveDto> GetChirpAodByChangeRateFromFile(DarkFieldChirpAodWaveDto currentDarkFieldChirpAodWaveDto, double rateChange)
-    {
-        return _calibrationLaserServiceImpl.GetChirpAodByChangeRateFromFile(currentDarkFieldChirpAodWaveDto, rateChange);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)

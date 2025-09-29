@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Local.NoSQL.DB.Providers.Bases;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.WPF.Enums;
@@ -102,9 +103,16 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
     [RelayCommand]
     private void Close()
     {
-        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        try
+        {
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        if (CacheProvider.Set(Cache, cancellationTokenSource.Token) == false) Logger.LogWarning("{@Name}: Save Param Failed", Name);
+            CacheProvider.Set(Cache, cancellationTokenSource.Token);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to save cache");
+        }
 
         CloseView(true);
     }
