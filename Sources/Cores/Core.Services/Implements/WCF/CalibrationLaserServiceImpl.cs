@@ -245,7 +245,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 0x00_00_01_00 : 0x00_00_00_00, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, sendDataList)));
+    public SxExecuteRet<bool> ToggleEnableAutoGainControl(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 0x00_01_00_00 : 0x00_00_00_00, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, sendDataList)));
 
     public SxExecuteRet<bool> ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId, int channelId) => SetCIBControlValue(cibProfileModeEnum.ToCIBProfileMode(), pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, sendDataList)));
 
