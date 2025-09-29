@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
@@ -33,6 +34,7 @@ using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
+using Core.Utilities;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -972,7 +974,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken);
+                DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
 
                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
@@ -1238,8 +1240,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
     }
 
-    private void DarkFieldGetStageMap(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken)
+    private void DarkFieldGetStageMap(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken, bool isReview = false)
     {
+        if (isReview) Guard.IsNotNull(ReviewDto);
+
         var templateXId = HalconFactory.EmptyHTuple;
         var templateYId = HalconFactory.EmptyHTuple;
         var templateId = HalconFactory.EmptyHTuple;
@@ -1273,6 +1277,22 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             var realMatrix = stageMapDto.RealMatrix;
             var errorItemList = stageMapDto.ErrorMatrix;
 
+            var idealMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
+            var valueIsOkMatrix = isReview && ReviewDto is not null ? new bool[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<bool>();
+            var valueMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
+            if (isReview && ReviewDto is not null)
+            {
+                for (var i = 0; i < ReviewDto.ExpandStageMapDto.RowNumber; i++)
+                {
+                    for (var j = 0; j < ReviewDto.ExpandStageMapDto.ColumnNumber; j++)
+                    {
+                        idealMatrix[i, j] = ReviewDto.ExpandStageMapDto.IdealStageMapItemMatrix[i][j].Point;
+                        valueIsOkMatrix[i, j] = true;
+                        valueMatrix[i, j] = ReviewDto.ExpandStageMapDto.ErrorMatrix[i][j];
+                    }
+                }
+            }
+
             for (var row = 0; row < idealStageMapItemMatrix.Length; row++)
             {
                 var isInWaferRowList = idealStageMapItemMatrix[row]
@@ -1283,6 +1303,29 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 if (points.Count == 0) continue;
 
                 Logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                if (isReview && ReviewDto is not null)
+                {
+                    Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
+                    var strings = new List<string>();
+                    for (var i = 0; i < points.Count; i++)
+                    {
+                        var item = isInWaferRowList[i];
+                        var isok = Interpolator.TryBilinear(idealMatrix, valueIsOkMatrix, valueMatrix, points[i], out var value);
+
+                        var error = ReviewDto.CalibrationDarkFieldStageMap.ErrorMatrix[row][item.Index];
+
+                        strings.Add($"{row}, {item.Index}, {points[i]}, {error}, current: {value}, {isok} {value.ToString() == error.ToString()} {points[i] == ReviewDto.CalibrationDarkFieldStageMap.IdealStageMapItemMatrix[row][item.Index].Point}");
+                        if (isok == false)
+                        {
+                            value = error;
+                        }
+
+                        points[i] = new Point(points[i].X + value.X, points[i].Y);
+                    }
+
+                    Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
+                }
+
 
                 var darkImageRepeatList = new List<List<DarkFieldImageDto>>();
                 foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
@@ -1309,7 +1352,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         }
 
                         darkImageRepeatList.Add(rowDarkFieldImageDtoList);
-                        break;
                     }
                     catch (Exception ex)
                     {
@@ -1422,9 +1464,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                                    group kvp.Value by kvp.Key.RepeatIndex
+                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 
