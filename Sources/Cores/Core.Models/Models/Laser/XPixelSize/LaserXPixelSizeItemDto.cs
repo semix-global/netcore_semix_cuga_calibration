@@ -72,7 +72,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     public CalibrationLaserXPixelSizeItem AdaptTo() => new()
     {
         CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        Speed = XStageSpeedEnum.ToAdsSpeedEnum(),
+        Speed = XStageSpeedEnum.ToCgSpeedLevelType(),
         XPixelSize = XPixelSize,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified

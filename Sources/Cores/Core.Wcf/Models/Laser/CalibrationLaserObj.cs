@@ -2,12 +2,9 @@ using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
-using Cuga.Data.DataStruct.PMT;
+using Cuga.Data.DataStruct.DTO.Swath;
 
-#if NET
-using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
-#else
-using Cuga.Data.DataStruct.ADS;
+#if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;
 #endif
 
@@ -277,7 +274,7 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
     /// <summary>
     /// 速度
     /// </summary>
-    public ADSSpeedEnum Speed { get; set; }
+    public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
     /// 当前暗场Mag和速度下的X方向1像素转尺寸, 单位um/pixel, **Cuga内部使用**
@@ -304,7 +301,7 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// <summary>
     /// 速度
     /// </summary>
-    public ADSSpeedEnum Speed { get; set; }
+    public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
     /// 暗场相机ID
