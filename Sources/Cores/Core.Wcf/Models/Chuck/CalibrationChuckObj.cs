@@ -3,13 +3,7 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Linq;
-
-#if NET
-using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
-#else
-using Cuga.Data.DataStruct.ADS;
-
-#endif
+using Cuga.Data.DataStruct.DTO.Swath;
 
 namespace Core.Wcf.Models.Chuck;
 
@@ -163,7 +157,7 @@ public sealed class CalibrationChuckStageMap : CalibrationBase
     /// <summary>
     /// 此速度下做的校准
     /// </summary>
-    public ADSSpeedEnum Speed { get; set; }
+    public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜, <see cref="OpticsMagTypeEnum"/>Mag, <see cref="Speed"/>速度下做的校准. StageMap矩阵(笛卡尔坐标系), **需要下发ACS硬件**

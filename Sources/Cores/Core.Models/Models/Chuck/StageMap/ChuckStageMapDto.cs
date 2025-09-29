@@ -72,7 +72,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
     {
         CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        Speed = StageSpeedEnum.ToAdsSpeedEnum(),
+        Speed = StageSpeedEnum.ToCgSpeedLevelType(),
         ExpandStageMap = ExpandStageMapDto.AdaptTo(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
