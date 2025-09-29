@@ -1,12 +1,12 @@
 using Core.Models.Enums.ADS;
 using Core.Models.Enums.Stage;
 using Cuga.Data.DataStruct.ADS;
+using Cuga.Data.DataStruct.DTO.Swath;
 
 #if NET
 using Cuga.Data.DataStruct.Basic;
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
-using ADSSpeedEnum = Cuga.Data.DataStruct.DTO.Swath.CgSpeedLevelType;
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
@@ -138,20 +138,20 @@ public static class EnumStageExtension
 
     #region Speed
 
-    public static ADSSpeedEnum ToAdsSpeedEnum(this StageSpeedEnum stageSpeedEnum) => stageSpeedEnum switch
+    public static CgSpeedLevelType ToCgSpeedLevelType(this StageSpeedEnum stageSpeedEnum) => stageSpeedEnum switch
     {
-        StageSpeedEnum.Low => ADSSpeedEnum.Low,
-        StageSpeedEnum.Middle => ADSSpeedEnum.Mid,
-        StageSpeedEnum.High => ADSSpeedEnum.High,
+        StageSpeedEnum.Low => CgSpeedLevelType.Low,
+        StageSpeedEnum.Middle => CgSpeedLevelType.Mid,
+        StageSpeedEnum.High => CgSpeedLevelType.High,
         _ => throw new ArgumentOutOfRangeException(nameof(stageSpeedEnum), stageSpeedEnum, null)
     };
 
-    public static StageSpeedEnum ToStageSpeedEnum(this ADSSpeedEnum adsSpeedEnum) => adsSpeedEnum switch
+    public static StageSpeedEnum ToStageSpeedEnum(this CgSpeedLevelType cgSpeedLevelType) => cgSpeedLevelType switch
     {
-        ADSSpeedEnum.Low => StageSpeedEnum.Low,
-        ADSSpeedEnum.Mid => StageSpeedEnum.Middle,
-        ADSSpeedEnum.High => StageSpeedEnum.High,
-        _ => throw new ArgumentOutOfRangeException(nameof(adsSpeedEnum), adsSpeedEnum, null)
+        CgSpeedLevelType.Low => StageSpeedEnum.Low,
+        CgSpeedLevelType.Mid => StageSpeedEnum.Middle,
+        CgSpeedLevelType.High => StageSpeedEnum.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(cgSpeedLevelType), cgSpeedLevelType, null)
     };
 
     public static SxSpeedEnum ToSxSpeedEnum(this StageSpeedEnum stageSpeedEnum) => stageSpeedEnum switch

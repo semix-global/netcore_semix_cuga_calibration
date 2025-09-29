@@ -50,7 +50,7 @@ public sealed class CalibrationStageServiceImpl(
 
     public SxExecuteRet<bool> SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetStageSpeed(stageSpeedEnum.ToAdsSpeedEnum(), opticsMagTypeEnum.ToCgMagTypeEnum()));
+        var sxExecuteRet = Invoke(() => Service!.SetStageSpeed(stageSpeedEnum.ToCgSpeedLevelType(), opticsMagTypeEnum.ToCgMagTypeEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
