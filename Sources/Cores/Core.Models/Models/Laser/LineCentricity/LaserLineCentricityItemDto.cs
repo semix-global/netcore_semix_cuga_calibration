@@ -89,7 +89,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
         {
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
             CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-            Speed = StageSpeedEnum.ToAdsSpeedEnum(),
+            Speed = StageSpeedEnum.ToCgSpeedLevelType(),
             PmtId = PmtId,
             DarkMachineCenterPosition = ForwardDarkMachineCenterPosition.ToCgPoint(),
             ReverseDarkMachineCenterPosition = ReverseDarkMachineCenterPosition.ToCgPoint(),
