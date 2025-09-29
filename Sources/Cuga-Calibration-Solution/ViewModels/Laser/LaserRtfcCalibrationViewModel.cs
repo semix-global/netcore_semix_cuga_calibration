@@ -1208,7 +1208,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
         CacheProvider.Set(FocusShiftCache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

@@ -12,14 +12,14 @@ public sealed partial class GenerateChirpAODWaveformParam :
     ICloneable<GenerateChirpAODWaveformParam>
 {
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SpectralDensity ))]
+    [NotifyPropertyChangedFor(nameof(SpectralDensity))]
     private double _soundPacketLength = 3.2;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SpectralDensity ))]
+    [NotifyPropertyChangedFor(nameof(SpectralDensity))]
     private double _soundSpeed = 5.742;
 
-    public double SpectralDensity  => SoundPacketLength != 0 ? BandWidth / SoundPacketLength : 0;
+    public double SpectralDensity => SoundPacketLength != 0 ? BandWidth / SoundPacketLength : 0;
 
     public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
     {

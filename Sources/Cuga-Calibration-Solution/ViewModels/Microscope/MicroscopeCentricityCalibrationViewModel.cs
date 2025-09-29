@@ -313,7 +313,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 ResultMicroscopeCentricityItemDto = SelectMicroscopeCentricityItemDto.Clone();
                 ResultMicroscopeCentricityItemDto.CentricityPosition = averageCentricityPosition;
 
-                var maxMagnification = Cache.MicroscopeCentricityCacheItem.OrderBy(t=>t.LensInformation.ObjectiveMagnification).Last().LensInformation;
+                var maxMagnification = Cache.MicroscopeCentricityCacheItem.OrderBy(t => t.LensInformation.ObjectiveMagnification).Last().LensInformation;
 
                 ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.LensInformation != maxMagnification
                     ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.LensInformation == maxMagnification).CentricityPosition

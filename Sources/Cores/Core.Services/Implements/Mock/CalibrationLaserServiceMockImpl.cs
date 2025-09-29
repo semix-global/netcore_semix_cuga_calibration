@@ -16,7 +16,6 @@ using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.PMT;
 using CommunityToolkit.Diagnostics;
 
-
 #if NET
 using Core.Services.Implements.GRPC;
 #else

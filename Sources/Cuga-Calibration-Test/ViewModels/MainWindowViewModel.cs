@@ -18,11 +18,12 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using CugaCalibration.ViewModels;
 using CugaCalibration.ViewModels.Common;
+using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using HalconDotNet;
 using HAlgorithm;
 using Local.NoSQL.DB.Providers.Extensions;
-
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -47,9 +49,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
-using CugaCalibration.ViewModels;
-using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
-using Net.Utilities.WPF.MVVM;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
@@ -658,7 +657,6 @@ public sealed partial class MainWindowViewModel(
 
         window.Show();
     }
-
 
     [RelayCommand]
     private void PrescanAODWaveformUniformity()

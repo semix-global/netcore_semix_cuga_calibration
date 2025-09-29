@@ -465,7 +465,7 @@ public static class AODWaveformGenerator
         [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessTrefoilCompensationSignals { get; internal set; } = [];
 
-        /// <summary>  
+        /// <summary>
         /// AOD波形coma补偿信号
         ///</summary>
         [Newtonsoft.Json.JsonIgnore]

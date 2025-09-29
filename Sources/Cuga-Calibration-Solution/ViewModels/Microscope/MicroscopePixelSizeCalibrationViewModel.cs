@@ -470,7 +470,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

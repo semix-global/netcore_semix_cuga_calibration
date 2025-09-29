@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
@@ -25,7 +24,6 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
 
     [ObservableProperty]
     private Point _findPosition;
-
 
     #region find EcsX Z轴参数
 

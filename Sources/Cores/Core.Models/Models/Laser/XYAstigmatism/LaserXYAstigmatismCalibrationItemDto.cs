@@ -60,7 +60,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
         Index = Index,
         MicroscopeLensInformation = MicroscopeLensInformation,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
-        SpectralDensity  = SpectralDensity,
+        SpectralDensity = SpectralDensity,
         EcsX = EcsX,
         EcsY = EcsY,
         EcsErrorValue = EcsErrorValue,

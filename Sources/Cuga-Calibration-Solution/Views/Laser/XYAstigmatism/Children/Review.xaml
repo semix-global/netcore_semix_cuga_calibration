@@ -200,6 +200,5 @@
                 </scottplot:WpfPlot>
             </Border>
         </Grid>
-
     </Grid>
 </UserControl>

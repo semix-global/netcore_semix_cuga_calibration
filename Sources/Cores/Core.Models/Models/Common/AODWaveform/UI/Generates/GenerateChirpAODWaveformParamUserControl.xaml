@@ -1,11 +1,11 @@
 ﻿<ui:AbstractGenerateAODWaveformParamUserControl x:Class="Core.Models.Models.Common.AODWaveform.UI.Generates.GenerateChirpAODWaveformParamUserControl"
                                                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                                                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                                                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                                                xmlns:hc="https://handyorg.github.io/handycontrol"
+                                                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                                                 xmlns:viewModels="clr-namespace:Core.Models.Models.Common.AODWaveform.Generates"
                                                 xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates"
+                                                xmlns:hc="https://handyorg.github.io/handycontrol"
                                                 d:DataContext="{d:DesignInstance Type=viewModels:GenerateChirpAODWaveformParam,
                                                                                  IsDesignTimeCreatable=True}"
                                                 d:DesignWidth="400"

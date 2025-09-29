@@ -2,9 +2,9 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public sealed class PrescanAODWaveformProfile : 
-    AbstractAODWaveformProfile, 
-    IAdaptTo<PrescanAODWaveformResult>, 
+public sealed class PrescanAODWaveformProfile :
+    AbstractAODWaveformProfile,
+    IAdaptTo<PrescanAODWaveformResult>,
     ICloneable<PrescanAODWaveformProfile>
 {
     public static readonly PrescanAODWaveformProfile Default = new();

@@ -28,13 +28,13 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
-using Core.Utilities;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -1326,7 +1326,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
                 }
 
-
                 var darkImageRepeatList = new List<List<DarkFieldImageDto>>();
                 foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
                 {
@@ -1464,9 +1463,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                    group kvp.Value by kvp.Key.RepeatIndex
+                                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 

@@ -43,6 +43,7 @@ public static class EnumStageExtension
     };
 
 #else
+
     public static CgCalChipType ToCgCalChipType(this CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
     {
         CalChipSiteModelEnum.ChuckModel => CgCalChipType.None,

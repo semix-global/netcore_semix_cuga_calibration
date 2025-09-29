@@ -2,10 +2,10 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Models.Enums.Maths;
-using System.IO;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using System.IO;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 

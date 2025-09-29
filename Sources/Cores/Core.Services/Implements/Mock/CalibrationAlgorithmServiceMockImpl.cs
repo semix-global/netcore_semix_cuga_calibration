@@ -104,7 +104,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return true;
     }
 
-
     public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
         score = Random.NextDouble() * 10;

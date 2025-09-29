@@ -39,7 +39,6 @@ public static class CalibrationReflectionHelper
         return resultList;
     }
 
-
     public static (Type dtoType, MethodInfo MethodInfo) WcfModelTypeToCalibrationDtoType(Type wcfObjType)
     {
         // 查找程序集中所有类型，筛选出实现IAdaptTo接口，且接口参数为wcfObjType的类型，返回wcfObjType对应的dto类型

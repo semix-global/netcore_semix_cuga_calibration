@@ -54,5 +54,4 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfigur
     /// 校准软件更新说明文档名称
     /// </summary>
     public string UpdateDocumentPath { get; init; } = string.Empty;
-
 }

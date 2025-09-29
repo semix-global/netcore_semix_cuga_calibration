@@ -33,7 +33,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
-using System.IO;
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
@@ -524,7 +523,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             cancellationToken.ThrowIfCancellationRequested();
             var windowPrescanList = SetPrescanByteListByWindow(maxWindowStartIndex, windowToMinAmount);
             foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
-            
+
             var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8));
             using var _1 = channel1DarkFieldImageDto;
             using var _2 = channel2DarkFieldImageDto;
@@ -544,7 +543,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             cancellationToken.ThrowIfCancellationRequested();
             windowPrescanList = SetPrescanByteListByWindow(minWindowStartIndex, windowToMinAmount);
             foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
-            
+
             (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8));
             using var _4 = channel1DarkFieldImageDto;
             using var _5 = channel2DarkFieldImageDto;
@@ -774,7 +773,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         }
 
         foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(resultWindow);
-        
+
         var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, laserXTCCalibrationItemDto);
         if (isSuccess == false)
         {

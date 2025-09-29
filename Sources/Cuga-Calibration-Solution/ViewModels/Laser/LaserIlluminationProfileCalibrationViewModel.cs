@@ -1378,7 +1378,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(SelectCalibrateItemDto.PrescanRateList);
 
                 SelectCalibrateItemDto.PrescanAODWaveformResultList = AODWaveformResultFactory.CreatePrescanList(prescanAODWaveProfiles, PrescanFileDirectory);
-                ;
 
                 LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
 
@@ -1703,7 +1702,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

@@ -11,8 +11,11 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
+using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -21,9 +24,6 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
-using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
-using HalconDotNet;
 
 namespace Core.Services.Implements.WCF;
 

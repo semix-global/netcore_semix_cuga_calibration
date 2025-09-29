@@ -4,7 +4,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
@@ -21,7 +20,6 @@ public sealed partial class SettingRequiredCalibrationViewModel(
 {
     [ObservableProperty]
     private ObservableCollection<SettingRequiredCalibrationParam> _settingRequiredCalibrationParamList = [];
-
 
     [RelayCommand]
     private async Task LoadedAsync()

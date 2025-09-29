@@ -353,7 +353,7 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    #endregion
+    #endregion DOE
 
     public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,

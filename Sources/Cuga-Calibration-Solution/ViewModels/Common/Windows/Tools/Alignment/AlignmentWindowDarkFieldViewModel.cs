@@ -7,7 +7,6 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Extensions;
-
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;

@@ -7,6 +7,7 @@ using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
@@ -37,7 +38,6 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
-using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -397,7 +397,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
 
-                var (currentResultList, isSuccess) = GetBestEcsItemByCurrentChirpAodWaveProfile(chirpAodDefaultDto, cancellationToken, true, false);
+                var (currentResultList, isSuccess) = GetBestEcsItemByCurrentChirpAodWaveProfile(chirpAodDefaultDto, cancellationToken, true);
                 if (isSuccess == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Best Ecs X Failed."), HtmlLogUniqueId.LoggingHtml());
@@ -910,7 +910,6 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
-
             // 执行一轮找ecs之后，判断最佳Ecs距离initialEcs是否小于量程的一半，大于时继续迭代
             if (isAutoSlider == false || ecsError <= (ecsLimitLower + ecsLimitUpper) / 2) return (resultItems, true);
 
@@ -1055,7 +1054,6 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
             var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);
             var channel3DarkFieldImageDto = list.Single(t => t.ChannelId == 3);
-
 
             var size = channel3DarkFieldImageDto.Image.GetSize();
             var roi = new Rect(0, 0, size.Width, size.Height);

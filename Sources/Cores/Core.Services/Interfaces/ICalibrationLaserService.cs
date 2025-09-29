@@ -411,5 +411,5 @@ public interface ICalibrationLaserService
     /// <returns>返回是否下发成功</returns>
     SxExecuteRet<bool> SetDOEAngle(double angle);
 
-    #endregion
+    #endregion DOE
 }

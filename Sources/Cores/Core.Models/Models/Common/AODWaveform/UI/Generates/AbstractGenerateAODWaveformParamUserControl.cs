@@ -66,7 +66,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(AbstractGenerateAODWaveformParamUserControl),
         new PropertyMetadata(true, OnIsVisibleCompensationChanged));
 
-
     private static void OnHeaderChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is string value) control.InnerControl.Header = value;

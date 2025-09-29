@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:mag="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXYAstigmatismCalibrationViewModel}"
              d:DesignHeight="450"

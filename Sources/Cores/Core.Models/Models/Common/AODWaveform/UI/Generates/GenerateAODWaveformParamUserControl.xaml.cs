@@ -121,7 +121,6 @@ public sealed partial class GenerateAODWaveformParamUserControl
         param.UniformityConfigurations = configurationList;
     });
 
-
     [RelayCommand]
     private void AddSlopeDeltaKConfiguration() => Invoke(param =>
     {

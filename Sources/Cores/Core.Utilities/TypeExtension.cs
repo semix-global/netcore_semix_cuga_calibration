@@ -23,6 +23,5 @@ public static class TypeExtension
             resultStrs.Add(strs[4]);
         var resultStr = string.Join(",", [.. resultStrs]);
         return strs.Length < 1 ? string.Empty : resultStr;
-
     }
 }

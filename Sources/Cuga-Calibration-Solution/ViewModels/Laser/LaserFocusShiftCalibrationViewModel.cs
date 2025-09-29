@@ -1006,7 +1006,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

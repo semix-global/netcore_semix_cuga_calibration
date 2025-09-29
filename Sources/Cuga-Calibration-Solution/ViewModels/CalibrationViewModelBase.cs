@@ -16,7 +16,6 @@ using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Humanizer;
-
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Hosting;
@@ -124,7 +123,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     #endregion 重载只读属性
 
     public CalibrationSetting CalibrationSetting { get; }
-
 
     public ApplicationCookie ApplicationCookie { get; }
 

@@ -7,10 +7,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:mag="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-             xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:focus="clr-namespace:Core.Models.Models.Microscope.Focus;assembly=Core.Models"
              xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
@@ -90,7 +87,6 @@
                         </generates:GenerateChirpAODWaveformParamUserControl>
                     </hc:UniformSpacingPanel>
                 </Border>
-
             </Expander>
             <Expander HorizontalAlignment="Center"
                       VerticalAlignment="Top"

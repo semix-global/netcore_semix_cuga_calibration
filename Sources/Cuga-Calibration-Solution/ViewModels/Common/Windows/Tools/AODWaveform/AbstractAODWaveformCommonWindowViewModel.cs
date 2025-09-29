@@ -5,6 +5,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Laser.OpticalPower;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,9 +15,8 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
-using System.IO;
-using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
