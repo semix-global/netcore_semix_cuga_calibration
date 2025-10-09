@@ -347,7 +347,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.SpectralDensity, StringFormat={}{0:f3}}"
+                        <TextBox Text="{Binding SelectedLaserXyAstigmatismItemDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}"
                                  hc:InfoElement.Title="Find AOD Frequency RateChange: "
                                  hc:InfoElement.TitlePlacement="Left"
                                  IsReadOnly="True"
@@ -417,7 +417,7 @@
                                                 DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                 <GridViewColumn Width="150"
                                                 Header="Frequency Increment"
-                                                DisplayMemberBinding="{Binding SpectralDensity, StringFormat={}{0:f3}}" />
+                                                DisplayMemberBinding="{Binding SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
                                 <GridViewColumn Width="80"
                                                 Header="EcsX"
                                                 DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />

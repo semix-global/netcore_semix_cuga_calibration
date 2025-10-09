@@ -158,7 +158,7 @@
                                             DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="150"
                                             Header="Spectral Density(MHz/mm)"
-                                            DisplayMemberBinding="{Binding SpectralDensity, StringFormat={}{0:f3}}" />
+                                            DisplayMemberBinding="{Binding SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
                             <GridViewColumn Width="80"
                                             Header="EcsX"
                                             DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />

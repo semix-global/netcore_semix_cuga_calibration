@@ -39,7 +39,7 @@
                                   hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding SpectralDensity}" />
+                                  Value="{Binding SpectralDensity, Mode=OneWay}" />
             </hc:UniformSpacingPanel>
         </ui:GenerateAODWaveformParamUserControl.HeaderContent>
     </ui:GenerateAODWaveformParamUserControl>
