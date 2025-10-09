@@ -121,7 +121,12 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            FrequencyPoints = new HtmlPlot2DLinesChart([(nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints), (nameof(Cache.HighFrequencyPoints), Cache.MergeFrequencyPoints)], string.Empty),
+            FrequencyPoints = new HtmlPlot2DLinesChart(
+            [
+                (nameof(Cache.LowFrequencyPoints), Cache.LowFrequencyPoints),
+                (nameof(Cache.HighFrequencyPoints), Cache.HighFrequencyPoints),
+                (nameof(Cache.MergeFrequencyPoints), Cache.MergeFrequencyPoints)
+            ], string.Empty),
             Cache.ResultOffsetFrequencyPeriodCoefficient,
             Cache.ResultFrequencyMeasurePower,
             ResultMeasurePowerPoints = new HtmlPlot2DLinesChart([(nameof(Cache.ResultMeasurePowerPoints), Cache.ResultMeasurePowerPoints)], string.Empty),

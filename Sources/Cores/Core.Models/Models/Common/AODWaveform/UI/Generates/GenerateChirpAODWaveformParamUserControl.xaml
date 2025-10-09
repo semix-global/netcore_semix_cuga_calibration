@@ -37,7 +37,8 @@
                 <hc:NumericUpDown hc:InfoElement.Title="Spectral Density(MHz/mm): "
                                   hc:InfoElement.TitlePlacement="Left"
                                   hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                  Minimum="0"
+                                  IsReadOnly="True"
+                                  IsEnabled="False"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding SpectralDensity, Mode=OneWay}" />
             </hc:UniformSpacingPanel>
