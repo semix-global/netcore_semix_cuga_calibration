@@ -1,6 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
-using Core.Utilities;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Mapper.Interfaces;
 using System.IO;

@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;

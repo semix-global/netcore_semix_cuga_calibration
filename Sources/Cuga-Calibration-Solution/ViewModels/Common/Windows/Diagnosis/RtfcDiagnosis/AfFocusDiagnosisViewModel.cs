@@ -16,7 +16,6 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
-using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
@@ -531,7 +530,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
                     if (downQualityValue is not null) listDownResult.Add(downQualityValue.Value < focusShiftDtoItem.DarkFieldQuality);
                     downQualityValue = focusShiftDtoItem.DarkFieldQuality;
-                    if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 10)) break; // 连续10个下降说明已经到了最低点
+                    if (listDownResult.HasConsecutiveEqual(10, false)) break; // 连续10个下降说明已经到了最低点
                 }
 
                 ResultFocusShiftDto = FocusShiftDtoItems.Select(s => s.Clone())
@@ -1047,7 +1046,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
 
             if (downQualityValue is not null) listDownResult.Add(downQualityValue.Value < tempItemDto.Quality);
             downQualityValue = tempItemDto.Quality;
-            if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 10)) break; // 连续30个下降说明已经到了最低点
+            if (listDownResult.HasConsecutiveEqual(10, false)) break; // 连续30个下降说明已经到了最低点
         }
 
         // xy得分大于100的对象参与结果运算（防止超出景深极端值的干扰）

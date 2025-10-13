@@ -7,6 +7,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Wcf.Models;
 using CugaCalibration.Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -42,8 +43,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
     [ObservableProperty]
     private ObservableCollection<CalibrationCategory> _calibrationCategories = [];
 
-    public SettingCalibrateItemsStatusViewModel
-    (
+    public SettingCalibrateItemsStatusViewModel(
         IMessenger messenger,
         IDialogWindowProvider dialogWindowProvider,
         IGetResultFileService getResultFileService,
@@ -122,7 +122,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                         };
                         if (calibrationCategoryItem.IsArray)
                         {
-                            var calibrationDtoItems = GuardUtils.IsNotNullAndReturn(_cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType));
+                            var calibrationDtoItems = GuardUtils.IsNotNullAndReturn(_cacheProvider.GetOrDefaultArray(calibrationCategoryItem.CalibrationDtoType));
                             calibrationCategoryItemObj.IsAnyOk = calibrationDtoItems.Length > 0;
                         }
                         else

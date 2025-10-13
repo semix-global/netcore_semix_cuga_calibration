@@ -350,7 +350,6 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 public class CalibrationPrescanAODWaveformResult
 {
 #if NETFRAMEWORK
-
     /// <summary>
     /// 电极Id
     /// </summary>

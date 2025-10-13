@@ -18,7 +18,6 @@ using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
@@ -28,6 +27,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -638,7 +638,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                                 previousEcsError
                             }), HtmlLogUniqueId.LoggingHtml());
 
-                            if (EnumerableHelper.HasConsecutiveFalse(isIterationEcsErrorLessThanPreviousList, 3) || circleCount > repeatNum)
+                            if (isIterationEcsErrorLessThanPreviousList.HasConsecutiveEqual(3, false) || circleCount > repeatNum)
                                 return false;
 
                             return FrequencyRateChangeIteration(currentEcsError, currentRateChange);

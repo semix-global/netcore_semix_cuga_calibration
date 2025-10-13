@@ -1,7 +1,7 @@
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Utilities;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 
@@ -9,7 +9,6 @@ using Semix.CoreLib;
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.GRPC;
 #else
-
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.WCF;
 #endif
