@@ -301,6 +301,8 @@
                                     <hc:NumericUpDown hc:InfoElement.Title="Stop Offset Period(2pi): "
                                                       hc:InfoElement.TitlePlacement="Left"
                                                       hc:InfoElement.TitleWidth="200"
+                                                      Minimum="0.5"
+                                                      Maximum="2"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopOffsetFrequencyPeriodCoefficient}" />
                                     <Separator />
