@@ -21,19 +21,13 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
     private Point _offsetPosition;
 
     [ObservableProperty]
-    private double _offsetAngle;
-
-    [ObservableProperty]
     private Point _efemLoadWaferStagePosition;
 
     [ObservableProperty]
     private Point _newEfemLoadWaferStagePosition;
 
     [ObservableProperty]
-    private double _efemLoadWaferChuckAngle;
-
-    [ObservableProperty]
-    private double _newEfemLoadWaferChuckAngle;
+    private double _efemLoadWaferChuckAbsoluteAngle;
 
     [ObservableProperty]
     private Point _position1;
@@ -72,11 +66,9 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
         LowMicroscopeLensInformation = LowMicroscopeLensInformation,
         HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         OffsetPosition = OffsetPosition,
-        OffsetAngle = OffsetAngle,
         EfemLoadWaferStagePosition = EfemLoadWaferStagePosition,
         NewEfemLoadWaferStagePosition = NewEfemLoadWaferStagePosition,
-        EfemLoadWaferChuckAngle = EfemLoadWaferChuckAngle,
-        NewEfemLoadWaferChuckAngle = NewEfemLoadWaferChuckAngle,
+        EfemLoadWaferChuckAbsoluteAngle = EfemLoadWaferChuckAbsoluteAngle,
         Position1 = Position1,
         FilePath1 = FilePath1,
         LowTemplateFilePath = LowTemplateFilePath,
@@ -98,7 +90,7 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
     {
         CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
         NewEfemLoadWaferStagePosition = NewEfemLoadWaferStagePosition.ToCgPoint(),
-        NewEfemLoadWaferChuckAngle = NewEfemLoadWaferChuckAngle,
+        EfemLoadWaferChuckAbsoluteAngle = EfemLoadWaferChuckAbsoluteAngle,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck

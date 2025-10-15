@@ -116,9 +116,9 @@ public sealed class CalibrationPrealignerObj : CalibrationBase
     public CgPoint NewEfemLoadWaferStagePosition { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, 校准后EFEM上下料时Chuck的起始旋转角度, **Cuga内部使用**
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, 校准后EFEM上下料时Chuck的起始旋转角度（绝对角度）, **Cuga内部使用**
     /// </summary>
-    public double NewEfemLoadWaferChuckAngle { get; set; }
+    public double EfemLoadWaferChuckAbsoluteAngle { get; set; }
 }
 
 /// <summary>
