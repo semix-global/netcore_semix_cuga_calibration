@@ -7,6 +7,7 @@ using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.PixelSize;
@@ -37,7 +38,6 @@ public sealed class LaserViewModel(
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
-    ICalibrationConfigService calibrationConfigService,
     ICacheProvider cacheProvider) : ViewModelBase
 {
     #region 服务
@@ -100,20 +100,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public DarkFieldChirpAodWaveDto ReadChirpAodByCustomFile(string filePath)
-    {
-        var ret = calibrationLaserService.ReadChirpAodByCustomFile(filePath);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public DarkFieldChirpAodWaveDto GetChirpAodByChangeRateFromFile(DarkFieldChirpAodWaveDto currentDarkFieldChirpAodWaveDto, double rateChange)
-    {
-        var ret = calibrationLaserService.GetChirpAodByChangeRateFromFile(currentDarkFieldChirpAodWaveDto, rateChange);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public void ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationLaserService.ToggleOpticsMagType(opticsMagTypeEnum);
@@ -149,9 +135,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetPrescanAODWaveProfileList(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfileList)
+    public void SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
-        var ret = calibrationLaserService.SetPrescanAODWaveProfileList(prescanAODWaveProfileList);
+        var ret = calibrationLaserService.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -163,11 +149,25 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveProfileList(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfileList)
+    public void SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
-        var ret = calibrationLaserService.SetChirpAODWaveProfileList(chirpAODWaveProfileList);
+        var ret = calibrationLaserService.SetChirpAODWaveProfiles(chirpAODWaveProfiles);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<PrescanAODWaveformProfile> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
+    {
+        var ret = calibrationLaserService.GeneratePrescanAodWaves(generatePrescanAODWaveformParam);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<ChirpAODWaveformProfile> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
+    {
+        var ret = calibrationLaserService.GenerateChirpAodWaves(generateChirpAODWaveformParam);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public void ToggleCIBControlModeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId = CalibrationConstantsHelper.MainPmtId, int channelId = CalibrationConstantsHelper.MainChannelId)
@@ -353,7 +353,7 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    #endregion
+    #endregion DOE
 
     public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,

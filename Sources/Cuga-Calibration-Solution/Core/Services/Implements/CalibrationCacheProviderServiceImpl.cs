@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -70,7 +71,7 @@ public class CalibrationCacheProviderServiceImpl(
                         }).ToArray();
                         if (wcfItems is not null && wcfItems.Length > 0)
                         {
-                            var values = ObjectHelper.ObjectToArray(calibrationCategoryItem.WcfModelType, wcfItems);
+                            var values = ObjectHelper.ConvertToArray(wcfItems, calibrationCategoryItem.WcfModelType);
                             childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
                         }
                     }

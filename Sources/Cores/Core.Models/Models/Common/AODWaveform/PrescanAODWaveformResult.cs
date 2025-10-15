@@ -1,11 +1,17 @@
-﻿using Core.Models.Extensions;
+using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public class PrescanAODWaveformResult : AODWaveformResult, IAdaptTo<PrescanAODWaveformProfile>, IAdaptTo<CalibrationPrescanAODWaveformResult>, ICloneable<PrescanAODWaveformResult>
+public sealed class PrescanAODWaveformResult :
+    AbstractAODWaveformResult,
+    IAdaptTo<PrescanAODWaveformProfile>,
+    IAdaptTo<CalibrationPrescanAODWaveformResult>,
+    ICloneable<PrescanAODWaveformResult>
 {
+    public static readonly PrescanAODWaveformResult Default = new();
+
     internal PrescanAODWaveformResult()
     {
     }
@@ -22,9 +28,5 @@ public class PrescanAODWaveformResult : AODWaveformResult, IAdaptTo<PrescanAODWa
         FilePath = FilePath
     };
 
-    public PrescanAODWaveformResult Clone() => new()
-    {
-        OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
-        FilePath = FilePath
-    };
+    public PrescanAODWaveformResult Clone() => AdaptIn(new PrescanAODWaveformResult());
 }

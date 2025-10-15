@@ -73,5 +73,4 @@ public static class Platform
 
         return null;
     }
-
 }

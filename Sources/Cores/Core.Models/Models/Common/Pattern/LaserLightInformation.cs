@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public class LaserLightInformation :
+public sealed class LaserLightInformation :
     ObservableObject,
     IEquatable<LaserLightInformation>,
     IFormattable,

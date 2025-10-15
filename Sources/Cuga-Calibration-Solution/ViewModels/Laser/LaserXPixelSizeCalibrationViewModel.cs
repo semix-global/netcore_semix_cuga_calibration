@@ -15,6 +15,7 @@ using CugaCalibration.ViewModels.Common.Windows.View;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -28,7 +29,6 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using Point = Net.Utilities.Models.Geometries.Point;
-using RawImageHelper = Core.Utilities.RawImageHelper;
 using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -662,7 +662,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         var detectImageDirectory = $"{ImageFileDirectory}\\{Cache.OpticsMagTypeEnum}\\PmtId(8)_Guid({guid}).jpg";
         matchPoint = new List<Point>();
 
-        var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageHelper.GetSize(binaryReader);
+        var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageFactory.GetSize(binaryReader);
         var (_, calUmPerPixelHeightPixel) = (SizeI)calUmPerPixelBodyBytesSize;
 
         var calUmPerPixelDieWidthPixel = Cache.DieWidthUm / xPixelSize;

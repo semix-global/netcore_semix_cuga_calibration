@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Utilities.WPF.Assembly.Model;
 
-
 namespace Core.Utilities.WPF.ApplicationAbout.Model;
 
 public partial class ApplicationInfo : ObservableObject

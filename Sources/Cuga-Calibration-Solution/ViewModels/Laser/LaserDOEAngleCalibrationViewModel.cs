@@ -52,7 +52,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
     [ObservableProperty]
     private Point[] _afOffsetPoints = [];
 
-    #endregion
+    #endregion 界面相关
 
     #region 校准相关
 
@@ -73,14 +73,14 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
     [ObservableProperty]
     private LaserDOEAngleDto? _selectLaserDOEAngleDto;
 
-    #endregion
+    #endregion Calibration
 
     #region Review
 
     [ObservableProperty]
     private LaserDOEAngleDto? _reviewDto;
 
-    #endregion
+    #endregion Review
 
     #region 缓存
 
@@ -93,11 +93,11 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
     [ObservableProperty]
     private LaserDOEAngleDto _laserDOEAngleDto = new();
 
-    #endregion
+    #endregion 缓存
 
-    #endregion
+    #endregion 校准相关
 
-    #endregion
+    #endregion 属性
 
     #region 校准控制业务
 
@@ -268,7 +268,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
         }
     }
 
-    #endregion
+    #endregion 校准控制业务
 
     #region 校准
 
@@ -604,5 +604,5 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
         CacheProvider.Set(Cache, cancellationToken);
     });
 
-    #endregion
+    #endregion 校准
 }

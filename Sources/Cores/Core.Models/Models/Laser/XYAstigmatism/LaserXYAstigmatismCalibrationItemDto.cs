@@ -21,7 +21,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
-    private double _frequencyChangeRate;
+    private double _spectralDensity;
 
     [ObservableProperty]
     private double _ecsX;
@@ -60,7 +60,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
         Index = Index,
         MicroscopeLensInformation = MicroscopeLensInformation,
         OpticsMagTypeEnum = OpticsMagTypeEnum,
-        FrequencyChangeRate = FrequencyChangeRate,
+        SpectralDensity = SpectralDensity,
         EcsX = EcsX,
         EcsY = EcsY,
         EcsErrorValue = EcsErrorValue,

@@ -1,9 +1,9 @@
+using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Linq;
-using Cuga.Data.DataStruct.DTO.Swath;
 
 namespace Core.Wcf.Models.Chuck;
 

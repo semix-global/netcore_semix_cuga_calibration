@@ -64,7 +64,8 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
             };
             ApplicationInfo.VersionInfo = AssemblyVersionGenerator.GenerateAssemblyVersionsJson(ApplicationInfo);
             AssemblyList = new ObservableCollection<AssemblyInfo>(ApplicationInfo.VersionInfo.Assemblies);
-            #endregion
+
+            #endregion assembly info
 
             #region system info
 
@@ -81,14 +82,13 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
                 new SystemInfo() { SystemName = nameof(ApplicationInfo.RuntimeVersion), SystemInformation = ApplicationInfo.RuntimeVersion }
             ];
 
-            #endregion
+            #endregion system info
         }
         catch (Exception e)
         {
             dialogWindowProvider.ShowDialog("Application About Window ViewModel Init Error", e.Message, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             _logger.LogError(e, "Application About Window ViewModel Init Error");
         }
-
     }
 
     [RelayCommand]
@@ -96,11 +96,13 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
     {
         try
         {
+            // todo: hanqi markdown 编译到程序集
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var index = baseDirectory.IndexOf(ApplicationInfo.VersionInfo.Metadata.ProjectName);
+            var index = baseDirectory.IndexOf(ApplicationInfo.VersionInfo.Metadata.ProjectName, StringComparison.Ordinal);
             var projDirectory = string.Concat(baseDirectory.Take(index));
             var solutionDirectory = Path.GetFullPath(Path.Combine(projDirectory, @"..\"));
             var documentPath = Path.Combine(solutionDirectory, _options.Value.UpdateDocumentPath);
+
             using var _ = Process.Start(documentPath);
         }
         catch (Exception e)
@@ -112,7 +114,7 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
     [RelayCommand]
     private void VersionUpdate()
     {
-        _dialogWindowProvider.ShowDialog("Please download the installation exe in the shared folder and install it to update the version!", DialogButtonsEnum.OK, DialogIconEnum.Information);
+        _dialogWindowProvider.ShowDialog("Please download the installation exe in the shared folder and install it to update the version!");
     }
 
     [RelayCommand]
@@ -124,11 +126,11 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
             if (tryShowSaveFilePathDialog == false) return;
 
             FileHelper.SerializeOperate(ApplicationInfo.VersionInfo, Path.Combine(saveDirectory, $"CurrentAssemblyVersions{DateTime.Now:yyyy_MM_dd_HH_mm_ss}.json"));
-            _dialogWindowProvider.ShowDialog($"Output Assembly Info File Success!\nPath:{saveDirectory}", DialogButtonsEnum.OK, DialogIconEnum.Information); ;
+            _dialogWindowProvider.ShowDialog($"Output Assembly Info File Success!\nPath:{saveDirectory}");
         }
         catch (Exception e)
         {
-            _dialogWindowProvider.ShowDialog("Output Assembly Info File Error", e.Message, DialogButtonsEnum.OK, DialogIconEnum.Error); ;
+            _dialogWindowProvider.ShowDialog("Output Assembly Info File Error", e.Message, DialogButtonsEnum.OK, DialogIconEnum.Error);
         }
     }
 

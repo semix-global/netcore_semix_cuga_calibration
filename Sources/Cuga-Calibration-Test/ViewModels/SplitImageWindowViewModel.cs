@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -82,7 +83,7 @@ public sealed partial class SplitImageWindowViewModel(
                 using var fileSteam = File.OpenRead(CalUmPerPixelRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
-                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);
+                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageFactory.GetSize(binaryReader);
                 var (_, calUmPerPixelHeightPixel) = (SizeI)calUmPerPixelBodyBytesSize;
 
                 var calUmPerPixelDieWidthPixel = DieWidthUm / IdealUmPerPixel;
@@ -177,7 +178,7 @@ public sealed partial class SplitImageWindowViewModel(
                     TemplateImage = new HtmlImage(TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }), guid.LoggingHtml());
 
-                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = Core.Utilities.RawImageHelper.GetSize(binaryReader);
+                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
                 var (_, heightPixel) = (SizeI)bodyBytesSize;
 
                 var dieWidthPixel = DieWidthUm / RealUmPerPixel;
