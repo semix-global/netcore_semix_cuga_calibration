@@ -17,6 +17,7 @@ using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -193,12 +194,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         switch (CalibrationStepIndex)
         {
             case 0:
+                StageViewModel.SetAbsoluteStageTheta(0);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition1);
-                return true;
-
-            case 1:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowFindPosition2);
                 return true;
 
             case 2:
@@ -209,10 +207,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             case 3:
                 Cache.HighFindPosition2 = Cache.LowFindPosition2;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
-                return true;
-
-            case 4:
                 return true;
 
             case 5:
@@ -228,7 +222,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -252,12 +246,13 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 return true;
 
             case 5:
+                StageViewModel.SetAbsoluteStageTheta(0);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 
@@ -462,7 +457,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                LensName = Cache.LowMicroscopeLensInformation.LensName,
+                Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowFindPosition1,
                 HtmlTab = new HtmlTab(new
                 {
@@ -491,7 +486,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                LensName = Cache.LowMicroscopeLensInformation.LensName,
+                Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowFindPosition2
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
@@ -530,7 +525,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                LensName = Cache.HighMicroscopeLensInformation.LensName,
+                Cache.HighMicroscopeLensInformation.LensName,
                 Cache.HighFindPosition1,
                 HtmlTab = new HtmlTab(new
                 {
@@ -572,28 +567,20 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         var result = true;
         await InvokeCalibrateAsync(async () =>
         {
-            var efemLoadWaferChuckAngle = StageViewModel.GetEfemLoadWaferMachineStageTheta();
-
-            StageViewModel.SetAbsoluteStageTheta(efemLoadWaferChuckAngle);
+            StageViewModel.SetAbsoluteStageTheta(0);
             if (await P5CalibrateActionAsync(cancellationToken) == false)
             {
-                DialogWindowProvider.ShowDialog("P5 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: P5 Failed!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
                 return result;
             }
 
-            ChuckPrealignerObjDto.OffsetAngle = Cache.OffsetAngle;
-            ChuckPrealignerObjDto.EfemLoadWaferChuckAngle = efemLoadWaferChuckAngle;
-            ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle = efemLoadWaferChuckAngle + Cache.OffsetAngle;
+            ChuckPrealignerObjDto.EfemLoadWaferChuckAbsoluteAngle = Cache.OffsetAngle;
             Logger.LogHtmlInformation("Result Ok", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 ChuckPrealignerObjDto.OffsetPosition,
-                Cache.OffsetAngle,
                 ChuckPrealignerObjDto.EfemLoadWaferStagePosition,
-                ChuckPrealignerObjDto.EfemLoadWaferChuckAngle,
                 OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
-                OffsetAngleCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferChuckAngle
+                OffsetAngleCalibrationResult = ChuckPrealignerObjDto.EfemLoadWaferChuckAbsoluteAngle
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (IsAutoCalibrate == false)
@@ -636,94 +623,117 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return result;
     }
 
-    private async Task<bool> VerifyCalibrationAsync(ChuckPrealignerObjDto selectChuckPrealignerObjDto, CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(ChuckPrealignerObjDto? selectChuckPrealignerObjDto, CancellationToken cancellationToken)
     {
         var result = true;
         await Task.Run(async () =>
         {
             if (selectChuckPrealignerObjDto is null)
             {
-                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please select a review item!"), HtmlLogUniqueId.LoggingHtml());
+                DialogWindowProvider.ShowDialog("Please Calibration First!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please Calibration First!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
                 return false;
             }
-            else
+
+            selectChuckPrealignerObjDto.IsVerified = false;
+
+            if (await P5CalibrateActionAsync(cancellationToken,true) == false)
             {
-                selectChuckPrealignerObjDto.IsVerified = false;
+                result = false;
+                return false;
+            }
 
-                var chuckPrealignerObjDto = selectChuckPrealignerObjDto.Clone();
+            RecipeCacheProvider.Set(Cache, cancellationToken);
 
-                if (await P5CalibrateActionAsync(cancellationToken) == false)
-                {
-                    DialogWindowProvider.ShowDialog("P5 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: P5 Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    result = false;
-                    return false;
-                }
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
-                RecipeCacheProvider.Set(Cache, cancellationToken);
+            var (offsetPosition, _) = StageViewModel.FindWaferCenterByManually(Point.Origin);
+            Cache.OffsetPosition = offsetPosition;
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-
-                var (offsetPosition, _) = StageViewModel.FindWaferCenterByManually(Point.Origin);
-                Cache.OffsetPosition = offsetPosition;
-
-                Logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    VerifyOffsetAngle = Cache.OffsetAngle,
-                    VerifyOffsetPosition = offsetPosition
-                }), HtmlLogUniqueId.LoggingHtml());
-                if (Math.Abs(offsetPosition.X) > Cache.PositionThreshold || Math.Abs(offsetPosition.Y) > Cache.PositionThreshold
-                                                                         || Math.Abs(Cache.OffsetAngle) > Cache.AngleThreshold)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                    {
-                        Cache.PositionThreshold,
-                        Cache.AngleThreshold,
-                        OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
-                        VerifyOffsetPosition = offsetPosition,
-                        OldOffsetAngle = selectChuckPrealignerObjDto.OffsetAngle,
-                        VerifyOffsetAngle = Cache.OffsetAngle
-                    }), HtmlLogUniqueId.LoggingHtml());
-
-                    DialogWindowProvider.ShowDialog("Verify Chuck Prealigner calibration failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    result = false;
-                    return result;
-                }
-
-                selectChuckPrealignerObjDto.IsVerified = true;
-                if (Save(selectChuckPrealignerObjDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    selectChuckPrealignerObjDto.IsVerified = false;
-                    result = false;
-                    return result;
-                }
-
-                Logger.LogHtmlInformation("Verify Chuck Prealigner calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                VerifyOffsetAngle = Cache.OffsetAngle,
+                VerifyOffsetPosition = offsetPosition
+            }), HtmlLogUniqueId.LoggingHtml());
+            if (Math.Abs(offsetPosition.X) > Cache.PositionThreshold || Math.Abs(offsetPosition.Y) > Cache.PositionThreshold)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.PositionThreshold,
                     Cache.AngleThreshold,
                     OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
                     VerifyOffsetPosition = offsetPosition,
-                    OldOffsetAngle = selectChuckPrealignerObjDto.OffsetAngle,
                     VerifyOffsetAngle = Cache.OffsetAngle
                 }), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog("Verify Chuck Prealigner calibration failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                result = false;
+                return result;
             }
 
+            selectChuckPrealignerObjDto.IsVerified = true;
+            if (Save(selectChuckPrealignerObjDto, cancellationToken) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                selectChuckPrealignerObjDto.IsVerified = false;
+                result = false;
+                return result;
+            }
+
+            Logger.LogHtmlInformation("Verify Chuck Prealigner calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.PositionThreshold,
+                Cache.AngleThreshold,
+                OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
+                VerifyOffsetPosition = offsetPosition,
+                VerifyOffsetAngle = Cache.OffsetAngle
+            }), HtmlLogUniqueId.LoggingHtml());
+
             return result;
-        });
+        }, cancellationToken);
         return result;
     }
 
-    private async Task<bool> P5CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> P5CalibrateActionAsync(CancellationToken cancellationToken, bool isVerify = false)
     {
         var result = false;
         await Task.Run(() =>
         {
-            Logger.LogHtmlInformation("P5 Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            var originAngle = StageViewModel.GetMachineStageTheta();
+
+            if (isVerify == false)
             {
+                StageViewModel.Alignment(
+                    Cache.LowSite1,
+                    Cache.LowSite2,
+                    Cache.HighSite1,
+                    Cache.HighSite2,
+                    Cache.LowMicroscopeLensInformation,
+                    Cache.HighMicroscopeLensInformation,
+                    Cache.AlgorithmWaferTypeEnum);
+                Cache.OffsetAngle = StageViewModel.GetMachineStageTheta() - originAngle;
+                result = Math.Abs(Cache.OffsetAngle) < Cache.AngleErrorThreshold;
+            }
+            else
+            {
+                var alignmentResultDto = StageViewModel.AlignmentVerify(
+                    Cache.LowSite1,
+                    Cache.LowSite2,
+                    Cache.HighSite1,
+                    Cache.HighSite2,
+                    Cache.LowMicroscopeLensInformation,
+                    Cache.HighMicroscopeLensInformation,
+                    Cache.AlgorithmWaferTypeEnum);
+                Cache.OffsetAngle = alignmentResultDto.Degrees;
+                result = Math.Abs(Cache.OffsetAngle) < Cache.AngleThreshold;
+            }
+
+            Logger.LogHtmlInformation("P5 Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                OriginAngle = originAngle,
+                Cache.OffsetAngle,
+                Cache.AngleThreshold,
                 Cache.AngleErrorThreshold,
                 LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
                 HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
@@ -738,18 +748,12 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     HighTemplate = new HtmlImage(Cache.HighTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
-            var alignmentResultDto = StageViewModel.Alignment(
-                Cache.LowSite1,
-                Cache.LowSite2,
-                Cache.HighSite1,
-                Cache.HighSite2,
-                Cache.LowMicroscopeLensInformation,
-                Cache.HighMicroscopeLensInformation,
-                Cache.AlgorithmWaferTypeEnum);
-            Cache.OffsetAngle = alignmentResultDto.Degrees;
-            result = Math.Abs(Cache.OffsetAngle) <= Cache.AngleErrorThreshold;
-            Logger.LogHtmlInformation(result ? "P5 OK" : "P5 Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { Cache.OffsetAngle }), HtmlLogUniqueId.LoggingHtml());
-        });
+            if (result == false)
+            {
+                DialogWindowProvider.ShowDialog($"P5 Failed! The Result Out Of Threshold!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: P5 Failed! The Result Out Of Threshold!"), HtmlLogUniqueId.LoggingHtml());
+            }
+        }, cancellationToken);
         return result;
     }
 
@@ -760,8 +764,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         {
             efemWindowViewModel.IsPrealigner = true;
             efemWindowViewModel.PrealignerIsOk = false;
-            if (Math.Abs(Cache.OffsetAngle) > Cache.AngleThreshold || !isReviewLoadWafer) efemWindowViewModel.OffsetAngle = 0;
-            else efemWindowViewModel.OffsetAngle = Cache.OffsetAngle;
+            if (!isReviewLoadWafer || Math.Abs(GuardUtils.IsNotNullAndReturn(ReviewDto).EfemLoadWaferChuckAbsoluteAngle) > Cache.AngleErrorThreshold) efemWindowViewModel.OffsetAngle = 0;
+            else efemWindowViewModel.OffsetAngle = ReviewDto.EfemLoadWaferChuckAbsoluteAngle;
 
             if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionThreshold || !isReviewLoadWafer)
                 efemWindowViewModel.OffsetPoint = Point.Origin;
@@ -774,7 +778,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             Logger.LogHtmlInformation("ReloadWafer", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.AngleThreshold,
+                Cache.AngleErrorThreshold,
                 Cache.PositionThreshold,
                 efemWindowViewModel.OffsetAngle,
                 efemWindowViewModel.OffsetPoint

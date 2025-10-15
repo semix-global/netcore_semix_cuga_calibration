@@ -79,7 +79,7 @@ public class CalibrationCacheProviderServiceImpl(
                     {
                         var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
                         var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType);
-                        var wcfModel = calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null);
+                        var wcfModel =dto is not null? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null):null;
                         if (wcfModel is not null)
                         {
                             GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(calibrationBase.IsRequiredSelfCheck))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);

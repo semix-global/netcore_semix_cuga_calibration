@@ -32,6 +32,14 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:NumericUpDown Width="275"
+                                      hc:InfoElement.Title="Angle Error Threshold(um):    "
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Maximum="1"
+                                      Increment="0.0001"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.AngleErrorThreshold}" />
                     <TextBox Text="{Binding Cache.LowFindPosition1, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Low Site1(um): "
@@ -105,9 +113,9 @@
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ChuckPrealignerObjDto.OffsetAngle, StringFormat={}{0:f10}}"
+                    <TextBox Text="{Binding ChuckPrealignerObjDto.EfemLoadWaferChuckAbsoluteAngle, StringFormat={}{0:f10}}"
                              Width="275"
-                             hc:InfoElement.Title="Center offset angle:    "
+                             hc:InfoElement.Title="Absolute Angle:    "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
