@@ -66,7 +66,7 @@ public sealed class CalibrationEFEMServiceImpl : BaseService<ICgCalibrationServi
 
     public SxExecuteRet<bool> PreAlignerVerifyLoadWafer(EFEMFoupItem item, EFEMAngleEnum angleEnum, Point offsetPoint, double offsetAngle)
     {
-        var sxExecuteRet = Invoke(() => Service!.PreAlignerVerifyLoadWafer(item.StationEnum.ToESxStation(), item.SlotId.ToString(), angleEnum.ToEfemAngleEnum(), new CgPoint(offsetPoint.X, offsetPoint.Y), offsetAngle));
+        var sxExecuteRet = Invoke(() => Service!.PreAlignerVerify(item.StationEnum.ToESxStation(), item.SlotId.ToString(), angleEnum.ToEfemAngleEnum(), new CgPoint(offsetPoint.X, offsetPoint.Y), offsetAngle));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

@@ -43,9 +43,9 @@ public sealed class EFEMViewModel(ICalibrationEFEMService calibrationEfemService
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void PreAlignerVerifyLoadWafer(EFEMFoupItem item, EFEMAngleEnum angleEnum, Point offsetPoint, double offsetAngle)
+    public void PreAlignerVerifyLoadWafer(EFEMFoupItem item, EFEMAngleEnum angleEnum, Point offsetPoint, double absoluteAngle)
     {
-        var ret = calibrationEfemService.PreAlignerVerifyLoadWafer(item, angleEnum, offsetPoint, offsetAngle);
+        var ret = calibrationEfemService.PreAlignerVerifyLoadWafer(item, angleEnum, offsetPoint, absoluteAngle);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

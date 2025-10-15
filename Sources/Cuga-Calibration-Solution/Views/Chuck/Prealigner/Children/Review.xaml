@@ -43,6 +43,9 @@
                                       Width="275"
                                       hc:InfoElement.Title="Angle Threshold(um):    "
                                       hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Maximum="0.1"
+                                      Increment="0.0001"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.AngleThreshold}" />
                     <TextBox Text="{Binding Cache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"

@@ -274,6 +274,26 @@ public sealed partial class StageViewModel(
         result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
         return result;
     }
+    
+    public AlignmentResultDto AlignmentVerify(
+        AlignmentSiteDto lowSite1,
+        AlignmentSiteDto lowSite2,
+        AlignmentSiteDto highSite1,
+        AlignmentSiteDto highSite2,
+        MicroscopeLensInformation lowMicroscopeLensInformation,
+        MicroscopeLensInformation highMicroscopeLensInformation,
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    {
+        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum);
+
+        if (ret.IsSuccess == false)
+            throw new CugaException(ret.ErrorMsg);
+
+        var result = ret.Anything;
+        result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
+        result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
+        return result;
+    }
 
     public AlignmentSiteDto MarkAlignSite1DarkField(
         OpticsMagTypeEnum opticsMagTypeEnum,
