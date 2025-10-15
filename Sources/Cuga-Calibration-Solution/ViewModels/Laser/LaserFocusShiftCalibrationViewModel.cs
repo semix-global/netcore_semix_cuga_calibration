@@ -24,7 +24,6 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
-using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
@@ -804,7 +803,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
                 if (downQualityValue is not null) listDownResult.Add(downQualityValue.Value < focusShiftDto.DarkFieldQuality);
                 downQualityValue = focusShiftDto.DarkFieldQuality;
-                if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 10)) break; // 连续10个下降说明已经到了最低点
+                if (listDownResult.HasConsecutiveEqual(10, false)) break; // 连续10个下降说明已经到了最低点
             }
 
             ResultFocusShiftDto = FocusShiftDtoItems.Select(s => s.Clone()).Maxima(s => s.DarkFieldQuality).Single();
@@ -1006,7 +1005,6 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

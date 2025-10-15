@@ -4,12 +4,12 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -606,7 +606,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
                 if (downQualityValue is not null) listDownResult.Add(downQualityValue.Value < findFocalItem.Quality);
                 downQualityValue = findFocalItem.Quality;
-                if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 30)) break; // 连续30个下降说明已经到了最低点
+                if (listDownResult.HasConsecutiveEqual(30, false)) break; // 连续30个下降说明已经到了最低点
             }
 
             var findFocalItemResult = MicroscopeFocusItemDtoList.OrderByDescending(t => t.Quality).ToList();

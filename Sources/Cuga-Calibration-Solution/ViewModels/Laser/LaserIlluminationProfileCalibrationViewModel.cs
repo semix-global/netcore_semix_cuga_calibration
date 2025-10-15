@@ -573,7 +573,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfileList(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -589,7 +589,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 judgeWindowStartIndex,
                 judgeWindowEndIndex,
                 servings,
-                prescanAODWaveProfileList = string.Join(",", prescanAODWaveProfileList.Select(t => t.FilePath))
+                prescanAODWaveProfiles = string.Join(",", prescanAODWaveProfiles.Select(t => t.FilePath))
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (item.IsOk)
@@ -619,9 +619,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             cancellationToken.ThrowIfCancellationRequested();
             var windowPrescanList = SetPrescanByteListByWindow(maxWindowStartIndex, windowToMinAmount);
-            foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
+            foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
 
-            var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, Cache.PmtId, Cache.FindPosition);
+            var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfiles, Cache.PmtId, Cache.FindPosition);
             using var _1 = channel1DarkFieldImageDto;
             using var _2 = channel2DarkFieldImageDto;
             using var _3 = channel3DarkFieldImageDto;
@@ -636,9 +636,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             cancellationToken.ThrowIfCancellationRequested();
             windowPrescanList = SetPrescanByteListByWindow(minWindowStartIndex, windowToMinAmount);
-            foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
+            foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
 
-            (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, Cache.PmtId, Cache.FindPosition);
+            (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfiles, Cache.PmtId, Cache.FindPosition);
             using var _4 = channel1DarkFieldImageDto;
             using var _5 = channel2DarkFieldImageDto;
             using var _6 = channel3DarkFieldImageDto;
@@ -672,9 +672,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             item.PrescanStartIndex = (int)Math.Floor(minWindowStartIndex + windowToMinAmount - item.T1 * TValue);
             item.PrescanEndIndex = (int)Math.Floor(minWindowStartIndex + windowToMinAmount + (yPixelHeight - item.T1) * TValue);
             if (item.PrescanStartIndex < 0
-                || prescanAODWaveProfileList[0].ShortList.Count <= item.PrescanStartIndex
+                || prescanAODWaveProfiles[0].ShortList.Count <= item.PrescanStartIndex
                 || item.PrescanEndIndex < 0
-                || prescanAODWaveProfileList[0].ShortList.Count <= item.PrescanEndIndex)
+                || prescanAODWaveProfiles[0].ShortList.Count <= item.PrescanEndIndex)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Param Error {nameof(judgeWindowStartIndex)}: {judgeWindowStartIndex}, {nameof(judgeWindowEndIndex)}: {judgeWindowEndIndex}!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -728,7 +728,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             List<double> SetPrescanByteListByWindow(int startIndex, int windowToMinAmountTemp)
             {
                 var k = 1d / windowToMinAmountTemp;
-                var prescanList = prescanAODWaveProfileList[0].ShortList;
+                var prescanList = prescanAODWaveProfiles[0].ShortList;
                 var middleIndex = startIndex + windowToMinAmountTemp;
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
@@ -771,7 +771,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var itemCache = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
             itemCache.ServingToPrescanListIndicesList.Clear();
             itemCache.ServingToDarkFieldImageListIndicesList.Clear();
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfileList(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
             var coefficient = Cache.LaserLightInformation.Coefficient;
 
             var resultPrescanWindowList = new List<double>();
@@ -817,16 +817,16 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 endIndex += itemCache.WaveFormVInterval * 3;
             }
 
-            for (var i = waveFormVEndIndex; i < prescanAODWaveProfileList[0].ShortList.Count; i++) //结束部分按照原来系数计算
+            for (var i = waveFormVEndIndex; i < prescanAODWaveProfiles[0].ShortList.Count; i++) //结束部分按照原来系数计算
             {
                 resultPrescanWindowList.Add(coefficient);
             }
 
             itemCache.WaveFormVPrescanMinList = minPrescanIndexList;
             itemCache.WaveFormVPrescanList = [.. resultPrescanWindowList];
-            foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(resultPrescanWindowList);
+            foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(resultPrescanWindowList);
 
-            var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, Cache.PmtId, Cache.FindPosition);
+            var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfiles, Cache.PmtId, Cache.FindPosition);
             if (isSuccess == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Get Dark Field Line Scan Image Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -1060,7 +1060,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         {
             var item = Cache.CurrentCalibrationCacheItem;
             var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfileList(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
             var servings = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Servings;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -1070,7 +1070,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
-                prescanAODWaveProfileList = string.Join(",", prescanAODWaveProfileList.Select(t => t.FilePath)),
+                prescanAODWaveProfiles = string.Join(",", prescanAODWaveProfiles.Select(t => t.FilePath)),
                 servings
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1091,9 +1091,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             foreach (var c in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient))
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficient(c);
+                foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficient(c);
 
-                var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, 8, Cache.FindPosition);
+                var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfiles, 8, Cache.FindPosition);
                 using var _1 = channel1DarkFieldImageDto;
                 using var _2 = channel2DarkFieldImageDto;
                 using var _3 = channel3DarkFieldImageDto;
@@ -1150,7 +1150,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             PlotAverageList = [];
             var item = Cache.CurrentCalibrationCacheItem;
             var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfileList(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
             var servings = darkFieldImageListToPrescanListCacheItem.Servings;
             var judgeDarkFieldImageListRateSkipCout = item.JudgeDarkFieldImageListRateSkipCout;
             var repeatCoefficientInterval = item.RepeatCoefficientInterval;
@@ -1169,7 +1169,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
-                prescanAODWaveProfileList = string.Join(",", prescanAODWaveProfileList.Select(t => t.FilePath)),
+                prescanAODWaveProfiles = string.Join(",", prescanAODWaveProfiles.Select(t => t.FilePath)),
                 servings,
                 judgeDarkFieldImageListRateSkipCout,
                 Cache.DarkImageListRangeThreshold,
@@ -1185,21 +1185,21 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-            var prescanRateList = Vector<double>.Build.Dense(prescanAODWaveProfileList[0].ShortList.Count, Cache.LaserLightInformation.Coefficient);
+            var prescanRateList = Vector<double>.Build.Dense(prescanAODWaveProfiles[0].ShortList.Count, Cache.LaserLightInformation.Coefficient);
             var illuminationIntensityConsistentDto = new LaserIlluminationProfileItemDto
             {
                 Index = 0,
                 LaserLightInformation = Cache.LaserLightInformation,
                 OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                 PmtId = CalibrationConstantsHelper.MainPmtId,
-                PrescanAODWaveformProfileList = prescanAODWaveProfileList,
+                PrescanAODWaveformProfileList = prescanAODWaveProfiles,
                 FindPosition = Cache.FindPosition,
                 PrescanRateList = [.. prescanRateList]
             };
 
-            foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(illuminationIntensityConsistentDto.PrescanRateList);
+            foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(illuminationIntensityConsistentDto.PrescanRateList);
 
-            LaserViewModel.SetPrescanAODWaveProfileList(prescanAODWaveProfileList);
+            LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
 
             int? targetServing = null;
             double? targetValue = null;
@@ -1215,7 +1215,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 tempIlluminationProfileDto.Index = index;
                 SetPrescanList(tempIlluminationProfileDto);
                 SynchronizationContextProvider.Send(() => CalibrationLaserIlluminationProfileDtoList.Add(tempIlluminationProfileDto));
-                if (TryCheckIlluminationIsOk(detectImageDirectory, prescanAODWaveProfileList, tempIlluminationProfileDto, out var isOk) == false) return false;
+                if (TryCheckIlluminationIsOk(detectImageDirectory, prescanAODWaveProfiles, tempIlluminationProfileDto, out var isOk) == false) return false;
 
                 if (isOk) return await GetResultAsync().ConfigureAwait(false);
 
@@ -1375,12 +1375,11 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                     if (dialogButtonsEnum != DialogResultEnum.OK) return false;
                 }
 
-                foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(SelectCalibrateItemDto.PrescanRateList);
+                foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(SelectCalibrateItemDto.PrescanRateList);
 
-                SelectCalibrateItemDto.PrescanAODWaveformResultList = AODWaveformResultFactory.CreatePrescanList(prescanAODWaveProfileList, PrescanFileDirectory);
-                ;
+                SelectCalibrateItemDto.PrescanAODWaveformResultList = AODWaveformResultFactory.CreatePrescanList(prescanAODWaveProfiles, PrescanFileDirectory);
 
-                LaserViewModel.SetPrescanAODWaveProfileList(prescanAODWaveProfileList);
+                LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
 
                 // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
                 //
@@ -1462,7 +1461,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition,
                 Cache.WidthPixel,
-                prescanAODWaveProfileList = string.Join(",", SelectReviewItemDto.PrescanAODWaveformProfileList.Select(t => t.FilePath)),
+                prescanAODWaveProfiles = string.Join(",", SelectReviewItemDto.PrescanAODWaveformProfileList.Select(t => t.FilePath)),
                 servings,
                 judgeDarkFieldImageListRateSkipCout,
                 Cache.DarkImageListRangeThreshold,
@@ -1637,7 +1636,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         DarkFieldImageDto Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, int pmtId = 8, Point position = default)
     {
-        LaserViewModel.SetPrescanAODWaveProfileList(darkFieldPrescanDto);
+        LaserViewModel.SetPrescanAODWaveProfiles(darkFieldPrescanDto);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,
@@ -1703,7 +1702,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

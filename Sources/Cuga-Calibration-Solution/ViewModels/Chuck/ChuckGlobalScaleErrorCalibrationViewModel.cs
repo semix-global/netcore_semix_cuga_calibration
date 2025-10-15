@@ -851,17 +851,17 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             var lowResultImageFilePath = string.Empty;
             //if (highSitePosition == Point.Origin) // 快速匹配，避免来回切倍镜
             //{
-                var (lowTemplateFilePath, _) = Cache.GetTemplate(Cache.LowGlobalScaleErrorCacheItem.LensInformation);
-                if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, ideaPosition - (Vector)Cache.LowToHighMagnificationOffset, Cache.LowGlobalScaleErrorCacheItem.LensInformation, lowTemplateFilePath, ImageFileDirectory,
-                        null, Name,
-                        $"Low Magnification {stageDirection} Site", out lowResultPosition, out _, out _, out lowResultImageFilePath, out _) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
-                }
+            var (lowTemplateFilePath, _) = Cache.GetTemplate(Cache.LowGlobalScaleErrorCacheItem.LensInformation);
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, ideaPosition - (Vector)Cache.LowToHighMagnificationOffset, Cache.LowGlobalScaleErrorCacheItem.LensInformation, lowTemplateFilePath, ImageFileDirectory,
+                    null, Name,
+                    $"Low Magnification {stageDirection} Site", out lowResultPosition, out _, out _, out lowResultImageFilePath, out _) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
+            }
 
-                highSitePosition = lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset;
-                isFastMatch = false;
+            highSitePosition = lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset;
+            isFastMatch = false;
             //}
             //else
             //{

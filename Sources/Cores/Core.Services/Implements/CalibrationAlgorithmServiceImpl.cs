@@ -296,17 +296,17 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes)
     {
-        return Utilities.RawImageHelper.GetSize(rawBytes);
+        return RawImageFactory.GetSize(rawBytes);
     }
 
     public byte[] ToRawBytes(byte[] bodyBytes, Size size)
     {
-        return Utilities.RawImageHelper.BodyAddHeaderFooter(bodyBytes, size);
+        return RawImageFactory.BodyAddHeaderFooter(bodyBytes, size);
     }
 
     public (HImage Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
     {
-        var (matrix, _) = Utilities.RawImageHelper.ToMatrix(rawBytes);
+        var (matrix, _) = RawImageFactory.ToMatrix(rawBytes);
 
         using var imageObj = _algorithm.GetDataImage(rawBytes);
         return (new HImage(imageObj), matrix);
@@ -314,7 +314,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public (HImage Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
     {
-        var (matrix, horizontalFlipRawBytes, _) = Utilities.RawImageHelper.ToHorizontalFlipMatrix(rawBytes);
+        var (matrix, horizontalFlipRawBytes, _) = RawImageFactory.ToHorizontalFlipMatrix(rawBytes);
 
         using var imageObj = _algorithm.GetDataImage(horizontalFlipRawBytes);
         return (new HImage(imageObj), matrix, horizontalFlipRawBytes);

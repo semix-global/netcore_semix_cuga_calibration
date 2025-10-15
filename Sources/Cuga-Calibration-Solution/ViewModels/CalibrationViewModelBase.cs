@@ -16,7 +16,6 @@ using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Humanizer;
-
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Hosting;
@@ -53,7 +52,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     protected readonly ICacheProvider RecipeCacheProvider;
     protected readonly ICalibrationStatusService CalibrationStatusService;
     protected readonly ICalibrationRecipeService CalibrationRecipeService;
-    protected readonly CalibrationSetting CalibrationSetting;
     protected readonly string AppHomeDirectory;
 
     private readonly string _typeName;
@@ -124,8 +122,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     #endregion 重载只读属性
 
-    public ApplicationCookie ApplicationCookie { get; }
+    public CalibrationSetting CalibrationSetting { get; }
 
+    public ApplicationCookie ApplicationCookie { get; }
 
     public CalibrationRecipeDto? CalibrationRecipeDto => ApplicationCookie.CalibrationReviseRecipeDto;
 
@@ -134,9 +133,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// </summary>
     public string Name => _name ??= _typeName.Humanize(LetterCasing.Title).Replace("CalibrationViewModel".Humanize(LetterCasing.Title), string.Empty);
 
-    /// <summary>
-    /// 校准名称
-    /// </summary>
     /// <summary>
     /// 日志图片存储位置
     /// </summary>
@@ -267,6 +263,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
+
         ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         CalibrationSetting = HostApplication.GetRequiredService<CalibrationSetting>();
 

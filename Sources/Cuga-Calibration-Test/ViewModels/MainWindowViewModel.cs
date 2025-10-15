@@ -18,12 +18,12 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using CugaCalibration.ViewModels;
 using CugaCalibration.ViewModels.Common;
-using CugaCalibration.ViewModels.Common.Windows.Tools;
+using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using HalconDotNet;
 using HAlgorithm;
 using Local.NoSQL.DB.Providers.Extensions;
-
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +38,7 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -57,8 +58,6 @@ public sealed partial class MainWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     SplitImageWindowViewModel splitImageWindowViewModel,
     StageMapWindowViewModel stageMapWindowViewModel,
-    AodGenerateWaveFileWindowViewModel aodGenerateWaveFileWindowViewModel,
-    AodGenerateWaveFileTrainingChirpWindowViewModel aodGenerateWaveFileTrainingChirpWindowViewModel,
     IWindowManagerService windowManagerService,
     CalibrationSetting calibrationSetting,
     ReviewViewModel reviewViewModel,
@@ -66,10 +65,17 @@ public sealed partial class MainWindowViewModel(
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
-    ICalibrationAlgorithmService calibrationAlgorithmService) : ViewModelBase
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    LoadingWindowViewModel loadingWindowViewModel) : ViewModelBase
 {
     [ObservableProperty]
     private CalibrationSetting _calibrationSetting = calibrationSetting;
+
+    [RelayCommand]
+    private async Task LoadedAsync()
+    {
+        await HostApplication.GetRequiredService<LoadingWindowViewModel>().LoadedCommand.ExecuteAsync(null);
+    }
 
     [RelayCommand]
     private void StageMap()
@@ -81,18 +87,6 @@ public sealed partial class MainWindowViewModel(
     private void SplitImage()
     {
         windowManagerService.ShowWindow(splitImageWindowViewModel);
-    }
-
-    [RelayCommand]
-    private void GenerateChirpAodWave()
-    {
-        windowManagerService.ShowDialog(aodGenerateWaveFileWindowViewModel);
-    }
-
-    [RelayCommand]
-    private void GenerateChirpAodWaveTraining()
-    {
-        windowManagerService.ShowDialog(aodGenerateWaveFileTrainingChirpWindowViewModel);
     }
 
     [RelayCommand]
@@ -662,5 +656,35 @@ public sealed partial class MainWindowViewModel(
         };
 
         window.Show();
+    }
+
+    [RelayCommand]
+    private void PrescanAODWaveformUniformity()
+    {
+        var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformUniformityWindowViewModel>();
+
+        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    public void ChirpAODWaveformUniformity()
+    {
+        var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformUniformityWindowViewModel>();
+        windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    private void PrescanAODWaveformElectrodeOffset()
+    {
+        var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformElectrodeOffsetWindowViewModel>();
+
+        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    public void ChirpAODWaveformElectrodeOffset()
+    {
+        var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformElectrodeOffsetWindowViewModel>();
+        windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
     }
 }

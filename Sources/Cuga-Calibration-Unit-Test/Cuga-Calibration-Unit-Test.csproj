@@ -35,4 +35,10 @@
         <ProjectReference Include="..\Cuga-Calibration-Test\Cuga-Calibration-Test.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="Assets\**\*.*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>

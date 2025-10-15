@@ -31,5 +31,4 @@ public partial class OperatingSystemInfo : ObservableObject
     /// 处理器个数
     /// </summary>
     public static int ProcessorCount => Environment.ProcessorCount;
-
 }

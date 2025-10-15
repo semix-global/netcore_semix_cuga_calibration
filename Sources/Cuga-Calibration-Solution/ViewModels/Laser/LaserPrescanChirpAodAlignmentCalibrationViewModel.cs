@@ -13,7 +13,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -27,7 +26,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -301,15 +300,13 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 Cache.PmtId,
                 Cache.WidthPixel,
                 Cache.OpticsMagTypeEnum,
-                Cache.FindPosition,
-                Cache.PrescanLaserLightInformation
+                Cache.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.SetGain(Cache.Gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-            ResultCalibrateDto.PrescanLaserLightInformation = Cache.PrescanLaserLightInformation;
             ResultCalibrateDto.Gain = Cache.Gain;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -335,13 +332,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 Cache.WidthPixel,
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition,
-                Cache.PrescanLaserLightInformation,
                 Cache.Gain,
-                Cache.PrescanFlatnessTime,
-                Cache.PrescanFrontAndBackMonotonicEndpointTime,
-                Cache.PrescanSampleRate,
-                Cache.PrescanZeroNum,
-                Cache.PrescanGenerateRetryCount,
+                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 Cache.StartPrescanCenterFrequency,
                 Cache.EndPrescanCenterFrequency,
                 Cache.StepPrescanCenterFrequency,
@@ -362,46 +354,20 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var item = new LaserPrescanChirpAodAlignmentItemDto();
-                var (isSuccess,
-                    aodWaveFilePath,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                    _,
-                    aodWaveSignals,
-                    aodWaveSignalsFourier,
-                    _,
-                    exception) = AodWaveGenerator.GeneratePrescanAodWaveFile(
-                    0,
-                    centerFrequency,
-                    Cache.PrescanFlatnessTime,
-                    FunctionMonotonicTypeEnum.Flatness,
-                    Cache.PrescanSampleRate,
-                    Cache.PrescanLaserLightInformation.Coefficient,
-                    detectPrescanDirectory,
-                    zeroSampleCount: Cache.PrescanZeroNum,
-                    endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
-                    generateRetryTimes: Cache.PrescanGenerateRetryCount);
-                if (isSuccess == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Generate Prescan Aod Wave File Error! {exception}"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
+
+                Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(centerFrequency);
+                Cache.GeneratePrescanAODWaveformParam.DirectoryPath = PrescanFileDirectory;
+                var (aodWaveformResultItem, exceptionItem) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+                if (aodWaveformResultItem.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exceptionItem);
+
+                item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem);
+                item.PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath;
 
                 item.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
                 item.PrescanCenterFrequency = centerFrequency;
-                item.PrescanFilePath = aodWaveFilePath;
-                item.PrescanSignals = aodWaveSignals;
-                item.PrescanFouriers = aodWaveSignalsFourier;
 
-                var prescanDto = AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, item.PrescanFilePath, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
-
-                (isSuccess, var channel1DarkFieldImageDto, var channel2DarkFieldImageDto, var channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto);
+                var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(item.PrescanAODWaveformProfiles);
                 if (isSuccess == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Get Dark Field Line Scan Image Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -428,14 +394,8 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
                 Logger.LogHtmlInformation($"{item.PrescanCenterFrequency:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    item.PrescanCenterFrequency,
-                    item.PrescanFilePath,
-                    PrescanSignals = new HtmlPlot2DLinesChart([
-                        (nameof(item.PrescanSignals), item.PrescanSignals)
-                    ], "PrescanSignals"),
-                    PrescanFouriers = new HtmlPlot2DLinesChart([
-                        (nameof(item.PrescanFouriers), item.PrescanFouriers)
-                    ], "PrescanFouriers"),
+                    item.PrescanAODWaveformResultFilePath,
+                    PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                     DarkFieldImageProjectionYAveragesMaxPixel = item.DarkFieldImageProjectionYsMaxPixel,
                     DarkFieldImageProjectionYAveragesMaxValue = item.DarkFieldImageProjectionYsMaxValue,
                     DarkFieldImageProjectionYAverage = new HtmlPlot2DLinesChart([
@@ -461,51 +421,24 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             ResultCalibrateDto.RSquared = rSquared;
             ResultCalibrateDto.ItemFitPoints = [.. itemPoints.Select((t, i) => new Point(t.X, yPredicted[i]))];
 
-            var (isGenerateSuccess
-                , aodWaveFilePathResult,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                aodWaveSignalsResult,
-                aodWaveSignalsFourierResult,
-                _,
-                exceptionResult) = AodWaveGenerator.GeneratePrescanAodWaveFile(
-                Math.Abs(yPixelHeight / ResultCalibrateDto.Slope),
-                (yPixelHeight / 2d - ResultCalibrateDto.Intercept) / ResultCalibrateDto.Slope,
-                yPixelHeight * 4d,
-                FunctionMonotonicTypeEnum.Increasing,
-                Cache.PrescanSampleRate,
-                Cache.PrescanLaserLightInformation.Coefficient,
-                detectPrescanDirectory,
-                zeroSampleCount: Cache.PrescanZeroNum,
-                endpointSampleCount: Cache.PrescanFrontAndBackMonotonicEndpointTime,
-                generateRetryTimes: Cache.PrescanGenerateRetryCount);
+            var generatePrescanAODWaveformParam = Cache.GeneratePrescanAODWaveformParam.Clone();
+            Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+            Cache.GeneratePrescanAODWaveformParam.BandWidth = Math.Abs(yPixelHeight / ResultCalibrateDto.Slope);
+            Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness((yPixelHeight / 2d - ResultCalibrateDto.Intercept) / ResultCalibrateDto.Slope);
+            Cache.GeneratePrescanAODWaveformParam.FunctionMonotonicTypeEnum = Cache.FunctionMonotonicTypeEnum;
+            Cache.GeneratePrescanAODWaveformParam.FlatnessTime = yPixelHeight * 4d;
+            Cache.GeneratePrescanAODWaveformParam.DirectoryPath = PrescanFileDirectory;
 
-            if (isGenerateSuccess == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Generate Prescan Aod Wave File Error! {exceptionResult}"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
+            var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+            if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
 
-            ResultCalibrateDto.PrescanSignals = aodWaveSignalsResult;
-            ResultCalibrateDto.PrescanFouriers = aodWaveSignalsFourierResult;
-            ResultCalibrateDto.PrescanFilePath = aodWaveFilePathResult;
+            ResultCalibrateDto.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
+            ResultCalibrateDto.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                ResultCalibrateDto.PrescanFilePath,
-                PrescanSignals = new HtmlPlot2DLinesChart([
-                    (nameof(ResultCalibrateDto.PrescanSignals), ResultCalibrateDto.PrescanSignals)
-                ], "PrescanSignals"),
-                PrescanFouriers = new HtmlPlot2DLinesChart([
-                    (nameof(ResultCalibrateDto.PrescanFouriers), ResultCalibrateDto.PrescanFouriers)
-                ], "PrescanFouriers"),
+                ResultCalibrateDto.PrescanAODWaveformResultFilePath,
+                PrescanAODWaveformProfiles = new HtmlTable([.. ResultCalibrateDto.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                 Result = new HtmlPlot2DLinesChart([
                     (nameof(itemPoints), itemPoints),
                     (nameof(ResultCalibrateDto.ItemFitPoints), ResultCalibrateDto.ItemFitPoints)
@@ -553,9 +486,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         DarkFieldImageDto Channel1DarkFieldImageDto,
         DarkFieldImageDto Channel2DarkFieldImageDto,
         DarkFieldImageDto Channel3DarkFieldImageDto)
-        GetDarkFieldLineScanImage(PrescanAODWaveformProfile aodWaveformProfile)
+        GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> aodWaveformProfile)
     {
-        LaserViewModel.SetPrescanAODWaveProfileList([aodWaveformProfile]);
+        LaserViewModel.SetPrescanAODWaveProfiles(aodWaveformProfile);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,

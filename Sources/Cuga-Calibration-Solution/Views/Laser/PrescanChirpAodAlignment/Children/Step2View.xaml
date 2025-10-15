@@ -9,6 +9,11 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
+             xmlns:aodWaveform="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
+             xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPrescanChirpAodAlignmentCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -30,10 +35,6 @@
                            Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Coefficient: "
-                           Status="{Binding Cache.PrescanLaserLightInformation}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
                            Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
@@ -49,41 +50,34 @@
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                            <hc:NumericUpDown hc:InfoElement.Title="Flatness Time(ns): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.ShowClearButton="True"
-                                              hc:TitleElement.TitleWidth="180"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.PrescanFlatnessTime}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Endpoint Time(ns): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.ShowClearButton="True"
-                                              hc:TitleElement.TitleWidth="180"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.PrescanFrontAndBackMonotonicEndpointTime}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Prescan Sample Rate: "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.ShowClearButton="True"
-                                              hc:TitleElement.TitleWidth="180"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.PrescanSampleRate}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Zero Num(ns): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.ShowClearButton="True"
-                                              hc:TitleElement.TitleWidth="180"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.PrescanZeroNum}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Generate Retry Count: "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.ShowClearButton="True"
-                                              hc:TitleElement.TitleWidth="180"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.PrescanGenerateRetryCount}" />
+                            <hc:ComboBox hc:InfoElement.Title="Monotonic: "
+                                         hc:InfoElement.TitlePlacement="Left"
+                                         hc:InfoElement.TitleWidth="180"
+                                         SelectedItem="{Binding Cache.FunctionMonotonicTypeEnum}"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
+                                <hc:ComboBox.Style>
+                                    <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:ComboBox.Style>
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
+                            <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                                                  IsVisibleFrequency="False"
+                                                                                  IsVisibleAmplitude="False"
+                                                                                  IsVisibleDirectoryPath="False"
+                                                                                  IsVisibleUniformityConfiguration="False"
+                                                                                  IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                  IsVisibleCompensation="False"
+                                                                                  DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
                             <Separator />
                             <hc:NumericUpDown hc:InfoElement.Title="Start Center Frequency(Mhz): "
                                               hc:InfoElement.TitlePlacement="Left"
@@ -190,29 +184,28 @@
                             <GridViewColumn Width="100"
                                             Header="Max Value"
                                             DisplayMemberBinding="{Binding DarkFieldImageProjectionYsMaxValue, StringFormat={}{0:0.###}}" />
-                            <GridViewColumn Width="400" Header="Fouriers">
+                            <GridViewColumn Header="Prescan AOD Waveform">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:WpfPlotMultiBehavior Title="Fouriers"
-                                                                                d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                Plot0="{Binding PrescanFouriers}" />
-                                            </i:Interaction.Behaviors>
-                                        </wpf:WpfPlot>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="400" Header="Signals">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:WpfPlotMultiBehavior Title="Signals"
-                                                                                d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                Plot0="{Binding PrescanSignals}" />
-                                            </i:Interaction.Behaviors>
-                                        </wpf:WpfPlot>
+                                    <DataTemplate DataType="{x:Type aodWaveform:PrescanAODWaveformUniformityItem}">
+                                        <Grid>
+                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                                          Content="Profiles"
+                                                          Margin="0,2"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                                   Placement="Right"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Slide"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -289,7 +282,6 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <wpf:WpfPlot>
                             <i:Interaction.Behaviors>
@@ -300,16 +292,11 @@
                                                                 Plot1Title="Fit" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
-                        <wpf:WpfPlot Grid.Column="1">
-                            <i:Interaction.Behaviors>
-                                <behaviors:WpfPlotMultiBehavior Title="Fouriers" Plot0="{Binding ResultCalibrateDto.PrescanFouriers}" />
-                            </i:Interaction.Behaviors>
-                        </wpf:WpfPlot>
-                        <wpf:WpfPlot Grid.Column="2">
-                            <i:Interaction.Behaviors>
-                                <behaviors:WpfPlotMultiBehavior Title="Signals" Plot0="{Binding ResultCalibrateDto.PrescanSignals}" />
-                            </i:Interaction.Behaviors>
-                        </wpf:WpfPlot>
+                        <Border Grid.Column="1"
+                                Style="{StaticResource BorderRegion}"
+                                Effect="{StaticResource EffectShadow1}">
+                            <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding ResultCalibrateDto.PrescanAODWaveformProfiles}" />
+                        </Border>
                     </Grid>
                 </Border>
             </Grid>

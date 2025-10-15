@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.PrescanChirpAodAlignment;
@@ -33,22 +35,10 @@ public sealed partial class LaserPrescanChirpAodAlignmentCache : CalibrationCach
     private double _gain;
 
     [ObservableProperty]
-    private double _prescanFlatnessTime = 4300;
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
 
     [ObservableProperty]
-    private LaserLightInformation _prescanLaserLightInformation = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    private int _prescanFrontAndBackMonotonicEndpointTime;
-
-    [ObservableProperty]
-    private double _prescanSampleRate = 1064;
-
-    [ObservableProperty]
-    private int _prescanZeroNum;
-
-    [ObservableProperty]
-    private int _prescanGenerateRetryCount = 1000;
+    private FunctionMonotonicTypeEnum _functionMonotonicTypeEnum;
 
     [ObservableProperty]
     private double _startPrescanCenterFrequency;

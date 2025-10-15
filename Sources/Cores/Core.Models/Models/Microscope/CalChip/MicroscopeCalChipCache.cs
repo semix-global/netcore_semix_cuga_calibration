@@ -145,7 +145,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DswPosition))]
-    private Point _dswRightBottomPosition = new Point(122000, 128000);
+    private Point _dswRightBottomPosition = new(122000, 128000);
 
     public Point DswPosition => (DswLeftTopPosition + (Vector)DswRightBottomPosition) / 2;
 

@@ -51,8 +51,6 @@ public sealed class CalibrationMicroscopeFocusItem : CalibrationBase
     /// 当前镜头的显微镜相像差镜头电压值(像差镜头绝对位置), **需要下发Microscope硬件**
     /// </summary>
     public double MicroscopeVoltage { get; set; }
-
-
 }
 
 /// <summary>

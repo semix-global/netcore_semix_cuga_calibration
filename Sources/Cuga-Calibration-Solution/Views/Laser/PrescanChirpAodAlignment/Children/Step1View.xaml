@@ -38,18 +38,6 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <Border Padding="5"
-                            Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                            <hc:ComboBox HorizontalAlignment="Left"
-                                         hc:InfoElement.Title="Prescan Coefficient: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.TitleWidth="150"
-                                         ItemsSource="{Binding LaserLightInformationList}"
-                                         SelectedItem="{Binding Cache.PrescanLaserLightInformation}" />
-                        </hc:UniformSpacingPanel>
-                    </Border>
                     <hc:NumericUpDown hc:InfoElement.Title="Gain: "
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.ShowClearButton="True"

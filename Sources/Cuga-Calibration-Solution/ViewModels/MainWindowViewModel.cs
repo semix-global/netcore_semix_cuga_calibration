@@ -452,6 +452,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                     _windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
 
                     break;
+
                 case ApplicationAboutWindowViewModel applicationAboutWindowViewModel:
                     _windowManagerService.ShowDialog(applicationAboutWindowViewModel);
                     break;

@@ -81,7 +81,6 @@ public static class CalibrationConstantsHelper
     /// </summary>
     public const string RecipeDbKey = "Recipe";
 
-
     #region 方法
 
     #region 规则
