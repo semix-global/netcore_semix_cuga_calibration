@@ -127,8 +127,8 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                         }
                         else
                         {
-                            var calibrationDto = GuardUtils.IsNotNullAndReturn(_cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType) as CalibrationDtoBase);
-                            calibrationCategoryItemObj.IsAnyOk = calibrationDto.IsCalibrated;
+                            var calibrationDto = _cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType) as CalibrationDtoBase;
+                            calibrationCategoryItemObj.IsAnyOk = calibrationDto?.IsCalibrated ?? false;
                         }
 
                         items.Add(calibrationCategoryItemObj);
