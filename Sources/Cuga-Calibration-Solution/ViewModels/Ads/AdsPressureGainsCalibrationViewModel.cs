@@ -354,15 +354,12 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                         if (await InvokeCalibrateAsync(async () =>
                             {
                                 if (ReviewDto is null) return false;
-                                ;
 
                                 result = await VerifyCalibrationAsync(ReviewDto, cancellationToken);
                                 return result;
                             }) == false) return false;
-                        ;
 
                         if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        ;
                         break;
                 }
 

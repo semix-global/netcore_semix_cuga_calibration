@@ -33,14 +33,15 @@ public partial class ShowMarkDownWindowViewModel(
             dialogWindowProvider.ShowDialog("Error: Markdown Path is Empty", DialogButtonsEnum.OK, DialogIconEnum.Error);
             return;
         }
+
         if (Path.GetExtension(MarkdownPath) != ".md")
         {
             dialogWindowProvider.ShowDialog($"Error:The file type is not markdown.", DialogButtonsEnum.OK, DialogIconEnum.Error);
             return;
         }
+
         using StreamReader sr = new(MarkdownPath, Encoding.UTF8);
         MarkdownContent = sr.ReadToEnd();
-
     }
 
     [RelayCommand]

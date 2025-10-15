@@ -9,7 +9,6 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Implements;
 using Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
-
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;

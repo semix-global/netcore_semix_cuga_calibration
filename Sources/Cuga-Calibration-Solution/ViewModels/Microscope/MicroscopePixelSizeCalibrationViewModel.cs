@@ -5,7 +5,6 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -470,7 +469,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

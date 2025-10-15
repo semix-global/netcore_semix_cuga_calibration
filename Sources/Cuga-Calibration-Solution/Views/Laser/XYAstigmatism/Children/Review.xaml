@@ -58,7 +58,7 @@
                             </Style>
                         </hc:NumericUpDown.Style>
                     </hc:NumericUpDown>
-                    <TextBox Text="{Binding SelectReviewItemDto.FrequencyChangeRate, Mode=OneWay, StringFormat={}{0:f3}}"
+                    <TextBox Text="{Binding SelectReviewItemDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}"
                              hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.Title="AOD Frequency: "
                              hc:InfoElement.TitlePlacement="Left"
@@ -157,8 +157,8 @@
                                             Header="OpticsMagType"
                                             DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="150"
-                                            Header="Frequency Increment"
-                                            DisplayMemberBinding="{Binding FrequencyChangeRate, StringFormat={}{0:f3}}" />
+                                            Header="Spectral Density(MHz/mm)"
+                                            DisplayMemberBinding="{Binding SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
                             <GridViewColumn Width="80"
                                             Header="EcsX"
                                             DisplayMemberBinding="{Binding EcsX, StringFormat={}{0:f3}}" />
@@ -200,6 +200,5 @@
                 </scottplot:WpfPlot>
             </Border>
         </Grid>
-
     </Grid>
 </UserControl>

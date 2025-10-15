@@ -2,8 +2,13 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public sealed class ChirpAODWaveformProfile : AODWaveformProfile, IAdaptTo<ChirpAODWaveformResult>, ICloneable<ChirpAODWaveformProfile>
+public sealed class ChirpAODWaveformProfile :
+    AbstractAODWaveformProfile,
+    IAdaptTo<ChirpAODWaveformResult>,
+    ICloneable<ChirpAODWaveformProfile>
 {
+    public static readonly ChirpAODWaveformProfile Default = new();
+
     internal ChirpAODWaveformProfile()
     {
     }
@@ -12,14 +17,5 @@ public sealed class ChirpAODWaveformProfile : AODWaveformProfile, IAdaptTo<Chirp
 
     public ChirpAODWaveformResult AdaptTo(string directoryPath) => AODWaveformResultFactory.CreateChirp(OpticsAODElectrodeEnum, Save(directoryPath));
 
-    public ChirpAODWaveformProfile Clone() => new()
-    {
-        OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
-        FilePath = FilePath,
-        ZeroSampleCount = ZeroSampleCount,
-        OffsetFrequency = OffsetFrequency,
-        OffsetFrequencyPeriodMultiple = OffsetFrequencyPeriodMultiple,
-        ShortList = [.. ShortList],
-        ByteList = [.. ByteList]
-    };
+    public ChirpAODWaveformProfile Clone() => (ChirpAODWaveformProfile)new ChirpAODWaveformProfile().AdaptIn(this);
 }

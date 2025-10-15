@@ -1,0 +1,34 @@
+﻿<ui:AbstractGenerateAODWaveformParamUserControl x:Class="Core.Models.Models.Common.AODWaveform.UI.Generates.GeneratePrescanAODWaveformParamUserControl"
+                                                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                                xmlns:viewModels="clr-namespace:Core.Models.Models.Common.AODWaveform.Generates"
+                                                xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates"
+                                                xmlns:hc="https://handyorg.github.io/handycontrol"
+                                                d:DataContext="{d:DesignInstance Type=viewModels:GeneratePrescanAODWaveformParam,
+                                                                                 IsDesignTimeCreatable=True}"
+                                                d:DesignWidth="400"
+                                                d:DesignHeight="1000"
+                                                mc:Ignorable="d">
+    <ui:AbstractGenerateAODWaveformParamUserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Common.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Generates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ui:AbstractGenerateAODWaveformParamUserControl.Resources>
+    <ui:GenerateAODWaveformParamUserControl x:Name="GenerateAODWaveformParamUserControl" Header="Prescan">
+        <ui:GenerateAODWaveformParamUserControl.HeaderContent>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:NumericUpDown hc:InfoElement.Title="Flatness Time(ns): "
+                                  hc:InfoElement.TitlePlacement="Left"
+                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                  Minimum="0"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding FlatnessTime}" />
+            </hc:UniformSpacingPanel>
+        </ui:GenerateAODWaveformParamUserControl.HeaderContent>
+    </ui:GenerateAODWaveformParamUserControl>
+</ui:AbstractGenerateAODWaveformParamUserControl>

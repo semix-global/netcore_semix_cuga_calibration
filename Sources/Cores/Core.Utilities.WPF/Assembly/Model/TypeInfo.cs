@@ -11,5 +11,4 @@ public partial class TypeInfo : ObservableObject
 
     [LiteDB.BsonIgnore]
     public Type? TypeInstance => Type.GetType(AssemblyQualifiedName);
-
 }

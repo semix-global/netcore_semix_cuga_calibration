@@ -1,11 +1,12 @@
+using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
-using Cuga.Data.DataStruct.DTO.Swath;
 
 #if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;
+
 #endif
 
 namespace Core.Wcf.Models.Laser;
@@ -353,6 +354,7 @@ public class CalibrationPrescanAODWaveformResult
     /// 电极Id
     /// </summary>
     public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
+
 #else
     /// <summary>
     /// 电极Id

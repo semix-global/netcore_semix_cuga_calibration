@@ -33,7 +33,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
-using System.IO;
 
 #if NETFRAMEWORK
 using MoreLinq.Extensions;
@@ -479,7 +478,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfileList(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -524,7 +523,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             cancellationToken.ThrowIfCancellationRequested();
             var windowPrescanList = SetPrescanByteListByWindow(maxWindowStartIndex, windowToMinAmount);
             foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
-            
+
             var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8));
             using var _1 = channel1DarkFieldImageDto;
             using var _2 = channel2DarkFieldImageDto;
@@ -544,7 +543,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             cancellationToken.ThrowIfCancellationRequested();
             windowPrescanList = SetPrescanByteListByWindow(minWindowStartIndex, windowToMinAmount);
             foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowPrescanList);
-            
+
             (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8));
             using var _4 = channel1DarkFieldImageDto;
             using var _5 = channel2DarkFieldImageDto;
@@ -745,7 +744,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfileList(Cache.OpticsMagTypeEnum);
+        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
         var k = 1d / Cache.PrescanInterval;
         var resultWindow = new List<double>();
         var startIndex = Cache.PrescanStartIndex;
@@ -774,7 +773,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         }
 
         foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(resultWindow);
-        
+
         var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanAODWaveProfileList, laserXTCCalibrationItemDto);
         if (isSuccess == false)
         {
@@ -833,7 +832,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         DarkFieldImageDto Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, LaserXTCCalibrationItemDto laserXTCCalibrationItem)
     {
-        LaserViewModel.SetPrescanAODWaveProfileList(darkFieldPrescanDto);
+        LaserViewModel.SetPrescanAODWaveProfiles(darkFieldPrescanDto);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,

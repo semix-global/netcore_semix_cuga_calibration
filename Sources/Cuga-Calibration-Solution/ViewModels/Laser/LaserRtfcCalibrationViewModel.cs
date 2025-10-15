@@ -25,7 +25,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
@@ -1110,7 +1109,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
 
                 if (downQualityValue is not null) listDownResult.Add(downQualityValue.Value < tempItemDto.Quality);
                 downQualityValue = tempItemDto.Quality;
-                if (EnumerableHelper.HasConsecutiveFalse(listDownResult, 10)) break; // 连续30个下降说明已经到了最低点
+                if (listDownResult.HasConsecutiveEqual(10, false)) break; // 连续30个下降说明已经到了最低点
             }
 
             rtfcDto = RtfcDtoItems.Select(s => s.Clone()).Maxima(s => s.Quality).Single();
@@ -1208,7 +1207,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
         CacheProvider.Set(FocusShiftCache, cancellationToken);
-
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

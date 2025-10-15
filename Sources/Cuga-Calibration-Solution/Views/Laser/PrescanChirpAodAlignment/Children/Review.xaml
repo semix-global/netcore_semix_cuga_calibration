@@ -9,6 +9,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:prescanChirpAodAlignment="clr-namespace:Core.Models.Models.Laser.PrescanChirpAodAlignment;assembly=Core.Models"
+             xmlns:aodWaveform="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
+             xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPrescanChirpAodAlignmentCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -110,9 +112,31 @@
                             <GridViewColumn Width="200"
                                             Header="R Squared"
                                             DisplayMemberBinding="{Binding RSquared, StringFormat={}{0:0.######}}" />
-                            <GridViewColumn Width="1000"
-                                            Header="Prescan File Path"
-                                            DisplayMemberBinding="{Binding PrescanFilePath}" />
+                            <GridViewColumn Header="Prescan AOD Waveform">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type aodWaveform:PrescanAODWaveformUniformityItem}">
+                                        <Grid>
+                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                                          Content="Profiles"
+                                                          Margin="0,2"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                                   Placement="Right"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Slide"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -122,175 +146,134 @@
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}"
                     Visibility="{Binding SelectReviewItemDto, Converter={StaticResource NotNullToVisibilityConverter}}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="2*" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <ListView d:SelectedIndex="0"
-                              ItemsSource="{Binding SelectReviewItemDto.Items}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Setter Property="Height" Value="250" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="150"
-                                                Header="Center Frequency"
-                                                DisplayMemberBinding="{Binding PrescanCenterFrequency, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Optics Mag"
-                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Max Pixel"
-                                                DisplayMemberBinding="{Binding DarkFieldImageProjectionYsMaxPixel}" />
-                                <GridViewColumn Width="100"
-                                                Header="Max Value"
-                                                DisplayMemberBinding="{Binding DarkFieldImageProjectionYsMaxValue, StringFormat={}{0:0.###}}" />
-                                <GridViewColumn Width="400" Header="Fouriers">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:WpfPlotMultiBehavior Title="Fouriers"
-                                                                                    d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                    Plot0="{Binding PrescanFouriers}" />
-                                                </i:Interaction.Behaviors>
-                                            </wpf:WpfPlot>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="400" Header="Signals">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:WpfPlotMultiBehavior Title="Signals"
-                                                                                    d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                    Plot0="{Binding PrescanSignals}" />
-                                                </i:Interaction.Behaviors>
-                                            </wpf:WpfPlot>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="400" Header="Channel3">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:WpfPlotMultiBehavior Title="Channel3"
-                                                                                    d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                    Plot0="{Binding Channel3DarkFieldImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
-                                                </i:Interaction.Behaviors>
-                                            </wpf:WpfPlot>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="200" Header="Channel3">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Image d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}" Source="{Binding Channel3ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="400" Header="Channel2">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:WpfPlotMultiBehavior Title="Channel2"
-                                                                                    d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                    Plot0="{Binding Channel2DarkFieldImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
-                                                </i:Interaction.Behaviors>
-                                            </wpf:WpfPlot>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="200" Header="Channel2">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Image d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}" Source="{Binding Channel2ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="400" Header="Channel1">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:WpfPlotMultiBehavior Title="Channel1"
-                                                                                    d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
-                                                                                    Plot0="{Binding Channel1DarkFieldImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
-                                                </i:Interaction.Behaviors>
-                                            </wpf:WpfPlot>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Width="200" Header="Channel1">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Image d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}" Source="{Binding Channel1ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <GridSplitter Grid.Row="1" Height="5" />
-                    <Border Grid.Row="2"
-                            Padding="0"
-                            Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}"
-                            IsEnabled="{Binding Step1CalibrateActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <wpf:WpfPlot>
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Result"
-                                                                    Plot0="{Binding SelectReviewItemDto.ItemPoints}"
-                                                                    Plot0Title="Origin"
-                                                                    Plot1="{Binding SelectReviewItemDto.ItemFitPoints}"
-                                                                    Plot1Title="Fit" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                            <wpf:WpfPlot Grid.Column="1">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Fouriers" Plot0="{Binding SelectReviewItemDto.PrescanFouriers}" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                            <wpf:WpfPlot Grid.Column="2">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Signals" Plot0="{Binding SelectReviewItemDto.PrescanSignals}" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                        </Grid>
-                    </Border>
-                </Grid>
+                <ListView d:SelectedIndex="0"
+                          ItemsSource="{Binding SelectReviewItemDto.Items}"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Height" Value="250" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Width="150"
+                                            Header="Center Frequency"
+                                            DisplayMemberBinding="{Binding PrescanCenterFrequency, StringFormat={}{0:0.###}}" />
+                            <GridViewColumn Width="100"
+                                            Header="Optics Mag"
+                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Width="100"
+                                            Header="Max Pixel"
+                                            DisplayMemberBinding="{Binding DarkFieldImageProjectionYsMaxPixel}" />
+                            <GridViewColumn Width="100"
+                                            Header="Max Value"
+                                            DisplayMemberBinding="{Binding DarkFieldImageProjectionYsMaxValue, StringFormat={}{0:0.###}}" />
+                            <GridViewColumn Header="Prescan AOD Waveform">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type aodWaveform:PrescanAODWaveformUniformityItem}">
+                                        <Grid>
+                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                                          Content="Profiles"
+                                                          Margin="0,2"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                                   Placement="Right"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Slide"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="400" Header="Channel3">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Channel3"
+                                                                                d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
+                                                                                Plot0="{Binding Channel3DarkFieldImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="200" Header="Channel3">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}" Source="{Binding Channel3ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="400" Header="Channel2">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Channel2"
+                                                                                d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
+                                                                                Plot0="{Binding Channel2DarkFieldImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="200" Header="Channel2">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}" Source="{Binding Channel2ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="400" Header="Channel1">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="Channel1"
+                                                                                d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}"
+                                                                                Plot0="{Binding Channel1DarkFieldImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="200" Header="Channel1">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image d:DataContext="{d:DesignInstance Type=prescanChirpAodAlignment:LaserPrescanChirpAodAlignmentItemDto}" Source="{Binding Channel1ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
             </Border>
         </Grid>
         <!--#endregion-->

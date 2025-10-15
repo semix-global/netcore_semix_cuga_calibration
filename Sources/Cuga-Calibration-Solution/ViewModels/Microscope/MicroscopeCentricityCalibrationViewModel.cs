@@ -5,12 +5,12 @@ using Core.Models.Models;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -313,7 +313,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 ResultMicroscopeCentricityItemDto = SelectMicroscopeCentricityItemDto.Clone();
                 ResultMicroscopeCentricityItemDto.CentricityPosition = averageCentricityPosition;
 
-                var maxMagnification = Cache.MicroscopeCentricityCacheItem.OrderBy(t=>t.LensInformation.ObjectiveMagnification).Last().LensInformation;
+                var maxMagnification = Cache.MicroscopeCentricityCacheItem.OrderBy(t => t.LensInformation.ObjectiveMagnification).Last().LensInformation;
 
                 ResultMicroscopeCentricityItemDto.Offset = ResultMicroscopeCentricityItemDto.LensInformation != maxMagnification
                     ? ResultMicroscopeCentricityItemDto.CentricityPosition - (Vector)Calibrations.Single(t => t.LensInformation == maxMagnification).CentricityPosition
