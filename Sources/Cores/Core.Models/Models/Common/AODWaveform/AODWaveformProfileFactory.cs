@@ -79,18 +79,18 @@ public static class AODWaveformProfileFactory
             Guard.IsTrue(Enum.TryParse<OpticsAODElectrodeEnum>(item.OffsetConfiguration.DirectoryName, out var opticsAODElectrodeEnum), "Directory Name is not valid.");
 
             var prescanAODWaveformProfile = CreatePrescan(opticsAODElectrodeEnum, item.FilePath, coefficient);
-            prescanAODWaveformProfile.Signals = [.. item.Signals];
-            prescanAODWaveformProfile.FFTSignals = [.. item.FFTSignals];
-            prescanAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
-            prescanAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
-            prescanAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
-            prescanAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [.. item.FlatnessAstigmatismCompensationSignals];
-            prescanAODWaveformProfile.FlatnessSphericalAberrationCompensationSignals = [.. item.FlatnessSphericalAberrationCompensationSignals];
-            prescanAODWaveformProfile.FlatnessSecondaryAstigmatismCompensationSignals = [.. item.FlatnessSecondaryAstigmatismCompensationSignals];
-            prescanAODWaveformProfile.FlatnessComaCompensationSignals = [.. item.FlatnessComaCompensationSignals];
-            prescanAODWaveformProfile.FlatnessTrefoilCompensationSignals = [.. item.FlatnessTrefoilCompensationSignals];
-            prescanAODWaveformProfile.FlatnessQuadrafoilCompensationSignals = [.. item.FlatnessQuadrafoilCompensationSignals];
-            prescanAODWaveformProfile.FlatnessAlphaOrderCompensationSignals = [.. item.FlatnessAlphaOrderCompensationSignals];
+            if (item.Signals.Count > 0) prescanAODWaveformProfile.Signals = [.. item.Signals];
+            if (item.FFTSignals.Count > 0) prescanAODWaveformProfile.FFTSignals = [.. item.FFTSignals];
+            if (item.FrequencyCoefficients.Count > 0) prescanAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
+            if (item.FlatnessLinearFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
+            if (item.FlatnessTotalFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
+            if (item.FlatnessAstigmatismCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [.. item.FlatnessAstigmatismCompensationSignals];
+            if (item.FlatnessSphericalAberrationCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessSphericalAberrationCompensationSignals = [.. item.FlatnessSphericalAberrationCompensationSignals];
+            if (item.FlatnessSecondaryAstigmatismCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessSecondaryAstigmatismCompensationSignals = [.. item.FlatnessSecondaryAstigmatismCompensationSignals];
+            if (item.FlatnessComaCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessComaCompensationSignals = [.. item.FlatnessComaCompensationSignals];
+            if (item.FlatnessTrefoilCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessTrefoilCompensationSignals = [.. item.FlatnessTrefoilCompensationSignals];
+            if (item.FlatnessQuadrafoilCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessQuadrafoilCompensationSignals = [.. item.FlatnessQuadrafoilCompensationSignals];
+            if (item.FlatnessAlphaOrderCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessAlphaOrderCompensationSignals = [.. item.FlatnessAlphaOrderCompensationSignals];
 
             result.Add(prescanAODWaveformProfile);
         }
@@ -106,18 +106,18 @@ public static class AODWaveformProfileFactory
             Guard.IsTrue(Enum.TryParse<OpticsAODElectrodeEnum>(item.OffsetConfiguration.DirectoryName, out var opticsAODElectrodeEnum), "Directory Name is not valid.");
 
             var chirpAODWaveformProfile = CreateChirp(opticsAODElectrodeEnum, item.FilePath);
-            chirpAODWaveformProfile.Signals = [.. item.Signals];
-            chirpAODWaveformProfile.FFTSignals = [.. item.FFTSignals];
-            chirpAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
-            chirpAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
-            chirpAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
-            chirpAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [.. item.FlatnessAstigmatismCompensationSignals];
-            chirpAODWaveformProfile.FlatnessSphericalAberrationCompensationSignals = [.. item.FlatnessSphericalAberrationCompensationSignals];
-            chirpAODWaveformProfile.FlatnessSecondaryAstigmatismCompensationSignals = [.. item.FlatnessSecondaryAstigmatismCompensationSignals];
-            chirpAODWaveformProfile.FlatnessComaCompensationSignals = [.. item.FlatnessComaCompensationSignals];
-            chirpAODWaveformProfile.FlatnessTrefoilCompensationSignals = [.. item.FlatnessTrefoilCompensationSignals];
-            chirpAODWaveformProfile.FlatnessQuadrafoilCompensationSignals = [.. item.FlatnessQuadrafoilCompensationSignals];
-            chirpAODWaveformProfile.FlatnessAlphaOrderCompensationSignals = [.. item.FlatnessAlphaOrderCompensationSignals];
+            if (item.Signals.Count > 0) chirpAODWaveformProfile.Signals = [.. item.Signals];
+            if (item.FFTSignals.Count > 0) chirpAODWaveformProfile.FFTSignals = [.. item.FFTSignals];
+            if (item.FrequencyCoefficients.Count > 0) chirpAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
+            if (item.FlatnessLinearFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
+            if (item.FlatnessTotalFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
+            if (item.FlatnessAstigmatismCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [.. item.FlatnessAstigmatismCompensationSignals];
+            if (item.FlatnessSphericalAberrationCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessSphericalAberrationCompensationSignals = [.. item.FlatnessSphericalAberrationCompensationSignals];
+            if (item.FlatnessSecondaryAstigmatismCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessSecondaryAstigmatismCompensationSignals = [.. item.FlatnessSecondaryAstigmatismCompensationSignals];
+            if (item.FlatnessComaCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessComaCompensationSignals = [.. item.FlatnessComaCompensationSignals];
+            if (item.FlatnessTrefoilCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessTrefoilCompensationSignals = [.. item.FlatnessTrefoilCompensationSignals];
+            if (item.FlatnessQuadrafoilCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessQuadrafoilCompensationSignals = [.. item.FlatnessQuadrafoilCompensationSignals];
+            if (item.FlatnessAlphaOrderCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessAlphaOrderCompensationSignals = [.. item.FlatnessAlphaOrderCompensationSignals];
 
             result.Add(chirpAODWaveformProfile);
         }

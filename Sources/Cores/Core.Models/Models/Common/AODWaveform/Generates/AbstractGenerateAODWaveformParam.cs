@@ -114,8 +114,14 @@ public abstract partial class AbstractGenerateAODWaveformParam :
                 : FunctionMonotonicTypeEnum.Deceasing;
     }
 
+    protected virtual void OnBandWidthChanged()
+    {
+    }
+
     partial void OnBandWidthChanged(double value)
     {
+        OnBandWidthChanged();
+
         if (IsHeaderAndFooter) return;
 
         HeaderFrequency = FunctionMonotonicTypeEnum switch
