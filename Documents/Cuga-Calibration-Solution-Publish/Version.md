@@ -160,3 +160,38 @@
 >        27# CalChip2.0
 >
 >        31# microscope、chuck傻瓜化，倍镜动态配置bug修复，calchip rtfc
+
+## 2.2.0.1015
+
+>   1.   优化：
+>
+>        38# fix error: laser auto focus、raw image get size over flow、x pixel
+>
+>        39# 禁用校准状态bug修复
+>
+>        40# LaserLightInformation全局替换掉Coefficient, service架构重构、40# GetNmPerEcs GetEcsPerOffsetMotorMm GetDeviceCode, 日志优化#40 多电极tools、laser light全部替换、
+>
+>        #41 去除constantHelper校准小项注解，wcf和dto互转用反射实现
+>
+>        #44 modify stage peg、peg X使用stagemap进行软补偿，不使用acs 
+>
+>        #48 x pixel size error bug fix、 #48 Linecentricity改为机械坐标，优化体验、 #48 prealigner 界面傻瓜化bug fix、 #48 global scale 傻瓜化 bug fix、 #48 microscope centricity bug fix、#48 agc 下发 bug fix
+>
+>        #51 CUGA升级 adsspeed移除
+>
+>   2.   校准：
+>
+>        35# dark auto focus gain 3.0
+>        37# IP双电极版本、37# 显微镜models架构重构、Laser light info by cuga
+>
+>        36# DOE rotate angle1.0
+>
+>        33# 多电极散光校准、33# LineCentricity 校准流程取消下发、33# base公开ApplicationCookies属性，修复界面倍镜列表显示为空的bug、33# 修复Y Pixel Size 界面显示错乱变成DOE角度校准界面的问题、33# 增加多光斑RTFC数据分析的matlab脚本
+>
+>        45# 自动发布安装exe、软件关于
+>
+>        #46 XTC双电极
+>
+>        #47 AOD相位延迟校准工具
+>
+>        feat: prealigner角度补偿改成绝对值
