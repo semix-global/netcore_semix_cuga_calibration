@@ -6,6 +6,12 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionFocusAlignOpticsFocusWindowViewModel}"
@@ -80,13 +86,280 @@
                 <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5" />
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                        <GroupBox Header="Common Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
+                                                     hc:InfoElement.TitlePlacement="Left"
+                                                     hc:InfoElement.TitleWidth="200"
+                                                     SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
+                                            <hc:ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataTemplate>
+                                            </hc:ComboBox.ItemTemplate>
+                                        </hc:ComboBox>
+                                        <hc:ComboBox hc:InfoElement.Title="Stage Speed: "
+                                                     hc:InfoElement.TitlePlacement="Left"
+                                                     hc:InfoElement.TitleWidth="200"
+                                                     SelectedItem="{Binding Cache.StageSpeedEnum}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageSpeedEnum}}}">
+                                            <hc:ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataTemplate>
+                                            </hc:ComboBox.ItemTemplate>
+                                        </hc:ComboBox>
+                                        <hc:ComboBox hc:InfoElement.TitlePlacement="Left"
+                                                     hc:InfoElement.TitleWidth="200"
+                                                     hc:InfoElement.Title="PMT ID: "
+                                                     SelectedItem="{Binding Cache.PmtId}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
+                                            <hc:ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" />
+                                                </DataTemplate>
+                                            </hc:ComboBox.ItemTemplate>
+                                        </hc:ComboBox>
+                                        <hc:NumericUpDown hc:InfoElement.Title="Image Width(px): "
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.TitleWidth="200"
+                                                          Minimum="0"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.ImageWidthPixel}" />
+                                        <hc:NumericUpDown hc:InfoElement.Title="±Range(ECS): "
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.TitleWidth="200"
+                                                          Minimum="0"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.RangeEcs}" />
+                                        <hc:NumericUpDown hc:InfoElement.Title="Step(ECS): "
+                                                          hc:InfoElement.TitlePlacement="Left"
+                                                          hc:InfoElement.TitleWidth="200"
+                                                          Minimum="0"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.StepEcs}" />
+                                    </hc:UniformSpacingPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Step1 Haze">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <Expander IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Header="CIB">
+                                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
+                                    </Expander>
+                                    <hc:ComboBox HorizontalAlignment="Left"
+                                                 hc:InfoElement.TitleWidth="200"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.Title="Coefficient: "
+                                                 SelectedItem="{Binding Cache.HazeLaserLightInformation}"
+                                                 ItemsSource="{Binding LaserLightInformations}" />
+                                    <TextBox Text="{Binding Cache.HazeBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
+                                             hc:InfoElement.Title="Bright Field Position:"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step1Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <TextBox Text="{Binding Cache.HazeAverageECS, Converter={StaticResource PointToStringConverter}}"
+                                             hc:InfoElement.Title="Result Average ECS:"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Step2 DSW">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <Expander IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Header="CIB">
+                                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
+                                    </Expander>
+                                    <hc:ComboBox HorizontalAlignment="Left"
+                                                 hc:InfoElement.TitleWidth="200"
+                                                 hc:InfoElement.TitlePlacement="Left"
+                                                 hc:InfoElement.Title="Coefficient: "
+                                                 SelectedItem="{Binding Cache.DSWLaserLightInformation}"
+                                                 ItemsSource="{Binding LaserLightInformations}" />
+                                    <TextBox Text="{Binding Cache.DSWBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
+                                             hc:InfoElement.Title="Bright Field Position:"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="X Pixel Size(um): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DSWXPixelSize}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Y Pixel Size(um): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DSWYPixelSize}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Pot Diameter(um): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DSWPotDiameter}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="X Point Diameter(um): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DSWXPointDiameter}" />
+                                    <hc:NumericUpDown hc:InfoElement.Title="Y Point Diameter(um): "
+                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DSWYPointDiameter}" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step2Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <TextBox Text="{Binding Cache.DSWROIRect, Converter={StaticResource RectToStringConverter}}"
+                                             hc:InfoElement.Title="ROI Rect(px):"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.DSWAverageECS, Converter={StaticResource PointToStringConverter}}"
+                                             hc:InfoElement.Title="Result Average ECS:"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.TitleWidth="200"
+                                             IsReadOnly="True"
+                                             IsEnabled="False"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                    </hc:UniformSpacingPanel>
                 </hc:ScrollViewer>
             </Border>
             <GridSplitter Grid.Column="1" />
             <Border Grid.Column="2"
                     Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}" />
+                    Effect="{StaticResource EffectShadow1}">
+                <TabControl>
+                    <TabItem Header="Plots">
+                        <TabControl SelectedIndex="0" ItemsSource="{Binding PlotControls}">
+                            <TabControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Title}" />
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
+                            <TabControl.ContentTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding PlotControls, Mode=OneWay}" />
+                                    </Border>
+                                </DataTemplate>
+                            </TabControl.ContentTemplate>
+                        </TabControl>
+                    </TabItem>
+                    <TabItem Header="Haze Details">
+                        <ListView Margin="5"
+                                  ItemsSource="{Binding Cache.HazeResults}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ListBoxScrollToCurrentBehavior />
+                            </i:Interaction.Behaviors>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn Width="150"
+                                                    Header="ECS"
+                                                    DisplayMemberBinding="{Binding ECS, StringFormat={}{0:0.###}}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </TabItem>
+                    <TabItem Header="DSW Details">
+                        <ListView Margin="5"
+                                  ItemsSource="{Binding Cache.DSWResults}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ListBoxScrollToCurrentBehavior />
+                            </i:Interaction.Behaviors>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn Width="150"
+                                                    Header="ECS"
+                                                    DisplayMemberBinding="{Binding ECS, StringFormat={}{0:0.###}}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </TabItem>
+                </TabControl>
+            </Border>
         </Grid>
     </Grid>
 </hc:Window>

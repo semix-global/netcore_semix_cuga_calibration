@@ -49,6 +49,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
@@ -686,5 +687,12 @@ public sealed partial class MainWindowViewModel(
     {
         var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformElectrodeOffsetWindowViewModel>();
         windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    public void CollectionFocusAlignOpticsFocus()
+    {
+        var collectionFocusAlignOpticsFocusWindowViewModel = HostApplication.GetRequiredService<CollectionFocusAlignOpticsFocusWindowViewModel>();
+        windowManagerService.ShowWindow(collectionFocusAlignOpticsFocusWindowViewModel);
     }
 }

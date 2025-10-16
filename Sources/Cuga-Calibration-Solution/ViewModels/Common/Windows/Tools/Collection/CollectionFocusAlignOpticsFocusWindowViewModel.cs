@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
@@ -55,13 +56,13 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
     [ObservableProperty]
     private int _imageWidthPixel;
 
-    #region Haze
-
     [ObservableProperty]
     private double _rangeEcs;
 
     [ObservableProperty]
     private double _stepEcs;
+
+    #region Haze
 
     [ObservableProperty]
     private CIBConfiguration _hazeCIBConfiguration = new();
@@ -119,7 +120,7 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
 
     public IDictionary<int, IDictionary<string, List<Point>>> GetPoints(string resultPropertyName, params string[] resultItemPropertyNames)
     {
-        const string resultAutoFocusOffsetMotorPropertyName = nameof(HazeResult.AutoFocusOffsetMotor);
+        const string resultECSPropertyName = nameof(HazeResult.ECS);
         const string resultItemsPropertyName = nameof(HazeResult.Items);
         const string resultItemImageChannelIdPropertyName = nameof(HazeResultItem.ChannelId);
 
@@ -137,7 +138,7 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
                 foreach (var resultItemPropertyName in resultItemPropertyNames)
                 {
                     temp[resultItemPropertyName].Add(new Point(
-                        GuardUtils.IsNotNullAndAssignableToType<double>(ObjectHelper.GetPropertyValue(result, resultAutoFocusOffsetMotorPropertyName)),
+                        GuardUtils.IsNotNullAndAssignableToType<double>(ObjectHelper.GetPropertyValue(result, resultECSPropertyName)),
                         GuardUtils.IsNotNullAndAssignableToType<double>(ObjectHelper.GetPropertyValue(resultItem, resultItemPropertyName))));
                 }
             }
@@ -173,7 +174,7 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
 public sealed partial class HazeResult : ObservableCacheBase
 {
     [ObservableProperty]
-    private double _autoFocusOffsetMotor;
+    private double _eCS;
 
     [ObservableProperty]
     private IReadOnlyList<HazeResultItem> _items = [];
@@ -223,7 +224,7 @@ public sealed partial class HazeResultItem : ObservableCacheBase
 public sealed partial class DswResult : ObservableCacheBase
 {
     [ObservableProperty]
-    private double _autoFocusOffsetMotor;
+    private double _eCS;
 
     [ObservableProperty]
     private IReadOnlyList<DswResultItem> _items = [];
@@ -272,6 +273,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     LaserViewModel laserViewModel,
     IOptions<ApplicationSetting> options,
     CreateRoiWindowViewModel createRoiWindowViewModel,
+    ApplicationCookie applicationCookie,
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
@@ -284,6 +286,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     public string Name => "Collection Focus Align Optics Focus";
 
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(CollectionFocusAlignOpticsFocusWindowViewModel)), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
+    public IReadOnlyList<LaserLightInformation> LaserLightInformations => applicationCookie.LaserLightInformationList;
 
     public Guid HtmlLogUniqueId { get; set; }
 
@@ -528,7 +532,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 var cacheAverageECSPropertyName = nameof(Cache.HazeAverageECS).Replace(Haze, name);
                 var cacheResultsPropertyName = nameof(Cache.HazeResults).Replace(Haze, name);
 
-                const string resultAutoFocusOffsetMotorPropertyName = nameof(HazeResult.AutoFocusOffsetMotor);
+                const string resultECSPropertyName = nameof(HazeResult.ECS);
                 const string resultItemsPropertyName = nameof(HazeResult.Items);
                 const string resultItemImageChannelIdPropertyName = nameof(HazeResultItem.ChannelId);
                 const string resultItemImageFilePathPropertyName = nameof(HazeResultItem.ImageFilePath);
@@ -576,7 +580,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     var result = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(resultType));
                     var resultItemList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultItemType)));
 
-                    ObjectHelper.SetPropertyValue(result, resultAutoFocusOffsetMotorPropertyName, ecs);
+                    ObjectHelper.SetPropertyValue(result, resultECSPropertyName, ecs);
                     ObjectHelper.SetPropertyValue(result, resultItemsPropertyName, resultItemList);
 
                     foreach (var darkFieldImageDto in darkFieldImageDtos)
