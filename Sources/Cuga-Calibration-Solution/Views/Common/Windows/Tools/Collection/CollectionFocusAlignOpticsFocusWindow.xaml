@@ -180,7 +180,7 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <TextBox Text="{Binding Cache.HazeAverageECS, Converter={StaticResource PointToStringConverter}}"
+                                    <TextBox Text="{Binding Cache.HazeAverageECS, StringFormat={}{0:0.###}}"
                                              hc:InfoElement.Title="Result Average ECS:"
                                              hc:InfoElement.TitlePlacement="Left"
                                              hc:InfoElement.TitleWidth="200"
@@ -256,7 +256,7 @@
                                              IsReadOnly="True"
                                              IsEnabled="False"
                                              Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.DSWAverageECS, Converter={StaticResource PointToStringConverter}}"
+                                    <TextBox Text="{Binding Cache.DSWAverageECS, StringFormat={}{0:0.###}}"
                                              hc:InfoElement.Title="Result Average ECS:"
                                              hc:InfoElement.TitlePlacement="Left"
                                              hc:InfoElement.TitleWidth="200"
