@@ -390,7 +390,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     Cache.OpticsMagTypeEnum,
                     Cache.StageSpeedEnum,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
-                    pmtId: Cache.PmtId);
+                    pmtId: Cache.PmtId,
+                    isAutoFocus: true);
                 using var _ = darkFieldImageDto;
 
                 var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
@@ -642,10 +643,10 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
         foreach (var keyValuePair in hazeOriginDictionary)
         {
-            var hazeOriginDictionaryByChannelId = hazeOriginDictionary.Count > 0 ? hazeOriginDictionary[keyValuePair.Key] : [];
-            var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary.Count > 0 ? hazeNormalizationDictionary[keyValuePair.Key] : [];
-            var dswOriginDictionaryByChannelId = dswOriginDictionary.Count > 0 ? dswOriginDictionary[keyValuePair.Key] : [];
-            var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary.Count > 0 ? dswNormalizationDictionary[keyValuePair.Key] : [];
+            var hazeOriginDictionaryByChannelId = hazeOriginDictionary.Count > 0 ? hazeOriginDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
+            var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary.Count > 0 ? hazeNormalizationDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
+            var dswOriginDictionaryByChannelId = dswOriginDictionary.Count > 0 ? dswOriginDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
+            var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary.Count > 0 ? dswNormalizationDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
 
             var wpfPlot = new WpfPlot();
             var plotControl = new PlotControl
@@ -657,17 +658,19 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             var customGrid = new CustomGrid();
             wpfPlot.ConfigureWpfPlotScatter(customGrid, 3);
 
+#pragma warning disable IDE0079
 #pragma warning disable IDISP001
             var plot0 = wpfPlot.Multiplot.GetPlot(0);
             var plot1 = wpfPlot.Multiplot.GetPlot(1);
             var plot2 = wpfPlot.Multiplot.GetPlot(2);
 #pragma warning restore IDISP001
+#pragma warning restore IDE0079
 
             customGrid.Set(plot0, new GridCell(0, 0, 2, 2));
             plot0.Title($"{Haze} Origin");
 
 
-            foreach (var (i, pair) in hazeOriginDictionaryByChannelId.Select((t, i) => (i, t)))
+            foreach (var (i, pair) in hazeOriginDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = plot0.Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
 
@@ -677,7 +680,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             customGrid.Set(plot1, new GridCell(0, 1, 2, 2));
             plot1.Title($"{DSW} Origin");
 
-            foreach (var (i, pair) in dswOriginDictionaryByChannelId.Select((t, i) => (i, t)))
+            foreach (var (i, pair) in dswOriginDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = plot1.Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
 
@@ -687,14 +690,14 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             customGrid.Set(plot2, new GridCell(1, 0, 2, 2, colSpan: 2));
             plot1.Title("Normalization");
 
-            foreach (var (i, pair) in hazeNormalizationDictionaryByChannelId.Select((t, i) => (i, t)))
+            foreach (var (i, pair) in hazeNormalizationDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = plot1.Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
 
                 scatter.LegendText = pair.Key;
             }
 
-            foreach (var (i, pair) in dswNormalizationDictionaryByChannelId.Select((t, i) => (i, t)))
+            foreach (var (i, pair) in dswNormalizationDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = plot1.Add.Scatter(pair.Value.Select(t => new Coordinates(t.X + (Cache.HazeAverageECS - Cache.DSWAverageECS), t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
 
