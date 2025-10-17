@@ -12,6 +12,7 @@
            xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionFocusAlignOpticsFocusWindowViewModel}"
@@ -180,6 +181,11 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Result"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
                                     <TextBox Text="{Binding Cache.HazeAverageECS, StringFormat={}{0:0.###}}"
                                              hc:InfoElement.Title="Result Average ECS:"
                                              hc:InfoElement.TitlePlacement="Left"
@@ -249,6 +255,11 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Result"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
                                     <TextBox Text="{Binding Cache.DSWROIRect, Converter={StaticResource RectToStringConverter}}"
                                              hc:InfoElement.Title="ROI Rect(px):"
                                              hc:InfoElement.TitlePlacement="Left"
@@ -277,14 +288,14 @@
                     <TabItem Header="Plots">
                         <TabControl SelectedIndex="0" ItemsSource="{Binding PlotControls}">
                             <TabControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Key, StringFormat='Channel ID {0}'}"
-                                               Padding="8,4"
-                                               FontWeight="SemiBold" />
+                                <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                    <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
+                                               Padding="5,2"
+                                               Style="{StaticResource TextBlockDefaultBold}" />
                                 </DataTemplate>
                             </TabControl.ItemTemplate>
                             <TabControl.ContentTemplate>
-                                <DataTemplate>
+                                <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
                                     <Border Style="{StaticResource BorderRegion}">
                                         <ContentControl Content="{Binding Value, Mode=OneWay}" />
                                     </Border>
@@ -296,7 +307,8 @@
                         <ListView Margin="5"
                                   ItemsSource="{Binding Cache.HazeResults}"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  Style="{StaticResource ListView.Small}">
                             <i:Interaction.Behaviors>
                                 <behaviors:ListBoxScrollToCurrentBehavior />
                             </i:Interaction.Behaviors>

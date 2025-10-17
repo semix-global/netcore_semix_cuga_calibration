@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -83,7 +84,7 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
     [ObservableProperty]
     private IReadOnlyList<HazeResult> _hazeResults = [];
 
-    #endregion
+    #endregion Haze
 
     #region DSW
 
@@ -120,15 +121,15 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
     [ObservableProperty]
     private IReadOnlyList<DSWResult> _dSWResults = [];
 
-    #endregion
+    #endregion DSW
 
-    public IDictionary<int, IDictionary<string, List<Point>>> GetPoints(string resultPropertyName, params string[] resultItemPropertyNames)
+    public IDictionary<int, IDictionary<string, IReadOnlyList<Point>>> GetPoints(string resultPropertyName, params string[] resultItemPropertyNames)
     {
         const string resultECSPropertyName = nameof(HazeResult.ECS);
         const string resultItemsPropertyName = nameof(HazeResult.Items);
         const string resultItemImageChannelIdPropertyName = nameof(HazeResultItem.ChannelId);
 
-        var dictionary = new Dictionary<int, IDictionary<string, List<Point>>>();
+        var dictionary = new Dictionary<int, IDictionary<string, IReadOnlyList<Point>>>();
 
         var count = 0;
         foreach (var result in GuardUtils.IsNotNullAndAssignableToType<System.Collections.IEnumerable>(ObjectHelper.GetPropertyValue(this, resultPropertyName)))
@@ -137,11 +138,11 @@ public sealed partial class AODWaveformCommonCache : ObservableCacheBase
             {
                 var temp = dictionary.GetOrAdd(
                     GuardUtils.IsNotNullAndAssignableToType<int>(ObjectHelper.GetPropertyValue(resultItem, resultItemImageChannelIdPropertyName)),
-                    resultItemPropertyNames.ToDictionary(t => t, _ => new List<Point>()));
+                    resultItemPropertyNames.ToDictionary<string, string, IReadOnlyList<Point>>(t => t, _ => new List<Point>()));
 
                 foreach (var resultItemPropertyName in resultItemPropertyNames)
                 {
-                    temp[resultItemPropertyName].Add(new Point(
+                    GuardUtils.IsAssignableToType<List<Point>>(temp[resultItemPropertyName]).Add(new Point(
                         GuardUtils.IsNotNullAndAssignableToType<double>(ObjectHelper.GetPropertyValue(result, resultECSPropertyName)),
                         GuardUtils.IsNotNullAndAssignableToType<double>(ObjectHelper.GetPropertyValue(resultItem, resultItemPropertyName))));
                 }
@@ -293,21 +294,23 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     private AODWaveformCommonCache _cache = new();
 
     [ObservableProperty]
-    private Dictionary<int, WpfPlot> _plotControls = new();
+    private IDictionary<int, WpfPlot> _plotControls = ImmutableDictionary<int, WpfPlot>.Empty;
 
     [RelayCommand]
     private void Loaded()
     {
-        Cache = cacheProvider.GetOrDefault<AODWaveformCommonCache>();
-
-        if (PlotControls.Count > 0) return;
-
-        PlotControls = new Dictionary<int, WpfPlot>()
+        try
         {
-            { 1, GetWpfPlot() },
-            { 2, GetWpfPlot() },
-            { 3, GetWpfPlot() }
-        };
+            Cache = cacheProvider.GetOrDefault<AODWaveformCommonCache>();
+
+            if (PlotControls.Count > 0) return;
+
+            PlotControls = laserViewModel.GetIsUsedCIBConfigList()[0].ChannelIdList.ToDictionary(channelId => channelId, _ => GetWpfPlot());
+        }
+        finally
+        {
+            RefreshPlot();
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -339,7 +342,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 hazeResultItem.EndAverageGray = endSubMatrix.Enumerate().Average();
                 hazeResultItem.StandardDeviation = matrix.Enumerate().StandardDeviation();
 
-                logger.LogHtmlInformation($"{hazeResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                logger.LogHtmlInformation($"Channel Id: {hazeResultItem.ChannelId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     Image = new HtmlImage(hazeResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
                     RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(hazeResultItem.ImageFilePath)}.raw"),
@@ -367,18 +370,20 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 var hazeOriginDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGray), nameof(HazeResultItem.MiddleAverageGray), nameof(HazeResultItem.EndAverageGray), nameof(HazeResultItem.StandardDeviation));
                 var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization), nameof(HazeResultItem.StandardDeviationNormalization));
 
-                Guard.IsTrue(hazeOriginDictionary.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
+                Guard.IsTrue(PlotControls.Keys.SequenceEqual(hazeOriginDictionary.Keys));
+                Guard.IsTrue(PlotControls.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
 
-                foreach (var keyValuePair in hazeOriginDictionary)
+                foreach (var keyValuePair in PlotControls)
                 {
                     var hazeOriginDictionaryByChannelId = hazeOriginDictionary[keyValuePair.Key];
                     var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary[keyValuePair.Key];
 
-                    logger.LogHtmlInformation($"{keyValuePair.Key} Origin", HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                    logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                         ..hazeOriginDictionaryByChannelId.Select(t => new HtmlPlot2DLinesChart([(t.Key, [..t.Value])], t.Key))
                     ]), HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation($"{keyValuePair.Key} Normalization", HtmlHeaderLevelEnum.Header3, new HtmlPlot2DLinesChart([
-                        ..hazeNormalizationDictionaryByChannelId.Select<KeyValuePair<string, List<Point>>, (string Name, Point[] Points)>(t => (t.Key, [..t.Value]))
+                    logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, new HtmlPlot2DLinesChart([
+                        ..hazeNormalizationDictionaryByChannelId.Select<KeyValuePair<string, IReadOnlyList<Point>>, (string Name, Point[] Points)>(t => (t.Key, [..t.Value]))
                     ], string.Empty), HtmlLogUniqueId.LoggingHtml());
                 }
             }, cancellationToken);
@@ -388,7 +393,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     private async Task Step2Async(CancellationToken cancellationToken)
     {
         await InvokeAsync(
-            "DSW Haze",
+            "Step1 DSW",
             CalChipSiteModelEnum.DswModel,
             () =>
             {
@@ -414,7 +419,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
                 Cache.DSWROIRect = createRoiWindowViewModel.Rect;
 
-                logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
+                logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     Cache.DSWROIRect,
                     Cache.DSWXPixelSize,
@@ -433,7 +438,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 dswResultItem.StrehlRatioX = strehlRatioX;
                 dswResultItem.StrehlRatioY = strehlRatioY;
 
-                logger.LogHtmlInformation($"{dswResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                logger.LogHtmlInformation($"Channel Id: {dswResultItem.ChannelId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     Image = new HtmlImage(dswResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
                     RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(dswResultItem.ImageFilePath)}.raw"),
@@ -460,25 +465,28 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization), nameof(HazeResultItem.StandardDeviationNormalization));
                 var dswOriginDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioX), nameof(DSWResultItem.StrehlRatioY));
                 var dswNormalizationDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioXNormalization), nameof(DSWResultItem.StrehlRatioYNormalization));
-                Guard.IsTrue(hazeOriginDictionary.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
-                Guard.IsTrue(hazeNormalizationDictionary.Keys.SequenceEqual(dswOriginDictionary.Keys));
-                Guard.IsTrue(dswOriginDictionary.Keys.SequenceEqual(dswNormalizationDictionary.Keys));
 
-                foreach (var keyValuePair in hazeOriginDictionary)
+                Guard.IsTrue(PlotControls.Keys.SequenceEqual(hazeOriginDictionary.Keys));
+                Guard.IsTrue(PlotControls.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
+                Guard.IsTrue(PlotControls.Keys.SequenceEqual(dswOriginDictionary.Keys));
+                Guard.IsTrue(PlotControls.Keys.SequenceEqual(dswOriginDictionary.Keys));
+
+                foreach (var keyValuePair in PlotControls)
                 {
                     var hazeOriginDictionaryByChannelId = hazeOriginDictionary[keyValuePair.Key];
                     var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary[keyValuePair.Key];
                     var dswOriginDictionaryByChannelId = dswOriginDictionary[keyValuePair.Key];
                     var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary[keyValuePair.Key];
 
-                    logger.LogHtmlInformation($"{keyValuePair.Key} Origin", HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                    logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                         ..hazeOriginDictionaryByChannelId.Select(t => new HtmlPlot2DLinesChart([(t.Key, [..t.Value])], t.Key)),
                         ..dswOriginDictionaryByChannelId.Select(t => new HtmlPlot2DLinesChart([(t.Key, [..t.Value])], t.Key))
                     ]), HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation($"{keyValuePair.Key} Normalization", HtmlHeaderLevelEnum.Header3, new HtmlPlot2DLinesChart(
+                    logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, new HtmlPlot2DLinesChart(
                         [
-                            ..hazeNormalizationDictionaryByChannelId.Select<KeyValuePair<string, List<Point>>, (string Name, Point[] Points)>(t => (t.Key, [..t.Value])),
-                            ..dswNormalizationDictionaryByChannelId.Select<KeyValuePair<string, List<Point>>, (string Name, Point[] Points)>(t => (t.Key, [..t.Value.Select(tt => new Point(tt.X + (Cache.HazeAverageECS - Cache.DSWAverageECS), tt.Y))]))
+                            ..hazeNormalizationDictionaryByChannelId.Select<KeyValuePair<string, IReadOnlyList<Point>>, (string Name, Point[] Points)>(t => (t.Key, [..t.Value])),
+                            ..dswNormalizationDictionaryByChannelId.Select<KeyValuePair<string, IReadOnlyList<Point>>, (string Name, Point[] Points)>(t => (t.Key, [..t.Value.Select(tt => new Point(tt.X + (Cache.HazeAverageECS - Cache.DSWAverageECS), tt.Y))]))
                         ], string.Empty
                     ), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -547,13 +555,15 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
                 ObjectHelper.SetPropertyValue(Cache, cacheAverageECSPropertyName, 0d);
                 ObjectHelper.SetPropertyValue(Cache, cacheResultsPropertyName, Array.CreateInstance(resultType, 0));
+                RefreshPlot();
 
                 stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(stageViewModel.BrightFieldToMachinePosition(brightFieldPosition));
                 afViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, calChipSiteModelEnum);
                 afViewModel.ToggleDarkFieldEnable(true);
-                await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
-                var sensorAverageEcsValue = afViewModel.GetSensorAverageEcsValue();
 
+                await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
+
+                var sensorAverageEcsValue = afViewModel.GetSensorAverageEcsValue();
                 ObjectHelper.SetPropertyValue(Cache, cacheAverageECSPropertyName, sensorAverageEcsValue);
 
                 afViewModel.ToggleBrightFieldEnable(false);
@@ -565,7 +575,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    logger.LogHtmlInformation($"{ecs}(ECS)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation($"{ecs}(ECS)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                     afViewModel.SetSensorEcsValue(ecs);
                     await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
@@ -650,16 +660,17 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         var dswOriginDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioX), nameof(DSWResultItem.StrehlRatioY));
         var dswNormalizationDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioXNormalization), nameof(DSWResultItem.StrehlRatioYNormalization));
 
-        if (hazeOriginDictionary.Count > 0 && hazeNormalizationDictionary.Count > 0) Guard.IsTrue(hazeOriginDictionary.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
-        if (hazeNormalizationDictionary.Count > 0 && dswOriginDictionary.Count > 0) Guard.IsTrue(hazeNormalizationDictionary.Keys.SequenceEqual(dswOriginDictionary.Keys));
-        if (dswOriginDictionary.Count > 0 && dswNormalizationDictionary.Count > 0) Guard.IsTrue(dswOriginDictionary.Keys.SequenceEqual(dswNormalizationDictionary.Keys));
+        if (hazeOriginDictionary.Count > 0) Guard.IsTrue(PlotControls.Keys.SequenceEqual(hazeOriginDictionary.Keys));
+        if (hazeNormalizationDictionary.Count > 0) Guard.IsTrue(PlotControls.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
+        if (dswOriginDictionary.Count > 0) Guard.IsTrue(PlotControls.Keys.SequenceEqual(dswOriginDictionary.Keys));
+        if (dswOriginDictionary.Count > 0) Guard.IsTrue(PlotControls.Keys.SequenceEqual(dswOriginDictionary.Keys));
 
-        foreach (var keyValuePair in hazeOriginDictionary)
+        foreach (var keyValuePair in PlotControls)
         {
-            var hazeOriginDictionaryByChannelId = hazeOriginDictionary.Count > 0 ? hazeOriginDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
-            var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary.Count > 0 ? hazeNormalizationDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
-            var dswOriginDictionaryByChannelId = dswOriginDictionary.Count > 0 ? dswOriginDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
-            var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary.Count > 0 ? dswNormalizationDictionary[keyValuePair.Key] : new Dictionary<string, List<Point>>();
+            var hazeOriginDictionaryByChannelId = hazeOriginDictionary.Count > 0 ? hazeOriginDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
+            var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary.Count > 0 ? hazeNormalizationDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
+            var dswOriginDictionaryByChannelId = dswOriginDictionary.Count > 0 ? dswOriginDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
+            var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary.Count > 0 ? dswNormalizationDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
 
             var wpfPlot = PlotControls[keyValuePair.Key];
 
@@ -671,28 +682,24 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             foreach (var (i, pair) in hazeOriginDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = wpfPlot.Multiplot.GetPlot(0).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
-
                 scatter.LegendText = pair.Key;
             }
 
             foreach (var (i, pair) in dswOriginDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = wpfPlot.Multiplot.GetPlot(1).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
-
                 scatter.LegendText = pair.Key;
             }
 
             foreach (var (i, pair) in hazeNormalizationDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = wpfPlot.Multiplot.GetPlot(2).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
-
                 scatter.LegendText = pair.Key;
             }
 
             foreach (var (i, pair) in dswNormalizationDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
                 var scatter = wpfPlot.Multiplot.GetPlot(2).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X + (Cache.HazeAverageECS - Cache.DSWAverageECS), t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
-
                 scatter.LegendText = pair.Key;
             }
 
@@ -734,7 +741,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
         plot0.Title($"{Haze} Origin");
         plot1.Title($"{DSW} Origin");
-        plot1.Title("Normalization");
+        plot2.Title("Normalization");
 
         return wpfPlot;
     }
