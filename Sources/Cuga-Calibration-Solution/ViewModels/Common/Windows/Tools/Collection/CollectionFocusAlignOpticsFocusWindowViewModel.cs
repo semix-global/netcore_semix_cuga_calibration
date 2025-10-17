@@ -15,6 +15,7 @@ using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -267,6 +268,7 @@ public sealed partial class DSWResultItem : ObservableCacheBase
 
 [IOCAppService(ServiceType = typeof(CollectionFocusAlignOpticsFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
+    IServiceProvider serviceProvider,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     LaserViewModel laserViewModel,
@@ -294,7 +296,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     private AODWaveformCommonCache _cache = new();
 
     [ObservableProperty]
-    private IDictionary<int, WpfPlot> _plotControls = ImmutableDictionary<int, WpfPlot>.Empty;
+    private IDictionary<int, IPlotControl> _plotControls = ImmutableDictionary<int, IPlotControl>.Empty;
 
     [RelayCommand]
     private void Loaded()
@@ -305,7 +307,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             if (PlotControls.Count > 0) return;
 
-            PlotControls = laserViewModel.GetIsUsedCIBConfigList()[0].ChannelIdList.ToDictionary(channelId => channelId, _ => GetWpfPlot());
+            PlotControls = laserViewModel.GetIsUsedCIBConfigList()[0].ChannelIdList.ToDictionary(channelId => channelId, _ => GetPlotControl());
         }
         finally
         {
@@ -716,22 +718,18 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         }
     }
 
-    private static WpfPlot GetWpfPlot()
+    private IPlotControl GetPlotControl()
     {
-        WpfPlot? wpfPlot = null;
-
-        HostApplication.GetRequiredService<ISynchronizationContextProvider>().Send(_ => wpfPlot = new WpfPlot(), null);
-
-        Guard.IsNotNull(wpfPlot);
+        var plotControl = serviceProvider.GetRequiredService<IPlotControl>();
 
         var customGrid = new CustomGrid();
-        wpfPlot.ConfigureWpfPlotScatter(customGrid, 3);
+        plotControl.ConfigureWpfPlotScatter(customGrid, 3);
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
-        var plot0 = wpfPlot.Multiplot.GetPlot(0);
-        var plot1 = wpfPlot.Multiplot.GetPlot(1);
-        var plot2 = wpfPlot.Multiplot.GetPlot(2);
+        var plot0 = plotControl.Multiplot.GetPlot(0);
+        var plot1 = plotControl.Multiplot.GetPlot(1);
+        var plot2 = plotControl.Multiplot.GetPlot(2);
 #pragma warning restore IDISP001
 #pragma warning restore IDE0079
 
@@ -743,6 +741,6 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         plot1.Title($"{DSW} Origin");
         plot2.Title("Normalization");
 
-        return wpfPlot;
+        return plotControl;
     }
 }

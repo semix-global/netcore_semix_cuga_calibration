@@ -16,6 +16,7 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Globalization;
 using System.Windows;
+using Core.Utilities.WPF;
 
 namespace CugaCalibrationTest;
 
@@ -34,6 +35,7 @@ public sealed partial class App
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddNoSQLDBContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddKeyedNoSQLDBContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddServices()
                     .AddCoreService(context.HostingEnvironment)
                     .AddApplication(context.HostingEnvironment)
                     .AddCugaCalibrationTestInjectHostDI(context.HostingEnvironment);
