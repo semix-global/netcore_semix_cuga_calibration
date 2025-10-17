@@ -278,13 +278,15 @@
                         <TabControl SelectedIndex="0" ItemsSource="{Binding PlotControls}">
                             <TabControl.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Title}" />
+                                    <TextBlock Text="{Binding Key, StringFormat='Channel ID {0}'}"
+                                               Padding="8,4"
+                                               FontWeight="SemiBold" />
                                 </DataTemplate>
                             </TabControl.ItemTemplate>
                             <TabControl.ContentTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding PlotControls, Mode=OneWay}" />
+                                        <ContentControl Content="{Binding Value, Mode=OneWay}" />
                                     </Border>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
@@ -328,7 +330,8 @@
                         <ListView Margin="5"
                                   ItemsSource="{Binding Cache.DSWResults}"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  Style="{StaticResource ListView.Small}">
                             <i:Interaction.Behaviors>
                                 <behaviors:ListBoxScrollToCurrentBehavior />
                             </i:Interaction.Behaviors>
