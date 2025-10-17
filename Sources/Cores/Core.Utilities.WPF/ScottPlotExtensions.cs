@@ -1,11 +1,17 @@
+using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using ScottPlot;
 using ScottPlot.Interactivity;
 using ScottPlot.Interactivity.UserActionResponses;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
+using SkiaSharp;
+using SkiaSharp.Views.Desktop;
+using SkiaSharp.Views.WPF;
 using Key = ScottPlot.Interactivity.Key;
 using MouseButton = ScottPlot.Interactivity.MouseButton;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace Core.Utilities.WPF;
 
@@ -55,8 +61,88 @@ public static class ScottPlotExtensions
         plotControl.Menu?.Add("Benchmark", plot =>
         {
             plot.Benchmark.IsVisible = !plot.Benchmark.IsVisible;
+
             plot.PlotControl?.Refresh();
         });
+        plotControl.Menu?.Add("Detach Legend", LaunchDetachedLegend);
+    }
+
+    private static void LaunchDetachedLegend(Plot plot)
+    {
+        plot.Legend.IsVisible = false;
+        plot.PlotControl?.Refresh();
+
+        var window = new Window
+        {
+            Title = "Detached Legend",
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            ResizeMode = ResizeMode.NoResize,
+            WindowStyle = WindowStyle.ToolWindow,
+            ShowInTaskbar = false,
+            Topmost = true
+        };
+
+        window.Closed += (_, _) =>
+        {
+            plot.Legend.IsVisible = true;
+            plot.PlotControl?.Refresh();
+        };
+
+        var skElement = new SKElement{Width = 100, Height = 100};
+
+        window.Content = skElement;
+
+        skElement.PaintSurface += (s, e) => { PaintDetachedLegend(skElement, e, plot); };
+        skElement.MouseDown += (s, e) => { LegendControlOnMouseClick(skElement, e, plot); };
+
+        window.Show();
+    }
+
+    private static void PaintDetachedLegend(SKElement skElement, SKPaintSurfaceEventArgs e, Plot plot)
+    {
+        var size = new PixelSize(skElement.Width, skElement.Height);
+        var rect = new PixelRect(Pixel.Zero, size);
+        var canvas = e.Surface.Canvas;
+        using var paint = Paint.NewDisposablePaint();
+
+        plot.Legend.Render(canvas, paint, rect, Alignment.UpperLeft);
+    }
+
+    private static void LegendControlOnMouseClick(SKElement skElement, MouseButtonEventArgs e, Plot plot)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
+        var item = GetLegendItemUnderMouse(skElement, e.GetPosition(skElement), plot);
+
+        if (item?.Plottable is not null)
+        {
+            item.Plottable.IsVisible = item.Plottable.IsVisible == false;
+        }
+
+        plot.PlotControl?.Refresh();
+        skElement.InvalidateVisual();
+    }
+
+    private static LegendItem? GetLegendItemUnderMouse(SKElement skElement, Point point, Plot plot)
+    {
+        var size = new PixelSize(skElement.Width, skElement.Height);
+        var items = plot.Legend.GetItems();
+        if (items.Length == 0) return null;
+
+        using var paint = Paint.NewDisposablePaint();
+        var layout = plot.Legend.GetLayout(size, paint);
+
+        for (var i = 0; i < items.Length; i++)
+        {
+            var item = items[i];
+            var labelRect = layout.LabelRects[i];
+            var symbolRect = layout.SymbolRects[i];
+            
+            if (labelRect.Contains((float)point.X, (float)point.Y) || symbolRect.Contains((float)point.X, (float)point.Y)) return item;
+            
+        }
+        
+        return null;
     }
 }
 
