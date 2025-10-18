@@ -1,13 +1,11 @@
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
+using Net.Utilities.Models;
 using ScottPlot;
 using ScottPlot.Interactivity;
 using ScottPlot.Interactivity.UserActionResponses;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
-using SkiaSharp;
-using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
 using Key = ScottPlot.Interactivity.Key;
 using MouseButton = ScottPlot.Interactivity.MouseButton;
@@ -17,7 +15,7 @@ namespace Core.Utilities.WPF;
 
 public static class ScottPlotExtensions
 {
-    public static void ConfigureWpfPlotScatter(this IPlotControl plotControl, IMultiplotLayout layout, int totalPlotCount)
+    public static void ConfigureWpfPlotScatter(this IPlotControl plotControl, IMultiplotLayout? layout = null, int totalPlotCount = 1)
     {
         plotControl.ConfigureWpfPlotCommon(layout, totalPlotCount);
 
@@ -34,10 +32,10 @@ public static class ScottPlotExtensions
         plotControl.UserInputProcessor.UserActionResponses.Add(new MouseMove()); // 显示位置
     }
 
-    public static void ConfigureWpfPlotCommon(this IPlotControl plotControl, IMultiplotLayout layout, int totalPlotCount)
+    public static void ConfigureWpfPlotCommon(this IPlotControl plotControl, IMultiplotLayout? layout, int totalPlotCount)
     {
         plotControl.Multiplot.Reset();
-        plotControl.Multiplot.Layout = layout;
+        if (layout is not null) plotControl.Multiplot.Layout = layout;
         plotControl.Multiplot.AddPlots(totalPlotCount);
         foreach (var plot in plotControl.Multiplot.GetPlots())
         {
@@ -57,92 +55,58 @@ public static class ScottPlotExtensions
 
         plotControl.UserInputProcessor.UserActionResponses.Add(new KeyboardPanAndZoom()); // 上下左右
 
-        plotControl.Menu?.Reset();
+        plotControl.Menu?.Clear();
+
+        const string showLegend = "Show Legend Item";
+        const string hideLegend = "High Legend Item";
+        plotControl.Menu?.Add(hideLegend, plot =>
+        {
+            var contextMenuItems = GuardUtils.IsAssignableToType<WpfPlotMenu>(plotControl.Menu).ContextMenuItems;
+            var index = contextMenuItems.FindIndex(t => t.Label == (plot.Legend.ShowItemsFromHiddenPlottables ? hideLegend : showLegend));
+            plot.Legend.ShowItemsFromHiddenPlottables = !plot.Legend.ShowItemsFromHiddenPlottables;
+
+            var contextMenuItem = contextMenuItems[index];
+            contextMenuItem.Label = plot.Legend.ShowItemsFromHiddenPlottables ? hideLegend : showLegend;
+            contextMenuItems[index] = contextMenuItem;
+
+            plot.PlotControl?.Refresh();
+        });
+
+        plotControl.Menu?.Add("Open in New Window", plot =>
+        {
+            var originalControl = plot.PlotControl;
+            var plotControlTemp = new PlotControl();
+            plotControlTemp.ConfigureWpfPlotScatter();
+            plotControlTemp.Reset(plot);
+
+            Window win = new()
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Width = 600,
+                Height = 400,
+                Title = "Interactive Plot",
+                Content = plotControlTemp,
+                Topmost = true
+            };
+            win.Closed += (_, _) => plot.PlotControl = originalControl;
+
+            win.Show();
+        });
+
+        plotControl.Menu?.Add("Save Image", plot =>
+        {
+            if (plotControl.Menu is null) return;
+
+            GuardUtils.IsAssignableToType<WpfPlotMenu>(plotControl.Menu).OpenSaveImageDialog(plot);
+        });
+        plotControl.Menu?.Add("Copy to Clipboard", WpfPlotMenu.CopyImageToClipboard);
+
         plotControl.Menu?.Add("Benchmark", plot =>
         {
             plot.Benchmark.IsVisible = !plot.Benchmark.IsVisible;
 
             plot.PlotControl?.Refresh();
         });
-        plotControl.Menu?.Add("Detach Legend", LaunchDetachedLegend);
-    }
-
-    private static void LaunchDetachedLegend(Plot plot)
-    {
-        plot.Legend.IsVisible = false;
-        plot.PlotControl?.Refresh();
-
-        var window = new Window
-        {
-            Title = "Detached Legend",
-            WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            ResizeMode = ResizeMode.NoResize,
-            WindowStyle = WindowStyle.ToolWindow,
-            ShowInTaskbar = false,
-            Topmost = true
-        };
-
-        window.Closed += (_, _) =>
-        {
-            plot.Legend.IsVisible = true;
-            plot.PlotControl?.Refresh();
-        };
-
-        var skElement = new SKElement{Width = 100, Height = 100};
-
-        window.Content = skElement;
-
-        skElement.PaintSurface += (s, e) => { PaintDetachedLegend(skElement, e, plot); };
-        skElement.MouseDown += (s, e) => { LegendControlOnMouseClick(skElement, e, plot); };
-
-        window.Show();
-    }
-
-    private static void PaintDetachedLegend(SKElement skElement, SKPaintSurfaceEventArgs e, Plot plot)
-    {
-        var size = new PixelSize(skElement.Width, skElement.Height);
-        var rect = new PixelRect(Pixel.Zero, size);
-        var canvas = e.Surface.Canvas;
-        using var paint = Paint.NewDisposablePaint();
-
-        plot.Legend.Render(canvas, paint, rect, Alignment.UpperLeft);
-    }
-
-    private static void LegendControlOnMouseClick(SKElement skElement, MouseButtonEventArgs e, Plot plot)
-    {
-        if (e.LeftButton != MouseButtonState.Pressed) return;
-
-        var item = GetLegendItemUnderMouse(skElement, e.GetPosition(skElement), plot);
-
-        if (item?.Plottable is not null)
-        {
-            item.Plottable.IsVisible = item.Plottable.IsVisible == false;
-        }
-
-        plot.PlotControl?.Refresh();
-        skElement.InvalidateVisual();
-    }
-
-    private static LegendItem? GetLegendItemUnderMouse(SKElement skElement, Point point, Plot plot)
-    {
-        var size = new PixelSize(skElement.Width, skElement.Height);
-        var items = plot.Legend.GetItems();
-        if (items.Length == 0) return null;
-
-        using var paint = Paint.NewDisposablePaint();
-        var layout = plot.Legend.GetLayout(size, paint);
-
-        for (var i = 0; i < items.Length; i++)
-        {
-            var item = items[i];
-            var labelRect = layout.LabelRects[i];
-            var symbolRect = layout.SymbolRects[i];
-            
-            if (labelRect.Contains((float)point.X, (float)point.Y) || symbolRect.Contains((float)point.X, (float)point.Y)) return item;
-            
-        }
-        
-        return null;
     }
 }
 
@@ -233,11 +197,10 @@ internal sealed class MouseMove : IUserActionResponse
 #pragma warning disable IDISP001
 
         var plotPlot = plotControl.Multiplot.GetPlotAtPixel(mousePixel);
+        if (plotPlot is null) return ResponseInfo.NoActionRequired;
 
 #pragma warning restore IDISP001
 #pragma warning restore IDE0079
-
-        if (plotPlot is null) return ResponseInfo.NoActionRequired;
 
         var mouseLocation = plotPlot.GetCoordinates(mousePixel);
 
@@ -293,7 +256,7 @@ internal sealed class MouseMove : IUserActionResponse
     private static Color ToForegroundColor(Color backgroundColor)
     {
         // 使用加权平方根公式计算亮度（人眼感知模型）
-        var luma = (int)Math.Sqrt(backgroundColor.Red * backgroundColor.Red * 0.299 + backgroundColor.Green * backgroundColor.Green * 0.587 + backgroundColor.Blue * backgroundColor.Blue * 0.114); // todo: 背景色亮度luma
+        var luma = (int)Math.Sqrt(backgroundColor.Red * backgroundColor.Red * 0.299 + backgroundColor.Green * backgroundColor.Green * 0.587 + backgroundColor.Blue * backgroundColor.Blue * 0.114);
 
         return luma > 130 ? Colors.Black : Colors.White;
     }
@@ -311,6 +274,77 @@ internal sealed class PlotControl : WpfPlot
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
+
+        e.Handled = true;
+    }
+
+    protected override void OnMouseDown(MouseButtonEventArgs e)
+    {
+        base.OnMouseDown(e);
+
+        var skElement = GuardUtils.IsAssignableToType<SKElement>(PlotFrameworkElement);
+
+        var position = e.GetPosition(this);
+        var pixel = new Pixel(position.X, position.Y);
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
+#pragma warning disable IDISP004
+
+        var plotAtPixel = Multiplot.GetPlotAtPixel(pixel);
+        if (plotAtPixel?.PlotControl is null) return;
+
+        var items = plotAtPixel.Legend.GetItems();
+        if (items.Length == 0) return;
+
+        var subplotRectangles = plotAtPixel.PlotControl.Multiplot.Layout.GetSubplotRectangles(
+            plotAtPixel.PlotControl.Multiplot.Subplots,
+            new PixelRect(0, skElement.CanvasSize.Width, skElement.CanvasSize.Height, 0));
+
+        var index = 0;
+        for (var i = 0; i < plotAtPixel.PlotControl.Multiplot.Subplots.Count; i++)
+        {
+            if (ReferenceEquals(plotAtPixel.PlotControl.Multiplot.GetPlot(i), plotAtPixel) == false) continue;
+
+            index = i;
+            break;
+        }
+
+#pragma warning restore IDISP004
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
+
+        using var paint = Paint.NewDisposablePaint();
+        var dataRect = plotAtPixel.Layout.LayoutEngine.GetLayout(new PixelRect(
+            left: subplotRectangles[index].Left / (float)plotAtPixel.ScaleFactor,
+            right: subplotRectangles[index].Right / (float)plotAtPixel.ScaleFactor,
+            bottom: subplotRectangles[index].Bottom / (float)plotAtPixel.ScaleFactor,
+            top: subplotRectangles[index].Top / (float)plotAtPixel.ScaleFactor), plotAtPixel, paint).DataRect;
+
+        var dataRectAfterMargin = dataRect.Contract(plotAtPixel.Legend.Margin);
+        var tightLayout = plotAtPixel.Legend.Layout.GetLayout(plotAtPixel.Legend, items, dataRectAfterMargin.Size, paint);
+        var standaloneLegendRect = tightLayout.LegendRect.AlignedInside(dataRectAfterMargin, plotAtPixel.Legend.Alignment);
+        var legendOffset = new PixelOffset(standaloneLegendRect.Left, standaloneLegendRect.Top);
+        var layout = new LegendLayout { LegendItems = tightLayout.LegendItems, LegendRect = tightLayout.LegendRect.WithOffset(legendOffset), LabelRects = tightLayout.LabelRects.Select(x => x.WithOffset(legendOffset)).ToArray(), SymbolRects = tightLayout.SymbolRects.Select(x => x.WithOffset(legendOffset)).ToArray() };
+
+        var scalePixel = pixel / (float)plotAtPixel.ScaleFactor;
+        for (var i = 0; i < items.Length; i++)
+        {
+            var item = items[i];
+            var labelRect = layout.LabelRects[i];
+            var symbolRect = layout.SymbolRects[i];
+
+            if (labelRect.Contains(scalePixel) == false && symbolRect.Contains(scalePixel) == false) continue;
+
+            if (item.Plottable is null) continue;
+
+            item.Plottable.IsVisible = !item.Plottable.IsVisible;
+
+            plotAtPixel.PlotControl.Refresh();
+
+            return;
+        }
+
 
         e.Handled = true;
     }

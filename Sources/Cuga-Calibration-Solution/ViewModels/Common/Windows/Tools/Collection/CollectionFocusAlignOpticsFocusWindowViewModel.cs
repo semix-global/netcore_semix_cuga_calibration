@@ -676,32 +676,40 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             var wpfPlot = PlotControls[keyValuePair.Key];
 
-            foreach (var plot in wpfPlot.Multiplot.GetPlots()) plot.Remove<Scatter>();
+            // foreach (var plot in wpfPlot.Multiplot.GetPlots()) plot.Remove<Scatter>();
 
 #pragma warning disable IDISP004
 #pragma warning disable IDISP001
 
             foreach (var (i, pair) in hazeOriginDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
-                var scatter = wpfPlot.Multiplot.GetPlot(0).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
-                scatter.LegendText = pair.Key;
+                var scatter = wpfPlot.Multiplot.GetPlot(0).PlottableList.OfType<Scatter>().SingleOrDefault(t => t.LegendText == pair.Key);
+                if (scatter is null)
+                {
+                    scatter = wpfPlot.Multiplot.GetPlot(0).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
+                    scatter.LegendText = pair.Key;
+                }
+                else
+                {
+                    ObjectHelper.SetPropertyValue(scatter, nameof(scatter.Data), pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray());
+                }
             }
 
             foreach (var (i, pair) in dswOriginDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
-                var scatter = wpfPlot.Multiplot.GetPlot(1).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
+                var scatter = wpfPlot.Multiplot.GetPlot(1).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, dswOriginDictionaryByChannelId.Count - 1)));
                 scatter.LegendText = pair.Key;
             }
 
             foreach (var (i, pair) in hazeNormalizationDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
-                var scatter = wpfPlot.Multiplot.GetPlot(2).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
+                var scatter = wpfPlot.Multiplot.GetPlot(2).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X, t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1)));
                 scatter.LegendText = pair.Key;
             }
 
             foreach (var (i, pair) in dswNormalizationDictionaryByChannelId.Select((pair, i) => (i, pair)))
             {
-                var scatter = wpfPlot.Multiplot.GetPlot(2).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X + (Cache.HazeAverageECS - Cache.DSWAverageECS), t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, hazeOriginDictionaryByChannelId.Count - 1)));
+                var scatter = wpfPlot.Multiplot.GetPlot(2).Add.Scatter(pair.Value.Select(t => new Coordinates(t.X + (Cache.HazeAverageECS - Cache.DSWAverageECS), t.Y)).ToArray(), Turbo.GetColor(i, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1)));
                 scatter.LegendText = pair.Key;
             }
 
@@ -712,6 +720,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             {
                 plot.ShowLegend(ScottPlot.Alignment.UpperLeft, Orientation.Vertical);
                 plot.Axes.AutoScale();
+                plot.PlotControl?.Refresh();
             }
 
             wpfPlot.Refresh();
