@@ -21,6 +21,7 @@ using Core.Services.Interfaces;
 using CugaCalibration.ViewModels;
 using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 using HalconDotNet;
 using HAlgorithm;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -49,7 +50,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;

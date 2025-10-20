@@ -274,7 +274,7 @@ public sealed partial class StageViewModel(
         result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
         return result;
     }
-    
+
     public AlignmentResultDto AlignmentVerify(
         AlignmentSiteDto lowSite1,
         AlignmentSiteDto lowSite2,

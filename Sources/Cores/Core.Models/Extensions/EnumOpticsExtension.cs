@@ -4,7 +4,6 @@ using Cuga.Data.DataStruct.Optics;
 #if NET
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
-
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
@@ -110,6 +109,7 @@ public static class EnumOpticsExtension
     #endregion Polarization
 
 #if NETFRAMEWORK
+
     #region OpticsAODTypeEnum
 
     public static CgWaveType ToCgWaveType(this OpticsAODTypeEnum @this) => @this switch

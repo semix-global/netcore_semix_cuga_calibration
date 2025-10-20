@@ -638,7 +638,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             selectChuckPrealignerObjDto.IsVerified = false;
 
-            if (await P5CalibrateActionAsync(cancellationToken,true) == false)
+            if (await P5CalibrateActionAsync(cancellationToken, true) == false)
             {
                 result = false;
                 return false;

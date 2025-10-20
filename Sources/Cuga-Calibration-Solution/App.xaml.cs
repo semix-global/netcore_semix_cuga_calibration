@@ -1,6 +1,7 @@
 using Core.Models.Helper;
 using Core.Services;
 using Core.Utilities;
+using Core.Utilities.WPF.ScottPlot;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
 using Local.NoSQL.DB.Providers;
@@ -17,8 +18,6 @@ using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
-using Core.Utilities.WPF;
-using Net.Utilities.IOC.Extensions;
 
 namespace CugaCalibration;
 
@@ -48,7 +47,7 @@ public sealed partial class App
                         .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                         .AddNoSQLDBContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddKeyedNoSQLDBContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                        .AddServices()
+                        .AddScottPlotServices()
                         .AddCoreService(context.HostingEnvironment)
                         .AddApplication(context.HostingEnvironment);
                 })
