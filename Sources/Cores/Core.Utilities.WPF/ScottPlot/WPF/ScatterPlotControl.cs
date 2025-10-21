@@ -1,4 +1,3 @@
-using Core.Utilities.WPF.ScottPlot.Interactivity.UserActionResponses;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -8,13 +7,13 @@ using ScottPlot.DataSources;
 using ScottPlot.Palettes;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
-using SkiaSharp.Views.WPF;
 using System.Windows.Input;
+using Core.Utilities.WPF.ScottPlot.Extensions;
 using Range = ScottPlot.Range;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
 
-public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
+public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl, IPlotControl
 {
     private static readonly Turbo Turbo = new();
     private static readonly Category10 Category10 = new();
@@ -25,7 +24,7 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
     {
         var wpfPlotMenu = GuardUtils.IsNotNullAndAssignableToType<WpfPlotMenu>(Menu);
         wpfPlotMenu.Clear();
-        ObjectHelper.SetPropertyValue(wpfPlotMenu, "ThisControl", null);
+        ObjectHelper.SetFieldValue(wpfPlotMenu, "ThisControl", null);
 
         Menu = new ScatterPlotControlMenu(this);
     }
@@ -43,6 +42,55 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
     {
         base.OnMouseMove(e);
 
+        var position = e.GetPosition(this);
+        var mousePixel = new Pixel(position.X, position.Y);
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
+
+        var plotAtPixel = Multiplot.GetPlotAtPixel(mousePixel);
+        if (plotAtPixel?.PlotControl is null) return;
+
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
+
+        var mouseLocation = this.GetCurrentCoordinates(plotAtPixel, mousePixel);
+
+        var nearestList = plotAtPixel.PlottableList.OfType<Scatter>()
+            .Select(t => (Scatter: t, Result: t.Data.GetNearest(mouseLocation, plotAtPixel.LastRender)))
+            .Where(t => t.Result.IsReal)
+            .ToList();
+
+        var crossHair = plotAtPixel.PlottableList.OfType<Crosshair>().First();
+        var annotation = plotAtPixel.PlottableList.OfType<Annotation>().First();
+
+        if (nearestList.Count > 0 && nearestList[^1].Result.IsReal)
+        {
+            crossHair.IsVisible = true;
+            crossHair.Position = nearestList[^1].Result.Coordinates;
+            crossHair.MarkerShape = MarkerShape.OpenCircle;
+            crossHair.MarkerSize = 10;
+
+            annotation.IsVisible = true;
+            annotation.LabelText = $"{nearestList[^1].Scatter.LegendText}: {ScottPlotHelper.FormatDouble(nearestList[^1].Result.X)}, {ScottPlotHelper.FormatDouble(nearestList[^1].Result.Y)}";
+            annotation.LabelBackgroundColor = nearestList[^1].Scatter.LineColor;
+            annotation.LabelBold = true;
+        }
+        else
+        {
+            crossHair.IsVisible = true;
+            crossHair.Position = mouseLocation;
+            crossHair.MarkerShape = MarkerShape.None;
+            crossHair.MarkerSize = 0;
+
+            annotation.IsVisible = true;
+            annotation.LabelText = $"{ScottPlotHelper.FormatDouble(mouseLocation.X)}, {ScottPlotHelper.FormatDouble(mouseLocation.Y)}";
+            annotation.LabelBackgroundColor = Colors.Yellow;
+            annotation.LabelBold = false;
+        }
+
+        annotation.LabelFontColor = annotation.LabelBackgroundColor.ToReadableForegroundColor();
+
         e.Handled = true;
     }
 
@@ -50,44 +98,23 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
     {
         base.OnMouseDown(e);
 
-        var skElement = GuardUtils.IsAssignableToType<SKElement>(PlotFrameworkElement);
-
         var position = e.GetPosition(this);
-        var pixel = new Pixel(position.X, position.Y);
+        var mousePixel = new Pixel(position.X, position.Y);
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
-#pragma warning disable IDISP004
 
-        var plotAtPixel = Multiplot.GetPlotAtPixel(pixel);
+        var plotAtPixel = Multiplot.GetPlotAtPixel(mousePixel);
         if (plotAtPixel?.PlotControl is null) return;
+
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
 
         var items = plotAtPixel.Legend.GetItems();
         if (items.Length == 0) return;
 
-        var subplotRectangles = plotAtPixel.PlotControl.Multiplot.Layout.GetSubplotRectangles(
-            plotAtPixel.PlotControl.Multiplot.Subplots,
-            new PixelRect(0, skElement.CanvasSize.Width, skElement.CanvasSize.Height, 0));
-
-        var index = 0;
-        for (var i = 0; i < plotAtPixel.PlotControl.Multiplot.Subplots.Count; i++)
-        {
-            if (ReferenceEquals(plotAtPixel.PlotControl.Multiplot.GetPlot(i), plotAtPixel) == false) continue;
-
-            index = i;
-            break;
-        }
-
-#pragma warning restore IDISP004
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-
         using var paint = Paint.NewDisposablePaint();
-        var dataRect = plotAtPixel.Layout.LayoutEngine.GetLayout(new PixelRect(
-            left: subplotRectangles[index].Left / (float)plotAtPixel.ScaleFactor,
-            right: subplotRectangles[index].Right / (float)plotAtPixel.ScaleFactor,
-            bottom: subplotRectangles[index].Bottom / (float)plotAtPixel.ScaleFactor,
-            top: subplotRectangles[index].Top / (float)plotAtPixel.ScaleFactor), plotAtPixel, paint).DataRect;
+        var dataRect = this.GetCurrentDataRect(plotAtPixel);
 
         var dataRectAfterMargin = dataRect.Contract(plotAtPixel.Legend.Margin);
         var tightLayout = plotAtPixel.Legend.Layout.GetLayout(plotAtPixel.Legend, items, dataRectAfterMargin.Size, paint);
@@ -95,7 +122,7 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
         var legendOffset = new PixelOffset(standaloneLegendRect.Left, standaloneLegendRect.Top);
         var layout = new LegendLayout { LegendItems = tightLayout.LegendItems, LegendRect = tightLayout.LegendRect.WithOffset(legendOffset), LabelRects = tightLayout.LabelRects.Select(x => x.WithOffset(legendOffset)).ToArray(), SymbolRects = tightLayout.SymbolRects.Select(x => x.WithOffset(legendOffset)).ToArray() };
 
-        var scalePixel = pixel / (float)plotAtPixel.ScaleFactor;
+        var scalePixel = mousePixel / (float)plotAtPixel.ScaleFactor;
         for (var i = 0; i < items.Length; i++)
         {
             var item = items[i];
@@ -108,13 +135,25 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
 
             item.Plottable.IsVisible = !item.Plottable.IsVisible;
 
-            plotAtPixel.PlotControl.Refresh();
             Refresh();
 
             return;
         }
 
         e.Handled = true;
+    }
+
+    private void Refresh(bool isAutoScale)
+    {
+        foreach (var plot in Multiplot.GetPlots())
+        {
+            if (isAutoScale) plot.Axes.AutoScale();
+
+            ((WpfPlot?)plot.PlotControl)?.Refresh();
+        }
+
+        _originalControl?.Refresh();
+        base.Refresh();
     }
 
     public void ConfigureScatter(IMultiplotLayout? layout = null, int totalPlotCount = 1, Action<IReadOnlyList<Plot>>? configurePlotLayoutActions = null)
@@ -136,8 +175,6 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
             plot.Legend.ShowItemsFromHiddenPlottables = true;
             plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
         }
-
-        UserInputProcessor.UserActionResponses.Add(new ScatterMouseMove()); // 显示位置
     }
 
     public string GetTitle(int plotIndex)
@@ -200,7 +237,7 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
 
     public IReadOnlyList<HtmlPlot2DLinesChart> GetHtmlPlot2DLinesCharts() => GetHtmlPlot2DLinesCharts(0);
 
-    public void UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, Color? color = null)
+    public Scatter UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, Color? color = null)
     {
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
@@ -223,32 +260,26 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl
                 "<Data>k__BackingField",
                 new ScatterSourceCoordinatesArray(points.Select(t => new Coordinates(t.X, t.Y)).ToArray()));
         }
+
+        return scatter;
     }
 
-    public void UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, int position)
+    public Scatter UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, int position)
         => UpdateOrAddScatter(plotIndex, legendText, points, Category10.GetColor(position));
 
-    public void UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, double position, Range range)
+    public Scatter UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, double position, Range range)
         => UpdateOrAddScatter(plotIndex, legendText, points, Turbo.GetColor(position, range));
 
-    public void UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, Color? color = null)
+    public Scatter UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, Color? color = null)
         => UpdateOrAddScatter(0, legendText, points, color);
 
-    public void UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, int position)
+    public Scatter UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, int position)
         => UpdateOrAddScatter(0, legendText, points, position);
 
-    public void UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, double position, Range range)
+    public Scatter UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, double position, Range range)
         => UpdateOrAddScatter(0, legendText, points, position, range);
 
-    public new void Refresh()
-    {
-        foreach (var plot in Multiplot.GetPlots())
-        {
-            plot.Axes.AutoScale();
-            plot.PlotControl?.Refresh();
-        }
+    public void AutoScaleRefresh() => Refresh(true);
 
-        _originalControl?.Refresh();
-        base.Refresh();
-    }
+    public new void Refresh() => Refresh(false);
 }

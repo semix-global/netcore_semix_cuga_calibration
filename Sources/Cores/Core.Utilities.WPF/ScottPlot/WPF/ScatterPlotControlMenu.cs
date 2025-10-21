@@ -1,14 +1,19 @@
+using System.Collections.Concurrent;
 using Microsoft.Win32;
 using MiniExcelLibs;
 using ScottPlot;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Windows;
+using Core.Utilities.WPF.ScottPlot.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
 
 public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl) : WpfPlotMenu(scatterPlotControl), IPlotMenu
 {
+    private static readonly ConcurrentDictionary<Plot, Window> WindowDic = new();
+
     private const string ShowLegendItem = "Show Legend Item";
     private const string HideLegendItem = "High Legend Item";
 
@@ -52,33 +57,43 @@ public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl
         contextMenuItem.Label = plot.Legend.ShowItemsFromHiddenPlottables ? HideLegendItem : ShowLegendItem;
         ContextMenuItems[index] = contextMenuItem;
 
-        plot.PlotControl?.Refresh();
         scatterPlotControl.Refresh();
     }
 
     public new void OpenInNewWindow(Plot plot)
     {
-        var originalControl = plot.PlotControl;
+        var title = $"Interactive Plot: {plot.GetTitle()}";
 
-        var plotControlTemp = new ScatterPlotControl(scatterPlotControl);
-        plotControlTemp.ConfigureScatter();
-
-        plotControlTemp.Reset(plot);
-
-        var win = new Window
+        if (WindowDic.TryGetValue(plot, out var win) == false)
         {
-            WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            Width = 600,
-            Height = 400,
-            Title = $"Interactive Plot: {plot.GetTitle()}",
-            Content = plotControlTemp,
-            Topmost = true
-        };
-        win.Closed += (_, _) => plot.PlotControl = originalControl;
+            var originalControl = plot.PlotControl;
+
+            var plotControlTemp = new ScatterPlotControl(scatterPlotControl);
+            plotControlTemp.ConfigureScatter();
+
+            plotControlTemp.Reset(plot);
+
+            win = new Window
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Width = 600,
+                Height = 400,
+                Title = title,
+                Content = plotControlTemp,
+                Topmost = true
+            };
+            ((IDictionary<Plot, Window>)WindowDic).Add(plot, win);
+
+            win.Closed += (_, _) =>
+            {
+                plot.PlotControl = originalControl;
+
+                ((IDictionary<Plot, Window>)WindowDic).Remove(plot);
+            };
+        }
 
         win.Show();
 
-        plot.PlotControl?.Refresh();
         scatterPlotControl.Refresh();
     }
 
@@ -88,7 +103,7 @@ public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl
         {
             Filter = "Excel Files (*.xlsx)|*.xlsx",
             Title = "Save Excel File",
-            FileName = "Plot.xlsx"
+            FileName = $"Plot{Guid.NewGuid():N}.xlsx"
         };
 
         if (dialog.ShowDialog() != true) return;
@@ -110,8 +125,8 @@ public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl
             var dic = new Dictionary<string, object?>();
             foreach (var (name, points) in plots)
             {
-                var x = string.IsNullOrWhiteSpace(name) ? nameof(Point.X) : $"{name} - {nameof(Point.X)}";
-                var y = string.IsNullOrWhiteSpace(name) ? nameof(Point.Y) : $"{name} - {nameof(Point.Y)}";
+                var x = string.IsNullOrWhiteSpace(name) ? nameof(Point.X) : $"{name}-{nameof(Point.X)}";
+                var y = string.IsNullOrWhiteSpace(name) ? nameof(Point.Y) : $"{name}-{nameof(Point.Y)}";
 
                 dic[x] = i < points.Length ? points[i].X : null;
                 dic[y] = i < points.Length ? points[i].Y : null;
@@ -131,6 +146,7 @@ public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl
             }).ToList();
         }
 
+        FileHelper.DeleteFileIfExists(dialog.FileName);
         MiniExcel.SaveAs(dialog.FileName, sheets);
     }
 

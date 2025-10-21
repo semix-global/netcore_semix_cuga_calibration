@@ -1,6 +1,7 @@
 ﻿using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using ScottPlot;
+using ScottPlot.Plottables;
 using Range = ScottPlot.Range;
 
 namespace Core.Utilities.WPF.ScottPlot;
@@ -21,17 +22,17 @@ public interface IScatterPlotControl
 
     IReadOnlyList<HtmlPlot2DLinesChart> GetHtmlPlot2DLinesCharts();
 
-    void UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, Color? color = null);
+    Scatter UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, Color? color = null);
 
-    void UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, int position);
+    Scatter UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, int position);
 
-    void UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, double position, Range range);
+    Scatter UpdateOrAddScatter(int plotIndex, string legendText, IReadOnlyList<Point> points, double position, Range range);
 
-    void UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, Color? color = null);
+    Scatter UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, Color? color = null);
 
-    void UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, int position);
+    Scatter UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, int position);
 
-    void UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, double position, Range range);
+    Scatter UpdateOrAddScatter(string legendText, IReadOnlyList<Point> points, double position, Range range);
 
-    void Refresh();
+    void AutoScaleRefresh();
 }

@@ -338,7 +338,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 hazeResultItem.EndAverageGray = endSubMatrix.Enumerate().Average();
                 hazeResultItem.StandardDeviation = matrix.Enumerate().StandardDeviation();
 
-                logger.LogHtmlInformation($"Channel Id: {hazeResultItem.ChannelId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                logger.LogHtmlInformation($"Channel Id: {hazeResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     Image = new HtmlImage(hazeResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
                     RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(hazeResultItem.ImageFilePath)}.raw"),
@@ -425,7 +425,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 dswResultItem.StrehlRatioX = strehlRatioX;
                 dswResultItem.StrehlRatioY = strehlRatioY;
 
-                logger.LogHtmlInformation($"Channel Id: {dswResultItem.ChannelId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                logger.LogHtmlInformation($"Channel Id: {dswResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     Image = new HtmlImage(dswResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
                     RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(dswResultItem.ImageFilePath)}.raw"),
@@ -542,11 +542,13 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 var ecss = Generate.LinearRange(sensorAverageEcsValue - Cache.RangeEcs, Cache.StepEcs, sensorAverageEcsValue + Cache.RangeEcs);
                 Guard.IsNotEmpty(ecss);
 
+                logger.LogHtmlInformation("Action", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
                 foreach (var ecs in ecss)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    logger.LogHtmlInformation($"{ecs}(ECS)", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation($"{ecs}(ECS)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                     afViewModel.SetSensorEcsValue(ecs);
                     await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
@@ -662,10 +664,10 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             foreach (var (index, item) in dswNormalizationDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(3, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
+                scatterPlotControl.UpdateOrAddScatter(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
             }
 
-            scatterPlotControl.Refresh();
+            scatterPlotControl.AutoScaleRefresh();
         }
     }
 
