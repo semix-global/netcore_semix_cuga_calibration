@@ -784,6 +784,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
             var tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
                 calibrationStageMap,
+                Cache.IsDarkField,
                 HtmlLogUniqueId,
                 Cache.CalculateContainRowMinCount,
                 Cache.CalculateContainColumnMinCount,
@@ -1006,6 +1007,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 var tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
                     ReviewDto.VerifyDarkFieldStageMap,
+                    true,
                     HtmlLogUniqueId,
                     Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
@@ -1085,6 +1087,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 tryCalculateStageMapError = CalibrationAlgorithmService.CalculateChuckStageMapError(
                     ReviewDto.VerifyBrightFieldStageMap,
+                    false,
                     HtmlLogUniqueId,
                     Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
@@ -1463,9 +1466,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                                    group kvp.Value by kvp.Key.RepeatIndex
+                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 

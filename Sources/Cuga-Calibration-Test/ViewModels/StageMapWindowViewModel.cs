@@ -125,6 +125,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
                 realYMatrix,
                 realIsInWaferXMatrix,
                 realIsMatchOkXMatrix,
+                false,
                 htmlLogUniqueId,
                 calculateContainRowMinCount: cache.CalculateContainRowMinCount,
                 calculateContainColumnMinCount: cache.CalculateContainColumnMinCount,
@@ -160,6 +161,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
             var darkFieldStageMapDto = stageMapDto.CalibrationDarkFieldStageMap.Clone();
             _calibrationAlgorithmService.CalculateChuckStageMapError(
                 brightFieldStageMapDto,
+                false,
                 htmlLogUniqueId,
                 cache.CalculateContainRowMinCount,
                 cache.CalculateContainColumnMinCount,
@@ -169,6 +171,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
                 cache.WaferDiameter);
             _calibrationAlgorithmService.CalculateChuckStageMapError(
                 darkFieldStageMapDto,
+                true,
                 htmlLogUniqueId,
                 cache.CalculateContainRowMinCount,
                 cache.CalculateContainColumnMinCount,

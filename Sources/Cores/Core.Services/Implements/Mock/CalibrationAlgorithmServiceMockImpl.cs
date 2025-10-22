@@ -23,7 +23,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     private readonly Algorithm _algorithm = new();
 
-    public string Version => HAlgorithm.Algorithm.Version;
+    public string Version => Algorithm.Version;
 
     public double GetQuality(HImage image)
     {
@@ -204,6 +204,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     public bool CalculateChuckStageMapError(
         StageMapDto stageMapDto,
+        bool isContainsGantryError,
         Guid htmlLogUniqueId,
         int calculateContainRowMinCount,
         int calculateContainColumnMinCount,
@@ -231,6 +232,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
                 realYMatrix,
                 isInWaferMatrix,
                 templateMathIsOkMatrix,
+                isContainsGantryError,
                 htmlLogUniqueId,
                 calculateContainRowMinCount,
                 calculateContainColumnMinCount: calculateContainColumnMinCount,
