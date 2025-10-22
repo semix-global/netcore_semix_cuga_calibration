@@ -26,4 +26,12 @@ public sealed partial class CIBConfiguration : ObservableCacheBase, ICloneable<C
         IsL0K = IsL0K,
         CIBProfileMode = CIBProfileMode
     };
+
+    public object ToHtmlAnonymous() => new
+    {
+        Gain,
+        IsAutoGainControl,
+        IsL0K,
+        CIBProfileMode
+    };
 }

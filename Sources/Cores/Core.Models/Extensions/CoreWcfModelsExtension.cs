@@ -4,9 +4,7 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.Chuck.AutoFocus;
-using Core.Models.Models.Chuck.BrightFieldStageMap;
 using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
@@ -335,50 +333,6 @@ public static class CoreWcfModelsExtension
             var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
             result.LowMicroscopeLensInformation = lensInfos[0];
             result.HighMicroscopeLensInformation = lensInfos.Count <= 2
-                ? lensInfos[^1]
-                : lensInfos[2];
-            cacheProvider.Set(result, CancellationToken.None);
-        }
-
-        return isOk;
-    }
-
-    public static bool IsOk(this ChuckBrightFieldStageMapDto result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var (isLensChanged, lensInfos) = IsLensChanged();
-        var isOk = result.IsOk;
-
-        if (isOk == false)
-            errorMessage = "Chuck Bright Field Stage Map is Empty";
-
-        if (isLensChanged && isOk)
-        {
-            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-            result.MicroscopeLensInformation = lensInfos.Count <= 2
-                ? lensInfos[^1]
-                : lensInfos[2];
-            cacheProvider.Set(result, CancellationToken.None);
-        }
-
-        return isOk;
-    }
-
-    public static bool IsOk(this ChuckDarkFieldStageMapDto result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var (isLensChanged, lensInfos) = IsLensChanged();
-        var isOk = result.IsOk;
-
-        if (isOk == false)
-            errorMessage = "Chuck Dark Field Stage Map is Empty";
-
-        if (isLensChanged && isOk)
-        {
-            var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-            result.MicroscopeLensInformation = lensInfos.Count <= 2
                 ? lensInfos[^1]
                 : lensInfos[2];
             cacheProvider.Set(result, CancellationToken.None);

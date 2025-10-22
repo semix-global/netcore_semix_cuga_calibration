@@ -3,12 +3,12 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MiniExcelLibs;
+using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Enums.Maths;
 using System.IO;
-using Net.Utilities.Algorithms.Modules;
-using Net.Utilities.Helpers.Helpers.Files;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;

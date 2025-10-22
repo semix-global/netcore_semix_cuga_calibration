@@ -101,4 +101,10 @@ public sealed class LaserLightInformation :
     };
 
     #endregion Mapper
+
+    public object ToHtmlAnonymous() => new
+    {
+        Level,
+        Coefficient
+    };
 }

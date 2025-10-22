@@ -22,7 +22,6 @@ using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MoreLinq;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -892,23 +891,23 @@ public sealed partial class RecipeSettingViewModel(
         switch (name)
         {
             case nameof(CalibrationRecipeDto.WaferDto.ReticleMarkDto.MicrosocpeReticleMarkItemList):
-                var selectItem = CalibrationRecipeDto.WaferDto.ReticleMarkDto.MicrosocpeReticleMarkItemList.Index().FirstOrDefault(t => SelectReticleMarkItem.MaskIndex == t.Value.MaskIndex);
+                var selectItem = CalibrationRecipeDto.WaferDto.ReticleMarkDto.MicrosocpeReticleMarkItemList.Index().FirstOrDefault(t => SelectReticleMarkItem.MaskIndex == t.Item.MaskIndex);
                 EditReticleMarkList = CalibrationRecipeDto.WaferDto.ReticleMarkDto.MicrosocpeReticleMarkItemList;
-                maskDto = EditReticleMarkList[selectItem.Key];
+                maskDto = EditReticleMarkList[selectItem.Index];
                 calibrationTypeName = "Microscope";
                 break;
 
             case nameof(CalibrationRecipeDto.WaferDto.ReticleMarkDto.ChuckReticleMarkItemList):
-                selectItem = CalibrationRecipeDto.WaferDto.ReticleMarkDto.ChuckReticleMarkItemList.Index().FirstOrDefault(t => SelectReticleMarkItem.MaskIndex == t.Value.MaskIndex);
+                selectItem = CalibrationRecipeDto.WaferDto.ReticleMarkDto.ChuckReticleMarkItemList.Index().FirstOrDefault(t => SelectReticleMarkItem.MaskIndex == t.Item.MaskIndex);
                 EditReticleMarkList = CalibrationRecipeDto.WaferDto.ReticleMarkDto.ChuckReticleMarkItemList;
-                maskDto = EditReticleMarkList[selectItem.Key];
+                maskDto = EditReticleMarkList[selectItem.Index];
                 calibrationTypeName = "Chuck";
                 break;
 
             case nameof(CalibrationRecipeDto.WaferDto.ReticleMarkDto.LaserReticleMarkItemList):
-                selectItem = CalibrationRecipeDto.WaferDto.ReticleMarkDto.LaserReticleMarkItemList.Index().FirstOrDefault(t => SelectReticleMarkItem.MaskIndex == t.Value.MaskIndex);
+                selectItem = CalibrationRecipeDto.WaferDto.ReticleMarkDto.LaserReticleMarkItemList.Index().FirstOrDefault(t => SelectReticleMarkItem.MaskIndex == t.Item.MaskIndex);
                 EditReticleMarkList = CalibrationRecipeDto.WaferDto.ReticleMarkDto.LaserReticleMarkItemList;
-                maskDto = EditReticleMarkList[selectItem.Key];
+                maskDto = EditReticleMarkList[selectItem.Index];
                 calibrationTypeName = "Laser";
                 break;
 

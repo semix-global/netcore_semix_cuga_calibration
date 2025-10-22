@@ -28,6 +28,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
     /// <param name="realYMatrix">实际Y矩阵</param>
     /// <param name="isInWaferMatrix">是否在wafer内</param>
     /// <param name="templateMathIsOkMatrix">模板匹配是否成功矩阵</param>
+    /// <param name="isContainsGantryError">是否包含gantry误差</param>
     /// <param name="htmlLogUniqueId">html记录日志的Id</param>
     /// <param name="calculateContainRowMinCount">算法行数包含最少行数</param>
     /// <param name="calculateContainColumnMinCount">算法列数包含最少列数</param>
@@ -43,6 +44,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         Matrix<double> realYMatrix,
         Matrix<double> isInWaferMatrix,
         Matrix<double> templateMathIsOkMatrix,
+        bool isContainsGantryError,
         Guid htmlLogUniqueId,
         int calculateContainRowMinCount = 8,
         int calculateContainColumnMinCount = 8,
@@ -513,44 +515,47 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 
-        var mapMatrix = Matrix<double>.Build.Dense(rowCount, columnCount);
-
-        var centerRow = (int)Math.Floor((rowCount - 1 + 0) / 2d);
-        for (var row = 0; row < rowCount; row++)
+        if (isContainsGantryError == false)
         {
-            for (var column = 0; column < columnCount; column++)
-            {
-                if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
+            var mapMatrix = Matrix<double>.Build.Dense(rowCount, columnCount);
 
-                var columnIndex = column - minColumnIndex;
-                mapMatrix[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
-                                         * (columnIndex < 0 || columnIndex >= thetaGantryVector.Count
-                                             ? Math.Tan(meanGantryTheta)
-                                             : Math.Tan(thetaGantryVector[columnIndex]));
+            var centerRow = (int)Math.Floor((rowCount - 1 + 0) / 2d);
+            for (var row = 0; row < rowCount; row++)
+            {
+                for (var column = 0; column < columnCount; column++)
+                {
+                    if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
+
+                    var columnIndex = column - minColumnIndex;
+                    mapMatrix[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
+                                             * (columnIndex < 0 || columnIndex >= thetaGantryVector.Count
+                                                 ? Math.Tan(meanGantryTheta)
+                                                 : Math.Tan(thetaGantryVector[columnIndex]));
+                }
             }
-        }
 
-        for (var row = 0; row < rowCount; row++)
-        {
-            for (var column = 0; column < columnCount; column++)
+            for (var row = 0; row < rowCount; row++)
             {
-                if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
+                for (var column = 0; column < columnCount; column++)
+                {
+                    if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
 
-                idealXMatrix[row, column] += mapMatrix[row, column];
+                    idealXMatrix[row, column] += mapMatrix[row, column];
+                }
             }
-        }
 
-        logger.LogHtmlInformation(
-            "4.2. Result",
-            HtmlHeaderLevelEnum.Header5,
-            new HtmlBullet(new
-            {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, realXMatrix - idealXMatrix, realYMatrix - idealYMatrix, "Rotate Map"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Rotate error X"),
-                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Rotate error Y")
-            }),
-            htmlLogUniqueId.LoggingHtml()
-        );
+            logger.LogHtmlInformation(
+                "4.2. Result",
+                HtmlHeaderLevelEnum.Header5,
+                new HtmlBullet(new
+                {
+                    VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, realXMatrix - idealXMatrix, realYMatrix - idealYMatrix, "Rotate Map"),
+                    ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Rotate error X"),
+                    ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Rotate error Y")
+                }),
+                htmlLogUniqueId.LoggingHtml()
+            );
+        }
 
         #endregion 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 

@@ -18,7 +18,6 @@ using CommunityToolkit.Diagnostics;
 
 #if NET
 using Core.Services.Implements.GRPC;
-
 #else
 using Core.Services.Implements.WCF;
 

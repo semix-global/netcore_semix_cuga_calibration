@@ -1,6 +1,7 @@
 using Core.Models.Helper;
 using Core.Services;
 using Core.Utilities;
+using Core.Utilities.WPF.ScottPlot;
 using CugaCalibration.Core;
 using CugaCalibrationTest.Views;
 using Local.NoSQL.DB.Providers;
@@ -34,6 +35,7 @@ public sealed partial class App
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddNoSQLDBContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddKeyedNoSQLDBContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)
                     .AddApplication(context.HostingEnvironment)
                     .AddCugaCalibrationTestInjectHostDI(context.HostingEnvironment);
