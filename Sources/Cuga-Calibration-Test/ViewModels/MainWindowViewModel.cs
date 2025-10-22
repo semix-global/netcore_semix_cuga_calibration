@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Laser.AodDelay;
@@ -21,9 +20,9 @@ using Core.Services.Interfaces;
 using CugaCalibration.ViewModels;
 using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 using HalconDotNet;
 using HAlgorithm;
-using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -402,56 +401,6 @@ public sealed partial class MainWindowViewModel(
     }
 
     [RelayCommand]
-    private void TestStageMap()
-    {
-        if (cacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapDto>(out var darkFieldStageMapDto) == false) return;
-        if (recipeCacheProvider.TryGetOrDefault<ChuckDarkFieldStageMapCache>(out var darkFieldCache) == false) return;
-        /*for (var row = 0; row < darkFieldStageMapDto.CalibrationStageMap.RowNumber; row++)
-        {
-            for (var column = 0; column < darkFieldStageMapDto.CalibrationStageMap.ColumnNumber; column++)
-            {
-                darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[row][column] =
-                    darkFieldStageMapDto.CalibrationStageMap.RealMatrix[row][column] - darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[row][column].Point;
-            }
-        }*/
-
-        stageMapWindowViewModel.ShowWindow("Test1", darkFieldStageMapDto.CalibrationStageMap, width: 800);
-
-        /*darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[16][7].IsMatchOk = false;
-        darkFieldStageMapDto.CalibrationStageMap.RealMatrix[16][7] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[16][7].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[16][7] = Point.Origin;
-
-        darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].IsMatchOk = false;
-        darkFieldStageMapDto.CalibrationStageMap.RealMatrix[15][5] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[15][5] = Point.Origin;
-
-        darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].IsMatchOk = false;
-        darkFieldStageMapDto.CalibrationStageMap.RealMatrix[15][5] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[15][5].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[15][5] = Point.Origin;
-
-        darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[0][7].IsMatchOk = false;
-        darkFieldStageMapDto.CalibrationStageMap.RealMatrix[0][7] = darkFieldStageMapDto.CalibrationStageMap.IdealStageMapItemMatrix[0][7].Point;
-        darkFieldStageMapDto.CalibrationStageMap.ErrorMatrix[0][7] = Point.Origin;
-
-        stageMapWindowViewModel.ShowWindow("Test2", darkFieldStageMapDto.CalibrationStageMap, width: 800);*/
-
-        var htmlLogUniqueId = Guid.NewGuid();
-        calibrationAlgorithmService.CalculateChuckStageMapError(
-            darkFieldStageMapDto.CalibrationStageMap,
-            htmlLogUniqueId,
-            darkFieldCache.CalculateContainRowMinCount,
-            darkFieldCache.CalculateContainColumnMinCount,
-            darkFieldCache.CalibrationAlignmentThreshold,
-            darkFieldCache.CalibrationGantryThreshold,
-            darkFieldCache.CalibrationScaleThreshold,
-            darkFieldCache.WaferDiameter);
-
-        logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml());
-
-        stageMapWindowViewModel.ShowWindow("Test3", darkFieldStageMapDto.CalibrationStageMap, width: 800);
-    }
-
-    [RelayCommand]
     private void AutomaticMPeak()
     {
         var openFileDialog = new Microsoft.Win32.OpenFileDialog
@@ -686,5 +635,12 @@ public sealed partial class MainWindowViewModel(
     {
         var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformElectrodeOffsetWindowViewModel>();
         windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
+    }
+
+    [RelayCommand]
+    public void CollectionFocusAlignOpticsFocus()
+    {
+        var collectionFocusAlignOpticsFocusWindowViewModel = HostApplication.GetRequiredService<CollectionFocusAlignOpticsFocusWindowViewModel>();
+        windowManagerService.ShowWindow(collectionFocusAlignOpticsFocusWindowViewModel);
     }
 }

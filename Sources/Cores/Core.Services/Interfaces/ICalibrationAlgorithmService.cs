@@ -231,6 +231,7 @@ public interface ICalibrationAlgorithmService
     /// 计算Chuck StageMap error矩阵
     /// </summary>
     /// <param name="stageMapDto">StageMap</param>
+    /// <param name="isContainsGantryError">是否包含gantry误差</param>
     /// <param name="htmlLogUniqueId">html记录日志的Id</param>
     /// <param name="calculateContainRowMinCount">算法行数包含最少行数</param>
     /// <param name="calculateContainColumnMinCount">算法列数包含最少列数</param>
@@ -241,6 +242,7 @@ public interface ICalibrationAlgorithmService
     /// <returns>是否成功</returns>
     bool CalculateChuckStageMapError(
         StageMapDto stageMapDto,
+        bool isContainsGantryError,
         Guid htmlLogUniqueId,
         int calculateContainRowMinCount,
         int calculateContainColumnMinCount,

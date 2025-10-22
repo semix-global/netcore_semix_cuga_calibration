@@ -3,12 +3,11 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.Chuck.BrightFieldStageMap;
 using Core.Models.Models.Chuck.Center;
-using Core.Models.Models.Chuck.DarkFieldStageMap;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
+using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPower;
@@ -53,8 +52,7 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibration<ChuckCenterObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckPrealignerObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckBrightFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
@@ -67,8 +65,7 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependGantryCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckBrightFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserOpticalPowerDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
@@ -77,8 +74,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependGlobalScaleErrorCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<ChuckBrightFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserOpticalPowerDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
@@ -88,8 +84,7 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependChuckCenterCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibration<ChuckPrealignerObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckBrightFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
@@ -97,8 +92,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependPrealignerCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<ChuckBrightFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
@@ -178,7 +172,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserPixelSizeCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
@@ -186,7 +180,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserLineCentricityCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<ChuckDarkFieldStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
