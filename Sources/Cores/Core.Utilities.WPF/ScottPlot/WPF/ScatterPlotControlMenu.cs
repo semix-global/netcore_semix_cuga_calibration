@@ -8,6 +8,7 @@ using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Collections.Concurrent;
 using System.Windows;
+using Core.Utilities.WPF.ScottPlot.Helper;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
 
@@ -140,7 +141,7 @@ public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl
 
         foreach (var (name, points) in plots)
         {
-            sheets[name] = points.Select(t => new
+            sheets[ScottPlotHelper.ToSafeSheetName(name)] = points.Select(t => new
             {
                 t.X,
                 t.Y

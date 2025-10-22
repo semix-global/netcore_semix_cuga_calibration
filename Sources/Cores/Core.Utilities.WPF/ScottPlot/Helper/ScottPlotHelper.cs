@@ -12,4 +12,21 @@ public static class ScottPlotHelper
 
         return result;
     }
+
+    public static string ToSafeSheetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "Sheet1";
+
+        var invalidChars = new[] { ':', '\\', '/', '?', '*', '[', ']' };
+
+        name = invalidChars.Aggregate(name, (current, ch) => current.Replace(ch, '_'));
+        name = name.Trim();
+
+        if (name.Length > 31) name = name[..31];
+
+        if (string.IsNullOrEmpty(name)) name = "Sheet1";
+
+        return name;
+    }
 }
