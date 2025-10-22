@@ -1,12 +1,13 @@
-using System.Collections.Concurrent;
+using Core.Utilities.WPF.ScottPlot.Extensions;
 using Microsoft.Win32;
 using MiniExcelLibs;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models;
 using ScottPlot;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
+using System.Collections.Concurrent;
 using System.Windows;
-using Core.Utilities.WPF.ScottPlot.Extensions;
-using Net.Utilities.Helpers.Helpers.Files;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
 
@@ -103,7 +104,7 @@ public sealed class ScatterPlotControlMenu(ScatterPlotControl scatterPlotControl
         {
             Filter = "Excel Files (*.xlsx)|*.xlsx",
             Title = "Save Excel File",
-            FileName = $"Plot{Guid.NewGuid():N}.xlsx"
+            FileName = $"Plot{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.xlsx"
         };
 
         if (dialog.ShowDialog() != true) return;

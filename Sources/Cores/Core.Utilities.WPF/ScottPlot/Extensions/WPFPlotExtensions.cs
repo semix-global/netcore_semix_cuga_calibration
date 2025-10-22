@@ -17,7 +17,7 @@ public static class WPFPlotExtensions
         var index = Array.IndexOf(@this.Multiplot.GetPlots(), plot);
 
         using var paint = Paint.NewDisposablePaint();
-        
+
         return plot.Layout.LayoutEngine.GetLayout(new PixelRect(
             left: subplotRectangles[index].Left / (float)plot.ScaleFactor,
             right: subplotRectangles[index].Right / (float)plot.ScaleFactor,

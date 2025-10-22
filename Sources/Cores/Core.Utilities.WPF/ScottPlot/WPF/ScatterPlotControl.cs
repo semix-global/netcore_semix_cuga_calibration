@@ -1,3 +1,5 @@
+using Core.Utilities.WPF.ScottPlot.Extensions;
+using Core.Utilities.WPF.ScottPlot.Helper;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -8,8 +10,6 @@ using ScottPlot.Palettes;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Windows.Input;
-using Core.Utilities.WPF.ScottPlot.Extensions;
-using Core.Utilities.WPF.ScottPlot.Helper;
 using Range = ScottPlot.Range;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
