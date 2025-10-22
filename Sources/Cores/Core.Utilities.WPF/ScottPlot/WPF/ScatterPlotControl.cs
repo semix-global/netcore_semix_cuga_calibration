@@ -9,6 +9,7 @@ using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Windows.Input;
 using Core.Utilities.WPF.ScottPlot.Extensions;
+using Core.Utilities.WPF.ScottPlot.Helper;
 using Range = ScottPlot.Range;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
@@ -49,7 +50,7 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl, IPlotCont
 #pragma warning disable IDISP001
 
         var plotAtPixel = Multiplot.GetPlotAtPixel(mousePixel);
-        if (plotAtPixel?.PlotControl is null) return;
+        if (plotAtPixel is null) return;
 
 #pragma warning restore IDISP001
 #pragma warning restore IDE0079
@@ -91,6 +92,8 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl, IPlotCont
 
         annotation.LabelFontColor = annotation.LabelBackgroundColor.ToReadableForegroundColor();
 
+        Refresh();
+
         e.Handled = true;
     }
 
@@ -105,7 +108,7 @@ public sealed class ScatterPlotControl : WpfPlot, IScatterPlotControl, IPlotCont
 #pragma warning disable IDISP001
 
         var plotAtPixel = Multiplot.GetPlotAtPixel(mousePixel);
-        if (plotAtPixel?.PlotControl is null) return;
+        if (plotAtPixel is null) return;
 
 #pragma warning restore IDISP001
 #pragma warning restore IDE0079

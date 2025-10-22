@@ -14,22 +14,10 @@ public static class WPFPlotExtensions
             @this.Multiplot.Subplots,
             new PixelRect(0, skElement.CanvasSize.Width, skElement.CanvasSize.Height, 0));
 
-#pragma warning disable IDE0079
-#pragma warning disable IDISP004
-
-        var index = 0;
-        for (var i = 0; i < @this.Multiplot.Subplots.Count; i++)
-        {
-            if (ReferenceEquals(@this.Multiplot.GetPlot(i), plot) == false) continue;
-
-            index = i;
-            break;
-        }
-
-#pragma warning restore IDISP004
-#pragma warning restore IDE0079
+        var index = Array.IndexOf(@this.Multiplot.GetPlots(), plot);
 
         using var paint = Paint.NewDisposablePaint();
+        
         return plot.Layout.LayoutEngine.GetLayout(new PixelRect(
             left: subplotRectangles[index].Left / (float)plot.ScaleFactor,
             right: subplotRectangles[index].Right / (float)plot.ScaleFactor,
