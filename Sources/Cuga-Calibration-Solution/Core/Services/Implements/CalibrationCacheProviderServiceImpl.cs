@@ -16,13 +16,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
+using ObjectHelper = Net.Utilities.Helpers.Helpers.ObjectHelper;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -79,7 +79,7 @@ public class CalibrationCacheProviderServiceImpl(
                     {
                         var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
                         var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType);
-                        var wcfModel =dto is not null? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null):null;
+                        var wcfModel = dto is not null ? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null) : null;
                         if (wcfModel is not null)
                         {
                             GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(calibrationBase.IsRequiredSelfCheck))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);

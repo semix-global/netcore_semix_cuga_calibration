@@ -46,7 +46,6 @@
                     <Button Content="Chirp AOD Waveform Electrode Offset" Command="{Binding ChirpAODWaveformElectrodeOffsetCommand}" />
                     <Button Content="Test Log 1" Command="{Binding TestLog1Command}" />
                     <Button Content="Test Log 2" Command="{Binding TestLog2Command}" />
-                    <Button Content="Test Stage Map" Command="{Binding TestStageMapCommand}" />
                     <Button Content="Set NoSql Data" Command="{Binding SetLiteDbDataCommand}" />
                     <Button Style="{StaticResource ButtonDanger}">
                         <hc:UniformSpacingPanel Spacing="5">
@@ -56,6 +55,7 @@
                     </Button>
                 </hc:UniformSpacingPanel>
                 <hc:UniformSpacingPanel Spacing="5">
+                    <Button Content="CollectionFocusAlignOpticsFocus" Command="{Binding CollectionFocusAlignOpticsFocusCommand}" />
                     <Button Content="AutomaticMPeakDetection" Command="{Binding AutomaticMPeakCommand}" />
                     <Button Content="ReadRawImageProjectionY" Command="{Binding ReadRawImageProjectionYCommand}" />
                 </hc:UniformSpacingPanel>

@@ -146,12 +146,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             Logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            var result = false;
+            var isSuccess = false;
             try
             {
-                result = await func().ConfigureAwait(false);
+                isSuccess = await func().ConfigureAwait(false);
 
-                if (result) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
+                if (isSuccess) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
                 else DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
                 LoggerResult();
@@ -174,7 +174,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             }
             finally
             {
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(result ? "OK" : "Failed")}"));
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(isSuccess ? "OK" : "Failed")}"));
             }
         }).ConfigureAwait(false);
     }
