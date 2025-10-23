@@ -35,7 +35,7 @@ public sealed class CalibrationReviewServiceMockImpl(ISynchronizationContextProv
         var bitmapMemoryByteArray = GetBrightFieldImageMemoryByteArray().Anything;
         var bytes = BitmapSourceHelper.BitmapSourceToByteRawArray(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(bitmapMemoryByteArray));
 
-        return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes, Width, Height, Channels, 32));
+        return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes, Width, Height, Channels, Channels * 8));
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()
