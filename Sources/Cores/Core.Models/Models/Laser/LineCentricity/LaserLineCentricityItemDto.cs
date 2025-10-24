@@ -32,22 +32,13 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     private Point _findBrightMachinePosition;
 
     [ObservableProperty]
-    private Point _forwardFindDarkMachinePosition;
+    private Point _findDarkMachinePosition;
 
     [ObservableProperty]
-    private Point _forwardDarkMachineCenterPosition;
+    private Point _darkMachineCenterPosition;
 
     [ObservableProperty]
-    private Point _reverseFindDarkMachinePosition;
-
-    [ObservableProperty]
-    private Point _reverseDarkMachineCenterPosition;
-
-    [ObservableProperty]
-    private string _forwardFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _reverseFilePath = string.Empty;
+    private string _filePath = string.Empty;
 
     [ObservableProperty]
     private string _templateFilePath = string.Empty;
@@ -67,12 +58,9 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
             PmtId = PmtId,
             FindPosition = FindPosition,
             FindBrightMachinePosition = FindBrightMachinePosition,
-            ForwardFindDarkMachinePosition = ForwardFindDarkMachinePosition,
-            ForwardDarkMachineCenterPosition = ForwardDarkMachineCenterPosition,
-            ReverseFindDarkMachinePosition = ReverseFindDarkMachinePosition,
-            ReverseDarkMachineCenterPosition = ReverseDarkMachineCenterPosition,
-            ForwardFilePath = ForwardFilePath,
-            ReverseFilePath = ReverseFilePath,
+            FindDarkMachinePosition = FindDarkMachinePosition,
+            DarkMachineCenterPosition = DarkMachineCenterPosition,
+            FilePath = FilePath,
             TemplateFilePath = TemplateFilePath,
             TemplateImageFilePath = TemplateImageFilePath,
             IsCalibrated = IsCalibrated,
@@ -91,8 +79,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
             CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
             Speed = StageSpeedEnum.ToCgSpeedLevelType(),
             PmtId = PmtId,
-            DarkMachineCenterPosition = ForwardDarkMachineCenterPosition.ToCgPoint(),
-            ReverseDarkMachineCenterPosition = ReverseDarkMachineCenterPosition.ToCgPoint(),
+            DarkMachineCenterPosition = DarkMachineCenterPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
             IsRequiredSelfCheck = IsRequiredSelfCheck

@@ -590,7 +590,10 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
             ChuckCenterObjDto.BFCenterStagePosition = bFCenterStagePosition;
             ChuckCenterObjDto.NewBFCenterStagePosition = new Point(bFCenterStagePosition.X + xDirection * chuckCenterPosition.X, bFCenterStagePosition.Y + yDirection * chuckCenterPosition.Y);
 
-            Logger.LogHtmlInformation("Chuck Center Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            result = Math.Abs(chuckCenterPosition.X) < Cache.CalibrationThreshold
+                     && Math.Abs(chuckCenterPosition.Y) < Cache.CalibrationThreshold;
+
+            Logger.LogHtmlInformation($"Chuck Center Result {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 XDirection = xDirection,
                 YDirection = yDirection,
@@ -598,7 +601,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
                 ChuckCenterObjDto.BFCenterStagePosition,
                 CalibrationResult = ChuckCenterObjDto.NewBFCenterStagePosition
             }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+            return result;
         });
         return result;
     }
@@ -634,71 +637,78 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         var result = true;
         await Task.Run(() =>
         {
-            selectChuckCenterObjDto.IsVerified = false;
-            StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.BFCenterStagePosition);
-
-            var chuckCenterObjDto = selectChuckCenterObjDto.Clone();
-
-            RecipeCacheProvider.Set(Cache, cancellationToken);
-
-            var isPositiveSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.PositiveAngle, true);
-            if (isPositiveSuccess == false)
+            try
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Positive Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
-                result = false;
-                return;
-            }
-
-            var isNegativeSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.NegativeAngle, false);
-            if (isNegativeSuccess == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Negative Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
-                result = false;
-                return;
-            }
-
-            chuckCenterObjDto.ChuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
-                chuckCenterObjDto.PositiveTopPosition,
-                chuckCenterObjDto.NegativeTopPosition,
-                chuckCenterObjDto.NegativeRightPosition,
-                chuckCenterObjDto.PositiveRightPosition,
-                chuckCenterObjDto.PositiveBottomPosition,
-                chuckCenterObjDto.NegativeBottomPosition,
-                chuckCenterObjDto.NegativeLeftPosition,
-                chuckCenterObjDto.PositiveLeftPosition
-            );
-            var offset = chuckCenterObjDto.ChuckCenterPosition - selectChuckCenterObjDto.ChuckCenterPosition;
-
-            result = Math.Abs(offset.X) <= Cache.Threshold && Math.Abs(offset.Y) <= Cache.Threshold;
-
-            Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                selectChuckCenterObjDto.ChuckCenterPosition,
-                VerifyChuckCenterPosition = chuckCenterObjDto.ChuckCenterPosition,
-                selectChuckCenterObjDto.BFCenterStagePosition,
-                CalibrationResult = new Point(selectChuckCenterObjDto.BFCenterStagePosition.X - selectChuckCenterObjDto.ChuckCenterPosition.X, selectChuckCenterObjDto.BFCenterStagePosition.Y + selectChuckCenterObjDto.ChuckCenterPosition.Y),
-                VerifyResult = new Point(selectChuckCenterObjDto.BFCenterStagePosition.X - chuckCenterObjDto.ChuckCenterPosition.X, selectChuckCenterObjDto.BFCenterStagePosition.Y + chuckCenterObjDto.ChuckCenterPosition.Y),
-                ChuckCenterThreshold = Cache.Threshold
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            selectChuckCenterObjDto.IsVerified = result;
-            if (Save(selectChuckCenterObjDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
                 selectChuckCenterObjDto.IsVerified = false;
-                result = false;
-                return;
-            }
+                StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.NewBFCenterStagePosition);
 
-            if (!result || !IsAutoCalibrate)
+                var chuckCenterObjDto = selectChuckCenterObjDto.Clone();
+
+                RecipeCacheProvider.Set(Cache, cancellationToken);
+
+                var isPositiveSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.PositiveAngle, true);
+                if (isPositiveSuccess == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Positive Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
+                    result = false;
+                    return;
+                }
+
+                var isNegativeSuccess = FindChuckCenterPosition(chuckCenterObjDto, Cache.NegativeAngle, false);
+                if (isNegativeSuccess == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Negative Four Points Failed."), HtmlLogUniqueId.LoggingHtml());
+                    result = false;
+                    return;
+                }
+
+                chuckCenterObjDto.ChuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
+                    chuckCenterObjDto.PositiveTopPosition,
+                    chuckCenterObjDto.NegativeTopPosition,
+                    chuckCenterObjDto.NegativeRightPosition,
+                    chuckCenterObjDto.PositiveRightPosition,
+                    chuckCenterObjDto.PositiveBottomPosition,
+                    chuckCenterObjDto.NegativeBottomPosition,
+                    chuckCenterObjDto.NegativeLeftPosition,
+                    chuckCenterObjDto.PositiveLeftPosition
+                );
+
+                result = Math.Abs(chuckCenterObjDto.ChuckCenterPosition.X) <= Cache.Threshold && Math.Abs(chuckCenterObjDto.ChuckCenterPosition.Y) <= Cache.Threshold;
+
+                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    CalibrationResult = selectChuckCenterObjDto.NewBFCenterStagePosition,
+                    VerifyChuckCenterOffset = chuckCenterObjDto.ChuckCenterPosition,
+                    VerifyResult = selectChuckCenterObjDto.NewBFCenterStagePosition + (Vector)chuckCenterObjDto.ChuckCenterPosition,
+                    ChuckCenterThreshold = Cache.Threshold
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                selectChuckCenterObjDto.IsVerified = result;
+                if (Save(selectChuckCenterObjDto, cancellationToken) == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    selectChuckCenterObjDto.IsVerified = false;
+                    result = false;
+                    return;
+                }
+
+                StageViewModel.SetBrightFieldCenterMachinePositionValue(result ? selectChuckCenterObjDto.NewBFCenterStagePosition : selectChuckCenterObjDto.BFCenterStagePosition);
+
+                if (!IsAutoCalibrate)
+                {
+                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter offset: ({chuckCenterObjDto.ChuckCenterPosition})", DialogButtonsEnum.OK,
+                        result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                }
+
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
+            }
+            catch (Exception ex)
             {
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter: ({chuckCenterObjDto.ChuckCenterPosition}) Old ChuckCenter: ({selectChuckCenterObjDto.ChuckCenterPosition}) Error: ({offset})", DialogButtonsEnum.OK,
-                    result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-            }
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Verify exception!" + ex.Message), HtmlLogUniqueId.LoggingHtml());
 
-            if (result) StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.NewBFCenterStagePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
+                StageViewModel.SetBrightFieldCenterMachinePositionValue(selectChuckCenterObjDto.BFCenterStagePosition);
+            }
         }, cancellationToken);
         return result;
     }

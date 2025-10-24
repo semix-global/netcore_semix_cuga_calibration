@@ -213,8 +213,8 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
             });
 
             var ellipse = wpfPlot.Plot.Add.Circle(
-                laserLineCentricityItemDto.ForwardDarkMachineCenterPosition.X,
-                laserLineCentricityItemDto.ForwardDarkMachineCenterPosition.Y,
+                laserLineCentricityItemDto.DarkMachineCenterPosition.X,
+                laserLineCentricityItemDto.DarkMachineCenterPosition.Y,
                 cache.DarkFieldWaferDiameter / 2d);
             ellipse.LineColor = Colors.DarkRed;
             ellipse.LineWidth = 2;

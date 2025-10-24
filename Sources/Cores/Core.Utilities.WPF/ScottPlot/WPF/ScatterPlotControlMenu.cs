@@ -1,4 +1,5 @@
 using Core.Utilities.WPF.ScottPlot.Extensions;
+using Core.Utilities.WPF.ScottPlot.Helper;
 using Microsoft.Win32;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -8,7 +9,6 @@ using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Collections.Concurrent;
 using System.Windows;
-using Core.Utilities.WPF.ScottPlot.Helper;
 
 namespace Core.Utilities.WPF.ScottPlot.WPF;
 
