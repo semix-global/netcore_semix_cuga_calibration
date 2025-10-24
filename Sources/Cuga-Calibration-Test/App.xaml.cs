@@ -1,7 +1,6 @@
 using Core.Models.Helper;
 using Core.Services;
 using Core.Utilities;
-using Core.Utilities.WPF.ScottPlot;
 using CugaCalibration.Core;
 using CugaCalibrationTest.Views;
 using Local.NoSQL.DB.Providers;
@@ -17,6 +16,7 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Globalization;
 using System.Windows;
+using Net.Utilities.ScottPlot.WPF;
 
 namespace CugaCalibrationTest;
 

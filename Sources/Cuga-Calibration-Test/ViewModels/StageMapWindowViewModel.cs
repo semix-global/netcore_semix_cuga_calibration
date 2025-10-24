@@ -73,7 +73,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         _logger = logger;
         _affineTransformation = affineTransformation;
 
-        recipeLiteDataBaseProvider.ChangeDatabase(@"D:\Nano\Cuga-Calibration\Database\DSW\cache.db", CancellationToken.None);
+        recipeLiteDataBaseProvider.ChangeDatabase(@"D:\Nano\Cuga-Calibration\Database\0802\cache.db", CancellationToken.None);
     }
 
     [RelayCommand]
