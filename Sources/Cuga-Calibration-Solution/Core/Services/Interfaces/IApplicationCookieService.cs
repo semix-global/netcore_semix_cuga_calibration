@@ -1,5 +1,9 @@
-﻿using Core.Models.Models.Common.Cookies;
+﻿using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Laser.LineCentricity;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Net.Utilities.Models.Geometries;
 
 namespace CugaCalibration.Core.Services.Interfaces;
 
@@ -23,4 +27,13 @@ public interface IApplicationCookieService
     /// </summary>
     /// <returns>子菜单</returns>
     List<SysMenuDto> FindSysMenuListByRecursionComponent(string component);
+
+    /// <summary>
+    /// 获得光斑暗场中心相对偏差值（晶圆坐标系）
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="mag"></param>
+    /// <param name="speed"></param>
+    /// <returns></returns>
+    IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(LaserLineCentricityItemDto[] result, OpticsMagTypeEnum mag, StageSpeedEnum speed);
 }

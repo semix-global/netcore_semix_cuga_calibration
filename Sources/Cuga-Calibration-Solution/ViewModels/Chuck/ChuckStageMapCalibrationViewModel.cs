@@ -624,7 +624,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         Cache.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
-            ? laserLineCentricityItemDto.ForwardDarkMachineCenterPosition
+            ? laserLineCentricityItemDto.DarkMachineCenterPosition
             : centerPosition;
         return true;
     }
@@ -699,9 +699,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         ResultChuckStageMapDto.CalibrationDarkFieldStageMap = new StageMapDto(Cache.RowNumber, Cache.ColumnNumber, Cache.RowCellHeight, Cache.ColumnCellWidth);
         ResultChuckStageMapDto.CalibrationDarkFieldStageMap.GenerateByCenterPosition(
             HostEnvironment.IsDevelopment()
-                ? laserLineCentricityItemDto.ForwardDarkMachineCenterPosition
+                ? laserLineCentricityItemDto.DarkMachineCenterPosition
                 : Cache.DarkFieldFirstStageMapPosition,
-            laserLineCentricityItemDto.ForwardDarkMachineCenterPosition,
+            laserLineCentricityItemDto.DarkMachineCenterPosition,
             Cache.WaferDiameter);
 
         OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap));

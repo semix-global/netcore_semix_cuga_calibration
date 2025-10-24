@@ -314,10 +314,6 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// </summary>
     public CgPoint DarkMachineCenterPosition { get; set; }
 
-    /// <summary>
-    /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 反向暗场中心坐标, **Cuga内部使用**
-    /// </summary>
-    public CgPoint ReverseDarkMachineCenterPosition { get; set; }
 }
 
 /// <summary>

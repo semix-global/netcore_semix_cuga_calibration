@@ -78,7 +78,7 @@ public sealed partial class DarkFieldMapView
                                 viewModel.ResultChuckStageMapDto.CalibrationDarkFieldStageMap.RowNumber,
                                 viewModel.ResultChuckStageMapDto.CalibrationDarkFieldStageMap.ColumnNumber,
                                 Colors.Gray.WithAlpha(0.3),
-                                laserLineCentricityItemDto.ForwardDarkMachineCenterPosition,
+                                laserLineCentricityItemDto.DarkMachineCenterPosition,
                                 viewModel.Cache.WaferDiameter);
                         });
 
@@ -99,7 +99,7 @@ public sealed partial class DarkFieldMapView
                                 viewModel.ResultChuckStageMapDto.ExpandStageMapDto.RowNumber,
                                 viewModel.ResultChuckStageMapDto.ExpandStageMapDto.ColumnNumber,
                                 Colors.Red.WithAlpha(0.3),
-                                laserLineCentricityItemDto.ForwardDarkMachineCenterPosition,
+                                laserLineCentricityItemDto.DarkMachineCenterPosition,
                                 viewModel.Cache.WaferDiameter,
                                 labelColor: Colors.Transparent);
                             ShowVectorField(WpfPlot,
@@ -132,7 +132,7 @@ public sealed partial class DarkFieldMapView
                                 viewModel.ReviewDto.ExpandStageMapDto.RowNumber,
                                 viewModel.ReviewDto.ExpandStageMapDto.ColumnNumber,
                                 Colors.Red.WithAlpha(0.3),
-                                laserLineCentricityItemDto.ForwardDarkMachineCenterPosition,
+                                laserLineCentricityItemDto.DarkMachineCenterPosition,
                                 viewModel.Cache.WaferDiameter,
                                 labelColor: Colors.Transparent);
                             ShowVectorField(WpfPlot,
@@ -166,7 +166,7 @@ public sealed partial class DarkFieldMapView
                                 viewModel.ReviewDto.VerifyDarkFieldStageMap.RowNumber,
                                 viewModel.ReviewDto.VerifyDarkFieldStageMap.ColumnNumber,
                                 Colors.Red.WithAlpha(0.3),
-                                laserLineCentricityItemDto.ForwardDarkMachineCenterPosition,
+                                laserLineCentricityItemDto.DarkMachineCenterPosition,
                                 viewModel.Cache.WaferDiameter,
                                 labelColor: Colors.Transparent);
                             ShowVectorField(WpfPlot,

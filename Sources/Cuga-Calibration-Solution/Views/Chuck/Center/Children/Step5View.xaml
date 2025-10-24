@@ -41,6 +41,11 @@
                                           hc:InfoElement.TitlePlacement="Left"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.NegativeAngle}" />
+                        <hc:NumericUpDown Width="220"
+                                          hc:InfoElement.Title="Threshold(um):"
+                                          hc:InfoElement.TitlePlacement="Left"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.CalibrationThreshold}" />
                         <TextBox Text="{Binding ChuckCenterObjDto.ChuckCenterPosition, Converter={StaticResource PointToStringConverter}}"
                                  Width="220"
                                  hc:InfoElement.Title="ChuckCenterPosition: "

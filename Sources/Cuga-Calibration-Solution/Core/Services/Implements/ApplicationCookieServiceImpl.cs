@@ -1,11 +1,19 @@
+using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Laser.LineCentricity;
+using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 using static Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum;
 
@@ -18,6 +26,8 @@ namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(IApplicationCookieService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class ApplicationCookieServiceImpl(
+    ICalibrationStageService calibrationStageServiceImpl,
+    ICacheProvider cacheProvider,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options) : IApplicationCookieService
 {
@@ -135,5 +145,28 @@ public sealed class ApplicationCookieServiceImpl(
             if (list.Count == 0) return;
             RecursionFn(childList);
         }
+    }
+
+    public IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(LaserLineCentricityItemDto[] result, OpticsMagTypeEnum mag, StageSpeedEnum speed)
+    {
+        var (xDirection, yDirection) = calibrationStageServiceImpl.GetMachineDirection().Anything;
+
+        var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.Get<LaserLineCentricityCache>());
+
+        var resultList = result.Where(t => t.OpticsMagTypeEnum == mag && t.StageSpeedEnum == speed)
+            .OrderBy(t => t.PmtId)
+            .ToList();
+
+        var centerItemDto = resultList.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId);
+
+        var offsetList = resultList.OrderBy(t => t.PmtId)
+            .Select(t =>
+            {
+                var centerOffset = t.DarkMachineCenterPosition - (Vector)centerItemDto.DarkMachineCenterPosition;
+                return (t.PmtId, new Point(xDirection * centerOffset.X, yDirection * centerOffset.Y) - (Vector)new Point(0, cache.PmtInterval * (t.PmtId - CalibrationConstantsHelper.MainPmtId)));
+            })
+            .ToList();
+
+        return offsetList;
     }
 }
