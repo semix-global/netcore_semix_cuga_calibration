@@ -122,28 +122,18 @@
                                         Header="Bright Position"
                                         DisplayMemberBinding="{Binding FindBrightMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                         <GridViewColumn Width="200"
-                                        Header="Forward Dark Position"
-                                        DisplayMemberBinding="{Binding ForwardFindDarkMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                                        Header="Dark Position"
+                                        DisplayMemberBinding="{Binding FindDarkMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                         <GridViewColumn Width="250"
-                                        Header="Forward Dark Center Position"
-                                        DisplayMemberBinding="{Binding ForwardDarkMachineCenterPosition, Converter={StaticResource PointToStringConverter}}" />
-                        <GridViewColumn Width="200"
-                                        Header="Reverse Dark Position"
-                                        DisplayMemberBinding="{Binding ReverseFindDarkMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                        <GridViewColumn Width="250"
-                                        Header="Reverse Dark Center Position"
-                                        DisplayMemberBinding="{Binding ReverseDarkMachineCenterPosition, Converter={StaticResource PointToStringConverter}}" />
+                                        Header="Dark Center Position"
+                                        DisplayMemberBinding="{Binding DarkMachineCenterPosition, Converter={StaticResource PointToStringConverter}}" />
                         <GridViewColumn Width="300" Header="Action Review">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <hc:ButtonGroup>
-                                        <Button Content="Forward Image"
+                                        <Button Content="Image"
                                                 Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding ForwardFilePath}"
-                                                d:DataContext="{d:DesignInstance Type=coreModels:LaserLineCentricityItemDto}" />
-                                        <Button Content="Reverse Image"
-                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding ReverseFilePath}"
+                                                CommandParameter="{Binding FilePath}"
                                                 d:DataContext="{d:DesignInstance Type=coreModels:LaserLineCentricityItemDto}" />
                                     </hc:ButtonGroup>
                                 </DataTemplate>

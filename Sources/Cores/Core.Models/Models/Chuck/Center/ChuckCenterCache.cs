@@ -15,7 +15,9 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
     private double _waferDiameter = 300_000;
     private double _positiveAngle = 1d;
     private double _negativeAngle = -1d;
+    private int _calibrationThreshold = 200;
     private int _threshold = 50;
+
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth
@@ -55,6 +57,13 @@ public sealed partial class ChuckCenterCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _p5Angle;
+
+    [ComparisonRange(0, 500, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "CalibrationThreshold: ")]
+    public int CalibrationThreshold
+    {
+        get => _calibrationThreshold;
+        set => SetProperty(ref _calibrationThreshold, value, true);
+    }
 
     [ComparisonRange(0, 50, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Threshold: ")]
     public int Threshold
