@@ -13,6 +13,15 @@ public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, ICloneable<
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
+    private double _opticalPowerMeterCoefficient;
+
+    [ObservableProperty]
+    private double _opticalPowerMeterMaxMeasurePower;
+
+    [ObservableProperty]
+    private Point _opticalPowerMeterMaxMeasurePowerPosition = Point.Origin;
+
+    [ObservableProperty]
     private double _maxCoefficientAverageMeasurePower;
 
     [ObservableProperty]
@@ -41,16 +50,6 @@ public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, ICloneable<
 
     [ObservableProperty]
     private double _waitTime;
-
-    /// <summary>
-    /// 最小功率
-    /// </summary>
-    public double MinCoefficient => CoefficientMeasurePowerPoints.Min(t => t.X);
-
-    /// <summary>
-    /// 最大功率
-    /// </summary>
-    public double MaxCoefficient => CoefficientMeasurePowerPoints.Max(t => t.X);
 
     #region Mapper
 

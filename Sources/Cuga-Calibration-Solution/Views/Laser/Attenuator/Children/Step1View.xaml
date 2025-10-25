@@ -14,7 +14,7 @@
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="400" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -53,7 +53,28 @@
                                    HorizontalAlignment="Center"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding CalibratingItem.MaxCoefficientAverageMeasurePower, StringFormat={}{0}}"
+                    <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterCoefficient, StringFormat='0.###'}"
+                             hc:TitleElement.Title="Optical Power Meter Coefficient: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterMaxMeasurePower, StringFormat='0.###'}"
+                             hc:TitleElement.Title="Optical Power Meter Power(mW): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterMaxMeasurePowerPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="Optical Power Meter Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding CalibratingItem.MaxCoefficientAverageMeasurePower, StringFormat='0.###'}"
                              hc:TitleElement.Title="Max Coefficient Average Power(mW): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="225"

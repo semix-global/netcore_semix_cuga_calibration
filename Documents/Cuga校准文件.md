@@ -1003,16 +1003,6 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     /// 校准间隔时间s
     /// </summary>
     public double WaitTime { get; set; }
-
-    /// <summary>
-    /// 最小功率
-    /// </summary>
-    public double MinCoefficient => CoefficientMeasurePowerPoints.Min(t => t.X);
-
-    /// <summary>
-    /// 最大功率
-    /// </summary>
-    public double MaxCoefficient => CoefficientMeasurePowerPoints.Max(t => t.X);
 }
 ```
 

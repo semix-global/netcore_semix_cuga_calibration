@@ -37,7 +37,7 @@ public sealed partial class LaserAttenuatorCalibrationViewModel(ApplicationCooki
     #region Calibration
 
     [ObservableProperty]
-    private LaserAttenuatorDto _calibratingItem = new();
+    private LaserAttenuatorDto? _calibratingItem;
 
     [ObservableProperty]
     private IReadOnlyList<OpticsMagTypeEnumCalibrationStatus> _calibrationStatuses =
@@ -174,29 +174,34 @@ public sealed partial class LaserAttenuatorCalibrationViewModel(ApplicationCooki
         {
             try
             {
+                CalibratingItem = null;
+
                 var minCoefficient = applicationCookie.LaserLightInformationList.Min(t => t.Coefficient);
                 var maxCoefficient = applicationCookie.LaserLightInformationList.Max(t => t.Coefficient);
-                var measureMaxPower = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk).MeasureMaxPower;
-                var measureMaxPowerPosition = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk).MeasureMaxPowerPosition;
+                var laserOpticalPower = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk);
 
                 CalibratingItem = new LaserAttenuatorDto
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    WaitTime = Cache.WaitTime
+                    WaitTime = Cache.WaitTime,
+                    OpticalPowerMeterCoefficient = laserOpticalPower.Coefficient,
+                    OpticalPowerMeterMaxMeasurePower = laserOpticalPower.MeasureMaxPower,
+                    OpticalPowerMeterMaxMeasurePowerPosition = laserOpticalPower.MeasureMaxPowerPosition
                 };
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     minCoefficient,
                     maxCoefficient,
-                    measureMaxPower,
-                    measureMaxPowerPosition,
+                    CalibratingItem.OpticalPowerMeterCoefficient,
+                    CalibratingItem.OpticalPowerMeterMaxMeasurePower,
+                    CalibratingItem.OpticalPowerMeterMaxMeasurePowerPosition,
                     Cache.Interval,
                     CalibratingItem.OpticsMagTypeEnum,
                     CalibratingItem.WaitTime
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(measureMaxPowerPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(CalibratingItem.OpticalPowerMeterMaxMeasurePowerPosition);
                 LaserViewModel.ToggleOpticsMagType(CalibratingItem.OpticsMagTypeEnum);
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, maxCoefficient);
@@ -316,10 +321,11 @@ public sealed partial class LaserAttenuatorCalibrationViewModel(ApplicationCooki
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                SelectedReviewItem.MinCoefficient,
-                SelectedReviewItem.MaxCoefficient,
                 SelectedReviewItem.OpticsMagTypeEnum,
                 SelectedReviewItem.WaitTime,
+                SelectedReviewItem.OpticalPowerMeterCoefficient,
+                SelectedReviewItem.OpticalPowerMeterMaxMeasurePower,
+                SelectedReviewItem.OpticalPowerMeterMaxMeasurePowerPosition,
                 SelectedReviewItem.MaxCoefficientAverageMeasurePower,
                 SelectedReviewItem.P0,
                 SelectedReviewItem.P1,

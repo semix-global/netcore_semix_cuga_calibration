@@ -91,15 +91,18 @@
                             <GridViewColumn Width="120"
                                             Header="Optics Mag"
                                             DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Width="120"
-                                            Header="Min Coefficient"
-                                            DisplayMemberBinding="{Binding MinCoefficient, StringFormat='0.###'}" />
-                            <GridViewColumn Width="120"
-                                            Header="Max Coefficient"
-                                            DisplayMemberBinding="{Binding MaxCoefficient, StringFormat='0.###'}" />
                             <GridViewColumn Width="250"
                                             Header="Max Coefficient Average Power(mW)"
                                             DisplayMemberBinding="{Binding MaxCoefficientAverageMeasurePower, StringFormat='0.###'}" />
+                            <GridViewColumn Width="250"
+                                            Header="Optical Power Meter Coefficient"
+                                            DisplayMemberBinding="{Binding OpticalPowerMeterCoefficient, StringFormat='0.###'}" />
+                            <GridViewColumn Width="250"
+                                            Header="Optical Power Meter Power(mW)"
+                                            DisplayMemberBinding="{Binding OpticalPowerMeterMaxMeasurePower, StringFormat='0.###'}" />
+                            <GridViewColumn Width="250"
+                                            Header="Optical Power Meter Position(um)"
+                                            DisplayMemberBinding="{Binding OpticalPowerMeterMaxMeasurePowerPosition, Converter={StaticResource PointToStringConverter}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
