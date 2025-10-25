@@ -140,11 +140,8 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         Calibration = CacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        if (IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation.LensCode == -1) IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
-        if (IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation.LensCode == -1)
-            IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformationList[^1]
-                : ApplicationCookie.MicroscopeLensInformationList[2];
+        if (IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation == MicroscopeLensInformation.Default) IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+        if (IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation == MicroscopeLensInformation.Default) IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         if (isHasIdealCache == false) RecipeCacheProvider.Set(IdeaPositionCache, cancellationToken);
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -324,25 +321,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
 
     #region 校准
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)

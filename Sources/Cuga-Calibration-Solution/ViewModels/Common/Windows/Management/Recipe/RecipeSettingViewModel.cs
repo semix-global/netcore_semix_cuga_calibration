@@ -8,6 +8,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Core.Models.Models.Microscope.PixelSize;
@@ -317,13 +318,8 @@ public sealed partial class RecipeSettingViewModel(
 
         ReviewRecipeDtoBackup = ApplicationCookie.CalibrationRecipeDto.Clone();
 
-        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag.LensCode == -1)
-            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag = ApplicationCookie.MicroscopeLensInformationList[0];
-
-        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag.LensCode == -1)
-            CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformationList[^1]
-                : ApplicationCookie.MicroscopeLensInformationList[2];
+        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag == MicroscopeLensInformation.Default) CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag = calibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+        if (CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag == MicroscopeLensInformation.Default) CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag = calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
     }
 
     [RelayCommand]

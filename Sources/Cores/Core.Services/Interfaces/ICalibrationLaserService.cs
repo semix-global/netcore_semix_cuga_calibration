@@ -312,7 +312,7 @@ public interface ICalibrationLaserService
     /// <param name="calChipSiteModelEnum">CalChip模式</param>
     /// <param name="pmtId">光斑ID</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%) null表示用cuga配置值</param>
-    /// <param name="point">位置 null表示用cuga配置值</param>
+    /// <param name="point">明场（暗场）位置 null表示用cuga配置值</param>
     /// <returns>RTFC返回AfEcs和Af电机值</returns>
     SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,

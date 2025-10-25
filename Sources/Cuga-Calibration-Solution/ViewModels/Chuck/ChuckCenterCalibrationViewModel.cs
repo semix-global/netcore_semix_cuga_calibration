@@ -128,14 +128,8 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
         Calibration = CacheProvider.GetOrDefault<ChuckCenterObjDto>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        if (Cache.LowChuckCenterCacheItem.LensInformation.LensCode == -1) Cache.LowChuckCenterCacheItem.LensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
-        if (Cache.HighChuckCenterCacheItem.LensInformation.LensCode == -1)
-            Cache.HighChuckCenterCacheItem.LensInformation = ApplicationCookie.MicroscopeLensInformationList
-            [
-                ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                    ? ApplicationCookie.MicroscopeLensInformationList.Count - 1
-                    : 2
-            ];
+        if (Cache.LowChuckCenterCacheItem.LensInformation == MicroscopeLensInformation.Default) Cache.LowChuckCenterCacheItem.LensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+        if (Cache.HighChuckCenterCacheItem.LensInformation == MicroscopeLensInformation.Default) Cache.HighChuckCenterCacheItem.LensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -287,26 +281,6 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
     #endregion 控制校准业务重载
 
     #region 校准
-
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
-
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)

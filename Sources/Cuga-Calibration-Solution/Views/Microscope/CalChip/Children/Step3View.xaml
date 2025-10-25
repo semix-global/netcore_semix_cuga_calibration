@@ -24,6 +24,13 @@
                                FontWeight="Bold"
                                Style="{StaticResource TextBlockDefaultInfo}" />
                 </StackPanel>
+                <hc:NumericUpDown Width="275"
+                                  hc:InfoElement.Title="Af Offset Threshold: "
+                                  hc:InfoElement.TitlePlacement="Left"
+                                  Minimum="0"
+                                  Maximum="1"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding Cache.AfOffsetThreshold}" />
                 <TextBox Text="{Binding Cache.ChuckPosition, Converter={StaticResource PointToStringConverter}}"
                          Width="275"
                          hc:InfoElement.Title="Position(um): "

@@ -52,7 +52,7 @@
                              ItemContainerStyle="{StaticResource ListboxItemStyle}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <hc:SimplePanel Height="28" Margin="5">
+                                <hc:SimplePanel Height="50" Margin="5">
                                     <TextBlock Text="{Binding Id, StringFormat='PMT {0}'}"
                                                MinWidth="150"
                                                HorizontalAlignment="Left"

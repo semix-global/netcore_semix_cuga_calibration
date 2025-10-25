@@ -154,11 +154,11 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 if (_applicationCookie.MicroscopeLensInformationList.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformationList.Contains(Cache.HighMag) == false)
                 {
-                    Cache = new();
-                    Cache.LowMag = _applicationCookie.MicroscopeLensInformationList[0];
-                    Cache.HighMag = _applicationCookie.MicroscopeLensInformationList.Count <= 2
-                        ? _applicationCookie.MicroscopeLensInformationList[^1]
-                        : _applicationCookie.MicroscopeLensInformationList[2];
+                    Cache = new()
+                    {
+                        LowMag = _calibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone(),
+                        HighMag = _calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone()
+                    };
                     _recipeCacheProvider.Set(Cache, cancellationToken);
                 }
 

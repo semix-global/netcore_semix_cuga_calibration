@@ -1,11 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -16,7 +18,9 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 public sealed partial class SettingDarkFieldAutoFocusViewModel(
     ILogger<SettingDarkFieldAutoFocusViewModel> logger,
     LaserViewModel laserViewModel,
-    StageViewModel stageViewModel) : SettingWindowViewModelBase
+    StageViewModel stageViewModel,
+    ApplicationCookie applicationCookie,
+    CalibrationSetting calibrationSetting) : SettingWindowViewModelBase
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -44,7 +48,10 @@ public sealed partial class SettingDarkFieldAutoFocusViewModel(
 
                 stageViewModel.SetBrightFieldAbsoluteStageXy(position);
 
-                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(position);
+                var (ecs, afMotor) = laserViewModel.RuntimeAfCalibration(
+                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                    position,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation);
 
                 SettingDarkFieldAutoFocusParam.ChuckEcsValue = ecs;
                 SettingDarkFieldAutoFocusParam.ChuckMotorValue = afMotor;

@@ -22,6 +22,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private double _findFocusIntervalHaze = 1;
     private double _findFocusIntervalShinyWafer = 1;
     private double _threshold = 1;
+    private double _afOffsetThreshold = 1;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -119,6 +120,9 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [ObservableProperty]
     private string _verifyResultError = string.Empty;
 
+    /// <summary>
+    /// verify清晰度得分和校准结果的清晰度差值需小于该阈值
+    /// </summary>
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Threshold: ")]
     public double Threshold
     {
@@ -126,9 +130,25 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
         set => SetProperty(ref _threshold, value, validate: true);
     }
 
+    /// <summary>
+    /// chuck、dsw、haze 分别做rtfc输出的afOffset值的差值需小于该阈值
+    /// </summary>
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "AfOffsetThreshold: ")]
+    public double AfOffsetThreshold
+    {
+        get => _afOffsetThreshold;
+        set => SetProperty(ref _afOffsetThreshold, value, validate: true);
+    }
+
+    /// <summary>
+    /// verify chuck、dsw、haze rtfc输出的af ecs和校准结果的差值需小于该阈值 
+    /// </summary>
     [ObservableProperty]
     private double _afEcsErrorThreshold;
 
+    /// <summary>
+    /// verify chuck、dsw、haze rtfc输出的af offset和校准结果的差值需小于该阈值 
+    /// </summary>
     [ObservableProperty]
     private double _afMotorErrorThreshold;
 

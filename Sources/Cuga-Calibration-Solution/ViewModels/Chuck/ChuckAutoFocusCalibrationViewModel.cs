@@ -84,10 +84,8 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckAutoFocusDto>();
-        if (Cache.MicroscopeLensInformation.LensCode == -1)
-            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformationList[^1]
-                : ApplicationCookie.MicroscopeLensInformationList[2];
+
+        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -142,26 +140,6 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
     #endregion 控制校准业务重载
 
     #region 校准
-
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
-
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()

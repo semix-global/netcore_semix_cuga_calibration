@@ -19,7 +19,6 @@ using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;

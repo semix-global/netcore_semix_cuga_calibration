@@ -94,6 +94,34 @@
                                              hc:InfoElement.Title="Coefficient: "
                                              SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
                                              ItemsSource="{Binding LaserLightInformationList}" />
+                                <hc:ComboBox x:Name="LowMagCombobox"
+                                             HorizontalAlignment="Left"
+                                             hc:InfoElement.TitleWidth="150"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.Title="Low Magnification: "
+                                             hc:InfoElement.Necessary="True"
+                                             SelectedItem="{Binding SettingCommonParam.LowMicroscopeLensInformation}"
+                                             ItemsSource="{Binding MicroscopeLensInformationList}">
+                                    <hc:ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding LensName}" />
+                                        </DataTemplate>
+                                    </hc:ComboBox.ItemTemplate>
+                                </hc:ComboBox>
+                                <hc:ComboBox x:Name="HighMagCombobox"
+                                             HorizontalAlignment="Left"
+                                             hc:InfoElement.TitleWidth="150"
+                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:InfoElement.Title="High Magnification: "
+                                             hc:InfoElement.Necessary="True"
+                                             SelectedItem="{Binding SettingCommonParam.HighMicroscopeLensInformation}"
+                                             ItemsSource="{Binding MicroscopeLensInformationList}">
+                                    <hc:ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding LensName}" />
+                                        </DataTemplate>
+                                    </hc:ComboBox.ItemTemplate>
+                                </hc:ComboBox>
                             </hc:UniformSpacingPanel>
                             <hc:UniformSpacingPanel Grid.Column="1" Orientation="Vertical">
                                 <hc:NumericUpDown Margin="5"

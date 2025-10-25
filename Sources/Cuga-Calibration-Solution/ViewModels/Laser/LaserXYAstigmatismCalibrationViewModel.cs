@@ -191,7 +191,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
+        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -285,25 +285,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
     #region 校准
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()
@@ -1047,8 +1029,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 Cache.CIBConfiguration,
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 true,
-                isAutoFocus: false,
-                isRtfc: false);
+                isAutoFocus: false);
 
             var channel1DarkFieldImageDto = list.Single(t => t.ChannelId == 1);
             var channel2DarkFieldImageDto = list.Single(t => t.ChannelId == 2);
