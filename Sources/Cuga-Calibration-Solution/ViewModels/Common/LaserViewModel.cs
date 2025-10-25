@@ -589,6 +589,9 @@ public sealed class LaserViewModel(
                 stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(positionList.First());
                 break;
 
+            case StageCoordinateSystemEnum.Dark:
+                stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(positionList.First());
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null);
         }
@@ -679,6 +682,7 @@ public sealed class LaserViewModel(
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="calChipSiteModelEnum">chuck位置</param>
+    /// <param name="darkFieldImageDto">匹配的原图</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="position">明场位置</param>
     /// <param name="templateFilePath">匹配的模板</param>
@@ -704,6 +708,7 @@ public sealed class LaserViewModel(
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
+        DarkFieldImageDto darkFieldImageDto,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -760,20 +765,6 @@ public sealed class LaserViewModel(
 
         try
         {
-            using var darkFieldImageDto = GetDarkFieldLineScanImage(
-                calChipSiteModelEnum,
-                position,
-                (false, laserLightInformation),
-                false,
-                cibConfiguration,
-                xWidthPixel,
-                yOpticsMagTypeEnum,
-                xStageSpeedEnum,
-                pmtId,
-                stageCoordinateSystemEnum: stageCoordinateSystemEnum,
-                isForward: isForward,
-                isAutoFocus: isAutoFocus); // 模板匹配只能通道3(1, 2特征不明显)
-
             using var image = isForward ? darkFieldImageDto.Image : darkFieldImageDto.Image.HorizontalFlip();
             isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var markPoint, out var offset, out resultScore, out resultAngle);
             if (isSuccess == false)
@@ -854,6 +845,74 @@ public sealed class LaserViewModel(
     }
 
     /// <summary>
+    /// 匹配模板: 从旧位置到匹配后位置，包含暗场采图
+    /// </summary>
+    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
+    /// <param name="calChipSiteModelEnum">chuck位置</param>
+    /// <param name="pmtId">暗场相机 PMT id</param>
+    /// <param name="position">明场位置</param>
+    /// <param name="templateFilePath">匹配的模板</param>
+    /// <param name="saveResultImageFileDirectory">匹配后成功的[保存的匹配图片的文件目录]</param>
+    /// <param name="logGuid">记录日志: id</param>
+    /// <param name="logName">记录日志: 名称</param>
+    /// <param name="logResultTitle">记录日志: 匹配后成功的[标题]</param>
+    /// <param name="cibConfiguration">采图模式</param>
+    /// <param name="resultPosition">匹配后成功的[位置]</param>
+    /// <param name="resultScore">匹配后成功的[得分]</param>
+    /// <param name="resultAngle">匹配后成功的[角度]</param>
+    /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
+    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
+    /// <param name="xWidthPixel">图片X像素宽度</param>
+    /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
+    /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
+    /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="laserLightInformation">功率</param>
+    /// <param name="isAutoFocus"></param>
+    /// <param name="isRtfc"></param>
+    /// <exception cref="AlgorithmException"></exception>
+    /// <returns>是否成功</returns>
+    public bool TryGetMatchPositionByScanImage(
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        int pmtId,
+        Point position,
+        string templateFilePath,
+        string? saveResultImageFileDirectory,
+        Guid? logGuid,
+        string? logName,
+        string? logResultTitle,
+        CIBConfiguration cibConfiguration,
+        out Point resultPosition,
+        out double resultScore,
+        out double resultAngle,
+        out string resultImageFilePath,
+        bool isForward = true,
+        int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
+        OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
+        StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        LaserLightInformation? laserLightInformation = null,
+        bool isAutoFocus = true,
+        bool? isRtfc = true)
+    {
+        using var darkFieldImageDto = GetDarkFieldLineScanImage(
+            calChipSiteModelEnum,
+            position,
+            (false, laserLightInformation),
+            false,
+            cibConfiguration,
+            xWidthPixel,
+            yOpticsMagTypeEnum,
+            xStageSpeedEnum,
+            pmtId,
+            stageCoordinateSystemEnum: stageCoordinateSystemEnum,
+            isForward: isForward,
+            isAutoFocus: isAutoFocus); // 模板匹配只能通道3(1, 2特征不明显)
+        return TryGetMatchPosition(algorithmTemplateTypeEnum, calChipSiteModelEnum, darkFieldImageDto, pmtId, position, templateFilePath, saveResultImageFileDirectory, logGuid, logName, logResultTitle, cibConfiguration, out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, isForward, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, stageCoordinateSystemEnum,
+             laserLightInformation, isAutoFocus, isRtfc);
+    }
+
+    /// <summary>
     /// 记录日志的匹配模板
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
@@ -885,7 +944,7 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true,
         bool? isRtfc = true)
     {
-        return TryGetMatchPosition(
+        return TryGetMatchPositionByScanImage(
             algorithmTemplateTypeEnum,
             calChipSiteModelEnum,
             pmtId,
@@ -946,7 +1005,7 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true,
         bool? isRtfc = true)
     {
-        return TryGetMatchPosition(
+        return TryGetMatchPositionByScanImage(
             algorithmTemplateTypeEnum,
             calChipSiteModelEnum,
             pmtId,

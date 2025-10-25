@@ -37,6 +37,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using LaserLineCentricityCache = Core.Models.Models.Laser.LineCentricity.LaserLineCentricityCache;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -796,7 +797,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         Logger.LogHtmlInformation($"PMT ID :{laserLineCentricityItemDto.PmtId}", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
         //暗场采图匹配后得到补偿offset后的暗场坐标
-        if (LaserViewModel.TryGetMatchPosition(
+        if (LaserViewModel.TryGetMatchPositionByScanImage(
                 Cache.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
                 laserLineCentricityItemDto.PmtId,

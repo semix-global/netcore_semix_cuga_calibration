@@ -950,7 +950,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     var nscBuffers = AfViewModel.GetSensorNscTraceBufferList(TimeSpan.FromSeconds(2));
                     ResultRtfcDto.NscValue = nscBuffers.Average();
                     // 获得照明焦点偏移量
-                    if (LaserViewModel.TryGetMatchPosition(
+                    if (LaserViewModel.TryGetMatchPositionByScanImage(
                             FocusShiftCache.AlgorithmTemplateTypeEnum,
                             FocusShiftCache.CalChipSiteModelEnum,
                             8,

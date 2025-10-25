@@ -695,7 +695,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
 
             Logger.LogHtmlInformation("3. Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var originImagePath = $"{detectImageDirectory}\\DarkFieldMatchOriginImage_{Guid.NewGuid()}).jpg";
-            if (LaserViewModel.TryGetMatchPosition(
+            if (LaserViewModel.TryGetMatchPositionByScanImage(
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.CalChipSiteModelEnum,
                     8,
@@ -839,7 +839,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             ResultFocusShiftDto.AutoFocusNsc = autoFocusNsc;
 
             // 获得照明焦点偏移量
-            if (LaserViewModel.TryGetMatchPosition(
+            if (LaserViewModel.TryGetMatchPositionByScanImage(
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.CalChipSiteModelEnum,
                     8,

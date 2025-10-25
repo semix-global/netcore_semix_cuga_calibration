@@ -19,6 +19,7 @@ using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.FocusShift;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
+using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPower;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PmtAgcDelay;
@@ -445,6 +446,18 @@ public static class CoreWcfModelsExtension
                 : lensInfos[2]);
             cacheProvider.SetArray(result, CancellationToken.None);
         }
+
+        return isOk;
+    }
+
+    public static bool IsOk(this LineOrientationOffsetItemDto[] result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.SingleOrDefault(t => t is { PmtId: 8, OpticsMagTypeEnum: OpticsMagTypeEnum.High, StageSpeedEnum: StageSpeedEnum.Low })?.IsOk == true;
+
+        if (isOk == false)
+            errorMessage = "Laser Line Orientation Offset is Empty";
 
         return isOk;
     }

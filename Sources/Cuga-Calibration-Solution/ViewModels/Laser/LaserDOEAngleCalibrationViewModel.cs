@@ -359,6 +359,8 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
         {
             try
             {
+                Cache.EcsPerAfOffset = AfViewModel.GetEcsPerOffsetMotorMm();
+                Cache.UmPerEcs = AfViewModel.GetNmPerEcs() / 1000;
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.OriginDOEAngle,
