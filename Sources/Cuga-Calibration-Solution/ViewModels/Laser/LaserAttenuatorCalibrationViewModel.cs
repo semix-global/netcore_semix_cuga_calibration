@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -19,11 +20,12 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using static SkiaSharp.HarfBuzz.SKShaper;
 
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAttenuatorCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class LaserAttenuatorCalibrationViewModel(ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -135,8 +137,6 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
         switch (CalibrationStepIndex)
         {
             case 0:
-                ResultLaserAttenuatorObjDto.InitialightIntensity = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPower;
-                ResultLaserAttenuatorObjDto.StagePosition = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition;
                 return true;
 
             case 1:
@@ -185,23 +185,108 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
     {
         await InvokeCalibrateAsync(async () =>
         {
-            var result = await ExecuteAttenuatorCalibrationAsync(cancellationToken).ConfigureAwait(false);
-
-            Logger.LogHtmlInformation(result ? $"{Cache.OpticsMagTypeEnum} OK" : $"{Cache.OpticsMagTypeEnum} Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            try
             {
-                ResultLaserAttenuatorObjDto.OpticsMagTypeEnum,
-                ResultLaserAttenuatorObjDto.StagePosition,
-                ResultLaserAttenuatorObjDto.InitialightIntensity,
-                ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity,
-                PrescanWaveFormLightIntensitites = string.Join(",", ResultLaserAttenuatorObjDto.PrescanWaveFormLightIntensitites),
-                CoefficientList = new HtmlPlot2DLinesChart([
-                    (nameof(ResultLaserAttenuatorObjDto.CoefficientCurvePositions), ResultLaserAttenuatorObjDto.CoefficientCurvePositions.ToArray()),
-                    (nameof(ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions), ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions.ToArray())
-                ], Cache.OpticsMagTypeEnum.ToString())
-            }), HtmlLogUniqueId.LoggingHtml());
+                ResultLaserAttenuatorObjDto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
 
-            if (result == false) return false; // 校准失败, 返回false, 并结束任务. 否则, 继续执行.)
-            return true;
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    InitialightIntensity = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPower,
+                    StagePosition = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition,
+                    ResultLaserAttenuatorObjDto.OpticsMagTypeEnum
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
+                LaserViewModel.ToggleOpticsMagType(ResultLaserAttenuatorObjDto.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient));
+
+                await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
+
+                var firstLightIntensity = LaserViewModel.GetOpticalPowerMeter();
+
+                await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
+
+                var secondLightIntensity = LaserViewModel.GetOpticalPowerMeter();
+
+                ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity = (firstLightIntensity + secondLightIntensity) / 2; // 计算平均值。
+                /* if (HostEnvironment.IsProduction())
+                 {
+                     if (ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity < ResultLaserAttenuatorObjDto.InitialightIntensity)
+                     {
+                         Logger.LogHtmlInformation($"{Name}: Attenuator calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                         {
+                             ResultLaserAttenuatorObjDto.StagePosition,
+                             ResultLaserAttenuatorObjDto.InitialightIntensity,
+                             ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
+                         }), HtmlLogUniqueId.LoggingHtml());
+
+                         return false;
+                     }
+                 }*/
+
+                ResultLaserAttenuatorObjDto.CoefficientCurvePositions = [];
+                ResultLaserAttenuatorObjDto.WaitTime = Cache.WaitTime;
+
+                var coefficients = Generate.LinearRange(applicationCookie.LaserLightInformationList.Min(t => t.Coefficient), Cache.Interval, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient));
+                if (coefficients.Contains(applicationCookie.LaserLightInformationList.Min(t => t.Coefficient)) == false) coefficients = [applicationCookie.LaserLightInformationList.Min(t => t.Coefficient), .. coefficients];
+                if (coefficients.Contains(applicationCookie.LaserLightInformationList.Max(t => t.Coefficient)) == false) coefficients = [.. coefficients, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient)];
+
+                foreach (var c in coefficients)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, c);
+
+                    await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
+
+                    var lightIntensityC = LaserViewModel.GetOpticalPowerMeter();
+
+                    Logger.LogHtmlInformation($"coefficient : {c}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        coefficient = c,
+                        lightIntensity = lightIntensityC
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+                    var point = new Point
+                    (
+                        c,
+                        lightIntensityC / ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
+                    );
+                    ResultLaserAttenuatorObjDto.CoefficientCurvePositions = [.. ResultLaserAttenuatorObjDto.CoefficientCurvePositions, point];
+                    ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [];
+                }
+
+                var (p0, p1, p2, p3, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial3Fit(Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.Y));
+
+                ResultLaserAttenuatorObjDto.P0 = p0;
+                ResultLaserAttenuatorObjDto.P1 = p1;
+                ResultLaserAttenuatorObjDto.P2 = p2;
+                ResultLaserAttenuatorObjDto.P3 = p3;
+                ResultLaserAttenuatorObjDto.RSquared = rSquared;
+                ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [.. ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select((t, i) => new Point(t.X, yPredicted[i]))];
+
+                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    ResultLaserAttenuatorObjDto.OpticsMagTypeEnum,
+                    InitialightIntensity = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPower,
+                    StagePosition = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition,
+                    ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity,
+                    CoefficientList = new HtmlPlot2DLinesChart(
+                    [
+                        (nameof(ResultLaserAttenuatorObjDto.CoefficientCurvePositions), ResultLaserAttenuatorObjDto.CoefficientCurvePositions.ToArray()),
+                        (nameof(ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions), ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions.ToArray())
+                    ], Cache.OpticsMagTypeEnum.ToString())
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                return true;
+            }
+            finally
+            {
+                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+            }
         }).ConfigureAwait(false);
     }
 
@@ -232,10 +317,8 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
             Logger.LogHtmlInformation($"{ReviewDto.OpticsMagTypeEnum} OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 ReviewDto.OpticsMagTypeEnum,
-                ReviewDto.StagePosition,
-                ReviewDto.InitialightIntensity,
-                ReviewDto.LaserPowerMeterAverageIntensity,
-                PrescanWaveFormLightIntensitites = string.Join(",", ReviewDto.PrescanWaveFormLightIntensitites),
+                InitialightIntensity = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPower,
+                StagePosition = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition,
                 CoefficientList = new HtmlPlot2DLinesChart([
                     (nameof(ReviewDto.CoefficientCurvePositions), ReviewDto.CoefficientCurvePositions.ToArray()),
                     (nameof(ReviewDto.CoefficientFitCurvePositions), ReviewDto.CoefficientFitCurvePositions.ToArray())
@@ -246,81 +329,6 @@ public sealed partial class LaserAttenuatorCalibrationViewModel : CalibrationVie
 
             return true;
         }).ConfigureAwait(false);
-    }
-
-    private async Task<bool> ExecuteAttenuatorCalibrationAsync(CancellationToken cancellationToken)
-    {
-        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            ResultLaserAttenuatorObjDto.StagePosition,
-            Cache.OpticsMagTypeEnum
-        }), HtmlLogUniqueId.LoggingHtml());
-
-        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(ResultLaserAttenuatorObjDto.StagePosition);
-        LaserViewModel.ToggleOpticsMagType(ResultLaserAttenuatorObjDto.OpticsMagTypeEnum);
-        LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
-
-        await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-
-        var firstLightIntensity = LaserViewModel.GetOpticalPowerMeter();
-
-        await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-
-        var secondLightIntensity = LaserViewModel.GetOpticalPowerMeter();
-
-        ResultLaserAttenuatorObjDto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
-        ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity = (firstLightIntensity + secondLightIntensity) / 2; // 计算平均值。
-        if (HostEnvironment.IsProduction())
-        {
-            if (ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity < ResultLaserAttenuatorObjDto.InitialightIntensity * CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient)
-            {
-                Logger.LogHtmlInformation($"{Name}: Attenuator calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                {
-                    ResultLaserAttenuatorObjDto.StagePosition,
-                    ResultLaserAttenuatorObjDto.InitialightIntensity,
-                    ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                return false;
-            }
-        }
-
-        ResultLaserAttenuatorObjDto.PrescanWaveFormLightIntensitites = [];
-        ResultLaserAttenuatorObjDto.CoefficientCurvePositions = [];
-        foreach (var c in Generate.LinearRange(0.25, 0.01, 1).Select(t => Math.Round(t, 2)))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, c);
-
-            await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-
-            var lightIntensityC = LaserViewModel.GetOpticalPowerMeter();
-
-            Logger.LogHtmlInformation($"coefficient : {c}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-            {
-                coefficient = c,
-                lightIntensity = lightIntensityC
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            ResultLaserAttenuatorObjDto.PrescanWaveFormLightIntensitites.Add(lightIntensityC);
-            var point = new Point
-            (
-                c,
-                lightIntensityC / ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity
-            );
-            ResultLaserAttenuatorObjDto.CoefficientCurvePositions = [.. ResultLaserAttenuatorObjDto.CoefficientCurvePositions, point];
-            ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [];
-        }
-
-        var (_, _, YPredicted) = PolynomialLeastSquares.PolynomialFit(Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select(t => t.Y)),
-            3);
-        ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions = [.. ResultLaserAttenuatorObjDto.CoefficientCurvePositions.Select((t, i) => new Point(t.X, YPredicted[i]))];
-
-        LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
-
-        return true;
     }
 
     private bool Save(LaserAttenuatorObjDto itemDto, CancellationToken cancellationToken) => InvokeSave(update =>

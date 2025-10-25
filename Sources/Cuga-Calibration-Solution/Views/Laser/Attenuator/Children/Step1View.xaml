@@ -38,30 +38,42 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:NumericUpDown hc:InfoElement.Title="Interval(Coefficient): "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Interval}" />
+                    <hc:NumericUpDown hc:InfoElement.Title="Interval(s): "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.WaitTime}" />
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
                     <TextBox Text="{Binding ResultLaserAttenuatorObjDto.StagePosition, Converter={StaticResource PointToStringConverter}}"
                              hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="180"
                              IsReadOnly="True"
+                             Background="LightGray"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding ResultLaserAttenuatorObjDto.InitialightIntensity, StringFormat={}{0}}"
                              hc:InfoElement.Title="Initial Light Intensity:"
                              hc:InfoElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="180"
                              IsReadOnly="True"
+                             Background="LightGray"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity, StringFormat={}{0}}"
                              hc:InfoElement.Title="Laser Power Intensity:"
                              hc:InfoElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="180"
                              IsReadOnly="True"
+                             Background="LightGray"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:NumericUpDown x:Name="IntervalNumeric"
-                                      hc:InfoElement.Title="Interval(s): "
-                                      hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.WaitTime}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

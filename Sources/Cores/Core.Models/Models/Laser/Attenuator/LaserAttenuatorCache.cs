@@ -9,5 +9,8 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
+    private double _interval;
+
+    [ObservableProperty]
     private double _waitTime = 15;
 }

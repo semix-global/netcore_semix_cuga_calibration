@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
+using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -11,47 +13,67 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
-    private Point _stagePosition;
-
-    [ObservableProperty]
-    private double _initialightIntensity;
-
-    [ObservableProperty]
     private double _laserPowerMeterAverageIntensity;
-
-    [ObservableProperty]
-    private List<double> _prescanWaveFormLightIntensitites = [];
 
     [ObservableProperty]
     private Point[] _coefficientCurvePositions = [];
 
     [ObservableProperty]
+    private double p0;
+
+    [ObservableProperty]
+    private double p1;
+
+    [ObservableProperty]
+    private double p2;
+
+    [ObservableProperty]
+    private double p3;
+
+    [ObservableProperty]
+    private double rSquared;
+
+    [ObservableProperty]
     private Point[] _coefficientFitCurvePositions = [];
 
     [ObservableProperty]
-    private int _interval;
-
-    [ObservableProperty]
-    private string _filePath = string.Empty;
+    private double _waitTime;
 
     #region Mapper
 
     public LaserAttenuatorObjDto Clone() => new()
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,
-        StagePosition = StagePosition,
-        InitialightIntensity = InitialightIntensity,
         LaserPowerMeterAverageIntensity = LaserPowerMeterAverageIntensity,
-        PrescanWaveFormLightIntensitites = [.. PrescanWaveFormLightIntensitites],
         CoefficientCurvePositions = [.. CoefficientCurvePositions],
+        P0 = P0,
+        P1 = P1,
+        P2 = P2,
+        P3 = P3,
+        RSquared = RSquared,
         CoefficientFitCurvePositions = [.. CoefficientFitCurvePositions],
-        Interval = Interval,
-        FilePath = FilePath,
+        WaitTime = WaitTime,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
         Id = Id,
         Expiration = Expiration
+    };
+
+    public CalibrationAttenuatorObj AdaptTo() => new()
+    {
+        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+        LaserPowerMeterAverageIntensity = LaserPowerMeterAverageIntensity,
+        CoefficientCurvePositions = [.. CoefficientCurvePositions.Select(t => t.ToCgPoint())],
+        P0 = P0,
+        P1 = P1,
+        P2 = P2,
+        P3 = P3,
+        RSquared = RSquared,
+        CoefficientFitCurvePositions = [.. CoefficientFitCurvePositions.Select(t => t.ToCgPoint())],
+        WaitTime = WaitTime,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified
     };
 
     #endregion Mapper
