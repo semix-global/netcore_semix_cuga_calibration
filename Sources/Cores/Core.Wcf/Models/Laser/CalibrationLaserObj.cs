@@ -58,9 +58,14 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = Array.Empty<CalibrationLaserXPixelSizeItem>();
 
     /// <summary>
-    /// 暗场相机的像素尺寸校准对象列表
+    /// 暗场相机的光斑中心校准对象列表
     /// </summary>
     public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = Array.Empty<CalibrationLaserLineCentricityItem>();
+
+    /// <summary>
+    /// 暗场相机的Swath扫描正反向误差校准对象列表
+    /// </summary>
+    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = Array.Empty<CalibrationLaserLineOrientationOffsetItem>();
 
     /// <summary>
     /// 暗场AOD散光校准对象列表
@@ -314,6 +319,38 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// </summary>
     public CgPoint DarkMachineCenterPosition { get; set; }
 
+}
+
+/// <summary>
+/// swath路径正反向扫描offset校准(机械坐标差值)
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserLineOrientationOffsetItem : CalibrationBase
+{
+    /// <summary>
+    /// 此显微镜镜头下做的校准
+    /// </summary>
+    public CgMicroscopeLens CgMicroscopeLens { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 暗场相机ID
+    /// </summary>
+    public int PmtId { get; set; }
+
+    /// <summary>
+    /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 正反向误差值
+    /// </summary>
+    public CgPoint Offset { get; set; }
 }
 
 /// <summary>

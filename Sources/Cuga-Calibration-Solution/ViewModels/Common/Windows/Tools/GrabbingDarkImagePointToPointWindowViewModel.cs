@@ -44,6 +44,9 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
     private double _columnCellWidth = 1;
 
     [ObservableProperty]
+    private bool _isForward = true;
+
+    [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
 
     [ObservableProperty]
@@ -73,7 +76,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                                                         {nameof(StageCoordinateSystemEnum)}: {StageCoordinateSystemEnum}
                                                         """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
 
-                var positionList = Enumerable.Range(0, ColumnNumber).Select(t => new Point(StartPosition.X + t * ColumnCellWidth, StartPosition.Y)).ToList();
+                var positionList = Enumerable.Range(0, ColumnNumber).Select(t => new Point(IsForward ? (StartPosition.X + t * ColumnCellWidth) : (StartPosition.X - t * ColumnCellWidth), StartPosition.Y)).ToList();
                 var cropResultList = laserViewModel.GetChuckDarkFieldRowLineScanImage(
                     positionList,
                     (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
