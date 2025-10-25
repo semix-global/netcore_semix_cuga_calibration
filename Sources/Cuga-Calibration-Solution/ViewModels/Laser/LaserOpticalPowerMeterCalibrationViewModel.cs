@@ -285,11 +285,8 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                 };
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
-
                 LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
-
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient));
 
                 var repeatCout = 0;
@@ -347,7 +344,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                     var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.ColumnNumber - 1;
 
-                    var htmlBulletList = new HtmlQuote(new
+                    var htmlBulletList = new HtmlBullet(new
                     {
                         laserOpticalPowerObjDto.FindCenterPosition,
                         laserOpticalPowerObjDto.MeasureMaxPower,
@@ -355,21 +352,22 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                         MaxRow = maximumIndexRow,
                         MaxColumn = maximumIndexCol,
                         IsInEdge = isInEdge,
-                        Map = new HtmlTable([
+                        Map = new HtmlPlot3DChart([.. laserOpticalPowerObjDto.Map.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))], string.Empty, HtmlPlot3DType.Bar3D),
+                        Table = new HtmlExpand(new HtmlTable([
                             .. laserOpticalPowerObjDto.Map.Select(t => new
                         {
                             t.Row,
                             t.Column,
-                            t.MeasurePower,
-                            t.MeasurePosition
+                            t.MeasurePosition,
+                            t.MeasurePower
                         })
-                        ])
+                        ]), "Details")
                     });
 
                     // 判断maximumIndexRow,maximumIndexCol是不是再边缘点上
                     if (isInEdge)
                     {
-                        Logger.LogHtmlInformation($"{Name} Warning Times{repeatCout}: The maximum value is on the edge point!", HtmlHeaderLevelEnum.Header4, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation($"{repeatCout}", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
 
                         laserOpticalPowerObjDto.FindCenterPosition = laserOpticalPowerObjDto.MeasureMaxPowerPosition;
                         continue;
@@ -379,13 +377,14 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                     ResultLaserOpticalPowerDto = resultLaserOpticalPowerDto;
                     LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
 
-                    Logger.LogHtmlInformation($"{Name} Ok Times{repeatCout}", HtmlHeaderLevelEnum.Header4, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"Ok", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
 
                     return true;
                 }
 
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Calibration Failed: Retry count exceeded!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Retry count exceeded!"), HtmlLogUniqueId.LoggingHtml());
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+
                 return false;
             }
             finally
@@ -431,7 +430,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient)t);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient));
 
                 var resultList = new List<double>();
 
@@ -452,15 +451,8 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                 Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    ReviewDto.OpticsMagTypeEnum,
-                    Cache.RowNumber,
-                    Cache.ColumnNumber,
-                    Cache.ColumnCellWidth,
-                    Cache.RowCellHeight,
-                    Cache.WaitTime,
-                    Cache.Threshold,
-                    ReviewDto.MeasureMaxPowerPosition,
-                    ReviewDto.MeasureMaxPower
+                    ReviewMeasureMaxPower = average,
+                    errorRate
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 ReviewDto.IsVerified = result;
