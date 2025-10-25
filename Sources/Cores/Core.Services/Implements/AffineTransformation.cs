@@ -28,7 +28,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
     /// <param name="realYMatrix">实际Y矩阵</param>
     /// <param name="isInWaferMatrix">是否在wafer内</param>
     /// <param name="templateMathIsOkMatrix">模板匹配是否成功矩阵</param>
-    /// <param name="isContainsGantryError">是否包含gantry误差</param>
+    /// <param name="isXOnlyGantryError">X是否只包含gantry误差</param>
     /// <param name="htmlLogUniqueId">html记录日志的Id</param>
     /// <param name="calculateContainRowMinCount">算法行数包含最少行数</param>
     /// <param name="calculateContainColumnMinCount">算法列数包含最少列数</param>
@@ -44,7 +44,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         Matrix<double> realYMatrix,
         Matrix<double> isInWaferMatrix,
         Matrix<double> templateMathIsOkMatrix,
-        bool isContainsGantryError,
+        bool isXOnlyGantryError,
         Guid htmlLogUniqueId,
         int calculateContainRowMinCount = 8,
         int calculateContainColumnMinCount = 8,
@@ -107,17 +107,22 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 一. 原始误差矩阵
 
-        var errorXTempMatrix = realXMatrix - idealXMatrix;
-        var errorYTempMatrix = realYMatrix - idealYMatrix;
+        var errorXOriginTempMatrix = realXMatrix - idealXMatrix;
+        var errorYOriginTempMatrix = realYMatrix - idealYMatrix;
+
+        // 移除统一偏差
+        RemoveAverageTranslation(errorXOriginTempMatrix, errorYOriginTempMatrix, realXMatrix, realYMatrix);
 
         logger.LogHtmlInformation(
             "1. Origin",
             HtmlHeaderLevelEnum.Header4,
             new HtmlBullet(new
             {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXTempMatrix, errorYTempMatrix, "Origin Map"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorXTempMatrix, "Error X"),
-                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorYTempMatrix, "Error Y")
+                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXOriginTempMatrix, errorYOriginTempMatrix, "Origin Map"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorXOriginTempMatrix, "Error X"),
+                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorYOriginTempMatrix, "Error Y"),
+                ErrorXRemoveAverageTranslation = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Remove Average Translation Error X"),
+                ErrorYRemoveAverageTranslation = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Remove Average Translation Error Y")
             }),
             htmlLogUniqueId.LoggingHtml()
         );
@@ -136,7 +141,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var badXList = new List<(int Row, int Column)>();
         for (var row = 0; row < rowCount; row++)
         {
-            var (isSuccess, minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorXTempMatrix, row);
+            var (isSuccess, minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorXOriginTempMatrix, row);
             if (isSuccess == false) continue;
             var average = filterRow.Average(); // 计算平均值
             var standardDeviation = filterRow.StandardDeviation(); // 计算标准差
@@ -148,12 +153,12 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             {
                 if (Convert.ToBoolean(templateMathIsOkMatrix[row, column]) == false) // 模板匹配不成功，认为是坏点
                     badColumnList.Add(column);
-                else if (Math.Abs(errorXTempMatrix[row, column] - average) > 3 * standardDeviation) // 不符合3σ原则，认为是坏点
+                else if (Math.Abs(errorXOriginTempMatrix[row, column] - average) > 3 * standardDeviation) // 不符合3σ原则，认为是坏点
                     badColumnList.Add(column);
                 else // 符合3σ原则，加入到行值列表
                 {
                     goodColumnList.Add(column);
-                    goodValueList.Add(errorXTempMatrix[row, column]);
+                    goodValueList.Add(errorXOriginTempMatrix[row, column]);
                 }
             }
 
@@ -169,9 +174,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
             foreach (var badColumn in badColumnList)
             {
-                var badValue = errorXTempMatrix[row, badColumn];
-                errorXTempMatrix[row, badColumn] = k * badColumn + b;
-                badXLogList.Add((row, badColumn, badValue, errorXTempMatrix[row, badColumn],
+                var badValue = errorXOriginTempMatrix[row, badColumn];
+                errorXOriginTempMatrix[row, badColumn] = k * badColumn + b;
+                badXLogList.Add((row, badColumn, badValue, errorXOriginTempMatrix[row, badColumn],
                 [
                     ($"row {row}", ToPoints(xVector, yVector)),
                     ($"row {row}: y = {k:e3}x + {b:f3}, r^2 = {rSquared}", ToPoints(xVector, yPredicted))
@@ -181,7 +186,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         foreach (var (badRow, badColumn) in badXList)
         {
-            var (minRowIndexByColumn, maxRowIndexByColumn, filterColumn) = FilterColumn(errorXTempMatrix, badColumn);
+            var (minRowIndexByColumn, maxRowIndexByColumn, filterColumn) = FilterColumn(errorXOriginTempMatrix, badColumn);
             var average = filterColumn.Average(); // 计算平均值
             var standardDeviation = filterColumn.StandardDeviation(); // 计算标准差
             var goodRowList = new List<double>();
@@ -189,11 +194,11 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             for (var row = minRowIndexByColumn; row <= maxRowIndexByColumn; row++)
             {
-                if (Math.Abs(errorXTempMatrix[row, badColumn] - average) > 3 * standardDeviation) continue; // 符合3σ原则，加入到行值列表
+                if (Math.Abs(errorXOriginTempMatrix[row, badColumn] - average) > 3 * standardDeviation) continue; // 符合3σ原则，加入到行值列表
                 if (row == badRow) continue;
 
                 goodRowList.Add(row);
-                goodValueList.Add(errorXTempMatrix[row, badColumn]);
+                goodValueList.Add(errorXOriginTempMatrix[row, badColumn]);
             }
 
             if (goodValueList.Count < 2) // 无法行线性拟合
@@ -205,9 +210,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodRowList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
             var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
-            var badValue = errorXTempMatrix[badRow, badColumn];
-            errorXTempMatrix[badRow, badColumn] = k * badRow + b;
-            badXLogList.Add((badRow, badColumn, badValue, errorXTempMatrix[badRow, badColumn],
+            var badValue = errorXOriginTempMatrix[badRow, badColumn];
+            errorXOriginTempMatrix[badRow, badColumn] = k * badRow + b;
+            badXLogList.Add((badRow, badColumn, badValue, errorXOriginTempMatrix[badRow, badColumn],
             [
                 ($"column {badColumn}", ToPoints(xVector, yVector)),
                 ($"column {badColumn}: y = {k:e3}x + {b:f3}, r^2 = {rSquared}", ToPoints(xVector, yPredicted))
@@ -229,8 +234,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                         FitReal = new HtmlPlot2DLinesChart([..t.FitLine], "unit: um")
                     })
                 ]),
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXTempMatrix, errorYTempMatrix, "Delete x bad point"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorXTempMatrix, "Delete x bad point error x")
+                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXOriginTempMatrix, errorYOriginTempMatrix, "Delete x bad point"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorXOriginTempMatrix, "Delete x bad point error x")
             }),
             htmlLogUniqueId.LoggingHtml()
         );
@@ -243,7 +248,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var badYList = new List<(int Row, int Column)>();
         for (var row = 0; row < rowCount; row++)
         {
-            var (isSuccess, minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorYTempMatrix, row);
+            var (isSuccess, minColIndexByRow, maxColIndexByRow, filterRow) = FilterRow(errorYOriginTempMatrix, row);
             if (isSuccess == false) continue;
             var average = filterRow.Average(); // 计算平均值
             var standardDeviation = filterRow.StandardDeviation(); // 计算标准差
@@ -255,12 +260,12 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             {
                 if (Convert.ToBoolean(templateMathIsOkMatrix[row, column]) == false) // 模板匹配不成功，认为是坏点
                     badColumnList.Add(column);
-                else if (Math.Abs(errorYTempMatrix[row, column] - average) > 3 * standardDeviation) // 不符合3σ原则，认为是坏点
+                else if (Math.Abs(errorYOriginTempMatrix[row, column] - average) > 3 * standardDeviation) // 不符合3σ原则，认为是坏点
                     badColumnList.Add(column);
                 else // 符合3σ原则，加入到行值列表
                 {
                     goodColumnList.Add(column);
-                    goodValueList.Add(errorYTempMatrix[row, column]);
+                    goodValueList.Add(errorYOriginTempMatrix[row, column]);
                 }
             }
 
@@ -276,9 +281,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
             foreach (var badColumn in badColumnList)
             {
-                var badValue = errorYTempMatrix[row, badColumn];
-                errorYTempMatrix[row, badColumn] = k * badColumn + b;
-                badYLogList.Add((row, badColumn, badValue, errorYTempMatrix[row, badColumn],
+                var badValue = errorYOriginTempMatrix[row, badColumn];
+                errorYOriginTempMatrix[row, badColumn] = k * badColumn + b;
+                badYLogList.Add((row, badColumn, badValue, errorYOriginTempMatrix[row, badColumn],
                 [
                     ($"row {row}", ToPoints(xVector, yVector)),
                     ($"row {row}: y = {k:e3}x + {b:f3}, r^2 = {rSquared}", ToPoints(xVector, yPredicted))
@@ -288,7 +293,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         foreach (var (badRow, badColumn) in badYList)
         {
-            var (minRowIndexByColumn, maxRowIndexByColumn, filterColumn) = FilterColumn(errorYTempMatrix, badColumn);
+            var (minRowIndexByColumn, maxRowIndexByColumn, filterColumn) = FilterColumn(errorYOriginTempMatrix, badColumn);
             var average = filterColumn.Average(); // 计算平均值
             var standardDeviation = filterColumn.StandardDeviation(); // 计算标准差
             var goodRowList = new List<double>();
@@ -296,11 +301,11 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             for (var row = minRowIndexByColumn; row <= maxRowIndexByColumn; row++)
             {
-                if (Math.Abs(errorYTempMatrix[row, badColumn] - average) > 3 * standardDeviation) continue; // 符合3σ原则，加入到行值列表
+                if (Math.Abs(errorYOriginTempMatrix[row, badColumn] - average) > 3 * standardDeviation) continue; // 符合3σ原则，加入到行值列表
                 if (row == badRow) continue;
 
                 goodRowList.Add(row);
-                goodValueList.Add(errorYTempMatrix[row, badColumn]);
+                goodValueList.Add(errorYOriginTempMatrix[row, badColumn]);
             }
 
             if (goodValueList.Count < 2) // 无法行线性拟合
@@ -312,9 +317,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodRowList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
             var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
-            var badValue = errorYTempMatrix[badRow, badColumn];
-            errorYTempMatrix[badRow, badColumn] = k * badRow + b;
-            badYLogList.Add((badRow, badColumn, badValue, errorYTempMatrix[badRow, badColumn],
+            var badValue = errorYOriginTempMatrix[badRow, badColumn];
+            errorYOriginTempMatrix[badRow, badColumn] = k * badRow + b;
+            badYLogList.Add((badRow, badColumn, badValue, errorYOriginTempMatrix[badRow, badColumn],
             [
                 ($"column {badColumn}", ToPoints(xVector, yVector)),
                 ($"column {badColumn}: y = {k:e3}x + {b:f3}, r^2 = {rSquared}", ToPoints(xVector, yPredicted))
@@ -336,8 +341,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                         FitReal = new HtmlPlot2DLinesChart([..t.FitLine], "unit: um")
                     })
                 ]),
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXTempMatrix, errorYTempMatrix, "Delete y bad point"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorYTempMatrix, "Delete y bad point error x")
+                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXOriginTempMatrix, errorYOriginTempMatrix, "Delete y bad point"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorYOriginTempMatrix, "Delete y bad point error x")
             }),
             htmlLogUniqueId.LoggingHtml()
         );
@@ -346,8 +351,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 二.三. 用除坏点后的实际矩阵
 
-        realXMatrix = idealXMatrix + errorXTempMatrix;
-        realYMatrix = idealYMatrix + errorYTempMatrix;
+        realXMatrix = idealXMatrix + errorXOriginTempMatrix;
+        realYMatrix = idealYMatrix + errorYOriginTempMatrix;
 
         #endregion 二.三. 用除坏点后的实际矩阵
 
@@ -441,8 +446,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             new HtmlBullet(new
             {
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, realXMatrix - idealXMatrix, realYMatrix - idealYMatrix, "Rotate Map"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Rotate error X"),
-                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Rotate error Y")
+                ErrorXRemoveAverageTranslation = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Remove Average Translation Rotate Error X"),
+                ErrorYRemoveAverageTranslation = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Remove Average Translation Rotate Error Y")
             }),
             htmlLogUniqueId.LoggingHtml()
         );
@@ -515,47 +520,61 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 
-        if (isContainsGantryError == false)
+        var errorXContainsGantry = realXMatrix - idealXMatrix;
+
+        var errorGantryXTemp = Matrix<double>.Build.Dense(rowCount, columnCount);
+
+        var centerRow = (int)Math.Floor((rowCount - 1 + 0) / 2d);
+        for (var row = 0; row < rowCount; row++)
         {
-            var mapMatrix = Matrix<double>.Build.Dense(rowCount, columnCount);
-
-            var centerRow = (int)Math.Floor((rowCount - 1 + 0) / 2d);
-            for (var row = 0; row < rowCount; row++)
+            for (var column = 0; column < columnCount; column++)
             {
-                for (var column = 0; column < columnCount; column++)
-                {
-                    if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
+                if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
 
-                    var columnIndex = column - minColumnIndex;
-                    mapMatrix[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
-                                             * (columnIndex < 0 || columnIndex >= thetaGantryVector.Count
-                                                 ? Math.Tan(meanGantryTheta)
-                                                 : Math.Tan(thetaGantryVector[columnIndex]));
-                }
+                var columnIndex = column - minColumnIndex;
+                errorGantryXTemp[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
+                                                * ( /*columnIndex < 0 || columnIndex >= thetaGantryVector.Count
+                                                    ? */Math.Tan(meanGantryTheta)
+                                                    /*: Math.Tan(thetaGantryVector[columnIndex])*/);
             }
-
-            for (var row = 0; row < rowCount; row++)
-            {
-                for (var column = 0; column < columnCount; column++)
-                {
-                    if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
-
-                    idealXMatrix[row, column] += mapMatrix[row, column];
-                }
-            }
-
-            logger.LogHtmlInformation(
-                "4.2. Result",
-                HtmlHeaderLevelEnum.Header5,
-                new HtmlBullet(new
-                {
-                    VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, realXMatrix - idealXMatrix, realYMatrix - idealYMatrix, "Rotate Map"),
-                    ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Rotate error X"),
-                    ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Rotate error Y")
-                }),
-                htmlLogUniqueId.LoggingHtml()
-            );
         }
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
+
+                idealXMatrix[row, column] += errorGantryXTemp[row, column];
+            }
+        }
+
+        var errorDifference = realXMatrix - idealXMatrix;
+        var errorGantryX = errorXContainsGantry - errorDifference;
+
+        logger.LogHtmlInformation(
+            "4.2. Gantry Error Map",
+            HtmlHeaderLevelEnum.Header5,
+            new HtmlBullet(new
+            {
+                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryX, Matrix<double>.Build.SameAs(errorGantryX), "Scale Map"),
+                errorXContainsGantry = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryXTemp, "Gantry error X"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryX, "Gantry error X"),
+            }),
+            htmlLogUniqueId.LoggingHtml()
+        );
+
+        logger.LogHtmlInformation(
+            "4.3. Result",
+            HtmlHeaderLevelEnum.Header5,
+            new HtmlBullet(new
+            {
+                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, realXMatrix - idealXMatrix, realYMatrix - idealYMatrix, "Rotate Map"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realXMatrix - idealXMatrix, "Rotate Error X"),
+                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, realYMatrix - idealYMatrix, "Rotate Error Y")
+            }),
+            htmlLogUniqueId.LoggingHtml()
+        );
 
         #endregion 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 
@@ -704,46 +723,17 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 六.一. 误差矩阵平移坐标修正
 
-        // 因为[二. 旋转角度(去掉晶圆因为对准精度不够而带来的角度)校准理想矩阵]不一定是按照原点旋转的，所以需要平移坐标修正
-        var sumX = 0d;
-        var sumY = 0d;
-        var count = 0d;
-
-        for (var row = 0; row < rowCount; row++)
-        {
-            for (var column = 0; column < columnCount; column++)
-            {
-                if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false
-                    || Convert.ToBoolean(templateMathIsOkMatrix[row, column]) == false) continue;
-
-                sumX += errorX[row, column];
-                sumY += errorY[row, column];
-                count++;
-            }
-        }
-
-        var tx = sumX / count;
-        var ty = sumY / count;
-
-        for (var row = 0; row < rowCount; row++)
-        {
-            for (var column = 0; column < columnCount; column++)
-            {
-                if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
-
-                errorX[row, column] -= tx;
-                errorY[row, column] -= ty;
-            }
-        }
+        // 因为[二. 旋转角度(去掉晶圆因为对准精度不够而带来的角度)校准理想矩阵]不一定是按照原点旋转的，所以需要移除统一偏差
+        RemoveAverageTranslation(errorX, errorY, errorX, errorY);
 
         logger.LogHtmlInformation(
-            "6.1.1. Remove Translation Error Map",
+            "6.1.1. Remove Average Translation Error Map",
             HtmlHeaderLevelEnum.Header5,
             new HtmlBullet(new
             {
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorX, errorY, "Translation Map"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorX, "Translation error X"),
-                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorY, "Translation error Y")
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorX, "Remove Average Translation error X"),
+                ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorY, "Remove Average Translation error Y")
             }),
             htmlLogUniqueId.LoggingHtml()
         );
@@ -829,9 +819,61 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             htmlLogUniqueId.LoggingHtml()
         );
 
+        if (isXOnlyGantryError)
+        {
+            logger.LogHtmlInformation(
+                "6.2.3. X Only Gantry",
+                HtmlHeaderLevelEnum.Header5,
+                new HtmlBullet(new
+                {
+                    VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryXTemp, errorY, "Fit Map"),
+                    ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryXTemp, "Fit error X"),
+                    ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorY, "Fit error Y")
+                }),
+                htmlLogUniqueId.LoggingHtml()
+            );
+        }
+
         #endregion 六.二. 误差矩阵五次多项式拟合
 
-        return (isAlignmentSuccess && isGantrySuccess && isScaleXSuccess && isScaleYSuccess, errorX, errorY);
+        return isXOnlyGantryError
+            ? (isAlignmentSuccess && isGantrySuccess && isScaleXSuccess && isScaleYSuccess, errorGantryX, errorY)
+            : (isAlignmentSuccess && isGantrySuccess && isScaleXSuccess && isScaleYSuccess, errorX, errorY);
+
+        void RemoveAverageTranslation(Matrix<double> errorXMatrix, Matrix<double> errorYMatrix, Matrix<double> targetXMatrix, Matrix<double> targetYMatrix)
+        {
+            // 移除统一偏差
+            var sumXTemp = 0d;
+            var sumYTemp = 0d; 
+            var countTemp = 0d;
+
+            for (var row = 0; row < rowCount; row++)
+            {
+                for (var column = 0; column < columnCount; column++)
+                {
+                    if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false
+                        || Convert.ToBoolean(templateMathIsOkMatrix[row, column]) == false) continue;
+
+                    sumXTemp += errorXMatrix[row, column];
+                    sumYTemp += errorYMatrix[row, column];
+                    countTemp++;
+                }
+            }
+
+            var txTemp = sumXTemp / countTemp;
+            var tyTemp = sumYTemp / countTemp;
+
+            for (var row = 0; row < rowCount; row++)
+            {
+                for (var column = 0; column < columnCount; column++)
+                {
+                    if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
+
+                    targetXMatrix[row, column] -= txTemp;
+                    targetYMatrix[row, column] -= tyTemp;
+                }
+            }
+        }
 
         (bool isSuccess, int MinColIndexByRow, int MaxColIndexByRow, Vector<double> Result) FilterRow(Matrix<double> matrix, int row)
         {

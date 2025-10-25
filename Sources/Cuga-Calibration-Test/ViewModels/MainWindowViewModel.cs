@@ -238,9 +238,9 @@ public sealed partial class MainWindowViewModel(
                 logger.LogHtmlError(ex, "test", HtmlHeaderLevelEnum.Header3, guid.LoggingHtml());
             }
 
-            var points = new List<(string Name, Point[] Points, double Position)>();
-            var points0 = new List<(string Name, Point[] Points, double Position)>();
-            var points1 = new List<(string Name, Point[] Points)>();
+            var points = new List<(string Name, IReadOnlyList<Point> Points, double Position)>();
+            var points0 = new List<(string Name, IReadOnlyList<Point> Points, double Position)>();
+            var points1 = new List<(string Name, IReadOnlyList<Point> Points)>();
 
             for (var i = 0; i < 10; i++)
             {
