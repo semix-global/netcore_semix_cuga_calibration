@@ -11,6 +11,7 @@
         <PackageReference Include="Local.NoSQL.DB.Providers" />
         <PackageReference Include="Net.Utilities.Graphics.WPF" />
         <PackageReference Include="Net.Utilities.WaferMap.WPF" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
 
         <PackageReference Include="Net.Utilities.WPF" />
         <PackageReference Include="Net.Utilities.WPF.MVVM" />
