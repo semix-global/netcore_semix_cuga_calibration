@@ -29,9 +29,9 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select a Mag", DefaultIsNextEnable = true },
-        new() { StepName = "Move Laser Power Meter", DefaultIsNextEnable = true },
-        new() { StepName = "Attenuator Calibration" }
+        new() { StepName = "Select a Mag" },
+        new() { StepName = "Move Optical Power Meter" },
+        new() { StepName = "Optical Power Meter" }
     ];
 
     #region 界面相关
@@ -189,37 +189,6 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GetPointAsync()
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var position = StageViewModel.GetMachineStagePosition();
-
-                Cache.FindPosition = position;
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task GotoPointAsync()
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.FindPosition)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -238,6 +207,8 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
     {
         return InvokeCalibrateAsync(() =>
         {
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsMagTypeEnum,
@@ -256,8 +227,11 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
             {
                 ClearCalibrationTemp();
 
+                var coefficient = applicationCookie.LaserLightInformationList.Max(t => t.Coefficient);
+
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
+                    coefficient,
                     Cache.OpticsMagTypeEnum,
                     Cache.FindPosition,
                     Cache.MeasureMinPower,
@@ -277,6 +251,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                 var laserOpticalPowerObjDto = new LaserOpticalPowerDto
                 {
+                    Coefficient = coefficient,
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     FindCenterPosition = Cache.FindPosition,
                     RowNumber = Cache.RowNumber,
@@ -287,7 +262,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
                 LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient));
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, coefficient);
 
                 var repeatCout = 0;
 
@@ -355,12 +330,12 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                         Map = new HtmlPlot3DChart([.. laserOpticalPowerObjDto.Map.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))], string.Empty, HtmlPlot3DType.Bar3D),
                         Table = new HtmlExpand(new HtmlTable([
                             .. laserOpticalPowerObjDto.Map.Select(t => new
-                        {
-                            t.Row,
-                            t.Column,
-                            t.MeasurePosition,
-                            t.MeasurePower
-                        })
+                            {
+                                t.Row,
+                                t.Column,
+                                t.MeasurePosition,
+                                t.MeasurePower
+                            })
                         ]), "Details")
                     });
 
@@ -430,7 +405,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, applicationCookie.LaserLightInformationList.Max(t => t.Coefficient));
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, ReviewDto.Coefficient);
 
                 var resultList = new List<double>();
 

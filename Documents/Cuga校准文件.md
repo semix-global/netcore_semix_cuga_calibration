@@ -915,6 +915,11 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 public sealed class CalibrationLaserOpticalPower : CalibrationBase
 {
     /// <summary>
+    /// 测试的功率系数
+    /// </summary>
+    public double Coefficient { get; set; }
+    
+    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }

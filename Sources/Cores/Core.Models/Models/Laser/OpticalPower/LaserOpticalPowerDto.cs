@@ -11,6 +11,9 @@ namespace Core.Models.Models.Laser.OpticalPower;
 public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneable<LaserOpticalPowerDto>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
+    private double _coefficient;
+
+    [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
@@ -40,6 +43,7 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     {
         return new LaserOpticalPowerDto
         {
+            Coefficient = Coefficient,
             OpticsMagTypeEnum = OpticsMagTypeEnum,
             RowNumber = RowNumber,
             ColumnNumber = ColumnNumber,
@@ -60,6 +64,7 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     {
         return new CalibrationLaserOpticalPower
         {
+            Coefficient = Coefficient,
             CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
             MeasureMaxPower = MeasureMaxPower,
             MeasureMaxPowerPosition = MeasureMaxPowerPosition.ToCgPoint(),

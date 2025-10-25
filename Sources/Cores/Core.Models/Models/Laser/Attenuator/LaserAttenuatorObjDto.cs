@@ -13,10 +13,13 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]
-    private double _laserPowerMeterAverageIntensity;
+    private double _maxCoefficientAverageMeasurePower;
 
     [ObservableProperty]
-    private Point[] _coefficientCurvePositions = [];
+    private IReadOnlyList<Point> _coefficientMeasurePowerPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _coefficientMeasurePowerRatePoints = [];
 
     [ObservableProperty]
     private double p0;
@@ -34,7 +37,7 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     private double rSquared;
 
     [ObservableProperty]
-    private Point[] _coefficientFitCurvePositions = [];
+    private IReadOnlyList<Point> _coefficientFitMeasurePowerRatePoints = [];
 
     [ObservableProperty]
     private double _waitTime;
@@ -44,14 +47,15 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     public LaserAttenuatorObjDto Clone() => new()
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,
-        LaserPowerMeterAverageIntensity = LaserPowerMeterAverageIntensity,
-        CoefficientCurvePositions = [.. CoefficientCurvePositions],
+        MaxCoefficientAverageMeasurePower = MaxCoefficientAverageMeasurePower,
+        CoefficientMeasurePowerPoints = [.. CoefficientMeasurePowerPoints],
+        CoefficientMeasurePowerRatePoints = [.. CoefficientMeasurePowerRatePoints],
         P0 = P0,
         P1 = P1,
         P2 = P2,
         P3 = P3,
         RSquared = RSquared,
-        CoefficientFitCurvePositions = [.. CoefficientFitCurvePositions],
+        CoefficientFitMeasurePowerRatePoints = [.. CoefficientFitMeasurePowerRatePoints],
         WaitTime = WaitTime,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -63,14 +67,15 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
         CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        LaserPowerMeterAverageIntensity = LaserPowerMeterAverageIntensity,
-        CoefficientCurvePositions = [.. CoefficientCurvePositions.Select(t => t.ToCgPoint())],
+        MaxCoefficientAverageMeaseurePower = MaxCoefficientAverageMeasurePower,
+        CoefficientMeasurePowerPoints = [.. CoefficientMeasurePowerPoints.Select(t => t.ToCgPoint())],
+        CoefficientMeasurePowerRatePoints = [.. CoefficientMeasurePowerRatePoints.Select(t => t.ToCgPoint())],
         P0 = P0,
         P1 = P1,
         P2 = P2,
         P3 = P3,
         RSquared = RSquared,
-        CoefficientFitCurvePositions = [.. CoefficientFitCurvePositions.Select(t => t.ToCgPoint())],
+        CoefficientFitMeasurePowerRatePoints = [.. CoefficientFitMeasurePowerRatePoints.Select(t => t.ToCgPoint())],
         WaitTime = WaitTime,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified

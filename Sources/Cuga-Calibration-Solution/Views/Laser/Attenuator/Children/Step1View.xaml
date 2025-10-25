@@ -31,29 +31,27 @@
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                    <StackPanel>
-                        <TextBlock Text="Attenuator Calibration"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:NumericUpDown hc:InfoElement.Title="Interval(Coefficient): "
+                    <hc:NumericUpDown hc:TitleElement.Title="Interval(Coefficient): "
                                       hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Interval}" />
-                    <hc:NumericUpDown hc:InfoElement.Title="Interval(s): "
+                    <hc:NumericUpDown hc:TitleElement.Title="Interval(s): "
                                       hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.WaitTime}" />
-                    <TextBox Text="{Binding ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity, StringFormat={}{0}}"
-                             hc:InfoElement.Title="Laser Power Intensity:"
-                             hc:InfoElement.TitlePlacement="Left"
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding ResultLaserAttenuatorObjDto.MaxCoefficientAverageMeasurePower, StringFormat={}{0}}"
+                             hc:TitleElement.Title="Max Coefficient Power(mW): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="180"
                              IsReadOnly="True"
-                             Background="LightGray"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
@@ -73,19 +71,31 @@
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-
         <!--#region Right-->
         <GroupBox Grid.Column="2" Header="History">
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <wpf:WpfPlot>
-                    <i:Interaction.Behaviors>
-                        <behaviors:WpfPlotMultiBehavior Title="Data"
-                                                        Plot0Title="origin"
-                                                        Plot0="{Binding ResultLaserAttenuatorObjDto.CoefficientCurvePositions}"
-                                                        Plot1Title="fit"
-                                                        Plot1="{Binding ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions}" />
-                    </i:Interaction.Behaviors>
-                </wpf:WpfPlot>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <wpf:WpfPlot>
+                        <i:Interaction.Behaviors>
+                            <behaviors:WpfPlotMultiBehavior Title="Measure Power"
+                                                            Plot0Title="Measure Power"
+                                                            Plot0="{Binding ResultLaserAttenuatorObjDto.CoefficientMeasurePowerPoints}" />
+                        </i:Interaction.Behaviors>
+                    </wpf:WpfPlot>
+                    <wpf:WpfPlot Grid.Column="1">
+                        <i:Interaction.Behaviors>
+                            <behaviors:WpfPlotMultiBehavior Title="Rate"
+                                                            Plot0Title="Origin"
+                                                            Plot0="{Binding ResultLaserAttenuatorObjDto.CoefficientMeasurePowerRatePoints}"
+                                                            Plot1Title="Fit"
+                                                            Plot1="{Binding ResultLaserAttenuatorObjDto.CoefficientFitMeasurePowerRatePoints}" />
+                        </i:Interaction.Behaviors>
+                    </wpf:WpfPlot>
+                </Grid>
             </Border>
         </GroupBox>
         <!--#endregion-->

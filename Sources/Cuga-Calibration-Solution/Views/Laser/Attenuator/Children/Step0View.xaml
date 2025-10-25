@@ -40,9 +40,7 @@
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-
         <GridSplitter Grid.Column="1" Width="5" />
-
         <!--#region Right-->
         <Border Grid.Column="2"
                 Style="{StaticResource BorderRegion}"

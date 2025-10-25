@@ -25,7 +25,6 @@
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
@@ -35,24 +34,6 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding ReviewDto.StagePosition, Converter={StaticResource PointToStringConverter}}"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="180"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ReviewDto.InitialightIntensity, StringFormat={}{0}}"
-                             hc:InfoElement.Title="Initial Light Intensity:"
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="180"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity, StringFormat={}{0}}"
-                             hc:InfoElement.Title="Laser Power Intensity:"
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="180"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -71,7 +52,6 @@
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-
         <!--#region Right-->
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
@@ -97,6 +77,12 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
@@ -111,31 +97,40 @@
                             <GridViewColumn Width="120"
                                             Header="Optics Mag"
                                             DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Width="140"
-                                            Header="Initialight Intensity"
-                                            DisplayMemberBinding="{Binding InitialightIntensity, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="140"
-                                            Header="Average Intensity"
-                                            DisplayMemberBinding="{Binding LaserPowerMeterAverageIntensity}" />
+                            <GridViewColumn Width="250"
+                                            Header="Max Coefficient Power(mW)"
+                                            DisplayMemberBinding="{Binding MaxCoefficientAverageMeasurePower}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
             </GroupBox>
             <GroupBox Grid.Row="2" Header="Plot">
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot>
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Data"
-                                                            Plot0Title="origin"
-                                                            Plot0="{Binding ReviewDto.CoefficientCurvePositions}"
-                                                            Plot1Title="fit"
-                                                            Plot1="{Binding ReviewDto.CoefficientFitCurvePositions}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <wpf:WpfPlot>
+                            <i:Interaction.Behaviors>
+                                <behaviors:WpfPlotMultiBehavior Title="Measure Power"
+                                                                Plot0Title="Measure Power"
+                                                                Plot0="{Binding ReviewDto.CoefficientMeasurePowerPoints}" />
+                            </i:Interaction.Behaviors>
+                        </wpf:WpfPlot>
+                        <wpf:WpfPlot Grid.Column="1">
+                            <i:Interaction.Behaviors>
+                                <behaviors:WpfPlotMultiBehavior Title="Rate"
+                                                                Plot0Title="Origin"
+                                                                Plot0="{Binding ReviewDto.CoefficientMeasurePowerRatePoints}"
+                                                                Plot1Title="Fit"
+                                                                Plot1="{Binding ReviewDto.CoefficientFitMeasurePowerRatePoints}" />
+                            </i:Interaction.Behaviors>
+                        </wpf:WpfPlot>
+                    </Grid>
                 </Border>
             </GroupBox>
         </Grid>
-
         <!--#endregion-->
     </Grid>
 </UserControl>
