@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
-public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, ICloneable<LaserAttenuatorDto>
+public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, IAdaptTo<CalibrationAttenuatorObj>, ICloneable<LaserAttenuatorDto>
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -56,6 +56,9 @@ public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, ICloneable<
     public LaserAttenuatorDto Clone() => new()
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,
+        OpticalPowerMeterCoefficient = OpticalPowerMeterCoefficient,
+        OpticalPowerMeterMaxMeasurePower = OpticalPowerMeterMaxMeasurePower,
+        OpticalPowerMeterMaxMeasurePowerPosition = OpticalPowerMeterMaxMeasurePowerPosition,
         MaxCoefficientAverageMeasurePower = MaxCoefficientAverageMeasurePower,
         CoefficientMeasurePowerPoints = [.. CoefficientMeasurePowerPoints],
         CoefficientMeasurePowerRatePoints = [.. CoefficientMeasurePowerRatePoints],

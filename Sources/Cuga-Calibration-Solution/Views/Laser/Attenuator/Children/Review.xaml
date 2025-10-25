@@ -8,6 +8,7 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:attenuator="clr-namespace:Core.Models.Models.Laser.Attenuator;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserAttenuatorCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -91,6 +92,25 @@
                             <GridViewColumn Width="120"
                                             Header="Optics Mag"
                                             DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Width="380" Header="Polynomial">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type attenuator:LaserAttenuatorDto}">
+                                        <TextBlock>
+                                            <Run Text="y = " />
+                                            <Run Text="{Binding P3, StringFormat=0.###}" />
+                                            <Run Text="x³ + " />
+                                            <Run Text="{Binding P2, StringFormat=0.###}" />
+                                            <Run Text="x² + " />
+                                            <Run Text="{Binding P1, StringFormat=0.###}" />
+                                            <Run Text="x + " />
+                                            <Run Text="{Binding P0, StringFormat=0.###}" />
+                                            <Run Text=" (R² = " />
+                                            <Run Text="{Binding RSquared, StringFormat=0.###}" />
+                                            <Run Text=")" />
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn Width="250"
                                             Header="Max Coefficient Average Power(mW)"
                                             DisplayMemberBinding="{Binding MaxCoefficientAverageMeasurePower, StringFormat='0.###'}" />
