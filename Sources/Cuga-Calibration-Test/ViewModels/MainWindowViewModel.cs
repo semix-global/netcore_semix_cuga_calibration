@@ -538,7 +538,7 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.Set<LaserAutoFocusDto>(new(), CancellationToken.None);
         cacheProvider.Set<LaserBeamStabilizerObjDto>(new(), CancellationToken.None);
         cacheProvider.SetArray<LaserOpticalPowerDto>([], CancellationToken.None);
-        cacheProvider.SetArray<LaserAttenuatorObjDto>([], CancellationToken.None);
+        cacheProvider.SetArray<LaserAttenuatorDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserAodDelayItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserPrescanChirpAodAlignmentDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);

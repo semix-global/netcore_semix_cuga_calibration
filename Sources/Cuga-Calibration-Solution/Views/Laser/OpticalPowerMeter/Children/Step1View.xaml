@@ -18,7 +18,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Optical Power Meter 1: "
+                <hc:Shield Subject="Laser Optical Power Meter 2: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
@@ -29,24 +29,16 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="1. Find Position"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:ButtonGroup>
-                        <Button x:Name="GetButton"
-                                Content="Get"
-                                Command="{Binding GetPointCommand}" />
-                        <Button x:Name="GotoButton"
-                                Content="Goto"
-                                Command="{Binding GotoPointCommand}" />
-                    </hc:ButtonGroup>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

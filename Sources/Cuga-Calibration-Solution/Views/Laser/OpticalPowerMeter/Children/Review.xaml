@@ -28,17 +28,15 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text="Verify calibration result"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                      hc:InfoElement.Title="Threshold(Rate): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
+                                      hc:TitleElement.Title="Threshold(Rate): "
+                                      hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="140"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
@@ -72,11 +70,11 @@
             </Grid.RowDefinitions>
             <GroupBox Header="History">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding ReviewDto}">
+                          SelectedItem="{Binding SelectedReviewItem}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -116,7 +114,7 @@
                                             DisplayMemberBinding="{Binding MeasureMaxPowerPosition, Converter={StaticResource PointToStringConverter}}" />
                             <GridViewColumn Width="100"
                                             Header="Max Power"
-                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat={}{0:f3}}" />
+                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

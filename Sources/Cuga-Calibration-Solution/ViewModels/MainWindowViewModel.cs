@@ -589,7 +589,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAutoFocusCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserAutoFocusDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAttenuatorCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorObjDto>().IsOk(out _);
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserBeamStabilizerCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAodDelayCalibrationViewModel>();

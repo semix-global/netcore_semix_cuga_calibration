@@ -4,7 +4,7 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 
 #if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;
@@ -148,7 +148,7 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     /// <summary>
     /// 最大的功率系数台面功率计的平均值P
     /// </summary>
-    public double MaxCoefficientAverageMeaseurePower { get; set; }
+    public double MaxCoefficientAverageMeasurePower { get; set; }
 
     /// <summary>
     /// 台面功率与系数C之间的曲线值(C,Pc)曲线
@@ -194,6 +194,16 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     /// 校准间隔时间s
     /// </summary>
     public double WaitTime { get; set; }
+
+    /// <summary>
+    /// 最小功率
+    /// </summary>
+    public double MinCoefficient => CoefficientMeasurePowerPoints.Min(t => t.X);
+
+    /// <summary>
+    /// 最大功率
+    /// </summary>
+    public double MaxCoefficient => CoefficientMeasurePowerPoints.Max(t => t.X);
 }
 
 /// <summary>
@@ -392,7 +402,6 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 正向暗场中心坐标, **Cuga内部使用, 8号光斑需要下发到AF硬件**
     /// </summary>
     public CgPoint DarkMachineCenterPosition { get; set; }
-
 }
 
 /// <summary>

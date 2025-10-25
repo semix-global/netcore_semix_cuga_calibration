@@ -21,7 +21,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Optical Power Meter 2: "
+                <hc:Shield Subject="Laser Optical Power Meter 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
@@ -42,75 +42,45 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown x:Name="MeasureMinNumeric"
-                                      hc:InfoElement.Title="Measure Min Power: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MeasureMinPower}" />
-                    <hc:NumericUpDown x:Name="MeasureMaxNumeric"
-                                      hc:InfoElement.Title="Measure Max Power: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MeasureMaxPower}" />
                     <hc:NumericUpDown x:Name="RowNumberNumeric"
-                                      hc:InfoElement.Title="Row Number: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      hc:TitleElement.Title="Row Number: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.RowNumber}" />
                     <hc:NumericUpDown x:Name="ColumnNumberNumeric"
-                                      hc:InfoElement.Title="Column Number: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      hc:TitleElement.Title="Column Number: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ColumnNumber}" />
                     <hc:NumericUpDown x:Name="ColumnCellWidthNumeric"
-                                      hc:InfoElement.Title="Column Cell Width(um): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      hc:TitleElement.Title="Column Cell Width(um): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ColumnCellWidth}" />
                     <hc:NumericUpDown x:Name="RowCellHeightNumeric"
-                                      hc:InfoElement.Title="Row Cell Height(um): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      hc:TitleElement.Title="Row Cell Height(um): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.RowCellHeight}" />
                     <hc:NumericUpDown x:Name="WaitTimeNumeric"
-                                      hc:InfoElement.Title="Wait Time(s): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      hc:TitleElement.Title="Wait Time(s): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.WaitTime}" />
                     <hc:NumericUpDown x:Name="RepeatCountNumeric"
-                                      hc:InfoElement.Title="Repeat Count: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      hc:TitleElement.Title="Repeat Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.RepeatCount}" />
@@ -142,11 +112,11 @@
             </Grid.RowDefinitions>
             <GroupBox Header="History">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding LaserOpticalPowerDtoList}"
+                          ItemsSource="{Binding Calibratings}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectLaserOpticalPowerDto}">
+                          SelectedItem="{Binding SelectedCalibratingItem}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -169,9 +139,6 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="80"
-                                            Header="Index"
-                                            DisplayMemberBinding="{Binding Index}" />
                             <GridViewColumn Width="150"
                                             Header="Find Center Position"
                                             DisplayMemberBinding="{Binding FindCenterPosition, Converter={StaticResource PointToStringConverter}}" />
@@ -180,7 +147,7 @@
                                             DisplayMemberBinding="{Binding MeasureMaxPowerPosition, Converter={StaticResource PointToStringConverter}}" />
                             <GridViewColumn Width="100"
                                             Header="Max Power"
-                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat={}{0:f3}}" />
+                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

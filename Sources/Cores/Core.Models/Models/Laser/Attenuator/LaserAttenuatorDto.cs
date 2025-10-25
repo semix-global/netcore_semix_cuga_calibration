@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
-public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneable<LaserAttenuatorObjDto>
+public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, ICloneable<LaserAttenuatorDto>
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -22,19 +22,19 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     private IReadOnlyList<Point> _coefficientMeasurePowerRatePoints = [];
 
     [ObservableProperty]
-    private double p0;
+    private double _p0;
 
     [ObservableProperty]
-    private double p1;
+    private double _p1;
 
     [ObservableProperty]
-    private double p2;
+    private double _p2;
 
     [ObservableProperty]
-    private double p3;
+    private double _p3;
 
     [ObservableProperty]
-    private double rSquared;
+    private double _rSquared;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _coefficientFitMeasurePowerRatePoints = [];
@@ -42,9 +42,19 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     [ObservableProperty]
     private double _waitTime;
 
+    /// <summary>
+    /// 最小功率
+    /// </summary>
+    public double MinCoefficient => CoefficientMeasurePowerPoints.Min(t => t.X);
+
+    /// <summary>
+    /// 最大功率
+    /// </summary>
+    public double MaxCoefficient => CoefficientMeasurePowerPoints.Max(t => t.X);
+
     #region Mapper
 
-    public LaserAttenuatorObjDto Clone() => new()
+    public LaserAttenuatorDto Clone() => new()
     {
         OpticsMagTypeEnum = OpticsMagTypeEnum,
         MaxCoefficientAverageMeasurePower = MaxCoefficientAverageMeasurePower,
@@ -67,7 +77,7 @@ public sealed partial class LaserAttenuatorObjDto : CalibrationDtoBase, ICloneab
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
         CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        MaxCoefficientAverageMeaseurePower = MaxCoefficientAverageMeasurePower,
+        MaxCoefficientAverageMeasurePower = MaxCoefficientAverageMeasurePower,
         CoefficientMeasurePowerPoints = [.. CoefficientMeasurePowerPoints.Select(t => t.ToCgPoint())],
         CoefficientMeasurePowerRatePoints = [.. CoefficientMeasurePowerRatePoints.Select(t => t.ToCgPoint())],
         P0 = P0,

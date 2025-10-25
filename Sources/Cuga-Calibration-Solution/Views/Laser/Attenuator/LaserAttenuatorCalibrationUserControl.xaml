@@ -51,11 +51,9 @@
                 </Grid>
             </Border>
             <!--#endregion-->
-
             <GridSplitter Grid.Column="1"
                           Width="10"
                           Margin="-5" />
-
             <!--#region Right-->
             <Border Grid.Column="2"
                     Margin="5"

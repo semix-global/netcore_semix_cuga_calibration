@@ -23,9 +23,6 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     private int _columnNumber;
 
     [ObservableProperty]
-    private int _index;
-
-    [ObservableProperty]
     private Point _findCenterPosition;
 
     [ObservableProperty]
@@ -47,7 +44,6 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
             OpticsMagTypeEnum = OpticsMagTypeEnum,
             RowNumber = RowNumber,
             ColumnNumber = ColumnNumber,
-            Index = Index,
             FindCenterPosition = FindCenterPosition,
             Map = [.. Map.Select(x => x.Clone())],
             MeasureMaxPower = MeasureMaxPower,

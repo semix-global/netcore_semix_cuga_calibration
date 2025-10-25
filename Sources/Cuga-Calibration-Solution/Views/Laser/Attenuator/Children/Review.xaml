@@ -27,13 +27,6 @@
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                    <StackPanel>
-                        <TextBlock Text="Verify calibration result"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -52,6 +45,7 @@
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
+        <GridSplitter Grid.Column="1" Width="5" />
         <!--#region Right-->
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
@@ -61,11 +55,11 @@
             </Grid.RowDefinitions>
             <GroupBox Header="History">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding ReviewDto}">
+                          SelectedItem="{Binding SelectedReviewItem}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -97,9 +91,15 @@
                             <GridViewColumn Width="120"
                                             Header="Optics Mag"
                                             DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Width="120"
+                                            Header="Min Coefficient"
+                                            DisplayMemberBinding="{Binding MinCoefficient, StringFormat='0.###'}" />
+                            <GridViewColumn Width="120"
+                                            Header="Max Coefficient"
+                                            DisplayMemberBinding="{Binding MaxCoefficient, StringFormat='0.###'}" />
                             <GridViewColumn Width="250"
-                                            Header="Max Coefficient Power(mW)"
-                                            DisplayMemberBinding="{Binding MaxCoefficientAverageMeasurePower}" />
+                                            Header="Max Coefficient Average Power(mW)"
+                                            DisplayMemberBinding="{Binding MaxCoefficientAverageMeasurePower, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -115,16 +115,16 @@
                             <i:Interaction.Behaviors>
                                 <behaviors:WpfPlotMultiBehavior Title="Measure Power"
                                                                 Plot0Title="Measure Power"
-                                                                Plot0="{Binding ReviewDto.CoefficientMeasurePowerPoints}" />
+                                                                Plot0="{Binding SelectedReviewItem.CoefficientMeasurePowerPoints}" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                         <wpf:WpfPlot Grid.Column="1">
                             <i:Interaction.Behaviors>
                                 <behaviors:WpfPlotMultiBehavior Title="Rate"
                                                                 Plot0Title="Origin"
-                                                                Plot0="{Binding ReviewDto.CoefficientMeasurePowerRatePoints}"
+                                                                Plot0="{Binding SelectedReviewItem.CoefficientMeasurePowerRatePoints}"
                                                                 Plot1Title="Fit"
-                                                                Plot1="{Binding ReviewDto.CoefficientFitMeasurePowerRatePoints}" />
+                                                                Plot1="{Binding SelectedReviewItem.CoefficientFitMeasurePowerRatePoints}" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                     </Grid>

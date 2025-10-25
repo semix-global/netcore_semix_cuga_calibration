@@ -13,12 +13,6 @@ public sealed partial class LaserOpticalPowerCache : CalibrationCacheBase
     private Point _findPosition;
 
     [ObservableProperty]
-    private double _measureMinPower;
-
-    [ObservableProperty]
-    private double _measureMaxPower;
-
-    [ObservableProperty]
     private int _rowNumber = 11;
 
     [ObservableProperty]

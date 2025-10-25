@@ -918,7 +918,7 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
     /// 测试的功率系数
     /// </summary>
     public double Coefficient { get; set; }
-    
+
     /// <summary>
     /// Mag类型
     /// </summary>
@@ -955,14 +955,19 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     /// <summary>
-    /// 台面功率计的平均值P
+    /// 最大的功率系数台面功率计的平均值P
     /// </summary>
-    public double LaserPowerMeterAverageIntensity { get; set; }
+    public double MaxCoefficientAverageMeasurePower { get; set; }
 
     /// <summary>
-    /// 台面功率与系数C之间的曲线值(C,Pc/P)的一系列List值。
+    /// 台面功率与系数C之间的曲线值(C,Pc)曲线
     /// </summary>
-    public List<CgPoint> CoefficientCurvePositions { get; set; }
+    public IReadOnlyList<CgPoint> CoefficientMeasurePowerPoints { get; set; }
+
+    /// <summary>
+    /// 台面功率与系数C之间的曲线值(C,Pc/P)曲线
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientMeasurePowerRatePoints { get; set; }
 
     /// <summary>
     /// 系数曲线通过三次多项式拟合的系数: 0次方
@@ -992,12 +997,22 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     /// <summary>
     /// 系数曲线通过三次多项式拟合后的曲线值
     /// </summary>
-    public List<CgPoint> CoefficientFitCurvePositions { get; set; }
+    public IReadOnlyList<CgPoint> CoefficientFitMeasurePowerRatePoints { get; set; }
 
     /// <summary>
     /// 校准间隔时间s
     /// </summary>
     public double WaitTime { get; set; }
+
+    /// <summary>
+    /// 最小功率
+    /// </summary>
+    public double MinCoefficient => CoefficientMeasurePowerPoints.Min(t => t.X);
+
+    /// <summary>
+    /// 最大功率
+    /// </summary>
+    public double MaxCoefficient => CoefficientMeasurePowerPoints.Max(t => t.X);
 }
 ```
 

@@ -275,7 +275,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserAttenuatorObjDto[] result, out string errorMessage)
+    public static bool IsOk(this LaserAttenuatorDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 

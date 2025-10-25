@@ -10,7 +10,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPower;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -27,10 +26,12 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 {
     #region 属性
 
+    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select a Mag" },
-        new() { StepName = "Move Optical Power Meter" },
+        new() { StepName = "Select Optics Mag" },
+        new() { StepName = "Select Position" },
         new() { StepName = "Optical Power Meter" }
     ];
 
@@ -39,16 +40,13 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<LaserOpticalPowerDto> _laserOpticalPowerDtoList = [];
+    private IReadOnlyList<LaserOpticalPowerDto> _calibratings = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerDto? _selectLaserOpticalPowerDto;
+    private LaserOpticalPowerDto? _selectedCalibratingItem;
 
     [ObservableProperty]
-    private LaserOpticalPowerDto? _resultLaserOpticalPowerDto;
-
-    [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumCalibrationStatus> _calibrationStatusList =
+    private IReadOnlyList<OpticsMagTypeEnumCalibrationStatus> _calibrationStatuses =
     [
         ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumCalibrationStatus { OpticsMagTypeEnum = t, IsCalibrated = false })
     ];
@@ -58,10 +56,10 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
     #region Review
 
     [ObservableProperty]
-    private LaserOpticalPowerDto? _reviewDto;
+    private ObservableCollection<LaserOpticalPowerDto> _reviews = [];
 
     [ObservableProperty]
-    private ObservableCollection<LaserOpticalPowerDto> _reviewList = [];
+    private LaserOpticalPowerDto? _selectedReviewItem;
 
     #endregion Review
 
@@ -114,7 +112,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
         foreach (var calibrationStatus in Calibrations)
         {
-            CalibrationStatusList
+            CalibrationStatuses
                 .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
@@ -128,22 +126,19 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        ReviewList =
+        Reviews =
         [
             .. Calibrations
                 .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsMagTypeEnum)
         ];
-        ReviewDto = ReviewList[0];
 
-        return ReviewList.Any(t => t.IsCalibrated);
+        return Reviews.Any(t => t.IsCalibrated);
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-
-        ClearCalibrationTemp();
 
         switch (CalibrationStepIndex)
         {
@@ -151,31 +146,13 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                 return true;
 
             case 1:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
                 return true;
 
             case 2:
+                CalibrationStatuses.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
+                DialogWindowProvider.ShowDialog($"Optical Power Meter {Cache.OpticsMagTypeEnum} Ok!");
 
-                if (ResultLaserOpticalPowerDto is null)
-                {
-                    DialogWindowProvider.TryShowDialog("Please find optical power!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-
-                    return dialogButtonsEnum != DialogResultEnum.Retry;
-                }
-
-                ResultLaserOpticalPowerDto.IsCalibrated = true;
-                if (ToLaserOpticalPowerObj(ResultLaserOpticalPowerDto, cancellationToken) == false)
-                {
-                    ResultLaserOpticalPowerDto.IsCalibrated = false;
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
-
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog($"OpticalPower {Cache.OpticsMagTypeEnum} Ok!");
-
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -207,7 +184,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+            Cache.FindPosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -225,7 +202,8 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
         {
             try
             {
-                ClearCalibrationTemp();
+                Calibratings = [];
+                SelectedCalibratingItem = null;
 
                 var coefficient = applicationCookie.LaserLightInformationList.Max(t => t.Coefficient);
 
@@ -234,8 +212,6 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                     coefficient,
                     Cache.OpticsMagTypeEnum,
                     Cache.FindPosition,
-                    Cache.MeasureMinPower,
-                    Cache.MeasureMaxPower,
                     Cache.RowNumber,
                     Cache.ColumnNumber,
                     Cache.ColumnCellWidth,
@@ -268,7 +244,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                 while (repeatCout < Cache.RepeatCount)
                 {
-                    laserOpticalPowerObjDto.Index = repeatCout++;
+                    repeatCout++;
 
                     var temp = laserOpticalPowerObjDto.Map;
                     laserOpticalPowerObjDto.Map = [];
@@ -288,7 +264,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                         }
                     }
 
-                    SelectLaserOpticalPowerDto = laserOpticalPowerObjDto;
+                    SelectedCalibratingItem = laserOpticalPowerObjDto;
 
                     foreach (var laserOpticalPowerObjItem in laserOpticalPowerObjDto.Map)
                     {
@@ -300,11 +276,11 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
 
                         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                        var result = LaserViewModel.GetOpticalPowerMeter();
+                        var measurePower = LaserViewModel.GetOpticalPowerMeter();
 
-                        laserOpticalPowerObjItem.MeasurePower = result;
+                        laserOpticalPowerObjItem.MeasurePower = measurePower;
 
-                        OnPropertyChanged(nameof(SelectLaserOpticalPowerDto));
+                        OnPropertyChanged(nameof(SelectedCalibratingItem));
                     }
 
                     var maximumIndex = Vector<double>.Build.DenseOfEnumerable(laserOpticalPowerObjDto.Map.Select(t => t.MeasurePower)).MaximumIndex();
@@ -315,7 +291,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                     laserOpticalPowerObjDto.MeasureMaxPowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
 
                     var resultLaserOpticalPowerDto = laserOpticalPowerObjDto.Clone();
-                    SynchronizationContextProvider.Send(() => { LaserOpticalPowerDtoList.Add(resultLaserOpticalPowerDto); });
+                    Calibratings = [..Calibratings, resultLaserOpticalPowerDto];
 
                     var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.ColumnNumber - 1;
 
@@ -336,23 +312,30 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                                 t.MeasurePosition,
                                 t.MeasurePower
                             })
-                        ]), "Details")
+                        ]), string.Empty)
                     });
 
                     // 判断maximumIndexRow,maximumIndexCol是不是再边缘点上
                     if (isInEdge)
                     {
                         Logger.LogHtmlInformation($"{repeatCout}", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
-
                         laserOpticalPowerObjDto.FindCenterPosition = laserOpticalPowerObjDto.MeasureMaxPowerPosition;
+
                         continue;
                     }
 
-                    SelectLaserOpticalPowerDto = resultLaserOpticalPowerDto;
-                    ResultLaserOpticalPowerDto = resultLaserOpticalPowerDto;
                     LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
 
-                    Logger.LogHtmlInformation($"Ok", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{repeatCout} OK", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+
+                    SelectedCalibratingItem.IsCalibrated = true;
+                    if (Save(SelectedCalibratingItem, cancellationToken) == false)
+                    {
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                        SelectedCalibratingItem.IsCalibrated = false;
+
+                        return false;
+                    }
 
                     return true;
                 }
@@ -372,7 +355,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        if (ReviewDto is null)
+        if (SelectedReviewItem is null)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
@@ -382,30 +365,22 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
         {
             try
             {
-                ClearCalibrationTemp();
-
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    ReviewDto.OpticsMagTypeEnum,
-                    Cache.RowNumber,
-                    Cache.ColumnNumber,
-                    Cache.ColumnCellWidth,
-                    Cache.RowCellHeight,
+                    SelectedReviewItem.OpticsMagTypeEnum,
                     Cache.WaitTime,
                     Cache.Threshold,
-                    ReviewDto.MeasureMaxPowerPosition,
-                    ReviewDto.MeasureMaxPower
+                    SelectedReviewItem.Coefficient,
+                    SelectedReviewItem.MeasureMaxPowerPosition,
+                    SelectedReviewItem.MeasureMaxPower
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                ReviewDto.IsVerified = false;
+                SelectedReviewItem.IsVerified = false;
 
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(ReviewDto.MeasureMaxPowerPosition);
-
-                LaserViewModel.ToggleOpticsMagType(ReviewDto.OpticsMagTypeEnum);
-
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
+                LaserViewModel.ToggleOpticsMagType(SelectedReviewItem.OpticsMagTypeEnum);
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
-
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(ReviewDto.OpticsMagTypeEnum, ReviewDto.Coefficient);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(SelectedReviewItem.OpticsMagTypeEnum, SelectedReviewItem.Coefficient);
 
                 var resultList = new List<double>();
 
@@ -413,15 +388,15 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                 {
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                    var lightIntensity = LaserViewModel.GetOpticalPowerMeter();
+                    var measurePower = LaserViewModel.GetOpticalPowerMeter();
 
-                    resultList.Add(lightIntensity);
+                    resultList.Add(measurePower);
                 }
 
                 LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
 
                 var average = resultList.Average();
-                var errorRate = Math.Abs((average - ReviewDto.MeasureMaxPower) / ReviewDto.MeasureMaxPower);
+                var errorRate = Math.Abs((average - SelectedReviewItem.MeasureMaxPower) / SelectedReviewItem.MeasureMaxPower);
                 var result = errorRate < Cache.Threshold;
 
                 Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -430,18 +405,23 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                     errorRate
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                ReviewDto.IsVerified = result;
-                if (ToLaserOpticalPowerObj(ReviewDto, cancellationToken) == false)
+                SelectedReviewItem.IsVerified = result;
+                if (Save(SelectedReviewItem, cancellationToken) == false)
                 {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Save Failed! "), HtmlLogUniqueId.LoggingHtml());
-                    ReviewDto.IsVerified = false;
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    SelectedReviewItem.IsVerified = false;
+
                     return false;
                 }
 
-                DialogWindowProvider.ShowDialog(
-                    $"Verify {(result ? "OK" : "Failed")}, New Measure Max Power: ({average:f3}),Old Measure Max Power:({ReviewDto.MeasureMaxPower:f3}),Error:({errorRate:f3})",
-                    DialogButtonsEnum.OK,
-                    result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog($"""
+                                                 Verify {(result ? "OK" : "Failed")}
+                                                 New Measure Max Power: ({average:0.###})
+                                                 Old Measure Max Power:({SelectedReviewItem.MeasureMaxPower:0.###})
+                                                 Error:({errorRate:0.###})
+                                                 """,
+                    DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
                 return result;
             }
             finally
@@ -451,26 +431,20 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
         }).ConfigureAwait(false);
     }
 
-    private bool ToLaserOpticalPowerObj(LaserOpticalPowerDto itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(LaserOpticalPowerDto item, CancellationToken cancellationToken) => InvokeSave(update =>
     {
-        update(itemDto);
+        update(item);
         update(Cache);
 
         Calibrations =
         [
-            .. Calibrations
-                .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
-            itemDto.Clone()
+            .. Calibrations.Where(t => t.OpticsMagTypeEnum != item.OpticsMagTypeEnum),
+            item.Clone()
         ];
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         CacheProvider.Set(Cache, cancellationToken);
     });
-
-    private void ClearCalibrationTemp()
-    {
-        SynchronizationContextProvider.Send(LaserOpticalPowerDtoList.Clear);
-    }
 
     #endregion 校准
 }

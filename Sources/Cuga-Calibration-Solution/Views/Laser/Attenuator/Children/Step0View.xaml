@@ -19,7 +19,7 @@
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-            <hc:Shield Subject="Laser  Attenuator Step 0: "
+            <hc:Shield Subject="Laser Attenuator Step 1: "
                        Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -47,7 +47,7 @@
                 Effect="{StaticResource EffectShadow1}">
             <ItemsControl HorizontalAlignment="Center"
                           VerticalAlignment="Center"
-                          ItemsSource="{Binding CalibrationStatusList}">
+                          ItemsSource="{Binding CalibrationStatuses}">
                 <i:Interaction.Behaviors>
                     <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsMagTypeEnum, Mode=TwoWay}" />
                 </i:Interaction.Behaviors>
@@ -61,7 +61,7 @@
                         <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                      FontSize="35"
                                      Tag="{Binding .OpticsMagTypeEnum}"
-                                     GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
+                                     GroupName="401e494c-52df-4438-99fc-a817ee708865">
                             <RadioButton.Style>
                                 <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
                                     <Style.Triggers>
