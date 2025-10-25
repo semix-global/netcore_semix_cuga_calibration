@@ -359,7 +359,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public bool CalculateChuckStageMapError(
         StageMapDto stageMapDto,
-        bool isContainsGantryError,
+        bool isXOnlyGantryError,
         Guid htmlLogUniqueId,
         int calculateContainRowMinCount,
         int calculateContainColumnMinCount,
@@ -385,7 +385,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             realYMatrix,
             isInWaferMatrix,
             templateMathIsOkMatrix,
-            isContainsGantryError,
+            isXOnlyGantryError,
             htmlLogUniqueId,
             calculateContainRowMinCount: calculateContainRowMinCount,
             calculateContainColumnMinCount: calculateContainColumnMinCount,

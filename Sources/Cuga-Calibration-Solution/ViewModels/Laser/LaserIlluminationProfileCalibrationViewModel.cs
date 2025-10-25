@@ -379,7 +379,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     private void ReviewPlot(List<double> list)
     {
         if (list.Count == 0) return;
-        DialogWindowProvider.ShowPlot(GetChannelDarkFieldImageList(list));
+        DialogWindowProvider.ShowPlot([..GetChannelDarkFieldImageList(list).Select(t => (t.Item1, t.Item2.ToArray()))]);
     }
 
     [RelayCommand]
@@ -1316,7 +1316,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                     PrescanRateList = new HtmlPlot2DLinesChart([
                         (nameof(tempIlluminationProfileDto.PrescanRateList), GetPrescan1080List(tempIlluminationProfileDto.PrescanRateList).ToPoints())
                     ], "PrescanRateList"),
-                    DarkFieldImageCh3List = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(tempIlluminationProfileDto.ChannelDarkFieldProjectYsList).ToArray(), "DarkFieldImageCh3List"),
+                    DarkFieldImageCh3List = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(tempIlluminationProfileDto.ChannelDarkFieldProjectYsList), "DarkFieldImageCh3List"),
                     HtmlTab = new HtmlTab(new
                     {
                         CH1 = new HtmlImage(tempIlluminationProfileDto.Channel1ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -1403,7 +1403,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                     PrescanRateList = new HtmlPlot2DLinesChart([
                         (nameof(SelectCalibrateItemDto.PrescanRateList), GetPrescan1080List(SelectCalibrateItemDto.PrescanRateList).ToPoints())
                     ], "PrescanRateList"),
-                    DarkFieldImageList = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(SelectCalibrateItemDto.ChannelDarkFieldProjectYsList).ToArray(), "DarkFieldImageList"),
+                    DarkFieldImageList = new HtmlPlot2DLinesChart(GetChannelDarkFieldImageList(SelectCalibrateItemDto.ChannelDarkFieldProjectYsList), "DarkFieldImageList"),
                     HtmlTab = new HtmlTab(new
                     {
                         CH1 = new HtmlImage(SelectCalibrateItemDto.Channel1ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -1662,7 +1662,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         );
     }
 
-    private List<(string, Point[])> GetChannelDarkFieldImageList(List<double> result)
+    private IReadOnlyList<(string, IReadOnlyList<Point>)> GetChannelDarkFieldImageList(List<double> result)
         => [("Average", Cache.GetDarkFieldImageList(result).ToPoints())];
 
     private List<double> GetPrescan1080List(List<double> result)
