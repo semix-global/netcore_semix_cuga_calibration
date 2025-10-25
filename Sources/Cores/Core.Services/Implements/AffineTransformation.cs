@@ -109,7 +109,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         var errorXOriginTempMatrix = realXMatrix - idealXMatrix;
         var errorYOriginTempMatrix = realYMatrix - idealYMatrix;
-        
+
         // 移除统一偏差
         RemoveAverageTranslation(errorXOriginTempMatrix, errorYOriginTempMatrix, realXMatrix, realYMatrix);
 
@@ -533,9 +533,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
                 var columnIndex = column - minColumnIndex;
                 errorGantryXTemp[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
-                                                * (columnIndex < 0 || columnIndex >= thetaGantryVector.Count
-                                                    ? Math.Tan(meanGantryTheta)
-                                                    : Math.Tan(thetaGantryVector[columnIndex]));
+                                                * ( /*columnIndex < 0 || columnIndex >= thetaGantryVector.Count
+                                                    ? */Math.Tan(meanGantryTheta)
+                                                    /*: Math.Tan(thetaGantryVector[columnIndex])*/);
             }
         }
 
@@ -558,7 +558,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             new HtmlBullet(new
             {
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryX, Matrix<double>.Build.SameAs(errorGantryX), "Scale Map"),
-                errorXContainsGantry = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorXContainsGantry, "Gantry error X"),
+                errorXContainsGantry = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryXTemp, "Gantry error X"),
                 ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryX, "Gantry error X"),
             }),
             htmlLogUniqueId.LoggingHtml()
@@ -844,7 +844,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         {
             // 移除统一偏差
             var sumXTemp = 0d;
-            var sumYTemp = 0d;
+            var sumYTemp = 0d; 
             var countTemp = 0d;
 
             for (var row = 0; row < rowCount; row++)
