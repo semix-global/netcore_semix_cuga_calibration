@@ -2,14 +2,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -19,7 +22,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCalChipCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSetting calibrationSetting, ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -68,6 +71,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
     private MicroscopeCalChipDto? _reviewDto;
 
     #endregion Review
+
+    private bool _isSkipRtfc = false;
 
     #endregion 界面相关
 
@@ -129,6 +134,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
         }
 
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
+
+        DialogWindowProvider.TryShowDialog("Do you want to skip dark field rtfc step?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+        _isSkipRtfc = dialogResult == DialogResultEnum.Yes;
         return true;
     }
 
@@ -506,12 +514,24 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.ChuckPosition = StageViewModel.GetMachineStagePosition();
-            var (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition);
+            Cache.ChuckPosition = StageViewModel.GetBrightFieldStagePosition();
+            if (_isSkipRtfc) return true;
+            var (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(
+                GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                Cache.ChuckPosition,
+                calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
+                saveImageFileDirectory: ImageFileDirectory,
+                logGuid: HtmlLogUniqueId,
+                logName: "Chuck");
             ResultMicroscopeCalChipDto.ChuckAfEcsValue = ecs;
             ResultMicroscopeCalChipDto.ChuckAfMotorValue = afMotor;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            var afMotorResults = new[] { afMotor, ResultMicroscopeCalChipDto.DswAfMotorValue, ResultMicroscopeCalChipDto.HazeAfMotorValue };
+            var afOffsetAbs = Math.Abs(afMotorResults.Max() - afMotorResults.Min());
+            var result = afOffsetAbs < Cache.AfOffsetThreshold;
+
+            Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.CalChipSiteModelEnum,
                 ChuckAfEcsValue = ecs,
@@ -523,9 +543,10 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 ResultMicroscopeCalChipDto.DswToChuckAfEcsValue,
                 ResultMicroscopeCalChipDto.DswToChuckAfMotorValue,
                 ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue,
-                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue
+                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue,
+                AfOffsetAbs = afOffsetAbs,
             }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+            return result;
         });
     }
 
@@ -621,15 +642,24 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
 
             double ecs = 0d;
             double afMotor = 0d;
-            if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
+            if (!_isSkipRtfc && Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
             {
-                (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
+                var position = StageViewModel.MachineToBrightFieldPosition(findFocusPosition);
+                (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(
+                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                    position,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
+                    saveImageFileDirectory: ImageFileDirectory,
+                    logGuid: HtmlLogUniqueId,
+                    logName: Cache.CalChipSiteModelEnum.ToString());
                 ResultMicroscopeCalChipDto.SetAfEcsValue(Cache.CalChipSiteModelEnum, ecs);
                 ResultMicroscopeCalChipDto.SetAfMotorValue(Cache.CalChipSiteModelEnum, afMotor);
             }
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
+                IsSkipRtfc = _isSkipRtfc,
                 Cache.CalChipSiteModelEnum,
                 RtfcAfEcs = ecs,
                 RtfcAfMotor = afMotor,
@@ -728,22 +758,83 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
             Cache.VerifyResultQuality = string.Join(", ", newQualityList);
             Cache.VerifyResultError = string.Join(", ", errorList);
 
-            // Rtfc
+            var result = resultList.All(t => t);
             var calchipVerifyItemDto = new MicroscopeCalChipDto();
-            (calchipVerifyItemDto.ChuckAfEcsValue, calchipVerifyItemDto.ChuckAfMotorValue) = LaserViewModel.RuntimeAfCalibration(Cache.ChuckPosition);
-            (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: CalChipSiteModelEnum.DswModel);
-            (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: CalChipSiteModelEnum.HazeModel);
+            if (_isSkipRtfc == false)
+            {
+                // Rtfc
+                (calchipVerifyItemDto.ChuckAfEcsValue, calchipVerifyItemDto.ChuckAfMotorValue) = LaserViewModel.RuntimeAfCalibration(
+                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                    Cache.ChuckPosition,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                    saveImageFileDirectory: ImageFileDirectory,
+                    logGuid: HtmlLogUniqueId,
+                    logName: "Chuck");
 
-            var dswToChuckAfEcsOffset = calchipVerifyItemDto.DswToChuckAfEcsValue - ReviewDto.DswToChuckAfEcsValue;
-            var dswToChuckAfMotorOffset = calchipVerifyItemDto.DswToChuckAfMotorValue - ReviewDto.DswToChuckAfMotorValue;
-            var hazeToChuckAfEcsOffset = calchipVerifyItemDto.HazeToChuckAfEcsValue - ReviewDto.HazeToChuckAfEcsValue;
-            var hazeToChuckAfMotorOffset = calchipVerifyItemDto.HazeToChuckAfMotorValue - ReviewDto.HazeToChuckAfMotorValue;
-            var rtfcResult = Math.Abs(dswToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
-                             && Math.Abs(dswToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold
-                             && Math.Abs(hazeToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
-                             && Math.Abs(hazeToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold;
+                var position = StageViewModel.MachineToBrightFieldPosition(Cache.DswPosition);
+                (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(
+                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                    position,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                    calChipSiteModelEnum: CalChipSiteModelEnum.DswModel,
+                    saveImageFileDirectory: ImageFileDirectory,
+                    logGuid: HtmlLogUniqueId,
+                    logName: "DSW");
 
-            var result = resultList.All(t => t) && rtfcResult;
+                position = StageViewModel.MachineToBrightFieldPosition(Cache.HazePosition);
+                (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(
+                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                    position,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                    calChipSiteModelEnum: CalChipSiteModelEnum.HazeModel,
+                    saveImageFileDirectory: ImageFileDirectory,
+                    logGuid: HtmlLogUniqueId,
+                    logName: "Haze");
+
+                var dswToChuckAfEcsOffset = calchipVerifyItemDto.DswToChuckAfEcsValue - ReviewDto.DswToChuckAfEcsValue;
+                var dswToChuckAfMotorOffset = calchipVerifyItemDto.DswToChuckAfMotorValue - ReviewDto.DswToChuckAfMotorValue;
+                var hazeToChuckAfEcsOffset = calchipVerifyItemDto.HazeToChuckAfEcsValue - ReviewDto.HazeToChuckAfEcsValue;
+                var hazeToChuckAfMotorOffset = calchipVerifyItemDto.HazeToChuckAfMotorValue - ReviewDto.HazeToChuckAfMotorValue;
+                var rtfcResult = Math.Abs(dswToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
+                                 && Math.Abs(dswToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold
+                                 && Math.Abs(hazeToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
+                                 && Math.Abs(hazeToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold;
+
+                result = result && rtfcResult;
+                Logger.LogHtmlInformation("RTFC Result", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+                {
+                    Cache.AfEcsErrorThreshold,
+                    Cache.AfMotorErrorThreshold,
+                    calchipVerifyItemDto.ChuckAfEcsValue,
+                    calchipVerifyItemDto.ChuckAfMotorValue,
+                    calchipVerifyItemDto.DswAfEcsValue,
+                    calchipVerifyItemDto.DswAfMotorValue,
+                    calchipVerifyItemDto.HazeAfEcsValue,
+                    calchipVerifyItemDto.HazeAfMotorValue,
+                    calchipVerifyItemDto.DswToChuckAfEcsValue,
+                    calchipVerifyItemDto.DswToChuckAfMotorValue,
+                    calchipVerifyItemDto.HazeToChuckAfEcsValue,
+                    calchipVerifyItemDto.HazeToChuckAfMotorValue,
+                    dswToChuckAfEcsOffset,
+                    dswToChuckAfMotorOffset,
+                    hazeToChuckAfEcsOffset,
+                    hazeToChuckAfMotorOffset
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
+                                                $"New Offset: ({Cache.VerifyResultQuality}){Environment.NewLine}" +
+                                                $"New Offset: ({string.Join(", ", oldQualityList)}){Environment.NewLine}" +
+                                                $"Error: ({Cache.VerifyResultError})" +
+                                                $"DswToChuckAfEcsOffset:({dswToChuckAfEcsOffset})" +
+                                                $"DswToChuckAfMotorOffset: ({dswToChuckAfMotorOffset})" +
+                                                $"HazeToChuckAfEcsOffset: ({hazeToChuckAfEcsOffset})" +
+                                                $"HazeToChuckAfMotorOffset: ({hazeToChuckAfMotorOffset})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            }
+            else
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
+                                                $"New Offset: ({Cache.VerifyResultQuality}){Environment.NewLine}" +
+                                                $"New Offset: ({string.Join(", ", oldQualityList)}){Environment.NewLine}" +
+                                                $"Error: ({Cache.VerifyResultError})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
             {
@@ -753,21 +844,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 Error = Cache.VerifyResultError,
                 QualityThreshold = Cache.Threshold,
                 Cache.AfEcsErrorThreshold,
-                Cache.AfMotorErrorThreshold,
-                calchipVerifyItemDto.ChuckAfEcsValue,
-                calchipVerifyItemDto.ChuckAfMotorValue,
-                calchipVerifyItemDto.DswAfEcsValue,
-                calchipVerifyItemDto.DswAfMotorValue,
-                calchipVerifyItemDto.HazeAfEcsValue,
-                calchipVerifyItemDto.HazeAfMotorValue,
-                calchipVerifyItemDto.DswToChuckAfEcsValue,
-                calchipVerifyItemDto.DswToChuckAfMotorValue,
-                calchipVerifyItemDto.HazeToChuckAfEcsValue,
-                calchipVerifyItemDto.HazeToChuckAfMotorValue,
-                dswToChuckAfEcsOffset,
-                dswToChuckAfMotorOffset,
-                hazeToChuckAfEcsOffset,
-                hazeToChuckAfMotorOffset
+                Cache.AfMotorErrorThreshold
             }), HtmlLogUniqueId.LoggingHtml());
 
             ReviewDto.IsVerified = result;
@@ -778,14 +855,6 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel : CalibrationV
                 return false;
             }
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
-                                            $"New Offset: ({Cache.VerifyResultQuality}){Environment.NewLine}" +
-                                            $"New Offset: ({string.Join(", ", oldQualityList)}){Environment.NewLine}" +
-                                            $"Error: ({Cache.VerifyResultError})" +
-                                            $"DswToChuckAfEcsOffset:({dswToChuckAfEcsOffset})" +
-                                            $"DswToChuckAfMotorOffset: ({dswToChuckAfMotorOffset})" +
-                                            $"HazeToChuckAfEcsOffset: ({hazeToChuckAfEcsOffset})" +
-                                            $"HazeToChuckAfMotorOffset: ({hazeToChuckAfMotorOffset})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return result;
         }).ConfigureAwait(false);

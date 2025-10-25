@@ -56,7 +56,7 @@
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
                                  Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation}"
+                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>

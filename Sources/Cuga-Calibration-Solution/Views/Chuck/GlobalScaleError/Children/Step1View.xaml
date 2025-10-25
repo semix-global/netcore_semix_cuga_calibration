@@ -58,7 +58,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Low Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.LowGlobalScaleErrorCacheItem.LensInformation}"
+                                 SelectedItem="{Binding Cache.LowGlobalScaleErrorCacheItem.LensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
@@ -76,7 +76,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.HighGlobalScaleErrorCacheItem.LensInformation}"
+                                 SelectedItem="{Binding Cache.HighGlobalScaleErrorCacheItem.LensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>

@@ -272,7 +272,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                     800,
                                     FocusShiftCache.OpticsMagTypeEnum,
                                     FocusShiftCache.StageSpeedEnum,
-                                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
+                                    isCustomAfParam: true);
                                 var detectImageDirectory = ImageFileDirectory;
                                 using var image = darkFieldImageDto;
 
@@ -431,7 +432,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LaserLightInformation) == false)
+                        FocusShiftCache.LaserLightInformation,
+                        isCustomAfParam: true) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -581,7 +583,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LaserLightInformation) == false)
+                        FocusShiftCache.LaserLightInformation,
+                        isAutoFocus: false) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -960,7 +963,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 StageSpeedEnum.Low,
                 8,
                 3,
-                StageCoordinateSystemEnum.Dark);
+                StageCoordinateSystemEnum.Dark,
+                false);
 
             using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
@@ -1088,7 +1092,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 FocusShiftCache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
                 CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                FocusShiftCache.LaserLightInformation) == false)
+                FocusShiftCache.LaserLightInformation,
+                false) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -1158,7 +1163,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     true,
                     800,
                     FocusShiftCache.OpticsMagTypeEnum,
-                    FocusShiftCache.StageSpeedEnum) == false)
+                    FocusShiftCache.StageSpeedEnum,
+                    isAutoFocus: false) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -1192,7 +1198,8 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     true,
                     800,
                     FocusShiftCache.OpticsMagTypeEnum,
-                    FocusShiftCache.StageSpeedEnum) == false)
+                    FocusShiftCache.StageSpeedEnum,
+                    isCustomAfParam: true) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;

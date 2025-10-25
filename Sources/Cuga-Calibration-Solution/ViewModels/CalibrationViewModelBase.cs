@@ -8,6 +8,7 @@ using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
@@ -492,6 +493,26 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             Logger.LogError(ex, "{@Name}: Next Exception", Name);
             UpdateFailedStatus();
+        }
+    }
+
+    [RelayCommand]
+    private async Task MagnificationSelectedAsync(object obj)
+    {
+        try
+        {
+            if (obj is not MicroscopeLensInformation lensInformation || ApplicationCookie.MicroscopeLensInformationList.Contains(lensInformation) == false)
+            {
+                Logger.LogError("{@Name}: Select magnification illegal!", Name);
+                return;
+            }
+
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
+            ).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
     }
 

@@ -229,11 +229,8 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<FocusShiftCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<FocusShiftDto>();
 
-        if (Cache.LowMicroscopeLensInformation.LensCode == -1) Cache.LowMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
-        if (Cache.HighMicroscopeLensInformation.LensCode == -1)
-            Cache.HighMicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformationList[^1]
-                : ApplicationCookie.MicroscopeLensInformationList[2];
+        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         foreach (var calibrationStatus in Calibrations)
         {
@@ -393,25 +390,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
         }
     }
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()

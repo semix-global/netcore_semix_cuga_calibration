@@ -844,7 +844,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         {
             // 移除统一偏差
             var sumXTemp = 0d;
-            var sumYTemp = 0d; 
+            var sumYTemp = 0d;
             var countTemp = 0d;
 
             for (var row = 0; row < rowCount; row++)

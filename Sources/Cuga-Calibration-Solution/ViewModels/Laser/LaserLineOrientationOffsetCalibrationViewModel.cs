@@ -7,7 +7,6 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -388,26 +387,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         {
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
             return false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
-
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
     }
 

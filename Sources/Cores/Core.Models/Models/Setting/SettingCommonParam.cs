@@ -49,6 +49,12 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
     [ObservableProperty]
     private LogLevelEnum _minLogLevelEnum = LogLevelEnum.Info;
 
+    [ObservableProperty]
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+
     #region 校准状态控制
 
     /// <summary>
@@ -106,6 +112,8 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
     public SettingCommonParam AdaptIn(SettingCommonParam obj)
     {
         MinLogLevelEnum = obj.MinLogLevelEnum;
+        LowMicroscopeLensInformation = obj.LowMicroscopeLensInformation;
+        HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation;
         DependencyEnable = obj.DependencyEnable;
         PrerequisitesEnable = obj.PrerequisitesEnable;
         IsDebugEnvironment = obj.IsDebugEnvironment;

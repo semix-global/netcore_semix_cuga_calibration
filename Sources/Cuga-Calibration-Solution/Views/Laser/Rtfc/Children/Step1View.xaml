@@ -59,7 +59,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Low Magnification: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding FocusShiftCache.LowMicroscopeLensInformation}"
+                                 SelectedItem="{Binding FocusShiftCache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>

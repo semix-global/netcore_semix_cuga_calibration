@@ -150,7 +150,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
+        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 
@@ -227,25 +227,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
     #region 校准
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()

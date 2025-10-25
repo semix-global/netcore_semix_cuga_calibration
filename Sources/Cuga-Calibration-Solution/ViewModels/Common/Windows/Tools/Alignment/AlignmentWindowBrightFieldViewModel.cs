@@ -151,10 +151,8 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 {
                     Cache = new AlignmentCacheBrightField
                     {
-                        LowMag = _applicationCookie.MicroscopeLensInformationList[0],
-                        HighMag = _applicationCookie.MicroscopeLensInformationList.Count <= 2
-                            ? _applicationCookie.MicroscopeLensInformationList[^1]
-                            : _applicationCookie.MicroscopeLensInformationList[2]
+                        LowMag = _calibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone(),
+                        HighMag = _calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone()
                     };
                     _recipeCacheProvider.Set(Cache, cancellationToken);
                 }
