@@ -13,11 +13,11 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using SourceGenerator.AssemblyMetadata;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using SourceGenerator.AssemblyMetadata;
 
 namespace CugaCalibration.ViewModels;
 

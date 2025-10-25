@@ -13,11 +13,11 @@ using Net.Utilities.WPF.MVVM;
 using NLog;
 using NLog.Extensions.Hosting;
 using NLog.Extensions.Logging;
-using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
 using Net.Utilities.ScottPlot.WPF;
+using SourceGenerator.AssemblyMetadata;
 
 namespace CugaCalibration;
 
