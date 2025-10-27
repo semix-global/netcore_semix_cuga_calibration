@@ -80,14 +80,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
-    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
     {
         throw new NotImplementedException();
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
@@ -99,7 +99,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
@@ -107,6 +107,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         return result is null
             ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)

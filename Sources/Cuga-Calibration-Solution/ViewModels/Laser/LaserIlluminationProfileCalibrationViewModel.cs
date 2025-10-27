@@ -154,9 +154,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     {
         _calibrationStatusList =
         [
-            ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformationList)] })
+            ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)] })
         ];
-        _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformationList)];
+        _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)];
     }
 
     #region 控制校准业务
@@ -465,7 +465,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var contains = ApplicationCookie.LaserLightInformationList.Contains(Cache.LaserLightInformation);
+            var contains = ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation);
             if (contains) return contains;
 
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Laser Light Information is not exist!"), HtmlLogUniqueId.LoggingHtml());

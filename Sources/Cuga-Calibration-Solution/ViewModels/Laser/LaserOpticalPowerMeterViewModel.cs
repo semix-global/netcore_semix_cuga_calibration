@@ -205,7 +205,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 Calibratings = [];
                 SelectedCalibratingItem = null;
 
-                var coefficient = applicationCookie.LaserLightInformationList.Max(t => t.Coefficient);
+                var coefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {

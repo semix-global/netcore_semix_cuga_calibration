@@ -15,12 +15,14 @@ using Semix.CoreLib;
 using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.PMT;
 using CommunityToolkit.Diagnostics;
+using Semix.WcfTransfer.DTO;
 
 #if NET
 using Core.Services.Implements.GRPC;
+using Semix.GRPC.DTO;
 #else
 using Core.Services.Implements.WCF;
-
+using Semix.WcfTransfer.DTO;
 #endif
 
 namespace Core.Services.Implements.Mock;
@@ -78,7 +80,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
     }
 
-    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
     {
         Thread.Sleep(100);
 
@@ -101,7 +103,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
@@ -113,7 +115,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
@@ -121,6 +123,20 @@ public sealed class CalibrationLaserServiceMockImpl(
         return result is null
             ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }),
+        ]);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)

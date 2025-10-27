@@ -46,7 +46,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 {
     #region 属性
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformations;
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
 

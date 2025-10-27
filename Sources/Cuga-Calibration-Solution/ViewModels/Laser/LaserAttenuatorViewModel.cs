@@ -176,8 +176,8 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
             {
                 CalibratingItem = null;
 
-                var minCoefficient = applicationCookie.LaserLightInformationList.Min(t => t.Coefficient);
-                var maxCoefficient = applicationCookie.LaserLightInformationList.Max(t => t.Coefficient);
+                var minCoefficient = applicationCookie.LaserLightInformations.Min(t => t.Coefficient);
+                var maxCoefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
                 var laserOpticalPower = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk);
 
                 CalibratingItem = new LaserAttenuatorDto

@@ -74,11 +74,15 @@ public sealed partial class LoadingWindowViewModel(
 
             var deviceCode = configViewModel.GetDeviceCode();
             var microscopeLensInformationList = microscopeViewModel.GetMicroscopeLensInformationList();
-            var laserLightInformationList = laserViewModel.GetLaserLightInformationList();
+            var laserLightInformations = laserViewModel.GetLaserLightInformations();
+            var productivityInformations = laserViewModel.GetProductivityInformations();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformationList.Select(t => t.Clone())];
             applicationCookie.LaserLightInformationList = laserLightInformationList;
+            applicationCookie.MicroscopeLensInformationList = [.. microscopeLensInformationList.Select(t => t.Clone())];
+            applicationCookie.LaserLightInformations = laserLightInformations;
+            applicationCookie.ProductivityInformations = productivityInformations;
 
             contextProvider.Send(() => CloseView(true));
 
