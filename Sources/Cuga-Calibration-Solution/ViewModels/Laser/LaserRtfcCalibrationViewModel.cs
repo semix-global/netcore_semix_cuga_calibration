@@ -7,7 +7,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
@@ -435,25 +434,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
         }
     }
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()
@@ -575,7 +556,8 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 800,
                 Cache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
+                isCustomAfParam: true);
             var detectImageDirectory = ImageFileDirectory;
             using var image = darkFieldImageDto;
 
@@ -751,7 +733,8 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     FocusShiftCache.StageSpeedEnum,
                     8,
                     3,
-                    StageCoordinateSystemEnum.Machine);
+                    StageCoordinateSystemEnum.Machine,
+                    isAutoFocus: false);
                 var path = $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
                 var nscDarkFieldImageFilePath =
                     $"{ImageFileDirectory}\\ECS({autoFocusEcs})_AutoFocus_Guid({HtmlLogUniqueId}).jpg";
@@ -950,7 +933,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     var nscBuffers = AfViewModel.GetSensorNscTraceBufferList(TimeSpan.FromSeconds(2));
                     ResultRtfcDto.NscValue = nscBuffers.Average();
                     // 获得照明焦点偏移量
-                    if (LaserViewModel.TryGetMatchPosition(
+                    if (LaserViewModel.TryGetMatchPositionByScanImage(
                             FocusShiftCache.AlgorithmTemplateTypeEnum,
                             FocusShiftCache.CalChipSiteModelEnum,
                             8,
@@ -970,7 +953,8 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                             Cache.OpticsMagTypeEnum,
                             FocusShiftCache.StageSpeedEnum,
                             StageCoordinateSystemEnum.Bright,
-                            FocusShiftCache.LaserLightInformation) == false)
+                            FocusShiftCache.LaserLightInformation,
+                            isAutoFocus: false) == false)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Dark Field Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                         return false;
@@ -1156,7 +1140,8 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 StageSpeedEnum.Low,
                 8,
                 3,
-                StageCoordinateSystemEnum.Dark);
+                StageCoordinateSystemEnum.Dark,
+                false);
 
             using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
             var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);

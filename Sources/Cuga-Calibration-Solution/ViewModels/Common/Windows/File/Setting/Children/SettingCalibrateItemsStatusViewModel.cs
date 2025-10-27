@@ -7,7 +7,6 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Wcf.Models;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -102,7 +101,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
         {
             try
             {
-                _synchronizationContextProvider.Send(CalibrationCategories.Clear);
+                _synchronizationContextProvider.Post(CalibrationCategories.Clear);
 
                 var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
 
@@ -122,8 +121,8 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                         };
                         if (calibrationCategoryItem.IsArray)
                         {
-                            var calibrationDtoItems = GuardUtils.IsNotNullAndReturn(_cacheProvider.GetOrDefaultArray(calibrationCategoryItem.CalibrationDtoType));
-                            calibrationCategoryItemObj.IsAnyOk = calibrationDtoItems.Length > 0;
+                            var calibrationDtoItems = _cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
+                            calibrationCategoryItemObj.IsAnyOk = calibrationDtoItems is not null && calibrationDtoItems.Length > 0;
                         }
                         else
                         {
@@ -134,7 +133,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                         items.Add(calibrationCategoryItemObj);
                     }
 
-                    _synchronizationContextProvider.Send(() => CalibrationCategories.Add(calibrationCategoryObj));
+                    _synchronizationContextProvider.Post(() => CalibrationCategories.Add(calibrationCategoryObj));
                 }
 
                 return true;

@@ -19,9 +19,9 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Logging;
 using MoreLinq.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -35,7 +35,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserDOEAngleCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -198,7 +198,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserDOEAngleCache>();
         Calibration = CacheProvider.GetOrDefault<LaserDOEAngleDto>();
 
-        if (Cache.MicroscopeLensInformation.LensCode == -1) Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
+        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
@@ -272,25 +272,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
 
     #region 校准
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()
@@ -340,7 +322,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.FindPosition = StageViewModel.GetMachineStagePosition();
+            Cache.FindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -359,6 +341,8 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
         {
             try
             {
+                Cache.EcsPerAfOffset = AfViewModel.GetEcsPerOffsetMotorMm();
+                Cache.UmPerEcs = AfViewModel.GetNmPerEcs() / 1000;
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.OriginDOEAngle,
@@ -371,7 +355,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
 
                 SynchronizationContextProvider.Send(() => LaserDOEAngleDtoItems.Clear());
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
                 LaserViewModel.SetDOEAngle(Cache.OriginDOEAngle);
 
                 var result = false;
@@ -496,8 +480,6 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
 
             var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
-            var (_, yDirection) = StageViewModel.GetMachineDirection();
-
             LaserViewModel.ToggleCIBControlModeAndProfileType(Cache.CIBConfiguration, -1, -1);
 
             // 前8倒叙计算
@@ -508,7 +490,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
                 var pmt = new DarkFieldRTFCDto
                 {
                     PmtId = i,
-                    Position = Cache.FindPosition - (Vector)new Point(0, yDirection * Cache.PmtInterval * (8 - i))
+                    Position = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i))
                 };
                 SynchronizationContextProvider.Send(() => DarkFieldRTFCDtoList.Add(pmt));
             }
@@ -521,25 +503,28 @@ public sealed partial class LaserDOEAngleCalibrationViewModel : CalibrationViewM
                 var pmt = new DarkFieldRTFCDto
                 {
                     PmtId = i,
-                    Position = Cache.FindPosition + (Vector)new Point(0, yDirection * Cache.PmtInterval * (i - 8))
+                    Position = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8))
                 };
                 SynchronizationContextProvider.Send(() => DarkFieldRTFCDtoList.Add(pmt));
             }
 
-            var darkFieldRTFCDtoList = DarkFieldRTFCDtoList.OrderBy(t => t.PmtId);
+            var darkFieldRTFCDtoList = DarkFieldRTFCDtoList.OrderBy(t => t.PmtId).ToList();
             foreach (var darkFieldRtfcDto in darkFieldRTFCDtoList)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 SelectDarkFieldRTFCItemDto = darkFieldRtfcDto;
-                var (afEcs, afOffset) = LaserViewModel.RuntimeAfCalibration(calChipSiteModelEnum: Cache.CalChipSiteModelEnum, pmtId: darkFieldRtfcDto.PmtId);
+                var (afEcs, afOffset) = LaserViewModel.RuntimeAfCalibration(
+                    Cache.CIBConfiguration,
+                    darkFieldRtfcDto.Position,
+                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
+                    pmtId: darkFieldRtfcDto.PmtId,
+                    saveImageFileDirectory: ImageFileDirectory,
+                    logGuid: HtmlLogUniqueId,
+                    logName: $"PMT {darkFieldRtfcDto.PmtId}");
                 darkFieldRtfcDto.AfEcs = afEcs;
                 darkFieldRtfcDto.AfOffset = afOffset;
                 SynchronizationContextProvider.Send(() => AfOffsetPoints = [.. AfOffsetPoints, new Point((darkFieldRtfcDto.PmtId - 1) * Cache.PmtInterval, darkFieldRtfcDto.AfOffset)]);
-                Logger.LogHtmlInformation($"PMT {darkFieldRtfcDto.PmtId} RTFC Result", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    darkFieldRtfcDto.AfEcs,
-                    darkFieldRtfcDto.AfOffset
-                }), HtmlLogUniqueId.LoggingHtml());
             }
 
             var xVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => (t.PmtId - 1) * Cache.PmtInterval)]);

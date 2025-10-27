@@ -1,0 +1,139 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Laser.LineOrientationOffset.Children.Review"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:coreModels="clr-namespace:Core.Models.Models.Laser.LineCentricity;assembly=Core.Models"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserLineOrientationOffsetCalibrationViewModel}"
+             d:DesignHeight="700"
+             d:DesignWidth="1500"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!--#region Left-->
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Laser Line Orientation Offset: "
+                           Status="Review"
+                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                           Color="{StaticResource InfoBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                    <TextBox x:Name="ThresholdTextBox"
+                             Text="{Binding Cache.Threshold, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:InfoElement.Title="Threshold: "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:InfoElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10"
+                                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                        <Button x:Name="ActionButton"
+                                Content="Action"
+                                Command="{Binding VerifyActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button x:Name="CancelButton"
+                                Content="Cancel"
+                                Command="{Binding VerifyActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+            </Border>
+        </hc:UniformSpacingPanel>
+        <!--#endregion-->
+
+        <GridSplitter Grid.Column="1" Width="5" />
+
+        <!--#region Right-->
+        <Grid Grid.Column="2">
+            <GroupBox Header="Calibration Data">
+                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                    <ListView d:SelectedIndex="0"
+                              ItemsSource="{Binding ReviewList}"
+                              Style="{StaticResource ListView.Small}"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              IsEnabled="{Binding VerifyActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}"
+                              SelectionMode="Extended">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ListBoxScrollToCurrentBehavior />
+                            <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviewList}" />
+                        </i:Interaction.Behaviors>
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Width="100"
+                                                Header="Optics Mag"
+                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                <GridViewColumn Width="100"
+                                                Header="Speed"
+                                                DisplayMemberBinding="{Binding StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                <GridViewColumn Width="80"
+                                                Header="PMT Id"
+                                                DisplayMemberBinding="{Binding PmtId}" />
+                                <GridViewColumn Width="200"
+                                                Header="Forward Dark Position"
+                                                DisplayMemberBinding="{Binding ForwardFindDarkMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                                <GridViewColumn Width="200"
+                                                Header="Reverse Dark Position"
+                                                DisplayMemberBinding="{Binding ReverseFindDarkMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                                <GridViewColumn Width="300" Header="Action Review">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <hc:ButtonGroup>
+                                                <Button Content="Forward Image"
+                                                        Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding ForwardFilePath}"
+                                                        d:DataContext="{d:DesignInstance Type=coreModels:LaserLineCentricityItemDto}" />
+                                                <Button Content="Reverse Image"
+                                                        Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding ReverseFilePath}"
+                                                        d:DataContext="{d:DesignInstance Type=coreModels:LaserLineCentricityItemDto}" />
+                                            </hc:ButtonGroup>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Border>
+            </GroupBox>
+        </Grid>
+        <!--#endregion-->
+    </Grid>
+</UserControl>

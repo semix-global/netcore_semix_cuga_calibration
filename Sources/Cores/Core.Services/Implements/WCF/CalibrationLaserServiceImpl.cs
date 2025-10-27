@@ -586,9 +586,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)
     {
+        var isIncreasing = machinePositionList.Select(t => t.X).IsIncreasing(true);
+        var isDecreasing = machinePositionList.Select(t => t.X).IsDecreasing(true);
         if (machinePositionList.Count < 2
             || machinePositionList.Any(t => t.Y - machinePositionList[0].Y == 0) == false // 检查y是否相同
-            || machinePositionList.Zip(machinePositionList.Skip(1), (current, next) => current.X <= next.X).All(b => b) == false) // 检查x是否递增
+            || (isIncreasing == false && isDecreasing == false))// 检查x是否递增
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
         var directionRet = calibrationStageService.GetMachineDirection();
@@ -603,11 +605,11 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         foreach (var machinePoint in machinePositionList)
         {
-            var startPoint = new Point(machinePoint.X - extendWidth, machinePoint.Y);
-            var endPoint = new Point(machinePoint.X + extendWidth, machinePoint.Y);
+            var startPoint = new Point(machinePoint.X - extendWidth, machinePoint.Y).ToSxPointD();
+            var endPoint = new Point(machinePoint.X + extendWidth, machinePoint.Y).ToSxPointD();
 
-            startPointList.Add(startPoint.ToSxPointD());
-            endPointList.Add(endPoint.ToSxPointD());
+            startPointList.Add(isIncreasing ? startPoint : endPoint);
+            endPointList.Add(isIncreasing ? endPoint : startPoint);
         }
 
         // 从起点到终点采图，输出三通道长图片
@@ -619,6 +621,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 startPointList,
                 endPointList,
                 pmtId,
+                isForward: isIncreasing,
                 /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
@@ -641,6 +644,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     StageCoordinateSystemEnum.Machine => directionX < 0 && machinePositionList.First().X < machinePositionList.Last().X
                         ? DropLast(calibrationAlgorithmService.ToHorizontalFlipImageInfo(bytes))
                         : calibrationAlgorithmService.ToImageInfo(bytes),
+                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => calibrationAlgorithmService.ToImageInfo(bytes),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 

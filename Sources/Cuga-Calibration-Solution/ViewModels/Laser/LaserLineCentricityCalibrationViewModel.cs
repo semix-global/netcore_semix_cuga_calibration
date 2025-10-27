@@ -37,6 +37,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using LaserLineCentricityCache = Core.Models.Models.Laser.LineCentricity.LaserLineCentricityCache;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -226,10 +227,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeLensInformation.LensCode == -1)
-            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformationList[^1]
-                : ApplicationCookie.MicroscopeLensInformationList[2];
+        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -384,25 +382,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         }
     }
 
-    [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
-    {
-        try
-        {
-            if (obj is not MicroscopeLensInformation)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-        }
-    }
 
     [RelayCommand]
     private Task ConfigStepActionAsync()
@@ -796,7 +776,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         Logger.LogHtmlInformation($"PMT ID :{laserLineCentricityItemDto.PmtId}", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
         //暗场采图匹配后得到补偿offset后的暗场坐标
-        if (LaserViewModel.TryGetMatchPosition(
+        if (LaserViewModel.TryGetMatchPositionByScanImage(
                 Cache.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
                 laserLineCentricityItemDto.PmtId,
