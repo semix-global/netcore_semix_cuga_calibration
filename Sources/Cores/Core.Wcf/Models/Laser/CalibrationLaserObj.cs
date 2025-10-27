@@ -4,7 +4,6 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 #if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;

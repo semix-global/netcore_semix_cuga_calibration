@@ -291,7 +291,7 @@ public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(Applicati
                     laserOpticalPowerObjDto.MeasureMaxPowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
 
                     var resultLaserOpticalPowerDto = laserOpticalPowerObjDto.Clone();
-                    Calibratings = [..Calibratings, resultLaserOpticalPowerDto];
+                    Calibratings = [.. Calibratings, resultLaserOpticalPowerDto];
 
                     var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.ColumnNumber - 1;
 
