@@ -83,7 +83,15 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum);
+
+    /// <summary>
+    /// 设置mag
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 切换扫描模式
@@ -106,7 +114,17 @@ public interface ICalibrationLaserService
     /// <param name="chirpAodDelay">Chirp AOD延迟</param>
     /// </summary>
     /// <returns>是否成功</returns>
+    [Obsolete]
     SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay);
+
+    /// <summary>
+    /// 设置AOD延迟的值, 并切换Mag
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="prescanAodDelay">Prescan AOD延迟</param>
+    /// <param name="chirpAodDelay">Chirp AOD延迟</param>
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay);
 
     /// <summary>
     /// 下发默认扫描线功率给cuga
@@ -114,7 +132,16 @@ public interface ICalibrationLaserService
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient);
+
+    /// <summary>
+    /// 下发默认扫描线功率给cuga
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient);
 
     /// <summary>
     /// 下发PrescanAod波形给cuga
@@ -128,7 +155,15 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum);
+
+    /// <summary>
+    /// 下发ChirpAOD波形给cuga
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 下发ChirpAOD波形给cuga

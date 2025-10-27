@@ -22,21 +22,21 @@
     <ui:GenerateAODWaveformParamUserControl x:Name="GenerateAODWaveformParamUserControl" Header="Chirp">
         <ui:GenerateAODWaveformParamUserControl.HeaderContent>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:NumericUpDown hc:InfoElement.Title="Sound Packet Length(mm): "
-                                  hc:InfoElement.TitlePlacement="Left"
-                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                <hc:NumericUpDown hc:TitleElement.Title="Sound Packet Length(mm): "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding SoundPacketLength}" />
-                <hc:NumericUpDown hc:InfoElement.Title="Sound Speed(mm/us): "
-                                  hc:InfoElement.TitlePlacement="Left"
-                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                <hc:NumericUpDown hc:TitleElement.Title="Sound Speed(mm/us): "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding SoundSpeed}" />
-                <hc:NumericUpDown hc:InfoElement.Title="Spectral Density(MHz/mm): "
-                                  hc:InfoElement.TitlePlacement="Left"
-                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                <hc:NumericUpDown hc:TitleElement.Title="Spectral Density(MHz/mm): "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                   IsReadOnly="True"
                                   IsEnabled="False"
                                   Style="{StaticResource NumericUpDownExtend}"

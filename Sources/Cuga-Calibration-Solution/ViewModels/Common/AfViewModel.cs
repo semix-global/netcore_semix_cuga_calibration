@@ -1,6 +1,7 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
+using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
@@ -352,6 +353,9 @@ public sealed class AfViewModel(
             _ => throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null)
         };
     }
+
+    public bool SetDarkFieldAutoFocus(SettingDarkFieldAutoFocusParam? settingDarkFieldAutoFocus, ProductivityInformation productivityInformation, CalChipSiteModelEnum calChipSiteModelEnum)
+        => SetDarkFieldAutoFocus(settingDarkFieldAutoFocus, productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum(), calChipSiteModelEnum);
 
     public (Point[] traceBuffer, double k) NscDiagnosis(double afEcs, CalChipSiteModelEnum calChipSiteModelEnum)
     {

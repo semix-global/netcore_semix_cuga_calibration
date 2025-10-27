@@ -13,14 +13,14 @@ namespace Core.Models.Models.Common.Pattern;
 public sealed class ProductivityInformation :
     ObservableCacheBase,
     IEquatable<ProductivityInformation>,
+    IComparable<ProductivityInformation>,
     IFormattable,
     IAdaptTo<C2MProductivityInfo>,
     IAdaptIn<C2MProductivityInfo, ProductivityInformation>,
     ICloneable<ProductivityInformation>
 {
-    
     public static readonly ProductivityInformation Default = new();
-    
+
     private string _name = "N/A";
     private int _opticsMagType = -1;
     private int _stageSpeedType = -1;
@@ -54,6 +54,16 @@ public sealed class ProductivityInformation :
     public override bool Equals(object? obj) => obj is ProductivityInformation other && Equals(other);
 
     public override int GetHashCode() => HashCode.Combine(Name, OpticsMagType, StageSpeedType);
+
+    public int CompareTo(ProductivityInformation? other)
+    {
+        if (ReferenceEquals(this, other)) return 0;
+        if (other is null) return 1;
+
+        var opticsMagTypeComparison = _opticsMagType.CompareTo(other._opticsMagType);
+
+        return opticsMagTypeComparison != 0 ? opticsMagTypeComparison : _stageSpeedType.CompareTo(other._stageSpeedType);
+    }
 
     public override string ToString() => ToString(null);
 

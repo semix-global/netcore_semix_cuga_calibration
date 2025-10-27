@@ -32,9 +32,9 @@
                 <hc:UniformSpacingPanel Margin="11,0"
                                         Orientation="Vertical"
                                         Spacing="2">
-                    <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                    <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                  SelectedItem="{Binding OpticsMagTypeEnum}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}"
@@ -62,9 +62,9 @@
                                               Background="{StaticResource DarkMaskBrush}"
                                               Style="{StaticResource ToggleButtonSwitch}" />
                             </StackPanel>
-                            <hc:NumericUpDown hc:InfoElement.Title="Header Frequency(MHz): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Header Frequency(MHz): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter}"
                                               Value="{Binding HeaderFrequency}">
@@ -78,9 +78,9 @@
                                     </Style>
                                 </hc:NumericUpDown.Style>
                             </hc:NumericUpDown>
-                            <hc:NumericUpDown hc:InfoElement.Title="Footer Frequency(MHz): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Footer Frequency(MHz): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter}"
                                               Value="{Binding FooterFrequency}">
@@ -94,9 +94,9 @@
                                     </Style>
                                 </hc:NumericUpDown.Style>
                             </hc:NumericUpDown>
-                            <hc:NumericUpDown hc:InfoElement.Title="Band Width(MHz): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Band Width(MHz): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                               Value="{Binding BandWidth}">
@@ -110,9 +110,9 @@
                                     </Style>
                                 </hc:NumericUpDown.Style>
                             </hc:NumericUpDown>
-                            <hc:NumericUpDown hc:InfoElement.Title="Center Frequency(MHz): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Center Frequency(MHz): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                               Value="{Binding CenterFrequency}">
@@ -126,9 +126,9 @@
                                     </Style>
                                 </hc:NumericUpDown.Style>
                             </hc:NumericUpDown>
-                            <hc:ComboBox hc:InfoElement.Title="Monotonic: "
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:ComboBox hc:TitleElement.Title="Monotonic: "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                          IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                          SelectedItem="{Binding FunctionMonotonicTypeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
@@ -155,15 +155,15 @@
                           ExpandDirection="Down">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:NumericUpDown hc:InfoElement.Title="Sample Rate(Msa/s): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Sample Rate(Msa/s): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding SampleRate}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Amplitude: "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Amplitude: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Maximum="1"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
@@ -172,9 +172,9 @@
                             <TextBox Text="{Binding DirectoryPath}"
                                      Height="50"
                                      TextWrapping="Wrap"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                     hc:InfoElement.Title="AOD Waveform Directory Path:"
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="AOD Waveform Directory Path:"
+                                     hc:TitleElement.TitlePlacement="Left"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      Style="{StaticResource TextBoxExtend}"
                                      Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -183,21 +183,21 @@
                                     Style="{StaticResource ButtonDefault}"
                                     Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Separator />
-                            <hc:NumericUpDown hc:InfoElement.Title="Zero Sample Count(sa): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Zero Sample Count(sa): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
                                               Value="{Binding ZeroSampleCount}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Endpoint Sample Count(sa): "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Endpoint Sample Count(sa): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
                                               Value="{Binding EndpointSampleCount}" />
-                            <hc:NumericUpDown hc:InfoElement.Title="Generate Retry Times: "
-                                              hc:InfoElement.TitlePlacement="Left"
-                                              hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                            <hc:NumericUpDown hc:TitleElement.Title="Generate Retry Times: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Maximum="1000000"
                                               Minimum="1"
@@ -324,81 +324,81 @@
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <TextBox Text="{Binding SincCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Sinc Coefficient: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Sinc Coefficient: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="0"
                                     Maximum="10"
                                     Value="{Binding SincCoefficient}" />
                             <TextBox Text="{Binding AstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Astigmatism Compensation: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Astigmatism Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding AstigmatismCompensationCoefficient}" />
                             <TextBox Text="{Binding SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Spherical Aberration Compensation: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Spherical Aberration Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding SphericalAberrationCompensationCoefficient}" />
                             <TextBox Text="{Binding SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Secondary Astigmatism Compensation: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Secondary Astigmatism Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding SecondaryAstigmatismCompensationCoefficient}" />
                             <TextBox Text="{Binding ComaCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Coma Compensation: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Coma Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding ComaCompensationCoefficient}" />
                             <TextBox Text="{Binding TrefoilCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Trefoil Compensation: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Trefoil Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding TrefoilCompensationCoefficient}" />
                             <TextBox Text="{Binding QuadrafoilCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Quadrafoil Compensation: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Quadrafoil Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding QuadrafoilCompensationCoefficient}" />
                             <TextBox Text="{Binding AlphaOrder, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Alpha Order: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Alpha Order: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
                                     Maximum="100"
                                     Value="{Binding AlphaOrder}" />
                             <TextBox Text="{Binding AlphaOrderCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:InfoElement.Title="Alpha Order Coefficient: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.Title="Alpha Order Coefficient: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"

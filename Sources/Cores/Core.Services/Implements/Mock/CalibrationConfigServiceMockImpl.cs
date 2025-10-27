@@ -9,6 +9,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
+using Net.Utilities.Helpers.Helpers.Files;
 
 namespace Core.Services.Implements.Mock;
 
@@ -32,6 +33,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
         var fileCacheDirectoryPath = $"{options.Value.AppHomeDirectory}\\CalibrationResult";
+        DirectoryHelper.CreateDirectoryIfNotExists(fileCacheDirectoryPath);
         var filesName = Directory.GetFiles(fileCacheDirectoryPath);
 
         var filePath = filesName.Length > 0 ? filesName.Last() : $"{fileCacheDirectoryPath}\\Result_{Constants.LongFileDateTimeFormat}.dat";

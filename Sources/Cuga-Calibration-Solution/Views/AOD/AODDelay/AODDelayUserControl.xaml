@@ -7,9 +7,9 @@
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:children="clr-namespace:CugaCalibration.Views.AOD.AODDelay.Children"
-             xmlns:aod="clr-namespace:CugaCalibration.ViewModels.AOD"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=aod:AODDelayViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="1920"
              mc:Ignorable="d">

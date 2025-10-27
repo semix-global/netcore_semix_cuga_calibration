@@ -31,7 +31,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Optics Mag" },
-        new() { StepName = "Select Position" },
+        new() { StepName = "Find Position" },
         new() { StepName = "Optical Power Meter" }
     ];
 
@@ -175,6 +175,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             {
                 Cache.OpticsMagTypeEnum
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -191,6 +192,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 Cache.OpticsMagTypeEnum,
                 Cache.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -237,8 +239,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
                 LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
                 var repeatCout = 0;
 
@@ -379,8 +382,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
                 LaserViewModel.ToggleOpticsMagType(SelectedReviewItem.OpticsMagTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(SelectedReviewItem.OpticsMagTypeEnum, SelectedReviewItem.Coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
 
                 var resultList = new List<double>();
 

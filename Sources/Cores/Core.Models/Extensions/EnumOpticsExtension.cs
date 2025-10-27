@@ -38,6 +38,14 @@ public static class EnumOpticsExtension
 
     #region MagType
 
+    public static CgMagTypeEnum ToCgMagTypeEnum(this SxMAGEnum sxMagEnum) => sxMagEnum switch
+    {
+        SxMAGEnum.Low => CgMagTypeEnum.Low,
+        SxMAGEnum.Mid => CgMagTypeEnum.Mid,
+        SxMAGEnum.High => CgMagTypeEnum.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(sxMagEnum), sxMagEnum, null)
+    };
+
     public static CgMagTypeEnum ToCgMagTypeEnum(this OpticsMagTypeEnum opticsMagTypeEnum) => opticsMagTypeEnum switch
     {
         OpticsMagTypeEnum.Low => CgMagTypeEnum.Low,

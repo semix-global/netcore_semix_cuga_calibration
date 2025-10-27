@@ -38,11 +38,11 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown hc:TitleElement.Title="Interval(Coefficient): "
+                    <hc:NumericUpDown hc:TitleElement.Title="Step(Coefficient): "
                                       hc:TitleElement.TitleWidth="225"
                                       hc:TitleElement.TitlePlacement="Left"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Interval}" />
+                                      Value="{Binding Cache.CoefficientStep}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
                                       hc:TitleElement.TitleWidth="225"
                                       hc:TitleElement.TitlePlacement="Left"

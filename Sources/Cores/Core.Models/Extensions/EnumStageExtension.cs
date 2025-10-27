@@ -138,6 +138,14 @@ public static class EnumStageExtension
 
     #region Speed
 
+    public static CgSpeedLevelType ToCgSpeedLevelType(this SxSpeedEnum sxSpeedEnum) => sxSpeedEnum switch
+    {
+        SxSpeedEnum.Low => CgSpeedLevelType.Low,
+        SxSpeedEnum.Mid => CgSpeedLevelType.Mid,
+        SxSpeedEnum.High => CgSpeedLevelType.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(sxSpeedEnum), sxSpeedEnum, null)
+    };
+
     public static CgSpeedLevelType ToCgSpeedLevelType(this StageSpeedEnum stageSpeedEnum) => stageSpeedEnum switch
     {
         StageSpeedEnum.Low => CgSpeedLevelType.Low,

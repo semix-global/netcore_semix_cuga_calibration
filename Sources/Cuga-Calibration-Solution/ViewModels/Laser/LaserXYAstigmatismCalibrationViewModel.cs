@@ -36,6 +36,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using Core.Models.Extensions;
 using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -366,10 +367,10 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.OpticsMagTypeEnum);
                 chirpAodDefaultDto.ZeroSampleCount = defaultChirpAodWaveProfileLst[0].ZeroSampleCount;
                 // 有AOD Delay结果时，默认chirp波形使用该delay值
-                var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum);
+                var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.ProductivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum() == Cache.OpticsMagTypeEnum);
                 if (laserAodDelayItem is not null && laserAodDelayItem.IsOk)
                 {
-                    var delayTime = Convert.ToInt32(laserAodDelayItem.RefinedChirpAodDelayTime);
+                    var delayTime = Convert.ToInt32(laserAodDelayItem.RefinedChirpAODDelay);
                     chirpAodDefaultDto.ZeroSampleCount = delayTime;
 
                     IReadOnlyList<ChirpAODWaveformProfile> customZeroAodWaveProfileList = defaultChirpAodWaveProfileLst.Select(t => AODWaveformProfileFactory.CreateChirp(t.OpticsAODElectrodeEnum, t.FilePath, delayTime)).ToList();

@@ -1,45 +1,49 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using LiteDB;
 using Net.Utilities.Mapper.Interfaces;
+using Newtonsoft.Json;
 
 namespace Core.Models.Models.AOD.AODDelay;
 
 public sealed partial class AODDelayDto : CalibrationDtoBase, ICloneable<AODDelayDto>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
-    private double _index;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private double _roughAODDelay;
 
     [ObservableProperty]
-    private double _roughAodDelayTime;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(RefinedPrescanAodDelayTime), nameof(RefinedChirpAodDelayTime))]
-    private double _refinedAodDelayTime;
-
-    public double RefinedPrescanAodDelayTime => RefinedAodDelayTime >= 0 ? 0 : Math.Abs((double)RefinedAodDelayTime);
-
-    public double RefinedChirpAodDelayTime => RefinedAodDelayTime <= 0 ? 0 : Math.Abs((double)RefinedAodDelayTime);
+    [NotifyPropertyChangedFor(nameof(RefinedPrescanAODDelay), nameof(RefinedChirpAODDelay))]
+    private double _refinedAODDelay;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AveragePmtData))]
-    private List<double> _pmtDataList = [];
+    private IReadOnlyList<double> _pmtData = [];
 
-    public double AveragePmtData => PmtDataList.Count > 0 ? Enumerable.Average((IEnumerable<double>)PmtDataList) : 0d;
+    [JsonIgnore]
+    [BsonIgnore]
+    public double RefinedPrescanAODDelay => RefinedAODDelay >= 0 ? 0 : Math.Abs(RefinedAODDelay);
+
+    [JsonIgnore]
+    [BsonIgnore]
+    public double RefinedChirpAODDelay => RefinedAODDelay <= 0 ? 0 : Math.Abs(RefinedAODDelay);
+
+    [JsonIgnore]
+    [BsonIgnore]
+    public double AveragePmtData => PmtData.Count > 0 ? PmtData.Average() : 0d;
 
     #region Mapper
 
     public AODDelayDto Clone() => new()
     {
-        Index = Index,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
-        RoughAodDelayTime = RoughAodDelayTime,
-        RefinedAodDelayTime = RefinedAodDelayTime,
-        PmtDataList = [.. PmtDataList],
+        ProductivityInformation = ProductivityInformation.Clone(),
+        RoughAODDelay = RoughAODDelay,
+        RefinedAODDelay = RefinedAODDelay,
+        PmtData = [.. PmtData],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -49,9 +53,9 @@ public sealed partial class AODDelayDto : CalibrationDtoBase, ICloneable<AODDela
 
     public CalibrationLaserAodDelayItem AdaptTo() => new()
     {
-        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        PrescanAodDelayTime = RefinedPrescanAodDelayTime,
-        ChirpAodDelayTime = RefinedChirpAodDelayTime,
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        PrescanAodDelayTime = RefinedPrescanAODDelay,
+        ChirpAodDelayTime = RefinedChirpAODDelay,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck

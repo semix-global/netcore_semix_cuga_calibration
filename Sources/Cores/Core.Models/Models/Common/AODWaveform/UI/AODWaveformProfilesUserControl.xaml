@@ -60,8 +60,8 @@
                                 <TextBox Text="{Binding FilePath, Mode=OneWay}"
                                          Height="50"
                                          TextWrapping="Wrap"
-                                         hc:InfoElement.Title="File Path: "
-                                         hc:InfoElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="File Path: "
+                                         hc:TitleElement.TitlePlacement="Left"
                                          IsReadOnly="True"
                                          Style="{StaticResource TextBoxExtend}"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto" />

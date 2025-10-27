@@ -7,12 +7,13 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:enum="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
-             xmlns:aod="clr-namespace:CugaCalibration.ViewModels.AOD"
-             xmlns:aodDelay1="clr-namespace:Core.Models.Models.AOD.AODDelay;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=aod:AODDelayViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
+             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.AODDelay;assembly=Core.Models"
+             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+             xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
              d:DesignHeight="800"
-             d:DesignWidth="800"
+             d:DesignWidth="1920"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -27,188 +28,111 @@
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="1. Param"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <hc:NumericUpDown x:Name="WaitTimeNumeric"
-                                          Width="275"
-                                          hc:InfoElement.Title="Wait Time(s): "
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          hc:TitleElement.TitleWidth="180"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.WaitTime}" />
-                        <hc:NumericUpDown x:Name="RoughAodDelayMinNumeric"
-                                          Width="275"
-                                          hc:InfoElement.Title="Rough Aod Delay Min: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughAodDelayMinLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughAodDelayMinMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughAodDelayMinHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown x:Name="RoughAodDelayMaxNumeric"
-                                          Width="275"
-                                          hc:InfoElement.Title="Rough Aod Delay Max: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughAodDelayMaxLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughAodDelayMaxMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughAodDelayMaxHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown x:Name="RoughAodDelayIntervalNumeric"
-                                          Width="275"
-                                          hc:InfoElement.Title="Rough Find Interval: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughFindIntervalLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughFindIntervalMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.RoughFindIntervalHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown x:Name="RefinedRangeNumeric"
-                                          Width="275"
-                                          hc:InfoElement.Title="Refined Range: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.RefinedRangeLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.RefinedRangeMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.RefinedRangeHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown x:Name="RefinedFindIntervalNumeric"
-                                          Width="275"
-                                          hc:InfoElement.Title="Refined Find Interval: "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.RefinedFindIntervalLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.RefinedFindIntervalMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static enum:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.RefinedFindIntervalHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                    </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="2. Find AOD Delay"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding SelectedCalibrateItemDto.RefinedAodDelayTime, StringFormat={}{0:f3}, Mode=OneWay}"
-                             Width="275"
-                             hc:InfoElement.Title="AOD Delay Time: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding SelectedCalibrateItemDto.RefinedChirpAodDelayTime, StringFormat={}{0:f3}, Mode=OneWay}"
-                             Width="275"
-                             hc:InfoElement.Title="Chirp AOD Delay Time: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding SelectedCalibrateItemDto.RefinedPrescanAodDelayTime, StringFormat={}{0:f3}, Mode=OneWay}"
-                             Width="275"
-                             hc:InfoElement.Title="Prescan AOD Delay Time: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding SelectedCalibrateItemDto.AveragePmtData, StringFormat={}{0:f3}, Mode=OneWay}"
-                             Width="275"
-                             hc:InfoElement.Title="Max Average PMT: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
+                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.WaitTime}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="PMT Data Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.PMTDataCount}" />
+                    <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.LaserLightInformation}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:ComboBox hc:TitleElement.Title="PMT Id: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.PMTId}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:ComboBox hc:TitleElement.Title="Channel Id: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.ChannelId}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <Separator />
+                    <hc:NumericUpDown hc:TitleElement.Title="Rough Start AOD Delay(sa): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RoughStartAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Rough Step AOD Delay(sa): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RoughStepAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Rough Stop AOD Delay(sa): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RoughStopAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Refined AOD Delay ±Range(sa): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RefinedRangeAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Refined Step AOD Delay(sa): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RefinedStepAODDelay}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
+                        <Button Content="Action"
                                 Command="{Binding Step2CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
+                        <Button Content="Cancel"
                                 Command="{Binding Step2CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
@@ -217,18 +141,21 @@
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-
         <GridSplitter Grid.Column="1" Width="5" />
-
         <!--#region Right-->
-        <Grid Grid.Column="2">
-            <GroupBox Header="History">
+        <GroupBox Grid.Column="2" Header="History">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding LaserAodDelayItemDtoList}"
+                          ItemsSource="{Binding Calibratings}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedCalibrateItemDto, Mode=OneWay}">
+                          SelectedItem="{Binding SelectedCalibratingItem, Mode=OneWay}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -251,62 +178,46 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Width="100"
+                                            Header="Productivity"
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="120"
-                                            Header="Index"
-                                            DisplayMemberBinding="{Binding Index}" />
-                            <GridViewColumn Width="100"
-                                            Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Width="200"
-                                            Header="AOD Delay Time"
-                                            DisplayMemberBinding="{Binding RefinedAodDelayTime, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="200"
-                                            Header="Prescan AOD Delay Time"
-                                            DisplayMemberBinding="{Binding RefinedPrescanAodDelayTime, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="200"
-                                            Header="Chirp AOD Delay Time"
-                                            DisplayMemberBinding="{Binding RefinedChirpAodDelayTime, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Average PMT"
-                                            DisplayMemberBinding="{Binding AveragePmtData, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="300" Header="Action Review">
+                                            Header="AOD Delay(sa)"
+                                            DisplayMemberBinding="{Binding RefinedAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Width="160"
+                                            Header="Prescan AOD Delay(sa)"
+                                            DisplayMemberBinding="{Binding RefinedPrescanAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Width="160"
+                                            Header="Chirp AOD Delay(sa)"
+                                            DisplayMemberBinding="{Binding RefinedChirpAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Width="160"
+                                            Header="Average PMT Data"
+                                            DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
+                            <GridViewColumn Width="400" Header="PMT Data">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <hc:ButtonGroup>
-                                            <Button Content="PMT List"
-                                                    Command="{Binding Path=DataContext.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding PmtDataList}"
-                                                    d:DataContext="{d:DesignInstance Type=aodDelay1:AODDelayDto}" />
-                                        </hc:ButtonGroup>
+                                    <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
+                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
-            </GroupBox>
-            <ToggleButton x:Name="ToggleButton"
-                          Content="Function Image"
-                          Margin="3.5"
-                          HorizontalAlignment="Right"
-                          VerticalAlignment="Top"
-                          hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                          Style="{StaticResource ToggleButtonDefault.Small}" />
-            <Popup StaysOpen="False"
-                   PlacementTarget="{Binding ElementName=ToggleButton}"
-                   Placement="Top"
-                   AllowsTransparency="True"
-                   PopupAnimation="Slide"
-                   IsOpen="{Binding IsChecked, ElementName=ToggleButton, Mode=TwoWay}">
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot Width="500" Height="400">
+                <Border Grid.Row="2"
+                        Style="{StaticResource BorderRegion}"
+                        Effect="{StaticResource EffectShadow1}">
+                    <wpf:WpfPlot>
                         <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Aod Delay" Plot0="{Binding AodDelayList}" />
+                            <behaviors:WpfPlotMultiBehavior Title="AOD Delay" Plot0="{Binding CalibratingPoints}" />
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
                 </Border>
-            </Popup>
-        </Grid>
+            </Grid>
+        </GroupBox>
         <!--#endregion-->
     </Grid>
 </UserControl>

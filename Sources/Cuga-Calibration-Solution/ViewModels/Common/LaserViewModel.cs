@@ -106,10 +106,18 @@ public sealed class LaserViewModel(
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
-    
+
+    [Obsolete]
     public void ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationLaserService.ToggleOpticsMagType(opticsMagTypeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    {
+        var ret = calibrationLaserService.ToggleOpticsMagType(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -128,6 +136,7 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    [Obsolete]
     public void SetAodDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
     {
         var ret = calibrationLaserService.SetAODDelayValue(opticsMagTypeEnum, prescanAodDelay, chirpAodDelay);
@@ -135,9 +144,24 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetAodDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
+    {
+        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, prescanAodDelay, chirpAodDelay);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    [Obsolete]
     public void SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
         var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, coefficient);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
+    {
+        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -149,9 +173,17 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    [Obsolete]
     public void SetChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(opticsMagTypeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChirpAODWaveProfile(ProductivityInformation productivityInformation)
+    {
+        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -464,8 +496,7 @@ public sealed class LaserViewModel(
             if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
-            var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
-            if (toggleCIBModeRet.IsSuccess == false) throw new CugaException(toggleCIBModeRet.ErrorMsg);
+            ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
 
             var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
 
@@ -978,7 +1009,7 @@ public sealed class LaserViewModel(
             isForward: isForward,
             isAutoFocus: isAutoFocus); // 模板匹配只能通道3(1, 2特征不明显)
         return TryGetMatchPosition(algorithmTemplateTypeEnum, calChipSiteModelEnum, darkFieldImageDto, pmtId, position, templateFilePath, saveResultImageFileDirectory, logGuid, logName, logResultTitle, cibConfiguration, out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, isForward, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, stageCoordinateSystemEnum,
-             laserLightInformation, isAutoFocus, isCustomAfParam);
+            laserLightInformation, isAutoFocus, isCustomAfParam);
     }
 
     /// <summary>
