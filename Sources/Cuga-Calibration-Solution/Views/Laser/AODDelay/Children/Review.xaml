@@ -8,7 +8,7 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserAodDelayCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserAODDelayViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
              mc:Ignorable="d">

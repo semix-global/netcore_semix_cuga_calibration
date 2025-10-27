@@ -265,7 +265,7 @@ public static class CoreWcfModelsExtension
 
     #region Laser
 
-    public static bool IsOk(this LaserAodDelayItemDto[] result, out string errorMessage)
+    public static bool IsOk(this LaserAODDelayDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 

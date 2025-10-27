@@ -21,8 +21,8 @@ using Net.Utilities.WPF.Enums;
 
 namespace CugaCalibration.ViewModels.Laser;
 
-[IOCAppService(ServiceType = typeof(LaserAttenuatorCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserAttenuatorCalibrationViewModel(ApplicationCookie applicationCookie) : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(LaserAttenuatorViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
 

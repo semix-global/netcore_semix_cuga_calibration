@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserAodDelayCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserAODDelayViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
              mc:Ignorable="d">

@@ -4,7 +4,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.AodDelay;
 
-public sealed partial class LaserAodDelayCache : CalibrationCacheBase
+public sealed partial class LaserAODDelayCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

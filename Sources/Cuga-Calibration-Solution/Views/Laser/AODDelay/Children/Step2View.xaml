@@ -10,7 +10,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:enum="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              xmlns:aodDelay="clr-namespace:Core.Models.Models.Laser.AodDelay;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserAodDelayCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserAODDelayViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -276,7 +276,7 @@
                                             <Button Content="PMT List"
                                                     Command="{Binding Path=DataContext.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                                     CommandParameter="{Binding PmtDataList}"
-                                                    d:DataContext="{d:DesignInstance Type=aodDelay:LaserAodDelayItemDto}" />
+                                                    d:DataContext="{d:DesignInstance Type=aodDelay:LaserAODDelayDto}" />
                                         </hc:ButtonGroup>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

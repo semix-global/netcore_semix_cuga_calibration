@@ -6,7 +6,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Laser.AodDelay;
 
-public sealed partial class LaserAodDelayItemDto : CalibrationDtoBase, ICloneable<LaserAodDelayItemDto>, IAdaptTo<CalibrationLaserAodDelayItem>
+public sealed partial class LaserAODDelayDto : CalibrationDtoBase, ICloneable<LaserAODDelayDto>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
     private double _index;
@@ -33,7 +33,7 @@ public sealed partial class LaserAodDelayItemDto : CalibrationDtoBase, ICloneabl
 
     #region Mapper
 
-    public LaserAodDelayItemDto Clone() => new()
+    public LaserAODDelayDto Clone() => new()
     {
         Index = Index,
         OpticsMagTypeEnum = OpticsMagTypeEnum,

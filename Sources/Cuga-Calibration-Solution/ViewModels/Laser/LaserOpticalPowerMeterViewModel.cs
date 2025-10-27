@@ -21,8 +21,8 @@ using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Laser;
 
-[IOCAppService(ServiceType = typeof(LaserOpticalPowerMeterCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserOpticalPowerMeterCalibrationViewModel(ApplicationCookie applicationCookie) : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(LaserOpticalPowerMeterViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
 

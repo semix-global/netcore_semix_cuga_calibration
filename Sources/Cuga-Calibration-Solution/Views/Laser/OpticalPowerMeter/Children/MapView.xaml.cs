@@ -30,7 +30,7 @@ public sealed partial class MapView
         if (_isLoaded) return;
         _isLoaded = true;
 
-        if (DataContext is not LaserOpticalPowerMeterCalibrationViewModel viewModel) return;
+        if (DataContext is not LaserOpticalPowerMeterViewModel viewModel) return;
 
         viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
         viewModel.PropertyChanged += ViewModelOnPropertyChanged;
@@ -88,7 +88,7 @@ public sealed partial class MapView
 
     private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (sender is not LaserOpticalPowerMeterCalibrationViewModel viewModel) return;
+        if (sender is not LaserOpticalPowerMeterViewModel viewModel) return;
 
         switch (e.PropertyName)
         {

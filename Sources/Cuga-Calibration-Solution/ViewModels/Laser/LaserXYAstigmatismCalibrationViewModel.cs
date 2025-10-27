@@ -125,7 +125,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     [ObservableProperty]
     private LaserXYAstigmatismCalibrationItemDto[] _calibrations = [];
 
-    public LaserAodDelayItemDto[] LaserAodDelayItemList { get; set; } = [];
+    public LaserAODDelayDto[] LaserAodDelayItemList { get; set; } = [];
 
     #endregion 缓存
 
@@ -167,7 +167,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAodDelayItemDto>(out var laserAodDelayItemDtos, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAODDelayDto>(out var laserAodDelayItemDtos, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
