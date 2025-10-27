@@ -18,6 +18,7 @@ using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.AodDelay;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -64,6 +65,8 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AOD.AODDelay;
+using AODDelayViewModel = CugaCalibration.ViewModels.AOD.AODDelayViewModel;
 
 namespace CugaCalibration.ViewModels;
 
@@ -592,8 +595,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserBeamStabilizerCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAODDelayViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAODDelayDto>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<AODDelayViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODDelayDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserXTCCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserXTCCalibrationItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPixelSizeCalibrationViewModel>();

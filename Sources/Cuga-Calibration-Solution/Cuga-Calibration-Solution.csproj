@@ -72,6 +72,21 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Page Update="Views\AOD\AODDelay\Children\Review.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\AOD\AODDelay\Children\Step0View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\AOD\AODDelay\Children\Step1View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\AOD\AODDelay\Children\Step2View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\AOD\AODDelay\AODDelayUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
     </ItemGroup>
 
     <ItemGroup>
@@ -79,6 +94,10 @@
         <None Update="Assets\Data\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Views\AOD\" />
     </ItemGroup>
 
 </Project>

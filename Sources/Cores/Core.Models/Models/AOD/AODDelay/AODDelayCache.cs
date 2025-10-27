@@ -2,9 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.AodDelay;
+namespace Core.Models.Models.AOD.AODDelay;
 
-public sealed partial class LaserAODDelayCache : CalibrationCacheBase
+public sealed partial class AODDelayCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

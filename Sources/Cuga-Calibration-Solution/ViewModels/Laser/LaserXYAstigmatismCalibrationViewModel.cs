@@ -10,7 +10,6 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
@@ -37,6 +36,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -125,7 +125,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     [ObservableProperty]
     private LaserXYAstigmatismCalibrationItemDto[] _calibrations = [];
 
-    public LaserAODDelayDto[] LaserAodDelayItemList { get; set; } = [];
+    public AODDelayDto[] LaserAodDelayItemList { get; set; } = [];
 
     #endregion 缓存
 
@@ -167,7 +167,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAODDelayDto>(out var laserAodDelayItemDtos, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out var laserAodDelayItemDtos, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

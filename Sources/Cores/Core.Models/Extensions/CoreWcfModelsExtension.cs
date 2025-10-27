@@ -3,6 +3,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Chuck.Gantry;
@@ -12,6 +13,7 @@ using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.AodDelay;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -265,7 +267,7 @@ public static class CoreWcfModelsExtension
 
     #region Laser
 
-    public static bool IsOk(this LaserAODDelayDto[] result, out string errorMessage)
+    public static bool IsOk(this AODDelayDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 

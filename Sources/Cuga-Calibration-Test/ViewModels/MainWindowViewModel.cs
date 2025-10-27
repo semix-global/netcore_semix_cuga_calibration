@@ -5,7 +5,6 @@ using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.RotateScaleError;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -48,6 +47,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using Core.Models.Models.AOD.AODDelay;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
@@ -539,7 +539,7 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.Set<LaserBeamStabilizerObjDto>(new(), CancellationToken.None);
         cacheProvider.SetArray<LaserOpticalPowerDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserAttenuatorDto>([], CancellationToken.None);
-        cacheProvider.SetArray<LaserAODDelayDto>([], CancellationToken.None);
+        cacheProvider.SetArray<AODDelayDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserPrescanChirpAodAlignmentDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserIlluminationProfileItemDto>([], CancellationToken.None);

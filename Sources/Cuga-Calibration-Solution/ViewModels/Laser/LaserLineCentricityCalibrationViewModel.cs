@@ -8,7 +8,6 @@ using Core.Models.Models;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
@@ -37,6 +36,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AOD.AODDelay;
 using LaserLineCentricityCache = Core.Models.Models.Laser.LineCentricity.LaserLineCentricityCache;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -178,7 +178,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAODDelayDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

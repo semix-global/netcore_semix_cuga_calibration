@@ -1,11 +1,12 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
@@ -20,18 +21,17 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Collections.ObjectModel;
 
-namespace CugaCalibration.ViewModels.Laser;
+namespace CugaCalibration.ViewModels.AOD;
 
-[IOCAppService(ServiceType = typeof(LaserAODDelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(AODDelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class AODDelayViewModel(AfViewModel afViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString<OpticsMagTypeEnum>(Cache.OpticsMagTypeEnum);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString<OpticsMagTypeEnum>(Cache.OpticsMagTypeEnum);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -45,7 +45,7 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<LaserAODDelayDto> _laserAodDelayItemDtoList = [];
+    private ObservableCollection<AODDelayDto> _laserAodDelayItemDtoList = [];
 
     [ObservableProperty]
     private ObservableCollection<OpticsMagTypeEnumCalibrationStatus> _calibrationStatusList =
@@ -57,25 +57,25 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
     private List<Point> _aodDelayList = [];
 
     [ObservableProperty]
-    private LaserAODDelayDto? _selectedCalibrateItemDto;
+    private AODDelayDto? _selectedCalibrateItemDto;
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<LaserAODDelayDto> _reviewList = [];
+    private ObservableCollection<AODDelayDto> _reviewList = [];
 
     [ObservableProperty]
-    private LaserAODDelayDto? _selectReviewItemDto;
+    private AODDelayDto? _selectReviewItemDto;
 
     #endregion 界面相关
 
     #region 缓存
 
     [ObservableProperty]
-    private LaserAODDelayCache _cache = new();
+    private AODDelayCache _cache = new();
 
     [ObservableProperty]
-    private LaserAODDelayDto[] _calibrations = [];
+    private AODDelayDto[] _calibrations = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -122,17 +122,17 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAODDelayCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserAODDelayDto>();
+        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AODDelayCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<AODDelayDto>();
 
         foreach (var calibrationStatus in Calibrations)
         {
-            CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
+            Enumerable
+                .Single<OpticsMagTypeEnumCalibrationStatus>(CalibrationStatusList, t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) CacheProvider.Set<AODDelayCache>(Cache, cancellationToken);
 
         return true;
     }
@@ -152,11 +152,11 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
 
         ReviewList =
         [
-            .. Calibrations
-                .Select(t => t.Clone())
+            .. Enumerable
+                .Select<AODDelayDto, AODDelayDto>(Calibrations, t => t.Clone())
                 .OrderBy(t => t.OpticsMagTypeEnum)
         ];
-        if (ReviewList.All(t => t.IsCalibrated == false))
+        if (Enumerable.All<AODDelayDto>(ReviewList, t => t.IsCalibrated == false))
             return false;
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(Cache.FindPosition);
         return true;
@@ -195,10 +195,10 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
+                Enumerable.Single<OpticsMagTypeEnumCalibrationStatus>(CalibrationStatusList, t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog("Find Offset Ok!");
 
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = Enumerable.All<OpticsMagTypeEnumCalibrationStatus>(CalibrationStatusList, s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -317,9 +317,9 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
 
             Logger.LogHtmlInformation("Find Aod Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var index = 1;
-            foreach (var aodDelay in ((double[])[roughAodDelayMin, .. Enumerable.Range(1, (int)Math.Floor((roughAodDelayMax - roughAodDelayMin) / roughFindInterval)).Select(x => roughAodDelayMin + x * roughFindInterval), roughAodDelayMax]).Distinct())
+            foreach (var aodDelay in ((double[])[roughAodDelayMin, .. Enumerable.Range(1, (int)Math.Floor((double)((roughAodDelayMax - roughAodDelayMin) / roughFindInterval))).Select<int, double>(x => roughAodDelayMin + x * roughFindInterval), roughAodDelayMax]).Distinct())
             {
-                var aodDelayObjDto = new LaserAODDelayDto
+                var aodDelayObjDto = new AODDelayDto
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     RoughAodDelayTime = aodDelay,
@@ -330,7 +330,7 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
                 if (await GetAodDelayAsync(aodDelayObjDto, cancellationToken).ConfigureAwait(false) == false) return false;
             }
 
-            var aodDelayItemDtoList = LaserAodDelayItemDtoList.OrderByDescending(t => t.AveragePmtData).ToList();
+            var aodDelayItemDtoList = Enumerable.OrderByDescending<AODDelayDto, double>(LaserAodDelayItemDtoList, t => t.AveragePmtData).ToList();
             if (aodDelayItemDtoList.Count < 0)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Aod Delay list Is Empty."), HtmlLogUniqueId.LoggingHtml());
@@ -342,8 +342,8 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
             var refinedMax = roughAodDelayItemDto.RoughAodDelayTime + refinedRange;
             foreach (var aodDelay in ((double[])[refinedMin, .. Enumerable.Range(1, (int)Math.Floor((refinedMax - refinedMin) / refinedFindInterval)).Select(x => refinedMin + x * refinedFindInterval), refinedMax]).Distinct())
             {
-                if (LaserAodDelayItemDtoList.Any(t => t.RefinedAodDelayTime - aodDelay == 0)) continue;
-                var aodDelayObjDto = new LaserAODDelayDto
+                if (Enumerable.Any<AODDelayDto>(LaserAodDelayItemDtoList, t => t.RefinedAodDelayTime - aodDelay == 0)) continue;
+                var aodDelayObjDto = new AODDelayDto
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     RoughAodDelayTime = roughAodDelayItemDto.RoughAodDelayTime,
@@ -354,7 +354,7 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
                 if (await GetAodDelayAsync(aodDelayObjDto, cancellationToken).ConfigureAwait(false) == false) return false;
             }
 
-            aodDelayItemDtoList = [.. LaserAodDelayItemDtoList.OrderByDescending(t => t.AveragePmtData)];
+            aodDelayItemDtoList = [.. Enumerable.OrderByDescending<AODDelayDto, double>(LaserAodDelayItemDtoList, t => t.AveragePmtData)];
             if (aodDelayItemDtoList.Count < 0)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Aod Delay list Is Empty."), HtmlLogUniqueId.LoggingHtml());
@@ -372,8 +372,8 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
                 SelectedCalibrateItemDto.RefinedChirpAodDelayTime,
                 SelectedCalibrateItemDto.AveragePmtData,
                 MaxAveragePmtList = new HtmlPlot2DLinesChart([
-                    ("Average Pmt", LaserAodDelayItemDtoList
-                        .Select(t => (t.RefinedAodDelayTime, AveragePmt: t.AveragePmtData))
+                    ("Average Pmt", Enumerable
+                        .Select<AODDelayDto, (double RefinedAodDelayTime, double AveragePmt)>(LaserAodDelayItemDtoList, t => (t.RefinedAodDelayTime, AveragePmt: t.AveragePmtData))
                         .OrderBy(t => t.RefinedAodDelayTime)
                         .Select(t => new Point(t.RefinedAodDelayTime, t.AveragePmt))
                         .ToArray())
@@ -424,10 +424,10 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
             var index = 1;
             var refinedMin = SelectReviewItemDto.RefinedAodDelayTime - refinedRange;
             var refinedMax = SelectReviewItemDto.RefinedAodDelayTime + refinedRange;
-            foreach (var aodDelay in ((double[])[refinedMin, .. Enumerable.Range(1, (int)Math.Floor((refinedMax - refinedMin) / refinedFindInterval)).Select(x => refinedMin + x * refinedFindInterval), refinedMax]).Distinct())
+            foreach (var aodDelay in ((double[])[refinedMin, .. Enumerable.Range(1, (int)Math.Floor((double)((refinedMax - refinedMin) / refinedFindInterval))).Select<int, double>(x => refinedMin + x * refinedFindInterval), refinedMax]).Distinct())
             {
-                if (LaserAodDelayItemDtoList.Any(t => t.RefinedAodDelayTime - aodDelay == 0)) continue;
-                var aodDelayObjDto = new LaserAODDelayDto
+                if (Enumerable.Any<AODDelayDto>(LaserAodDelayItemDtoList, t => t.RefinedAodDelayTime - aodDelay == 0)) continue;
+                var aodDelayObjDto = new AODDelayDto
                 {
                     OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
                     RoughAodDelayTime = SelectReviewItemDto.RoughAodDelayTime,
@@ -438,7 +438,7 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
                 if (await GetAodDelayAsync(aodDelayObjDto, cancellationToken).ConfigureAwait(false) == false) return false;
             }
 
-            var aodDelayItemDtoList = LaserAodDelayItemDtoList.OrderByDescending(t => t.AveragePmtData).ToList();
+            var aodDelayItemDtoList = Enumerable.OrderByDescending<AODDelayDto, double>(LaserAodDelayItemDtoList, t => t.AveragePmtData).ToList();
             if (aodDelayItemDtoList.Count < 0)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Find Aod Delay list Is Empty."), HtmlLogUniqueId.LoggingHtml());
@@ -457,8 +457,8 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
                 OldOffset = SelectReviewItemDto.RefinedAodDelayTime,
                 Error = error,
                 MaxAveragePmtList = new HtmlPlot2DLinesChart([
-                    ("Average Pmt", LaserAodDelayItemDtoList
-                        .Select(t => (t.RefinedAodDelayTime, AveragePmt: t.AveragePmtData))
+                    ("Average Pmt", Enumerable
+                        .Select<AODDelayDto, (double RefinedAodDelayTime, double AveragePmt)>(LaserAodDelayItemDtoList, t => (t.RefinedAodDelayTime, AveragePmt: t.AveragePmtData))
                         .OrderBy(t => t.RefinedAodDelayTime)
                         .Select(t => new Point(t.RefinedAodDelayTime, t.AveragePmt))
                         .ToArray())
@@ -480,9 +480,9 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
         }).ConfigureAwait(false);
     }
 
-    private async Task<bool> GetAodDelayAsync(LaserAODDelayDto laserAODDelayDto, CancellationToken cancellationToken)
+    private async Task<bool> GetAodDelayAsync(AODDelayDto aodDelayDto, CancellationToken cancellationToken)
     {
-        LaserViewModel.SetAodDelayValue(Cache.OpticsMagTypeEnum, laserAODDelayDto.RefinedPrescanAodDelayTime, laserAODDelayDto.RefinedChirpAodDelayTime);
+        LaserViewModel.SetAodDelayValue(Cache.OpticsMagTypeEnum, aodDelayDto.RefinedPrescanAodDelayTime, aodDelayDto.RefinedChirpAodDelayTime);
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -491,19 +491,19 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
             .Select(t => pmtDataList.Select(tt => tt[t]).Average())
             .ToList();
 
-        laserAODDelayDto.PmtDataList = result;
+        aodDelayDto.PmtDataList = result;
         SynchronizationContextProvider.Send(() =>
         {
-            LaserAodDelayItemDtoList.Add(laserAODDelayDto);
-            AodDelayList = [.. AodDelayList, new Point(laserAODDelayDto.RefinedAodDelayTime, laserAODDelayDto.AveragePmtData)];
+            LaserAodDelayItemDtoList.Add(aodDelayDto);
+            AodDelayList = [.. AodDelayList, new Point(aodDelayDto.RefinedAodDelayTime, aodDelayDto.AveragePmtData)];
         });
 
-        Logger.LogHtmlInformation($"time:{laserAODDelayDto.Index}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        Logger.LogHtmlInformation($"time:{aodDelayDto.Index}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
         {
-            laserAODDelayDto.RefinedAodDelayTime,
-            laserAODDelayDto.RefinedPrescanAodDelayTime,
-            laserAODDelayDto.RefinedChirpAodDelayTime,
-            laserAODDelayDto.AveragePmtData,
+            aodDelayDto.RefinedAodDelayTime,
+            aodDelayDto.RefinedPrescanAodDelayTime,
+            aodDelayDto.RefinedChirpAodDelayTime,
+            aodDelayDto.AveragePmtData,
             PmtValueList = new HtmlPlot2DLinesChart([
                 ("Pmt 8 channel 3 Value", result.Select((t, i) => new Point(i, t)).ToArray()
                 )
@@ -513,20 +513,20 @@ public sealed partial class LaserAODDelayViewModel(AfViewModel afViewModel) : Ca
         return true;
     }
 
-    private bool Save(LaserAODDelayDto dto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(AODDelayDto dto, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(dto);
         update(Cache);
 
         Calibrations =
         [
-            .. Calibrations
-                .Where(t => t.OpticsMagTypeEnum != dto.OpticsMagTypeEnum),
+            .. Enumerable
+                .Where<AODDelayDto>(Calibrations, t => t.OpticsMagTypeEnum != dto.OpticsMagTypeEnum),
             dto.Clone()
         ];
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        CacheProvider.SetArray<AODDelayDto>(Calibrations, cancellationToken);
+        CacheProvider.Set<AODDelayCache>(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)

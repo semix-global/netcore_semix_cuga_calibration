@@ -4,9 +4,9 @@ using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 
-namespace Core.Models.Models.Laser.AodDelay;
+namespace Core.Models.Models.AOD.AODDelay;
 
-public sealed partial class LaserAODDelayDto : CalibrationDtoBase, ICloneable<LaserAODDelayDto>, IAdaptTo<CalibrationLaserAodDelayItem>
+public sealed partial class AODDelayDto : CalibrationDtoBase, ICloneable<AODDelayDto>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
     private double _index;
@@ -21,19 +21,19 @@ public sealed partial class LaserAODDelayDto : CalibrationDtoBase, ICloneable<La
     [NotifyPropertyChangedFor(nameof(RefinedPrescanAodDelayTime), nameof(RefinedChirpAodDelayTime))]
     private double _refinedAodDelayTime;
 
-    public double RefinedPrescanAodDelayTime => RefinedAodDelayTime >= 0 ? 0 : Math.Abs(RefinedAodDelayTime);
+    public double RefinedPrescanAodDelayTime => RefinedAodDelayTime >= 0 ? 0 : Math.Abs((double)RefinedAodDelayTime);
 
-    public double RefinedChirpAodDelayTime => RefinedAodDelayTime <= 0 ? 0 : Math.Abs(RefinedAodDelayTime);
+    public double RefinedChirpAodDelayTime => RefinedAodDelayTime <= 0 ? 0 : Math.Abs((double)RefinedAodDelayTime);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AveragePmtData))]
     private List<double> _pmtDataList = [];
 
-    public double AveragePmtData => PmtDataList.Count > 0 ? PmtDataList.Average() : 0d;
+    public double AveragePmtData => PmtDataList.Count > 0 ? Enumerable.Average((IEnumerable<double>)PmtDataList) : 0d;
 
     #region Mapper
 
-    public LaserAODDelayDto Clone() => new()
+    public AODDelayDto Clone() => new()
     {
         Index = Index,
         OpticsMagTypeEnum = OpticsMagTypeEnum,

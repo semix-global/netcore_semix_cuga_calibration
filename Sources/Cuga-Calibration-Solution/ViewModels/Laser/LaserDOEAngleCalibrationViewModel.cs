@@ -4,7 +4,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.DOEAngle;
@@ -31,6 +30,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -147,7 +147,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAODDelayDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Laser.AodDelay.Children;
+﻿namespace CugaCalibration.Views.AOD.AODDelay.Children;
 
 public sealed partial class Step2View
 {

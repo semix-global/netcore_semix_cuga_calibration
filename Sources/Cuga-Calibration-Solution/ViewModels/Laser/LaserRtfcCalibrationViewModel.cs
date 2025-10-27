@@ -8,7 +8,6 @@ using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.FocusShift;
@@ -40,6 +39,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -201,7 +201,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAODDelayDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
