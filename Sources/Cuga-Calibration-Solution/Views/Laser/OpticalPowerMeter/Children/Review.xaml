@@ -34,8 +34,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                      hc:TitleElement.Title="Threshold(Rate): "
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(Rate): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="140"
                                       Minimum="0"
@@ -44,13 +43,11 @@
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
+                        <Button Content="Action"
                                 Command="{Binding VerifyActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
+                        <Button Content="Cancel"
                                 Command="{Binding VerifyActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
