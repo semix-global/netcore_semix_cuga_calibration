@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -42,7 +43,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
-using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -410,7 +410,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             Logger.LogError(ex, "{@Name}: Grabbing Image Failed", Name);
         }
     }
-
 
 
     [RelayCommand]

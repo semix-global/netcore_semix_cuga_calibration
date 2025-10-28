@@ -7,6 +7,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -39,7 +40,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
-using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -433,7 +433,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             Logger.LogError(ex, "{@Name}: Get Point Image Failed", parameter);
         }
     }
-
 
 
     [RelayCommand]

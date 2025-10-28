@@ -251,14 +251,14 @@
                                               Value="{Binding ColumnCellWidth}" />
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Forward: "
-                                            Width="150"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center" />
+                                           Width="150"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center" />
                                 <ToggleButton IsChecked="{Binding IsForward}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               Background="{StaticResource DangerBrush}"
-                                               Style="{StaticResource ToggleButtonSwitch}" />           
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Background="{StaticResource DangerBrush}"
+                                              Style="{StaticResource ToggleButtonSwitch}" />
                             </StackPanel>
                             <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
                                                                 hc:InfoElement.TitleWidth="150"

@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +19,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.ObjectModel;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -265,7 +265,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     };
                     if (await GetAODDelayAsync(aodDelayDto, cancellationToken).ConfigureAwait(false) == false) return false;
 
-                    Calibratings = [..Calibratings, aodDelayDto];
+                    Calibratings = [.. Calibratings, aodDelayDto];
                     Calibratings = [.. Calibratings.OrderBy(t => t.RefinedAODDelay)];
                 }
 
@@ -288,7 +288,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                     if (await GetAODDelayAsync(aodDelayDto, cancellationToken).ConfigureAwait(false) == false) return false;
 
-                    Calibratings = [..Calibratings, aodDelayDto];
+                    Calibratings = [.. Calibratings, aodDelayDto];
                     Calibratings = [.. Calibratings.OrderBy(t => t.RefinedAODDelay)];
                 }
 
@@ -383,7 +383,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                     if (await GetAODDelayAsync(aodDelayDto, cancellationToken).ConfigureAwait(false) == false) return false;
 
-                    Calibratings = [..Calibratings, aodDelayDto];
+                    Calibratings = [.. Calibratings, aodDelayDto];
                     Calibratings = [.. Calibratings.OrderBy(t => t.RefinedAODDelay)];
                 }
 
@@ -454,7 +454,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             aodDelayDto.RefinedChirpAODDelay,
             aodDelayDto.AveragePmtData,
             PmtValueList = new HtmlPlot2DLinesChart(
-                [("Pmt 8 channel 3 Value", [..result.Select((t, i) => new Point(i, t))])],
+                [("Pmt 8 channel 3 Value", [.. result.Select((t, i) => new Point(i, t))])],
                 string.Empty)
         }), HtmlLogUniqueId.LoggingHtml());
 

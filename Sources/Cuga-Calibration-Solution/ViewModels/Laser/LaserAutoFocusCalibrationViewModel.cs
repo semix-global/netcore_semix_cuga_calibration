@@ -194,8 +194,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
     #region 校准
 
-
-
     [RelayCommand]
     private Task ConfigStepActionAsync()
     {

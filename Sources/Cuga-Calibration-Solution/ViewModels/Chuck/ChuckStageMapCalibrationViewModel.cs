@@ -393,8 +393,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     #region 校准
 
-
-
     [RelayCommand]
     private Task ConfigStepActionAsync()
     {

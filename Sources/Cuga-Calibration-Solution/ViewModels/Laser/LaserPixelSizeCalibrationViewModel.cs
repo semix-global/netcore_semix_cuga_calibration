@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
@@ -28,7 +29,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using Core.Models.Models.AOD.AODDelay;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -296,7 +296,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableOpticsMagWi
             Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
         }
     }
-
 
 
     [RelayCommand]

@@ -1,6 +1,6 @@
-﻿using System.Runtime;
-using System.Runtime.CompilerServices;
 using MathNet.Numerics;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace Core.Utilities;
