@@ -17,7 +17,7 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _threshold;
-
+    
     public ConcurrentBag<KeyValuePair<ProductivityInformation, AODDelayCacheItem>> Items { get; init; } = [];
 
     [JsonIgnore]

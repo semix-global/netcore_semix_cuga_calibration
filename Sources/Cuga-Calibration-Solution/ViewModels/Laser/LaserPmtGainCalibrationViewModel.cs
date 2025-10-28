@@ -338,7 +338,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                 Mag = Cache.OpticsMagTypeEnum.ToString()
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+            LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             PowerBuilder = new StringBuilder();
             var laserPmtGainList = new ObservableCollection<LaserPmtGainDto>();
@@ -412,11 +412,11 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
             {
                 if (!isAllProtect)
                 {
-                    LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Scan);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                     LaserViewModel.SetGain(Cache.VoltageMin);
 
                     Thread.Sleep(1000 * Cache.WaitTime);
-                    LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                 }
 
                 if (PowerBuilder?.Length == 0)

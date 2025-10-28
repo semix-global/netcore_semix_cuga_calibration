@@ -241,7 +241,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, coefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 var repeatCout = 0;
 
@@ -327,7 +327,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                         continue;
                     }
 
-                    LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                     Logger.LogHtmlInformation($"{repeatCout} OK", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
 
@@ -344,13 +344,13 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 }
 
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Retry count exceeded!"), HtmlLogUniqueId.LoggingHtml());
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 return false;
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
             }
         }).ConfigureAwait(false);
     }
@@ -384,7 +384,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 LaserViewModel.ToggleOpticsMagType(SelectedReviewItem.OpticsMagTypeEnum);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(SelectedReviewItem.OpticsMagTypeEnum, SelectedReviewItem.Coefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 var resultList = new List<double>();
 
@@ -397,7 +397,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                     resultList.Add(measurePower);
                 }
 
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 var average = resultList.Average();
                 var errorRate = Math.Abs((average - SelectedReviewItem.MeasureMaxPower) / SelectedReviewItem.MeasureMaxPower);
@@ -430,7 +430,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
             }
         }).ConfigureAwait(false);
     }

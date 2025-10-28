@@ -228,11 +228,12 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.ProductivityInformation,
+                    CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.WaitTime,
                     Cache.Item.PMTDataCount,
+                    LaserLightInformation = new HtmlQuote(Cache.Item.LaserLightInformation.ToHtmlAnonymous()),
                     Cache.Item.PMTId,
                     Cache.Item.ChannelId,
-                    CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.FindBFMachinePosition,
                     Cache.Item.RoughStartAODDelay,
                     Cache.Item.RoughStepAODDelay,
@@ -248,7 +249,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                 AfViewModel.SetDarkFieldAutoFocus(null, Cache.ProductivityInformation, CalChipSiteModelEnum.HazeModel);
                 AfViewModel.ToggleDarkFieldEnable(true);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -261,7 +262,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     {
                         ProductivityInformation = Cache.ProductivityInformation,
                         RoughAODDelay = aodDelay,
-                        RefinedAODDelay = aodDelay,
+                        RefinedAODDelay = aodDelay
                     };
                     if (await GetAODDelayAsync(aodDelayDto, cancellationToken).ConfigureAwait(false) == false) return false;
 
@@ -283,7 +284,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     {
                         ProductivityInformation = Cache.ProductivityInformation,
                         RoughAODDelay = roughAODDelay,
-                        RefinedAODDelay = aodDelay,
+                        RefinedAODDelay = aodDelay
                     };
 
                     if (await GetAODDelayAsync(aodDelayDto, cancellationToken).ConfigureAwait(false) == false) return false;
@@ -292,7 +293,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     Calibratings = [.. Calibratings.OrderBy(t => t.RefinedAODDelay)];
                 }
 
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 SelectedCalibratingItem = GuardUtils.IsNotNullAndReturn(Calibratings.MaxBy(t => t.AveragePmtData));
                 SelectedCalibratingItem.IsCalibrated = true;
@@ -317,7 +318,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
             }
         });
     }
@@ -342,11 +343,12 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.ProductivityInformation,
+                    CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.WaitTime,
                     Cache.Item.PMTDataCount,
+                    LaserLightInformation = new HtmlQuote(Cache.Item.LaserLightInformation.ToHtmlAnonymous()),
                     Cache.Item.PMTId,
                     Cache.Item.ChannelId,
-                    CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.FindBFMachinePosition,
                     Cache.Item.RefinedRangeAODDelay,
                     Cache.Item.RefinedStepAODDelay,
@@ -362,7 +364,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                 AfViewModel.SetDarkFieldAutoFocus(null, Cache.ProductivityInformation, CalChipSiteModelEnum.HazeModel);
                 AfViewModel.ToggleDarkFieldEnable(true);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -378,7 +380,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     {
                         ProductivityInformation = Cache.ProductivityInformation,
                         RoughAODDelay = SelectedReviewItem.RefinedAODDelay,
-                        RefinedAODDelay = aodDelay,
+                        RefinedAODDelay = aodDelay
                     };
 
                     if (await GetAODDelayAsync(aodDelayDto, cancellationToken).ConfigureAwait(false) == false) return false;
@@ -387,7 +389,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     Calibratings = [.. Calibratings.OrderBy(t => t.RefinedAODDelay)];
                 }
 
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 SelectedCalibratingItem = GuardUtils.IsNotNullAndReturn(Calibratings.MaxBy(t => t.AveragePmtData));
 
@@ -427,7 +429,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
             }
         }).ConfigureAwait(false);
     }
@@ -436,7 +438,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        LaserViewModel.SetAodDelayValue(Cache.ProductivityInformation, aodDelayDto.RefinedPrescanAODDelay, aodDelayDto.RefinedChirpAODDelay);
+        LaserViewModel.SetAODDelayValue(Cache.ProductivityInformation, aodDelayDto.RefinedPrescanAODDelay, aodDelayDto.RefinedChirpAODDelay);
 
         await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -454,7 +456,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             aodDelayDto.RefinedChirpAODDelay,
             aodDelayDto.AveragePmtData,
             PmtValueList = new HtmlPlot2DLinesChart(
-                [("Pmt 8 channel 3 Value", [.. result.Select((t, i) => new Point(i, t))])],
+                [.. pmtDataList.Index().Select<(int Index, IReadOnlyList<double> Item), (string Name, IReadOnlyList<Point> Points)>(t => (t.Index.ToString(), [..t.Item.Index().Select(tt => new Point(tt.Index, tt.Item))]))],
                 string.Empty)
         }), HtmlLogUniqueId.LoggingHtml());
 

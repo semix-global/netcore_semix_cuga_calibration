@@ -1399,12 +1399,12 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             async Task<(bool IsSuccess, double Result)> GetPowerAsync(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
             {
                 LaserViewModel.ToggleOpticsPolarization(opticsPolarizationTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
                 var result = LaserViewModel.GetOpticalPowerMeter();
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 return (true, result);
             }

@@ -206,7 +206,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 LaserViewModel.ToggleOpticsMagType(CalibratingItem.OpticsMagTypeEnum);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, stopCoefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
                 var firstMeasurePowerPower = LaserViewModel.GetOpticalPowerMeter();
@@ -259,7 +259,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 CalibratingItem.RSquared = rSquared;
                 CalibratingItem.CoefficientFitMeasurePowerRatePoints = [.. CalibratingItem.CoefficientMeasurePowerRatePoints.Select((t, i) => new Point(t.X, yPredicted[i]))];
 
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -290,7 +290,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
             }
         }).ConfigureAwait(false);
     }

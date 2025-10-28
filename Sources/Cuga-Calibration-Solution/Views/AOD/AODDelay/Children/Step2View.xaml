@@ -98,7 +98,6 @@
                     <hc:NumericUpDown hc:TitleElement.Title="Rough Start AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Item.RoughStartAODDelay}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Rough Step AOD Delay(sa): "
@@ -110,7 +109,6 @@
                     <hc:NumericUpDown hc:TitleElement.Title="Rough Stop AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Item.RoughStopAODDelay}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Refined AOD Delay ±Range(sa): "
@@ -193,14 +191,32 @@
                             <GridViewColumn Width="160"
                                             Header="Average PMT Data"
                                             DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
-                            <GridViewColumn Width="400" Header="PMT Data">
+                            <GridViewColumn Width="100" Header="PMT Data">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
-                                        <wpf:WpfPlot Width="400" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData}" />
-                                            </i:Interaction.Behaviors>
-                                        </wpf:WpfPlot>
+                                        <Grid>
+                                            <ToggleButton x:Name="ToggleButtonPMTData"
+                                                          Content="PMT Data"
+                                                          Margin="0,2"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonPMTData}"
+                                                   Placement="Right"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Slide"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                    <wpf:WpfPlot Width="400" Height="400">
+                                                        <i:Interaction.Behaviors>
+                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData}" />
+                                                        </i:Interaction.Behaviors>
+                                                    </wpf:WpfPlot>
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

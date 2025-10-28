@@ -98,7 +98,7 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="opticsAodWorkingModeEnum">扫描模式</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum);
+    SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum);
 
     /// <summary>
     /// 切换偏振
