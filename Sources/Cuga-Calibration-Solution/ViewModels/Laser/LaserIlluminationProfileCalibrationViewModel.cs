@@ -43,6 +43,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 
 namespace CugaCalibration.ViewModels.Laser;
 

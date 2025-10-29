@@ -113,14 +113,14 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 public sealed class CalibrationLaserOpticalPower : CalibrationBase
 {
     /// <summary>
-    /// 测试的功率系数
-    /// </summary>
-    public double Coefficient { get; set; }
-
-    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 测试的功率系数
+    /// </summary>
+    public double Coefficient { get; set; }
 
     /// <summary>
     /// 当前暗场Mag的测量的最大功率, **Cuga内部使用**

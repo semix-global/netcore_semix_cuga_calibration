@@ -39,6 +39,7 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using MoreLinq;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.WPF.MVVM;
+using LaserOpticalPowerDto = Core.Models.Models.Laser.OpticalPowerMeter.LaserOpticalPowerDto;
 
 namespace Core.Models.Extensions;
 

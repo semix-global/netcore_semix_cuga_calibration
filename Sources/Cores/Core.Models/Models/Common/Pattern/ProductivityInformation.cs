@@ -47,7 +47,7 @@ public sealed class ProductivityInformation :
     {
     }
 
-    #region IEquatable、IFormattable
+    #region IEquatable、IComparable、IFormattable
 
     public bool Equals(ProductivityInformation? other) => this == other;
 

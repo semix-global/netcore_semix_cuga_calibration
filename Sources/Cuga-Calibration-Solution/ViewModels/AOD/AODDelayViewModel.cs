@@ -161,6 +161,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
+                StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.HazeBrightFieldMachinePosition));
 
                 return true;
@@ -170,7 +171,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             case 2:
                 CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog("AOD Delay Offset Ok!");
+                DialogWindowProvider.ShowDialog($"AOD Delay Offset {Cache.ProductivityInformation} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -205,6 +206,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            StageViewModel.SetAbsoluteStageTheta(0);
             Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new

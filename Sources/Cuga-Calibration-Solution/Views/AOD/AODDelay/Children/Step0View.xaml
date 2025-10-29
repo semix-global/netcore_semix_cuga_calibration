@@ -53,7 +53,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}"
+                    <RadioButton Content="{Binding ProductivityInformation}"
                                  FontSize="35"
                                  Tag="{Binding ProductivityInformation}"
                                  GroupName="b0b3441a-7785-427d-bc95-53d7721e8d27">

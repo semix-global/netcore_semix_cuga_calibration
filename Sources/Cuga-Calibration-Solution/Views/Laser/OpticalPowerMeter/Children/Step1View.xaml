@@ -22,8 +22,8 @@
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -35,7 +35,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Position(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />

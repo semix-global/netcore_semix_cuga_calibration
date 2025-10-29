@@ -48,6 +48,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;

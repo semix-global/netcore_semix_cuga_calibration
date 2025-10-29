@@ -25,12 +25,12 @@
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Position(um): "
+                           Status="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -47,37 +47,37 @@
                                       hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.RowNumber}" />
+                                      Value="{Binding Cache.Item.RowNumber}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Column Number: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ColumnNumber}" />
+                                      Value="{Binding Cache.Item.ColumnNumber}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Column Cell Width(um): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ColumnCellWidth}" />
+                                      Value="{Binding Cache.Item.ColumnCellWidth}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Row Cell Height(um): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.RowCellHeight}" />
+                                      Value="{Binding Cache.Item.RowCellHeight}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="150"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.WaitTime}" />
+                                      Value="{Binding Cache.Item.WaitTime}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Repeat Count: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.RepeatCount}" />
+                                      Value="{Binding Cache.Item.RepeatCount}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

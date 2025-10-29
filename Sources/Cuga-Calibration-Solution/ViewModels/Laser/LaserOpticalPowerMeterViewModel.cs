@@ -7,17 +7,16 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.OpticalPower;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -26,7 +25,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 {
     #region 属性
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}";
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -46,10 +45,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     private LaserOpticalPowerDto? _selectedCalibratingItem;
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsMagTypeEnumCalibrationStatus> _calibrationStatuses =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumCalibrationStatus { OpticsMagTypeEnum = t, IsCalibrated = false })
-    ];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -68,7 +64,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     #region 缓存
 
     [ObservableProperty]
-    private LaserOpticalPowerCache _cache = new();
+    private LaserOpticalPowerMeterCache _cache = new();
 
     [ObservableProperty]
     private LaserOpticalPowerDto[] _calibrations = [];
@@ -107,13 +103,19 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerCache>();
+        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerDto>();
+        
+        if (CalibrationStatuses.Count == 0)
+            CalibrationStatuses =
+            [
+                .. OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+            ];
 
         foreach (var calibrationStatus in Calibrations)
         {
             CalibrationStatuses
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
+                .Single(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
@@ -130,7 +132,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         return Reviews.Any(t => t.IsCalibrated);
@@ -149,8 +151,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 return true;
 
             case 2:
-                CalibrationStatuses.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog($"Optical Power Meter {Cache.OpticsMagTypeEnum} Ok!");
+                CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
+                DialogWindowProvider.ShowDialog($"Optical Power Meter {Cache.ProductivityInformation} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -173,7 +175,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -185,12 +187,12 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.FindPosition = StageViewModel.GetMachineStagePosition();
+            Cache.Item.FindPosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum,
-                Cache.FindPosition
+                Cache.ProductivityInformation,
+                Cache.Item.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -212,51 +214,51 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     coefficient,
-                    Cache.OpticsMagTypeEnum,
-                    Cache.FindPosition,
-                    Cache.RowNumber,
-                    Cache.ColumnNumber,
-                    Cache.ColumnCellWidth,
-                    Cache.RowCellHeight,
-                    Cache.WaitTime,
-                    Cache.RepeatCount,
+                    Cache.ProductivityInformation,
+                    Cache.Item.FindPosition,
+                    Cache.Item.RowNumber,
+                    Cache.Item.ColumnNumber,
+                    Cache.Item.ColumnCellWidth,
+                    Cache.Item.RowCellHeight,
+                    Cache.Item.WaitTime,
+                    Cache.Item.RepeatCount,
                     Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 中心点的索引
-                var centerX = (Cache.ColumnNumber - 1) / 2d;
-                var centerY = (Cache.RowNumber - 1) / 2d;
+                var centerX = (Cache.Item.ColumnNumber - 1) / 2d;
+                var centerY = (Cache.Item.RowNumber - 1) / 2d;
 
                 var laserOpticalPowerObjDto = new LaserOpticalPowerDto
                 {
                     Coefficient = coefficient,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    FindCenterPosition = Cache.FindPosition,
-                    RowNumber = Cache.RowNumber,
-                    ColumnNumber = Cache.ColumnNumber,
+                    ProductivityInformation = Cache.ProductivityInformation,
+                    FindCenterPosition = Cache.Item.FindPosition,
+                    RowNumber = Cache.Item.RowNumber,
+                    ColumnNumber = Cache.Item.ColumnNumber,
                     Map = []
                 };
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
-                LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, coefficient);
-                LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 var repeatCout = 0;
 
-                while (repeatCout < Cache.RepeatCount)
+                while (repeatCout < Cache.Item.RepeatCount)
                 {
                     repeatCout++;
 
                     var temp = laserOpticalPowerObjDto.Map;
                     laserOpticalPowerObjDto.Map = [];
 
-                    for (var row = 0; row < Cache.RowNumber; row++)
+                    for (var row = 0; row < Cache.Item.RowNumber; row++)
                     {
-                        for (var column = 0; column < Cache.ColumnNumber; column++)
+                        for (var column = 0; column < Cache.Item.ColumnNumber; column++)
                         {
-                            var position = laserOpticalPowerObjDto.FindCenterPosition + (Vector)new Point((column - centerX) * Cache.ColumnCellWidth, (row - centerY) * Cache.RowCellHeight);
+                            var position = laserOpticalPowerObjDto.FindCenterPosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnCellWidth, (row - centerY) * Cache.Item.RowCellHeight);
                             laserOpticalPowerObjDto.Map.Add(new LaserOpticalPowerItemDto
                             {
                                 MeasurePosition = position,
@@ -277,7 +279,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjItem.MeasurePosition);
 
-                        await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
                         var measurePower = LaserViewModel.GetOpticalPowerMeter();
 
@@ -288,15 +290,15 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                     var maximumIndex = Vector<double>.Build.DenseOfEnumerable(laserOpticalPowerObjDto.Map.Select(t => t.MeasurePower)).MaximumIndex();
                     // maximumIndex转换为二维数组的索引
-                    var maximumIndexRow = maximumIndex / Cache.ColumnNumber;
-                    var maximumIndexCol = maximumIndex % Cache.ColumnNumber;
+                    var maximumIndexRow = maximumIndex / Cache.Item.ColumnNumber;
+                    var maximumIndexCol = maximumIndex % Cache.Item.ColumnNumber;
                     laserOpticalPowerObjDto.MeasureMaxPower = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePower;
                     laserOpticalPowerObjDto.MeasureMaxPowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
 
                     var resultLaserOpticalPowerDto = laserOpticalPowerObjDto.Clone();
                     Calibratings = [.. Calibratings, resultLaserOpticalPowerDto];
 
-                    var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.ColumnNumber - 1;
+                    var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.Item.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.Item.ColumnNumber - 1;
 
                     var htmlBulletList = new HtmlBullet(new
                     {
@@ -368,10 +370,12 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         {
             try
             {
+                Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
+                
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    SelectedReviewItem.OpticsMagTypeEnum,
-                    Cache.WaitTime,
+                    Cache.ProductivityInformation,
+                    Cache.Item.WaitTime,
                     Cache.Threshold,
                     SelectedReviewItem.Coefficient,
                     SelectedReviewItem.MeasureMaxPowerPosition,
@@ -381,16 +385,16 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 SelectedReviewItem.IsVerified = false;
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
-                LaserViewModel.ToggleOpticsMagType(SelectedReviewItem.OpticsMagTypeEnum);
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(SelectedReviewItem.OpticsMagTypeEnum, SelectedReviewItem.Coefficient);
-                LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, SelectedReviewItem.Coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 var resultList = new List<double>();
 
                 foreach (var _ in Enumerable.Range(0, 3))
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
                     var measurePower = LaserViewModel.GetOpticalPowerMeter();
 
@@ -442,7 +446,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
         Calibrations =
         [
-            .. Calibrations.Where(t => t.OpticsMagTypeEnum != item.OpticsMagTypeEnum),
+            .. Calibrations.Where(t => t.ProductivityInformation != item.ProductivityInformation),
             item.Clone()
         ];
 

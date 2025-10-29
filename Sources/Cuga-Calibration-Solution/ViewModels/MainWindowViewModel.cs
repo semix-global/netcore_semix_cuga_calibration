@@ -28,7 +28,6 @@ using Core.Models.Models.Laser.FocusShift;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
-using Core.Models.Models.Laser.OpticalPower;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
@@ -66,6 +65,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using AODDelayViewModel = CugaCalibration.ViewModels.AOD.AODDelayViewModel;
 
 namespace CugaCalibration.ViewModels;

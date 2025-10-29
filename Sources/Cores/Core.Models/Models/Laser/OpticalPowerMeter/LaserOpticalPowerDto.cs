@@ -1,20 +1,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.OpticalPower;
+namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
 public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneable<LaserOpticalPowerDto>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
-    private double _coefficient;
-
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private double _coefficient;
 
     [ObservableProperty]
     private int _rowNumber;
@@ -40,8 +40,8 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     {
         return new LaserOpticalPowerDto
         {
+            ProductivityInformation = ProductivityInformation.Clone(),
             Coefficient = Coefficient,
-            OpticsMagTypeEnum = OpticsMagTypeEnum,
             RowNumber = RowNumber,
             ColumnNumber = ColumnNumber,
             FindCenterPosition = FindCenterPosition,
@@ -60,8 +60,8 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     {
         return new CalibrationLaserOpticalPower
         {
+            CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
             Coefficient = Coefficient,
-            CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
             MeasureMaxPower = MeasureMaxPower,
             MeasureMaxPowerPosition = MeasureMaxPowerPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,
