@@ -282,7 +282,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(CollectionFocusAlignOpticsFocusWindowViewModel)), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformations => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformations => applicationCookie.LaserLightInformations;
 
     public Guid HtmlLogUniqueId { get; set; }
 

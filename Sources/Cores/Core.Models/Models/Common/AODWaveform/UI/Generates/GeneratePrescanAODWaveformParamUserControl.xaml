@@ -22,9 +22,9 @@
     <ui:GenerateAODWaveformParamUserControl x:Name="GenerateAODWaveformParamUserControl" Header="Prescan">
         <ui:GenerateAODWaveformParamUserControl.HeaderContent>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:NumericUpDown hc:InfoElement.Title="Flatness Time(ns): "
-                                  hc:InfoElement.TitlePlacement="Left"
-                                  hc:InfoElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                <hc:NumericUpDown hc:TitleElement.Title="Flatness Time(ns): "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding FlatnessTime}" />

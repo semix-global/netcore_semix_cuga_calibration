@@ -6,15 +6,15 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
-using Core.Models.Models.Laser.OpticalPower;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -144,7 +144,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     private MicroscopeCalChipDto _microscopeCalChip = new();
 
     [ObservableProperty]
-    private LaserOpticalPowerDto[] _laserOpticalPowers = [];
+    private LaserOpticalPowerMeterDto[] _laserOpticalPowers = [];
 
     #endregion 缓存
 
@@ -154,9 +154,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     {
         _calibrationStatusList =
         [
-            ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformationList)] })
+            ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)] })
         ];
-        _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformationList)];
+        _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)];
     }
 
     #region 控制校准业务
@@ -197,7 +197,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerDto>(out var laserOpticalPowers, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDto>(out var laserOpticalPowers, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -205,7 +205,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         LaserOpticalPowers = laserOpticalPowers;
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAodDelayItemDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -412,7 +412,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     }
 
 
-
     [RelayCommand]
     private Task ConfigStepActionAsync()
     {
@@ -465,7 +464,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var contains = ApplicationCookie.LaserLightInformationList.Contains(Cache.LaserLightInformation);
+            var contains = ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation);
             if (contains) return contains;
 
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Laser Light Information is not exist!"), HtmlLogUniqueId.LoggingHtml());
@@ -1400,12 +1399,12 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             async Task<(bool IsSuccess, double Result)> GetPowerAsync(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
             {
                 LaserViewModel.ToggleOpticsPolarization(opticsPolarizationTypeEnum);
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
                 var result = LaserViewModel.GetOpticalPowerMeter();
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 return (true, result);
             }

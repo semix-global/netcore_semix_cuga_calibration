@@ -43,7 +43,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     ILogger<GrabbingDarkImageWindowViewModel> logger)
     : ViewModelBase
 {
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformations;
 
     [ObservableProperty]
     private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;

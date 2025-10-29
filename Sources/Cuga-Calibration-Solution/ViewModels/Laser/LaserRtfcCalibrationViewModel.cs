@@ -7,8 +7,8 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.FocusShift;
@@ -201,7 +201,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAodDelayItemDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -433,7 +433,6 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             Logger.LogError(ex, "{@Name}: Get Point Image Failed", parameter);
         }
     }
-
 
 
     [RelayCommand]

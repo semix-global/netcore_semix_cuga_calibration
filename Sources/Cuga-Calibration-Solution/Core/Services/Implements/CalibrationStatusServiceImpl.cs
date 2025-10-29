@@ -10,7 +10,7 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.OpticalPower;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PmtGain;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XTCCalibration;
@@ -67,7 +67,7 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -76,7 +76,7 @@ public class CalibrationStatusServiceImpl(
     {
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -101,14 +101,14 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependBrightStageMapCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
 
     public bool EnableDependDarkStageMapCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<LaserOpticalPowerDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }

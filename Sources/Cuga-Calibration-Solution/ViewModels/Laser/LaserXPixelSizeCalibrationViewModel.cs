@@ -290,7 +290,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
     }
 
 
-
     [RelayCommand]
     private Task ConfigStepActionAsync()
     {

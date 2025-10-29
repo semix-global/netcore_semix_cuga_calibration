@@ -8,7 +8,7 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:children="clr-namespace:CugaCalibration.Views.Laser.OpticalPowerMeter.Children"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserOpticalPowerMeterCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserOpticalPowerMeterViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -21,16 +21,16 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Optical Power Meter 2: "
+                <hc:Shield Subject="Laser Optical Power Meter 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Position(um): "
+                           Status="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -42,88 +42,50 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown x:Name="MeasureMinNumeric"
-                                      hc:InfoElement.Title="Measure Min Power: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                    <hc:NumericUpDown hc:TitleElement.Title="Row Number: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RowNumber}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Column Number: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.ColumnNumber}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Column Cell Width(um): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.ColumnCellWidth}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Row Cell Height(um): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.RowCellHeight}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MeasureMinPower}" />
-                    <hc:NumericUpDown x:Name="MeasureMaxNumeric"
-                                      hc:InfoElement.Title="Measure Max Power: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MeasureMaxPower}" />
-                    <hc:NumericUpDown x:Name="RowNumberNumeric"
-                                      hc:InfoElement.Title="Row Number: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
+                                      Value="{Binding Cache.Item.WaitTime}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Repeat Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="150"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.RowNumber}" />
-                    <hc:NumericUpDown x:Name="ColumnNumberNumeric"
-                                      hc:InfoElement.Title="Column Number: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ColumnNumber}" />
-                    <hc:NumericUpDown x:Name="ColumnCellWidthNumeric"
-                                      hc:InfoElement.Title="Column Cell Width(um): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ColumnCellWidth}" />
-                    <hc:NumericUpDown x:Name="RowCellHeightNumeric"
-                                      hc:InfoElement.Title="Row Cell Height(um): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.RowCellHeight}" />
-                    <hc:NumericUpDown x:Name="WaitTimeNumeric"
-                                      hc:InfoElement.Title="Wait Time(s): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.WaitTime}" />
-                    <hc:NumericUpDown x:Name="RepeatCountNumeric"
-                                      hc:InfoElement.Title="Repeat Count: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      hc:TitleElement.TitleWidth="140"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.RepeatCount}" />
+                                      Value="{Binding Cache.Item.RepeatCount}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
+                        <Button Content="Action"
                                 Command="{Binding Step2CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
+                        <Button Content="Cancel"
                                 Command="{Binding Step2CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
@@ -142,11 +104,11 @@
             </Grid.RowDefinitions>
             <GroupBox Header="History">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding LaserOpticalPowerDtoList}"
+                          ItemsSource="{Binding Calibratings}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectLaserOpticalPowerDto}">
+                          SelectedItem="{Binding SelectedCalibratingItem}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -169,18 +131,18 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="80"
-                                            Header="Index"
-                                            DisplayMemberBinding="{Binding Index}" />
+                            <GridViewColumn Width="120"
+                                            Header="Productivity"
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="150"
-                                            Header="Find Center Position"
+                                            Header="Find Center Position(um)"
                                             DisplayMemberBinding="{Binding FindCenterPosition, Converter={StaticResource PointToStringConverter}}" />
                             <GridViewColumn Width="150"
-                                            Header="Max Power Position"
+                                            Header="Max Power Position(um)"
                                             DisplayMemberBinding="{Binding MeasureMaxPowerPosition, Converter={StaticResource PointToStringConverter}}" />
                             <GridViewColumn Width="100"
-                                            Header="Max Power"
-                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat={}{0:f3}}" />
+                                            Header="Max Power(mW)"
+                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
