@@ -317,8 +317,6 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
     #region 校准
 
-
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {

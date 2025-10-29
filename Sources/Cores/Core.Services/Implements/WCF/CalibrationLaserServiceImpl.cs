@@ -35,7 +35,8 @@ public sealed partial class CalibrationLaserServiceImpl(
     CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
-    private IReadOnlyList<LaserLightInformation>? _laserLightInformationList;
+    private IReadOnlyList<LaserLightInformation>? _laserLightInformations;
+    private IReadOnlyList<ProductivityInformation>? _productivityInformations;
     private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
 
     public SxExecuteRet<bool> Connect()
@@ -87,25 +88,25 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
-    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
     {
-        if (_laserLightInformationList is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
+        if (_laserLightInformations is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInformations);
 
         var sxExecuteRet = Invoke(() => Service?.GetLightConfig());
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        _laserLightInformationList = [.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t))];
+        _laserLightInformations = [.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t))];
 
-        Guard.IsTrue(_laserLightInformationList.Select(t => t.Coefficient).Distinct().Count() == _laserLightInformationList.Count, "Laser Light Information Coefficient is not unique");
-        Guard.IsTrue(_laserLightInformationList.Select(t => t.Level).Distinct().Count() == _laserLightInformationList.Count, "Laser Light Information Level is not unique");
+        Guard.IsTrue(_laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
+        Guard.IsTrue(_laserLightInformations.Select(t => t.Level).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Level is not unique");
 
-        return SxExecuteRetHelper.CreateSuccess(_laserLightInformationList);
+        return SxExecuteRetHelper.CreateSuccess(_laserLightInformations);
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
@@ -117,7 +118,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
@@ -125,6 +126,25 @@ public sealed partial class CalibrationLaserServiceImpl(
         return result is null
             ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        if (_productivityInformations is not null) return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
+
+        var sxExecuteRet = Invoke(() => Service?.GetProductivityInfos());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(sxExecuteRet.ErrorMsg, []);
+
+        var productivityInformations = sxExecuteRet.Anything
+            .Where(t => t.IsUsed)
+            .Select(t => ProductivityInformation.Default.Clone().AdaptIn(t))
+            .ToArray();
+
+        Guard.IsNotEmpty(productivityInformations, "Productivity Information is empty");
+
+        _productivityInformations = productivityInformations;
+
+        return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
@@ -136,7 +156,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
+    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    {
+        var sxExecuteRet = Invoke(() => Service?.RefreshMag(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), CgSpeedLevelType.Low));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum)
     {
         var sxExecuteRet = Invoke(() => Service?.SetAOD_NO(opticsAodWorkingModeEnum.ToOpticsAodWorkingMode()));
 
@@ -163,9 +192,35 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
+    {
+        var c2MProductivityInfo = productivityInformation.AdaptTo();
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(c2MProductivityInfo.Mag.ToCgMagTypeEnum(), c2MProductivityInfo.Speed.ToCgSpeedLevelType(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
         var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsMagTypeEnum);
+        if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
+
+        var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
+
+        foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
+
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+
+        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
+    {
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -201,6 +256,18 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsMagTypeEnum);
+        if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
+
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+
+        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
+    {
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
@@ -311,6 +378,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = Invoke(() => Service?.GetPmtState());
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>>(sxExecuteRet.Msg, []);
+
         var result = (
             from item in sxExecuteRet.Anything
             group item by item.id
@@ -590,7 +658,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var isDecreasing = machinePositionList.Select(t => t.X).IsDecreasing(true);
         if (machinePositionList.Count < 2
             || machinePositionList.Any(t => t.Y - machinePositionList[0].Y == 0) == false // 检查y是否相同
-            || (isIncreasing == false && isDecreasing == false))// 检查x是否递增
+            || (isIncreasing == false && isDecreasing == false)) // 检查x是否递增
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
         var directionRet = calibrationStageService.GetMachineDirection();

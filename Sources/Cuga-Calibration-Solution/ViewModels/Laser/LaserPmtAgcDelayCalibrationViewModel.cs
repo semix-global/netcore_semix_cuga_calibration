@@ -343,7 +343,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
             }
         }).ConfigureAwait(false);
     }

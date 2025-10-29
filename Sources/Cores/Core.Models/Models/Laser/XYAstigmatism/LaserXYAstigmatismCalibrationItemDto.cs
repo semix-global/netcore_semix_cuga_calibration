@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
-using ChirpAODWaveformResult = Core.Models.Models.Common.AODWaveform.ChirpAODWaveformResult;
 
 namespace Core.Models.Models.Laser.XYAstigmatism;
 

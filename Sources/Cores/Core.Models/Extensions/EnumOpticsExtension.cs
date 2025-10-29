@@ -19,25 +19,33 @@ public static class EnumOpticsExtension
 {
     #region AodWorking
 
-    public static int ToOpticsAodWorkingMode(this OpticsAodWorkingModeEnum mode) => mode switch
+    public static int ToOpticsAodWorkingMode(this OpticsAODWorkingModeEnum mode) => mode switch
     {
-        OpticsAodWorkingModeEnum.Close => 0,
-        OpticsAodWorkingModeEnum.Scan => 1,
-        OpticsAodWorkingModeEnum.Through => 2,
+        OpticsAODWorkingModeEnum.Close => 0,
+        OpticsAODWorkingModeEnum.Scan => 1,
+        OpticsAODWorkingModeEnum.Through => 2,
         _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
     };
 
-    public static OpticsAodWorkingModeEnum ToOpticsAodWorkingModeEnum(this int mode) => mode switch
+    public static OpticsAODWorkingModeEnum ToOpticsAodWorkingModeEnum(this int mode) => mode switch
     {
-        0 => OpticsAodWorkingModeEnum.Close,
-        1 => OpticsAodWorkingModeEnum.Scan,
-        2 => OpticsAodWorkingModeEnum.Through,
+        0 => OpticsAODWorkingModeEnum.Close,
+        1 => OpticsAODWorkingModeEnum.Scan,
+        2 => OpticsAODWorkingModeEnum.Through,
         _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
     };
 
     #endregion AodWorking
 
     #region MagType
+
+    public static CgMagTypeEnum ToCgMagTypeEnum(this SxMAGEnum sxMagEnum) => sxMagEnum switch
+    {
+        SxMAGEnum.Low => CgMagTypeEnum.Low,
+        SxMAGEnum.Mid => CgMagTypeEnum.Mid,
+        SxMAGEnum.High => CgMagTypeEnum.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(sxMagEnum), sxMagEnum, null)
+    };
 
     public static CgMagTypeEnum ToCgMagTypeEnum(this OpticsMagTypeEnum opticsMagTypeEnum) => opticsMagTypeEnum switch
     {

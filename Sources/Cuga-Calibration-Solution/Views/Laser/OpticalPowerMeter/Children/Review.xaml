@@ -8,7 +8,7 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:children="clr-namespace:CugaCalibration.Views.Laser.OpticalPowerMeter.Children"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserOpticalPowerMeterCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserOpticalPowerMeterViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -28,17 +28,14 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text="Verify calibration result"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                      hc:InfoElement.Title="Threshold(Rate): "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(Rate): "
+                                      hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="140"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
@@ -46,13 +43,11 @@
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
+                        <Button Content="Verify"
                                 Command="{Binding VerifyActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
+                        <Button Content="Cancel"
                                 Command="{Binding VerifyActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
@@ -72,11 +67,11 @@
             </Grid.RowDefinitions>
             <GroupBox Header="History">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding ReviewDto}">
+                          SelectedItem="{Binding SelectedReviewItem}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -88,6 +83,12 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
@@ -100,17 +101,17 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="120"
-                                            Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            Header="Productivity"
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="150"
-                                            Header="Find Center Position"
+                                            Header="Find Center Position(um)"
                                             DisplayMemberBinding="{Binding FindCenterPosition, Converter={StaticResource PointToStringConverter}}" />
                             <GridViewColumn Width="150"
-                                            Header="Max Power Position"
+                                            Header="Max Power Position(um)"
                                             DisplayMemberBinding="{Binding MeasureMaxPowerPosition, Converter={StaticResource PointToStringConverter}}" />
                             <GridViewColumn Width="100"
-                                            Header="Max Power"
-                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat={}{0:f3}}" />
+                                            Header="Max Power(mW)"
+                                            DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

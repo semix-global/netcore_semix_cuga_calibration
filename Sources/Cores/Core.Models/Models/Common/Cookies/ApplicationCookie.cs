@@ -65,7 +65,13 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 激光光强信息列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<LaserLightInformation> _laserLightInformationList = [];
+    private IReadOnlyList<LaserLightInformation> _laserLightInformations = [];
+
+    /// <summary>
+    /// 产率列表
+    /// </summary>
+    [ObservableProperty]
+    private IReadOnlyList<ProductivityInformation> _productivityInformations = [];
 
     /// <summary>
     /// 校准当前应用配方

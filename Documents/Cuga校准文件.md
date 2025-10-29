@@ -816,67 +816,61 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场自动聚焦, AB两路灯亮度校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserAutoFocusCalibrationName)]
     public CalibrationLaserAutoFocus CalibrationLaserAutoFocus { get; set; } = new CalibrationLaserAutoFocus();
 
     /// <summary>
     /// 台面功率计校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserOpticalPowerCalibrationName)]
     public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = Array.Empty<CalibrationLaserOpticalPower>();
+
+    /// <summary>
+    /// Attenuator校准对象
+    /// </summary>
+    public CalibrationAttenuatorObj[] CalibrationAttenuatorList { get; set; } = Array.Empty<CalibrationAttenuatorObj>();
 
     /// <summary>
     /// AOD延迟时间校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserAodDelayCalibrationName)]
     public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = Array.Empty<CalibrationLaserAodDelayItem>();
 
     /// <summary>
     /// 均匀性校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserIlluminationProfileCalibrationName)]
     public CalibrationLaserIlluminationProfileItem[] CalibrationLaserIlluminationProfileItemList { get; set; } = Array.Empty<CalibrationLaserIlluminationProfileItem>();
 
     /// <summary>
     /// XTC
     /// </summary>
-    [Description(WcfConstantHelper.LaserXtcCalibrationName)]
     public CalibrationLaserXTCCalibrationItem[] CalibrationLaserXtcCalibrationItemList { get; set; } = Array.Empty<CalibrationLaserXTCCalibrationItem>();
 
     /// <summary>
     /// AGC延迟时间校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserAgcDelayCalibrationName)]
     public CalibrationLaserPmtAgcDelayItem[] CalibrationLaserPmtAgcDelayItemList { get; set; } = Array.Empty<CalibrationLaserPmtAgcDelayItem>();
 
     /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserPixelSizeCalibrationName)]
     public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = Array.Empty<CalibrationLaserPixelSizeItem>();
 
     /// <summary>
     /// XPixelSizer校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserXPixelSizeCalibrationName)]
     public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = Array.Empty<CalibrationLaserXPixelSizeItem>();
 
     /// <summary>
     /// 暗场相机的像素尺寸校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserLineCentricityCalibrationName)]
     public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = Array.Empty<CalibrationLaserLineCentricityItem>();
 
     /// <summary>
     /// 暗场AOD散光校准对象列表
     /// </summary>
-    [Description(WcfConstantHelper.LaserXyAstigmatismCalibrationName)]
     public CalibrationLaserXYAstigmatismItem[] CalibrationLaserXYAstigmatismItemList { get; set; } = Array.Empty<CalibrationLaserXYAstigmatismItem>();
 
     /// <summary>
     /// 暗场DOE角度校准对象
     /// </summary>
-    [Description(WcfConstantHelper.LaserDOEAngleCalibrationName)]
     public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
 }
 ```
@@ -921,6 +915,11 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 public sealed class CalibrationLaserOpticalPower : CalibrationBase
 {
     /// <summary>
+    /// 测试的功率系数
+    /// </summary>
+    public double Coefficient { get; set; }
+
+    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
@@ -937,7 +936,77 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
 }
 ```
 
-## 4.3.  Aod延迟校准: `CalibrationLaserAodDelayItem`
+## 4.3. 台面功率曲线校准：`CalibrationAttenuatorObj`
+
+> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
+>
+> 个数： 3
+
+```c#
+/// <summary>
+/// Attenuator校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAttenuatorObj : CalibrationBase
+{
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 最大的功率系数台面功率计的平均值P
+    /// </summary>
+    public double MaxCoefficientAverageMeasurePower { get; set; }
+
+    /// <summary>
+    /// 台面功率与系数C之间的曲线值(C,Pc)曲线
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientMeasurePowerPoints { get; set; }
+
+    /// <summary>
+    /// 台面功率与系数C之间的曲线值(C,Pc/P)曲线
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientMeasurePowerRatePoints { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 0次方
+    /// </summary>
+    public double P0 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 1次方
+    /// </summary>
+    public double P1 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 2次方
+    /// </summary>
+    public double P2 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 3次方
+    /// </summary>
+    public double P3 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的相关系数
+    /// </summary>
+    public double RSquared { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合后的曲线值
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientFitMeasurePowerRatePoints { get; set; }
+
+    /// <summary>
+    /// 校准间隔时间s
+    /// </summary>
+    public double WaitTime { get; set; }
+}
+```
+
+## 4.4.  Aod延迟校准: `CalibrationLaserAodDelayItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
@@ -966,7 +1035,7 @@ public sealed class CalibrationLaserAodDelayItem : CalibrationBase
 }
 ```
 
-## 4.4. AOD 散光校准：`CalibrationLaserXYAstigmatismItem`
+## 4.5. AOD 散光校准：`CalibrationLaserXYAstigmatismItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
@@ -990,7 +1059,7 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 }
 ```
 
-## 4.5. AOD Prescan均匀性校准: `CalibrationLaserIlluminationProfileItem`
+## 4.6. AOD Prescan均匀性校准: `CalibrationLaserIlluminationProfileItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.Coefficient == 幅值 && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
@@ -1059,7 +1128,7 @@ public class CalibrationPrescanAODWaveformResult
 }
 ```
 
-## 4.6. CIB的采样窗口完全同步校准: `CalibrationLaserXTCCalibrationItem`
+## 4.7. CIB的采样窗口完全同步校准: `CalibrationLaserXTCCalibrationItem`
 
 ----
 
@@ -1101,7 +1170,7 @@ public sealed class CalibrationLaserXTCCalibrationItem : CalibrationBase
 }
 ```
 
-## 4.7. 暗场相机Y像素尺寸校准: `CalibrationLaserPixelSizeItem`
+## 4.8. 暗场相机Y像素尺寸校准: `CalibrationLaserPixelSizeItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
 > 
@@ -1131,7 +1200,7 @@ public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 }
 ```
 
-## 4.8. 暗场相机X像素尺寸校准: `CalibrationLaserXPixelSizeItem`
+## 4.9. 暗场相机X像素尺寸校准: `CalibrationLaserXPixelSizeItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
 > 
@@ -1161,7 +1230,7 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 }
 ```
 
-## 4.9. 明暗场中心的offset校准: `CalibrationLaserLineCentricityItem`
+## 4.10. 明暗场中心的offset校准: `CalibrationLaserLineCentricityItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId && t.Speed == 速度)` 判断`is not null`后使用
 > 
@@ -1206,9 +1275,9 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 }
 ```
 
-## 4.10. 待定 Pmt Gain
+## 4.11. 待定 Pmt Gain
 
-## 4.11. PMT AGC Delay
+## 4.12. PMT AGC Delay
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
 >
@@ -1248,7 +1317,7 @@ public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
 }
 ```
 
-## 4.12. DOE Angle
+## 4.13. DOE Angle
 
 ```cs
 /// <summary>

@@ -97,7 +97,7 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
             }
         }
 
-        foreach (var (_, coefficient) in applicationCookie.LaserLightInformationList)
+        foreach (var (_, coefficient) in applicationCookie.LaserLightInformations)
         {
             foreach (var lowItem in _calibrationSetting.LowMagSettingDarkFieldGainParam)
             {

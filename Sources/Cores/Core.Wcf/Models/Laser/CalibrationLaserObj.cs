@@ -3,6 +3,7 @@ using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
+using System.Collections.Generic;
 
 #if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;
@@ -26,6 +27,11 @@ public sealed class CalibrationLaserObj
     /// 台面功率计校准对象
     /// </summary>
     public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = Array.Empty<CalibrationLaserOpticalPower>();
+
+    /// <summary>
+    /// Attenuator校准对象
+    /// </summary>
+    public CalibrationAttenuatorObj[] CalibrationAttenuatorList { get; set; } = Array.Empty<CalibrationAttenuatorObj>();
 
     /// <summary>
     /// AOD延迟时间校准对象列表
@@ -112,6 +118,11 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     /// <summary>
+    /// 测试的功率系数
+    /// </summary>
+    public double Coefficient { get; set; }
+
+    /// <summary>
     /// 当前暗场Mag的测量的最大功率, **Cuga内部使用**
     /// </summary>
     public double MeasureMaxPower { get; set; }
@@ -120,6 +131,68 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
     /// 当前暗场Mag的测量的最大功率机械坐标, **Cuga内部使用**
     /// </summary>
     public CgPoint MeasureMaxPowerPosition { get; set; }
+}
+
+/// <summary>
+/// Attenuator校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAttenuatorObj : CalibrationBase
+{
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 最大的功率系数台面功率计的平均值P
+    /// </summary>
+    public double MaxCoefficientAverageMeasurePower { get; set; }
+
+    /// <summary>
+    /// 台面功率与系数C之间的曲线值(C,Pc)曲线
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientMeasurePowerPoints { get; set; }
+
+    /// <summary>
+    /// 台面功率与系数C之间的曲线值(C,Pc/P)曲线
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientMeasurePowerRatePoints { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 0次方
+    /// </summary>
+    public double P0 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 1次方
+    /// </summary>
+    public double P1 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 2次方
+    /// </summary>
+    public double P2 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的系数: 3次方
+    /// </summary>
+    public double P3 { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合的相关系数
+    /// </summary>
+    public double RSquared { get; set; }
+
+    /// <summary>
+    /// 系数曲线通过三次多项式拟合后的曲线值
+    /// </summary>
+    public IReadOnlyList<CgPoint> CoefficientFitMeasurePowerRatePoints { get; set; }
+
+    /// <summary>
+    /// 校准间隔时间s
+    /// </summary>
+    public double WaitTime { get; set; }
 }
 
 /// <summary>
@@ -318,7 +391,6 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 正向暗场中心坐标, **Cuga内部使用, 8号光斑需要下发到AF硬件**
     /// </summary>
     public CgPoint DarkMachineCenterPosition { get; set; }
-
 }
 
 /// <summary>

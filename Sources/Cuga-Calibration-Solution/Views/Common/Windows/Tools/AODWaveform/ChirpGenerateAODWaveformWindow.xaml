@@ -90,8 +90,8 @@
                                     <TextBox Text="{Binding Cache.AODWaveformResultFilePath, Mode=OneWay}"
                                              Height="50"
                                              TextWrapping="Wrap"
-                                             hc:InfoElement.Title="Result File Path: "
-                                             hc:InfoElement.TitlePlacement="Left"
+                                             hc:TitleElement.Title="Result File Path: "
+                                             hc:TitleElement.TitlePlacement="Left"
                                              IsReadOnly="True"
                                              Style="{StaticResource TextBoxExtend}"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto" />

@@ -6,6 +6,7 @@ using Core.Utilities;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
@@ -32,6 +33,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
         var fileCacheDirectoryPath = $"{options.Value.AppHomeDirectory}\\CalibrationResult";
+        DirectoryHelper.CreateDirectoryIfNotExists(fileCacheDirectoryPath);
         var filesName = Directory.GetFiles(fileCacheDirectoryPath);
 
         var filePath = filesName.Length > 0 ? filesName.Last() : $"{fileCacheDirectoryPath}\\Result_{Constants.LongFileDateTimeFormat}.dat";

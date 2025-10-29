@@ -1,4 +1,4 @@
-using Core.Models.Models.Laser.OpticalPower;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using CugaCalibration.ViewModels.Laser;
 using MathNet.Numerics.LinearAlgebra;
 using ScottPlot;
@@ -30,7 +30,7 @@ public sealed partial class MapView
         if (_isLoaded) return;
         _isLoaded = true;
 
-        if (DataContext is not LaserOpticalPowerMeterCalibrationViewModel viewModel) return;
+        if (DataContext is not LaserOpticalPowerMeterViewModel viewModel) return;
 
         viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
         viewModel.PropertyChanged += ViewModelOnPropertyChanged;
@@ -88,28 +88,31 @@ public sealed partial class MapView
 
     private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (sender is not LaserOpticalPowerMeterCalibrationViewModel viewModel) return;
+        if (sender is not LaserOpticalPowerMeterViewModel viewModel) return;
 
         switch (e.PropertyName)
         {
-            case nameof(viewModel.SelectLaserOpticalPowerDto):
-            case nameof(viewModel.ReviewDto):
+            case nameof(viewModel.SelectedCalibratingItem):
+            case nameof(viewModel.SelectedReviewItem):
                 Dispatcher.Invoke(() =>
                 {
                     try
                     {
-                        var laserOpticalPowerDto = (LaserOpticalPowerDto)viewModel.GetType().GetProperty(e.PropertyName)!.GetValue(viewModel);
+                        var selected = (LaserOpticalPowerMeterDto)viewModel.GetType().GetProperty(e.PropertyName)!.GetValue(viewModel);
 
                         WpfPlot.Plot.PlottableList.RemoveAll(t => t is Crosshair or Annotation == false);
-                        if (laserOpticalPowerDto is null || laserOpticalPowerDto.Map.Count <= 0) return;
+                        if (selected is null || selected.Map.Count <= 0) return;
 
-                        var maximumIndex = Vector<double>.Build.DenseOfEnumerable(laserOpticalPowerDto.Map.Select(t => t.MeasurePower)).MaximumIndex();
-                        foreach (var (i, laserOpticalPowerItemDto) in laserOpticalPowerDto.Map.Select((t, i) => (i, t)))
+                        var maximumIndex = Vector<double>.Build.DenseOfEnumerable(selected.Map.Select(t => t.MeasurePower)).MaximumIndex();
+
+                        var measureMinPower = selected.Map.Min(t => t.MeasurePower);
+                        var measureMaxPower = selected.Map.Max(t => t.MeasurePower);
+                        foreach (var (i, laserOpticalPowerItemDto) in selected.Map.Select((t, i) => (i, t)))
                         {
                             var txt = new Text
                             {
                                 LabelText = $"{laserOpticalPowerItemDto.MeasurePower:00.00000}",
-                                LabelBackgroundColor = _colorMap.GetColor(laserOpticalPowerItemDto.MeasurePower, new Range(viewModel.Cache.MeasureMinPower, viewModel.Cache.MeasureMaxPower)),
+                                LabelBackgroundColor = _colorMap.GetColor(laserOpticalPowerItemDto.MeasurePower, new Range(measureMinPower, measureMaxPower)),
                                 LabelBorderColor = Colors.Transparent,
                                 Location = new Coordinates(laserOpticalPowerItemDto.MeasurePosition.X, laserOpticalPowerItemDto.MeasurePosition.Y),
                                 LabelFontSize = 12,
