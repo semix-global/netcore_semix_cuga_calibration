@@ -100,12 +100,12 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
 
-        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
+        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
 
         SynchronizationContextProvider.Send(() =>
             CalibrationStatusList =
             [
-                .. ApplicationCookie.MicroscopeLensInformationList
+                .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
             ]
         );
@@ -114,11 +114,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             CalibrationStatusList
                 .Single(t => t.MicroscopeLensInformation == calibrationStatus.LensInformation)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
-
-        if (Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList) == false)
-        {
-            Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
         }
 
         RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -224,10 +219,10 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
-            SelectMicroscopeFocusCacheItem = Cache.GetSelectedCacheItem();
+            SelectMicroscopeFocusCacheItem = Cache.CurrentCalibrationCacheItem;
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                LensName = Cache.MicroscopeLensInformation.LensName
+                Cache.MicroscopeLensInformation.LensName
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -261,7 +256,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         await InvokeCalibrateAsync(() =>
         {
             ClearCalibrationTemp();
-            var (isSuccessVerify, errorMessage) = Cache.CalibrationVerify(SelectMicroscopeFocusCacheItem.LensInformation);
+            var (isSuccessVerify, errorMessage) = Cache.CalibrationVerify();
             if (isSuccessVerify == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
@@ -412,7 +407,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         selectReviewItemDto!.IsVerified = false;
         Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
 
-        SelectMicroscopeFocusCacheItem = Cache.GetSelectedCacheItem();
+        SelectMicroscopeFocusCacheItem = Cache.CurrentCalibrationCacheItem;
 
         var findFocusPosition = SelectMicroscopeFocusCacheItem.FindFocusPosition;
         var findFocusMin = SelectMicroscopeFocusCacheItem.FindFocusMin;
@@ -571,6 +566,12 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             itemDto.Clone()
         ];
 
+        foreach (var microscopeFocusCacheItem in Cache.MicroscopeFocusCacheItemDic)
+        {
+            if (ApplicationCookie.MicroscopeLensInformations.SingleOrDefault(t => t.LensName == microscopeFocusCacheItem.Key) is null)
+                Cache.MicroscopeFocusCacheItemDic.TryRemove(microscopeFocusCacheItem.Key, out _);
+        }
+
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
@@ -597,7 +598,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
-                .. ApplicationCookie.MicroscopeLensInformationList.Select(info => new CalibrationItemStep { StepName = info.LensName }),
+                .. ApplicationCookie.MicroscopeLensInformations.Select(info => new CalibrationItemStep { StepName = info.LensName }),
                 new() { StepName = "Review" }
             ]);
         });
@@ -681,8 +682,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Single(t => t.LensName == microscopeName);
-        SelectMicroscopeFocusCacheItem = Cache.GetSelectedCacheItem();
+        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformations.Single(t => t.LensName == microscopeName);
+        SelectMicroscopeFocusCacheItem = Cache.CurrentCalibrationCacheItem;
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
         if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeFocusCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)

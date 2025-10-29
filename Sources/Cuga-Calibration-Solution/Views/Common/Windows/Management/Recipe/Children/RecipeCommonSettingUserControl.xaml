@@ -75,7 +75,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Microscope Low Mag: "
                                  SelectedItem="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeLowMag}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding LensName}" />
@@ -87,7 +87,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Microscope High Mag: "
                                  SelectedItem="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.MicroscopeHighMag}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding LensName}" />

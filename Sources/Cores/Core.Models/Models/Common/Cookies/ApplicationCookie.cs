@@ -59,7 +59,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 倍镜列表
     /// </summary>
     [ObservableProperty]
-    private List<MicroscopeLensInformation> _microscopeLensInformationList = [];
+    private IReadOnlyList<MicroscopeLensInformation> _microscopeLensInformations = [];
 
     /// <summary>
     /// 激光光强信息列表

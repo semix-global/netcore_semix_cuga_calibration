@@ -108,11 +108,11 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
             Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
 
-            Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformationList.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
+            Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
             SynchronizationContextProvider.Send(() =>
                 CalibrationStatusList =
                 [
-                    .. ApplicationCookie.MicroscopeLensInformationList
+                    .. ApplicationCookie.MicroscopeLensInformations
                         .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
                 ]
             );
@@ -123,11 +123,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                     .IsCalibrated = calibrationStatus.IsCalibrated;
             }
         }).ConfigureAwait(false);
-
-        if (Cache.InitializeCacheList(ApplicationCookie.MicroscopeLensInformationList) == false)
-        {
-            Logger.LogError("{@Name} Error: Initialize Cache List Failed!", Name);
-        }
 
         RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -164,17 +159,12 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         {
             case 0:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
 
                 return true;
 
             case 1:
                 var result = StageViewModel.GetBrightFieldStagePosition();
-                if (SelectMicroscopePixelSizeCacheItem.FindPosition.ToOriginLength >= Cache.ChuckRadius)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header2, new HtmlComment("The Bright Field Position Out Of The Wafer!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
 
                 Cache.SetFindFocusPosition(result);
                 return true;
@@ -226,7 +216,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     {
         return InvokeCalibrateAsync(() =>
         {
-            SelectMicroscopePixelSizeCacheItem = Cache.GetSelectedCacheItem();
+            SelectMicroscopePixelSizeCacheItem = Cache.CurrentCalibrationCacheItem;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -352,7 +342,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             {
                 selectReviewItemDto.IsVerified = false;
                 Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
-                SelectMicroscopePixelSizeCacheItem = Cache.GetSelectedCacheItem();
+                SelectMicroscopePixelSizeCacheItem = Cache.CurrentCalibrationCacheItem;
                 SelectMicroscopePixelSizeCacheItem.FindPosition = selectReviewItemDto.FindPosition;
 
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
@@ -403,7 +393,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     {
         try
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition);
+            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
             foreach (var times in Enumerable.Range(1, repeatCount))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -467,6 +457,12 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             itemDto.Clone()
         ];
 
+        foreach (var microscopeFocusCacheItem in Cache.MicroscopePixelSizeCacheItemDic)
+        {
+            if (ApplicationCookie.MicroscopeLensInformations.SingleOrDefault(t => t.LensName == microscopeFocusCacheItem.Key) is null)
+                Cache.MicroscopePixelSizeCacheItemDic.TryRemove(microscopeFocusCacheItem.Key, out _);
+        }
+
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
@@ -500,7 +496,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
                 new() { StepName = "loading" },
-                .. ApplicationCookie.MicroscopeLensInformationList.Select(info => new CalibrationItemStep { StepName = info.LensName }),
+                .. ApplicationCookie.MicroscopeLensInformations.Select(info => new CalibrationItemStep { StepName = info.LensName }),
                 new() { StepName = "Review" }
             ]);
         });
@@ -563,7 +559,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                             return false;
                         }
 
-                        if (ResultMicroscopePixelSizeItemDtoList.Count(t => t.IsOk) == ApplicationCookie.MicroscopeLensInformationList.Count)
+                        if (ResultMicroscopePixelSizeItemDtoList.Count(t => t.IsOk) == ApplicationCookie.MicroscopeLensInformations.Count)
                         {
                             Logger.LogHtmlInformation("ResultPixelSize", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                             {
@@ -600,8 +596,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             return false;
         }
 
-        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Single(t => t.LensName == microscopeName);
-        SelectMicroscopePixelSizeCacheItem = Cache.GetSelectedCacheItem();
+        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformations.Single(t => t.LensName == microscopeName);
+        SelectMicroscopePixelSizeCacheItem = Cache.CurrentCalibrationCacheItem;
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
         if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopePixelSizeCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)

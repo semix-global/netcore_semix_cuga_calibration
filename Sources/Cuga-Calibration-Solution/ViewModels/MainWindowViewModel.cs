@@ -17,7 +17,6 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -41,11 +40,9 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
-using Core.Wcf.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Ads;
 using CugaCalibration.ViewModels.Chuck;
-using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -83,8 +80,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private readonly ICalibrationCacheProvider _calibrationCacheProviderService;
     private readonly IApplicationCookieService _applicationCookieService;
     private readonly ICalibrationRecipeService _calibrationRecipeService;
-    private readonly IGetResultFileService _getResultFileService;
-    private readonly ConfigViewModel _configViewModel;
 
     #region 界面显示属性
 
@@ -171,10 +166,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
         IApplicationCookieService applicationCookieService,
-        ICalibrationRecipeService calibrationRecipeService,
-        ISynchronizationContextProvider synchronizationContextProvider,
-        IGetResultFileService getResultFileService,
-        ConfigViewModel _configViewModel)
+        ICalibrationRecipeService calibrationRecipeService)
     {
         _messenger = messenger;
         _logger = logger;
@@ -189,8 +181,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         _applicationCookieService = applicationCookieService;
         _title = applicationCookie.Title;
         _calibrationRecipeService = calibrationRecipeService;
-        _getResultFileService = getResultFileService;
-        this._configViewModel = _configViewModel;
         _messenger.RegisterAll(this);
     }
 
@@ -560,25 +550,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             try
             {
                 if (IsLoadingOk == false) return;
-                var (lensChanged, lensList) = CoreWcfModelsExtension.IsLensChanged();
-                if (lensChanged)
-                {
-                    var appliedFilePath = _configViewModel.GetAppliedCalibrateResultFilePath();
-                    _getResultFileService.SetResultFilePath(appliedFilePath);
-                    var isSuccess = _getResultFileService.TryGet<CalibrationObj>(out var microscopeObj);
-                    if (isSuccess == false)
-                    {
-                        _dialogWindowProvider.ShowDialog("Get Microscope Info Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        return;
-                    }
 
-                    _cacheProvider.SetArray(microscopeObj.CalibrationMicroscopeObj.CalibrationMicroscopeFocusItemList.Select(t => new MicroscopeFocusItemDto().AdaptIn(t)).ToArray(), CancellationToken.None);
-                    _cacheProvider.SetArray(microscopeObj.CalibrationMicroscopeObj.CalibrationMicroscopePixelSizeItemList.Select(t => new MicroscopePixelSizeItemDto().AdaptIn(t)).ToArray(), CancellationToken.None);
-                    _cacheProvider.SetArray(microscopeObj.CalibrationMicroscopeObj.CalibrationMicroscopeCentricityItemList.Select(t => new MicroscopeCentricityItemDto().AdaptIn(t)).ToArray(), CancellationToken.None);
-                }
+                var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
+                var isCalibrationSettingChanged = calibrationSetting.IsOk(out _);
+                if (isCalibrationSettingChanged) CalibrationSetting.AdaptIn(calibrationSetting);
 
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
-                var microscopeFocusItemDto = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCalChipCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<MicroscopeCalChipDto>().IsOk(out _);
@@ -643,12 +620,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPmtAgcDelayItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserDOEAngleCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserDOEAngleDto>().IsOk(out _);
-
-                if (lensChanged)
-                {
-                    CalibrationSetting.MicroscopeLensInformationItems = new ObservableCollection<MicroscopeLensInformation>(lensList.Select(t => t.Clone()));
-                    _cacheProvider.Set(CalibrationSetting, CancellationToken.None);
-                }
             }
             catch (Exception ex)
             {

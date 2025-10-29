@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using System.Collections.ObjectModel;
@@ -61,12 +60,6 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     /// </summary>
     [ObservableProperty]
     private SettingPmtConfigParam _settingPmtConfigParam = new();
-
-    /// <summary>
-    /// 高倍暗场增益参数
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationItems = [];
 
     /// <summary>
     /// 配置Cuga自检使用的配置参数

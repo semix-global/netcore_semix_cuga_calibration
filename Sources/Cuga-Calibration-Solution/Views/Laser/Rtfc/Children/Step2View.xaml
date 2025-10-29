@@ -42,7 +42,7 @@
                                  hc:InfoElement.Title="High Magnification: "
                                  hc:InfoElement.Necessary="True"
                                  SelectedItem="{Binding FocusShiftCache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding LensName}" />

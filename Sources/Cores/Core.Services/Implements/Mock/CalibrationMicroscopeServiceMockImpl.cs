@@ -34,6 +34,12 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
 
         var microscopeLensInformationList = new List<MicroscopeLensInformation>
         {
+            // MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
+            // {
+            //     Lens = 2,
+            //     LensCode = CgMicroscopeLens.One,
+            //     LensName = "2X"
+            // }),
             MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
                 Lens = 5,

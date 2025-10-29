@@ -12,7 +12,7 @@ public sealed partial class SettingCommonViewModel(ApplicationCookie application
 {
     public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
 
-    public IReadOnlyList<MicroscopeLensInformation> MicroscopeLensInformationList => applicationCookie.MicroscopeLensInformationList;
+    public IReadOnlyList<MicroscopeLensInformation> MicroscopeLensInformationList => applicationCookie.MicroscopeLensInformations;
 
     [ObservableProperty]
     private SettingCommonParam _settingCommonParam = new();

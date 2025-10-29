@@ -111,8 +111,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
-        if (Cache.MicroscopeLensInformation.LensCode == -1)
-            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList[0];
+        if (applicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation) == false)
+            Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
         StageViewModel.SetAbsoluteStageTheta(0);
 
@@ -898,6 +898,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         update(dto);
         update(Cache);
 
+        dto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);
