@@ -332,7 +332,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     }
 
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     public async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {

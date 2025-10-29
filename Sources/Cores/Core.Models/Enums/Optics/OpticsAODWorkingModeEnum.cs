@@ -1,6 +1,6 @@
 ﻿namespace Core.Models.Enums.Optics;
 
-public enum OpticsAodWorkingModeEnum
+public enum OpticsAODWorkingModeEnum
 {
     /// <summary>
     /// 非工作模式

@@ -80,14 +80,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
-    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformationList()
+    public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
     {
         throw new NotImplementedException();
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Level - level == 0);
@@ -99,7 +99,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<LaserLightInformation> CoefficientToLaserLightInformation(double coefficient)
     {
-        var sxExecuteRet = GetLaserLightInformationList();
+        var sxExecuteRet = GetLaserLightInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, LaserLightInformation.Default);
 
         var result = sxExecuteRet.Anything.SingleOrDefault(m => m.Coefficient - coefficient == 0);
@@ -107,6 +107,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         return result is null
             ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
@@ -118,7 +123,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAodWorkingModeEnum opticsAodWorkingModeEnum)
+    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    {
+        var sxExecuteRet = Invoke(() => Service?.RefreshMag(new SxParamObj<CgMagTypeEnum>(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum())));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum)
     {
         var sxExecuteRet = Invoke(() => Service?.SetAODNO(new SxParamObj<int>(opticsAodWorkingModeEnum.ToOpticsAodWorkingMode())));
 
@@ -145,7 +159,21 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(new SxParamObj<(CgMagTypeEnum OpticsMagTypeEnum, int? chirpAodDelay, int? prescanAodDelay)>((productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)))));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
         throw new NotImplementedException();
     }
@@ -156,6 +184,11 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }

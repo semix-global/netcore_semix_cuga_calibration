@@ -10,7 +10,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 [IOCAppService(ServiceType = typeof(SettingCommonViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
 public sealed partial class SettingCommonViewModel(ApplicationCookie applicationCookie) : SettingWindowViewModelBase
 {
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformationList;
+    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformations;
 
     public IReadOnlyList<MicroscopeLensInformation> MicroscopeLensInformationList => applicationCookie.MicroscopeLensInformations;
 

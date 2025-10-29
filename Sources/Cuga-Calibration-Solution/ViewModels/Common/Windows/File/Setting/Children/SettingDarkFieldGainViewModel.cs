@@ -167,7 +167,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     afViewModel.ToggleDarkFieldEnable(true);
                 laserViewModel.ToggleOpticsMagType(opticsMagTypeEnum);
                 laserViewModel.SetPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, coefficient);
-                laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                 laserViewModel.ToggleEnableAutoGainControl(false);
                 laserViewModel.ToggleEnableL0K(false);
 
@@ -248,7 +248,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
             }
             finally
             {
-                laserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Scan);
+                laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                 stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
             }
         }

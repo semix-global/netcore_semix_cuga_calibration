@@ -100,9 +100,9 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
-                                                     hc:InfoElement.TitlePlacement="Left"
-                                                     hc:InfoElement.TitleWidth="200"
+                                        <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="200"
                                                      SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
                                                      Style="{StaticResource ComboBoxExtend}"
                                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
@@ -112,9 +112,9 @@
                                                 </DataTemplate>
                                             </hc:ComboBox.ItemTemplate>
                                         </hc:ComboBox>
-                                        <hc:NumericUpDown hc:InfoElement.Title="Default Amplitude: "
-                                                          hc:InfoElement.TitlePlacement="Left"
-                                                          hc:InfoElement.TitleWidth="200"
+                                        <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
                                                           Maximum="1"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Minimum="0"
@@ -146,9 +146,9 @@
                                                 <hc:UniformSpacingPanel Margin="11,0"
                                                                         Orientation="Vertical"
                                                                         Spacing="2">
-                                                    <hc:NumericUpDown hc:InfoElement.Title="Prescan Frequency(MHz): "
-                                                                      hc:InfoElement.TitlePlacement="Left"
-                                                                      hc:InfoElement.TitleWidth="200"
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Prescan Frequency(MHz): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
                                                                       Minimum="0"
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.PrescanFrequency}" />
@@ -171,16 +171,16 @@
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:InfoElement.Title="Measure Machine Position:"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="200"
+                                             hc:TitleElement.Title="Measure Machine Position:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />
                                     <Button Content="Refresh Measure Machine Position"
                                             Command="{Binding RefreshMeasureMachinePositionCommand}"
                                             Style="{StaticResource ButtonDefault}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Wait Time(s): "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="200"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
@@ -189,21 +189,21 @@
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
-                                    <hc:NumericUpDown hc:InfoElement.Title="Start Frequency(Mhz): "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Start Frequency(Mhz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StartFrequency}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Step Frequency(Mhz): "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(Mhz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepFrequency}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Stop Frequency(Mhz): "
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      hc:InfoElement.TitleWidth="180"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Frequency(Mhz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopFrequency}" />
@@ -250,34 +250,34 @@
                         <GroupBox Header="Step2">
                             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:NumericUpDown hc:InfoElement.Title="Target Power(mW): "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Target Power(mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.TargetMeasurePower}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Retry Count: "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Retry Count: "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="180"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.RetryCount}" />
                                     <Separator />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Threshold: "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
                                                       hc:TitleElement.TitleWidth="180"
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Minimum="0"
                                                       Value="{Binding Cache.TargetThreshold}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Threshold Rate Min: "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold Rate Min: "
                                                       hc:TitleElement.TitleWidth="180"
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       IsReadOnly="True"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.TargetThresholdRateMin, Mode=OneWay}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Threshold Rate Max: "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold Rate Max: "
                                                       hc:TitleElement.TitleWidth="180"
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       IsReadOnly="True"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.TargetThresholdRateMax, Mode=OneWay}" />

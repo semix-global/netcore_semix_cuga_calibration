@@ -8,70 +8,87 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserAttenuatorCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserAttenuatorViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="400" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Attenuator Calibration Step 1: "
+                <hc:Shield Subject="Laser Attenuator Step 2: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text="Attenuator Calibration"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding ResultLaserAttenuatorObjDto.StagePosition, Converter={StaticResource PointToStringConverter}}"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="180"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultLaserAttenuatorObjDto.InitialightIntensity, StringFormat={}{0}}"
-                             hc:InfoElement.Title="Initial Light Intensity:"
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="180"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultLaserAttenuatorObjDto.LaserPowerMeterAverageIntensity, StringFormat={}{0}}"
-                             hc:InfoElement.Title="Laser Power Intensity:"
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="180"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:NumericUpDown x:Name="IntervalNumeric"
-                                      hc:InfoElement.Title="Interval(s): "
-                                      hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.TitlePlacement="Left"
+                    <hc:NumericUpDown hc:TitleElement.Title="Step(Coefficient): "
+                                      hc:TitleElement.TitleWidth="225"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.WaitTime}" />
+                                      Value="{Binding Cache.Item.CoefficientStep}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                      hc:TitleElement.TitleWidth="225"
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.WaitTime}" />
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterCoefficient, StringFormat='0.###'}"
+                             hc:TitleElement.Title="Optical Power Meter Coefficient: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterMaxMeasurePower, StringFormat='0.###'}"
+                             hc:TitleElement.Title="Optical Power Meter Power(mW): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterMaxMeasurePowerPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="Optical Power Meter Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding CalibratingItem.MaxCoefficientAverageMeasurePower, StringFormat='0.###'}"
+                             hc:TitleElement.Title="Max Coefficient Average Power(mW): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="225"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
+                        <Button Content="Action"
                                 Command="{Binding Step1CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
+                        <Button Content="Cancel"
                                 Command="{Binding Step1CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
@@ -80,19 +97,32 @@
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-
+        <GridSplitter Grid.Column="1" Width="5" />
         <!--#region Right-->
         <GroupBox Grid.Column="2" Header="History">
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <wpf:WpfPlot>
-                    <i:Interaction.Behaviors>
-                        <behaviors:WpfPlotMultiBehavior Title="Data"
-                                                        Plot0Title="origin"
-                                                        Plot0="{Binding ResultLaserAttenuatorObjDto.CoefficientCurvePositions}"
-                                                        Plot1Title="fit"
-                                                        Plot1="{Binding ResultLaserAttenuatorObjDto.CoefficientFitCurvePositions}" />
-                    </i:Interaction.Behaviors>
-                </wpf:WpfPlot>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <wpf:WpfPlot>
+                        <i:Interaction.Behaviors>
+                            <behaviors:WpfPlotMultiBehavior Title="Measure Power"
+                                                            Plot0Title="Measure Power"
+                                                            Plot0="{Binding CalibratingItem.CoefficientMeasurePowerPoints}" />
+                        </i:Interaction.Behaviors>
+                    </wpf:WpfPlot>
+                    <wpf:WpfPlot Grid.Column="1">
+                        <i:Interaction.Behaviors>
+                            <behaviors:WpfPlotMultiBehavior Title="Rate"
+                                                            Plot0Title="Origin"
+                                                            Plot0="{Binding CalibratingItem.CoefficientMeasurePowerRatePoints}"
+                                                            Plot1Title="Fit"
+                                                            Plot1="{Binding CalibratingItem.CoefficientFitMeasurePowerRatePoints}" />
+                        </i:Interaction.Behaviors>
+                    </wpf:WpfPlot>
+                </Grid>
             </Border>
         </GroupBox>
         <!--#endregion-->

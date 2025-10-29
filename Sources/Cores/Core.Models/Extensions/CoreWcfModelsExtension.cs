@@ -3,6 +3,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Chuck.Gantry;
@@ -11,7 +12,6 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Laser.AodDelay;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -20,7 +20,7 @@ using Core.Models.Models.Laser.FocusShift;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
-using Core.Models.Models.Laser.OpticalPower;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
@@ -34,7 +34,6 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Interfaces;
-using MoreLinq;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.WPF.MVVM;
 
@@ -265,7 +264,7 @@ public static class CoreWcfModelsExtension
 
     #region Laser
 
-    public static bool IsOk(this LaserAodDelayItemDto[] result, out string errorMessage)
+    public static bool IsOk(this AODDelayDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -275,7 +274,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserAttenuatorObjDto[] result, out string errorMessage)
+    public static bool IsOk(this LaserAttenuatorDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -341,7 +340,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserOpticalPowerDto[] result, out string errorMessage)
+    public static bool IsOk(this LaserOpticalPowerMeterDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 

@@ -94,9 +94,9 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:InfoElement.Title="Optics Mag Type: "
-                                                     hc:InfoElement.TitlePlacement="Left"
-                                                     hc:InfoElement.TitleWidth="200"
+                                        <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="200"
                                                      SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
                                                      Style="{StaticResource ComboBoxExtend}"
                                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
@@ -106,9 +106,9 @@
                                                 </DataTemplate>
                                             </hc:ComboBox.ItemTemplate>
                                         </hc:ComboBox>
-                                        <hc:ComboBox hc:InfoElement.Title="Stage Speed: "
-                                                     hc:InfoElement.TitlePlacement="Left"
-                                                     hc:InfoElement.TitleWidth="200"
+                                        <hc:ComboBox hc:TitleElement.Title="Stage Speed: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="200"
                                                      SelectedItem="{Binding Cache.StageSpeedEnum}"
                                                      Style="{StaticResource ComboBoxExtend}"
                                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageSpeedEnum}}}">
@@ -118,9 +118,9 @@
                                                 </DataTemplate>
                                             </hc:ComboBox.ItemTemplate>
                                         </hc:ComboBox>
-                                        <hc:ComboBox hc:InfoElement.TitlePlacement="Left"
-                                                     hc:InfoElement.TitleWidth="200"
-                                                     hc:InfoElement.Title="PMT ID: "
+                                        <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="200"
+                                                     hc:TitleElement.Title="PMT ID: "
                                                      SelectedItem="{Binding Cache.PmtId}"
                                                      Style="{StaticResource ComboBoxExtend}"
                                                      ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
@@ -130,21 +130,21 @@
                                                 </DataTemplate>
                                             </hc:ComboBox.ItemTemplate>
                                         </hc:ComboBox>
-                                        <hc:NumericUpDown hc:InfoElement.Title="Image Width(px): "
-                                                          hc:InfoElement.TitlePlacement="Left"
-                                                          hc:InfoElement.TitleWidth="200"
+                                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
                                                           Minimum="0"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.ImageWidthPixel}" />
-                                        <hc:NumericUpDown hc:InfoElement.Title="±Range(ECS): "
-                                                          hc:InfoElement.TitlePlacement="Left"
-                                                          hc:InfoElement.TitleWidth="200"
+                                        <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
                                                           Minimum="0"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.RangeEcs}" />
-                                        <hc:NumericUpDown hc:InfoElement.Title="Step(ECS): "
-                                                          hc:InfoElement.TitlePlacement="Left"
-                                                          hc:InfoElement.TitleWidth="200"
+                                        <hc:NumericUpDown hc:TitleElement.Title="Step(ECS): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
                                                           Minimum="0"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.StepEcs}" />
@@ -161,15 +161,15 @@
                                         <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
                                     </Expander>
                                     <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:InfoElement.TitleWidth="200"
-                                                 hc:InfoElement.TitlePlacement="Left"
-                                                 hc:InfoElement.Title="Coefficient: "
+                                                 hc:TitleElement.TitleWidth="200"
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.Title="Laser Light Information: "
                                                  SelectedItem="{Binding Cache.HazeLaserLightInformation}"
                                                  ItemsSource="{Binding LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.HazeBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:InfoElement.Title="Bright Field Position:"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="200"
+                                             hc:TitleElement.Title="Bright Field Position:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
@@ -187,9 +187,9 @@
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
                                     <TextBox Text="{Binding Cache.HazeAverageECS, StringFormat={}{0:0.###}}"
-                                             hc:InfoElement.Title="Result Average ECS:"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="200"
+                                             hc:TitleElement.Title="Result Average ECS:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
                                              IsReadOnly="True"
                                              IsEnabled="False"
                                              Style="{StaticResource TextBoxExtend}" />
@@ -205,42 +205,42 @@
                                         <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
                                     </Expander>
                                     <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:InfoElement.TitleWidth="200"
-                                                 hc:InfoElement.TitlePlacement="Left"
-                                                 hc:InfoElement.Title="Coefficient: "
+                                                 hc:TitleElement.TitleWidth="200"
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.Title="Coefficient: "
                                                  SelectedItem="{Binding Cache.DSWLaserLightInformation}"
                                                  ItemsSource="{Binding LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.DSWBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:InfoElement.Title="Bright Field Position:"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="200"
+                                             hc:TitleElement.Title="Bright Field Position:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="X Pixel Size(um): "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="X Pixel Size(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.DSWXPixelSize}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Y Pixel Size(um): "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Y Pixel Size(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.DSWYPixelSize}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Pot Diameter(um): "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Pot Diameter(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.DSWPotDiameter}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="X Point Diameter(um): "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="X Point Diameter(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.DSWXPointDiameter}" />
-                                    <hc:NumericUpDown hc:InfoElement.Title="Y Point Diameter(um): "
-                                                      hc:InfoElement.TitlePlacement="Left"
+                                    <hc:NumericUpDown hc:TitleElement.Title="Y Point Diameter(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
@@ -261,16 +261,16 @@
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
                                     <TextBox Text="{Binding Cache.DSWROIRect, Converter={StaticResource RectToStringConverter}}"
-                                             hc:InfoElement.Title="ROI Rect(px):"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="200"
+                                             hc:TitleElement.Title="ROI Rect(px):"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
                                              IsReadOnly="True"
                                              IsEnabled="False"
                                              Style="{StaticResource TextBoxExtend}" />
                                     <TextBox Text="{Binding Cache.DSWAverageECS, StringFormat={}{0:0.###}}"
-                                             hc:InfoElement.Title="Result Average ECS:"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.TitleWidth="200"
+                                             hc:TitleElement.Title="Result Average ECS:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
                                              IsReadOnly="True"
                                              IsEnabled="False"
                                              Style="{StaticResource TextBoxExtend}" />

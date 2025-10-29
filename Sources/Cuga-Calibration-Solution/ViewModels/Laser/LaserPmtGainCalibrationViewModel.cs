@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models;
-using Core.Models.Models.Laser.AodDelay;
+using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
@@ -131,7 +131,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAodDelayItemDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -338,7 +338,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                 Mag = Cache.OpticsMagTypeEnum.ToString()
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+            LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             PowerBuilder = new StringBuilder();
             var laserPmtGainList = new ObservableCollection<LaserPmtGainDto>();
@@ -412,11 +412,11 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
             {
                 if (!isAllProtect)
                 {
-                    LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Scan);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                     LaserViewModel.SetGain(Cache.VoltageMin);
 
                     Thread.Sleep(1000 * Cache.WaitTime);
-                    LaserViewModel.ToggleOpticsAodWorkingMode(OpticsAodWorkingModeEnum.Through);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                 }
 
                 if (PowerBuilder?.Length == 0)

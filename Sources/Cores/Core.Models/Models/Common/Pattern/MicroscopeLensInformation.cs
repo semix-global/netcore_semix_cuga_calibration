@@ -3,6 +3,7 @@ using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 
 namespace Core.Models.Models.Common.Pattern;
 
@@ -93,8 +94,8 @@ public sealed class MicroscopeLensInformation :
     {
         Guard.IsNotNull(obj, nameof(obj));
 
+        LensName = GuardUtils.IsNotNullAndReturn(obj.LensName);
         LensCode = (int)obj.LensCode;
-        LensName = obj.LensName;
         ObjectiveMagnification = obj.Lens;
 
         return this;

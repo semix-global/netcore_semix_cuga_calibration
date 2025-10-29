@@ -1,26 +1,26 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.OpticalPower;
+namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
-public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneable<LaserOpticalPowerDto>, IAdaptTo<CalibrationLaserOpticalPower>
+public sealed partial class LaserOpticalPowerMeterDto : CalibrationDtoBase, ICloneable<LaserOpticalPowerMeterDto>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private double _coefficient;
 
     [ObservableProperty]
     private int _rowNumber;
 
     [ObservableProperty]
     private int _columnNumber;
-
-    [ObservableProperty]
-    private int _index;
 
     [ObservableProperty]
     private Point _findCenterPosition;
@@ -36,14 +36,14 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
 
     #region Mapper
 
-    public LaserOpticalPowerDto Clone()
+    public LaserOpticalPowerMeterDto Clone()
     {
-        return new LaserOpticalPowerDto
+        return new LaserOpticalPowerMeterDto
         {
-            OpticsMagTypeEnum = OpticsMagTypeEnum,
+            ProductivityInformation = ProductivityInformation.Clone(),
+            Coefficient = Coefficient,
             RowNumber = RowNumber,
             ColumnNumber = ColumnNumber,
-            Index = Index,
             FindCenterPosition = FindCenterPosition,
             Map = [.. Map.Select(x => x.Clone())],
             MeasureMaxPower = MeasureMaxPower,
@@ -60,7 +60,8 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
     {
         return new CalibrationLaserOpticalPower
         {
-            CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+            CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            Coefficient = Coefficient,
             MeasureMaxPower = MeasureMaxPower,
             MeasureMaxPowerPosition = MeasureMaxPowerPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,
