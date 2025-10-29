@@ -1,3 +1,4 @@
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using CugaCalibration.ViewModels.Laser;
 using MathNet.Numerics.LinearAlgebra;
 using ScottPlot;
@@ -6,7 +7,6 @@ using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.ComponentModel;
 using System.Windows;
-using Core.Models.Models.Laser.OpticalPowerMeter;
 using Range = ScottPlot.Range;
 using Text = ScottPlot.Plottables.Text;
 

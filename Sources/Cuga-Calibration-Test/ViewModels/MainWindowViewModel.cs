@@ -10,6 +10,7 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PmtGain;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XTCCalibration;
@@ -47,7 +48,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
-using Core.Models.Models.Laser.OpticalPowerMeter;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;

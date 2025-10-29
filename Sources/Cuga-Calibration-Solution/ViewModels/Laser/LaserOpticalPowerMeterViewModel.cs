@@ -7,6 +7,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
@@ -16,7 +17,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using Core.Models.Models.Laser.OpticalPowerMeter;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -105,7 +105,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>();
-        
+
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
@@ -371,7 +371,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             try
             {
                 Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
-                
+
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.ProductivityInformation,

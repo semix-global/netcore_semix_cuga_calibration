@@ -458,7 +458,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             aodDelayDto.RefinedChirpAODDelay,
             aodDelayDto.AveragePmtData,
             PmtValueList = new HtmlPlot2DLinesChart(
-                [.. pmtDataList.Index().Select<(int Index, IReadOnlyList<double> Item), (string Name, IReadOnlyList<Point> Points)>(t => (t.Index.ToString(), [..t.Item.Index().Select(tt => new Point(tt.Index, tt.Item))]))],
+                [.. pmtDataList.Index().Select<(int Index, IReadOnlyList<double> Item), (string Name, IReadOnlyList<Point> Points)>(t => (t.Index.ToString(), [.. t.Item.Index().Select(tt => new Point(tt.Index, tt.Item))]))],
                 string.Empty)
         }), HtmlLogUniqueId.LoggingHtml());
 

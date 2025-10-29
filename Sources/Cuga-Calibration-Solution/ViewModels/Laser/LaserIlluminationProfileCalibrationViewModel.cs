@@ -14,6 +14,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -42,7 +43,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
-using Core.Models.Models.Laser.OpticalPowerMeter;
 
 namespace CugaCalibration.ViewModels.Laser;
 

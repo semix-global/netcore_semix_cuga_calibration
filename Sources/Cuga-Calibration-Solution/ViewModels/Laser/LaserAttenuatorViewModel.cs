@@ -97,7 +97,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
-        
+
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
@@ -309,7 +309,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         await InvokeVerifyAsync(() =>
         {
             Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
-            
+
             SelectedReviewItem.IsVerified = false;
 
             CacheProvider.Set(Cache, cancellationToken);
