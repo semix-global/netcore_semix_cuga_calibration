@@ -2,12 +2,12 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.OpticalPower;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -180,7 +180,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
                 var startCoefficient = applicationCookie.LaserLightInformations.Min(t => t.Coefficient);
                 var stopCoefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
-                var laserOpticalPower = LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk);
+                var laserOpticalPower = LaserOpticalPowers.Single(t => t.ProductivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum() == Cache.OpticsMagTypeEnum && t.IsOk);
 
                 CalibratingItem = new LaserAttenuatorDto
                 {
