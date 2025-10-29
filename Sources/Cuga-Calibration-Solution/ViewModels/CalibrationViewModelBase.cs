@@ -130,6 +130,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations => ApplicationCookie.ProductivityInformations
         .GroupBy(p => p.OpticsMagType)
         .Select(g => g.OrderByDescending(p => p.StageSpeedType).First())
+        .OrderByDescending(t => t)
         .ToList();
 
     public CalibrationRecipeDto? CalibrationRecipeDto => ApplicationCookie.CalibrationReviseRecipeDto;

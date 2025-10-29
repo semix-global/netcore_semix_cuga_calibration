@@ -9,6 +9,8 @@ namespace Core.Models.Models.Common.Pattern;
 
 public sealed class MicroscopeLensInformation :
     ObservableCacheBase,
+    IComparable,
+    IComparable<MicroscopeLensInformation>,
     IEquatable<MicroscopeLensInformation>,
     IFormattable,
     IAdaptTo<CgMicroscopeInfo>,
@@ -43,7 +45,28 @@ public sealed class MicroscopeLensInformation :
     {
     }
 
-    #region IEquatable、IFormattable
+    #region IEquatable、IComparable、IFormattable
+
+    public int CompareTo(MicroscopeLensInformation? other)
+    {
+        if (ReferenceEquals(this, other)) return 0;
+        if (other is null) return 1;
+
+        var objectiveMagnificationComparison = ObjectiveMagnification.CompareTo(other.ObjectiveMagnification);
+        if (objectiveMagnificationComparison != 0) return objectiveMagnificationComparison;
+
+        var lensCodeComparison = LensCode.CompareTo(other.LensCode);
+        if (lensCodeComparison != 0) return lensCodeComparison;
+
+        return string.Compare(LensName, other.LensName, StringComparison.Ordinal);
+    }
+
+    public int CompareTo(object? obj)
+    {
+        if (obj is null) return 1;
+
+        return obj is MicroscopeLensInformation other ? CompareTo(other) : ThrowHelper.ThrowArgumentException<int>($"Object must be of type {nameof(MicroscopeLensInformation)}. ");
+    }
 
     public bool Equals(MicroscopeLensInformation? other) => this == other;
 
