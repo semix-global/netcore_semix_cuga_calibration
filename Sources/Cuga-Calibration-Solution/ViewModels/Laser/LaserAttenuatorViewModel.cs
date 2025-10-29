@@ -68,7 +68,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
     private LaserAttenuatorDto[] _calibrations = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerDto[] _laserOpticalPowers = [];
+    private LaserOpticalPowerMeterDto[] _laserOpticalPowers = [];
 
     #endregion 缓存
 
@@ -92,7 +92,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerDto>(out var laserOpticalPowers, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDto>(out var laserOpticalPowers, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

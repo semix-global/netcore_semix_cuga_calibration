@@ -20,6 +20,7 @@ using Core.Models.Models.Laser.FocusShift;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Laser.PrescanChirpAodAlignment;
@@ -36,7 +37,6 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using MoreLinq;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.WPF.MVVM;
-using LaserOpticalPowerDto = Core.Models.Models.Laser.OpticalPowerMeter.LaserOpticalPowerDto;
 
 namespace Core.Models.Extensions;
 
@@ -341,7 +341,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserOpticalPowerDto[] result, out string errorMessage)
+    public static bool IsOk(this LaserOpticalPowerMeterDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 

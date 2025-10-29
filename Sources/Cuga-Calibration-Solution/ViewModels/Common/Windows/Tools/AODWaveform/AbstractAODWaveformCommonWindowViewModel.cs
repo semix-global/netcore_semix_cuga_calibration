@@ -106,7 +106,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand]
     private void RefreshMeasureMachinePosition()
     {
-        if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerDto>(out var laserOpticalPowerDtos))
+        if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerMeterDto>(out var laserOpticalPowerDtos))
         {
             var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t => t.ProductivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum() == Cache.OpticsMagTypeEnum);
             if (laserOpticalPowerDto is not null && laserOpticalPowerDto.IsOk)

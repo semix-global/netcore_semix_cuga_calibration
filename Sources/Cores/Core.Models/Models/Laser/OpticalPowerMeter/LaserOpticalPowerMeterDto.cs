@@ -8,11 +8,11 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
-public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneable<LaserOpticalPowerDto>, IAdaptTo<CalibrationLaserOpticalPower>
+public sealed partial class LaserOpticalPowerMeterDto : CalibrationDtoBase, ICloneable<LaserOpticalPowerMeterDto>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-    
+
     [ObservableProperty]
     private double _coefficient;
 
@@ -36,9 +36,9 @@ public sealed partial class LaserOpticalPowerDto : CalibrationDtoBase, ICloneabl
 
     #region Mapper
 
-    public LaserOpticalPowerDto Clone()
+    public LaserOpticalPowerMeterDto Clone()
     {
-        return new LaserOpticalPowerDto
+        return new LaserOpticalPowerMeterDto
         {
             ProductivityInformation = ProductivityInformation.Clone(),
             Coefficient = Coefficient,

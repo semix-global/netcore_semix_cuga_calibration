@@ -39,10 +39,10 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerDto> _calibratings = [];
+    private IReadOnlyList<LaserOpticalPowerMeterDto> _calibratings = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerDto? _selectedCalibratingItem;
+    private LaserOpticalPowerMeterDto? _selectedCalibratingItem;
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -52,10 +52,10 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<LaserOpticalPowerDto> _reviews = [];
+    private ObservableCollection<LaserOpticalPowerMeterDto> _reviews = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerDto? _selectedReviewItem;
+    private LaserOpticalPowerMeterDto? _selectedReviewItem;
 
     #endregion Review
 
@@ -67,7 +67,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     private LaserOpticalPowerMeterCache _cache = new();
 
     [ObservableProperty]
-    private LaserOpticalPowerDto[] _calibrations = [];
+    private LaserOpticalPowerMeterDto[] _calibrations = [];
 
     #endregion 缓存
 
@@ -104,7 +104,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         }
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerDto>();
+        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>();
         
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
@@ -229,7 +229,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 var centerX = (Cache.Item.ColumnNumber - 1) / 2d;
                 var centerY = (Cache.Item.RowNumber - 1) / 2d;
 
-                var laserOpticalPowerObjDto = new LaserOpticalPowerDto
+                var laserOpticalPowerObjDto = new LaserOpticalPowerMeterDto
                 {
                     Coefficient = coefficient,
                     ProductivityInformation = Cache.ProductivityInformation,
@@ -439,7 +439,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         }).ConfigureAwait(false);
     }
 
-    private bool Save(LaserOpticalPowerDto item, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(LaserOpticalPowerMeterDto item, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(item);
         update(Cache);

@@ -22,7 +22,7 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
-using ObjectHelper = Net.Utilities.Helpers.Helpers.ObjectHelper;
+using Net.Utilities.Helpers.Helpers;
 
 namespace CugaCalibration.Core.Services.Implements;
 

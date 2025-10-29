@@ -37,7 +37,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using LaserLineCentricityCache = Core.Models.Models.Laser.LineCentricity.LaserLineCentricityCache;
 
 namespace CugaCalibration.ViewModels.Laser;
 
