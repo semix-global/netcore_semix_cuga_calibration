@@ -63,7 +63,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.MicroscopeCentricityCacheItem[0].FindPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.CurrentCalibrationCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"

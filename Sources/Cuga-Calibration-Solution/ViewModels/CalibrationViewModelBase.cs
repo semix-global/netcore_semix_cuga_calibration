@@ -501,13 +501,13 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     {
         try
         {
-            if (obj is not MicroscopeLensInformation lensInformation || ApplicationCookie.MicroscopeLensInformationList.Contains(lensInformation) == false)
+            if (obj is not MicroscopeLensInformation lensInformation || ApplicationCookie.MicroscopeLensInformations.Contains(lensInformation) == false)
             {
                 Logger.LogError("{@Name}: Select magnification illegal!", Name);
                 return;
             }
 
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList.Single(t => t == (MicroscopeLensInformation)obj))
+            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformations.Single(t => t == (MicroscopeLensInformation)obj))
             ).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -614,7 +614,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         return Task.Run(() =>
         {
             if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out _))
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformationList[0]);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformations[0]);
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             return true;
         });

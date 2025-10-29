@@ -95,7 +95,7 @@
                                                              hc:InfoElement.TitlePlacement="Left"
                                                              hc:InfoElement.Title="Microscope Type: "
                                                              SelectedItem="{Binding RecipeBrightFieldTemplateDto.MicroscopeLensInformation}"
-                                                             ItemsSource="{Binding DataContext.ApplicationCookie.MicroscopeLensInformationList, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                             ItemsSource="{Binding DataContext.ApplicationCookie.MicroscopeLensInformations, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                                     <hc:ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding LensName}" />

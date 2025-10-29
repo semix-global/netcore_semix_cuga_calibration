@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Extensions;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
@@ -78,10 +77,8 @@ public sealed partial class LoadingWindowViewModel(
             var laserLightInformationList = laserViewModel.GetLaserLightInformationList();
 
             applicationCookie.DeviceCode = deviceCode;
-            applicationCookie.MicroscopeLensInformationList = [.. microscopeLensInformationList.Select(t => t.Clone())];
+            applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformationList.Select(t => t.Clone())];
             applicationCookie.LaserLightInformationList = laserLightInformationList;
-
-            CoreWcfModelsExtension.Initialize(() => applicationCookie.MicroscopeLensInformationList);
 
             contextProvider.Send(() => CloseView(true));
 
