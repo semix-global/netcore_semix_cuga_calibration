@@ -103,14 +103,14 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>();
-
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
                 .. OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
+        
+        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>();
 
         foreach (var calibrationStatus in Calibrations)
         {

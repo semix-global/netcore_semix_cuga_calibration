@@ -95,14 +95,14 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
         LaserOpticalPowers = laserOpticalPowers;
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
-
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
                 .. OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
+
+        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
 
         foreach (var calibrationStatus in Calibrations)
         {
@@ -326,7 +326,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                SelectedReviewItem.ProductivityInformation,
+                Cache.ProductivityInformation,
                 SelectedReviewItem.WaitTime,
                 SelectedReviewItem.OpticalPowerMeterCoefficient,
                 SelectedReviewItem.OpticalPowerMeterMaxMeasurePower,

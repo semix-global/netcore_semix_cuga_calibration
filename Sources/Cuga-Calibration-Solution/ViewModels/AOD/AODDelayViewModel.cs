@@ -20,7 +20,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using Net.Utilities.WPF.Behaviors;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -360,6 +359,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                 SelectedReviewItem.IsVerified = false;
 
+                StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
                 LaserViewModel.ToggleCIBControlModeAndProfileType(Cache.Item.CIBConfiguration, Constants.NegInt32Value, Constants.NegInt32Value);
                 LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);

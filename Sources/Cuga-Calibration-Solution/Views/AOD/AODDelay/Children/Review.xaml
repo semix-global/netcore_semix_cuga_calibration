@@ -100,27 +100,16 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="100"
-                                            Header="Productivity"
-                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Width="120"
-                                            Header="AOD Delay(sa)"
-                                            DisplayMemberBinding="{Binding RefinedAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Width="160"
-                                            Header="Prescan AOD Delay(sa)"
-                                            DisplayMemberBinding="{Binding RefinedPrescanAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Width="160"
-                                            Header="Chirp AOD Delay(sa)"
-                                            DisplayMemberBinding="{Binding RefinedChirpAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Width="160"
-                                            Header="Average PMT Data"
-                                            DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
-                            <GridViewColumn Width="150" Header="PMT Data">
+                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Prescan AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedPrescanAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Chirp AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedChirpAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Average PMT Data" DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
+                            <GridViewColumn Header="PMT Data">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                                          Content="PMT Data"
                                                           Margin="0,2"
                                                           HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
@@ -135,7 +124,7 @@
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                                     <wpf:WpfPlot>
                                                         <i:Interaction.Behaviors>
-                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data(Y: - X: -)" Plot0="{Binding PmtData, Converter={StaticResource DoublesToPointsConverter}}" />
                                                         </i:Interaction.Behaviors>
                                                     </wpf:WpfPlot>
                                                 </Border>
@@ -152,7 +141,7 @@
                         Effect="{StaticResource EffectShadow1}">
                     <wpf:WpfPlot>
                         <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Verify AOD Delay" Plot0="{Binding CalibratingPoints}" />
+                            <behaviors:WpfPlotMultiBehavior Title="Verify AOD Delay(Y: - X: sa)" Plot0="{Binding CalibratingPoints}" />
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
                 </Border>
