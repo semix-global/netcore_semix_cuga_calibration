@@ -348,6 +348,7 @@ public sealed partial class RecipeSettingViewModel(
 
             try
             {
+                cacheDatabaseProvider.Close();
                 // 重命名的情况
                 if (SelectRecipeDtoBackup!.CalibrationRecipeInfoDto.RecipeName != recipeInfo.RecipeName
                     && SelectRecipeDtoBackup!.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource != string.Empty)

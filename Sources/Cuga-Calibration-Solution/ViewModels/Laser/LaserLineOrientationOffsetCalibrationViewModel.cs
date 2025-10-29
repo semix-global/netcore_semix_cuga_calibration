@@ -232,9 +232,9 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         }
 
         if (Cache.MicroscopeLensInformation.LensCode == -1)
-            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformationList.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformationList[^1]
-                : ApplicationCookie.MicroscopeLensInformationList[2];
+            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformations.Count <= 2
+                ? ApplicationCookie.MicroscopeLensInformations[^1]
+                : ApplicationCookie.MicroscopeLensInformations[2];
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);

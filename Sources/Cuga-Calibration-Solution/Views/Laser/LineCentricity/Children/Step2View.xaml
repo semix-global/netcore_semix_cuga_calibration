@@ -66,7 +66,7 @@
                                  hc:InfoElement.Title="Magnification: "
                                  hc:InfoElement.Necessary="True"
                                  SelectedItem="{Binding Cache.MicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformationList}">
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding LensName}" />

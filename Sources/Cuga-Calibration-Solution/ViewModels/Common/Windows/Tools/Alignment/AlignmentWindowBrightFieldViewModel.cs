@@ -146,8 +146,8 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 Cache = _recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
                 Cache.IsVerified = false;
                 Cache.IsOk = false;
-                if (_applicationCookie.MicroscopeLensInformationList.Contains(Cache.LowMag) == false ||
-                    _applicationCookie.MicroscopeLensInformationList.Contains(Cache.HighMag) == false)
+                if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
+                    _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
                 {
                     Cache = new AlignmentCacheBrightField
                     {
@@ -159,7 +159,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
 
                 _contextProvider.Send(() =>
                 {
-                    AlignmentParamWindowBrightFieldViewModel.MicroscopeLensInformationList = [.. _applicationCookie.MicroscopeLensInformationList];
+                    AlignmentParamWindowBrightFieldViewModel.MicroscopeLensInformationList = [.. _applicationCookie.MicroscopeLensInformations];
                     StepIndex = 0;
                 });
 

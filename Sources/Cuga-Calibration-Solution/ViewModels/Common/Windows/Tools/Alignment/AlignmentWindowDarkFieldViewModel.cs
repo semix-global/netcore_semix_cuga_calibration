@@ -151,8 +151,8 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache.IsVerified = false;
                 Cache.IsOk = false;
 
-                if (_applicationCookie.MicroscopeLensInformationList.Contains(Cache.LowMag) == false ||
-                    _applicationCookie.MicroscopeLensInformationList.Contains(Cache.HighMag) == false)
+                if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
+                    _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
                 {
                     Cache = new()
                     {
@@ -164,7 +164,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
                 _contextProvider.Send(() =>
                 {
-                    AlignmentParamWindowDarkFieldViewModel.MicroscopeLensInformationList = [.. _applicationCookie.MicroscopeLensInformationList];
+                    AlignmentParamWindowDarkFieldViewModel.MicroscopeLensInformationList = [.. _applicationCookie.MicroscopeLensInformations];
                     StepIndex = 0;
                 });
 
