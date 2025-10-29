@@ -88,8 +88,8 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="120"
-                                            Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            Header="Productivity"
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="380" Header="Polynomial">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type attenuator:LaserAttenuatorDto}">

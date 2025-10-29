@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -10,7 +10,7 @@ namespace Core.Models.Models.Laser.Attenuator;
 public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, IAdaptTo<CalibrationAttenuatorObj>, ICloneable<LaserAttenuatorDto>
 {
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private double _opticalPowerMeterCoefficient;
@@ -55,7 +55,7 @@ public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, IAdaptTo<Ca
 
     public LaserAttenuatorDto Clone() => new()
     {
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         OpticalPowerMeterCoefficient = OpticalPowerMeterCoefficient,
         OpticalPowerMeterMaxMeasurePower = OpticalPowerMeterMaxMeasurePower,
         OpticalPowerMeterMaxMeasurePowerPosition = OpticalPowerMeterMaxMeasurePowerPosition,
@@ -78,7 +78,7 @@ public sealed partial class LaserAttenuatorDto : CalibrationDtoBase, IAdaptTo<Ca
 
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
-        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         MaxCoefficientAverageMeasurePower = MaxCoefficientAverageMeasurePower,
         CoefficientMeasurePowerPoints = [.. CoefficientMeasurePowerPoints.Select(t => t.ToCgPoint())],
         CoefficientMeasurePowerRatePoints = [.. CoefficientMeasurePowerRatePoints.Select(t => t.ToCgPoint())],

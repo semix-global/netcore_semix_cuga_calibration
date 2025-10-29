@@ -25,8 +25,8 @@
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -42,12 +42,12 @@
                                       hc:TitleElement.TitleWidth="225"
                                       hc:TitleElement.TitlePlacement="Left"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.CoefficientStep}" />
+                                      Value="{Binding Cache.Item.CoefficientStep}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
                                       hc:TitleElement.TitleWidth="225"
                                       hc:TitleElement.TitlePlacement="Left"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.WaitTime}" />
+                                      Value="{Binding Cache.Item.WaitTime}" />
                     <StackPanel>
                         <TextBlock Text="Result"
                                    HorizontalAlignment="Center"

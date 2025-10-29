@@ -49,7 +49,7 @@
                           VerticalAlignment="Center"
                           ItemsSource="{Binding CalibrationStatuses}">
                 <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsMagTypeEnum, Mode=TwoWay}" />
+                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
                 </i:Interaction.Behaviors>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -58,10 +58,10 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                        <RadioButton Content="{Binding ProductivityInformation}"
                                      FontSize="35"
-                                     Tag="{Binding .OpticsMagTypeEnum}"
-                                     GroupName="401e494c-52df-4438-99fc-a817ee708865">
+                                     Tag="{Binding ProductivityInformation}"
+                                     GroupName="39a1ea15-11ef-4c86-acc4-8da28e722bd0">
                             <RadioButton.Style>
                                 <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
                                     <Style.Triggers>
