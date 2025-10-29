@@ -124,8 +124,8 @@
                                                           Margin="0,2"
                                                           HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                            <Popup Width="400"
-                                                   Height="800"
+                                            <Popup Width="600"
+                                                   Height="600"
                                                    StaysOpen="False"
                                                    PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
                                                    Placement="Right"
@@ -135,7 +135,7 @@
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                                     <wpf:WpfPlot>
                                                         <i:Interaction.Behaviors>
-                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData}" />
+                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData, Converter={StaticResource DoublesToPointsConverter}}" />
                                                         </i:Interaction.Behaviors>
                                                     </wpf:WpfPlot>
                                                 </Border>

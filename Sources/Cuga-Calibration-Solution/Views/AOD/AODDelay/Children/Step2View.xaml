@@ -191,27 +191,27 @@
                             <GridViewColumn Width="160"
                                             Header="Average PMT Data"
                                             DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
-                            <GridViewColumn Width="100" Header="PMT Data">
+                            <GridViewColumn Width="150" Header="PMT Data">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
                                         <Grid>
-                                            <ToggleButton x:Name="ToggleButtonPMTData"
+                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                           Content="PMT Data"
                                                           Margin="0,2"
                                                           HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                            <Popup Width="800"
-                                                   Height="800"
+                                            <Popup Width="600"
+                                                   Height="600"
                                                    StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=ToggleButtonPMTData}"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
                                                    Placement="Right"
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <wpf:WpfPlot Width="400" Height="400">
+                                                    <wpf:WpfPlot>
                                                         <i:Interaction.Behaviors>
-                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData}" />
+                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data" Plot0="{Binding PmtData, Converter={StaticResource DoublesToPointsConverter}}" />
                                                         </i:Interaction.Behaviors>
                                                     </wpf:WpfPlot>
                                                 </Border>
