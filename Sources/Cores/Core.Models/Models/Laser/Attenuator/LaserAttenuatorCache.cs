@@ -26,5 +26,5 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
     private double _coefficientStep = 0.02;
 
     [ObservableProperty]
-    private double _waitTime = 15;
+    private double _waitTime = 5;
 }
