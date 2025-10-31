@@ -341,7 +341,7 @@ public partial class AdsGainsDiagnosisViewModel(
             var z2Points = transBuffer[1].ToPoints();
 
             PlotListZ.Clear();
-            PlotListZ = [.. PlotListZ, new WpfPlotModel($"(X1:{x1},X2:{x2})Z1", z1Points), new WpfPlotModel($"(X1:{x1},X2:{x2})Z2", z2Points)];
+            PlotListZ = [.. PlotListZ, new WpfPlotModel($"(X1:{x1},X2:{x2})Z1", [.. z1Points]), new WpfPlotModel($"(X1:{x1},X2:{x2})Z2", [.. z2Points])];
 
             SelectedXGainsItemDto!.IsCalibrated = true;
             return true;
@@ -422,7 +422,7 @@ public partial class AdsGainsDiagnosisViewModel(
             var z3Points = transBuffer[2].ToPoints();
 
             PlotListZ.Clear();
-            PlotListZ = [.. PlotListZ, new WpfPlotModel($"(Y1:{y1},Y2:{y2},Y3:{y3})Z1", z1Points), new WpfPlotModel($"(Y1:{y1},Y2:{y2},Y3:{y3})Z2", z2Points), new WpfPlotModel($"(Y1:{y1},Y2:{y2},Y3:{y3})Z3", z3Points)];
+            PlotListZ = [.. PlotListZ, new WpfPlotModel($"(Y1:{y1},Y2:{y2},Y3:{y3})Z1", [.. z1Points]), new WpfPlotModel($"(Y1:{y1},Y2:{y2},Y3:{y3})Z2", [.. z2Points]), new WpfPlotModel($"(Y1:{y1},Y2:{y2},Y3:{y3})Z3", [.. z3Points])];
 
             SelectedYGainsItemDto!.IsCalibrated = true;
             return true;
