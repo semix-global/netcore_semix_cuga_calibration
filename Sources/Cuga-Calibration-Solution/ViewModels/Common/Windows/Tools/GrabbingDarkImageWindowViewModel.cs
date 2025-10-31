@@ -261,9 +261,9 @@ public partial class GrabbingDarkImageWindowViewModel(
 
                 var plotList = new List<WpfPlotModel>
                 {
-                    new("ch1", darkFieldImageList[0].DarkFieldImageList.ToPoints()),
-                    new("ch2", darkFieldImageList[1].DarkFieldImageList.ToPoints()),
-                    new("ch3", darkFieldImageList[2].DarkFieldImageList.ToPoints())
+                    new("ch1",[..darkFieldImageList[0].DarkFieldImageList.ToPoints()]),
+                    new("ch2",[..darkFieldImageList[1].DarkFieldImageList.ToPoints()]),
+                    new("ch3",[..darkFieldImageList[2].DarkFieldImageList.ToPoints()])
                 };
                 var grabbingDarkImageDto = new GrabbingDarkImageDto
                 {

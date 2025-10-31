@@ -34,11 +34,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 
-#if NETFRAMEWORK
-using MoreLinq.Extensions;
-
-#endif
-
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXTCCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
