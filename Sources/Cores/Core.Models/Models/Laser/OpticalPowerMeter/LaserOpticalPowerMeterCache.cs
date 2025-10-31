@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using LiteDB;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using Net.Utilities.Helpers.Extensions;
 
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
@@ -42,7 +42,7 @@ public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBa
     private double _rowCellHeight = 100;
 
     [ObservableProperty]
-    private double _waitTime = 15;
+    private double _waitTime = 5;
 
     [ObservableProperty]
     private int _repeatCount = 5;

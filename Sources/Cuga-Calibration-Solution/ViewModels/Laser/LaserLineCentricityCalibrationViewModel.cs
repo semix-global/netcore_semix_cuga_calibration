@@ -699,8 +699,34 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(resultPosition);
         Cache.FindPosition = resultPosition;
 
-        var bfToDfOffset = centerLineCentricityItemDto.FindDarkMachinePosition - centerLineCentricityItemDto.FindBrightMachinePosition;
-        var centerLineFindDarkFieldMachinePosition = brightFieldMachinePosition + bfToDfOffset;
+        //暗场采图匹配后得到补偿offset后的暗场坐标
+        if (LaserViewModel.TryGetMatchPositionByScanImage(
+                Cache.AlgorithmTemplateTypeEnum,
+                CalChipSiteModelEnum.ChuckModel,
+                CalibrationConstantsHelper.MainPmtId,
+                resultPosition,
+                Cache.TemplateFilePath,
+                centerLineCentricityItemDto.FilePath,
+                HtmlLogUniqueId,
+                string.Empty,
+                $"{CalibrationConstantsHelper.MainPmtId}",
+                Cache.CIBConfiguration,
+                out var position,
+                out _,
+                out _,
+                out var resultImageFilePath,
+                true,
+                Cache.XWidthPixel,
+                centerLineCentricityItemDto.OpticsMagTypeEnum,
+                Cache.StageSpeedEnum,
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
+                CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
+        {
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
+            return false;
+        }
+
+        var centerLineFindDarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(position);
 
         var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(Calibrations, centerLineCentricityItemDto.OpticsMagTypeEnum, centerLineCentricityItemDto.StageSpeedEnum);
 

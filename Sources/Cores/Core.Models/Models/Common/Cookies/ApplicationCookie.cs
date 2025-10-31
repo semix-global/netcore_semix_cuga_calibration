@@ -74,6 +74,15 @@ public sealed partial class ApplicationCookie : ObservableObject
     private IReadOnlyList<ProductivityInformation> _productivityInformations = [];
 
     /// <summary>
+    /// 按照MagType分类的产率列表
+    /// </summary>
+    public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations => ProductivityInformations
+        .GroupBy(p => p.OpticsMagType)
+        .Select(g => g.OrderByDescending(p => p.StageSpeedType).First())
+        .OrderByDescending(t => t)
+        .ToList();
+
+    /// <summary>
     /// 校准当前应用配方
     /// </summary>
     [ObservableProperty]
