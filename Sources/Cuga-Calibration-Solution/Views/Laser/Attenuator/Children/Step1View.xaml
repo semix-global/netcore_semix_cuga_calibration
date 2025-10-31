@@ -108,14 +108,14 @@
                     </Grid.ColumnDefinitions>
                     <wpf:WpfPlot>
                         <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Measure Power"
+                            <behaviors:WpfPlotMultiBehavior Title="Measure Power(Y: mW X: Coefficient)"
                                                             Plot0Title="Measure Power"
                                                             Plot0="{Binding CalibratingItem.CoefficientMeasurePowerPoints}" />
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
                     <wpf:WpfPlot Grid.Column="1">
                         <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Rate"
+                            <behaviors:WpfPlotMultiBehavior Title="Rate(Y: - X: Coefficient)"
                                                             Plot0Title="Origin"
                                                             Plot0="{Binding CalibratingItem.CoefficientMeasurePowerRatePoints}"
                                                             Plot1Title="Fit"

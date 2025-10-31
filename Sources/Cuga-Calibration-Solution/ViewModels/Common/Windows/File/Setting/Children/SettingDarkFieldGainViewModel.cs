@@ -10,7 +10,6 @@ using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -190,7 +189,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     var result = Enumerable.Range(0, pmtDataList.First().Count)
                         .Select(t => pmtDataList.Select(tt => tt[t]).Average())
                         .ToList();
-                    PlotList = [.. PlotList, new WpfPlotModel($"Gain: {gain}", result.ToPoints(), (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, gain))];
+                    PlotList = [.. PlotList, new WpfPlotModel($"Gain: {gain}", [.. result.ToPoints()], (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, gain))];
                     var gainAverage = result.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
 
                     logger.LogHtmlInformation($"Gain: {gain}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -230,7 +229,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 gainCoefficientsParam.Gain = targetGain;
                 var resultTargetGain = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId).Select(t => t.Average()).ToList();
                 //if (isSuccess == false) return (false, 0);
-                PlotList = [.. PlotList, new WpfPlotModel($"{coefficient:f3} OK: {targetGain}", resultTargetGain.ToPoints(), (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, targetGain))];
+                PlotList = [.. PlotList, new WpfPlotModel($"{coefficient:f3} OK: {targetGain}", [.. resultTargetGain.ToPoints()], (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, targetGain))];
 
                 gainCoefficientsParam.TargetPmtAverageValue = resultTargetGain.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
                 gainCoefficientsParam.TargetPmtValueList = resultTargetGain;

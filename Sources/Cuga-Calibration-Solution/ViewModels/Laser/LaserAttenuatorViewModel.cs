@@ -14,6 +14,7 @@ using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -95,20 +96,20 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
         LaserOpticalPowers = laserOpticalPowers;
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
-
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
+
+        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
 
         foreach (var calibrationStatus in Calibrations)
         {
-            CalibrationStatuses
-                .Single(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
+            var status = CalibrationStatuses.SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
+
+            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
@@ -326,7 +327,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                SelectedReviewItem.ProductivityInformation,
+                Cache.ProductivityInformation,
                 SelectedReviewItem.WaitTime,
                 SelectedReviewItem.OpticalPowerMeterCoefficient,
                 SelectedReviewItem.OpticalPowerMeterMaxMeasurePower,

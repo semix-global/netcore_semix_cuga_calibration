@@ -346,16 +346,16 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var speedBuffer = traceBuffer[4].ToPoints();
             var startIndex = traceBuffer[4].FindIndex(t => t != 0);
 
-            (adsCenterOfMassDto.XErrorMin, adsCenterOfMassDto.XErrorMax, var x1BuffersWithoutBackground, var x2BuffersWithoutBackground, var x1X2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground(xyX1, xyX2, startIndex, true);
-            (adsCenterOfMassDto.YErrorMin, adsCenterOfMassDto.YErrorMax, var y1BuffersWithoutBackground, var y2BuffersWithoutBackground, var y1Y2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground(xyY1, xyY2, startIndex, false);
+            (adsCenterOfMassDto.XErrorMin, adsCenterOfMassDto.XErrorMax, var x1BuffersWithoutBackground, var x2BuffersWithoutBackground, var x1X2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground([..xyX1], [..xyX2], startIndex, true);
+            (adsCenterOfMassDto.YErrorMin, adsCenterOfMassDto.YErrorMax, var y1BuffersWithoutBackground, var y2BuffersWithoutBackground, var y1Y2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground([..xyY1], [..xyY2], startIndex, false);
 
             var plotsList = new List<WpfPlotModel>
             {
-                new($"{(adsCenterOfMassDto.IsFindX ? "Y" : "X")} Speed", speedBuffer),
-                new("XyX1", xyX1),
-                new("XyX2", xyX2),
-                new("XyY1", xyY1),
-                new("XyY2", xyY2),
+                new($"{(adsCenterOfMassDto.IsFindX ? "Y" : "X")} Speed", [..speedBuffer]),
+                new("XyX1", [..xyX1]),
+                new("XyX2", [..xyX2]),
+                new("XyY1", [..xyY1]),
+                new("XyY2", [..xyY2]),
                 new("X1-Background", x1BuffersWithoutBackground),
                 new("X2-Background", x2BuffersWithoutBackground),
                 new("Y1-Background", y1BuffersWithoutBackground),
@@ -368,11 +368,11 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             PlotListZ =
             [
                 .. PlotListZ,
-                new WpfPlotModel("Speed", speedBuffer),
-                new WpfPlotModel("X1", xyX1),
-                new WpfPlotModel("X2", xyX2),
-                new WpfPlotModel("Y1", xyY1),
-                new WpfPlotModel("Y2", xyY2)
+                new WpfPlotModel("Speed", [..speedBuffer]),
+                new WpfPlotModel("X1", [..xyX1]),
+                new WpfPlotModel("X2", [..xyX2]),
+                new WpfPlotModel("Y1", [..xyY1]),
+                new WpfPlotModel("Y2", [..xyY2])
             ];
 
             logger.LogHtmlInformation($"X/Y TraceBuffer Index{adsCenterOfMassDto.Index},{(adsCenterOfMassDto.IsPositive ? "Positive" : "Negative")}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -443,7 +443,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var minValue = buffers.Min(t => t.Y);
             var maxValue = buffers.Max(t => t.Y);
 
-            return (minValue, maxValue, removeBackgroundbuffers0.ToPoints(), removeBackgroundbuffers1.ToPoints(), errorBuffersWithoutBackgroud);
+            return (minValue, maxValue, [.. removeBackgroundbuffers0.ToPoints()], [.. removeBackgroundbuffers1.ToPoints()], [.. errorBuffersWithoutBackgroud]);
         }
     }
 

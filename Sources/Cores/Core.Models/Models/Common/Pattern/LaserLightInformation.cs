@@ -8,6 +8,8 @@ namespace Core.Models.Models.Common.Pattern;
 
 public sealed class LaserLightInformation :
     ObservableObject,
+    IComparable<LaserLightInformation>,
+    IComparable,
     IEquatable<LaserLightInformation>,
     IFormattable,
     IAdaptTo<CgLightConfig>,
@@ -35,7 +37,25 @@ public sealed class LaserLightInformation :
     {
     }
 
-    #region IEquatable、IFormattable
+    #region IEquatable、IComparable、IFormattable
+
+    public int CompareTo(LaserLightInformation? other)
+    {
+        if (ReferenceEquals(this, other)) return 0;
+        if (other is null) return 1;
+
+        var coefficientComparison = Coefficient.CompareTo(other.Coefficient);
+        if (coefficientComparison != 0) return coefficientComparison;
+
+        return Level.CompareTo(other.Level);
+    }
+
+    public int CompareTo(object? obj)
+    {
+        if (obj is null) return 1;
+
+        return obj is LaserLightInformation other ? CompareTo(other) : ThrowHelper.ThrowArgumentException<int>($"Object must be of type {nameof(LaserLightInformation)}. ");
+    }
 
     public bool Equals(LaserLightInformation? other) => this == other;
 

@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using LiteDB;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using Net.Utilities.Helpers.Extensions;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
@@ -26,5 +26,5 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
     private double _coefficientStep = 0.02;
 
     [ObservableProperty]
-    private double _waitTime = 15;
+    private double _waitTime = 5;
 }

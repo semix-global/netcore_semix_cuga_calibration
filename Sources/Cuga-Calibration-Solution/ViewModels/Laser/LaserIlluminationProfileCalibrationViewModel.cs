@@ -26,7 +26,6 @@ using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -1090,7 +1089,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                     .ToArray();
                 item.CoefficientToServingToDarkFieldImageListAveragesList.Add((c, servingToDarkFieldImageListAverages));
 
-                PlotList = [.. PlotList, new WpfPlotModel($"{c:f3}", servingToDarkFieldImageListAverages.ToPoints(), (0.5 * Cache.LaserLightInformation.Coefficient, Cache.LaserLightInformation.Coefficient, c))];
+                PlotList = [.. PlotList, new WpfPlotModel($"{c:f3}", [.. servingToDarkFieldImageListAverages.ToPoints()], (0.5 * Cache.LaserLightInformation.Coefficient, Cache.LaserLightInformation.Coefficient, c))];
             }
 
             for (var serving = 0; serving < darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList.Count; serving++)
@@ -1100,7 +1099,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 item.ServingToMaxCoefficientList.Add(item.CoefficientToServingToDarkFieldImageListAveragesList[findDescendingSequenceIndex].Coefficient);
             }
 
-            PlotList = [.. PlotList, new WpfPlotModel("Serving To Max Coefficient", item.ServingToMaxCoefficientList.ToPoints())];
+            PlotList = [.. PlotList, new WpfPlotModel("Serving To Max Coefficient", [.. item.ServingToMaxCoefficientList.ToPoints()])];
 
             item.IsOk = true;
 
@@ -1201,7 +1200,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 if (isOk) return await GetResultAsync().ConfigureAwait(false);
 
                 var darkFieldImageList = tempIlluminationProfileDto.ChannelDarkFieldProjectYsList;
-                PlotAverageList = [.. PlotAverageList, new WpfPlotModel(index.ToString(), darkFieldImageList.ToPoints(), (1, Cache.CurrentCalibrationCacheItem.RepeatCount, index))];
+                PlotAverageList = [.. PlotAverageList, new WpfPlotModel(index.ToString(), [.. darkFieldImageList.ToPoints()], (1, Cache.CurrentCalibrationCacheItem.RepeatCount, index))];
                 var servingToDarkFieldImageListAverageList = darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList
                     .Select(t => t.Average(tt => darkFieldImageList[tt]))
                     .ToList();
@@ -1280,7 +1279,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
                 if (tempIlluminationProfileDto.ChannelDarkFieldProjectYsList.Count == 0) return false;
 
-                PlotPrescanList = [.. PlotPrescanList, new WpfPlotModel(index.ToString(), GetPrescan1080List(tempIlluminationProfileDto.PrescanRateList).ToPoints(), (1, Cache.CurrentCalibrationCacheItem.RepeatCount, index))];
+                PlotPrescanList = [.. PlotPrescanList, new WpfPlotModel(index.ToString(), [.. GetPrescan1080List(tempIlluminationProfileDto.PrescanRateList).ToPoints()], (1, Cache.CurrentCalibrationCacheItem.RepeatCount, index))];
 
                 Logger.LogHtmlInformation($"{tempIlluminationProfileDto.Index}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {

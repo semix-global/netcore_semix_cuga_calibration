@@ -17,11 +17,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 using static Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum;
 
-#if NETFRAMEWORK
-using MoreLinq.Extensions;
-
-#endif
-
 namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(IApplicationCookieService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]

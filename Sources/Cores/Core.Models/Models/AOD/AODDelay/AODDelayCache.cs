@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using LiteDB;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using Net.Utilities.Helpers.Extensions;
 
 namespace Core.Models.Models.AOD.AODDelay;
 
@@ -55,7 +55,7 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase
     private double _roughStepAODDelay = 100;
 
     [ObservableProperty]
-    private double _roughStopAODDelay = 1500;
+    private double _roughStopAODDelay = 3000;
 
     [ObservableProperty]
     private double _refinedRangeAODDelay = 200;

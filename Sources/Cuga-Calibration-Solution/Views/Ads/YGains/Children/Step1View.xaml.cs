@@ -42,21 +42,21 @@ public sealed partial class Step1View
                     if (adsYGainsCacheItem == null) return;
                     if (adsYGainsCacheItem.IsPositive)
                     {
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z1", adsYGainsCacheItem.GetPlotZ1().ToPoints(), null, [.. adsYGainsCacheItem.GetPointZ1()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z2", adsYGainsCacheItem.GetPlotZ2().ToPoints(), null, [.. adsYGainsCacheItem.GetPointZ2()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z3", adsYGainsCacheItem.GetPlotZ3().ToPoints(), null, [.. adsYGainsCacheItem.GetPointZ3()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ1", adsYGainsCacheItem.GetSmoothPlotZ1().ToPoints(), null, [.. adsYGainsCacheItem.GetSmoothPointZ1()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ2", adsYGainsCacheItem.GetSmoothPlotZ2().ToPoints(), null, [.. adsYGainsCacheItem.GetSmoothPointZ2()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ3", adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints(), null, [.. adsYGainsCacheItem.GetSmoothPointZ3()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z1", [..adsYGainsCacheItem.GetPlotZ1().ToPoints()], null, [.. adsYGainsCacheItem.GetPointZ1()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z2", [..adsYGainsCacheItem.GetPlotZ2().ToPoints()], null, [.. adsYGainsCacheItem.GetPointZ2()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z3", [..adsYGainsCacheItem.GetPlotZ3().ToPoints()], null, [.. adsYGainsCacheItem.GetPointZ3()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ1", [..adsYGainsCacheItem.GetSmoothPlotZ1().ToPoints()], null, [.. adsYGainsCacheItem.GetSmoothPointZ1()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ2", [..adsYGainsCacheItem.GetSmoothPlotZ2().ToPoints()], null, [.. adsYGainsCacheItem.GetSmoothPointZ2()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ3", [..adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints()], null, [.. adsYGainsCacheItem.GetSmoothPointZ3()])];
                     }
                     else
                     {
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z4", adsYGainsCacheItem.GetPlotZ1().ToPoints(), null, [.. adsYGainsCacheItem.GetPointZ1()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z5", adsYGainsCacheItem.GetPlotZ2().ToPoints(), null, [.. adsYGainsCacheItem.GetPointZ2()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z6", adsYGainsCacheItem.GetPlotZ3().ToPoints(), null, [.. adsYGainsCacheItem.GetPointZ3()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ4", adsYGainsCacheItem.GetSmoothPlotZ1().ToPoints(), null, [.. adsYGainsCacheItem.GetSmoothPointZ1()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ5", adsYGainsCacheItem.GetSmoothPlotZ2().ToPoints(), null, [.. adsYGainsCacheItem.GetSmoothPointZ2()])];
-                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ6", adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints(), null, [.. adsYGainsCacheItem.GetSmoothPointZ3()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z4", [..adsYGainsCacheItem.GetPlotZ1().ToPoints()], null, [.. adsYGainsCacheItem.GetPointZ1()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z5", [..adsYGainsCacheItem.GetPlotZ2().ToPoints()], null, [.. adsYGainsCacheItem.GetPointZ2()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("Z6", [..adsYGainsCacheItem.GetPlotZ3().ToPoints()], null, [.. adsYGainsCacheItem.GetPointZ3()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ4", [..adsYGainsCacheItem.GetSmoothPlotZ1().ToPoints()], null, [.. adsYGainsCacheItem.GetSmoothPointZ1()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ5", [..adsYGainsCacheItem.GetSmoothPlotZ2().ToPoints()], null, [.. adsYGainsCacheItem.GetSmoothPointZ2()])];
+                        viewModel.PlotList = [.. viewModel.PlotList, new WpfPlotModel("SmoothZ6", [..adsYGainsCacheItem.GetSmoothPlotZ3().ToPoints()], null, [.. adsYGainsCacheItem.GetSmoothPointZ3()])];
                     }
                 });
                 break;

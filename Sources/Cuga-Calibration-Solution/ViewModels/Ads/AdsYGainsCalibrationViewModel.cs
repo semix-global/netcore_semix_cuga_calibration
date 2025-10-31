@@ -17,12 +17,8 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using Net.Utilities.WPF.MVVM.Providers;
 using static Core.Models.Models.Ads.YGains.AdsYGainsCache;
-
-#if NETFRAMEWORK
-using MoreLinq;
-
-#endif
 
 namespace CugaCalibration.ViewModels.Ads;
 
@@ -271,7 +267,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         {
             await Task.Run(() =>
             {
-                var plotList = new List<(string Title, Point[] Points)>();
+                var plotList = new List<(string Title, IReadOnlyList<Point> Points)>();
                 if (adsYGainsItemDto.IsPositive)
                 {
                     plotList =
@@ -291,7 +287,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     ];
                 }
 
-                DialogWindowProvider.ShowPlot(plotList);
+                DialogWindowProvider.ShowPlotAsReadonly(plotList);
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
