@@ -520,9 +520,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         #region 四.二. 补偿理想矩阵X，使得理想矩阵和实际矩阵的正交性一致
 
-        var errorXContainsGantry = realXMatrix - idealXMatrix;
-
-        var errorGantryXTemp = Matrix<double>.Build.Dense(rowCount, columnCount);
+        var errorGantryX = Matrix<double>.Build.Dense(rowCount, columnCount);
 
         var centerRow = (int)Math.Floor((rowCount - 1 + 0) / 2d);
         for (var row = 0; row < rowCount; row++)
@@ -531,11 +529,12 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             {
                 if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
 
-                var columnIndex = column - minColumnIndex;
-                errorGantryXTemp[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
-                                                * ( /*columnIndex < 0 || columnIndex >= thetaGantryVector.Count
-                                                    ? */Math.Tan(meanGantryTheta)
-                                                    /*: Math.Tan(thetaGantryVector[columnIndex])*/);
+                errorGantryX[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column]) * Math.Tan(meanGantryTheta);
+                /*var columnIndex = column - minColumnIndex;
+                errorGantryX[row, column] = (idealYMatrix[row, column] - idealYMatrix[centerRow, column])
+                                            * ( columnIndex < 0 || columnIndex >= thetaGantryVector.Count
+                                                ? Math.Tan(meanGantryTheta)
+                                                : Math.Tan(thetaGantryVector[columnIndex]));*/
             }
         }
 
@@ -545,12 +544,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             {
                 if (Convert.ToBoolean(isInWaferMatrix[row, column]) == false) continue;
 
-                idealXMatrix[row, column] += errorGantryXTemp[row, column];
+                idealXMatrix[row, column] += errorGantryX[row, column];
             }
         }
-
-        var errorDifference = realXMatrix - idealXMatrix;
-        var errorGantryX = errorXContainsGantry - errorDifference;
 
         logger.LogHtmlInformation(
             "4.2. Gantry Error Map",
@@ -558,7 +554,6 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             new HtmlBullet(new
             {
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryX, Matrix<double>.Build.SameAs(errorGantryX), "Scale Map"),
-                errorXContainsGantry = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryXTemp, "Gantry error X"),
                 ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryX, "Gantry error X"),
             }),
             htmlLogUniqueId.LoggingHtml()
@@ -826,8 +821,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                 HtmlHeaderLevelEnum.Header5,
                 new HtmlBullet(new
                 {
-                    VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryXTemp, errorY, "Fit Map"),
-                    ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryXTemp, "Fit error X"),
+                    VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryX, errorY, "Fit Map"),
+                    ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryX, "Fit error X"),
                     ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorY, "Fit error Y")
                 }),
                 htmlLogUniqueId.LoggingHtml()
