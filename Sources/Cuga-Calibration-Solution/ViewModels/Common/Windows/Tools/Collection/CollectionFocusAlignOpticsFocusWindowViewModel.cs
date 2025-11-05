@@ -24,9 +24,11 @@ using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF;
+using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
@@ -35,11 +37,8 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Immutable;
 using System.IO;
-using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
-using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
-using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
@@ -649,22 +648,22 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             foreach (var (index, item) in hazeOriginDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
             }
 
             foreach (var (index, item) in dswOriginDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
             }
 
             foreach (var (index, item) in hazeNormalizationDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
             }
 
             foreach (var (index, item) in dswNormalizationDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
             }
 
             scatterPlotControl.AutoScaleRefresh();
@@ -676,7 +675,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         var scatterPlotControl = serviceProvider.GetRequiredService<IScatterPlotControl>();
 
         var customGrid = new CustomGrid();
-        scatterPlotControl.ConfigureScatter(customGrid, 3,
+        scatterPlotControl.Configure(customGrid, 3,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));

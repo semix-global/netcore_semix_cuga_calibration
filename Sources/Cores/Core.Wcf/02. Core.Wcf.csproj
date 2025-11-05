@@ -41,7 +41,6 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" />
-        <PackageReference Include="Net.Utilities.Mapper" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">

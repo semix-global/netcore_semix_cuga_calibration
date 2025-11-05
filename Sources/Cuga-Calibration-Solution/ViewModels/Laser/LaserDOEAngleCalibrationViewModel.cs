@@ -22,7 +22,6 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using MoreLinq.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -307,7 +306,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
         try
         {
             var isEnabled = Convert.ToBoolean(isSelectAll);
-            Cache.PmtConfigList.ForEach(t => t.Enabled = isEnabled);
+            foreach (var t in Cache.PmtConfigList) t.Enabled = isEnabled;
         }
         catch
         {

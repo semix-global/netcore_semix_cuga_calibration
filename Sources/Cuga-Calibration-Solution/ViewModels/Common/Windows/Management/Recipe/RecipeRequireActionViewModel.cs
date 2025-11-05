@@ -12,9 +12,9 @@ using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
-using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 

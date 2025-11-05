@@ -8,7 +8,6 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
