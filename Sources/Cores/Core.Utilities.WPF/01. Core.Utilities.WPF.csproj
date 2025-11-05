@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Local.NoSQL.DB.Providers" />
         <PackageReference Include="Net.Utilities.Graphics.WPF" />
         <PackageReference Include="Net.Utilities.WaferMap.WPF" />
         <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" />
 
         <PackageReference Include="Net.Utilities.WPF" />
         <PackageReference Include="Net.Utilities.WPF.MVVM" />
@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
+        <ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
     </ItemGroup>
 
 </Project>

@@ -17,7 +17,6 @@ using System.Windows;
 using System.Windows.Input;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
-using Text = ScottPlot.Plottables.Text;
 
 namespace CugaCalibration.Views.Chuck.StageMap.Children;
 

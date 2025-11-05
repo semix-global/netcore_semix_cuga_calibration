@@ -127,9 +127,13 @@ public sealed partial class RolesManagementViewModel(
 
     protected override Task<bool> RefreshAssociationTableAsync()
     {
-        allMenuList.ForEach(t => t.IsDistributed = OperateSysRoleDto!.SysMenuList
-            .Where(roleMenu => roleMenu.Id == t.Id) //role-menu关联表加载
-            .ToList().Count != 0);
+        foreach (var t in allMenuList)
+        {
+            t.IsDistributed = OperateSysRoleDto!.SysMenuList
+                .Where(roleMenu => roleMenu.Id == t.Id) //role-menu关联表加载
+                .ToList().Count != 0;
+        }
+
         MenuAllocationTreeList = [.. sysMenuService.BuildMenuTree(allMenuList)];
         return Task.FromResult(true);
     }

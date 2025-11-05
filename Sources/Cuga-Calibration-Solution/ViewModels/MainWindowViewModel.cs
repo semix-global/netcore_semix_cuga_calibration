@@ -474,7 +474,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                     {
                         foreach (var itemChildList in ApplicationCookie.CalibrationMenu.ChildList)
                         {
-                            itemChildList.ChildList.ForEach(x => x.IsSelected = false);
+                            foreach (var x in itemChildList.ChildList) x.IsSelected = false;
                         }
                     }
                 }

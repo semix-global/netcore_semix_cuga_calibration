@@ -6,7 +6,6 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
