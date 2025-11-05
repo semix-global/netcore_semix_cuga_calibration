@@ -27,7 +27,6 @@ using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

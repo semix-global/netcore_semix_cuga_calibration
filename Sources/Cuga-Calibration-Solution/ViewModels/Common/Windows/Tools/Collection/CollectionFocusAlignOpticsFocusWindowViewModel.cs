@@ -26,7 +26,8 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF;
+using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
@@ -649,22 +650,22 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             foreach (var (index, item) in hazeOriginDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
             }
 
             foreach (var (index, item) in dswOriginDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
             }
 
             foreach (var (index, item) in hazeNormalizationDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
             }
 
             foreach (var (index, item) in dswNormalizationDictionaryByChannelId.Index())
             {
-                scatterPlotControl.UpdateOrAddScatter(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
+                scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
             }
 
             scatterPlotControl.AutoScaleRefresh();
@@ -676,7 +677,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         var scatterPlotControl = serviceProvider.GetRequiredService<IScatterPlotControl>();
 
         var customGrid = new CustomGrid();
-        scatterPlotControl.ConfigureScatter(customGrid, 3,
+        scatterPlotControl.Configure(customGrid, 3,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));

@@ -7,12 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FreeSql" />
-        <PackageReference Include="FreeSql.Repository" />
-        <PackageReference Include="FreeSql.Provider.Sqlite" />
-        <PackageReference Include="morelinq" />
-
-		<PackageReference Include="Net.Utilities.Mapper" />
+        <PackageReference Include="Net.Utilities.Mapper" />
         <PackageReference Include="Net.Utilities.Models" />
         <PackageReference Include="Net.Utilities.DataAnnotations" />
         <PackageReference Include="Net.Utilities.Helpers" />
@@ -23,6 +18,7 @@
         <PackageReference Include="Net.Utilities.Nlog" />
 
         <PackageReference Include="Net.Utilities.Graphics" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" />
 
         <PackageReference Include="Local.NoSQL.DB.Providers" />
         <PackageReference Include="Local.SQL.DB.Providers" />
