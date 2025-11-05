@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using LiteDB;
+using Net.Utilities.Helpers.Extensions;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
-using Net.Utilities.Helpers.Extensions;
 
 namespace Core.Models.Models.Laser.Attenuator;
 

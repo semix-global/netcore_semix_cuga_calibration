@@ -14,7 +14,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using MoreLinq;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -167,13 +166,14 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
                     return false;
                 }
 
-                CenterOfMassDiagnosisList.ForEach(t =>
+                foreach (var t in CenterOfMassDiagnosisList)
                 {
                     t.Cache.StartPositionFindX = Cache.StartPositionFindX;
                     t.Cache.EndPositionFindX = Cache.EndPositionFindX;
                     t.Cache.StartPositionFindY = Cache.StartPositionFindY;
                     t.Cache.EndPositionFindY = Cache.EndPositionFindY;
-                });
+                }
+
                 messenger.Send(ToggleCalibrateEventFactory.UpdateWindowEnable(false));
                 IsEnableWindow = false;
                 contextProvider.Send(() => { CenterOfMassItemDtoList.Clear(); });
@@ -346,8 +346,8 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var speedBuffer = traceBuffer[4].ToPoints();
             var startIndex = traceBuffer[4].FindIndex(t => t != 0);
 
-            (adsCenterOfMassDto.XErrorMin, adsCenterOfMassDto.XErrorMax, var x1BuffersWithoutBackground, var x2BuffersWithoutBackground, var x1X2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground([..xyX1], [..xyX2], startIndex, true);
-            (adsCenterOfMassDto.YErrorMin, adsCenterOfMassDto.YErrorMax, var y1BuffersWithoutBackground, var y2BuffersWithoutBackground, var y1Y2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground([..xyY1], [..xyY2], startIndex, false);
+            (adsCenterOfMassDto.XErrorMin, adsCenterOfMassDto.XErrorMax, var x1BuffersWithoutBackground, var x2BuffersWithoutBackground, var x1X2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground([.. xyX1], [.. xyX2], startIndex, true);
+            (adsCenterOfMassDto.YErrorMin, adsCenterOfMassDto.YErrorMax, var y1BuffersWithoutBackground, var y2BuffersWithoutBackground, var y1Y2ErrorBuffers) = GetTracebufferDeltaValueWithoutBackground([.. xyY1], [.. xyY2], startIndex, false);
 
             var plotsList = new List<WpfPlotModel>
             {

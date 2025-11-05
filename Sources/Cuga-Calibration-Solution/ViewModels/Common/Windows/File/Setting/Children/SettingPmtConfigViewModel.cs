@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Setting;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
@@ -19,7 +18,7 @@ public sealed partial class SettingPmtConfigViewModel : SettingWindowViewModelBa
         try
         {
             var isEnabled = Convert.ToBoolean(isSelectAll);
-            SettingPmtConfigParam.PmtConfigList.ForEach(t => t.Enabled = isEnabled);
+            foreach (var t in SettingPmtConfigParam.PmtConfigList) t.Enabled = isEnabled;
         }
         catch
         {

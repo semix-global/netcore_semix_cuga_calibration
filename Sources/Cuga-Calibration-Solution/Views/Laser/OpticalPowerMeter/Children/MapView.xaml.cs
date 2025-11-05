@@ -8,7 +8,6 @@ using ScottPlot.WPF;
 using System.ComponentModel;
 using System.Windows;
 using Range = ScottPlot.Range;
-using Text = ScottPlot.Plottables.Text;
 
 namespace CugaCalibration.Views.Laser.OpticalPowerMeter.Children;
 

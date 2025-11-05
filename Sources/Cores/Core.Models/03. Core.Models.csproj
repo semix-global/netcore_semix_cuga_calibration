@@ -30,8 +30,4 @@
         <ProjectReference Include="..\Core.Wcf\02. Core.Wcf.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\AOD\" />
-    </ItemGroup>
-
 </Project>

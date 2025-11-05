@@ -13,7 +13,6 @@ using Core.Models.Models.Microscope.Focus;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -177,10 +176,11 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
                 return true;
 
             case 1:
-                LaserPmtAgcDelayItemDtoList.ForEach(t => t.IsCalibrated = true);
+
+                foreach (var t in LaserPmtAgcDelayItemDtoList) t.IsCalibrated = true;
                 if (Save([.. LaserPmtAgcDelayItemDtoList], cancellationToken) == false)
                 {
-                    LaserPmtAgcDelayItemDtoList.ForEach(t => t.IsCalibrated = false);
+                    foreach (var t in LaserPmtAgcDelayItemDtoList) t.IsCalibrated = false;
 
                     Logger.LogError("{@Name} Error: Save Failed!", Name);
                     return false;
@@ -259,7 +259,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
 
             foreach (var agcDelayItemList in LaserPmtAgcDelayItemDtoList
                          .OrderBy(t => t.PmtId)
-                         .Batch(Cache.ConcurrentCount))
+                         .Chunk(Cache.ConcurrentCount))
             {
                 SelectCalibrationLaserPmtAgcDelayItemDto = agcDelayItemList.FirstOrDefault();
 
@@ -312,7 +312,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
                 foreach (var agcDelayItemList in SelectReviewList
                              .Where(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum)
                              .OrderBy(t => t.PmtId)
-                             .Batch(Cache.ConcurrentCount))
+                             .Chunk(Cache.ConcurrentCount))
                 {
                     SelectCalibrationLaserPmtAgcDelayItemDto = agcDelayItemList.FirstOrDefault();
 
@@ -332,7 +332,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
                 if (Save([.. SelectReviewList], cancellationToken) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    SelectReviewList.ForEach(t => t.IsVerified = false);
+                    foreach (var t in SelectReviewList) t.IsVerified = false;
 
                     return false;
                 }

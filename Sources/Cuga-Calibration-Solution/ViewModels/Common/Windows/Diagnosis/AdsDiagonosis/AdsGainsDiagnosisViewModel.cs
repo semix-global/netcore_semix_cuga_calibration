@@ -11,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -287,7 +286,7 @@ public partial class AdsGainsDiagnosisViewModel(
 
                 TracebufferList.Clear();
 
-                XGainsItemDtoList.ForEach(t => t.IsCalibrated = false);
+                foreach (var t in XGainsItemDtoList) t.IsCalibrated = false;
                 foreach (var adsXGainsItemDto in XGainsItemDtoList)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -369,7 +368,7 @@ public partial class AdsGainsDiagnosisViewModel(
 
                 TracebufferList.Clear();
 
-                YGainsItemDtoList.ForEach(t => t.IsCalibrated = false);
+                foreach (var t in YGainsItemDtoList) t.IsCalibrated = false;
                 foreach (var adsYGainsItemDto in YGainsItemDtoList)
                 {
                     cancellationToken.ThrowIfCancellationRequested();

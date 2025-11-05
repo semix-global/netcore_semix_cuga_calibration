@@ -163,7 +163,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     StepIndex = 0;
                 });
 
-                StepList.ForEach(x => x.StepIsNextEnable = x.DefaultIsNextEnable);
+                foreach (var x in StepList) x.StepIsNextEnable = x.DefaultIsNextEnable;
 
                 Cache.LowSite1.Location = Cache.LowSite2.Location = Cache.HighSite1.Location = Cache.HighSite2.Location = Point.Origin;
                 Cache.LowSite1.Template = Cache.LowSite2.Template = Cache.HighSite1.Template = Cache.HighSite2.Template = null;

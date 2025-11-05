@@ -108,7 +108,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             [
                 .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
-        
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>();
 

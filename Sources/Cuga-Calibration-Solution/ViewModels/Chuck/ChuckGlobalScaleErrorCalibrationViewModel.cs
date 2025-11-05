@@ -16,7 +16,6 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
