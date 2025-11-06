@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Concurrent;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -133,7 +132,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     public AODWaveformElectrodeOffsetCache()
     {
-        ScatterPlotControl.Configure();
+        ScatterPlotControl.Configure(totalPlotCount: 2);
         ScatterPlotControl.SetTitle(0, $"{nameof(AmplitudeItems)}(Y: mW - X: AMP)");
         ScatterPlotControl.SetTitle(1, $"{nameof(AmplitudeItems)}(Y: AMP - X: MHz)");
     }
@@ -161,7 +160,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
                 $"{item.Frequency}(MHz)",
-                [..item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                [..item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
                 index,
                 new Range(0, AmplitudeItems.Count - 1));
 
@@ -169,7 +168,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         }
 
         if (AmplitudeItems.Count <= 0) return;
-
 
         ScatterPlotControl.GetOrAddScatterLine(
             1,
@@ -587,7 +585,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             var frequencies = Generate.LinearRange(Cache.LowFrequency, Cache.StepFrequency, Cache.HighFrequency);
             Guard.IsNotEmpty(frequencies);
-            var amplitudes = Generate.LinearRange(Cache.StartAmplitude, Cache.StepAmplitude, Cache.StopAmplitude);
+            var amplitudes = Generate.LinearRange(Cache.StartAmplitude, Cache.StepAmplitude, Cache.StopAmplitude).Reverse().ToArray();
             Guard.IsNotEmpty(amplitudes);
 
             Logger.LogHtmlInformation("Frequency", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
