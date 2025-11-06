@@ -1,8 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
@@ -266,7 +264,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -474,7 +471,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -677,7 +673,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -865,7 +860,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
 
                 AfViewModel.SetSensorNscCompensation(ReviewDto.NscOffset, ReviewDto.NscGain);
                 await Task.Delay(100, cancellationToken);

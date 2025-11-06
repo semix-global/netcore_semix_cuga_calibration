@@ -1,5 +1,6 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
@@ -35,4 +36,11 @@ public interface ICalibrationConfigService
     /// </summary>
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum);
+
+
+    /// <summary>
+    /// 获得cuga WaferTransfer CgSwathSpeedInfo
+    /// </summary>
+    /// <returns>speed config</returns>
+    SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation);
 }

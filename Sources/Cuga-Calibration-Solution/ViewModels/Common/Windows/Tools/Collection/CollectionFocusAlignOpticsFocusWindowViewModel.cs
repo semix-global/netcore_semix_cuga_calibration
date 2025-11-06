@@ -528,7 +528,6 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 RefreshPlot();
 
                 stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(stageViewModel.BrightFieldToMachinePosition(brightFieldPosition));
-                afViewModel.SetDarkFieldAutoFocus(null, Cache.OpticsMagTypeEnum, calChipSiteModelEnum);
                 afViewModel.ToggleDarkFieldEnable(true);
 
                 await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);

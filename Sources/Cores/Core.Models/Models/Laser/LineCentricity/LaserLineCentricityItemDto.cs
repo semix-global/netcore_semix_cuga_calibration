@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -17,10 +15,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -52,9 +47,8 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     {
         return new LaserLineCentricityItemDto
         {
-            MicroscopeLensInformation = MicroscopeLensInformation,
-            OpticsMagTypeEnum = OpticsMagTypeEnum,
-            StageSpeedEnum = StageSpeedEnum,
+            MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+            ProductivityInformation = ProductivityInformation.Clone(),
             PmtId = PmtId,
             FindPosition = FindPosition,
             FindBrightMachinePosition = FindBrightMachinePosition,
@@ -76,8 +70,8 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
         return new CalibrationLaserLineCentricityItem
         {
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
-            CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-            Speed = StageSpeedEnum.ToCgSpeedLevelType(),
+            CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
             PmtId = PmtId,
             DarkMachineCenterPosition = DarkMachineCenterPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,

@@ -128,6 +128,7 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
+    [Obsolete]
     public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
@@ -148,6 +149,24 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
+    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo)
+    {
+        try
+        {
+            // todo
+            maskInfo = new ReticleMarkItemDto();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            maskInfo = new ReticleMarkItemDto();
+            logger.LogError(ex, "Get laser reticle mask info failed");
+            return false;
+        }
+    }
+
+    [Obsolete]
     public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
     {
         try
@@ -160,6 +179,23 @@ public class CalibrationRecipeServiceImpl(
                                                           && (stageSpeedEnum is null || t.RecipeDarkFieldTemplateDto.StageSpeedEnum == stageSpeedEnum)
                                                           && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
                 );
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            maskInfo = new ReticleMarkItemDto();
+            logger.LogError(ex, "Get laser reticle mask info failed");
+            return false;
+        }
+    }
+
+    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo)
+    {
+        try
+        {
+            // todo
+            maskInfo = new ReticleMarkItemDto();
 
             return true;
         }

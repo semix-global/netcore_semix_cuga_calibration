@@ -28,28 +28,9 @@
                            Status="{Binding CalibrationStepList[4].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="OpticsMagType: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Find Position: "
-                           Color="{StaticResource SuccessBrush}">
-                    <hc:Shield.Style>
-                        <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                    <Setter Property="Status" Value="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                    <Setter Property="Status" Value="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                    <Setter Property="Status" Value="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </hc:Shield.Style>
-                </hc:Shield>
             </hc:UniformSpacingPanel>
             <Expander HorizontalAlignment="Center"
                       VerticalAlignment="Top"
@@ -67,72 +48,30 @@
                 </Expander.Header>
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:TextBox hc:TitleElement.TitleWidth="180"
+                        <hc:TextBox Text="{Binding Cache.Item.EcsXInitial}"
+                                    hc:TitleElement.TitleWidth="180"
                                     hc:InfoElement.Title="Find X Optimum Ecs: "
                                     hc:InfoElement.TitlePlacement="Left"
-                                    IsReadOnly="True">
-                            <hc:TextBox.Style>
-                                <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="hc:TextBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Text" Value="{Binding Cache.EcsXLowInitial}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Text" Value="{Binding Cache.EcsXMidInitial}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Text" Value="{Binding Cache.EcsXHighInitial}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:TextBox.Style>
-                        </hc:TextBox>
+                                    Style="{StaticResource TextBoxExtend}"
+                                    IsReadOnly="True" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Upper Limit: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYPositionUpperLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYPositionUpperMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYPositionUpperHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.EcsYPositionUpper}" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Lower Limit: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYPositionLowerLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYPositionLowerMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYPositionLowerHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.EcsYPositionLower}" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Z Interval: "
                                           hc:InfoElement.Necessary="True"
@@ -140,44 +79,16 @@
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="1"
-                                          Maximum="{Binding ElementName=Threshold, Path=Value}">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYIntervalLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYIntervalMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYIntervalHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Maximum="{Binding ElementName=Threshold, Path=Value}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.EcsYInterval}" />
                         <hc:NumericUpDown x:Name="Threshold"
                                           hc:InfoElement.Title="Threshold: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.ThresholdLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.ThresholdMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.ThresholdHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.Threshold}" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Axis Center ECS Y: "
                                           hc:InfoElement.Necessary="True"
@@ -185,23 +96,9 @@
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="4500"
-                                          Maximum="8500">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYLowInitial}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYMidInitial}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.EcsYHighInitial}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Maximum="8500"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.EcsYInitial}" />
                     </hc:UniformSpacingPanel>
                 </Border>
             </Expander>
@@ -221,48 +118,20 @@
                 </Expander.Header>
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox hc:TitleElement.TitleWidth="180"
+                        <TextBox Text="{Binding Cache.Item.ChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}"
+                                 hc:TitleElement.TitleWidth="180"
                                  hc:InfoElement.Title="AOD Default Frequency ChangeRate: "
-                                 hc:InfoElement.TitlePlacement="Left">
-                            <TextBox.Style>
-                                <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Text" Value="{Binding Cache.LowChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Text" Value="{Binding Cache.MiddleChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Text" Value="{Binding Cache.HighChirpAodDefaultDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="AOD Start RateChange: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find AOD Start RateChange:"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Minimum="0">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.StartSpectralDensityRateLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.StartSpectralDensityRateMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.StartSpectralDensityRateHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StartSpectralDensity}" />
 
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Chirp AOD IncreaseInterval: "
@@ -270,46 +139,18 @@
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Minimum="-100">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.IncreaseIntervalLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.IncreaseIntervalMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.IncreaseIntervalHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Minimum="-100"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.IncreaseInterval}" />
                         <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.Title="Chirp AOD IncreaseCount: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1">
-                            <hc:NumericUpDown.Style>
-                                <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                            <Setter Property="Value" Value="{Binding Cache.IncreaseCountLow}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                            <Setter Property="Value" Value="{Binding Cache.IncreaseCountMiddle}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                            <Setter Property="Value" Value="{Binding Cache.IncreaseCountHigh}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.IncreaseCount}" />
                     </hc:UniformSpacingPanel>
                 </Border>
             </Expander>
@@ -414,7 +255,7 @@
                                                 DisplayMemberBinding="{Binding Index}" />
                                 <GridViewColumn Width="120"
                                                 Header="OpticsMagType"
-                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                DisplayMemberBinding="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}" />
                                 <GridViewColumn Width="150"
                                                 Header="Frequency Increment"
                                                 DisplayMemberBinding="{Binding SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />

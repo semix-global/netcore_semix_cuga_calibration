@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -10,7 +9,6 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
-//using RawImageHelper = Core.Utilities.RawImageHelper;
 using Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
@@ -41,20 +39,15 @@ namespace CugaCalibration.ViewModels.Laser;
 [IOCAppService(ServiceType = typeof(LaserXPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LaserXPixelSizeCalibrationViewModel(
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
-    EnableOpticsMagWindowViewModel enableOpticsMagWindowViewModel,
-    EnableStageSpeedWindowViewModel enableStageSpeedWindowViewModel,
+    EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
     ICalibrationAlgorithmService calibrationAlgorithmService) : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{Cache.ProductivityInformation.OpticsMagType}_${Cache.ProductivityInformation.StageSpeedType}";
-    public override string CalibrateFileName => $"{Cache.ProductivityInformation.OpticsMagType}_${Cache.ProductivityInformation.StageSpeedType}";
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
-
-    private List<(StageSpeedEnum stageSpeed, bool isEnbale)> _enableStageSpeedList = [];
-
-    private List<(OpticsMagTypeEnum mag, StageSpeedEnum stageSpeed)> _opticsMagStageSpeedList = [];
+    private List<(ProductivityInformation productiveInformation, bool isEnbale)> _enableProductiveInformationList = [];
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -132,7 +125,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             ];
         Calibrations =
         [
-                ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     t.IsCalibrated = CalibrationStatusList.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
@@ -154,8 +147,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.ProductivityInformation.OpticsMagType)
-                .ThenBy(t => t.ProductivityInformation.StageSpeedType)
+                .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
 
@@ -212,7 +204,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 }
 
                 CalibrationStatusList.Single(t => t.ProductivityInformation == Cache.ProductivityInformation)
-                    //.StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == Cache.XStageSpeedEnum)
                     .IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
@@ -319,7 +310,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                OpticsMagType = Cache.ProductivityInformation.OpticsMagType
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -460,9 +451,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
+                Cache.ProductivityInformation,
                 Cache.SplitWidthPixel,
-                OpticsMagTypeEnum.High,
-                StageSpeedEnum.Low,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
             var detectImageDirectory = ImageFileDirectory;
             using var _ = darkFieldImageDto;
@@ -538,7 +528,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     stageSpeed = Cache.ProductivityInformation.StageSpeedType,
                     findStartPosition = Cache.FindStartPosition,
                     findEndPosition = Cache.FindEndPosition,
-                    //idealUmPerPixel = Cache.IdealUmPerPixel,
                     dieWidthUm = Cache.DieWidthUm,
                     splitWidthPixel = Cache.SplitWidthPixel,
                     splitImageCount = Cache.SplitImageCount,
@@ -555,13 +544,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
                 var (xDirection, _) = StageViewModel.GetMachineDirection();
                 startMachinePosition -= new Vector(xDirection * extendWidth, 0);
-                //endMachinePosition += new Vector(xDirection * 3 * extendWidth, 0);
+
                 //采集长图
                 var resultImage = LaserViewModel.GetDarkFieldLineScanImageList(
                     startMachinePosition,
                     endMachinePosition,
-                    OpticsMagTypeEnum.High,
-                    StageSpeedEnum.Low,
+                    Cache.ProductivityInformation,
                     8,
                     StageCoordinateSystemEnum.Machine,
                     Cache.CIBConfiguration,
@@ -573,7 +561,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 var originFilePath = resultImage[2].Url;
                 laserXPixelSizeItem.OriginalFilePath = originFilePath;
 
-                (bool isSplitImage, List<Point> matchPoint) = await SplitLongImageAsync(originFilePath, 0.33/*这个参数现在不需要了*/, guid).ConfigureAwait(false);
+                var (isSplitImage, matchPoint) = await SplitLongImageAsync(originFilePath, guid).ConfigureAwait(false);
                 if (isReview)
                 {
                     return (isSplitImage, matchPoint);
@@ -602,7 +590,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                 {
                                     XPixelSize = umPerPixel
                                 }), HtmlLogUniqueId.LoggingHtml());
-                                (isSplitImage, matchPoint) = await SplitLongImageAsync(originFilePath, umPerPixel, Guid.NewGuid()).ConfigureAwait(false);
+                                (isSplitImage, matchPoint) = await SplitLongImageAsync(originFilePath, Guid.NewGuid()).ConfigureAwait(false);
                                 if (isSplitImage) points = matchPoint;
                             }
                             else
@@ -628,7 +616,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         });
     }
 
-    private async Task<(bool isSuccess, List<Point> matchPoints)> SplitLongImageAsync(string uri, double xPixelSize, Guid guid)
+    private async Task<(bool isSuccess, List<Point> matchPoints)> SplitLongImageAsync(string uri, Guid guid)
     {
         SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Clear());
         var matchPoint = new List<Point>(); // 必须立即初始化
@@ -652,7 +640,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     Cache.SlideWindowValue,
                     Cache.SlideStepValue,
                     uri,
-                    //CalUmPerPixelCount = CalUmPerPixelImageCount,
                     TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -706,15 +693,15 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
                 // 使用Channel实现生产者和消费者模式，带取消功能
                 await ProcessWithChannelAndCancellationAsync(
-                blockInfos,
-                fileSteam,
-                binaryReader,
-                templateId,
-                calUmPerPixelHeightPixel,
-                calUmPerPixelBodyBytesStartIndex,
-                results,
-                scoreList,
-                scoreCalibrateList).ConfigureAwait(false);
+                    blockInfos,
+                    fileSteam,
+                    binaryReader,
+                    templateId,
+                    calUmPerPixelHeightPixel,
+                    calUmPerPixelBodyBytesStartIndex,
+                    results,
+                    scoreList,
+                    scoreCalibrateList).ConfigureAwait(false);
                 // 按原始顺序排序结果
                 var orderedResults = results.OrderBy(r => r.k).ToList();
                 var calUmPerPixelMatchPoint = orderedResults.Select(r => r.matchPoint).ToList();
@@ -738,8 +725,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     .ToList();
 
                 List<Point> differencesMatchPointList = calUmPerPixelMatchPointListValid
-                .Zip(calUmPerPixelMatchPointListValid.Skip(1), (prev, curr) => new Point(curr.X - prev.X, curr.Y - prev.Y))
-                .ToList();
+                    .Zip(calUmPerPixelMatchPointListValid.Skip(1), (prev, curr) => new Point(curr.X - prev.X, curr.Y - prev.Y))
+                    .ToList();
                 List<double> differencesMatchPointXList = differencesMatchPointList.Select(p => p.X).Where(x => x > 10).ToList();
                 var averageXList = differencesMatchPointXList.Average();
                 List<double> differencesMatchPointXListAverage = differencesMatchPointXList.Where(x => (x >= averageXList) && (x < averageXList + 1000)).ToList();
@@ -762,13 +749,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     TraceBufferList = new HtmlPlot2DLinesChart([("MatchPointList X", calUmPerPixelMatchPointListValid.Select(p => p.X).ToPoints())], string.Empty)
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                var RealUmPerPixel = Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(differencesMatchPointXListAverage).Average();
+                var realUmPerPixel = Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(differencesMatchPointXListAverage).Average();
                 var (calUmPerPixelWidthPixel, _) = (SizeI)calUmPerPixelBodyBytesSize;
-                Cache.SplitImageCount = (int)(calUmPerPixelWidthPixel * 1.0 / (Cache.DieWidthUm / RealUmPerPixel));
+                Cache.SplitImageCount = (int)(calUmPerPixelWidthPixel * 1.0 / (Cache.DieWidthUm / realUmPerPixel));
 
                 Logger.LogHtmlInformation("1.2. End Split", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
                 {
-                    RealUmPerPixel = $"{RealUmPerPixel:f20}",
+                    RealUmPerPixel = $"{realUmPerPixel:f20}",
                     //Um = new HtmlPlot2DLinesChart([(nameof(differencesMatchPointList), differencesMatchPointList.ToArray())], nameof(differencesMatchPointList))
                     UmX = new HtmlPlot2DLinesChart([("differencesMatchPointListX", differencesMatchPointList.Select(p => p.X).ToPoints())], "differencesMatchPointListX"),
                     UmXProcess = new HtmlPlot2DLinesChart([("differencesMatchPointListX_Process", differencesMatchPointXList.ToPoints()), ("differencesMatchPointListAverage", averagePointXList.ToPoints())], "differencesMatchPointListX_Process")
@@ -781,7 +768,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 {
                     detectImageDirectory,
                     Cache.DieWidthUm,
-                    RealUmPerPixel = $"{RealUmPerPixel:f20}",
+                    RealUmPerPixel = $"{realUmPerPixel:f20}",
                     uri,
                     SplitWidthPixel,
                     SplitCount = Cache.SplitImageCount,
@@ -791,7 +778,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
                 var (_, heightPixel) = (SizeI)bodyBytesSize;
 
-                var dieWidthPixel = Cache.DieWidthUm / RealUmPerPixel;
+                var dieWidthPixel = Cache.DieWidthUm / realUmPerPixel;
                 var heightPixelByteLength = heightPixel * 2;
                 var splitImageAllPixelByteLength = SplitWidthPixel * heightPixelByteLength;
 
@@ -872,12 +859,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 // 异常时也需保持有效状态
                 return (false, matchPoint);
             }
-            finally
-            {
-                //Logger.LogHtmlInformation(guid.LoggedEndHtml("SplitImageWindowViewModel"));
-            }
         }
-        ;// 等待任务完成并返回结果  
     }
 
     private bool Save(LaserXPixelSizeItemDto itemDto, CancellationToken cancellationToken, bool isSave = true) => InvokeSave(update =>
@@ -1100,25 +1082,19 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
     public override void GetAutoCalibrationStep()
     {
-        _opticsMagStageSpeedList.Clear();
+        _enableProductiveInformationList.Clear();
         var autoCalibrationStepList = new ObservableCollection<CalibrationItemStep>();
-        WindowManagerService.ShowDialog(enableOpticsMagWindowViewModel);
-        WindowManagerService.ShowDialog(enableStageSpeedWindowViewModel);
-        _enableOpticsMagList = [.. enableOpticsMagWindowViewModel.OpticsMagEnableList.Where(t => t.IsEnable).Select(t => (t.OpticsMagTypeEnum, t.IsEnable))];
-        _enableStageSpeedList = [.. enableStageSpeedWindowViewModel.StageSpeedEnableList.Where(t => t.IsEnable).Select(t => (t.StageSpeedEnum, t.IsEnable))];
-        if (_enableOpticsMagList.Count == 0 || _enableStageSpeedList.Count == 0) return;
+        WindowManagerService.ShowDialog(enableProductiveInformationWindowViewModel);
+        _enableProductiveInformationList = [.. enableProductiveInformationWindowViewModel.ProductiveInformationEnableList.Select(t => (t.ProductivityInformation, t.IsEnable))];
+        if (_enableProductiveInformationList.Count == 0) return;
         autoCalibrationStepList.Add(new() { StepName = "Loading" });
-        foreach (var opticsMag in _enableOpticsMagList)
+        foreach (var productivity in _enableProductiveInformationList)
         {
-            foreach (var stageSpeed in _enableStageSpeedList)
+            var calibrationItemStep = new CalibrationItemStep
             {
-                var calibrationItemStep = new CalibrationItemStep
-                {
-                    StepName = $"{opticsMag.mag} Mag-{stageSpeed.stageSpeed} Speed"
-                };
-                autoCalibrationStepList.Add(calibrationItemStep);
-                _opticsMagStageSpeedList.Add((opticsMag.mag, stageSpeed.stageSpeed));
-            }
+                StepName = productivity.ToString()
+            };
+            autoCalibrationStepList.Add(calibrationItemStep);
         }
 
         autoCalibrationStepList.Add(new() { StepName = "Review" });
@@ -1144,11 +1120,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             });
             if (await AutoNextingAsync(cancellationToken) == false) return false;
 
-            foreach (var opticsMagStageSpeed in _opticsMagStageSpeedList)
+            foreach (var productivity in _enableProductiveInformationList)
             {
                 CalibrationStepIndex = 4;
-                //Cache.Optic = opticsMagStageSpeed.Item1;
-                //Cache.XStageSpeedEnum = opticsMagStageSpeed.Item2;
+                Cache.ProductivityInformation = productivity.productiveInformation;
                 if (await AutomationRecipeInformationAsync() == false) return false;
                 if (await InvokeCalibrateAsync(async () =>
                     {
@@ -1199,7 +1174,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         // Bright Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, null, out var brightFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, Cache.ProductivityInformation, out var brightFieldMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, brightFieldMaskInfo, out var brightFieldMaskPosition);
         Cache.Item.FindTemplatePosition = brightFieldMaskPosition;
@@ -1208,11 +1183,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         Cache.SplitImageCount = Cache.ColumnNumber * 2;
 
         // Dark Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, (OpticsMagTypeEnum)Cache.ProductivityInformation.OpticsMagType, (StageSpeedEnum)Cache.ProductivityInformation.StageSpeedType, out var darkFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, Cache.ProductivityInformation, out var darkFieldMaskInfo) == false)
             return false;
         Cache.Item.TemplateFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateFilePath;
         Cache.Item.TemplateImageFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateImageFilePath;
-        //Cache.Item.SetMagSpeedTemplateFilePath((OpticsMagTypeEnum)Cache.ProductivityInformation.OpticsMagType, (StageSpeedEnum)Cache.ProductivityInformation.StageSpeedType, Cache.Item.TemplateFilePath);
         return true;
     }
 
@@ -1231,7 +1205,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         try
         {
             GetAutoCalibrationStep();
-            if (_opticsMagStageSpeedList.Count == 0) return false;
+            if (_enableProductiveInformationList.Count == 0) return false;
             await base.AutomationReviewActionAsync(cancellationToken);
             if (await LoadedingAsync(cancellationToken) == false) return false;
             if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
@@ -1243,13 +1217,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var result = false;
             if (await InvokeVerifyAsync(async () =>
                 {
-                    foreach (var opticsMagStage in _opticsMagStageSpeedList)
+                    foreach (var productivity in _enableProductiveInformationList)
                     {
-                        var itemReview = ReviewList.FirstOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)opticsMagStage.Item1 && t.ProductivityInformation.StageSpeedType == (int)opticsMagStage.Item2);
+                        var itemReview = ReviewList.FirstOrDefault(t => t.ProductivityInformation == productivity.productiveInformation);
                         if (itemReview is not null)
                         {
-                            //Cache.OpticsMagTypeEnum = opticsMagStage.Item1;
-                            //Cache.XStageSpeedEnum = opticsMagStage.Item2;
+                            Cache.ProductivityInformation = productivity.productiveInformation;
                             if (await AutomationRecipeInformationAsync() == false) return false;
                             if (await GetTemplateImagePathAsync() == false) return false;
                             itemReview.FindStartPosition = Cache.FindStartPosition;

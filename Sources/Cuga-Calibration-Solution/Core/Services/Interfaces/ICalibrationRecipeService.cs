@@ -21,9 +21,15 @@ public interface ICalibrationRecipeService
 
     bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
 
+    [Obsolete]
     bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
 
+    bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo);
+
+    [Obsolete]
     bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo);
+
+    bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo);
 
     /// <summary>
     /// 获取指定Die对应的Mask明场位置

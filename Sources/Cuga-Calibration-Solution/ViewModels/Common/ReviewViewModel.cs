@@ -177,6 +177,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="resultAngle">匹配后成功的[角度]</param>
     /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
     /// <param name="originImageFilePath">匹配前原图[保存的原图图片的路径]</param>
+    /// <param name="calChipSiteModelEnum"></param>
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,

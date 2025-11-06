@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -14,7 +13,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -35,8 +34,8 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
 
     public LaserPixelSizeItemDto Clone() => new()
     {
-        MicroscopeLensInformation = MicroscopeLensInformation,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
         PmtId = PmtId,
         FindPosition = FindPosition,
         YPixelSize = YPixelSize,
@@ -51,7 +50,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
 
     public CalibrationLaserPixelSizeItem AdaptTo() => new()
     {
-        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         PmtId = PmtId,
         YPixelSize = YPixelSize,
         IsCalibrated = IsCalibrated,

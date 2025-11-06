@@ -25,15 +25,15 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
-                           Status="{Binding Cache.LaserLightInformation}"
+                           Status="{Binding Cache.Item.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -52,26 +52,26 @@
                                           hc:TitleElement.TitleWidth="180"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.WidthPixel}" />
+                                          Value="{Binding Cache.Item.WidthPixel}" />
                         <hc:NumericUpDown hc:InfoElement.Title="Prescan Min Start Index: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.PrescanStartIndex}" />
+                                          Value="{Binding Cache.Item.PrescanStartIndex}" />
                         <hc:NumericUpDown hc:InfoElement.Title="Prescan Skip Count: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.PrescanSkipCount}" />
+                                          Value="{Binding Cache.Item.PrescanSkipCount}" />
                         <hc:NumericUpDown hc:InfoElement.Title="PrescanInterval: "
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.ShowClearButton="True"
                                           hc:TitleElement.TitleWidth="180"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.PrescanInterval}" />
+                                          Value="{Binding Cache.Item.PrescanInterval}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
@@ -131,7 +131,7 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="100"
                                             Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="200"
                                             Header="Find Position"
                                             DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />

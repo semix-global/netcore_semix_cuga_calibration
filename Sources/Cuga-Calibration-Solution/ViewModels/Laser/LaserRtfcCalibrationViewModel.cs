@@ -554,8 +554,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 800,
                 Cache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
-                isCustomAfParam: true);
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
             var detectImageDirectory = ImageFileDirectory;
             using var image = darkFieldImageDto;
 

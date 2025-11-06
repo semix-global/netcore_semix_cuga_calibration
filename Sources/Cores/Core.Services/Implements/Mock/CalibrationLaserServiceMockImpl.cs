@@ -423,6 +423,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
     }
 
+    [Obsolete]
     public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
     {
         Thread.Sleep(100);
@@ -430,6 +431,14 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(1080);
     }
 
+    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(1080);
+    }
+
+    [Obsolete]
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -452,6 +461,29 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
+    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+        int xWidthPixel,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus,
+        bool isForward)
+    {
+        var bytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw"));
+
+        var result = new List<DarkFieldImageDto>(3);
+
+        foreach (var i in Enumerable.Range(0, 3))
+        {
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+
+    [Obsolete]
     public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
@@ -474,12 +506,61 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
+    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+        Point startPosition,
+        Point endPosition,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus,
+        bool isForward)
+    {
+        var uri = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
+
+        var result = new List<DarkFieldRawScanImageDto>(3);
+
+        foreach (var i in Enumerable.Range(0, 3))
+        {
+            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Url = uri });
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    [Obsolete]
     public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus)
+    {
+        var bytes = File.ReadAllBytes(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw"));
+
+        var result = new List<List<DarkFieldImageDto>>(machinePositionList.Count);
+
+        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDto>(3)))
+        {
+            foreach (var i in Enumerable.Range(0, 3))
+            {
+                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+            }
+
+            result.Add(temp);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+        List<Point> machinePositionList,
+        int xWidthPixel,
+        double xPixelSize,
+        ProductivityInformation productivityInformation,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)

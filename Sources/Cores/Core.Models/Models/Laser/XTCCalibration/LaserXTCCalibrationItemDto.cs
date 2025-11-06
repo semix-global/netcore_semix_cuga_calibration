@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -14,7 +13,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -66,7 +65,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
     public LaserXTCCalibrationItemDto Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         PmtId = PmtId,
         CH1Delay = CH1Delay,
         CH2Delay = CH2Delay,
@@ -77,12 +76,12 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
         Id = Id,
-        Expiration = Expiration
+        Expiration = Expiration,
     };
 
     public CalibrationLaserXTCCalibrationItem AdaptTo() => new()
     {
-        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         PmtId = PmtId,
         CH1Delay = Convert.ToInt32(CH1Delay),
         CH2Delay = Convert.ToInt32(CH2Delay),

@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
@@ -17,10 +15,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
     private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private StageMapDto _calibrationBrightFieldStageMap = new();
@@ -51,8 +46,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
     public ChuckStageMapDto Clone() => new()
     {
         HighMicroscopeLensInformation = HighMicroscopeLensInformation,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
-        StageSpeedEnum = StageSpeedEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         CalibrationBrightFieldStageMap = CalibrationBrightFieldStageMap.Clone(),
         CalibrationDarkFieldStageMap = CalibrationDarkFieldStageMap.Clone(),
         ExpandStageMapDto = ExpandStageMapDto.Clone(),
@@ -71,8 +65,8 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
     public CalibrationChuckStageMap AdaptTo() => new()
     {
         CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
-        OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        Speed = StageSpeedEnum.ToCgSpeedLevelType(),
+        OpticsMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
         ExpandStageMap = ExpandStageMapDto.AdaptTo(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

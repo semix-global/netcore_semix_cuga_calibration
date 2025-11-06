@@ -796,7 +796,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         switch (chuckName)
         {
             case "0":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeLensInformation, null, out var maskInfoLow) == false)
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeLensInformation, opticsMagType: null, out var maskInfoLow) == false)
                     return false;
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfoLow, out var lowPosition1);
                 Cache.LowTopPosition = lowPosition1;
@@ -809,7 +809,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 break;
 
             case "1":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, null, out var maskInfoHigh) == false)
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, opticsMagType: null, out var maskInfoHigh) == false)
                     return false;
 
                 CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfoHigh, out var highPosition1);

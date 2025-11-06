@@ -367,7 +367,16 @@ public interface ICalibrationLaserService
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
     /// <returns>图片的Y像素高度</returns>
+    [Obsolete]
     SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight);
+
+    /// <summary>
+    /// 获取暗场图片的Y像素高度
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
+    /// <returns>图片的Y像素高度</returns>
+    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight);
 
     /// <summary>
     /// 获取暗场图片列表
@@ -381,11 +390,32 @@ public interface ICalibrationLaserService
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
+    [Obsolete]
     SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus,
+        bool isForward);
+
+    /// <summary>
+    /// 获取暗场图片列表
+    /// </summary>
+    /// <param name="position">位置</param>
+    /// <param name="xWidthPixel">图片X像素宽度</param>
+    /// <param name="productivityInformation">产率模式</param>
+    /// <param name="pmtId">暗场相机 PMT id</param>
+    /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="isAutoFocus">是否开启自动聚焦</param>
+    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
+    /// <returns>暗场图片列表</returns>
+    SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+        Point position,
+        int xWidthPixel,
+        ProductivityInformation productivityInformation,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -403,11 +433,32 @@ public interface ICalibrationLaserService
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
+    [Obsolete]
     SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus,
+        bool isForward);
+
+    /// <summary>
+    /// 获取暗场图片列表
+    /// </summary>
+    /// <param name="startPosition">起点位置</param>
+    /// <param name="endPosition">终点位置</param>
+    /// <param name="productivityInformation">产率模式</param>
+    /// <param name="pmtId">暗场相机 PMT id</param>
+    /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="isAutoFocus">是否开启自动聚焦</param>
+    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
+    /// <returns>暗场图片列表</returns>
+    SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+        Point startPosition,
+        Point endPosition,
+        ProductivityInformation productivityInformation,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -425,12 +476,33 @@ public interface ICalibrationLaserService
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <returns>明场位置，切割后三个通道图片</returns>
+    [Obsolete]
     SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus);
+
+    /// <summary>
+    ///获得暗场一行长图片对应位置切割后的三个通道图片
+    /// </summary>
+    /// <param name="machinePositionList">机械坐标集合（分割区域中心点），stageMap使用时输入ideaPosition集合</param>
+    /// <param name="xWidthPixel">图片X像素宽度</param>
+    /// <param name="xPixelSize">图片X像素尺寸</param>
+    /// <param name="productivityInformation">产率模式</param>
+    /// <param name="pmtId">暗场相机 PMT id</param>
+    /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="isAutoFocus">是否开启自动聚焦</param>
+    /// <returns>明场位置，切割后三个通道图片</returns>
+    SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+        List<Point> machinePositionList,
+        int xWidthPixel,
+        double xPixelSize,
+        ProductivityInformation productivityInformation,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus);

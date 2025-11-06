@@ -109,7 +109,7 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.SlideStepValue}" />                    
+                                      Value="{Binding Cache.SlideStepValue}" />
                     <hc:NumericUpDown hc:InfoElement.Title="Image Count: "
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
@@ -124,8 +124,7 @@
                     <TextBox Text="{Binding Cache.IdealUmPerPixel}"
                              hc:InfoElement.Title="IdealUmPerPixel: "
                              hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="200">                        
-                    </TextBox>
+                             hc:TitleElement.TitleWidth="200" />
 
                     <TextBox Text="{Binding Cache.Threshold}"
                              hc:InfoElement.Title="Threshold: "

@@ -271,8 +271,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                                     800,
                                     FocusShiftCache.OpticsMagTypeEnum,
                                     FocusShiftCache.StageSpeedEnum,
-                                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
-                                    isCustomAfParam: true);
+                                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
                                 var detectImageDirectory = ImageFileDirectory;
                                 using var image = darkFieldImageDto;
 
@@ -431,8 +430,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-                        FocusShiftCache.LaserLightInformation,
-                        isCustomAfParam: true) == false)
+                        FocusShiftCache.LaserLightInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
@@ -1197,8 +1195,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     true,
                     800,
                     FocusShiftCache.OpticsMagTypeEnum,
-                    FocusShiftCache.StageSpeedEnum,
-                    isCustomAfParam: true) == false)
+                    FocusShiftCache.StageSpeedEnum) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;

@@ -41,23 +41,9 @@
                     <hc:NumericUpDown hc:InfoElement.Title="Threshold: "
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="0">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectReviewItemDto.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Low}">
-                                        <Setter Property="Value" Value="{Binding Cache.ThresholdLow}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding SelectReviewItemDto.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.Middle}">
-                                        <Setter Property="Value" Value="{Binding Cache.ThresholdMiddle}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding SelectReviewItemDto.OpticsMagTypeEnum}" Value="{x:Static mag:OpticsMagTypeEnum.High}">
-                                        <Setter Property="Value" Value="{Binding Cache.ThresholdHigh}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.Threshold}" />
                     <TextBox Text="{Binding SelectReviewItemDto.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}"
                              hc:TitleElement.TitleWidth="180"
                              hc:InfoElement.Title="AOD Frequency: "
@@ -120,7 +106,7 @@
             </Grid.RowDefinitions>
             <GroupBox Grid.Row="0" Header="Calibration Data">
                 <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -155,7 +141,7 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="120"
                                             Header="OpticsMagType"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="150"
                                             Header="Spectral Density(MHz/mm)"
                                             DisplayMemberBinding="{Binding SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}" />
