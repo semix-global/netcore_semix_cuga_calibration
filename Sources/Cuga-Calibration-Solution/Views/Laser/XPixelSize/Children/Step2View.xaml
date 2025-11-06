@@ -28,11 +28,11 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="OpticsMagType:"
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation.OpticsMagType}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="StageSpeedType:"
-                           Status="{Binding Cache.XStageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation.StageSpeedType}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -74,7 +74,7 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
-                    <TextBox Text="{Binding Cache.FindTemplatePosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.Item.FindTemplatePosition, Converter={StaticResource PointToStringConverter}}"
                              hc:InfoElement.Title="FindTemplatePosition: "
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
@@ -116,7 +116,7 @@
                                      ShowAxes="True"
                                      ShowCursor="False"
                                      ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                     BackgroundImage="{Binding Cache.Item.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

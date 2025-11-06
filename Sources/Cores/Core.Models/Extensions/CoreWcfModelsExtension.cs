@@ -366,7 +366,7 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t is { OpticsMagTypeEnum: OpticsMagTypeEnum.High, XStageSpeedEnum: StageSpeedEnum.Low })?.IsOk == true;
+        var isOk = result.All(t => t.IsOk);
 
         if (isOk == false)
             errorMessage = "Laser X Pixel Size is Empty";

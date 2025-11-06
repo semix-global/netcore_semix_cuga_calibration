@@ -82,6 +82,8 @@ public sealed partial class LoadingWindowViewModel(
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone()).OrderByDescending(t => t)];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone()).OrderByDescending(t => t)];
 
+            applicationCookie.LowestProductivityInformation = applicationCookie.ProductivityInformations.First();
+
             contextProvider.Send(() => CloseView(true));
 
             await Task.Delay(300).ConfigureAwait(false);
