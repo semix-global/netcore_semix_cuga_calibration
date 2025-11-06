@@ -278,6 +278,12 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.OffsetFrequency}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Density Factor: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.DensityFactor}" />
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding DataContext.AddElectrodeOffsetParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
@@ -363,12 +369,32 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopAmplitude}" />
                                     <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="All Action"
+                                        <Button Content="Step1 Action"
+                                                Command="{Binding Step0Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Step1 Cancel"
+                                                Command="{Binding Step0CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Step2 Action"
                                                 Command="{Binding Step1Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                                        <Button Content="All Cancel"
+                                        <Button Content="Step2 Cancel"
                                                 Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding AllCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="All Cancel"
+                                                Command="{Binding AllCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -400,9 +426,9 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
-                    <TabItem Header="Electrode Offset Param">
+                    <TabItem Header="Step1 Electrode Offset">
                         <hc:ScrollViewer>
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.ElectrodeOffsetItems}">
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
@@ -411,16 +437,16 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                            <ContentControl Content="{Binding Step0ScatterPlotControl, Mode=OneWay}" />
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Amplitude">
+                    <TabItem Header="Step 1 Uniformity">
                         <Border Style="{StaticResource BorderRegion}">
-                            <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                            <ContentControl Content="{Binding Cache.Step1ScatterPlotControl, Mode=OneWay}" />
                         </Border>
                     </TabItem>
                 </TabControl>
