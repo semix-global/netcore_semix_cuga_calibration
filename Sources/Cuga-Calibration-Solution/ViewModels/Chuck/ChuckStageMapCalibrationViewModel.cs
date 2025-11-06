@@ -1359,7 +1359,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                             using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
                             var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.IsOk).YPixelSize;
-                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.XStageSpeedEnum == Cache.StageSpeedEnum && t.IsOk).XPixelSize;
+                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.ProductivityInformation == ApplicationCookie.LowestProductivityInformation && t.IsOk).XPixelSize;
 
                             var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
                             darkFieldImageDto.Image.Save(originImageFilePath);

@@ -83,6 +83,12 @@ public sealed partial class ApplicationCookie : ObservableObject
         .ToList();
 
     /// <summary>
+    /// 最低产率
+    /// </summary>
+    [ObservableProperty]
+    private ProductivityInformation _lowestProductivityInformation = ProductivityInformation.Default;
+
+    /// <summary>
     /// 校准当前应用配方
     /// </summary>
     [ObservableProperty]

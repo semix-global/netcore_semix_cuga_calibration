@@ -8,6 +8,7 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.PixelSize;
@@ -38,7 +39,8 @@ public sealed class LaserViewModel(
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
-    ICacheProvider cacheProvider) : ViewModelBase
+    ICacheProvider cacheProvider,
+    ApplicationCookie applicationCookie) : ViewModelBase
 {
     #region 服务
 
@@ -675,7 +677,7 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true,
         bool isCustomAfParam = false)
     {
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.OpticsMagTypeEnum == yOpticsMagTypeEnum && t.XStageSpeedEnum == xStageSpeedEnum);
+        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.ProductivityInformation == applicationCookie.LowestProductivityInformation);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
 
         switch (stageCoordinateSystemEnum)
@@ -845,7 +847,7 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.OpticsMagTypeEnum == yOpticsMagTypeEnum && t.XStageSpeedEnum == xStageSpeedEnum);
+        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.ProductivityInformation == applicationCookie.LowestProductivityInformation);
         if (xSize is null || xSize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
