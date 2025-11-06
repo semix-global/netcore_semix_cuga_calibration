@@ -74,6 +74,13 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         item.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
+        foreach (var profile in item.ChirpAODWaveformProfiles)
+        {
+            if (item.Electrodes.Contains(profile.OpticsAODElectrodeEnum)) continue;
+
+            profile.Clear();
+        }
+
         Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),

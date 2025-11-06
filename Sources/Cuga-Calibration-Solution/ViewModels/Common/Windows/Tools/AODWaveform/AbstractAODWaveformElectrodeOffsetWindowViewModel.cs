@@ -165,7 +165,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
                 ScatterPlotControl.GetOrAddScatterLine(
                     0,
                     $"{item.Frequency}(MHz)",
-                    [..item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
+                    [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
                     index,
                     new Range(0, AmplitudeItems.Count - 1));
 
@@ -177,7 +177,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
             ScatterPlotControl.GetOrAddScatterLine(
                 1,
                 "(MHz)",
-                [..AmplitudeItems.Select(t => new Point(t.Frequency, t.MaxMeasurePowerAmplitude))],
+                [.. AmplitudeItems.Select(t => new Point(t.Frequency, t.MaxMeasurePowerAmplitude))],
                 Colors.Blue);
         }
         finally
@@ -269,38 +269,38 @@ public sealed partial class AODWaveformElectrodeOffsetResult<TItem> : Observable
         InterpolationClosestMaximaPoints = [];
 
         var (lowFrequencyInterpolationX, lowFrequencyInterpolationY) = Interpolator.SplineInterpolation(
-            Vector<double>.Build.Dense([..LowFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
-            Vector<double>.Build.Dense([..LowFrequencyItems.Select(t => t.MeasurePower)]),
+            Vector<double>.Build.Dense([.. LowFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
+            Vector<double>.Build.Dense([.. LowFrequencyItems.Select(t => t.MeasurePower)]),
             3);
         LowFrequencyInterpolationPoints = [.. lowFrequencyInterpolationX.Index().Select(t => new Point(t.Item, lowFrequencyInterpolationY[t.Index]))];
 
         var (lowFrequencyMaximaX, lowFrequencyMaximaY) = Extremumor.FindLocalMaxima(
-            Vector<double>.Build.Dense([..LowFrequencyInterpolationPoints.Select(t => t.X)]),
-            Vector<double>.Build.Dense([..LowFrequencyInterpolationPoints.Select(t => t.Y)]),
+            Vector<double>.Build.Dense([.. LowFrequencyInterpolationPoints.Select(t => t.X)]),
+            Vector<double>.Build.Dense([.. LowFrequencyInterpolationPoints.Select(t => t.Y)]),
             isContainsEdge: true);
         LowFrequencyInterpolationMaximaPoints = [.. lowFrequencyMaximaX.Index().Select(t => new Point(t.Item, lowFrequencyMaximaY[t.Index]))];
 
         var (middleFrequencyInterpolationX, middleFrequencyInterpolationY) = Interpolator.SplineInterpolation(
-            Vector<double>.Build.Dense([..MiddleFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
-            Vector<double>.Build.Dense([..MiddleFrequencyItems.Select(t => t.MeasurePower)]),
+            Vector<double>.Build.Dense([.. MiddleFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
+            Vector<double>.Build.Dense([.. MiddleFrequencyItems.Select(t => t.MeasurePower)]),
             3);
         MiddleFrequencyInterpolationPoints = [.. middleFrequencyInterpolationX.Index().Select(t => new Point(t.Item, middleFrequencyInterpolationY[t.Index]))];
 
         var (middleFrequencyMaximaX, middleFrequencyMaximaY) = Extremumor.FindLocalMaxima(
-            Vector<double>.Build.Dense([..MiddleFrequencyInterpolationPoints.Select(t => t.X)]),
-            Vector<double>.Build.Dense([..MiddleFrequencyInterpolationPoints.Select(t => t.Y)]),
+            Vector<double>.Build.Dense([.. MiddleFrequencyInterpolationPoints.Select(t => t.X)]),
+            Vector<double>.Build.Dense([.. MiddleFrequencyInterpolationPoints.Select(t => t.Y)]),
             isContainsEdge: true);
         MiddleFrequencyInterpolationMaximaPoints = [.. middleFrequencyMaximaX.Index().Select(t => new Point(t.Item, middleFrequencyMaximaY[t.Index]))];
 
         var (highFrequencyInterpolationX, highFrequencyInterpolationY) = Interpolator.SplineInterpolation(
-            Vector<double>.Build.Dense([..HighFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
-            Vector<double>.Build.Dense([..HighFrequencyItems.Select(t => t.MeasurePower)]),
+            Vector<double>.Build.Dense([.. HighFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
+            Vector<double>.Build.Dense([.. HighFrequencyItems.Select(t => t.MeasurePower)]),
             3);
         HighFrequencyInterpolationPoints = [.. highFrequencyInterpolationX.Index().Select(t => new Point(t.Item, highFrequencyInterpolationY[t.Index]))];
 
         var (highFrequencyMaximaX, highFrequencyMaximaY) = Extremumor.FindLocalMaxima(
-            Vector<double>.Build.Dense([..HighFrequencyInterpolationPoints.Select(t => t.X)]),
-            Vector<double>.Build.Dense([..HighFrequencyInterpolationPoints.Select(t => t.Y)]),
+            Vector<double>.Build.Dense([.. HighFrequencyInterpolationPoints.Select(t => t.X)]),
+            Vector<double>.Build.Dense([.. HighFrequencyInterpolationPoints.Select(t => t.Y)]),
             isContainsEdge: true);
         HighFrequencyInterpolationMaximaPoints = [.. highFrequencyMaximaX.Index().Select(t => new Point(t.Item, highFrequencyMaximaY[t.Index]))];
 
@@ -323,7 +323,7 @@ public sealed partial class AODWaveformElectrodeOffsetResult<TItem> : Observable
         {
             var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
                 $"Origin {LowFrequencyItems[0].Frequency:0.###}(MHz)",
-                [..LowFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                [.. LowFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
                 0,
                 new Range(0, 2),
                 markerShape: MarkerShape.OpenCircle);
@@ -348,7 +348,7 @@ public sealed partial class AODWaveformElectrodeOffsetResult<TItem> : Observable
         {
             var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
                 $"Origin {MiddleFrequencyItems[0].Frequency:0.###}(MHz)",
-                [..MiddleFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                [.. MiddleFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
                 1,
                 new Range(0, 2),
                 markerShape: MarkerShape.OpenCircle);
@@ -373,7 +373,7 @@ public sealed partial class AODWaveformElectrodeOffsetResult<TItem> : Observable
         {
             var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
                 $"Origin {HighFrequencyItems[0].Frequency:0.###}(MHz)",
-                [..HighFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                [.. HighFrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
                 2,
                 new Range(0, 2),
                 markerShape: MarkerShape.OpenCircle);
@@ -421,6 +421,9 @@ public sealed partial class AODWaveformElectrodeOffsetResult2<TItem> : Observabl
 public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
 {
     [ObservableProperty]
+    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
+
+    [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
@@ -450,7 +453,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            ElectrodeOffsetItems = new HtmlContainer([..Cache.ElectrodeOffsetItems.Select(t => t.ScatterPlotControl.GetHtmlPlot2DLinesChart())])
+            ElectrodeOffsetItems = new HtmlContainer([.. Cache.ElectrodeOffsetItems.Select(t => t.ScatterPlotControl.GetHtmlPlot2DLinesChart())])
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -531,7 +534,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 var aodWaveformElectrodeOffsetResult = new AODWaveformElectrodeOffsetResult<TItem>
                 {
-                    Electrodes = [..Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum]
+                    Electrodes = [.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum]
                 };
 
                 Cache.ElectrodeOffsetItems = [.. Cache.ElectrodeOffsetItems, aodWaveformElectrodeOffsetResult];
@@ -567,6 +570,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                         var item = new TItem
                         {
+                            Electrodes = aodWaveformElectrodeOffsetResult.Electrodes,
                             ElectrodeConfigurations =
                             [
                                 ..Cache.ElectrodeOffsetParams
@@ -618,6 +622,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 {
                     var item = new TItem
                     {
+                        Electrodes = [.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum)],
                         ElectrodeConfigurations = Cache.ElectrodeConfigurationResults,
                         Amplitude = amplitude,
                         Frequency = frequency,

@@ -322,4 +322,22 @@ public abstract class AbstractAODWaveformProfile :
             FlatnessAlphaOrderCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessAlphaOrderCompensationSignals])], string.Empty),
         })
     };
+
+    public void Clear()
+    {
+        ShortList = [.. ShortList.Select(_ => (short)0)];
+        ByteList = [.. ByteList.Select(_ => (byte)0)];
+        Signals = [.. Signals.Select(t => new Point(t.X, 0))];
+        FFTSignals = [.. FFTSignals.Select(t => new Point(t.X, 0))];
+        FrequencyCoefficients = [.. FrequencyCoefficients.Select(t => new Point(t.X, 0))];
+        FlatnessLinearFrequencySignals = [.. FlatnessLinearFrequencySignals.Select(t => new Point(t.X, 0))];
+        FlatnessTotalFrequencySignals = [.. FlatnessTotalFrequencySignals.Select(t => new Point(t.X, 0))];
+        FlatnessAstigmatismCompensationSignals = [.. FlatnessAstigmatismCompensationSignals.Select(t => new Point(t.X, 0))];
+        FlatnessSphericalAberrationCompensationSignals = [.. FlatnessSphericalAberrationCompensationSignals.Select(t => new Point(t.X, 0))];
+        FlatnessSecondaryAstigmatismCompensationSignals = [.. FlatnessSecondaryAstigmatismCompensationSignals.Select(t => new Point(t.X, 0))];
+        FlatnessComaCompensationSignals = [.. FlatnessComaCompensationSignals.Select(t => new Point(t.X, 0))];
+        FlatnessTrefoilCompensationSignals = [.. FlatnessTrefoilCompensationSignals.Select(t => new Point(t.X, 0))];
+        FlatnessQuadrafoilCompensationSignals = [.. FlatnessQuadrafoilCompensationSignals.Select(t => new Point(t.X, 0))];
+        FlatnessAlphaOrderCompensationSignals = [.. FlatnessAlphaOrderCompensationSignals.Select(t => new Point(t.X, 0))];
+    }
 }
