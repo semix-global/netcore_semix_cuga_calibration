@@ -17,6 +17,9 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
 
     [ObservableProperty]

@@ -1,5 +1,6 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -320,7 +321,9 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.SingleOrDefault(t => t is { PmtId: 8, OpticsMagTypeEnum: OpticsMagTypeEnum.High, StageSpeedEnum: StageSpeedEnum.Low })?.IsOk == true;
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
+                                               && t.ProductivityInformation == applicationCookie.LowestProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Line Centricity is Empty";
@@ -354,7 +357,9 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
+                                               && t.ProductivityInformation == applicationCookie.LowestProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Pixel Size is Empty";
@@ -366,7 +371,8 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.All(t => t.IsOk);
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.LowestProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser X Pixel Size is Empty";
@@ -378,7 +384,9 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
+                                               && t.ProductivityInformation == applicationCookie.LowestProductivityInformation)?.IsOk == true;
         if (isOk == false) errorMessage = "Laser XTC is Empty";
 
         return isOk;
@@ -388,7 +396,8 @@ public static class CoreWcfModelsExtension
     {
         errorMessage = string.Empty;
 
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.Length == applicationCookie.ProductivityInformations.Count && result.All(t => t.IsOk);
 
         if (isOk == false)
             errorMessage = "Laser XY Astigmatism is Empty";

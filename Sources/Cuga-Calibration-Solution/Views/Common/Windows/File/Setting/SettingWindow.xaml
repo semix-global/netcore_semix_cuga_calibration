@@ -75,19 +75,6 @@
                     <TabItem Header="Common">
                         <children:SettingCommonUserControl DataContext="{Binding SettingCommonViewModel}" />
                     </TabItem>
-                    <TabItem Header="Dark Field Auto Focus">
-                        <TabControl Margin="5" Style="{StaticResource TabControlCapsuleSolid}">
-                            <TabItem Header="Low Mag">
-                                <children:SettingDarkFieldAutoFocusUserControl DataContext="{Binding LowMagSettingDarkFieldAutoFocusViewModel}" />
-                            </TabItem>
-                            <TabItem Header="Middle Mag">
-                                <children:SettingDarkFieldAutoFocusUserControl DataContext="{Binding MiddleMagSettingDarkFieldAutoFocusViewModel}" />
-                            </TabItem>
-                            <TabItem Header="High Mag">
-                                <children:SettingDarkFieldAutoFocusUserControl DataContext="{Binding HighMagSettingDarkFieldAutoFocusViewModel}" />
-                            </TabItem>
-                        </TabControl>
-                    </TabItem>
                     <TabItem Header="Dark Field Gain">
                         <TabControl Margin="5" Style="{StaticResource TabControlCapsuleSolid}">
                             <TabItem Header="Low Mag">

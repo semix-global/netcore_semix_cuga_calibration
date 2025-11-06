@@ -27,15 +27,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
     private SettingCommonViewModel _settingCommonViewModel = HostApplication.GetRequiredService<SettingCommonViewModel>();
 
     [ObservableProperty]
-    private SettingDarkFieldAutoFocusViewModel _lowMagSettingDarkFieldAutoFocusViewModel = HostApplication.GetRequiredService<SettingDarkFieldAutoFocusViewModel>();
-
-    [ObservableProperty]
-    private SettingDarkFieldAutoFocusViewModel _middleMagSettingDarkFieldAutoFocusViewModel = HostApplication.GetRequiredService<SettingDarkFieldAutoFocusViewModel>();
-
-    [ObservableProperty]
-    private SettingDarkFieldAutoFocusViewModel _highMagSettingDarkFieldAutoFocusViewModel = HostApplication.GetRequiredService<SettingDarkFieldAutoFocusViewModel>();
-
-    [ObservableProperty]
     private SettingDarkFieldGainViewModel _lowMagSettingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
 
     [ObservableProperty]
@@ -68,13 +59,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
 
         SettingCommonViewModel.SettingCommonParam = _calibrationSetting.SettingCommonParam;
         SettingCommonViewModel.SettingCommonParam.IsDebugEnvironment = true; // todo:更改为管理员权限
-
-        LowMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.LowMagSettingDarkFieldAutoFocusParam;
-        LowMagSettingDarkFieldAutoFocusViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.Low;
-        MiddleMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.MiddleMagSettingDarkFieldAutoFocusParam;
-        MiddleMagSettingDarkFieldAutoFocusViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.Middle;
-        HighMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.HighMagSettingDarkFieldAutoFocusParam;
-        HighMagSettingDarkFieldAutoFocusViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.High;
         SettingTemplateMatchViewModel.SettingTemplateMatchParam = _calibrationSetting.SettingTemplateMatchParam;
         LowMagSettingDarkFieldGainViewModel.SettingDarkFieldGainParamList = _calibrationSetting.LowMagSettingDarkFieldGainParam;
         LowMagSettingDarkFieldGainViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.Low;
@@ -135,9 +119,6 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
         _calibrationSetting.AdaptIn(_cacheProvider.GetOrDefault<CalibrationSetting>());
         SettingCommonViewModel.SettingCommonParam = _calibrationSetting.SettingCommonParam;
         SettingTemplateMatchViewModel.SettingTemplateMatchParam = _calibrationSetting.SettingTemplateMatchParam;
-        LowMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.LowMagSettingDarkFieldAutoFocusParam;
-        MiddleMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.MiddleMagSettingDarkFieldAutoFocusParam;
-        HighMagSettingDarkFieldAutoFocusViewModel.SettingDarkFieldAutoFocusParam = _calibrationSetting.HighMagSettingDarkFieldAutoFocusParam;
         SettingPmtConfigViewModel.SettingPmtConfigParam = _calibrationSetting.SettingPmtConfigParam;
         SettingCommonViewModel.SettingCommonParam.IsDebugEnvironment = true; // todo:更改为管理员权限
     }

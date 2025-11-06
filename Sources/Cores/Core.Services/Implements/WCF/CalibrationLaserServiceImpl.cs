@@ -529,6 +529,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
     }
 
+    [Obsolete]
     public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
     {
         if (isCuttingPixelHeight)
@@ -549,6 +550,27 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
     }
 
+    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight)
+    {
+        if (isCuttingPixelHeight)
+        {
+            var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(productivityInformation.AdaptTo().Mag));
+
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
+                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
+        }
+        else
+        {
+            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum()));
+
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
+                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything));
+        }
+    }
+
+    [Obsolete]
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
@@ -596,6 +618,53 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
+    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+        Point position,
+        int xWidthPixel,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus,
+        bool isForward)
+    {
+        var darkFieldImagesRet = stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service?.LoadRawImg_Mag_Calibration(
+                productivityInformation.AdaptTo().Mag,
+                productivityInformation.AdaptTo().Speed,
+                xWidthPixel,
+                position.ToSxPointD(),
+                pmtId,
+                /*是否单向*/isSingle: true,
+                /*是否正向*/isForward: isForward,
+                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_ToStagePos(
+                productivityInformation.AdaptTo().Mag,
+                productivityInformation.AdaptTo().Speed,
+                xWidthPixel,
+                position.ToSxPointD(),
+                pmtId,
+                /*是否单向*/isSingle: true,
+                /*是否正向*/isForward: isForward,
+                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+        };
+
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
+
+        var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
+
+        foreach (var c2MImgModel in darkFieldImagesRet.Anything)
+        {
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(c2MImgModel.Img);
+            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(c2MImgModel));
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+    [Obsolete]
     public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
@@ -644,6 +713,55 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
+    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+        Point startPosition,
+        Point endPosition,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus,
+        bool isForward)
+    {
+        SxExecuteRet<List<M2CImgSysCollectImgDTO>> darkFieldImagesRet;
+        try
+        {
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+
+            darkFieldImagesRet = stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
+                    productivityInformation.AdaptTo().Mag,
+                    productivityInformation.AdaptTo().Speed,
+                    isForward ? startPosition.ToSxPointD() : endPosition.ToSxPointD(),
+                    isForward ? endPosition.ToSxPointD() : startPosition.ToSxPointD(),
+                    pmtId,
+                    /*是否单向*/isSingle: true,
+                    /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+            };
+        }
+        finally
+        {
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
+            if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
+        }
+
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
+
+        var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
+
+        foreach (var c2MImgModel in darkFieldImagesRet.Anything)
+        {
+            result.Add(new DarkFieldRawScanImageDto().AdaptIn(c2MImgModel));
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(result);
+    }
+
+
+    [Obsolete]
     public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
@@ -686,6 +804,89 @@ public sealed partial class CalibrationLaserServiceImpl(
             StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadLongRawImg(
                 opticsMagTypeEnum.ToSxMagEnum(),
                 xStageSpeedEnum.ToSxSpeedEnum(),
+                startPointList,
+                endPointList,
+                pmtId,
+                isForward: isIncreasing,
+                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
+        };
+
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is empty", []);
+
+        var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
+        for (var i = 0; i < machinePositionList.Count; i++)
+        {
+            var results = darkFieldImagesRet.Anything.Where(t => t.Position == i).ToList();
+
+            var splitImages = new List<DarkFieldImageDto>();
+            foreach (var item in results.OrderBy(t => t.Channel))
+            {
+                var bytes = File.ReadAllBytes(item.Url);
+
+                var (image, matrix) = stageCoordinateSystemEnum switch
+                {
+                    StageCoordinateSystemEnum.Machine => directionX < 0 && machinePositionList.First().X < machinePositionList.Last().X
+                        ? DropLast(calibrationAlgorithmService.ToHorizontalFlipImageInfo(bytes))
+                        : calibrationAlgorithmService.ToImageInfo(bytes),
+                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => calibrationAlgorithmService.ToImageInfo(bytes),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
+                };
+
+                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Bytes = bytes, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                splitImages.Add(splitImageDto);
+            }
+
+            splitImagesAllChannels.Add(splitImages);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
+
+        static (HImage Image, short[,] Matrix) DropLast((HImage Image, short[,] Matrix, byte[] RawBytes) tuple) => (tuple.Image, tuple.Matrix);
+    }
+
+    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+        List<Point> machinePositionList,
+        int xWidthPixel,
+        double xPixelSize,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        bool isAutoFocus)
+    {
+        var isIncreasing = machinePositionList.Select(t => t.X).IsIncreasing(true);
+        var isDecreasing = machinePositionList.Select(t => t.X).IsDecreasing(true);
+        if (machinePositionList.Count < 2
+            || machinePositionList.Any(t => t.Y - machinePositionList[0].Y == 0) == false // 检查y是否相同
+            || (isIncreasing == false && isDecreasing == false)) // 检查x是否递增
+            throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
+
+        var directionRet = calibrationStageService.GetMachineDirection();
+        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
+        var directionX = directionRet.Anything.XDirection;
+
+        var scanLineXPixelSize = xPixelSize;
+        var extendWidth = xWidthPixel * scanLineXPixelSize / 2.0;
+
+        var startPointList = new List<SxPointD>();
+        var endPointList = new List<SxPointD>();
+
+        foreach (var machinePoint in machinePositionList)
+        {
+            var startPoint = new Point(machinePoint.X - extendWidth, machinePoint.Y).ToSxPointD();
+            var endPoint = new Point(machinePoint.X + extendWidth, machinePoint.Y).ToSxPointD();
+
+            startPointList.Add(isIncreasing ? startPoint : endPoint);
+            endPointList.Add(isIncreasing ? endPoint : startPoint);
+        }
+
+        // 从起点到终点采图，输出三通道长图片
+        var darkFieldImagesRet = stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadLongRawImg(
+                productivityInformation.AdaptTo().Mag,
+                productivityInformation.AdaptTo().Speed,
                 startPointList,
                 endPointList,
                 pmtId,

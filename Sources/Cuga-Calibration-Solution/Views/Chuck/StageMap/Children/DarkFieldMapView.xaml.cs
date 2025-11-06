@@ -1,4 +1,5 @@
 using Core.Models.Helper;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.StageMap;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ public sealed partial class DarkFieldMapView
 {
     private static readonly Turbo ColorMap = new();
     private static ILogger<DarkFieldMapView>? _logger;
+    private ApplicationCookie _applicationCookie;
 
     public string ChildName { get; set; } = string.Empty;
 
@@ -47,6 +49,8 @@ public sealed partial class DarkFieldMapView
         viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
         viewModel.PropertyChanged += ViewModelOnPropertyChanged;
 
+        _applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
         ConfigureWpfPlot(WpfPlot, viewModel);
     }
 
@@ -54,12 +58,8 @@ public sealed partial class DarkFieldMapView
     {
         if (sender is not ChuckStageMapCalibrationViewModel viewModel) return;
 
-        var laserLineCentricityItemDto = viewModel.LaserLineCentricityItems.SingleOrDefault(t => t is
-        {
-            PmtId: CalibrationConstantsHelper.MainPmtId,
-            OpticsMagTypeEnum: CalibrationConstantsHelper.MainOpticsMagTypeEnum,
-            StageSpeedEnum: CalibrationConstantsHelper.MainStageSpeedEnum
-        });
+        var laserLineCentricityItemDto = viewModel.LaserLineCentricityItems.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
+                                                                                                 && t.ProductivityInformation == _applicationCookie.LowestProductivityInformation);
         if (laserLineCentricityItemDto is null) return;
 
         switch (e.PropertyName)

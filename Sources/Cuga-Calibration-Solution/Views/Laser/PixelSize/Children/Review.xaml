@@ -46,8 +46,8 @@
                                               hc:InfoElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Threshold}" />
-                            <TextBox Text="{Binding Cache.VerifyResultYPixelSize, StringFormat={}{0:f3}}"
+                                              Value="{Binding Cache.Item.Threshold}" />
+                            <TextBox Text="{Binding Cache.Item.VerifyResultYPixelSize, StringFormat={}{0:f3}}"
                                      Width="275"
                                      hc:InfoElement.Title="Y Pixel Size: "
                                      hc:TitleElement.TitleWidth="90"
@@ -81,9 +81,8 @@
         <!--#region Right-->
         <Grid Grid.Column="2">
             <GroupBox Grid.Row="2" Header="Calibration Data">
-                <ListView x:Name="listview"
-                          d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                <ListView d:SelectedIndex="0"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -91,7 +90,7 @@
                           SelectionMode="Extended">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviewList}" />
+                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviews}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -120,7 +119,7 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="120"
                                             Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="100"
                                             Header="PMT Id"
                                             DisplayMemberBinding="{Binding PmtId}" />

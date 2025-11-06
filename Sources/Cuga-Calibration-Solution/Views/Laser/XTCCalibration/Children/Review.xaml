@@ -33,7 +33,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.Threshold, StringFormat={}{0:f3}}"
+                    <TextBox Text="{Binding Cache.Item.Threshold, StringFormat={}{0:f3}}"
                              Width="275"
                              hc:InfoElement.Title="Threshold: "
                              hc:TitleElement.TitleWidth="90"
@@ -63,7 +63,7 @@
             <GroupBox Grid.Row="2" Header="Calibration Data">
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <ListView d:SelectedIndex="0"
-                              ItemsSource="{Binding ReviewList}"
+                              ItemsSource="{Binding Reviews}"
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -98,7 +98,7 @@
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn Width="120"
                                                 Header="Optics Mag"
-                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                DisplayMemberBinding="{Binding ProductivityInformation}" />
                                 <GridViewColumn Width="100"
                                                 Header="PMT Id"
                                                 DisplayMemberBinding="{Binding PmtId}" />

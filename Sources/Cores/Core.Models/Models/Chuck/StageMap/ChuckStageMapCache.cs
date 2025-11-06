@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
@@ -20,6 +18,9 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     private int _calculateContainRowMinCount = 8;
     private int _calculateContainColumnMinCount = 8;
     private int _repeatCount = 10;
+
+    [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _brightFieldRowNumber = 17;
@@ -80,12 +81,6 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftTop;
-
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
 
     [ObservableProperty]
     private int _xWidthPixel = 1000;

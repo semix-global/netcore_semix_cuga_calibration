@@ -43,14 +43,14 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
     public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformations;
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Config" },
-        new() { StepName = "Select a Mag" },
+        new() { StepName = "Select Productivity" },
         new() { StepName = "Find Gain" },
         new() { StepName = "Is Revise" },
         new() { StepName = "XTC Calibration" }
@@ -73,10 +73,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     private ObservableCollection<LaserXTCCalibrationItemDto> _resultLaserXTCCalibrationItemDtoList = [];
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumCalibrationStatus { OpticsMagTypeEnum = t, IsCalibrated = false })
-    ];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
     private List<(string Title, double[])> _pointList = [];
@@ -86,7 +83,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<LaserXTCCalibrationItemDto> _reviewList = [];
+    private ObservableCollection<LaserXTCCalibrationItemDto> _reviews = [];
 
     [ObservableProperty]
     private LaserXTCCalibrationItemDto? _selectReviewItemDto;
@@ -180,38 +177,38 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        foreach (var calibrationStatus in Calibrations)
-        {
-            CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        if (CalibrationStatuses.Count == 0)
+            CalibrationStatuses =
+            [
+                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+            ];
+
+        Calibrations =
+        [
+            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    return t;
+                })
+        ];
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
 
-    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
-        //MicroscopeViewModel.SwitchGetCurrentMicroscopeLensInformation(Cache.MicroscopeMagnificationEnum);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-        return true;
-    }
-
     protected override Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        ReviewList =
+        Reviews =
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
+                .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
         return Task.FromResult(true);
     }
 
@@ -222,6 +219,8 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         switch (CalibrationStepIndex)
         {
             case 1:
+                Cache.Item.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition));
                 LaserXTCCalibrationItemDtoList = [];
                 return true;
 
@@ -240,12 +239,12 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                 }
                 else
                 {
-                    foreach (var (index, LaserXTCCalibrationItemDto) in ResultLaserXTCCalibrationItemDtoList.Select((dto, i) => (i, dto)))
+                    foreach (var (index, laserXTCCalibrationItemDto) in ResultLaserXTCCalibrationItemDtoList.Select((dto, i) => (i, dto)))
                     {
-                        LaserXTCCalibrationItemDto.IsCalibrated = true;
-                        if (Save(LaserXTCCalibrationItemDto, cancellationToken, index == ResultLaserXTCCalibrationItemDtoList.Count - 1)) continue;
+                        laserXTCCalibrationItemDto.IsCalibrated = true;
+                        if (Save(laserXTCCalibrationItemDto, cancellationToken, index == ResultLaserXTCCalibrationItemDtoList.Count - 1)) continue;
 
-                        LaserXTCCalibrationItemDto.IsCalibrated = true;
+                        laserXTCCalibrationItemDto.IsCalibrated = true;
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }
@@ -256,10 +255,10 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
+                CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
                 //DialogWindowProvider.ShowDialog("Find XTC Ok!");
 
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -304,7 +303,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             {
                 var result = StageViewModel.GetBrightFieldStagePosition();
 
-                Cache.FindPosition = result;
+                Cache.Item.FindPosition = result;
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -318,7 +317,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     {
         try
         {
-            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition)).ConfigureAwait(false);
+            await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition)).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -334,10 +333,10 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.CIBConfiguration.Gain,
-                IsL0k = Cache.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
+                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
+                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -350,7 +349,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -362,15 +361,15 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         return InvokeCalibrateAsync(async () =>
         {
             var detectImageDirectory = ImageFileDirectory;
-            Cache.FilePath = detectImageDirectory;
+            Cache.Item.FilePath = detectImageDirectory;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation.LensName,
-                Cache.OpticsMagTypeEnum,
-                Cache.LaserLightInformation,
-                Cache.FindPosition,
-                Cache.WidthPixel
+                Cache.ProductivityInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.FindPosition,
+                Cache.Item.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
 
             // 先从第8个PMT开始，然后调整偏移量 把前7和后7确认好
@@ -378,9 +377,9 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             [
                 new()
                 {
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
+                    ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = 8,
-                    FindPosition = Cache.FindPosition
+                    FindPosition = Cache.Item.FindPosition
                 }
             ];
             //前7倒叙计算
@@ -388,9 +387,9 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             {
                 var pmt = new LaserXTCCalibrationItemDto
                 {
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
+                    ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i))
+                    FindPosition = Cache.Item.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i))
                 };
                 pmtList.Add(pmt);
             }
@@ -400,9 +399,9 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             {
                 var pmt = new LaserXTCCalibrationItemDto
                 {
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
+                    ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8))
+                    FindPosition = Cache.Item.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8))
                 };
                 pmtList.Add(pmt);
             }
@@ -417,7 +416,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
             foreach (var pmtItem in LaserXTCCalibrationItemDtoList)
             {
-                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.LaserLightInformation.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3, Cache.OpticsMagTypeEnum).ConfigureAwait(false);
+                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Item.LaserLightInformation.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, Cache.ProductivityInformation, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3).ConfigureAwait(false);
                 if ((isSuccess) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -454,15 +453,15 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation.LensName,
-                Cache.OpticsMagTypeEnum,
-                Cache.LaserLightInformation,
-                Cache.FindPosition,
-                Cache.WidthPixel,
+                Cache.ProductivityInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.FindPosition,
+                Cache.Item.WidthPixel,
                 maxWindowStartIndex,
                 minWindowStartIndex,
                 windowToMinAmount,
@@ -478,7 +477,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
             item.Reset();
 
-            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
+            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.ProductivityInformation);
 
             if (servings > yPixelHeight || yPixelHeight % servings != 0)
             {
@@ -632,7 +631,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
                 Logger.LogHtmlInformation($"PMT ID: {laserXTCCalibrationItemDto.PmtId},OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    laserXTCCalibrationItemDto.OpticsMagTypeEnum,
+                    laserXTCCalibrationItemDto.ProductivityInformation,
                     laserXTCCalibrationItemDto.PmtId,
                     laserXTCCalibrationItemDto.FindPosition,
                     laserXTCCalibrationItemDto.CH1Delay,
@@ -656,7 +655,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             return;
         }
 
-        Cache.OpticsMagTypeEnum = SelectReviewItemDto.OpticsMagTypeEnum;
+        Cache.ProductivityInformation = SelectReviewItemDto.ProductivityInformation;
         await InvokeVerifyAsync(() =>
         {
             ClearCalibrationTemp();
@@ -665,7 +664,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             var (isVerifySuccessPmtDelay, ch1PmtDelay, ch2PmtDelay) = GetXTCCalibration(SelectReviewItemDto);
             if (!isVerifySuccessPmtDelay) return false;
 
-            if (Math.Abs(ch1PmtDelay) <= Cache.Threshold && Math.Abs(ch2PmtDelay) <= Cache.Threshold) result = true;
+            if (Math.Abs(ch1PmtDelay) <= Cache.Item.Threshold && Math.Abs(ch2PmtDelay) <= Cache.Item.Threshold) result = true;
 
             if (!result)
             {
@@ -708,44 +707,44 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             laserXTCCalibrationItemDto.CH1Delay,
             laserXTCCalibrationItemDto.CH2Delay,
             laserXTCCalibrationItemDto.CH3Delay,
-            Cache.WidthPixel,
-            Cache.OpticsMagTypeEnum,
+            Cache.Item.WidthPixel,
+            Cache.ProductivityInformation,
             laserXTCCalibrationItemDto.FindPosition,
-            Cache.LaserLightInformation,
+            Cache.Item.LaserLightInformation,
             laserXTCCalibrationItemDto.Gain,
-            Cache.PrescanInterval,
+            Cache.Item.PrescanInterval,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
-        var k = 1d / Cache.PrescanInterval;
+        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+        var k = 1d / Cache.Item.PrescanInterval;
         var resultWindow = new List<double>();
-        var startIndex = Cache.PrescanStartIndex;
-        var midIndex = startIndex + Cache.PrescanInterval;
-        var endIndex = midIndex + Cache.PrescanInterval;
+        var startIndex = Cache.Item.PrescanStartIndex;
+        var midIndex = startIndex + Cache.Item.PrescanInterval;
+        var endIndex = midIndex + Cache.Item.PrescanInterval;
         for (var i = 0; i < startIndex; i++)
         {
-            resultWindow.Add(Cache.LaserLightInformation.Coefficient);
+            resultWindow.Add(Cache.Item.LaserLightInformation.Coefficient);
         }
 
         for (var i = startIndex; i < midIndex; i++)
         {
-            var rate = (1 - (i - startIndex) * k) * Cache.LaserLightInformation.Coefficient;
+            var rate = (1 - (i - startIndex) * k) * Cache.Item.LaserLightInformation.Coefficient;
             resultWindow.Add(rate);
         }
 
         for (var i = midIndex; i < endIndex; i++)
         {
-            var rate = ((i - midIndex) * k + k) * Cache.LaserLightInformation.Coefficient;
+            var rate = ((i - midIndex) * k + k) * Cache.Item.LaserLightInformation.Coefficient;
             resultWindow.Add(rate);
         }
 
         for (var i = endIndex; i < prescanAODWaveProfileList[0].ShortList.Count; i++)
         {
-            resultWindow.Add(Cache.LaserLightInformation.Coefficient);
+            resultWindow.Add(Cache.Item.LaserLightInformation.Coefficient);
         }
 
         foreach (var prescanAODWaveformProfile in prescanAODWaveProfileList) prescanAODWaveformProfile.ApplyCoefficientWindowList(resultWindow);
@@ -772,11 +771,11 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         laserXTCCalibrationItemDto.Channel2DarkFieldImageProjectionYs = channel2DarkFieldImageDto.ProjectionYs;
         laserXTCCalibrationItemDto.Channel3DarkFieldImageProjectionYs = channel3DarkFieldImageDto.ProjectionYs;
         var sgolayfiltList1 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel1DarkFieldImageDto.ProjectionYs));
-        var darkChannel1DarkFieldImageYsMaxPixel = Cache.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList1.Skip(Cache.PrescanSkipCount).SkipLast(Cache.PrescanSkipCount)]).MinimumIndex();
+        var darkChannel1DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList1.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
         var sgolayfiltList2 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel2DarkFieldImageDto.ProjectionYs));
-        var darkChannel2DarkFieldImageYsMaxPixel = Cache.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList2.Skip(Cache.PrescanSkipCount).SkipLast(Cache.PrescanSkipCount)]).MinimumIndex();
+        var darkChannel2DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList2.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
         var sgolayfiltList3 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.ProjectionYs));
-        var darkChannel3DarkFieldImageYsMaxPixel = Cache.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList3.Skip(Cache.PrescanSkipCount).SkipLast(Cache.PrescanSkipCount)]).MinimumIndex();
+        var darkChannel3DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList3.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
 
         Logger.LogHtmlInformation($"{laserXTCCalibrationItemDto.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
         {
@@ -813,12 +812,11 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,
             laserXTCCalibrationItem.FindPosition,
-            Cache.WidthPixel,
-            Cache.OpticsMagTypeEnum,
-            StageSpeedEnum.Low,
+            Cache.Item.WidthPixel,
+            Cache.ProductivityInformation,
             laserXTCCalibrationItem.PmtId,
             StageCoordinateSystemEnum.Bright,
-            Cache.CIBConfiguration,
+            Cache.Item.CIBConfiguration,
             (true, null),
             false);
 
@@ -844,7 +842,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum) == false),
+                .Where(t => (t.PmtId == itemDto.PmtId && t.ProductivityInformation == itemDto.ProductivityInformation) == false),
             itemDto.Clone()
         ];
         if (isSave == false) return;

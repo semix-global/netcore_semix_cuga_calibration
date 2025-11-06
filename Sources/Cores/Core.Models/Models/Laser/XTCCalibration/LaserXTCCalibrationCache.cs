@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.IlluminationProfile;
+using LiteDB;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
@@ -14,19 +15,39 @@ public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    [NotifyPropertyChangedFor(nameof(Item))]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserXTCCalibrationCacheItem>> Items { get; init; } = [];
+
+    [JsonIgnore]
+    [BsonIgnore]
+    public LaserXTCCalibrationCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserXTCCalibrationCacheItem());
 
     [ObservableProperty]
     private double _chuckRadius = 150000;
 
     [ObservableProperty]
-    private int _widthPixel = 800;
+    private int _channelId = 3;
 
     [ObservableProperty]
-    private int _channelId = 3;
+    private double _pmtInterval = 320; // Pmt相机采集间隔100um
+
+    [ObservableProperty]
+    private ConcurrentDictionary<string, LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem> _darkFieldImageListToPrescanListCacheItemDic = [];
+
+    [JsonIgnore]
+    public LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem CurrentDarkFieldImageListToPrescanListCacheItem =>
+        DarkFieldImageListToPrescanListCacheItemDic.GetOrAdd($"{ProductivityInformation}", new LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem());
+}
+
+public sealed partial class LaserXTCCalibrationCacheItem : CalibrationCacheBase
+{
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
+    private int _widthPixel = 800;
 
     [ObservableProperty]
     private int _prescanStartIndex = 2000;
@@ -41,12 +62,6 @@ public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
     private double _xShifting = 0.5; //X偏移系数0.5um
 
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔100um
-
-    [ObservableProperty]
-    private double _threshold = 1.0d;
-
-    [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
@@ -56,9 +71,5 @@ public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
     private string _filePath = string.Empty;
 
     [ObservableProperty]
-    private ConcurrentDictionary<string, LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem> _darkFieldImageListToPrescanListCacheItemDic = [];
-
-    [JsonIgnore]
-    public LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem CurrentDarkFieldImageListToPrescanListCacheItem =>
-        DarkFieldImageListToPrescanListCacheItemDic.GetOrAdd($"{OpticsMagTypeEnum}", new LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem());
+    private double _threshold = 1.0d;
 }

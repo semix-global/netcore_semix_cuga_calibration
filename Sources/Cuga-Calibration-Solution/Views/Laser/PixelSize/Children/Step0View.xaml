@@ -7,6 +7,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -22,11 +24,23 @@
                        Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="OpticsMagType: "
-                       Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Subject="Productivity: "
+                       Status="{Binding Cache.ProductivityInformation}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:InfoElement.TitleWidth="150"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Cal Chip: "
+                                 SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -44,9 +58,9 @@
         <ItemsControl Grid.Column="2"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      ItemsSource="{Binding CalibrationStatusList}">
+                      ItemsSource="{Binding CalibrationStatuses}">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsMagTypeEnum, Mode=TwoWay}" />
+                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -55,9 +69,9 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                    <RadioButton Content="{Binding .ProductivityInformation}"
                                  FontSize="35"
-                                 Tag="{Binding .OpticsMagTypeEnum}"
+                                 Tag="{Binding .ProductivityInformation}"
                                  GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

@@ -8,6 +8,7 @@ using Core.Models.Models;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -230,12 +231,10 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeLensInformation.LensCode == -1)
-            Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformations.Count <= 2
-                ? ApplicationCookie.MicroscopeLensInformations[^1]
-                : ApplicationCookie.MicroscopeLensInformations[2];
+        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
+
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
@@ -740,7 +739,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
             if (pmtConfig
                     .Where(t => t.Enabled)
-                    .All(t => LaserPixelSizes.Any(dto => dto.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && dto.PmtId == t.Id && dto.IsOk)) == false)
+                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation == Cache.ProductivityInformation && dto.PmtId == t.Id && dto.IsOk)) == false)
             {
                 DialogWindowProvider.ShowDialog("Missing pixel size for PMT configuration! Please check the pixel size calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -919,7 +918,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
             if (LaserViewModel.TryGetMatchPosition(
                     Cache.AlgorithmTemplateTypeEnum,
-                    CalChipSiteModelEnum.ChuckModel,
                     darkFieldImageDto,
                     lineOrientationOffsetDto.PmtId,
                     findPosition.Point,
@@ -928,7 +926,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                     HtmlLogUniqueId,
                     string.Empty,
                     $"{lineOrientationOffsetDto.PmtId} {(isForward ? "Forward" : "Reverse")}",
-                    Cache.CIBConfiguration,
                     out var position,
                     out _,
                     out _,

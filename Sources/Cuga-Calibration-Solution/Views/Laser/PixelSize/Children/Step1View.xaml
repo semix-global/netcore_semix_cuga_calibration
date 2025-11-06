@@ -25,12 +25,8 @@
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Speed: "
-                           Status="{Binding Cache.XStageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
@@ -70,7 +66,7 @@
                                  hc:InfoElement.TitlePlacement="Left"
                                  hc:InfoElement.Title="Template Mask Type: "
                                  hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.WaferMaskTypeEnum}"
+                                 SelectedItem="{Binding Cache.Item.WaferMaskTypeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
@@ -78,7 +74,7 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
-                    <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"

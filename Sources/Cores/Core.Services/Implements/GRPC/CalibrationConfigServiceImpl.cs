@@ -1,6 +1,7 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Interface.Calibration;
 using Net.Utilities.Attributes;
@@ -43,6 +44,11 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
     }
 
     public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }

@@ -1,6 +1,8 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
+using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -34,6 +36,7 @@ public sealed class ConfigViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    [Obsolete]
     public IReadOnlyList<PrescanAODWaveformProfile> GetPrescanAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationConfigService.GetPrescanAODWaveProfiles(opticsMagTypeEnum);
@@ -41,9 +44,26 @@ public sealed class ConfigViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    // todo
+    public IReadOnlyList<PrescanAODWaveformProfile> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
+    {
+        var ret = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    [Obsolete]
     public IReadOnlyList<ChirpAODWaveformProfile> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
     {
         var ret = calibrationConfigService.GetChirpAODWaveProfiles(opticsMagTypeEnum);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    // todo
+    public IReadOnlyList<ChirpAODWaveformProfile> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
+    {
+        var ret = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
