@@ -4,14 +4,11 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:wpf="http://schemas.scottplot.net/2008/xaml/presentation"
            xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-           xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Width="1500"
@@ -270,60 +267,101 @@
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
+                                    <Expander Header="Electrode Offset Param"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.OffsetFrequency}" />
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Add"
+                                                            Command="{Binding DataContext.AddElectrodeOffsetParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                            Style="{StaticResource ButtonInfo}" />
+                                                    <Button Content="Delete"
+                                                            Command="{Binding DataContext.RemoveElectrodeOffsetParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetParams}"
+                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                </hc:UniformSpacingPanel>
+                                                <DataGrid x:Name="DataGridElectrodeOffsetParams"
+                                                          MaxHeight="500"
+                                                          hc:DataGridAttach.ShowRowNumber="False"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="Column"
+                                                          RowHeaderWidth="60"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding Cache.ElectrodeOffsetParams}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Width="120"
+                                                                            IsReadOnly="True"
+                                                                            Header="AOD Electrode"
+                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                        <DataGridTextColumn Width="130"
+                                                                            Header="Start(2pi)"
+                                                                            Binding="{Binding StartOffsetFrequencyPeriodCoefficient}" />
+                                                        <DataGridTextColumn Width="130"
+                                                                            Header="Step Period(2pi)"
+                                                                            Binding="{Binding StepOffsetFrequencyPeriodCoefficient}" />
+                                                        <DataGridTextColumn Width="130"
+                                                                            Header="Stop Period(2pi)"
+                                                                            Binding="{Binding StopOffsetFrequencyPeriodCoefficient}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                     <hc:NumericUpDown hc:TitleElement.Title="Low Frequency(MHz): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.LowFrequency}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Middle Frequency(MHz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MiddleFrequency}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="High Frequency(MHz): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.HighFrequency}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(MHz): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.OffsetFrequency}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Start Offset Period(2pi): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StartOffsetFrequencyPeriodCoefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Step Offset Period(2pi): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StepOffsetFrequencyPeriodCoefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Offset Period(2pi): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0.5"
-                                                      Maximum="2"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StopOffsetFrequencyPeriodCoefficient}" />
+                                                      Value="{Binding Cache.StepFrequency}" />
                                     <Separator />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Result Start Frequency(Mhz): "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Start Amplitude(AMP): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
+                                                      Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.ResultStartFrequency}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Result Step Frequency(Mhz): "
+                                                      Value="{Binding Cache.StartAmplitude}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Step Amplitude(AMP): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
+                                                      Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.ResultStepFrequency}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Result Stop Frequency(Mhz): "
+                                                      Value="{Binding Cache.StepAmplitude}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Amplitude(AMP): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
+                                                      Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.ResultStopFrequency}" />
+                                                      Value="{Binding Cache.StopAmplitude}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="All Action"
                                                 Command="{Binding Step1Command}"
@@ -351,25 +389,6 @@
                                             <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
                                         </Border>
                                     </Popup>
-                                    <StackPanel>
-                                        <TextBlock Text="Result"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <TextBox Text="{Binding Cache.ResultOffsetFrequencyPeriodCoefficient}"
-                                             hc:TitleElement.Title="Result Offset Period(2pi):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.ResultFrequencyMeasurePower}"
-                                             hc:TitleElement.Title="Result Power(mW):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -380,67 +399,31 @@
             <GroupBox Grid.Column="2"
                       Padding="5"
                       Header="History">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="2*" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TabControl>
-                        <TabItem Header="Low Frequency">
-                            <ListView ItemsSource="{Binding Cache.LowFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                            </ListView>
-                        </TabItem>
-                        <TabItem Header="High Frequency">
-                            <ListView ItemsSource="{Binding Cache.HighFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                            </ListView>
-                        </TabItem>
-                        <TabItem Header="Result">
-                            <ListView ItemsSource="{Binding Cache.ResultItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                            </ListView>
-                        </TabItem>
-                    </TabControl>
-                    <GridSplitter Grid.Row="1" Height="5" />
-                    <Border Grid.Row="2"
-                            Padding="0"
-                            Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <wpf:WpfPlot>
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Offset Period"
-                                                                    Plot0Title="Low Frequency"
-                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                    Plot0="{Binding Cache.LowFrequencyPoints}"
-                                                                    Plot1Title="High Frequency"
-                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                    Plot1="{Binding Cache.HighFrequencyPoints}"
-                                                                    Plot2Title="Merge Frequency"
-                                                                    Plot2Color="{x:Static scottPlot:Colors.Blue}"
-                                                                    Plot2="{Binding Cache.MergeFrequencyPoints}" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                            <wpf:WpfPlot Grid.Column="1">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="Result" Plot0="{Binding Cache.ResultMeasurePowerPoints}" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                        </Grid>
-                    </Border>
-                </Grid>
+                <TabControl>
+                    <TabItem Header="Electrode Offset Param">
+                        <hc:ScrollViewer>
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.ElectrodeOffsetItems}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="400" Style="{StaticResource BorderRegion}">
+                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Amplitude">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                        </Border>
+                    </TabItem>
+                </TabControl>
             </GroupBox>
         </Grid>
     </Grid>

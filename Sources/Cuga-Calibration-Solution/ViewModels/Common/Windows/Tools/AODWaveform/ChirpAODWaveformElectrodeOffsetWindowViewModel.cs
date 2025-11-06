@@ -67,21 +67,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GenerateChirpAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-        Cache.GenerateChirpAODWaveformParam.ElectrodeConfigurations =
-        [
-            new GenerateAODWaveformElectrodeConfiguration
-            {
-                OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1,
-                OffsetFrequency = Cache.OffsetFrequency,
-                OffsetFrequencyPeriodCoefficient = 0
-            },
-            new GenerateAODWaveformElectrodeConfiguration
-            {
-                OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2,
-                OffsetFrequency = Cache.OffsetFrequency,
-                OffsetFrequencyPeriodCoefficient = item.OffsetFrequencyPeriodCoefficient
-            }
-        ];
+        Cache.GenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
 
         var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
