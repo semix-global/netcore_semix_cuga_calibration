@@ -155,25 +155,35 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
     {
         foreach (var aodWaveformElectrodeOffsetResult in ElectrodeOffsetItems) aodWaveformElectrodeOffsetResult.RefreshPlot();
 
-        foreach (var (index, item) in AmplitudeItems.Index())
+        try
         {
+            ScatterPlotControl.Clear(0);
+            ScatterPlotControl.Clear(1);
+
+            foreach (var (index, item) in AmplitudeItems.Index())
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    $"{item.Frequency}(MHz)",
+                    [..item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
+                    index,
+                    new Range(0, AmplitudeItems.Count - 1));
+
+                item.MaxMeasurePowerAmplitude = GuardUtils.IsNotNullAndReturn(item.FrequencyItems.MaxBy(t => t.MeasurePower)).Amplitude;
+            }
+
+            if (AmplitudeItems.Count <= 0) return;
+
             ScatterPlotControl.GetOrAddScatterLine(
-                0,
-                $"{item.Frequency}(MHz)",
-                [..item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
-                index,
-                new Range(0, AmplitudeItems.Count - 1));
-
-            item.MaxMeasurePowerAmplitude = GuardUtils.IsNotNullAndReturn(item.FrequencyItems.MaxBy(t => t.MeasurePower)).Amplitude;
+                1,
+                "(MHz)",
+                [..AmplitudeItems.Select(t => new Point(t.Frequency, t.MaxMeasurePowerAmplitude))],
+                Colors.Blue);
         }
-
-        if (AmplitudeItems.Count <= 0) return;
-
-        ScatterPlotControl.GetOrAddScatterLine(
-            1,
-            "(MHz)",
-            [..AmplitudeItems.Select(t => new Point(t.Frequency, t.MaxMeasurePowerAmplitude))],
-            Colors.Blue);
+        finally
+        {
+            ScatterPlotControl.AutoScaleRefresh();
+        }
     }
 }
 
@@ -504,6 +514,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 }
             ];
             Cache.UniformityConfigurationResults = [];
+
+            Cache.RefreshPlot();
 
             Logger.LogHtmlInformation("Electrode Offset", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 

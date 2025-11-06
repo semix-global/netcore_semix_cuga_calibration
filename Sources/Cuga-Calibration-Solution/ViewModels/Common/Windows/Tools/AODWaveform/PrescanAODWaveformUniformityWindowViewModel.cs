@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Net.Utilities.Algorithms.Modules;
@@ -46,7 +47,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
         var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
+        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         Cache.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
@@ -67,7 +68,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
         var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
+        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
         item.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;

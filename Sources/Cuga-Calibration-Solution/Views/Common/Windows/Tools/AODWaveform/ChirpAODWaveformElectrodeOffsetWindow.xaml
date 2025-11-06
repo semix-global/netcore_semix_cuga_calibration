@@ -344,7 +344,7 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Start Amplitude(AMP): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      Minimum="0.000001"
                                                       Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StartAmplitude}" />
