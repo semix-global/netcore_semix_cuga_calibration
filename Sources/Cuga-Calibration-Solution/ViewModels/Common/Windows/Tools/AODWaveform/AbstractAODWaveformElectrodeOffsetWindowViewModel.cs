@@ -19,7 +19,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
-using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
 using Generate = MathNet.Numerics.Generate;
@@ -231,7 +230,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 1 => new
                 {
                     ElectrodeOffsetItems = new HtmlContainer([..Cache.Step0Items.Select(t => t.Step0ScatterPlotControl.GetHtmlPlot2DLinesChart())]),
-                    AmplitudeItems = new HtmlContainer([Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(0), Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(1)]),
+                    AmplitudeItems = new HtmlContainer([
+                        Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(0),
+                        Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(1),
+                        Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(2)
+                    ]),
                 },
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
@@ -307,9 +310,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 var electrodes = (OpticsAODElectrodeEnum[])[.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum];
 
-                Logger.LogHtmlInformation(string.Join(",", electrodes), HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                var header = string.Join(", ", electrodes);
+                Logger.LogHtmlInformation(header, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var step0Item = new AODWaveformElectrodeOffsetStep0Item<TItem>(electrodes);
+                var step0Item = new AODWaveformElectrodeOffsetStep0Item<TItem>();
+                step0Item.Step0ScatterPlotControl.SetTitle(header);
                 Cache.Step0Items = [.. Cache.Step0Items, step0Item];
 
                 var offsetFrequencyPeriodCoefficients = Generate.LinearRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
@@ -602,6 +607,13 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
         RefreshPlot();
     }
 
+    partial void OnOffsetFrequencyPeriodCoefficientChanged(double? value)
+    {
+        _ = value;
+
+        RefreshPlot();
+    }
+
     #endregion
 
 #pragma warning disable IDE0079
@@ -617,10 +629,9 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    public AODWaveformElectrodeOffsetStep0Item(IReadOnlyList<OpticsAODElectrodeEnum> electrodes)
+    public AODWaveformElectrodeOffsetStep0Item()
     {
         Step0ScatterPlotControl.Configure();
-        Step0ScatterPlotControl.SetTitle($"{string.Join(",", electrodes)}(Y: mW - X: 2pi)");
         Step0ScatterPlotControl.ToggleLegend(false);
     }
 

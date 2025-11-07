@@ -1,5 +1,11 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters">
-    <multiValueConverters:MultiValueBooleanConverter x:Key="MultiValueBooleanConverter" />
+                    xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters"
+                    xmlns:converters="clr-namespace:Core.Utilities.WPF.Converters">
+    <converters:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter" />
+    <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
+    <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanAllConverter" />
+    <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanNegationAllConverter" IsNegation="True" />
+    <multiValueConverters:MultiValueBooleanAnyConverter x:Key="MultiValueBooleanAnyConverter" />
+    <multiValueConverters:MultiValueBooleanAnyConverter x:Key="MultiValueBooleanNegationAnyConverter" IsNegation="True" />
 </ResourceDictionary>

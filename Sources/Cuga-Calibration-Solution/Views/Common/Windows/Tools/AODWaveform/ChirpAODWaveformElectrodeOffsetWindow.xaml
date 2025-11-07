@@ -381,7 +381,15 @@
                                                 Command="{Binding Step0Command}"
                                                 CommandParameter="{x:Static models:Constants.True}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
                                         <Button Content="Step1 Cancel"
                                                 Command="{Binding Step0CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -392,7 +400,15 @@
                                                 Command="{Binding Step1Command}"
                                                 CommandParameter="{x:Static models:Constants.True}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
                                         <Button Content="Step2 Cancel"
                                                 Command="{Binding Step1CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -402,7 +418,15 @@
                                         <Button Content="All Action"
                                                 Command="{Binding AllCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
                                         <Button Content="All Cancel"
                                                 Command="{Binding AllCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -465,29 +489,36 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <TabControl Height="400">
-                                                <TabItem Header="Low Frequency">
-                                                    <ListView ItemsSource="{Binding LowFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                        <i:Interaction.Behaviors>
-                                                            <behaviors:ListBoxScrollToCurrentBehavior />
-                                                        </i:Interaction.Behaviors>
-                                                    </ListView>
-                                                </TabItem>
-                                                <TabItem Header="Middle Frequency">
-                                                    <ListView ItemsSource="{Binding MiddleFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                        <i:Interaction.Behaviors>
-                                                            <behaviors:ListBoxScrollToCurrentBehavior />
-                                                        </i:Interaction.Behaviors>
-                                                    </ListView>
-                                                </TabItem>
-                                                <TabItem Header="High Frequency">
-                                                    <ListView ItemsSource="{Binding HighFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                        <i:Interaction.Behaviors>
-                                                            <behaviors:ListBoxScrollToCurrentBehavior />
-                                                        </i:Interaction.Behaviors>
-                                                    </ListView>
-                                                </TabItem>
-                                            </TabControl>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{Binding Step0ScatterPlotControl, Converter={StaticResource ScatterPlotControlToTitleConverter}, ConverterParameter=0}" Style="{StaticResource TextBlockDefaultBold}" />
+                                                <TabControl Grid.Row="1" Height="400">
+                                                    <TabItem Header="Low Frequency">
+                                                        <ListView ItemsSource="{Binding LowFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                            <i:Interaction.Behaviors>
+                                                                <behaviors:ListBoxScrollToCurrentBehavior />
+                                                            </i:Interaction.Behaviors>
+                                                        </ListView>
+                                                    </TabItem>
+                                                    <TabItem Header="Middle Frequency">
+                                                        <ListView ItemsSource="{Binding MiddleFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                            <i:Interaction.Behaviors>
+                                                                <behaviors:ListBoxScrollToCurrentBehavior />
+                                                            </i:Interaction.Behaviors>
+                                                        </ListView>
+                                                    </TabItem>
+                                                    <TabItem Header="High Frequency">
+                                                        <ListView ItemsSource="{Binding HighFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                            <i:Interaction.Behaviors>
+                                                                <behaviors:ListBoxScrollToCurrentBehavior />
+                                                            </i:Interaction.Behaviors>
+                                                        </ListView>
+                                                    </TabItem>
+                                                </TabControl>
+                                            </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
