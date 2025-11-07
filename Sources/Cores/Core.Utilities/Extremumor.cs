@@ -5,11 +5,11 @@ namespace Core.Utilities;
 
 public static class Extremumor
 {
-    public static (Vector<double> X, Vector<double> Y) FindLocalMaxima(
+    public static (Vector<double> X, Vector<double> Y) FindMaxima(
         Vector<double> x,
         Vector<double> y,
         double threshold = 0,
-        bool isContainsEdge = false) => FindLocalExtrema(x, y, ExtremumTypeEnum.Maximum, threshold, isContainsEdge);
+        bool isContainsEdge = false) => FindExtrema(x, y, ExtremumTypeEnum.Maximum, threshold, isContainsEdge);
 
     private enum ExtremumTypeEnum
     {
@@ -17,11 +17,11 @@ public static class Extremumor
         Minimum
     }
 
-    public static (Vector<double> X, Vector<double> Y) FindLocalMinima(
+    public static (Vector<double> X, Vector<double> Y) FindMinima(
         Vector<double> x,
         Vector<double> y,
         double threshold = 0,
-        bool isContainsEdge = false) => FindLocalExtrema(x, y, ExtremumTypeEnum.Minimum, threshold, isContainsEdge);
+        bool isContainsEdge = false) => FindExtrema(x, y, ExtremumTypeEnum.Minimum, threshold, isContainsEdge);
 
     public static (double x1, double y1, double x2, double y2, double x3, double y3, double span) FindClosestTriplet(
         Vector<double> extremum1X,
@@ -72,7 +72,7 @@ public static class Extremumor
         return (bestX1, bestY1, bestX2, bestY2, bestX3, bestY3, minSpan);
     }
 
-    private static (Vector<double> X, Vector<double> Y) FindLocalExtrema(
+    private static (Vector<double> X, Vector<double> Y) FindExtrema(
         Vector<double> x,
         Vector<double> y,
         ExtremumTypeEnum extremumTypeEnum,

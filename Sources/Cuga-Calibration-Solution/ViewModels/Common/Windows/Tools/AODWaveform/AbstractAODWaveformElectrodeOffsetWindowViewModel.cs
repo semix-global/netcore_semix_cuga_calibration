@@ -11,12 +11,16 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Attributes;
+using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Services;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
@@ -32,7 +36,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
     private double _offsetFrequency;
 
     [ObservableProperty]
-    private int _densityFactor = 3;
+    private int _interpolationCount = 3;
 
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetParam> _electrodeOffsetParams =
@@ -106,7 +110,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         }
     }
 
-    private void Step1ItemOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void Step1ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         RefreshPlot();
     }
@@ -125,9 +129,10 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     public AODWaveformElectrodeOffsetCache()
     {
-        Step1ScatterPlotControl.Configure(totalPlotCount: 2);
+        Step1ScatterPlotControl.Configure(totalPlotCount: 3);
         Step1ScatterPlotControl.SetTitle(0, "Step1 Uniformity Items(Y: mW - X: AMP)");
-        Step1ScatterPlotControl.SetTitle(1, "Step1 Uniformity Result(Y: AMP - X: MHz)");
+        Step1ScatterPlotControl.SetTitle(1, "Step1 Uniformity Amplitude Result(Y: AMP - X: MHz)");
+        Step1ScatterPlotControl.SetTitle(2, "Step1 Uniformity Measure Power Result(Y: mW - X: MHz)");
     }
 
     private void RefreshPlot()
@@ -142,16 +147,23 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
                 index,
                 new Range(0, Step1Items.Count - 1));
 
-            item.MaxMeasurePowerAmplitude = GuardUtils.IsNotNullAndReturn(item.FrequencyItems.MaxBy(t => t.MeasurePower)).Amplitude;
+            item.MaxItem = GuardUtils.IsNotNullAndReturn(item.FrequencyItems.MaxBy(t => t.MeasurePower));
         }
 
         if (Step1Items.Count > 0)
         {
             Step1ScatterPlotControl.GetOrAddScatterLine(
                 1,
-                "Frequency Uniformity Result",
+                "Amplitude",
                 [
-                    .. Step1Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxMeasurePowerAmplitude ?? 0))
+                    .. Step1Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxItem?.Amplitude ?? 0))
+                ],
+                Colors.Blue);
+            Step1ScatterPlotControl.GetOrAddScatterLine(
+                2,
+                "Measure Power",
+                [
+                    .. Step1Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxItem?.MeasurePower ?? 0))
                 ],
                 Colors.Blue);
         }
@@ -162,6 +174,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
     public override object ToHtmlAnonymous() => new
     {
         OffsetFrequency,
+        InterpolationCount,
         LowFrequency,
         MiddleFrequency,
         HighFrequency,
@@ -206,13 +219,23 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 {
     protected string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
 
-    protected override void LoggerResult()
+    protected override void LoggerResult(int stepIndex)
     {
-        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            ElectrodeOffsetItems = new HtmlContainer([..Cache.Step0Items.Select(t => t.Step0ScatterPlotControl.GetHtmlPlot2DLinesChart())]),
-            AmplitudeItems = new HtmlContainer([Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(0), Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(1)]),
-        }), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(
+            stepIndex switch
+            {
+                0 => new
+                {
+                    ElectrodeOffsetItems = new HtmlContainer([..Cache.Step0Items.Select(t => t.Step0ScatterPlotControl.GetHtmlPlot2DLinesChart())])
+                },
+                1 => new
+                {
+                    ElectrodeOffsetItems = new HtmlContainer([..Cache.Step0Items.Select(t => t.Step0ScatterPlotControl.GetHtmlPlot2DLinesChart())]),
+                    AmplitudeItems = new HtmlContainer([Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(0), Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(1)]),
+                },
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
+            }
+        ), HtmlLogUniqueId.LoggingHtml());
     }
 
     [RelayCommand]
@@ -259,9 +282,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step0Async(CancellationToken cancellationToken)
+    private async Task<bool> Step0Async(bool isShowDialog, CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step 0 Electrode Offset", async () =>
+        return await InvokeAsync(0, "Step 1 Electrode Offset", async () =>
         {
             Cache.Step0Items = [];
             Cache.ElectrodeConfigurationResults =
@@ -296,7 +319,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 await InvokeItemsAsync(Cache.MiddleFrequency, item => step0Item.MiddleFrequencyItems = [.. step0Item.MiddleFrequencyItems, item]);
                 await InvokeItemsAsync(Cache.HighFrequency, item => step0Item.HighFrequencyItems = [.. step0Item.HighFrequencyItems, item]);
 
-                step0Item.InterpolationMaxima(Cache.DensityFactor);
+                step0Item.InterpolationMaxima(Cache.InterpolationCount);
+
+                var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel>();
+                aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = GuardUtils.IsNotNullAndReturn(step0Item.OffsetFrequencyPeriodCoefficient);
+
+                var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
+                if (showDialog == true) step0Item.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
 
                 Cache.ElectrodeConfigurationResults =
                 [
@@ -350,13 +379,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             }
 
             return Cache.ElectrodeConfigurationResults.Count == Cache.ElectrodeOffsetParams.Count;
-        }).ConfigureAwait(false);
+        }, isShowDialog).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1Async(CancellationToken cancellationToken)
+    private async Task<bool> Step1Async(bool isShowDialog, CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step 1 Uniformity", async () =>
+        return await InvokeAsync(1, "Step 2 Uniformity", async () =>
         {
             Cache.Step1Items = [];
             Cache.UniformityConfigurationResults = [];
@@ -400,20 +429,33 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 .. Cache.Step1Items.Select(t => new GenerateAODWaveformUniformityConfiguration
                 {
                     Frequency = t.FrequencyItems[0].Frequency,
-                    Coefficient = GuardUtils.IsNotNullAndReturn(t.MaxMeasurePowerAmplitude)
+                    Coefficient = GuardUtils.IsNotNullAndReturn(t.MaxItem).OffsetFrequencyPeriodCoefficient
                 })
             ];
 
             return Cache.UniformityConfigurationResults.Count == frequencies.Length;
-        }).ConfigureAwait(false);
+        }, isShowDialog).ConfigureAwait(false);
     }
 
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {
-        await Step0Async(cancellationToken);
-        await Step1Async(cancellationToken);
+#if NET
+        await using
+#else
+        using
+#endif
+            var _ = cancellationToken.Register(() =>
+            {
+                if (Step0Command.CanBeCanceled) Step0Command.Cancel();
+                if (Step1Command.CanBeCanceled) Step1Command.Cancel();
+            });
+
+        var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync(false));
+        if (await step0Task == false) return;
+
+        await Step1Command.ExecuteAsync(true);
     }
 }
 
@@ -550,7 +592,8 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
     [ObservableProperty]
     private IReadOnlyList<Point> _closestMaximaPoints = [];
 
-    public double? OffsetFrequencyPeriodCoefficient => ClosestMaximaPoints.Count > 0 ? ClosestMaximaPoints.Average(t => t.X) : null;
+    [ObservableProperty]
+    private double? _offsetFrequencyPeriodCoefficient;
 
     partial void OnClosestMaximaPointsChanged(IReadOnlyList<Point> value)
     {
@@ -692,10 +735,16 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
             densityFactor);
         LowFrequencyInterpolationPoints = [.. lowFrequencyInterpolationX.Index().Select(t => new Point(t.Item, lowFrequencyInterpolationY[t.Index]))];
 
-        var (lowFrequencyMaximaX, lowFrequencyMaximaY) = Extremumor.FindLocalMaxima(
+        var (lowFrequencyMaximaX, lowFrequencyMaximaY) = Extremumor.FindMaxima(
             Vector<double>.Build.Dense([.. LowFrequencyInterpolationPoints.Select(t => t.X)]),
             Vector<double>.Build.Dense([.. LowFrequencyInterpolationPoints.Select(t => t.Y)]));
-        LowFrequencyMaximaPoints = [.. lowFrequencyMaximaX.Index().Select(t => new Point(t.Item, lowFrequencyMaximaY[t.Index]))];
+        LowFrequencyMaximaPoints =
+        [
+            .. lowFrequencyMaximaY
+                .Index()
+                .Where(t => t.Item > lowFrequencyInterpolationY.Average())
+                .Select(t => new Point(lowFrequencyMaximaX[t.Index], t.Item))
+        ];
 
         var (middleFrequencyInterpolationX, middleFrequencyInterpolationY) = Interpolator.SplineInterpolation(
             Vector<double>.Build.Dense([.. MiddleFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
@@ -703,10 +752,16 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
             densityFactor);
         MiddleFrequencyInterpolationPoints = [.. middleFrequencyInterpolationX.Index().Select(t => new Point(t.Item, middleFrequencyInterpolationY[t.Index]))];
 
-        var (middleFrequencyMaximaX, middleFrequencyMaximaY) = Extremumor.FindLocalMaxima(
+        var (middleFrequencyMaximaX, middleFrequencyMaximaY) = Extremumor.FindMaxima(
             Vector<double>.Build.Dense([.. MiddleFrequencyInterpolationPoints.Select(t => t.X)]),
             Vector<double>.Build.Dense([.. MiddleFrequencyInterpolationPoints.Select(t => t.Y)]));
-        MiddleFrequencyMaximaPoints = [.. middleFrequencyMaximaX.Index().Select(t => new Point(t.Item, middleFrequencyMaximaY[t.Index]))];
+        MiddleFrequencyMaximaPoints =
+        [
+            .. middleFrequencyMaximaY
+                .Index()
+                .Where(t => t.Item > middleFrequencyInterpolationY.Average())
+                .Select(t => new Point(middleFrequencyMaximaX[t.Index], t.Item))
+        ];
 
         var (highFrequencyInterpolationX, highFrequencyInterpolationY) = Interpolator.SplineInterpolation(
             Vector<double>.Build.Dense([.. HighFrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
@@ -714,10 +769,16 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
             densityFactor);
         HighFrequencyInterpolationPoints = [.. highFrequencyInterpolationX.Index().Select(t => new Point(t.Item, highFrequencyInterpolationY[t.Index]))];
 
-        var (highFrequencyMaximaX, highFrequencyMaximaY) = Extremumor.FindLocalMaxima(
+        var (highFrequencyMaximaX, highFrequencyMaximaY) = Extremumor.FindMaxima(
             Vector<double>.Build.Dense([.. HighFrequencyInterpolationPoints.Select(t => t.X)]),
             Vector<double>.Build.Dense([.. HighFrequencyInterpolationPoints.Select(t => t.Y)]));
-        HighFrequencyMaximaPoints = [.. highFrequencyMaximaX.Index().Select(t => new Point(t.Item, highFrequencyMaximaY[t.Index]))];
+        HighFrequencyMaximaPoints =
+        [
+            .. highFrequencyMaximaY
+                .Index()
+                .Where(t => t.Item > highFrequencyInterpolationY.Average())
+                .Select(t => new Point(highFrequencyMaximaX[t.Index], t.Item))
+        ];
 
         var (x1, y1, x2, y2, x3, y3, _) = Extremumor.FindClosestTriplet(
             lowFrequencyMaximaX, lowFrequencyMaximaY,
@@ -726,6 +787,8 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
         );
 
         ClosestMaximaPoints = [new Point(x1, y1), new Point(x2, y2), new Point(x3, y3)];
+
+        OffsetFrequencyPeriodCoefficient = ClosestMaximaPoints.Average(t => t.X);
     }
 }
 
@@ -738,7 +801,20 @@ public sealed partial class AODWaveformElectrodeOffsetStep1Item<TItem> : Observa
     #region Result
 
     [ObservableProperty]
-    private double? _maxMeasurePowerAmplitude;
+    private TItem? _maxItem;
 
     #endregion
+}
+
+[IOCAppService(ServiceType = typeof(AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
+public partial class AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel : ViewModelBase
+{
+    [ObservableProperty]
+    private double _offsetFrequencyPeriodCoefficient;
+
+    [RelayCommand]
+    private void Close()
+    {
+        CloseView(true);
+    }
 }

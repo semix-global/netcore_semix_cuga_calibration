@@ -119,7 +119,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
     [ObservableProperty]
     private TItem? _selectedItem;
 
-    protected override void LoggerResult()
+    protected override void LoggerResult(int stepIndex)
     {
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
@@ -130,9 +130,9 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1Async(CancellationToken cancellationToken)
+    private async Task Step0Async(CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step1 Measure Power", async () =>
+        await InvokeAsync(0, "Step1 Measure Power", async () =>
         {
             Cache.Items = [];
 
@@ -163,13 +163,13 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             foreach (var item in Cache.Items) item.Rate = item.MeasurePower / Cache.TargetMeasurePower;
 
             return true;
-        }).ConfigureAwait(false);
+        }, true).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1OneAsync(CancellationToken cancellationToken)
+    private async Task Step0OneAsync(CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step1 Measure Power One", async () =>
+        await InvokeAsync(0, "Step1 Measure Power One", async () =>
         {
             if (SelectedItem is null) return false;
 
@@ -183,13 +183,13 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             Cache.NotifyPropertyChanged();
 
             return true;
-        }).ConfigureAwait(false);
+        }, true).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2Async(CancellationToken cancellationToken)
+    private async Task Step1Async(CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step2 Uniformity", async () =>
+        await InvokeAsync(1, "Step2 Uniformity", async () =>
         {
             var results = new List<bool>();
             foreach (var item in Cache.Items)
@@ -203,13 +203,13 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             }
 
             return results.All(t => t);
-        }).ConfigureAwait(false);
+        }, true).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2OneAsync(CancellationToken cancellationToken)
+    private async Task Step1OneAsync(CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step2 Uniformity One", async () =>
+        await InvokeAsync(1, "Step2 Uniformity One", async () =>
         {
             if (SelectedItem is null) return false;
 
@@ -220,13 +220,13 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             Cache.NotifyPropertyChanged();
 
             return isSuccess;
-        }).ConfigureAwait(false);
+        }, true).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step3Async(CancellationToken cancellationToken)
+    private async Task Step2Async(CancellationToken cancellationToken)
     {
-        await InvokeAsync("Step3 Save", () =>
+        await InvokeAsync(2, "Step3 Save", () =>
         {
             if (SelectedItem is null) return Task.FromResult(false);
 
@@ -244,7 +244,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             }), HtmlLogUniqueId.LoggingHtml());
 
             return Task.FromResult(true);
-        }).ConfigureAwait(false);
+        }, true).ConfigureAwait(false);
     }
 
     private async Task<bool> UniformityAsync(TItem item, CancellationToken cancellationToken)

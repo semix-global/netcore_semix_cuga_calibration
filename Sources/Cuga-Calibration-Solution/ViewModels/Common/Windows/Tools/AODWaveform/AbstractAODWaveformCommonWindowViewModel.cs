@@ -19,6 +19,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Net.Utilities.WPF.MVVM.Services;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -69,6 +70,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly ApplicationSetting ApplicationSetting;
     protected readonly ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem>> Logger;
     protected readonly ICacheProvider CacheProvider;
+    protected readonly IWindowManagerService WindowManagerService;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
     protected readonly StageViewModel StageViewModel;
@@ -88,13 +90,14 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     protected abstract void SetAODWaveformProfiles(TItem item);
 
-    protected abstract void LoggerResult();
+    protected abstract void LoggerResult(int stepIndex);
 
     protected AbstractAODWaveformCommonWindowViewModel()
     {
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
         Logger = (ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+        WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
         StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
@@ -137,9 +140,9 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         CloseView(null);
     }
 
-    protected async Task InvokeAsync(string stepName, Func<Task<bool>> func)
+    protected async Task<bool> InvokeAsync(int stepIndex, string stepName, Func<Task<bool>> func, bool isShowDialog)
     {
-        await Task.Run(async () =>
+        return await Task.Run(async () =>
         {
             HtmlLogUniqueId = Guid.NewGuid();
 
@@ -151,11 +154,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             try
             {
                 isSuccess = await func().ConfigureAwait(false);
-
-                if (isSuccess) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
-                else DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                LoggerResult();
+                LoggerResult(stepIndex);
             }
             catch (Exception ex)
             {
@@ -164,7 +163,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                     DialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                    return;
+                    return false;
                 }
 
                 DialogWindowProvider.ShowDialog($"""
@@ -177,6 +176,17 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(isSuccess ? "OK" : "Failed")}"));
             }
+
+            if (isSuccess)
+            {
+                if (isShowDialog) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
+            }
+            else
+            {
+                DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+
+            return isSuccess;
         }).ConfigureAwait(false);
     }
 

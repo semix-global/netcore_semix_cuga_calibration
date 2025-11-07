@@ -11,6 +11,8 @@
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeOffsetWindowViewModel}"
@@ -245,7 +247,7 @@
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
-                        <GroupBox Header="Step1">
+                        <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
@@ -278,12 +280,12 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.OffsetFrequency}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Density Factor: "
+                                                <hc:NumericUpDown hc:TitleElement.Title="Interpolation Count: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.DensityFactor}" />
+                                                                  Value="{Binding Cache.InterpolationCount}" />
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding DataContext.AddElectrodeOffsetParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
@@ -350,7 +352,7 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Start Amplitude(AMP): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0.000001"
+                                                      Minimum="0.001"
                                                       Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StartAmplitude}" />
@@ -368,9 +370,16 @@
                                                       Maximum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopAmplitude}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Actions">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Step1 Action"
                                                 Command="{Binding Step0Command}"
+                                                CommandParameter="{x:Static models:Constants.True}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Step1 Cancel"
@@ -381,6 +390,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Step2 Action"
                                                 Command="{Binding Step1Command}"
+                                                CommandParameter="{x:Static models:Constants.True}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Step2 Cancel"
@@ -444,10 +454,72 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step 1 Uniformity">
+                    <TabItem Header="Step1 Electrode Offset Details">
+                        <hc:ScrollViewer>
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="400" Style="{StaticResource BorderRegion}">
+                                            <TabControl Height="400">
+                                                <TabItem Header="Low Frequency">
+                                                    <ListView ItemsSource="{Binding LowFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                        <i:Interaction.Behaviors>
+                                                            <behaviors:ListBoxScrollToCurrentBehavior />
+                                                        </i:Interaction.Behaviors>
+                                                    </ListView>
+                                                </TabItem>
+                                                <TabItem Header="Middle Frequency">
+                                                    <ListView ItemsSource="{Binding MiddleFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                        <i:Interaction.Behaviors>
+                                                            <behaviors:ListBoxScrollToCurrentBehavior />
+                                                        </i:Interaction.Behaviors>
+                                                    </ListView>
+                                                </TabItem>
+                                                <TabItem Header="High Frequency">
+                                                    <ListView ItemsSource="{Binding HighFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                        <i:Interaction.Behaviors>
+                                                            <behaviors:ListBoxScrollToCurrentBehavior />
+                                                        </i:Interaction.Behaviors>
+                                                    </ListView>
+                                                </TabItem>
+                                            </TabControl>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Step 2 Uniformity">
                         <Border Style="{StaticResource BorderRegion}">
                             <ContentControl Content="{Binding Cache.Step1ScatterPlotControl, Mode=OneWay}" />
                         </Border>
+                    </TabItem>
+                    <TabItem Header="Step 2 Uniformity Details">
+                        <hc:ScrollViewer>
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="400" Style="{StaticResource BorderRegion}">
+                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                                </i:Interaction.Behaviors>
+                                            </ListView>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
                     </TabItem>
                 </TabControl>
             </GroupBox>
