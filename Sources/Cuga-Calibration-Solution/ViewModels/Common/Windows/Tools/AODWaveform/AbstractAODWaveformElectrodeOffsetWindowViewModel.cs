@@ -10,6 +10,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -134,7 +135,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         Step1ScatterPlotControl.SetTitle(2, "Step1 Uniformity Measure Power Result(Y: mW - X: MHz)");
     }
 
-    private void RefreshPlot()
+    public void RefreshPlot()
     {
         foreach (var (index, item) in Step1Items.Index())
         {
@@ -239,6 +240,16 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
         ), HtmlLogUniqueId.LoggingHtml());
+    }
+    
+    
+    [RelayCommand]
+    private void Loaded()
+    {
+        Cache = CacheProvider.GetOrDefault<TCache>();
+        Cache.RefreshPlot();
+
+        foreach (var step0Item in Cache.Step0Items) step0Item.RefreshPlot();
     }
 
     [RelayCommand]
@@ -635,7 +646,7 @@ public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : Observa
         Step0ScatterPlotControl.ToggleLegend(false);
     }
 
-    private void RefreshPlot()
+    public void RefreshPlot()
     {
         Step0ScatterPlotControl.SetTitle($"{(OffsetFrequencyPeriodCoefficient is null ? string.Empty : $"Result: {OffsetFrequencyPeriodCoefficient.Value:0.###}(2pi) | ")}{Step0ScatterPlotControl.GetTitle().Split('|')[^1]}");
 

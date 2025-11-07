@@ -104,9 +104,6 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     }
 
     [RelayCommand]
-    private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
-
-    [RelayCommand]
     private void RefreshMeasureMachinePosition()
     {
         if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerMeterDto>(out var laserOpticalPowerDtos))

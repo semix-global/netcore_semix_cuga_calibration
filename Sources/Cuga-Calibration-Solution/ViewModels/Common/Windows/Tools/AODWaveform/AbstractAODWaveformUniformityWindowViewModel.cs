@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -128,6 +129,9 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
         }), HtmlLogUniqueId.LoggingHtml());
     }
+    
+    [RelayCommand]
+    private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step0Async(CancellationToken cancellationToken)
