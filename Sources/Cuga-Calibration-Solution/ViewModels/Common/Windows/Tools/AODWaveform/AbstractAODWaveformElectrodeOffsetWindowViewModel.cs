@@ -110,7 +110,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
             if (sender is not AODWaveformElectrodeOffsetStep0<TItem> step0Item) return;
 
             step0Item.RefreshPlot();
-            OnPropertyChanged(nameof(Step0Items));
         }
     }
 
@@ -131,8 +130,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
         void Step1ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName == nameof(AODWaveformElectrodeOffsetStep1<TItem>.MaxItem)) return;
+
             RefreshPlot();
-            OnPropertyChanged(nameof(Step1Items));
         }
     }
 
@@ -346,7 +346,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 var electrodes = (OpticsAODElectrodeEnum[])[.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum];
 
-                Logger.LogHtmlInformation(string.Join(", ", electrodes), HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation(string.Join(", ", electrodes.Select(t => EnumHelper.ToDescriptionString(t))), HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var step0 = new AODWaveformElectrodeOffsetStep0<TItem> { Electrodes = electrodes };
                 Cache.Step0Items = [.. Cache.Step0Items, step0];
@@ -603,7 +603,8 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 
     public void RefreshPlot()
     {
-        Step0ScatterPlotControl.SetTitle($"{(OffsetFrequencyPeriodCoefficient is null ? string.Empty : $"Result: {OffsetFrequencyPeriodCoefficient.Value:0.###}(2pi) | ")}{string.Join(", ", Electrodes)}(Y: mW - X: 2pi)");
+        Step0ScatterPlotControl.SetTitle($"{(OffsetFrequencyPeriodCoefficient is null ? string.Empty : $"Result: {OffsetFrequencyPeriodCoefficient.Value:0.###}(2pi) | ")}" +
+                                         $"{string.Join(", ", Electrodes.Select(t => EnumHelper.ToDescriptionString(t)))}(Y: mW - X: 2pi)");
 
         foreach (var (index, item) in Items.Index())
         {

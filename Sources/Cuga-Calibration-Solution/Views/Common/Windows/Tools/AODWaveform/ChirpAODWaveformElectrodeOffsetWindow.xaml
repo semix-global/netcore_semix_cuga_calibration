@@ -505,7 +505,7 @@
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="*" />
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Step0ScatterPlotControl, Converter={StaticResource ScatterPlotControlToTitleConverter}, ConverterParameter=0}" Style="{StaticResource TextBlockDefaultBold}" />
+                                                <TextBlock Text="{Binding Electrodes, Converter={aodWaveform:OpticsAODElectrodeEnumsConvert}}" Style="{StaticResource TextBlockDefaultBold}" />
                                                 <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
                                                     <TabControl.ItemTemplate>
                                                         <DataTemplate>
