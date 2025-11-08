@@ -13,6 +13,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeOffsetWindowViewModel}"
@@ -324,24 +325,11 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <hc:NumericUpDown hc:TitleElement.Title="Low Frequency(MHz): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.LowFrequency}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Middle Frequency(MHz): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.MiddleFrequency}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="High Frequency(MHz): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.HighFrequency}" />
+                                    <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
+                                             hc:TitleElement.Title="Frequencies(MHz): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
+                                             Style="{StaticResource TextBoxExtend}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(MHz): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
@@ -495,28 +483,21 @@
                                                     <RowDefinition Height="*" />
                                                 </Grid.RowDefinitions>
                                                 <TextBlock Text="{Binding Step0ScatterPlotControl, Converter={StaticResource ScatterPlotControlToTitleConverter}, ConverterParameter=0}" Style="{StaticResource TextBlockDefaultBold}" />
-                                                <TabControl Grid.Row="1" Height="400">
-                                                    <TabItem Header="Low Frequency">
-                                                        <ListView ItemsSource="{Binding LowFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                            <i:Interaction.Behaviors>
-                                                                <behaviors:ListBoxScrollToCurrentBehavior />
-                                                            </i:Interaction.Behaviors>
-                                                        </ListView>
-                                                    </TabItem>
-                                                    <TabItem Header="Middle Frequency">
-                                                        <ListView ItemsSource="{Binding MiddleFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                            <i:Interaction.Behaviors>
-                                                                <behaviors:ListBoxScrollToCurrentBehavior />
-                                                            </i:Interaction.Behaviors>
-                                                        </ListView>
-                                                    </TabItem>
-                                                    <TabItem Header="High Frequency">
-                                                        <ListView ItemsSource="{Binding HighFrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                            <i:Interaction.Behaviors>
-                                                                <behaviors:ListBoxScrollToCurrentBehavior />
-                                                            </i:Interaction.Behaviors>
-                                                        </ListView>
-                                                    </TabItem>
+                                                <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
+                                                    <TabControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:AODWaveformElectrodeOffsetConvert}}" />
+                                                        </DataTemplate>
+                                                    </TabControl.ItemTemplate>
+                                                    <TabControl.ContentTemplate>
+                                                        <DataTemplate>
+                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                                <i:Interaction.Behaviors>
+                                                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                                                </i:Interaction.Behaviors>
+                                                            </ListView>
+                                                        </DataTemplate>
+                                                    </TabControl.ContentTemplate>
                                                 </TabControl>
                                             </Grid>
                                         </Border>
@@ -541,11 +522,20 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                                </i:Interaction.Behaviors>
-                                            </ListView>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:AODWaveformElectrodeOffsetConvert}}" Style="{StaticResource TextBlockDefaultBold}" />
+                                                <ListView Grid.Row="1"
+                                                          ItemsSource="{Binding FrequencyItems}"
+                                                          Style="{StaticResource FrequencyItemsListViewStyle}">
+                                                    <i:Interaction.Behaviors>
+                                                        <behaviors:ListBoxScrollToCurrentBehavior />
+                                                    </i:Interaction.Behaviors>
+                                                </ListView>
+                                            </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

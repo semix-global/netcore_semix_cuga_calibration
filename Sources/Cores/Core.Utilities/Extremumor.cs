@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using CommunityToolkit.Diagnostics;
+using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 
 namespace Core.Utilities;
@@ -23,53 +24,59 @@ public static class Extremumor
         double threshold = 0,
         bool isContainsEdge = false) => FindExtrema(x, y, ExtremumTypeEnum.Minimum, threshold, isContainsEdge);
 
-    public static (double x1, double y1, double x2, double y2, double x3, double y3, double span) FindClosestTriplet(
-        Vector<double> extremum1X,
-        Vector<double> extremum1Y,
-        Vector<double> extremum2X,
-        Vector<double> extremum2Y,
-        Vector<double> extremum3X,
-        Vector<double> extremum3Y)
+    /// <summary>
+    /// 从每组极值中各选一个点，使得所有选中点的值最接近（跨度最小）
+    /// </summary>
+    /// <param name="extremums">多组极值列表，每组代表一条曲线的极值点</param>
+    /// <returns>最优组合（索引和值）以及最小跨度</returns>
+    public static (IReadOnlyList<(int Index, double Value)> Results, double Span) FindClosestExtremum(IReadOnlyList<Vector<double>> extremums)
     {
-        var minSpan = double.MaxValue;
-        var bestX1 = 0.0;
-        var bestY1 = 0.0;
-        var bestX2 = 0.0;
-        var bestY2 = 0.0;
-        var bestX3 = 0.0;
-        var bestY3 = 0.0;
+        Guard.IsNotEmpty(extremums, nameof(extremums));
+        Guard.IsTrue(extremums.All(e => e.Count > 0), nameof(extremums));
 
-        for (var i = 0; i < extremum1X.Count; i++)
+        var minSpan = double.MaxValue; // 记录最小跨度
+        var bestResults = new (int Index, double Value)[extremums.Count]; // 最优解
+
+        var currentValues = new double[extremums.Count]; // 当前选择的值
+        var currentIndices = new int[extremums.Count]; // 当前选择的索引
+
+        // 开始递归搜索
+        Search(0);
+
+        return (bestResults, minSpan);
+
+        // 递归搜索函数（局部函数）
+        void Search(int depth)
         {
-            for (var j = 0; j < extremum2X.Count; j++)
+            // 递归终止条件：已经为每组都选择了一个点
+            if (depth == extremums.Count)
             {
-                for (var k = 0; k < extremum3X.Count; k++)
+                // 计算当前组合的跨度
+                var minValue = currentValues.Min();
+                var maxValue = currentValues.Max();
+                var span = maxValue - minValue;
+
+                // 如果找到更小的跨度，更新最优解
+                if (span < minSpan)
                 {
-                    var x1 = extremum1X[i];
-                    var x2 = extremum2X[j];
-                    var x3 = extremum3X[k];
-
-                    // 计算三个 x 坐标的跨度（最大值 - 最小值）
-                    var minX = Math.Min(Math.Min(x1, x2), x3);
-                    var maxX = Math.Max(Math.Max(x1, x2), x3);
-                    var span = maxX - minX;
-
-                    // 更新最小跨度的三点组合
-                    if (span < minSpan)
+                    minSpan = span;
+                    for (var i = 0; i < extremums.Count; i++)
                     {
-                        minSpan = span;
-                        bestX1 = x1;
-                        bestY1 = extremum1Y[i];
-                        bestX2 = x2;
-                        bestY2 = extremum2Y[j];
-                        bestX3 = x3;
-                        bestY3 = extremum3Y[k];
+                        bestResults[i] = (currentIndices[i], currentValues[i]);
                     }
                 }
+
+                return;
+            }
+
+            // 遍历当前组的所有极值点
+            for (var i = 0; i < extremums[depth].Count; i++)
+            {
+                currentIndices[depth] = i; // 记录索引
+                currentValues[depth] = extremums[depth][i]; // 记录值
+                Search(depth + 1); // 递归处理下一组
             }
         }
-
-        return (bestX1, bestY1, bestX2, bestY2, bestX3, bestY3, minSpan);
     }
 
     private static (Vector<double> X, Vector<double> Y) FindExtrema(
