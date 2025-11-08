@@ -42,9 +42,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     private double _sampleRate = 1064d;
 
     [ObservableProperty]
-    private double _amplitude = 1d;
-
-    [ObservableProperty]
     private string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveform));
 
     [ObservableProperty]
@@ -216,7 +213,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         CenterFrequency = obj.CenterFrequency;
         FunctionMonotonicTypeEnum = obj.FunctionMonotonicTypeEnum;
         SampleRate = obj.SampleRate;
-        Amplitude = obj.Amplitude;
         DirectoryPath = obj.DirectoryPath;
         ZeroSampleCount = obj.ZeroSampleCount;
         EndpointSampleCount = obj.EndpointSampleCount;
@@ -237,6 +233,23 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         return this;
     }
 
+    public virtual object ToFlatnessHtmlAnonymous() => new
+    {
+        OpticsMagTypeEnum,
+        IsHeaderAndFooter,
+        HeaderFrequency,
+        FooterFrequency,
+        BandWidth,
+        CenterFrequency,
+        FunctionMonotonicTypeEnum,
+        SampleRate,
+        DirectoryPath,
+        ZeroSampleCount,
+        EndpointSampleCount,
+        GenerateRetryTimes,
+        ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())])
+    };
+
     public virtual object ToHtmlAnonymous() => new
     {
         OpticsMagTypeEnum,
@@ -248,14 +261,13 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         CenterFrequency,
         FunctionMonotonicTypeEnum,
         SampleRate,
-        Amplitude,
         DirectoryPath,
         ZeroSampleCount,
         EndpointSampleCount,
         GenerateRetryTimes,
-        ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => new { t.OpticsAODElectrodeEnum, t.OffsetFrequency, t.OffsetFrequencyPeriodCoefficient })]),
-        UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => new { t.Coefficient, t.Frequency })]),
-        SlopeDeltaKConfigurations = new HtmlTable([.. SlopeDeltaKConfigurations.Select(t => new { t.DeltaK })]),
+        ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
+        UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => t.ToHtmlAnonymous())]),
+        SlopeDeltaKConfigurations = new HtmlTable([.. SlopeDeltaKConfigurations.Select(t => t.ToHtmlAnonymous())]),
         SincCoefficient,
         AstigmatismCompensationCoefficient,
         SphericalAberrationCompensationCoefficient,

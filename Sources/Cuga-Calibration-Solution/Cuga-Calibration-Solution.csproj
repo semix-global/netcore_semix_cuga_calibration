@@ -20,7 +20,6 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" />
-        <PackageReference Include="Net.Utilities.Models" />
         <PackageReference Include="NLog.Schema" />
         <PackageReference Include="NLog.Extensions.Hosting" />
         <PackageReference Include="System.Data.SQLite.Core" />

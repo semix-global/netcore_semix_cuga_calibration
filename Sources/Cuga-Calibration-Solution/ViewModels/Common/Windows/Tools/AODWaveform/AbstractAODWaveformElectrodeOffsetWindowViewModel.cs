@@ -158,6 +158,8 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     public void RefreshPlot()
     {
+        Step1ScatterPlotControl.Clear();
+
         var isNeedRefresh = false;
         foreach (var (index, item) in Step1Items.Index())
         {
@@ -213,9 +215,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
 {
     [ObservableProperty]
-    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
-
-    [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
@@ -258,7 +257,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(0),
                         Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(1),
                         Cache.Step1ScatterPlotControl.GetHtmlPlot2DLinesChart(2)
-                    ]),
+                    ])
                 },
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
@@ -393,7 +392,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                         var item = new TItem
                         {
-                            Electrodes = electrodes,
                             ElectrodeConfigurations =
                             [
                                 ..Cache.ElectrodeOffsetParams
@@ -405,7 +403,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                             ? currentOffsetFrequencyPeriodCoefficient
                                             : Cache.ElectrodeConfigurationResults
                                                 .SingleOrDefault(tt => tt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum)
-                                                ?.OffsetFrequencyPeriodCoefficient ?? 0
+                                                ?.OffsetFrequencyPeriodCoefficient ?? 0,
+                                        Amplitude = Cache.DefaultAmplitude,
+                                        IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
                                     })
                             ],
                             Frequency = frequency,
@@ -457,10 +457,16 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 {
                     var item = new TItem
                     {
-                        Electrodes = [.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum)],
-                        ElectrodeConfigurations = Cache.ElectrodeConfigurationResults,
+                        ElectrodeConfigurations =
+                        [
+                            .. Cache.ElectrodeConfigurationResults
+                                .Select(t => t.Clone()
+                                    .WithAmplitude(t.OpticsAODElectrodeEnum is OpticsAODElectrodeEnum.Electrode3 or OpticsAODElectrodeEnum.Electrode4
+                                        ? amplitude
+                                        : Cache.DefaultAmplitude))
+                        ],
                         Amplitude = amplitude,
-                        Frequency = frequency,
+                        Frequency = frequency
                     };
 
                     Logger.LogHtmlInformation($"{item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());

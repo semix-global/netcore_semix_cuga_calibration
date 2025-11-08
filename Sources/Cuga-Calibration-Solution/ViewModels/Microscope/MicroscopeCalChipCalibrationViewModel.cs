@@ -544,7 +544,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
                 ResultMicroscopeCalChipDto.DswToChuckAfMotorValue,
                 ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue,
                 ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue,
-                AfOffsetAbs = afOffsetAbs,
+                AfOffsetAbs = afOffsetAbs
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });

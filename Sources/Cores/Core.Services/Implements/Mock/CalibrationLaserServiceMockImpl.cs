@@ -136,7 +136,7 @@ public sealed class CalibrationLaserServiceMockImpl(
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true })
         ]);
     }
 

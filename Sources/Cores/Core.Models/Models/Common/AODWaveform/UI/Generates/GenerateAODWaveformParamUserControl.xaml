@@ -161,14 +161,6 @@
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding SampleRate}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Amplitude: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                              Maximum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Minimum="0"
-                                              Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"
-                                              Value="{Binding Amplitude}" />
                             <TextBox Text="{Binding DirectoryPath}"
                                      Height="50"
                                      TextWrapping="Wrap"
@@ -239,6 +231,7 @@
                                                         Header="Frequency(MHz)"
                                                         Binding="{Binding OffsetFrequency}" />
                                     <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
+                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </hc:UniformSpacingPanel>

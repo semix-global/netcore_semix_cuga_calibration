@@ -42,15 +42,14 @@ public class AODWaveformUnitTest
             CenterFrequency = 200d,
             FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Increasing,
             SampleRate = 10640d,
-            Amplitude = 0.9d,
             DirectoryPath = outputDirectoryPath,
             ZeroSampleCount = 110,
             EndpointSampleCount = 10000,
             GenerateRetryTimes = 2000,
             ElectrodeConfigurations =
             [
-                new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 0.8d },
-                new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 1.5d }
+                new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 0.8d, Amplitude = 0.9d },
+                new GenerateAODWaveformElectrodeConfiguration { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2, OffsetFrequency = 215d, OffsetFrequencyPeriodCoefficient = 1.5d, Amplitude = 0.9d }
             ],
             SincCoefficient = 1.1d,
             AstigmatismCompensationCoefficient = 1.2d,
