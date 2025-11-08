@@ -11,7 +11,6 @@
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
            Width="1500"
@@ -486,16 +485,12 @@
                                                 <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
                                                     <TabControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:AODWaveformElectrodeOffsetConvert}}" />
+                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}}" />
                                                         </DataTemplate>
                                                     </TabControl.ItemTemplate>
                                                     <TabControl.ContentTemplate>
                                                         <DataTemplate>
-                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                                <i:Interaction.Behaviors>
-                                                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                                                </i:Interaction.Behaviors>
-                                                            </ListView>
+                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}" />
                                                         </DataTemplate>
                                                     </TabControl.ContentTemplate>
                                                 </TabControl>
@@ -527,14 +522,10 @@
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="*" />
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:AODWaveformElectrodeOffsetConvert}}" Style="{StaticResource TextBlockDefaultBold}" />
+                                                <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}}" Style="{StaticResource TextBlockDefaultBold}" />
                                                 <ListView Grid.Row="1"
                                                           ItemsSource="{Binding FrequencyItems}"
-                                                          Style="{StaticResource FrequencyItemsListViewStyle}">
-                                                    <i:Interaction.Behaviors>
-                                                        <behaviors:ListBoxScrollToCurrentBehavior />
-                                                    </i:Interaction.Behaviors>
-                                                </ListView>
+                                                          Style="{StaticResource FrequencyItemsListViewStyle}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

@@ -90,6 +90,30 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
+    partial void OnStep0ItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> newValue)
+    {
+        foreach (var step0 in oldValue ?? [])
+        {
+            step0.PropertyChanged -= Step0ItemOnPropertyChanged;
+        }
+
+        foreach (var step0 in newValue)
+        {
+            step0.PropertyChanged -= Step0ItemOnPropertyChanged;
+            step0.PropertyChanged += Step0ItemOnPropertyChanged;
+        }
+
+        return;
+
+        void Step0ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not AODWaveformElectrodeOffsetStep0<TItem> step0Item) return;
+
+            step0Item.RefreshPlot();
+            OnPropertyChanged(nameof(Step0Items));
+        }
+    }
+
     partial void OnStep1ItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>> newValue)
     {
         foreach (var step1 in oldValue ?? [])
@@ -108,6 +132,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         void Step1ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             RefreshPlot();
+            OnPropertyChanged(nameof(Step1Items));
         }
     }
 
@@ -133,9 +158,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     public void RefreshPlot()
     {
+        var isNeedRefresh = false;
         foreach (var (index, item) in Step1Items.Index())
         {
             if (item.FrequencyItems.Count <= 0) continue;
+
             Step1ScatterPlotControl.GetOrAddScatterLine(
                 0,
                 $"{item.FrequencyItems[0].Frequency}(MHz)",
@@ -144,9 +171,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
                 new Range(0, Step1Items.Count - 1));
 
             item.MaxItem = GuardUtils.IsNotNullAndReturn(item.FrequencyItems.MaxBy(t => t.MeasurePower));
+
+            isNeedRefresh = true;
         }
 
-        if (Step1Items.Count > 0)
+        if (isNeedRefresh)
         {
             Step1ScatterPlotControl.GetOrAddScatterLine(
                 1,
@@ -318,11 +347,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 var electrodes = (OpticsAODElectrodeEnum[])[.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum];
 
-                var header = string.Join(", ", electrodes);
-                Logger.LogHtmlInformation(header, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation(string.Join(", ", electrodes), HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var step0 = new AODWaveformElectrodeOffsetStep0<TItem>();
-                step0.Step0ScatterPlotControl.SetTitle(header);
+                var step0 = new AODWaveformElectrodeOffsetStep0<TItem> { Electrodes = electrodes };
                 Cache.Step0Items = [.. Cache.Step0Items, step0];
 
                 var offsetFrequencyPeriodCoefficients = Generate.LinearRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
@@ -505,6 +532,9 @@ public sealed partial class AODWaveformElectrodeOffsetParam : ObservableCacheBas
 public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableCacheBase
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
+    [ObservableProperty]
+    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
+
     #region Result
 
     [ObservableProperty]
@@ -527,7 +557,7 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            RefreshPlot();
+            OnPropertyChanged(nameof(Items));
         }
     }
 
@@ -536,20 +566,6 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 
     [ObservableProperty]
     private double? _offsetFrequencyPeriodCoefficient;
-
-    partial void OnClosestMaximaPointsChanged(IReadOnlyList<Point> value)
-    {
-        _ = value;
-
-        RefreshPlot();
-    }
-
-    partial void OnOffsetFrequencyPeriodCoefficientChanged(double? value)
-    {
-        _ = value;
-
-        RefreshPlot();
-    }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -574,29 +590,31 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 
     public void RefreshPlot()
     {
-        Step0ScatterPlotControl.SetTitle($"{(OffsetFrequencyPeriodCoefficient is null ? string.Empty : $"Result: {OffsetFrequencyPeriodCoefficient.Value:0.###}(2pi) | ")}{Step0ScatterPlotControl.GetTitle().Split('|')[^1]}");
+        Step0ScatterPlotControl.SetTitle($"{(OffsetFrequencyPeriodCoefficient is null ? string.Empty : $"Result: {OffsetFrequencyPeriodCoefficient.Value:0.###}(2pi) | ")}{string.Join(", ", Electrodes)}(Y: mW - X: 2pi)");
 
-        foreach (var item in Items)
+        foreach (var (index, item) in Items.Index())
         {
+            if (item.FrequencyItems.Count <= 0) continue;
+
             var scatterMarkersOrigin = Step0ScatterPlotControl.GetOrAddScatterMarkers(
                 $"Origin {item.FrequencyItems[0].Frequency:0.###}(MHz)",
                 [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
-                0,
-                new Range(0, 2),
+                index,
+                new Range(0, Items.Count - 1),
                 markerShape: MarkerShape.OpenCircle);
             scatterMarkersOrigin.MarkerSize = 10;
 
             Step0ScatterPlotControl.GetOrAddScatterLine(
                 $"Interpolation {item.FrequencyItems[0].Frequency:0.###}(MHz)",
                 item.FrequencyInterpolationPoints,
-                0,
-                new Range(0, 2));
+                index,
+                new Range(0, Items.Count - 1));
 
             var scatterMarkersMaxima = Step0ScatterPlotControl.GetOrAddScatterMarkers(
                 $"Maxima {item.FrequencyItems[0].Frequency:0.###}(MHz)",
                 item.FrequencyMaximaPoints,
-                0,
-                new Range(0, 2),
+                index,
+                new Range(0, Items.Count - 1),
                 markerShape: MarkerShape.Asterisk);
             scatterMarkersMaxima.MarkerSize = 20;
         }
@@ -641,11 +659,11 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
             ];
         }
 
-        var (results, _) = Extremumor.FindClosestExtremum([..Items.Select(t => Vector<double>.Build.DenseOfEnumerable(t.FrequencyInterpolationPoints.Select(tt => tt.X)))]);
+        var (results, _) = Extremumor.FindClosestExtremum([..Items.Select(t => Vector<double>.Build.DenseOfEnumerable(t.FrequencyMaximaPoints.Select(tt => tt.X)))]);
 
         foreach (var (index, (xIndex, xValue)) in results.Index())
         {
-            ClosestMaximaPoints = [.. ClosestMaximaPoints, new Point(xValue, Items[index].FrequencyInterpolationPoints[xIndex].Y)];
+            ClosestMaximaPoints = [.. ClosestMaximaPoints, new Point(xValue, Items[index].FrequencyMaximaPoints[xIndex].Y)];
         }
 
         OffsetFrequencyPeriodCoefficient = ClosestMaximaPoints.Average(t => t.X);
