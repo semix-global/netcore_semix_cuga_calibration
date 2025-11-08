@@ -269,7 +269,7 @@
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
-                                    <Expander Header="Electrode Offset Param"
+                                    <Expander Header="Electrode Offset Params"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
@@ -363,6 +363,30 @@
                         <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+                                    <Expander Header="Electrode Offset Results"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <DataGrid MaxHeight="500"
+                                                      hc:DataGridAttach.ShowRowNumber="False"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="Column"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      ItemsSource="{Binding Cache.ElectrodeConfigurationResults}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Width="120"
+                                                                        IsReadOnly="True"
+                                                                        Header="AOD Electrode"
+                                                                        Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                    <DataGridTextColumn Width="130"
+                                                                        Header="Frequency(MHz)"
+                                                                        Binding="{Binding OffsetFrequency}" />
+                                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Border>
+                                    </Expander>
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Step1 Action"
                                                 Command="{Binding Step0Command}"

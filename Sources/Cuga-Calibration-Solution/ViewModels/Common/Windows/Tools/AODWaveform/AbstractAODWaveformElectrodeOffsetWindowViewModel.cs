@@ -434,6 +434,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsTrue(Cache.Frequencies.Count >= 2);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
+            foreach (var step0 in Cache.Step0Items)
+            {
+                step0.OffsetFrequencyPeriodCoefficient = Cache.ElectrodeConfigurationResults
+                    .Single(t => t.OpticsAODElectrodeEnum == step0.Electrodes[^1])
+                    .OffsetFrequencyPeriodCoefficient;
+            }
+
             Cache.Step1Items = [];
             Cache.UniformityConfigurationResults = [];
 
