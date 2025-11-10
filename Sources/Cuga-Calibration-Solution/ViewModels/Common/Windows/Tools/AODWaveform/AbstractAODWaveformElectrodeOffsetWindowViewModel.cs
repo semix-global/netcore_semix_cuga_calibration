@@ -44,16 +44,21 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }
     ];
 
-    partial void OnElectrodeConfigurationResultsChanged(IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> value)
+    partial void OnElectrodeOffsetParamsChanged(IReadOnlyList<AODWaveformElectrodeOffsetParam> value)
     {
+        var oldElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams;
+
         ElectrodeOffsetFrequencyWeightParams =
         [
             ..value
+                .Where(t => t.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode1)
                 .SelectMany(t => Frequencies.Select(tt => new AODWaveformOffsetElectrodeFrequencyWeightParam
                 {
                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                     Frequency = tt,
-                    Weight = 1d
+                    Weight = oldElectrodeOffsetFrequencyWeightParams
+                        .SingleOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
+                        ?.Weight ?? 1d
                 }))
         ];
     }
@@ -66,14 +71,19 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     partial void OnFrequenciesChanged(IReadOnlyList<double> value)
     {
+        var oldElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams;
+
         ElectrodeOffsetFrequencyWeightParams =
         [
             ..ElectrodeOffsetParams
+                .Where(t => t.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode1)
                 .SelectMany(t => value.Select(tt => new AODWaveformOffsetElectrodeFrequencyWeightParam
                 {
                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                     Frequency = tt,
-                    Weight = 1d
+                    Weight = oldElectrodeOffsetFrequencyWeightParams
+                        .SingleOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
+                        ?.Weight ?? 1d
                 }))
         ];
     }
@@ -377,9 +387,17 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 step0.InterpolationMaxima(Cache.InterpolationCount);
 
+                var allWeight = Cache.ElectrodeOffsetFrequencyWeightParams
+                    .Where(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
+                    .Select(t => t.Weight)
+                    .Sum();
+
                 step0.OffsetFrequencyPeriodCoefficient = step0.ClosestMaximaPoints
-                    .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams.Single(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum && Equals(tt.Frequency, t.X)).Weight * t.Y)
-                    .Average();
+                    .Index()
+                    .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams
+                        .Single(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum &&
+                                      Equals(tt.Frequency, step0.Items[t.Index].FrequencyItems[0].Frequency)).Weight * t.Item.X)
+                    .Sum() / allWeight;
 
                 if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
                 {

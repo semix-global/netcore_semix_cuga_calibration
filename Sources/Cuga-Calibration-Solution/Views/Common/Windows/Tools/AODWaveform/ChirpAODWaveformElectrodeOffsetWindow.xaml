@@ -367,36 +367,12 @@
                                                           AutoGenerateColumns="False"
                                                           ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyWeightParams}">
                                                     <DataGrid.Columns>
-                                                        <DataGridTemplateColumn Header="AOD Electrode">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <ComboBox SelectedItem="{Binding OpticsAODElectrodeEnum, Mode=TwoWay}" ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsAODElectrodeEnum}}}">
-                                                                        <ComboBox.ItemTemplate>
-                                                                            <DataTemplate>
-                                                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                                            </DataTemplate>
-                                                                        </ComboBox.ItemTemplate>
-                                                                    </ComboBox>
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
-                                                        <DataGridTemplateColumn Header="Frequency(MHz)">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding Frequency}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <ComboBox SelectedItem="{Binding Frequency, Mode=TwoWay}" ItemsSource="{Binding DataContext.Cache.Frequencies, RelativeSource={RelativeSource AncestorType=hc:Window}}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
+                                                        <DataGridTextColumn IsReadOnly="True"
+                                                                            Header="AOD Electrode"
+                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                        <DataGridTextColumn IsReadOnly="True"
+                                                                            Header="Frequency(MHz)"
+                                                                            Binding="{Binding Frequency, StringFormat='0.###'}" />
                                                         <DataGridTemplateColumn Header="Weight">
                                                             <DataGridTemplateColumn.CellTemplate>
                                                                 <DataTemplate>
@@ -558,33 +534,35 @@
                                                                            AllowsTransparency="True"
                                                                            PopupAnimation="Slide"
                                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
-                                                                        <TabControl>
-                                                                            <TabItem Header="Plots">
-                                                                                <Border Style="{StaticResource BorderRegion}">
-                                                                                    <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                                                </Border>
-                                                                            </TabItem>
-                                                                            <TabItem Header="Details">
-                                                                                <Border Style="{StaticResource BorderRegion}">
-                                                                                    <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                                              hc:DataGridAttach.ShowRowNumber="True"
-                                                                                              Style="{StaticResource DataGrid.Small}"
-                                                                                              HeadersVisibility="All"
-                                                                                              RowHeaderWidth="60"
-                                                                                              AutoGenerateColumns="False"
-                                                                                              ItemsSource="{Binding UniformityConfigurations}">
-                                                                                        <DataGrid.Columns>
-                                                                                            <DataGridTextColumn IsReadOnly="True"
-                                                                                                                Header="Frequency(MHz)"
-                                                                                                                Binding="{Binding Frequency}" />
-                                                                                            <DataGridTextColumn IsReadOnly="True"
-                                                                                                                Header="Coefficient"
-                                                                                                                Binding="{Binding Coefficient}" />
-                                                                                        </DataGrid.Columns>
-                                                                                    </DataGrid>
-                                                                                </Border>
-                                                                            </TabItem>
-                                                                        </TabControl>
+                                                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                            <TabControl>
+                                                                                <TabItem Header="Plots">
+                                                                                    <Border Style="{StaticResource BorderRegion}">
+                                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                                    </Border>
+                                                                                </TabItem>
+                                                                                <TabItem Header="Details">
+                                                                                    <Border Style="{StaticResource BorderRegion}">
+                                                                                        <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                                                  hc:DataGridAttach.ShowRowNumber="True"
+                                                                                                  Style="{StaticResource DataGrid.Small}"
+                                                                                                  HeadersVisibility="All"
+                                                                                                  RowHeaderWidth="60"
+                                                                                                  AutoGenerateColumns="False"
+                                                                                                  ItemsSource="{Binding UniformityConfigurations}">
+                                                                                            <DataGrid.Columns>
+                                                                                                <DataGridTextColumn IsReadOnly="True"
+                                                                                                                    Header="Frequency(MHz)"
+                                                                                                                    Binding="{Binding Frequency}" />
+                                                                                                <DataGridTextColumn IsReadOnly="True"
+                                                                                                                    Header="Coefficient"
+                                                                                                                    Binding="{Binding Coefficient}" />
+                                                                                            </DataGrid.Columns>
+                                                                                        </DataGrid>
+                                                                                    </Border>
+                                                                                </TabItem>
+                                                                            </TabControl>
+                                                                        </Border>
                                                                     </Popup>
                                                                 </Grid>
                                                             </DataTemplate>
