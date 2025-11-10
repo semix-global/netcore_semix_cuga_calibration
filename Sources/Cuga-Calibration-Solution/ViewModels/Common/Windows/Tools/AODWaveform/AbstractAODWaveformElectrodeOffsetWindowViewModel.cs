@@ -57,10 +57,12 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                     Frequency = tt,
                     Weight = oldElectrodeOffsetFrequencyWeightParams
-                        .SingleOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
+                        .FirstOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
                         ?.Weight ?? 1d
                 }))
         ];
+
+        ElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams.DistinctBy(t => (t.OpticsAODElectrodeEnum, t.Frequency)).ToArray();
     }
 
     [ObservableProperty]
@@ -82,10 +84,12 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                     Frequency = tt,
                     Weight = oldElectrodeOffsetFrequencyWeightParams
-                        .SingleOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
+                        .FirstOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
                         ?.Weight ?? 1d
                 }))
         ];
+
+        ElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams.DistinctBy(t => (t.OpticsAODElectrodeEnum, t.Frequency)).ToArray();
     }
 
     [ObservableProperty]
