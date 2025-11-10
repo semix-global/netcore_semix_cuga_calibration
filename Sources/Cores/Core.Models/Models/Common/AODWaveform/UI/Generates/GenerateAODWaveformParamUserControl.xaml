@@ -9,6 +9,7 @@
                                                 xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
                                                 xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
                                                 xmlns:hc="https://handyorg.github.io/handycontrol"
+                                                xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
                                                 d:DataContext="{d:DesignInstance Type=generates:AbstractGenerateAODWaveformParam}"
                                                 d:DesignWidth="400"
                                                 d:DesignHeight="1000"
@@ -223,15 +224,60 @@
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding ElectrodeConfigurations}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Width="120"
-                                                        IsReadOnly="True"
+                                    <DataGridTextColumn IsReadOnly="True"
                                                         Header="AOD Electrode"
                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <DataGridTextColumn Width="130"
-                                                        Header="Frequency(MHz)"
-                                                        Binding="{Binding OffsetFrequency}" />
+                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency}" />
                                     <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
                                     <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude}" />
+                                    <DataGridTemplateColumn Header="Uniformity Configurations">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource BorderRegion}">
+                                                    <TabControl>
+                                                        <TabItem Header="Plots">
+                                                            <controls:ScatterMultiPlotControl Title="Total" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                        </TabItem>
+                                                        <TabItem Header="Details">
+                                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                                    <Button Content="Import"
+                                                                            Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                                            Style="{StaticResource ButtonSuccess}" />
+                                                                    <Button Content="Add"
+                                                                            Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                            Style="{StaticResource ButtonInfo}" />
+                                                                    <Button Content="Delete"
+                                                                            Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridUniformityConfigurations}"
+                                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                            Style="{StaticResource ButtonDanger}" />
+                                                                </hc:UniformSpacingPanel>
+                                                                <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                          Width="500"
+                                                                          Height="500"
+                                                                          hc:DataGridAttach.ShowRowNumber="True"
+                                                                          Style="{StaticResource DataGrid.Small}"
+                                                                          HeadersVisibility="All"
+                                                                          RowHeaderWidth="60"
+                                                                          AutoGenerateColumns="False"
+                                                                          ItemsSource="{Binding UniformityConfigurations}">
+                                                                    <DataGrid.Columns>
+                                                                        <DataGridTextColumn Width="130"
+                                                                                            Header="Frequency(MHz)"
+                                                                                            Binding="{Binding Frequency}" />
+                                                                        <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient}" />
+                                                                    </DataGrid.Columns>
+                                                                </DataGrid>
+                                                            </hc:UniformSpacingPanel>
+                                                        </TabItem>
+                                                    </TabControl>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </hc:UniformSpacingPanel>
@@ -240,42 +286,7 @@
                 <Expander Header="Uniformity Configurations"
                           IsExpanded="False"
                           ExpandDirection="Down"
-                          Visibility="{Binding IsVisibleUniformityConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Border Style="{StaticResource BorderRegion}">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                <Button Content="Import"
-                                        Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                        Style="{StaticResource ButtonSuccess}" />
-                                <Button Content="Add"
-                                        Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                        Style="{StaticResource ButtonInfo}" />
-                                <Button Content="Delete"
-                                        Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridUniformityConfigurations}"
-                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                        Style="{StaticResource ButtonDanger}" />
-                            </hc:UniformSpacingPanel>
-                            <DataGrid x:Name="DataGridUniformityConfigurations"
-                                      MaxHeight="500"
-                                      hc:DataGridAttach.ShowRowNumber="True"
-                                      Style="{StaticResource DataGrid.Small}"
-                                      HeadersVisibility="All"
-                                      RowHeaderWidth="60"
-                                      AutoGenerateColumns="False"
-                                      ItemsSource="{Binding UniformityConfigurations}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Width="130"
-                                                        Header="Frequency(MHz)"
-                                                        Binding="{Binding Frequency}" />
-                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
+                          Visibility="{Binding IsVisibleUniformityConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <Expander Header="Slope ΔK Configurations"
                           IsExpanded="False"
                           ExpandDirection="Down"

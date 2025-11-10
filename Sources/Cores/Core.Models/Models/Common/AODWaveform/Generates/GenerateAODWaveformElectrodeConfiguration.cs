@@ -27,6 +27,9 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     [ObservableProperty]
     private bool _isGenerateAODWaveformZero;
 
+    [ObservableProperty]
+    private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
+
     public GenerateAODWaveformElectrodeConfiguration WithAmplitude(double amplitude)
     {
         Amplitude = amplitude;
