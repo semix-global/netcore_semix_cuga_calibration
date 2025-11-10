@@ -44,24 +44,51 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }
     ];
 
+    partial void OnElectrodeConfigurationResultsChanged(IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> value)
+    {
+        ElectrodeOffsetFrequencyWeightParams =
+        [
+            ..value
+                .SelectMany(t => Frequencies.Select(tt => new AODWaveformOffsetElectrodeFrequencyWeightParam
+                {
+                    OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
+                    Frequency = tt,
+                    Weight = 1d
+                }))
+        ];
+    }
+
     [ObservableProperty]
     private bool _isConfirmAODWaveformElectrodeOffsetResult = true;
-
-    #region AOD Waveform Frequency
 
     [ObservableProperty]
     private IReadOnlyList<double> _frequencies = [];
 
+    partial void OnFrequenciesChanged(IReadOnlyList<double> value)
+    {
+        ElectrodeOffsetFrequencyWeightParams =
+        [
+            ..ElectrodeOffsetParams
+                .SelectMany(t => value.Select(tt => new AODWaveformOffsetElectrodeFrequencyWeightParam
+                {
+                    OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
+                    Frequency = tt,
+                    Weight = 1d
+                }))
+        ];
+    }
+
     [ObservableProperty]
     private double _stepFrequency;
+
+    [ObservableProperty]
+    private IReadOnlyList<AODWaveformOffsetElectrodeFrequencyWeightParam> _electrodeOffsetFrequencyWeightParams = [];
 
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeFrequencyUniformityParam> _electrodeFrequencyUniformityParams = [];
 
     [ObservableProperty]
     private int _electrodeFrequencyUniformityParamChunkSize;
-
-    #endregion AOD Waveform Frequency
 
     #endregion Param
 
@@ -135,6 +162,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
         Frequencies,
         StepFrequency,
         ElectrodeOffsetParams = new HtmlTable([.. ElectrodeOffsetParams.Select(t => t.ToHtmlAnonymous())]),
+        ElectrodeOffsetFrequencyWeightParams = new HtmlTable([.. ElectrodeOffsetFrequencyWeightParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeFrequencyUniformityParams = new HtmlTable([.. ElectrodeFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
@@ -349,11 +377,18 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 step0.InterpolationMaxima(Cache.InterpolationCount);
 
-                var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel>();
-                aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = GuardUtils.IsNotNullAndReturn(step0.OffsetFrequencyPeriodCoefficient);
+                step0.OffsetFrequencyPeriodCoefficient = step0.ClosestMaximaPoints
+                    .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams.Single(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum && Equals(tt.Frequency, t.X)).Weight * t.Y)
+                    .Average();
 
-                var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
-                if (showDialog == true) step0.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
+                if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
+                {
+                    var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel>();
+                    aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = GuardUtils.IsNotNullAndReturn(step0.OffsetFrequencyPeriodCoefficient);
+
+                    var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
+                    if (showDialog == true) step0.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
+                }
 
                 Cache.ElectrodeConfigurationResults =
                 [
@@ -514,6 +549,25 @@ public sealed partial class AODWaveformElectrodeOffsetParam : ObservableCacheBas
         StartOffsetFrequencyPeriodCoefficient,
         StepOffsetFrequencyPeriodCoefficient,
         StopOffsetFrequencyPeriodCoefficient
+    };
+}
+
+public sealed partial class AODWaveformOffsetElectrodeFrequencyWeightParam : ObservableCacheBase
+{
+    [ObservableProperty]
+    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+
+    [ObservableProperty]
+    private double _frequency;
+
+    [ObservableProperty]
+    private double _weight;
+
+    public object ToHtmlAnonymous() => new
+    {
+        OpticsAODElectrodeEnum,
+        Frequency,
+        Weight
     };
 }
 
@@ -678,8 +732,6 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
         {
             ClosestMaximaPoints = [.. ClosestMaximaPoints, new Point(xValue, Items[index].FrequencyMaximaPoints[xIndex].Y)];
         }
-
-        OffsetFrequencyPeriodCoefficient = ClosestMaximaPoints.Average(t => t.X);
     }
 }
 
