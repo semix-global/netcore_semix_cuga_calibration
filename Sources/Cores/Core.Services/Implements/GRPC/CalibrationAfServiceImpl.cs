@@ -188,7 +188,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         throw new NotImplementedException();
     }
@@ -272,6 +272,20 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetDarkFieldAutoFocusMotorAbsoluteValue()
+    {
+        Thread.Sleep(150);
+
+        return SxExecuteRetHelper.CreateSuccess(16d);
+    }
+
+    public SxExecuteRet<(double, double)> GetDarkFieldAutoFocusMotorMoveRange()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((16d, 32d));
     }
 
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()

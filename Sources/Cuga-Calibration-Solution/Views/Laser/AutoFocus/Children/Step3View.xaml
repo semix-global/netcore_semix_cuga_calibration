@@ -150,9 +150,7 @@
                             <GridViewColumn Width="600" Header="Trans buffer">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <wpf:WpfPlot Width="600"
-                                                     Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                                     d:DataContext="{d:DesignInstance Type=autoFocus:LaserAutoFocusDto}">
+                                        <wpf:WpfPlot Width="600" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotMultiBehavior Plot0Title="ECS"
                                                                                 Plot0Color="{x:Static scottPlot:Colors.Green}"
@@ -162,7 +160,36 @@
                                                                                 Plot1="{Binding CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
                                                                                 Plot2Title="Lvdt"
                                                                                 Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                                Plot2="{Binding CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                                                Plot2="{Binding CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                                Plot3Title="FA"
+                                                                                Plot3Color="{x:Static scottPlot:Colors.DarkOrange}"
+                                                                                Plot3="{Binding CalibrationFa, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                                Plot4Title="NA"
+                                                                                Plot4Color="{x:Static scottPlot:Colors.DarkOliveGreen}"
+                                                                                Plot4="{Binding CalibrationNa, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                                Plot5Title="FB"
+                                                                                Plot5Color="{x:Static scottPlot:Colors.PaleGoldenRod}"
+                                                                                Plot5="{Binding CalibrationFb, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                                Plot6Title="NB"
+                                                                                Plot6Color="{x:Static scottPlot:Colors.DeepSkyBlue}"
+                                                                                Plot6="{Binding CalibrationNb, Converter={StaticResource DoublesToPointsConverter}}" />
+                                            </i:Interaction.Behaviors>
+                                        </wpf:WpfPlot>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="600" Header="Ecs Nsc Curve And Slope">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <wpf:WpfPlot Width="600" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:WpfPlotMultiBehavior Title="EcsNsc"
+                                                                                Plot0Title="EcsNscCurve"
+                                                                                Plot0Color="{x:Static scottPlot:Colors.DarkOrange}"
+                                                                                Plot0="{Binding CalibrationEcsNscPointList}"
+                                                                                Plot1Title="EcsNscSlope"
+                                                                                Plot1Color="{x:Static scottPlot:Colors.Green}"
+                                                                                Plot1="{Binding CalibrationEcsNscMaxMinList}" />
                                             </i:Interaction.Behaviors>
                                         </wpf:WpfPlot>
                                     </DataTemplate>

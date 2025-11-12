@@ -104,6 +104,16 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
     /// Nsc 增益归一化, **需要下发AF硬件** 【需要 * 1000下发】
     /// </summary>
     public double NscGain { get; set; }
+
+    /// <summary>
+    /// AF  电机位置和NSC换算关系,斜率系数
+    /// </summary>
+    public double EcsMotorPositionRelationSlope { get; set; }
+
+    /// <summary>
+    /// AF  电机位置和NSC换算关系,截距系数
+    /// </summary>
+    public double EcsMotorPositionRelationIntercept { get; set; }
 }
 
 /// <summary>

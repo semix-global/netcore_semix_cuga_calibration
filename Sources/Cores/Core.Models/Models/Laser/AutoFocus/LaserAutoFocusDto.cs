@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.AutoFocus;
 
@@ -56,6 +57,30 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     [ObservableProperty]
     private IReadOnlyList<double> _originalLvdt = [];
 
+    [ObservableProperty]
+    private IReadOnlyList<double> _originalFa = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _originalNa = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _originalFb = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _originalNb = [];
+
+    [ObservableProperty]
+    private Point[] _ecsNscPointList = [];
+
+    [ObservableProperty]
+    private Point[] _ecsNscMaxMinList = [];
+
+    [ObservableProperty]
+    private double _ecsMotorPositionRelationSlope = 0;
+
+    [ObservableProperty]
+    private double _ecsMotorPositionRelationIntercept = 0;
+
     #endregion NSC Profile
 
     #region NscGain
@@ -80,6 +105,23 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
 
     [ObservableProperty]
     private IReadOnlyList<double> _calibrationLvdt = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _calibrationFa = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _calibrationNa = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _calibrationFb = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _calibrationNb = [];
+
+    [ObservableProperty]
+    private Point[] _calibrationEcsNscPointList = [];
+    [ObservableProperty]
+    private Point[] _calibrationEcsNscMaxMinList = [];
 
     #endregion NscGain
 
@@ -113,6 +155,8 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
+        EcsMotorPositionRelationSlope = EcsMotorPositionRelationSlope,
+        EcsMotorPositionRelationIntercept = EcsMotorPositionRelationIntercept,
         Id = Id,
         Expiration = Expiration
     };
@@ -124,7 +168,9 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         NscGain = NscGain,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        EcsMotorPositionRelationSlope = EcsMotorPositionRelationSlope,
+        EcsMotorPositionRelationIntercept = EcsMotorPositionRelationIntercept
     };
 
     #endregion Mapper

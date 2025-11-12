@@ -142,7 +142,7 @@ public interface ICalibrationAfService
     /// <param name="speedEcs">速度Ecs</param>
     /// <param name="timeSpan">多长时间Buffer</param>
     /// <returns>TraceBuffer ECS NSC Lvdt当前值</returns>
-    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
+    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
 
     #region 自动聚焦下发参数
 
@@ -213,6 +213,18 @@ public interface ICalibrationAfService
     /// <param name="value">自动聚焦电机的位置</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetDarkFieldAutoFocusMotorAbsoluteValue(double value);
+
+    /// <summary>
+    /// 获取暗场自动聚焦电机的位置, 会等待电机到位(影响自动聚焦值)
+    /// </summary>    
+    /// <returns>电机位置</returns>
+    SxExecuteRet<double> GetDarkFieldAutoFocusMotorAbsoluteValue();
+
+    /// <summary>
+    /// 获取暗场自动聚焦电机的移动范围, 会等待电机到位(影响自动聚焦值)
+    /// </summary>    
+    /// <returns>电机位置</returns>
+    SxExecuteRet<(double, double)> GetDarkFieldAutoFocusMotorMoveRange();
 
     #endregion 自动聚焦下发参数
 
