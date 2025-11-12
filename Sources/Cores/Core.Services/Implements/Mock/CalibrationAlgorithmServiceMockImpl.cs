@@ -23,18 +23,16 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     private readonly Algorithm _algorithm = new();
 
-    public string Version => Algorithm.Version;
+    public string Version => HAlgorithm.Algorithm.Version;
 
     public double GetQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
-
     public double GetDarkFieldQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
-
     public (double XQuality, double YQuality) GetXyQuality(HImage image)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
@@ -189,6 +187,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return (ch1YList, ch2YList);
     }
 
+
     public Point GetChuckCenter(
         Point firstTopLeftPosition,
         Point secondTopLeftPosition,
@@ -203,15 +202,15 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
     }
 
     public bool CalculateChuckStageMapError(
-        StageMapDto stageMapDto,
-        bool isXOnlyGantryError,
-        Guid htmlLogUniqueId,
-        int calculateContainRowMinCount,
-        int calculateContainColumnMinCount,
-        double alignmentThreshold,
-        double gantryThreshold,
-        double scaleThreshold,
-        double diameter)
+         StageMapDto stageMapDto,
+         bool isXOnlyGantryError,
+         Guid htmlLogUniqueId,
+         int calculateContainRowMinCount,
+         int calculateContainColumnMinCount,
+         double alignmentThreshold,
+         double gantryThreshold,
+         double scaleThreshold,
+         double diameter)
     {
         try
         {
