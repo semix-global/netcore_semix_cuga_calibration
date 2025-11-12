@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Ads.XGains.Children.Step1View"
+<UserControl x:Class="CugaCalibration.Views.Ads.XGains.Children.Step1View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -27,12 +27,8 @@
                         <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="1">
-                                    <Setter Property="Subject" Value="Ads Y Gains Step 2:" />
+                                    <Setter Property="Subject" Value="Ads X Gains Step 2:" />
                                     <Setter Property="Status" Value="{Binding CalibrationStepList[1].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="3">
-                                    <Setter Property="Subject" Value="Ads Y Gains Step 4:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[3].StepName}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -48,12 +44,12 @@
                            Subject="End Position: "
                            Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="Start Position: "
                            Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="End Position: "
                            Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
@@ -101,7 +97,7 @@
                                           hc:InfoElement.Placeholder="Input x value"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="1"
-                                          Maximum="150"
+                                          Maximum="250"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.FindMaxX}" />
                         <hc:NumericUpDown x:Name="MinValueNumeric"
@@ -178,206 +174,238 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <!--#region Right-->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.5*" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="0.5*" />
-            </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="History">
+        <TabControl Grid.Column="2">
+            <TabItem Header="Positive History And Plot">
                 <Grid>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsXGainsCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                              SelectedItem="{Binding SelectAdsXGainsCacheItem, Mode=TwoWay}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="2*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="History">
+                        <Grid>
+                            <ListView d:SelectedIndex="0"
+                                      Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      ItemsSource="{Binding AdsXGainsCacheItemList}"
+                                      Style="{StaticResource ListView.Small}"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                      SelectedItem="{Binding SelectAdsXGainsCacheItem, Mode=TwoWay}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Center" />
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                            </Trigger>
+                                        </Style.Triggers>
                                     </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="80"
-                                                Header="SpeedXValue"
-                                                DisplayMemberBinding="{Binding SpeedXValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X1"
-                                                DisplayMemberBinding="{Binding PositiveX1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X2"
-                                                DisplayMemberBinding="{Binding PositiveX2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ1"
-                                                DisplayMemberBinding="{Binding PositiveMaxZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ1"
-                                                DisplayMemberBinding="{Binding PositiveMinZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z1"
-                                                DisplayMemberBinding="{Binding PositiveZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ2"
-                                                DisplayMemberBinding="{Binding PositiveMaxZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ2"
-                                                DisplayMemberBinding="{Binding PositiveMinZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z2"
-                                                DisplayMemberBinding="{Binding PositiveZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsXGainsCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                              SelectedItem="{Binding SelectAdsXGainsCacheItem, Mode=TwoWay}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridView.ColumnHeaderContainerStyle>
+                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                            </Style>
+                                        </GridView.ColumnHeaderContainerStyle>
+                                        <GridViewColumn Width="80"
+                                                        Header="Index"
+                                                        DisplayMemberBinding="{Binding Index}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="SpeedXValue"
+                                                        DisplayMemberBinding="{Binding SpeedXValue, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="X1"
+                                                        DisplayMemberBinding="{Binding PositiveX1, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="X2"
+                                                        DisplayMemberBinding="{Binding PositiveX2, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MaxZ1"
+                                                        DisplayMemberBinding="{Binding PositiveMaxZ1, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MinZ1"
+                                                        DisplayMemberBinding="{Binding PositiveMinZ1, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="Z1"
+                                                        DisplayMemberBinding="{Binding PositiveZ1, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MaxZ2"
+                                                        DisplayMemberBinding="{Binding PositiveMaxZ2, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MinZ2"
+                                                        DisplayMemberBinding="{Binding PositiveMinZ2, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="Z2"
+                                                        DisplayMemberBinding="{Binding PositiveZ2, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="H"
+                                                        DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="P"
+                                                        DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="R"
+                                                        DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Plot">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="119*" />
+                                <ColumnDefinition Width="216*" />
+                                <ColumnDefinition Width="131*" />
+                            </Grid.ColumnDefinitions>
+                            <wpf:WpfPlot Grid.ColumnSpan="3"
+                                         Margin="5,5,5,5"
+                                         Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="PositiveZ1Z2Plot"
+                                                                    Plot0Title="Z1"
+                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                    MarkShape0="{Binding SelectAdsXGainsCacheItem.PositivePointListZ1}"
+                                                                    Plot0="{Binding SelectAdsXGainsCacheItem.PositivePlotZ1, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                    Plot1Title="SmoothZ1"
+                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
+                                                                    MarkShape1="{Binding SelectAdsXGainsCacheItem.PositiveSmoothPointListZ1}"
+                                                                    Plot1="{Binding SelectAdsXGainsCacheItem.PositiveSmoothZ1, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                    Plot2Title="Z2"
+                                                                    Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
+                                                                    MarkShape2="{Binding SelectAdsXGainsCacheItem.PositivePointListZ2}"
+                                                                    Plot2="{Binding SelectAdsXGainsCacheItem.PositivePlotZ2, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                    Plot3Title="SmoothZ2"
+                                                                    Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
+                                                                    MarkShape3="{Binding SelectAdsXGainsCacheItem.PositiveSmoothPointListZ2}"
+                                                                    Plot3="{Binding SelectAdsXGainsCacheItem.PositiveSmoothZ2, Converter={StaticResource DoublesToPointsConverter}}" />
+                                </i:Interaction.Behaviors>
+                            </wpf:WpfPlot>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Negative History And Plot">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="2*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="History">
+                        <Grid>
+                            <ListView d:SelectedIndex="0"
+                                      Visibility="{Binding Path=Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      ItemsSource="{Binding AdsXGainsCacheConverseItemList}"
+                                      Style="{StaticResource ListView.Small}"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                      SelectedItem="{Binding SelectAdsXGainsCacheConverseItem, Mode=TwoWay}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Center" />
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                            </Trigger>
+                                        </Style.Triggers>
                                     </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="80"
-                                                Header="SpeedXValue"
-                                                DisplayMemberBinding="{Binding SpeedXValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X3"
-                                                DisplayMemberBinding="{Binding NegativeX3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X4"
-                                                DisplayMemberBinding="{Binding NegativeX4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ3"
-                                                DisplayMemberBinding="{Binding NegativeMaxZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ3"
-                                                DisplayMemberBinding="{Binding NegativeMinZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z3"
-                                                DisplayMemberBinding="{Binding NegativeZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ4"
-                                                DisplayMemberBinding="{Binding NegativeMaxZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ4"
-                                                DisplayMemberBinding="{Binding NegativeMinZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z4"
-                                                DisplayMemberBinding="{Binding NegativeZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridView.ColumnHeaderContainerStyle>
+                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                            </Style>
+                                        </GridView.ColumnHeaderContainerStyle>
+                                        <GridViewColumn Width="80"
+                                                        Header="Index"
+                                                        DisplayMemberBinding="{Binding Index}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="SpeedXValue"
+                                                        DisplayMemberBinding="{Binding SpeedXValue, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="X3"
+                                                        DisplayMemberBinding="{Binding NegativeX3, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="X4"
+                                                        DisplayMemberBinding="{Binding NegativeX4, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MaxZ3"
+                                                        DisplayMemberBinding="{Binding NegativeMaxZ3, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MinZ3"
+                                                        DisplayMemberBinding="{Binding NegativeMinZ3, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="Z3"
+                                                        DisplayMemberBinding="{Binding NegativeZ3, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MaxZ4"
+                                                        DisplayMemberBinding="{Binding NegativeMaxZ4, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="MinZ4"
+                                                        DisplayMemberBinding="{Binding NegativeMinZ4, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="Z4"
+                                                        DisplayMemberBinding="{Binding NegativeZ4, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="H"
+                                                        DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="P"
+                                                        DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
+                                        <GridViewColumn Width="80"
+                                                        Header="R"
+                                                        DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Plot">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="119*" />
+                                <ColumnDefinition Width="216*" />
+                                <ColumnDefinition Width="131*" />
+                            </Grid.ColumnDefinitions>
+                            <wpf:WpfPlot Grid.ColumnSpan="3"
+                                         Margin="5,5,5,5"
+                                         Visibility="{Binding Path=Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="NegativeZ3Z4Plot"
+                                                                    Plot0Title="Z3"
+                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                    MarkShape0="{Binding SelectAdsXGainsCacheConverseItem.NegativePointListZ3}"
+                                                                    Plot0="{Binding SelectAdsXGainsCacheConverseItem.NegativePlotZ3, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                    Plot1Title="SmoothZ3"
+                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
+                                                                    MarkShape1="{Binding SelectAdsXGainsCacheConverseItem.NegativeSmoothPointListZ3}"
+                                                                    Plot1="{Binding SelectAdsXGainsCacheConverseItem.NegativeSmoothZ3, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                    Plot2Title="Z4"
+                                                                    Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
+                                                                    MarkShape2="{Binding SelectAdsXGainsCacheConverseItem.NegativePointListZ4}"
+                                                                    Plot2="{Binding SelectAdsXGainsCacheConverseItem.NegativePlotZ4, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                    Plot3Title="SmoothZ4"
+                                                                    Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
+                                                                    MarkShape3="{Binding SelectAdsXGainsCacheConverseItem.NegativeSmoothPointListZ4}"
+                                                                    Plot3="{Binding SelectAdsXGainsCacheConverseItem.NegativeSmoothZ4, Converter={StaticResource DoublesToPointsConverter}}" />
+                                </i:Interaction.Behaviors>
+                            </wpf:WpfPlot>
+                        </Grid>
+                    </GroupBox>
                 </Grid>
-            </GroupBox>
-            <GridSplitter Grid.Row="1" />
-            <GroupBox Grid.Row="2" Header="Plot">
-                <Grid>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="PositiveZ1Z2Plot"
-                                                            Plot0Title="Z1"
-                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                            MarkShape0="{Binding SelectAdsXGainsCacheItem.PositivePointListZ1}"
-                                                            Plot0="{Binding SelectAdsXGainsCacheItem.PositivePlotZ1, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot1Title="SmoothZ1"
-                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                            MarkShape1="{Binding SelectAdsXGainsCacheItem.PositiveSmoothPointListZ1}"
-                                                            Plot1="{Binding SelectAdsXGainsCacheItem.PositiveSmoothZ1, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot2Title="Z2"
-                                                            Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
-                                                            MarkShape2="{Binding SelectAdsXGainsCacheItem.PositivePointListZ2}"
-                                                            Plot2="{Binding SelectAdsXGainsCacheItem.PositivePlotZ2, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot3Title="SmoothZ2"
-                                                            Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
-                                                            MarkShape3="{Binding SelectAdsXGainsCacheItem.PositiveSmoothPointListZ2}"
-                                                            Plot3="{Binding SelectAdsXGainsCacheItem.PositiveSmoothZ2, Converter={StaticResource DoublesToPointsConverter}}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="NegativeZ3Z4Plot"
-                                                            Plot0Title="Z3"
-                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                            MarkShape0="{Binding SelectAdsXGainsCacheItem.NegativePointListZ3}"
-                                                            Plot0="{Binding SelectAdsXGainsCacheItem.NegativePlotZ3, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot1Title="SmoothZ3"
-                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                            MarkShape1="{Binding SelectAdsXGainsCacheItem.NegativeSmoothPointListZ3}"
-                                                            Plot1="{Binding SelectAdsXGainsCacheItem.NegativeSmoothZ3, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot2Title="Z4"
-                                                            Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
-                                                            MarkShape2="{Binding SelectAdsXGainsCacheItem.NegativePointListZ4}"
-                                                            Plot2="{Binding SelectAdsXGainsCacheItem.NegativePlotZ4, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot3Title="SmoothZ4"
-                                                            Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
-                                                            MarkShape3="{Binding SelectAdsXGainsCacheItem.NegativeSmoothPointListZ4}"
-                                                            Plot3="{Binding SelectAdsXGainsCacheItem.NegativeSmoothZ4, Converter={StaticResource DoublesToPointsConverter}}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                </Grid>
-            </GroupBox>
-        </Grid>
+            </TabItem>
+        </TabControl>
         <!--#endregion-->
     </Grid>
 </UserControl>
