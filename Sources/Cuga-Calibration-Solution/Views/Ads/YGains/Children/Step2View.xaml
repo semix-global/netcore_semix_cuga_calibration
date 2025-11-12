@@ -29,10 +29,6 @@
                                     <Setter Property="Subject" Value="Ads Y Gains Step 3:" />
                                     <Setter Property="Status" Value="{Binding CalibrationStepList[2].StepName}" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="4">
-                                    <Setter Property="Subject" Value="Ads Y Gains Step 5:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[4].StepName}" />
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </hc:Shield.Style>
@@ -48,12 +44,12 @@
                            Subject="End Position: "
                            Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="Start Position: "
                            Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="End Position: "
                            Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
@@ -74,7 +70,7 @@
                         <hc:NumericUpDown x:Name="FindIntervalNumeric1"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X1Interval: "
+                                          hc:InfoElement.Title="Y1Interval: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input FindInterval"
@@ -86,7 +82,7 @@
                         <hc:NumericUpDown x:Name="FindIntervalNumeric2"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X2Interval: "
+                                          hc:InfoElement.Title="Y2Interval: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input FindInterval"
@@ -98,7 +94,7 @@
                         <hc:NumericUpDown x:Name="FindIntervalNumeric3"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X3Interval: "
+                                          hc:InfoElement.Title="Y3Interval: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input FindInterval"
@@ -122,7 +118,7 @@
                         <hc:NumericUpDown x:Name="Y2Number"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X2Number: "
+                                          hc:InfoElement.Title="Y2Number: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Y2 Number"
@@ -134,7 +130,7 @@
                         <hc:NumericUpDown x:Name="Y3Number"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X2Number: "
+                                          hc:InfoElement.Title="Y3Number: "
                                           hc:InfoElement.Necessary="True"
                                           hc:InfoElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Y3 Number"
@@ -187,7 +183,9 @@
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.5*" />
+                <RowDefinition Height="0.5*" />
                 <RowDefinition Height="10" />
+                <RowDefinition Height="0.5*" />
                 <RowDefinition Height="0.5*" />
             </Grid.RowDefinitions>
             <GroupBox Grid.Row="0" Header="History">
@@ -220,28 +218,28 @@
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
+                                <GridViewColumn Width="100"
                                                 Header="Index"
                                                 DisplayMemberBinding="{Binding Index}" />
                                 <GridViewColumn Width="100"
                                                 Header="Speed"
                                                 DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
+                                <GridViewColumn Width="100"
                                                 Header="Y1"
                                                 DisplayMemberBinding="{Binding PositiveY1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
+                                <GridViewColumn Width="100"
                                                 Header="Y2"
                                                 DisplayMemberBinding="{Binding PositiveY2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
+                                <GridViewColumn Width="100"
                                                 Header="Y3"
                                                 DisplayMemberBinding="{Binding PositiveY3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
+                                <GridViewColumn Width="100"
                                                 Header="Z1"
                                                 DisplayMemberBinding="{Binding PositiveZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
+                                <GridViewColumn Width="100"
                                                 Header="Z2"
                                                 DisplayMemberBinding="{Binding PositiveZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
+                                <GridViewColumn Width="100"
                                                 Header="Z3"
                                                 DisplayMemberBinding="{Binding PositiveZ3, StringFormat={}{0:f3}}" />
                                 <GridViewColumn Width="60"
@@ -268,9 +266,13 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Header="History">
+                <Grid>
                     <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsYGainsHrpCacheItemList}"
+                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
+                              ItemsSource="{Binding AdsYGainsHrpCacheConverseItemList}"
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -346,15 +348,19 @@
                     </ListView>
                 </Grid>
             </GroupBox>
-            <GridSplitter Grid.Row="1" />
-            <GroupBox Grid.Row="2" Header="Plot">
+            <GridSplitter Grid.Row="2" />
+            <GroupBox Grid.Row="3" Header="Plot">
                 <Grid>
                     <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
                         <i:Interaction.Behaviors>
                             <behaviors:WpfPlotListBehavior Title="Plot" PlotList="{Binding PlotY1Y2Y3List, Mode=TwoWay}" />
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="4" Header="Plot">
+                <Grid>
+                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
                         <i:Interaction.Behaviors>
                             <behaviors:WpfPlotListBehavior Title="Plot" PlotList="{Binding PlotY4Y5Y6List, Mode=TwoWay}" />
                         </i:Interaction.Behaviors>

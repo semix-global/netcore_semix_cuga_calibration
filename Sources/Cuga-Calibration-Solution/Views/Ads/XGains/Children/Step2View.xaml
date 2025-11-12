@@ -30,10 +30,6 @@
                                     <Setter Property="Subject" Value="Ads X Gains Step 3:" />
                                     <Setter Property="Status" Value="{Binding CalibrationStepList[2].StepName}" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="4">
-                                    <Setter Property="Subject" Value="Ads X Gains Step 5:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[4].StepName}" />
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </hc:Shield.Style>
@@ -48,101 +44,27 @@
                            Subject="End Position: "
                            Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="Start Position: "
                            Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="End Position: "
                            Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="1. Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:NumericUpDown x:Name="IntervalNumeric"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X1Interval: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.FindInterval1}" />
-                        <hc:NumericUpDown x:Name="IntervalNumeric1"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X2Interval: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.FindInterval2}" />
-                        <hc:NumericUpDown x:Name="RowNumber"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X1Number: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Row Number"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.RowNumber}" />
-                        <hc:NumericUpDown x:Name="ColumnNumber"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="X2Number: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Column Number"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ColumnNumber}" />
-                        <hc:NumericUpDown x:Name="ThresholdNumber"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Threshold: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.VerifyThreshold}" />
-                    </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <Border Margin="0,0,0,-104"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <Border Style="{StaticResource BorderRegion}"
                             Effect="{StaticResource EffectShadow1}"
                             Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <StackPanel>
-                                <TextBlock Text="2. Find"
+                                <TextBlock Text="1. Find"
                                            HorizontalAlignment="Center"
                                            FontSize="13"
                                            FontWeight="Bold"
@@ -188,7 +110,7 @@
                     </Border>
                     <Border Style="{StaticResource BorderRegion}"
                             Effect="{StaticResource EffectShadow1}"
-                            Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                            Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <StackPanel>
                                 <TextBlock Text="2. Find"
@@ -261,182 +183,58 @@
         <!--#region Right-->
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.5*" />
                 <RowDefinition Height="10" />
-                <RowDefinition Height="0.5*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="History">
-                <Grid>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsXGainsHrpCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                              SelectedItem="{Binding SelectAdsXGainsItemDto, Mode=TwoWay}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="100"
-                                                Header="SpeedXValue"
-                                                DisplayMemberBinding="{Binding SpeedXValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X1"
-                                                DisplayMemberBinding="{Binding PositiveX1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X2"
-                                                DisplayMemberBinding="{Binding PositiveX2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100" Header="Action Review">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <hc:ButtonGroup>
-                                                <Button Content="PlotHRP"
-                                                        Command="{Binding Path=DataContext.ShowPlotHRPCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource ButtonSuccess}" />
-                                            </hc:ButtonGroup>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsXGainsHrpCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="100"
-                                                Header="SpeedXValue"
-                                                DisplayMemberBinding="{Binding SpeedXValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X3"
-                                                DisplayMemberBinding="{Binding NegativeX3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="X4"
-                                                DisplayMemberBinding="{Binding NegativeX4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100" Header="Action Review">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <hc:ButtonGroup>
-                                                <Button Content="PlotHRP"
-                                                        Command="{Binding Path=DataContext.ShowPlotHRPCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource ButtonSuccess}" />
-                                            </hc:ButtonGroup>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-            </GroupBox>
-            <GridSplitter Grid.Row="1" />
-            <GroupBox Grid.Row="2" Header="Plot">
-                <Grid>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="PositiveFeedforwardPlot"
-                                                            Plot0Title="X1"
-                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                            Plot0="{Binding ResultAdsXGainsItemDto.PositiveX1Plots}"
-                                                            Plot1Title="SmoothX1"
-                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                            Plot1="{Binding ResultAdsXGainsItemDto.PositiveX1SmoothPlots}"
-                                                            Plot2Title="X2"
-                                                            Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
-                                                            Plot2="{Binding ResultAdsXGainsItemDto.PositiveX2Plots}"
-                                                            Plot3Title="SmoothX2"
-                                                            Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
-                                                            Plot3="{Binding ResultAdsXGainsItemDto.PositiveX2SmoothPlots}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="NegativeFeedforwardPlot"
-                                                            Plot0Title="X3"
-                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                            Plot0="{Binding ResultAdsXGainsItemDto.NegativeX3Plots}"
-                                                            Plot1Title="SmoothX3"
-                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                            Plot1="{Binding ResultAdsXGainsItemDto.NegativeX3SmoothPlots}"
-                                                            Plot2Title="X4"
-                                                            Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
-                                                            Plot2="{Binding ResultAdsXGainsItemDto.NegativeX4Plots}"
-                                                            Plot3Title="SmoothX4"
-                                                            Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
-                                                            Plot3="{Binding ResultAdsXGainsItemDto.NegativeX4SmoothPlots}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                </Grid>
-            </GroupBox>
+            <GridSplitter Grid.Row="0" />
+            <TabControl Grid.Row="1">
+                <TabItem Header="Positive Plot">
+                    <GroupBox Header="Plot">
+                        <Grid>
+                            <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="PositiveFeedforwardPlot"
+                                                                    Plot0Title="X1"
+                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                    Plot0="{Binding ResultAdsXGainsItemDto.PositiveX1Plots}"
+                                                                    Plot1Title="SmoothX1"
+                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
+                                                                    Plot1="{Binding ResultAdsXGainsItemDto.PositiveX1SmoothPlots}"
+                                                                    Plot2Title="X2"
+                                                                    Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
+                                                                    Plot2="{Binding ResultAdsXGainsItemDto.PositiveX2Plots}"
+                                                                    Plot3Title="SmoothX2"
+                                                                    Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
+                                                                    Plot3="{Binding ResultAdsXGainsItemDto.PositiveX2SmoothPlots}" />
+                                </i:Interaction.Behaviors>
+                            </wpf:WpfPlot>
+                        </Grid>
+                    </GroupBox>
+                </TabItem>
+                <TabItem Header="Negative Plot">
+                    <GroupBox Header="Plot">
+                        <Grid>
+                            <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:WpfPlotMultiBehavior Title="NegativeFeedforwardPlot"
+                                                                    Plot0Title="X3"
+                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                                    Plot0="{Binding ResultAdsXGainsItemDto.NegativeX3Plots}"
+                                                                    Plot1Title="SmoothX3"
+                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
+                                                                    Plot1="{Binding ResultAdsXGainsItemDto.NegativeX3SmoothPlots}"
+                                                                    Plot2Title="X4"
+                                                                    Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
+                                                                    Plot2="{Binding ResultAdsXGainsItemDto.NegativeX4Plots}"
+                                                                    Plot3Title="SmoothX4"
+                                                                    Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
+                                                                    Plot3="{Binding ResultAdsXGainsItemDto.NegativeX4SmoothPlots}" />
+                                </i:Interaction.Behaviors>
+                            </wpf:WpfPlot>
+                        </Grid>
+                    </GroupBox>
+                </TabItem>
+            </TabControl>
         </Grid>
         <!--#endregion-->
     </Grid>

@@ -29,10 +29,6 @@
                                     <Setter Property="Subject" Value="Ads Y Gains Step 2:" />
                                     <Setter Property="Status" Value="{Binding CalibrationStepList[1].StepName}" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="3">
-                                    <Setter Property="Subject" Value="Ads Y Gains Step 4:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[3].StepName}" />
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </hc:Shield.Style>
@@ -48,12 +44,12 @@
                            Subject="End Position: "
                            Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="Start Position: "
                            Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
+                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"
                            Subject="End Position: "
                            Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
@@ -164,6 +160,7 @@
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.5*" />
+                <RowDefinition Height="0.5*" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="0.5*" />
             </Grid.RowDefinitions>
@@ -252,13 +249,17 @@
                             </GridView>
                         </ListView.View>
                     </ListView>
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Header="History">
+                <Grid>
                     <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolNegationToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsYGainsCacheItemList}"
+                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
+                              ItemsSource="{Binding AdsYGainsCacheConverseItemList}"
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                              SelectedItem="{Binding SelectAdsYGainsCacheItem, Mode=TwoWay}">
+                              SelectedItem="{Binding SelectAdsYGainsCacheConverseItem, Mode=TwoWay}">
                         <i:Interaction.Behaviors>
                             <behaviors:ListBoxScrollToCurrentBehavior />
                         </i:Interaction.Behaviors>
@@ -337,8 +338,8 @@
                     </ListView>
                 </Grid>
             </GroupBox>
-            <GridSplitter Grid.Row="1" />
-            <GroupBox Grid.Row="2" Header="Plot">
+            <GridSplitter Grid.Row="2" />
+            <GroupBox Grid.Row="3" Header="Plot">
                 <Grid>
                     <wpf:WpfPlot Margin="5">
                         <i:Interaction.Behaviors>
