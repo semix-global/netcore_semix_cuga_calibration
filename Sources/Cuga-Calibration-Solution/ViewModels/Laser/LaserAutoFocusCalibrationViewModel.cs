@@ -1308,6 +1308,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     #endregion 校准    
 }
 
+// 用于将ECS和NSC数据转换为坐标点（如果需要）
 public class EcsNscToPointsConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -1317,6 +1318,7 @@ public class EcsNscToPointsConverter : IMultiValueConverter
             values[1] is IList<double> nscData &&
             ecsData.Count == nscData.Count)
         {
+            // 将ECS数据乘以200作为X坐标，NSC数据作为Y坐标
             var points = new List<Tuple<double, double>>();
             for (int i = 0; i < ecsData.Count; i++)
             {
