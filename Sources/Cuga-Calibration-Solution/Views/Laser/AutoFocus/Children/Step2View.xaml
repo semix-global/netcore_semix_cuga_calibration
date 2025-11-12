@@ -13,6 +13,11 @@
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
+    <!--  在资源部分添加转换器  -->
+    <UserControl.Resources>
+        <viewModels:EcsNscToPointsConverter x:Key="EcsNscToPointsConverter" />
+    </UserControl.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320" />
@@ -91,6 +96,8 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="5" />
                             <RowDefinition Height="*" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <TextBox Text="{Binding ResultLaserAutoFocusDto.IsNscUseMaxValue}"
@@ -145,7 +152,31 @@
                                                                 Plot1="{Binding ResultLaserAutoFocusDto.OriginalNsc, Converter={StaticResource DoublesToPointsConverter}}"
                                                                 Plot2Title="Original Lvdt"
                                                                 Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                Plot2="{Binding ResultLaserAutoFocusDto.OriginalLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                                Plot2="{Binding ResultLaserAutoFocusDto.OriginalLvdt, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot3Title="FA"
+                                                                Plot3Color="{x:Static scottPlot:Colors.DarkOrange}"
+                                                                Plot3="{Binding ResultLaserAutoFocusDto.OriginalFa, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot4Title="NA"
+                                                                Plot4Color="{x:Static scottPlot:Colors.DarkOliveGreen}"
+                                                                Plot4="{Binding ResultLaserAutoFocusDto.OriginalNa, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot5Title="FB"
+                                                                Plot5Color="{x:Static scottPlot:Colors.PaleGoldenRod}"
+                                                                Plot5="{Binding ResultLaserAutoFocusDto.OriginalFb, Converter={StaticResource DoublesToPointsConverter}}"
+                                                                Plot6Title="NB"
+                                                                Plot6Color="{x:Static scottPlot:Colors.DeepSkyBlue}"
+                                                                Plot6="{Binding ResultLaserAutoFocusDto.OriginalNb, Converter={StaticResource DoublesToPointsConverter}}" />
+                            </i:Interaction.Behaviors>
+                        </wpf:WpfPlot>
+                        <!--  新增图表  -->
+                        <wpf:WpfPlot Grid.Row="4">
+                            <i:Interaction.Behaviors>
+                                <behaviors:WpfPlotMultiBehavior Title="EcsNsc"
+                                                                Plot0Title="EcsNscCurve"
+                                                                Plot0Color="{x:Static scottPlot:Colors.DarkOrange}"
+                                                                Plot0="{Binding ResultLaserAutoFocusDto.EcsNscPointList}"
+                                                                Plot1Title="EcsNscSlope"
+                                                                Plot1Color="{x:Static scottPlot:Colors.Green}"
+                                                                Plot1="{Binding ResultLaserAutoFocusDto.EcsNscMaxMinList}" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                     </Grid>

@@ -94,5 +94,20 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private int _retryCount = 10;
 
+    [ObservableProperty]
+    private double _currentMotorPosition = 0;
+
+    [ObservableProperty]
+    private double _increateMotorPosition;
+
+    [ObservableProperty]
+    private double[] _increateEcsAverage = [];
+
+    [ObservableProperty]
+    public Point[] _ecsMotorOriginPositionList = [];
+
+    [ObservableProperty]
+    public Point[] _ecsMotorSmoothPositionList = [];
+
     #endregion NSC
 }

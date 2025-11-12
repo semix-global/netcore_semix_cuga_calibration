@@ -183,11 +183,11 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Ecs, double Nsc, double Lvdt)> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetSensorNscTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
+        var ret = calibrationAfService.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
 
         logger.LogInformation("End TraceBuffer");
 
@@ -257,7 +257,20 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    [Obsolete]
+    public double GetDarkFieldAutoFocusMotorAbsoluteValue()
+    {
+        var ret = calibrationAfService.GetDarkFieldAutoFocusMotorAbsoluteValue();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public (double min, double max) GetDarkFieldAutoFocusMotorMoveRange()
+    {
+        var ret = calibrationAfService.GetDarkFieldAutoFocusMotorMoveRange();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public bool SetDarkFieldAutoFocus(SettingDarkFieldAutoFocusParam darkAutoFocusParam, OpticsMagTypeEnum opticsMagTypeEnum, CalChipSiteModelEnum calChipSiteModelEnum)
     {
         ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
