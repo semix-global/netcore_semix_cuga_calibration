@@ -1369,7 +1369,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                             using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
                             var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).YPixelSize;
-                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
+                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
 
                             var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
                             darkFieldImageDto.Image.Save(originImageFilePath);
@@ -1453,9 +1453,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                                    group kvp.Value by kvp.Key.RepeatIndex
+                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 
