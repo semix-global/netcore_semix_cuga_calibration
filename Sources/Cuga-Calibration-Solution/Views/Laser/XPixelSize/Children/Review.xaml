@@ -70,13 +70,13 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <!--#region Right-->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.5*" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="0.5*" />
-            </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="Calibration Data">
+        <GroupBox Grid.Column="2" Header="Calibration Data">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.5*" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="0.5*" />
+                </Grid.RowDefinitions>
                 <ListView x:Name="listview"
                           d:SelectedIndex="0"
                           ItemsSource="{Binding Reviews}"
@@ -120,54 +120,44 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-            </GroupBox>
-            <GridSplitter Grid.Row="1" />
-            <Border Grid.Row="2"
-                    Padding="0"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <Grid>
-                    <GroupBox Header="Images">
-                        <hc:ScrollViewer>
-                            <Border Padding="5" Style="{StaticResource BorderRegion}">
-                                <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=listview}">
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="Width" Value="400" />
-                                            <Setter Property="Height" Value="400" />
-                                            <Setter Property="Margin" Value="5" />
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <hc:SimplePanel>
-                                                <view:CanvasView AxisColor="Red"
-                                                                 BackgroundColor="#0A0A0A"
-                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                 Interactive="True"
-                                                                 ShowAxes="True"
-                                                                 ShowCursor="False"
-                                                                 ShowGrid="False"
-                                                                 Tag="{Binding .}" />
-                                                <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Top"
-                                                           Foreground="Yellow" />
-                                            </hc:SimplePanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Border>
-                        </hc:ScrollViewer>
-                    </GroupBox>
-                </Grid>
-            </Border>
-        </Grid>
+                <hc:ScrollViewer Grid.Row="2">
+                    <Border Padding="5" Style="{StaticResource BorderRegion}">
+                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=listview}">
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Width" Value="400" />
+                                    <Setter Property="Height" Value="400" />
+                                    <Setter Property="Margin" Value="5" />
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <hc:SimplePanel>
+                                        <view:CanvasView AxisColor="Red"
+                                         BackgroundColor="#0A0A0A"
+                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                         Interactive="True"
+                                         ShowAxes="True"
+                                         ShowCursor="False"
+                                         ShowGrid="False"
+                                         Tag="{Binding .}" />
+                                        <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Top"
+                                   Foreground="Yellow" />
+                                    </hc:SimplePanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </hc:ScrollViewer>
+            </Grid>
+        </GroupBox>
         <!--#endregion-->
     </Grid>
 </UserControl>

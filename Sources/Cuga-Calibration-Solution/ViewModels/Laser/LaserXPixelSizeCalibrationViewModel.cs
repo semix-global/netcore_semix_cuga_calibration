@@ -20,7 +20,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
@@ -69,10 +68,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<LaserXPixelSizeItemDto> _reviews = [];
+    private IReadOnlyList<LaserXPixelSizeItemDto> _reviews = [];
 
     [ObservableProperty]
-    private IReadOnlyList<LaserXPixelSizeItemDto> _selectedReviewItems = [];
+    private List<LaserXPixelSizeItemDto> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -506,12 +505,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 totalCount
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var items = new Item[totalCount];
+            var items = new LaserXPixelSizeSlideItem[totalCount];
 
             #region Channel
 
             using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
-            var channel = Channel.CreateBounded<Item>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
+            var channel = Channel.CreateBounded<LaserXPixelSizeSlideItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
 
             #region Reader
 
@@ -527,7 +526,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     {
                         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                        tasks[index] = ResolveAsync(
+                        tasks[index] = ResolveLaserXPixelSizeSlideItemAsync(
                             item,
                             templateId,
                             templateImageSize,
@@ -554,7 +553,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                          .Range(0, totalCount)
                          .Select(t => (long)t * windowStepAllPixelByteLength).Index())
             {
-                items[index] = GetItem(
+                items[index] = GetLaserXPixelSizeSlideItem(
                     pointer,
                     windowImageAllPixelByteLength,
                     fileSteam,
@@ -576,7 +575,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             await channelReaderTask.ConfigureAwait(false);
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            CalibratingItem.SlideItems = [.. items.Select(t => (t.MatchPoint, t.Score, t.IsMatchOk))];
+            CalibratingItem.SlideItems = [.. items];
             Refresh(CalibratingItem);
 
             var matchPoints = CalibratingItem.SlideItems.Where(t => t.IsMatchOk).Select(t => t.MatchPoint).ToArray();
@@ -640,7 +639,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 verifyBodyBytesStartIndex,
                 verifyBodyBytesLength,
                 verifyHeightPixel,
-                verifyHeightPixel,
+                verifyHeightPixelByteLength,
                 imageCount,
                 templateId,
                 templateImageSize,
@@ -752,7 +751,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
                 var isOk = await VerifyAsync(
-                    CalibratingItem,
+                    item,
                     verifyFileSteam,
                     verifyBinaryReader,
                     verifyBodyBytesStartIndex,
@@ -798,7 +797,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
         Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
 
-        var verifyItems = new Item[imageCount];
+        var verifyItems = new LaserXPixelSizeSlideItem[imageCount];
         foreach (var (index, pointer) in Enumerable
                      .Range(0, imageCount)
                      .Select(t => t * verifyStepAllPixelByteLength)
@@ -806,7 +805,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                      .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
                      .Index())
         {
-            verifyItems[index] = GetItem(
+            verifyItems[index] = GetLaserXPixelSizeSlideItem(
                 pointer,
                 imageAllPixelByteLength,
                 fileSteam,
@@ -816,7 +815,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 heightPixel,
                 heightPixelByteLength);
 
-            await ResolveAsync(
+            await ResolveLaserXPixelSizeSlideItemAsync(
                 verifyItems[index],
                 templateId,
                 templateImageSize,
@@ -828,7 +827,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             if (verifyItems[index].IsMatchOk == false) return false;
         }
 
-        item.VerifyItems = [.. verifyItems.Select(t => (t.MatchPoint, t.Score, t.ImageFilePath))];
+        item.VerifyItems = [.. verifyItems];
 
         var verifyXDifferences = item.VerifyItems
             .Zip(item.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
@@ -885,7 +884,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
     #region Item
 
-    private Item GetItem(
+    private LaserXPixelSizeSlideItem GetLaserXPixelSizeSlideItem(
         long pointer,
         int allPixelByteLength,
         FileStream fileSteam,
@@ -910,13 +909,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         fileSteam.Seek(bodyBytesStartIndex + pointer, SeekOrigin.Begin);
         Guard.IsEqualTo(binaryReader.Read(buffer, 0, currentImageAllPixelByteLength), currentImageAllPixelByteLength);
 
-        var item = new Item(pointer / heightPixelByteLength, buffer, new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel));
+        var item = new LaserXPixelSizeSlideItem(pointer / heightPixelByteLength, buffer, new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel));
 
         return item;
     }
 
-    private async Task ResolveAsync(
-        Item item,
+    private async Task ResolveLaserXPixelSizeSlideItemAsync(
+        LaserXPixelSizeSlideItem item,
         HTuple templateId,
         Size templateImageSize,
         string detectImageDirectory,
@@ -971,17 +970,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             ArrayPool<byte>.Shared.Return(buffer);
             semaphore.Release();
         }
-    }
-
-    private sealed record Item(long StartPixel, byte[] Buffer, SizeI Size)
-    {
-        public Point MatchPoint { get; set; }
-
-        public double Score { get; set; }
-
-        public string ImageFilePath { get; set; } = string.Empty;
-
-        public bool IsMatchOk { get; set; }
     }
 
     #endregion

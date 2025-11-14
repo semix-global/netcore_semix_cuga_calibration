@@ -28,10 +28,10 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<(Point MatchPoint, double Score, bool IsMatchOk)> _slideItems = [];
+    private IReadOnlyList<LaserXPixelSizeSlideItem> _slideItems = [];
 
     [ObservableProperty]
-    private IReadOnlyList<(Point MatchPoint, double Score, string ImageFilePath)> _verifyItems = [];
+    private IReadOnlyList<LaserXPixelSizeSlideItem> _verifyItems = [];
 
     #region Mapper
 
@@ -62,11 +62,13 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     #endregion Mapper
 }
 
-public sealed record Item(long StartPixel, byte[] Buffer, SizeI Size)
+public sealed record LaserXPixelSizeSlideItem(long StartPixel, byte[] Buffer, SizeI Size)
 {
     public Point MatchPoint { get; set; }
 
     public double Score { get; set; }
 
-    public bool IsOk { get; set; }
+    public string ImageFilePath { get; set; } = string.Empty;
+
+    public bool IsMatchOk { get; set; }
 }
