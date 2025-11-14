@@ -116,6 +116,15 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         return true;
     }
 
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        CalibratingItem = null;
+
+        return true;
+    }
+
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -177,8 +186,6 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         {
             try
             {
-                CalibratingItem = null;
-
                 var startCoefficient = applicationCookie.LaserLightInformations.Min(t => t.Coefficient);
                 var stopCoefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
                 var laserOpticalPower = LaserOpticalPowers.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);

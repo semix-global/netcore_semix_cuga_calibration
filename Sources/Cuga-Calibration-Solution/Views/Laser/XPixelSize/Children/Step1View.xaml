@@ -7,6 +7,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+             xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -17,68 +19,88 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="X Pixel Size Step 1: "
-                       Status="{Binding CalibrationStepList[2].StepName}"
+            <hc:Shield Subject="X Pixel Size Step 2: "
+                       Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
+            <hc:Shield DockPanel.Dock="Bottom"
+                       Subject="Productivity: "
+                       Status="{Binding Cache.ProductivityInformation}"
+                       Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step1CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step1CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.MicroscopeLensInformation}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.LaserLightInformation}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                    <hc:ComboBox hc:TitleElement.Title="PMT Id: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.PMTId}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:ComboBox hc:TitleElement.Title="Channel Id: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.Item.ChannelId}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step1CalibrateActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step1CalibrateActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
-        <!--#endregion-->
-
-        <GridSplitter Grid.Column="1" Width="5" />
-
-        <!--#region Right-->
-        <Border Grid.Column="2"
-                Style="{StaticResource BorderRegion}"
-                Effect="{StaticResource EffectShadow1}">
-            <ItemsControl HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          ItemsSource="{Binding CalibrationStatusListItem}">
-                <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
-                </i:Interaction.Behaviors>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton Content="{Binding ProductivityInformation}"
-                                     HorizontalAlignment="Left"
-                                     FontSize="35"
-                                     Tag="{Binding ProductivityInformation}"
-                                     GroupName="dc736e3e-9b5e-49b9-8c4b-22bd8da622ae">
-                            <RadioButton.Style>
-                                <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </RadioButton.Style>
-                        </RadioButton>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
     </Grid>
 </UserControl>

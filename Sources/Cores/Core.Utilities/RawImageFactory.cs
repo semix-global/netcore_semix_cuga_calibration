@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using HalconDotNet;
+﻿using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;

@@ -10,37 +10,28 @@ namespace Core.Models.Models.Laser.XPixelSize;
 public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDto>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _pmtId;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _findPosition;
+    private int _pMTId;
 
     [ObservableProperty]
-    private Point _findStartPosition;
-
-    [ObservableProperty]
-    private Point _findEndPosition;
+    private int _channelId;
 
     [ObservableProperty]
     private double _xPixelSize;
 
     [ObservableProperty]
-    private string _fileTemplatePath = String.Empty;
+    private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _filePath = String.Empty;
+    private IReadOnlyList<(Point MatchPoint, double Score, bool IsMatchOk)> _slideItems = [];
 
     [ObservableProperty]
-    private string _originalFilePath = String.Empty;
-
-    [ObservableProperty]
-    private List<DarkFieldXPixelSizeICropImage> _darkFieldCropImageList = [];
+    private IReadOnlyList<(Point MatchPoint, double Score, string ImageFilePath)> _verifyItems = [];
 
     #region Mapper
 
@@ -48,14 +39,10 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     {
         MicroscopeLensInformation = MicroscopeLensInformation,
         ProductivityInformation = ProductivityInformation.Clone(),
-        PmtId = PmtId,
-        FindPosition = FindPosition,
-        FindStartPosition = FindStartPosition,
-        FindEndPosition = FindEndPosition,
         XPixelSize = XPixelSize,
-        FilePath = FilePath,
-        FileTemplatePath = FileTemplatePath,
-        DarkFieldCropImageList = [.. DarkFieldCropImageList.Select(x => x.Clone())],
+        RawImageFilePath = RawImageFilePath,
+        SlideItems = [.. SlideItems],
+        VerifyItems = [.. VerifyItems],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -75,33 +62,11 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     #endregion Mapper
 }
 
-public sealed partial class DarkFieldXPixelSizeICropImage : ObservableObject, ICloneable<DarkFieldXPixelSizeICropImage>
+public sealed record Item(long StartPixel, byte[] Buffer, SizeI Size)
 {
-    [ObservableProperty]
-    private Point _position;
+    public Point MatchPoint { get; set; }
 
-    [ObservableProperty]
-    private byte[] _byteArray = [];
+    public double Score { get; set; }
 
-    [ObservableProperty]
-    private double _width;
-
-    [ObservableProperty]
-    private double _height;
-
-    [ObservableProperty]
-    private string _filePath = string.Empty;
-
-    [ObservableProperty]
-    private List<double> _darkFieldImageList = [];
-
-    public DarkFieldXPixelSizeICropImage Clone() => new()
-    {
-        Position = Position,
-        ByteArray = ByteArray,
-        Width = Width,
-        Height = Height,
-        FilePath = FilePath,
-        DarkFieldImageList = DarkFieldImageList
-    };
+    public bool IsOk { get; set; }
 }

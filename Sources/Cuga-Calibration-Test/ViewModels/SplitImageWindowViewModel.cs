@@ -52,7 +52,7 @@ public sealed partial class SplitImageWindowViewModel(ILogger<SplitImageWindowVi
     private int _waferDiameterUm = 300_000;
 
     [ObservableProperty]
-    private int _verifyThreasholdPixel = 15;
+    private int _verifyThresholdPixel = 15;
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task SplitImageAsync(CancellationToken cancellationToken)
@@ -216,8 +216,8 @@ public sealed partial class SplitImageWindowViewModel(ILogger<SplitImageWindowVi
                 var verifyRealUmPerPixel = DieWidthUm / verifyXDifferences.Average();
 
                 var errorPixel = Math.Abs(WaferDiameterUm / verifyRealUmPerPixel - WaferDiameterUm / RealUmPerPixel);
-                var isOk = Math.Abs(verifyItems.Max(t => t.MatchPoint.X) - verifyItems.Min(t => t.MatchPoint.X)) <= VerifyThreasholdPixel
-                           && errorPixel <= VerifyThreasholdPixel;
+                var isOk = Math.Abs(verifyItems.Max(t => t.MatchPoint.X) - verifyItems.Min(t => t.MatchPoint.X)) <= VerifyThresholdPixel
+                           && errorPixel <= VerifyThresholdPixel;
 
                 logger.LogHtmlInformation("1.5. Verify Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {

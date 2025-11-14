@@ -834,6 +834,114 @@ public sealed class LaserViewModel(
         }
     }
 
+    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        Point startPosition,
+        Point endPosition,
+        int xWidthPixel,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        CIBConfiguration cibConfiguration,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+        bool isCustomChirpAod,
+        bool isForward = true,
+        bool isAutoFocus = true)
+    {
+        try
+        {
+            var startMachinePosition = startPosition;
+            var endMachinePosition = endPosition;
+
+            switch (stageCoordinateSystemEnum)
+            {
+                case StageCoordinateSystemEnum.Bright:
+                    startMachinePosition = stageViewModel.BrightFieldToMachinePosition(startPosition);
+                    endMachinePosition = stageViewModel.BrightFieldToMachinePosition(endPosition);
+
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, calChipSiteModelEnum);
+                    break;
+
+                case StageCoordinateSystemEnum.Dark:
+                    startMachinePosition = stageViewModel.BrightFieldToMachinePosition(startPosition);
+                    endMachinePosition = stageViewModel.BrightFieldToMachinePosition(endPosition);
+
+                    stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                    break;
+
+                case StageCoordinateSystemEnum.Machine:
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
+                    break;
+
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+                    break;
+            }
+
+            if (TrySendAodFile(productivityInformation, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+
+            // 采图模式下发
+            ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
+
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+
+            return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+        }
+        finally
+        {
+            switch (stageCoordinateSystemEnum)
+            {
+                case StageCoordinateSystemEnum.Bright:
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, calChipSiteModelEnum);
+                    break;
+
+                case StageCoordinateSystemEnum.Dark:
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition);
+                    break;
+
+                case StageCoordinateSystemEnum.Machine:
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
+                    break;
+
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+                    break;
+            }
+        }
+    }
+
+    public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        Point startPosition,
+        Point endPosition,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+        bool isCustomChirpAod,
+        CIBConfiguration cIbConfiguration,
+        ProductivityInformation productivityInformation,
+        int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
+        int pmtId = CalibrationConstantsHelper.MainPmtId,
+        int channelId = CalibrationConstantsHelper.MainChannelId,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        bool isForward = true,
+        bool isAutoFocus = true)
+    {
+        var result = GetDarkFieldLineScanImageList(
+            calChipSiteModelEnum,
+            startPosition,
+            endPosition,
+            xWidthPixel,
+            productivityInformation,
+            pmtId,
+            stageCoordinateSystemEnum,
+            cIbConfiguration,
+            customPrescanAod,
+            isCustomChirpAod,
+            isForward,
+            isAutoFocus);
+
+        return result.Single(t => t.ChannelId == channelId);
+    }
+
     /// <summary>
     /// PTP行扫
     /// </summary>
@@ -930,8 +1038,7 @@ public sealed class LaserViewModel(
     {
         var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
-                                  && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum
-                                  && t.PmtId == pmtId);
+                                  && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
 
         switch (stageCoordinateSystemEnum)
@@ -993,8 +1100,7 @@ public sealed class LaserViewModel(
         bool isAutoFocus = true)
     {
         var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
-            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation
-                                  && t.PmtId == pmtId);
+            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
 
         switch (stageCoordinateSystemEnum)
@@ -1192,8 +1298,7 @@ public sealed class LaserViewModel(
 
         var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
-                                  && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum
-                                  && t.PmtId == pmtId);
+                                  && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum);
         if (xSize is null || xSize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
@@ -1348,9 +1453,7 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
-            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation
-                                  && t.PmtId == pmtId);
+        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize is null || xSize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());

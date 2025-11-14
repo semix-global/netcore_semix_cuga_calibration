@@ -1,8 +1,8 @@
 namespace CugaCalibration.Views.Laser.XPixelSize.Children;
 
-public partial class ConfigView
+public sealed partial class Step4View
 {
-    public ConfigView()
+    public Step4View()
     {
         InitializeComponent();
     }

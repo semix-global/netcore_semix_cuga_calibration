@@ -75,8 +75,8 @@
                      hc:TitleElement.TitlePlacement="Left"
                      hc:TitleElement.TitleWidth="200"
                      Style="{StaticResource TextBoxExtend}" />
-            <TextBox Text="{Binding VerifyThreasholdPixel}"
-                     hc:TitleElement.Title="VerifyThreasholdPixel: "
+            <TextBox Text="{Binding VerifyThresholdPixel}"
+                     hc:TitleElement.Title="VerifyThresholdPixel: "
                      hc:TitleElement.TitlePlacement="Left"
                      hc:TitleElement.TitleWidth="200"
                      Style="{StaticResource TextBoxExtend}" />

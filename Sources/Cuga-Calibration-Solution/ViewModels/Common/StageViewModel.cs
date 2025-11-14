@@ -272,6 +272,7 @@ public sealed partial class StageViewModel(
         var result = ret.Anything;
         result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
+
         return result;
     }
 
@@ -286,12 +287,14 @@ public sealed partial class StageViewModel(
     {
         var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum);
 
-        if (ret.IsSuccess == false)
-            throw new CugaException(ret.ErrorMsg);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2);
+
         result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
+
         return result;
     }
 
@@ -346,9 +349,13 @@ public sealed partial class StageViewModel(
             algorithmWaferTypeEnum);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.MarkPoint2);
+        var result = ret.Anything;
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2);
 
-        return ret.Anything;
+        result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
+        result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
+
+        return result;
     }
 
     public void SetGantryOffset(double gantryOffset)
