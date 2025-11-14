@@ -26,6 +26,8 @@ using System.Text;
 using System.Threading.Channels;
 using Core.Models.Models.Common.Alignment;
 using Core.Utilities;
+using CugaCalibration.ViewModels.Common.Windows.Tools;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
@@ -77,6 +79,21 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     #endregion 界面相关
 
     #region 缓存
+
+    [ObservableProperty]
+    private AlignmentCacheBrightField _alignmentCacheBrightField = HostApplication.GetRequiredService<AlignmentCacheBrightField>();
+
+    [ObservableProperty]
+    private AlignmentCacheDarkField _alignmentCacheDarkField = HostApplication.GetRequiredService<AlignmentCacheDarkField>();
+
+    [ObservableProperty]
+    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
+
+    [ObservableProperty]
+    private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
+
+    [ObservableProperty]
+    private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
 
     [ObservableProperty]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();

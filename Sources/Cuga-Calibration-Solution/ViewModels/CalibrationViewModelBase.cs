@@ -37,9 +37,6 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Core.Models.Models.Common.Alignment;
-using CugaCalibration.ViewModels.Common.Windows.Tools;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
 namespace CugaCalibration.ViewModels;
 
@@ -93,21 +90,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     [ObservableProperty]
     private MonitorViewModel _monitorViewModel = HostApplication.GetRequiredService<MonitorViewModel>();
-
-    [ObservableProperty]
-    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
-
-    [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = HostApplication.GetRequiredService<AlignmentCacheBrightField>();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = HostApplication.GetRequiredService<AlignmentCacheDarkField>();
-
-    [ObservableProperty]
-    private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
-
-    [ObservableProperty]
-    private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
 
     #endregion ViewModels
 
