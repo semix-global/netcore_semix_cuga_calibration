@@ -14,6 +14,7 @@ namespace Core.Models.Models.Laser.XPixelSize;
 public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -65,7 +66,7 @@ public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
     private string _templateImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private double _waferDiameter = 300_000;
+    private double _waferDiameter = 280_000;
 
     [ObservableProperty]
     private double _columnCellWidth = 15300;

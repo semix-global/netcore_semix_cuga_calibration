@@ -856,17 +856,17 @@ public sealed class LaserViewModel(
             switch (stageCoordinateSystemEnum)
             {
                 case StageCoordinateSystemEnum.Bright:
-                    startMachinePosition = stageViewModel.BrightFieldToMachinePosition(startPosition);
-                    endMachinePosition = stageViewModel.BrightFieldToMachinePosition(endPosition);
+                    startMachinePosition = stageViewModel.DarkFieldToMachinePosition(startPosition);
+                    endMachinePosition = stageViewModel.DarkFieldToMachinePosition(endPosition);
 
-                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, calChipSiteModelEnum);
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
                     break;
 
                 case StageCoordinateSystemEnum.Dark:
-                    startMachinePosition = stageViewModel.BrightFieldToMachinePosition(startPosition);
-                    endMachinePosition = stageViewModel.BrightFieldToMachinePosition(endPosition);
+                    startMachinePosition = stageViewModel.DarkFieldToMachinePosition(startPosition);
+                    endMachinePosition = stageViewModel.DarkFieldToMachinePosition(endPosition);
 
-                    stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
                     break;
 
                 case StageCoordinateSystemEnum.Machine:
@@ -883,7 +883,7 @@ public sealed class LaserViewModel(
             // 采图模式下发
             ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, pmtId, StageCoordinateSystemEnum.Machine, isAutoFocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }

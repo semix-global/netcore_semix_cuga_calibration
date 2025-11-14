@@ -21,7 +21,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Pixel Size Step : "
+                <hc:Shield Subject="X Pixel Size Review : "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
@@ -38,11 +38,9 @@
                                            FontWeight="Bold"
                                            Style="{StaticResource TextBlockDefaultInfo}" />
                             </StackPanel>
-                            <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                              Width="275"
-                                              hc:InfoElement.Title="Threshold: "
-                                              hc:TitleElement.TitleWidth="90"
-                                              hc:InfoElement.TitlePlacement="Left"
+                            <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                                              hc:TitleElement.TitleWidth="160"
+                                              hc:TitleElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding Cache.Threshold}" />
@@ -81,15 +79,14 @@
             <GroupBox Grid.Row="0" Header="Calibration Data">
                 <ListView x:Name="listview"
                           d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          IsEnabled="{Binding RelativeSource={RelativeSource AncestorType=hc:Window}, Path=DataContext.IsCancelEnable}"
                           SelectionMode="Extended">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviewList}" />
+                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -116,35 +113,10 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="120"
-                                            Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding ProductivityInformation.OpticsMagType}" />
-                            <GridViewColumn Width="120"
-                                            Header="StageSpeed"
-                                            DisplayMemberBinding="{Binding ProductivityInformation.StageSpeedType}" />
-                            <GridViewColumn Width="100"
-                                            Header="PMT Id"
-                                            DisplayMemberBinding="{Binding PmtId}" />
-                            <GridViewColumn Width="200"
-                                            Header="Find Start Position"
-                                            DisplayMemberBinding="{Binding FindStartPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Width="200"
-                                            Header="Find End Position"
-                                            DisplayMemberBinding="{Binding FindEndPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Y Pixel Size"
+                            <GridViewColumn Header="ProductivityInformation"
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="X Pixel Size(um/px)"
                                             DisplayMemberBinding="{Binding XPixelSize, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="200" Header="Action Review">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <hc:ButtonGroup>
-                                            <Button Content="Image"
-                                                    Command="{Binding Path=DataContext.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding .}" />
-                                        </hc:ButtonGroup>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -158,7 +130,7 @@
                     <GroupBox Header="Images">
                         <hc:ScrollViewer>
                             <Border Padding="5" Style="{StaticResource BorderRegion}">
-                                <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding DarkFieldCropImageList}">
+                                <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=listview}">
                                     <ItemsControl.ItemContainerStyle>
                                         <Style TargetType="ContentPresenter">
                                             <Setter Property="Width" Value="400" />
@@ -176,13 +148,13 @@
                                             <hc:SimplePanel>
                                                 <view:CanvasView AxisColor="Red"
                                                                  BackgroundColor="#0A0A0A"
-                                                                 BackgroundImage="{Binding FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                                  Interactive="True"
                                                                  ShowAxes="True"
                                                                  ShowCursor="False"
                                                                  ShowGrid="False"
                                                                  Tag="{Binding .}" />
-                                                <TextBlock Text="{Binding Position, Converter={StaticResource PointToStringConverter}}"
+                                                <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Top"
                                                            Foreground="Yellow" />

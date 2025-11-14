@@ -19,7 +19,7 @@
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="X Pixel Size Step 3: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationStepList[2].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Productivity: "
@@ -41,7 +41,7 @@
                         </StackPanel>
                         <TextBox hc:TitleElement.Title="Low Site1(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitleWidth="150"
                                  IsReadOnly="True">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
@@ -58,7 +58,7 @@
                         </TextBox>
                         <TextBox hc:TitleElement.Title="Low Site2(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitleWidth="150"
                                  IsReadOnly="True">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
@@ -75,7 +75,7 @@
                         </TextBox>
                         <TextBox hc:TitleElement.Title="High Site1(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitleWidth="150"
                                  IsReadOnly="True">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
@@ -92,7 +92,7 @@
                         </TextBox>
                         <TextBox hc:TitleElement.Title="High Site2(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitleWidth="150"
                                  IsReadOnly="True">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
@@ -154,7 +154,7 @@
                     </hc:UniformSpacingPanel>
                     <TextBox Text="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
                              hc:TitleElement.Title="Alignment Degrees(°): "
-                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitleWidth="150"
                              hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />

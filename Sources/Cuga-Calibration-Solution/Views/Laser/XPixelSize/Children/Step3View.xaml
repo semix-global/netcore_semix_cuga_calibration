@@ -4,6 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
@@ -18,7 +20,7 @@
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="X Pixel Size Step 4: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationStepList[4].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Productivity: "
@@ -41,6 +43,19 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:InfoElement.TitleWidth="160"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="Template Type: "
+                                 hc:InfoElement.Necessary="True"
+                                 SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                     <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"

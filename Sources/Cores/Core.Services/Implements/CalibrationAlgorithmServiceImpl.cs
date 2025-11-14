@@ -191,7 +191,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             var tryGetMatchPosition = score >= templateMatchScoreThreshold;
             if (tryGetMatchPosition == false)
             {
-                logger.LogWarning("{@Name} Error: Match Score is Less Than Threshold {@MatchScoreThreshold} > {@Score}", nameof(CalibrationAlgorithmServiceImpl), templateMatchScoreThreshold, score);
+                //logger.LogWarning("{@Name} Error: Match Score is Less Than Threshold {@MatchScoreThreshold} > {@Score}", nameof(CalibrationAlgorithmServiceImpl), templateMatchScoreThreshold, score);
                 return false;
             }
 

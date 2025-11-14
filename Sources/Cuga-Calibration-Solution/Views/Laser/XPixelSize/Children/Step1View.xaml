@@ -19,7 +19,7 @@
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="X Pixel Size Step 2: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Productivity: "
@@ -40,11 +40,6 @@
                                  SelectedItem="{Binding Cache.Item.MicroscopeLensInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -52,11 +47,6 @@
                                  SelectedItem="{Binding Cache.Item.LaserLightInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                     <hc:ComboBox hc:TitleElement.Title="PMT Id: "
@@ -65,11 +55,6 @@
                                  SelectedItem="{Binding Cache.Item.PMTId}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:ComboBox hc:TitleElement.Title="Channel Id: "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -77,11 +62,6 @@
                                  SelectedItem="{Binding Cache.Item.ChannelId}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"

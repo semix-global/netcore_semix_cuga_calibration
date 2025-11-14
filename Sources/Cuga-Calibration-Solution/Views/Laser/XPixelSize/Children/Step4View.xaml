@@ -18,7 +18,7 @@
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="X Pixel Size Step 5: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationStepList[4].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Productivity: "
@@ -57,6 +57,12 @@
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Item.ColumnCellWidth}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                                      hc:TitleElement.TitleWidth="160"
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Threshold}" />
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
@@ -80,8 +86,8 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="10" />
-                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <hc:ScrollViewer>
                         <Border Padding="5" Style="{StaticResource BorderRegion}">
