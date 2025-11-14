@@ -205,12 +205,8 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
 
         if (df is not null)
         {
-            var laserLineCentricityItemDto = laserLineCentricityItems.Single(t => t is
-            {
-                PmtId: CalibrationConstantsHelper.MainPmtId,
-                OpticsMagTypeEnum: CalibrationConstantsHelper.MainOpticsMagTypeEnum,
-                StageSpeedEnum: CalibrationConstantsHelper.MainStageSpeedEnum
-            });
+            var laserLineCentricityItemDto = laserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
+                                                                                  && t.ProductivityInformation == cache.ProductivityInformation);
 
             var ellipse = wpfPlot.Plot.Add.Circle(
                 laserLineCentricityItemDto.DarkMachineCenterPosition.X,

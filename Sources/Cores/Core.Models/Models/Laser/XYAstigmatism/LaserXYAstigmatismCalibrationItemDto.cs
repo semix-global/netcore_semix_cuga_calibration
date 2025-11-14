@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
@@ -18,7 +17,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private double _spectralDensity;
@@ -49,7 +48,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
 
     public CalibrationLaserXYAstigmatismItem AdaptTo() => new()
     {
-        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         ChirpAODWaveformResultList = ChirpAodWaveResultList.Select(t => new CalibrationChirpAODWaveformResult { CgAwgElectrodeEnum = (int)t.OpticsAODElectrodeEnum, FilePath = t.FilePath }).ToArray()
     };
 
@@ -59,7 +58,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     {
         Index = Index,
         MicroscopeLensInformation = MicroscopeLensInformation,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        ProductivityInformation = ProductivityInformation,
         SpectralDensity = SpectralDensity,
         EcsX = EcsX,
         EcsY = EcsY,

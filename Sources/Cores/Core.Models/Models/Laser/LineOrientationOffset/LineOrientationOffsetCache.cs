@@ -18,6 +18,9 @@ public sealed partial class LineOrientationOffsetCache : CalibrationCacheBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]

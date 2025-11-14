@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -15,10 +13,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-    [ObservableProperty]
-    private StageSpeedEnum _xStageSpeedEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -52,8 +47,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     public LaserXPixelSizeItemDto Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
-        XStageSpeedEnum = XStageSpeedEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         PmtId = PmtId,
         FindPosition = FindPosition,
         FindStartPosition = FindStartPosition,
@@ -71,8 +65,8 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationLaserXPixelSizeItem AdaptTo() => new()
     {
-        CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-        Speed = XStageSpeedEnum.ToCgSpeedLevelType(),
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
         XPixelSize = XPixelSize,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified

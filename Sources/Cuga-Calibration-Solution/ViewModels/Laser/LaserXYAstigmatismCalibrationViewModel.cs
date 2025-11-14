@@ -1,10 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODDelay;
@@ -28,7 +26,6 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -47,14 +44,14 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
     private string ChirpFileDirectory => Path.Combine(AppHomeDirectory, "Chirp", nameof(LaserXYAstigmatismCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Config" },
-        new() { StepName = "Select Mag", DefaultIsNextEnable = true },
+        new() { StepName = "Select Productivity" },
         new() { StepName = "Select a lens and a location" },
         new() { StepName = "Find Best EcsX With Chirp AOD Default Wave", DefaultIsNextEnable = true },
         new() { StepName = "Get Optimum RateRange" }
@@ -86,10 +83,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     private LaserXYAstigmatismCalibrationItemDto? _resultLaserXyAstigmatismItemDto;
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumCalibrationStatus { OpticsMagTypeEnum = t, IsCalibrated = false })
-    ];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     /// <summary>
     ///EcsY Zlimit中心位置
@@ -102,7 +96,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<LaserXYAstigmatismCalibrationItemDto> _reviewList = [];
+    private ObservableCollection<LaserXYAstigmatismCalibrationItemDto> _reviews = [];
 
     [ObservableProperty]
     private LaserXYAstigmatismCalibrationItemDto? _selectReviewItemDto;
@@ -184,12 +178,21 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXYAstigmatismCalibrationCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>();
 
-        foreach (var calibrationStatus in Calibrations)
-        {
-            CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        if (CalibrationStatuses.Count == 0)
+            CalibrationStatuses =
+            [
+                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+            ];
+
+        Calibrations =
+        [
+            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    return t;
+                })
+        ];
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
@@ -199,27 +202,18 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         return true;
     }
 
-    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
-        return true;
-    }
-
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        ReviewList =
+        Reviews =
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
-        return ReviewList.Any(t => t.IsCalibrated);
+        return Reviews.Any(t => t.IsCalibrated);
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
@@ -230,19 +224,20 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         {
             case 1:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 2:
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 3:
                 // 无校准记录时，find ecsY界面参数继承上一步设置find ecsX的参数
-                var chirpAodDefaultDto = Cache.GetDefaultChirpAodProfile();
-                var temp = Calibrations.Where(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).ToList();
+                var chirpAodDefaultDto = Cache.Item.ChirpAodDefaultDto;
+                var temp = Calibrations.Where(t => t.ProductivityInformation == Cache.ProductivityInformation).ToList();
                 if (temp.Count == 0 && SelectedLaserXyAstigmatismItemDto is null)
                 {
-                    Cache.SetStartSpectralDensity(chirpAodDefaultDto.SpectralDensity);
+                    Cache.Item.StartSpectralDensity = chirpAodDefaultDto.SpectralDensity;
                     Cache.SetEcsYParams();
                 }
 
@@ -266,10 +261,10 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
+                CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog("Find XY Astigmatism Ok!");
 
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -292,10 +287,10 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.CIBConfiguration.Gain,
-                IsL0k = Cache.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
+                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
+                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -308,7 +303,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -323,11 +318,11 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
             var resultBright = StageViewModel.GetBrightFieldStagePosition();
 
-            Cache.FindPosition = resultBright;
+            Cache.Item.FindPosition = resultBright;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.FindPosition
+                Cache.Item.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -340,7 +335,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         {
             try
             {
-                var (ecsUpperLimitX, ecsLowerLimitX, ecsLimitIntervalX, ecsXInitial) = Cache.GetEcsXParams();
+                var (ecsUpperLimitX, ecsLowerLimitX, ecsLimitIntervalX, ecsXInitial) = (Cache.Item.EcsPositionUpper, Cache.Item.EcsPositionLower, Cache.Item.EcsInterval, Cache.Item.EcsXInitial);
                 if (ecsLowerLimitX < 0 || ecsUpperLimitX < 0 || ecsLimitIntervalX <= 0)
                 {
                     DialogWindowProvider.ShowDialog("Please set the correct parameters!(Focus Upper>0 And Focs Lower>0 and Focus Interval > 0)", DialogButtonsEnum.OK,
@@ -350,21 +345,20 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
                 var detectImageDirectory = ImageFileDirectory;
                 ClearCalibrationTemp();
-                var chirpAodDefaultDto = Cache.GetDefaultChirpAodProfile();
-                OnPropertyChanged(nameof(Cache.HighChirpAodDefaultDto));
-                OnPropertyChanged(nameof(Cache.HighChirpAodDefaultDto.SpectralDensity));
+                var chirpAodDefaultDto = Cache.Item.ChirpAodDefaultDto;
+
                 chirpAodDefaultDto.IsHeaderAndFooter = false;
                 // 下发默认波形
-                if (LaserViewModel.TrySendAodFile(Cache.OpticsMagTypeEnum, (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation), false, out var errorMessage) == false)
+                if (LaserViewModel.TrySendAodFile(Cache.ProductivityInformation, (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation), false, out var errorMessage) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Send Default Aod Wave Failed.Error: " + errorMessage), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
 
-                var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.OpticsMagTypeEnum);
+                var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.ProductivityInformation);
                 chirpAodDefaultDto.ZeroSampleCount = defaultChirpAodWaveProfileLst[0].ZeroSampleCount;
                 // 有AOD Delay结果时，默认chirp波形使用该delay值
-                var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.ProductivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum() == Cache.OpticsMagTypeEnum);
+                var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
                 if (laserAodDelayItem is not null && laserAodDelayItem.IsOk)
                 {
                     var delayTime = Convert.ToInt32(laserAodDelayItem.RefinedChirpAODDelay);
@@ -374,7 +368,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     LaserViewModel.SetChirpAODWaveProfiles(customZeroAodWaveProfileList);
                 }
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
                 var (currentResultList, isSuccess) = GetBestEcsItemByCurrentChirpAodWaveProfile(chirpAodDefaultDto, cancellationToken, true);
                 if (isSuccess == false)
@@ -383,10 +377,10 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     return false;
                 }
 
-                Cache.SetEcsXParams(currentResultList[0].EcsX);
+                Cache.Item.EcsXInitial = currentResultList[0].EcsX;
                 Logger.LogHtmlInformation("Find EcsX OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    OpticsMagType = Cache.OpticsMagTypeEnum,
+                    Cache.ProductivityInformation,
                     Cache.MicroscopeLensInformation.LensName,
                     chirpAodDefaultDto.SoundPacketLength,
                     chirpAodDefaultDto.BandWidth,
@@ -416,7 +410,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             }
             finally
             {
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
             }
         });
     }
@@ -431,11 +425,11 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 var detectImageDirectory = ImageFileDirectory;
                 ClearCalibrationTemp();
 
-                var (ecsUpperLimitY, ecsLowerLimitY, ecsLimitIntervalY, ecsYInitial) = Cache.GetEcsYParams();
-                var (frequencyIncreaseCount, frequencyIncreaseInterval) = Cache.GetFrequencyParams();
-                var setErrorThreshold = Cache.GetThresholdParams();
-                var startSpectralDensity = Cache.GetStartSpectralDensity();
-                var chirpAodDefaultDto = Cache.GetDefaultChirpAodProfile();
+                var (ecsUpperLimitY, ecsLowerLimitY, ecsLimitIntervalY, ecsYInitial) = (Cache.Item.EcsYPositionUpper, Cache.Item.EcsYPositionLower, Cache.Item.EcsYInterval, Cache.Item.EcsYInitial);
+                var (frequencyIncreaseCount, frequencyIncreaseInterval) = (Cache.Item.IncreaseCount, Cache.Item.IncreaseInterval);
+                var setErrorThreshold = Cache.Item.Threshold;
+                var startSpectralDensity = Cache.Item.StartSpectralDensity;
+                var chirpAodDefaultDto = Cache.Item.ChirpAodDefaultDto;
                 if (ecsLowerLimitY < 0 || ecsUpperLimitY < 0 || ecsLimitIntervalY <= 0 || frequencyIncreaseCount < 0)
                 {
                     DialogWindowProvider.ShowDialog("Please set the correct parameters!(Focus Upper>0 And Focs Lower>0 and Focus Interval > 0 and  FrequencyIncreaseCount> 0)", DialogButtonsEnum.OK,
@@ -445,7 +439,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
                 Logger.LogHtmlInformation("Initial Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    OpticsMagType = Cache.OpticsMagTypeEnum,
+                    Cache.ProductivityInformation,
                     Cache.MicroscopeLensInformation.LensName,
                     chirpAodDefaultDto.SoundPacketLength,
                     chirpAodDefaultDto.ZeroSampleCount,
@@ -542,8 +536,8 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
                     Logger.LogHtmlInformation("Find EcsY OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                     {
-                        OpticsMagType = ResultLaserXyAstigmatismItemDto.OpticsMagTypeEnum,
-                        OptimumEcsXByDefaultWave = Cache.GetInitialEcsX(),
+                        ResultLaserXyAstigmatismItemDto.ProductivityInformation,
+                        OptimumEcsXByDefaultWave = Cache.Item.EcsXInitial,
                         FrequenceRateChangeIdea = findItemByNotFit.SpectralDensity,
                         FrequenceRateChangeResult = ResultLaserXyAstigmatismItemDto.SpectralDensity,
                         OriEcsX = findItemByNotFit.EcsX,
@@ -575,7 +569,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                         try
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            var bestEcsX = Cache.GetInitialEcsX();
+                            var bestEcsX = Cache.Item.EcsXInitial;
                             // 首次输入ecsX，后续迭代输入xyEcsError
                             var deltaEcs = previousRateChange == 0 ? bestEcsX : previousEcsError;
                             var currentRateChange = Math.Round(1.0 / (k * deltaEcs + b), 2) + previousRateChange;
@@ -637,7 +631,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             }
             finally
             {
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
             }
         });
     }
@@ -655,7 +649,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     return false;
                 }
 
-                Cache.OpticsMagTypeEnum = SelectReviewItemDto.OpticsMagTypeEnum;
+                Cache.ProductivityInformation = SelectReviewItemDto.ProductivityInformation;
                 Cache.MicroscopeLensInformation = SelectReviewItemDto.MicroscopeLensInformation;
 
                 ClearCalibrationTemp();
@@ -663,25 +657,25 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 SelectReviewItemDto.IsVerified = false;
 
                 var selectItemSpectralDensity = SelectReviewItemDto.SpectralDensity;
-                var (ecsLimitUpperY, ecsLimitLowerY, ecsLimitIntervalY, ecsYInitial) = Cache.GetEcsYParams();
-                var setErrorThreshold = Cache.GetThresholdParams();
+                var (ecsLimitUpperY, ecsLimitLowerY, ecsLimitIntervalY, ecsYInitial) = (Cache.Item.EcsYPositionUpper, Cache.Item.EcsYPositionLower, Cache.Item.EcsYInterval, Cache.Item.EcsYInitial);
+                var setErrorThreshold = Cache.Item.Threshold;
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
                 // 下发默认波形
-                if (LaserViewModel.TrySendAodFile(Cache.OpticsMagTypeEnum, (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation), false, out var errorMessage) == false)
+                if (LaserViewModel.TrySendAodFile(Cache.ProductivityInformation, (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation), false, out var errorMessage) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Send Default Aod Wave Failed.Error: " + errorMessage), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
 
-                var chirpAodDefaultDto = Cache.GetDefaultChirpAodProfile();
+                var chirpAodDefaultDto = Cache.Item.ChirpAodDefaultDto;
 
                 var reviewDto = SelectReviewItemDto.Clone();
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    OpticsMagType = Cache.OpticsMagTypeEnum,
+                    Cache.ProductivityInformation,
                     Cache.MicroscopeLensInformation.LensName,
                     chirpAodDefaultDto.SoundPacketLength,
                     chirpAodDefaultDto.ZeroSampleCount,
@@ -716,7 +710,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
                 Logger.LogHtmlInformation($"Verify {(isSuccess ? "Success" : "Error")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    OpticsMagType = Cache.OpticsMagTypeEnum,
+                    Cache.ProductivityInformation,
                     Cache.MicroscopeLensInformation.LensName,
                     CurrentFrequenceRateChange = ResultReviewItemDto.SpectralDensity,
                     OldEcsError = SelectReviewItemDto.EcsErrorValue,
@@ -748,7 +742,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         }
         finally
         {
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
         }
     }
 
@@ -762,7 +756,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         Calibrations =
         [
             .. Calibrations
-                .Where(t => t.OpticsMagTypeEnum != itemDto.OpticsMagTypeEnum),
+                .Where(t => t.ProductivityInformation != itemDto.ProductivityInformation),
             itemDto.Clone()
         ];
 
@@ -806,7 +800,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         {
             cancellationToken.ThrowIfCancellationRequested();
             SynchronizationContextProvider.Send(() => EcsQualityList = []);
-            var (ecsLimitUpper, ecsLimitLower, ecsLimitInterval, ecsInitial) = isFindEcsX ? Cache.GetEcsXParams() : Cache.GetEcsYParams();
+            var (ecsLimitUpper, ecsLimitLower, ecsLimitInterval, ecsInitial) = isFindEcsX
+                ? (Cache.Item.EcsPositionUpper, Cache.Item.EcsPositionLower, Cache.Item.EcsInterval, Cache.Item.EcsXInitial)
+                : (Cache.Item.EcsYPositionUpper, Cache.Item.EcsYPositionLower, Cache.Item.EcsYInterval, Cache.Item.EcsYInitial);
             Logger.LogHtmlInformation($"Get Result With RateChange: {chirpAodWaveDto.SpectralDensity}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 ecsLimitUpper,
@@ -834,7 +830,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 dtoTempList.Add(new LaserXYAstigmatismCalibrationItemDto
                 {
                     Index = index,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
+                    ProductivityInformation = Cache.ProductivityInformation,
                     SpectralDensity = chirpAodWaveDto.SpectralDensity,
                     EcsX = ecsValueTemp,
                     EcsY = ecsValueTemp,
@@ -869,7 +865,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             Logger.LogHtmlInformation($"Get Result OK: Frequency Change Rate {chirpAodWaveDto.SpectralDensity}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
                 Mode = "Extremum",
-                OpticsMagType = Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 chirpAodWaveDto.SpectralDensity,
                 chirpAodWaveDto.DirectoryPath,
                 CurrentCircleInitialEcs = ecsInitial,
@@ -893,9 +889,9 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             if (isAutoSlider == false || ecsError <= (ecsLimitLower + ecsLimitUpper) / 2) return (resultItems, true);
 
             if (isFindEcsX)
-                Cache.SetEcsXParams(currentEcs);
+                Cache.Item.EcsXInitial = currentEcs;
             else
-                Cache.SetEcsYParams(currentEcs);
+                Cache.Item.EcsYInitial = currentEcs;
 
             DialogWindowProvider.TryShowDialog($"Find Ecs {(isFindEcsX ? "X" : "Y")} value far from initial axis more, EcsError: ({ecsError})," +
                                                $"Do you want to repeat once use the current ecs value as the new axis?"
@@ -987,7 +983,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             var chirpAodWaveProfileDto = ChirpAodFindEcsYDto.Clone();
             chirpAodWaveProfileDto.BandWidth = bandWidth;
             chirpAodWaveProfileDto.DirectoryPath = ChirpFileDirectory;
-            chirpAodWaveProfileDto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+            chirpAodWaveProfileDto.ProductivityInformation = Cache.ProductivityInformation;
 
             var ret = calibrationLaserService.GenerateChirpAodWaves(chirpAodWaveProfileDto);
             if (ret.IsSuccess == false)
@@ -1018,13 +1014,12 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
             var list = LaserViewModel.GetDarkFieldLineScanImageList(
                 Cache.CalChipSiteModelEnum,
-                Cache.FindPosition,
+                Cache.Item.FindPosition,
                 800,
-                Cache.OpticsMagTypeEnum,
-                StageSpeedEnum.Low,
+                Cache.ProductivityInformation,
                 8,
                 StageCoordinateSystemEnum.Dark,
-                Cache.CIBConfiguration,
+                Cache.Item.CIBConfiguration,
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 true,
                 isAutoFocus: false);

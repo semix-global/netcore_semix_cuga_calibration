@@ -39,6 +39,10 @@
                            Subject="High Microscope Magnification: "
                            Status="{Binding Cache.HighMicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

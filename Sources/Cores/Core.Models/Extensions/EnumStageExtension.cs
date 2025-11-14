@@ -144,6 +144,7 @@ public static class EnumStageExtension
         SxSpeedEnum.Low => CgSpeedLevelType.Low,
         SxSpeedEnum.Mid => CgSpeedLevelType.Mid,
         SxSpeedEnum.High => CgSpeedLevelType.High,
+        (SxSpeedEnum)(-1) => 0,
         _ => throw new ArgumentOutOfRangeException(nameof(sxSpeedEnum), sxSpeedEnum, null)
     };
 

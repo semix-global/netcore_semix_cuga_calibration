@@ -26,11 +26,11 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="OpticsMagType:"
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation.OpticsMagType}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="StageSpeedType:"
-                           Status="{Binding Cache.XStageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation.StageSpeedType}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}"
@@ -45,7 +45,7 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <DockPanel>
-                        <TextBox Text="{Binding Cache.FindTemplatePosition, Converter={StaticResource PointToStringConverter}}"
+                        <TextBox Text="{Binding Cache.Item.FindTemplatePosition, Converter={StaticResource PointToStringConverter}}"
                                  Width="320"
                                  hc:InfoElement.Title="FindPostion: "
                                  hc:InfoElement.TitlePlacement="Left"
@@ -98,6 +98,18 @@
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.DieWidthUm}" />
+                    <hc:NumericUpDown hc:InfoElement.Title="SlideWindowValue: "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.SlideWindowValue}" />
+                    <hc:NumericUpDown hc:InfoElement.Title="SlideStepValue: "
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.SlideStepValue}" />
                     <hc:NumericUpDown hc:InfoElement.Title="Image Count: "
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
@@ -109,87 +121,10 @@
                              hc:InfoElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="200"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox hc:InfoElement.Title="IdealUmPerPixel: "
+                    <TextBox Text="{Binding Cache.IdealUmPerPixel}"
+                             hc:InfoElement.Title="IdealUmPerPixel: "
                              hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="200">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.High}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.HighMagHighSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.Middle}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.HighMagMiddleSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.High}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.Low}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.HighMagLowSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.High}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.MiddleMagHighSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.Middle}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.MiddleMagMiddleSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Middle}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.Low}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.MiddleMagLowSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.High}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.LowMagHighSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.Middle}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.LowMagMiddleSpeedPixel}" />
-                                    </MultiDataTrigger>
-
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Cache.OpticsMagTypeEnum}" Value="{x:Static optics:OpticsMagTypeEnum.Low}" />
-                                            <Condition Binding="{Binding Cache.XStageSpeedEnum}" Value="{x:Static stage:StageSpeedEnum.Low}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="{Binding Cache.LowMagLowSpeedPixel}" />
-                                    </MultiDataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                             hc:TitleElement.TitleWidth="200" />
 
                     <TextBox Text="{Binding Cache.Threshold}"
                              hc:InfoElement.Title="Threshold: "

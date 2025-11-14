@@ -29,7 +29,7 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <TextBox x:Name="ThresholdTextBox"
-                             Text="{Binding Cache.Threshold, Converter={StaticResource PointToStringConverter}}"
+                             Text="{Binding Cache.Item.Threshold, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Threshold: "
                              hc:TitleElement.TitleWidth="90"
@@ -62,7 +62,7 @@
             <GroupBox Grid.Row="2" Header="Calibration Data">
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <ListView d:SelectedIndex="0"
-                              ItemsSource="{Binding ReviewList}"
+                              ItemsSource="{Binding Reviews}"
                               Style="{StaticResource ListView.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -70,7 +70,7 @@
                               SelectionMode="Extended">
                         <i:Interaction.Behaviors>
                             <behaviors:ListBoxScrollToCurrentBehavior />
-                            <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviewList}" />
+                            <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviews}" />
                         </i:Interaction.Behaviors>
                         <ListView.ItemContainerStyle>
                             <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -98,11 +98,8 @@
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn Width="100"
-                                                Header="Optics Mag"
-                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                Header="Productivity"
+                                                DisplayMemberBinding="{Binding ProductivityInformation}" />
                                 <GridViewColumn Width="80"
                                                 Header="PMT Id"
                                                 DisplayMemberBinding="{Binding PmtId}" />

@@ -26,20 +26,12 @@
                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Speed: "
-                           Status="{Binding Cache.XStageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Need Microscope Magnification: "
                            Status="{Binding Cache.MicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
-                           Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
@@ -63,7 +55,7 @@
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="100"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.XWidthPixel}" />
+                                          Value="{Binding Cache.Item.XWidthPixel}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
@@ -134,7 +126,7 @@
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
                                         Header="Optics Mag"
-                                        DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        DisplayMemberBinding="{Binding ProductivityInformation}" />
                         <GridViewColumn Width="100"
                                         Header="PMT Id"
                                         DisplayMemberBinding="{Binding PmtId}" />

@@ -164,11 +164,11 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.NextDouble()).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
     }
 
     public SxExecuteRet<bool> SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)
@@ -232,6 +232,20 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetDarkFieldAutoFocusMotorAbsoluteValue()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(16d);
+    }
+
+    public SxExecuteRet<(double, double)> GetDarkFieldAutoFocusMotorMoveRange()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((12d, 32d));
     }
 
     public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()

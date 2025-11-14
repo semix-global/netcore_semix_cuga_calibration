@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -26,6 +26,7 @@ public sealed class ProductivityInformation :
     private string _name = "N/A";
     private int _opticsMagType = -1;
     private int _stageSpeedType = -1;
+    private SwathSpeedInformation _swathSpeedInformation = SwathSpeedInformation.Default;
 
     public string Name
     {
@@ -45,6 +46,12 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref _stageSpeedType, value);
     }
 
+    public SwathSpeedInformation SwathSpeedInformation
+    {
+        get => _swathSpeedInformation;
+        set => SetProperty(ref _swathSpeedInformation, value);
+    }
+
     private ProductivityInformation()
     {
     }
@@ -61,6 +68,9 @@ public sealed class ProductivityInformation :
 
         var stageSpeedTypeComparison = StageSpeedType.CompareTo(other.StageSpeedType);
         if (stageSpeedTypeComparison != 0) return stageSpeedTypeComparison;
+
+        var swathSpeedInfoComparison = SwathSpeedInformation.CompareTo(other.SwathSpeedInformation);
+        if (swathSpeedInfoComparison != 0) return swathSpeedInfoComparison;
 
         return string.Compare(Name, other.Name, StringComparison.Ordinal);
     }
@@ -93,7 +103,8 @@ public sealed class ProductivityInformation :
         (_, null) => false,
         (_, _) => ReferenceEquals(left, right) || (Equals(left.Name, right.Name) &&
                                                    Equals(left.OpticsMagType, right.OpticsMagType) &&
-                                                   Equals(left.StageSpeedType, right.StageSpeedType))
+                                                   Equals(left.StageSpeedType, right.StageSpeedType) &&
+                                                   Equals(left.SwathSpeedInformation, right.SwathSpeedInformation))
     };
 
     public static bool operator !=(ProductivityInformation? left, ProductivityInformation? right) => !(left == right);
@@ -102,22 +113,30 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType) => (name, opticsMagType, stageSpeedType) = (Name, OpticsMagType, StageSpeedType);
+    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out SwathSpeedInformation swathSpeedInformation)
+        => (name, opticsMagType, stageSpeedType, swathSpeedInformation) = (Name, OpticsMagType, StageSpeedType, SwathSpeedInformation);
 
     #endregion Deconstruct
 
     #region Mapper
 
-    public C2MProductivityInfo AdaptTo() => new()
-    {
-        Name = Name,
-        Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
-            ? (SxMAGEnum)OpticsMagType
-            : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
-        Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
-            ? (SxSpeedEnum)StageSpeedType
-            : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType)),
-    };
+    public C2MProductivityInfo AdaptTo() => this != Default
+        ? new C2MProductivityInfo
+        {
+            Name = Name,
+            Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
+                ? (SxMAGEnum)OpticsMagType
+                : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
+            Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
+                ? (SxSpeedEnum)StageSpeedType
+                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType)),
+        }
+        : new C2MProductivityInfo
+        {
+            Name = Name,
+            Mag = (SxMAGEnum)OpticsMagType,
+            Speed = (SxSpeedEnum)StageSpeedType
+        };
 
     public ProductivityInformation AdaptIn(C2MProductivityInfo obj)
     {
@@ -134,7 +153,8 @@ public sealed class ProductivityInformation :
     {
         Name = Name,
         OpticsMagType = OpticsMagType,
-        StageSpeedType = StageSpeedType
+        StageSpeedType = StageSpeedType,
+        SwathSpeedInformation = SwathSpeedInformation
     };
 
     #endregion Mapper

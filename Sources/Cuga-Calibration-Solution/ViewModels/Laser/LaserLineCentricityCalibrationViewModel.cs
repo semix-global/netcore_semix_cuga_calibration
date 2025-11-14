@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -30,7 +29,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -44,28 +42,24 @@ namespace CugaCalibration.ViewModels.Laser;
 public sealed partial class LaserLineCentricityCalibrationViewModel(
     IApplicationCookieService applicationCookieService,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
-    EnableOpticsMagWindowViewModel enableOpticsMagWindowViewModel,
-    EnableStageSpeedWindowViewModel enableStageSpeedWindowViewModel) : CalibrationViewModelBase
+    EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}-{EnumHelper.ToDescriptionString(Cache.StageSpeedEnum)}";
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}-{EnumHelper.ToDescriptionString(Cache.StageSpeedEnum)}";
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Config" },
-        new() { StepName = "Select a Mag" },
-        new() { StepName = "Select a Speed" },
+        new() { StepName = "Select Productivity" },
         new() { StepName = "Find a Position" },
         new() { StepName = "Find Template" },
         new() { StepName = "Line Centricity Calibration" }
     ];
 
-    private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
-
-    private List<(StageSpeedEnum stageSpeed, bool isEnbale)> _enableStageSpeedList = [];
+    private List<(ProductivityInformation productiveInformation, bool isEnbale)> _enableProductiveInformationList = [];
 
     #region 界面相关
 
@@ -75,30 +69,17 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private ObservableCollection<LaserLineCentricityItemDto> _resultLaserLineCentricityItemDtoList = [];
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus
-        {
-            OpticsMagTypeEnum = t,
-            StageSpeedEnumCalibrationStatusList = [..EnumHelper.Enums<StageSpeedEnum>().Select(tt => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = tt, IsCalibrated = false })]
-        })
-    ];
-
-    [ObservableProperty]
-    private ObservableCollection<StageSpeedEnumCalibrationStatus> _calibrationStatusListItem =
-    [
-        .. EnumHelper.Enums<StageSpeedEnum>().Select(t => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = t, IsCalibrated = false })
-    ];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<LaserLineCentricityItemDto> _reviewList = [];
+    private ObservableCollection<LaserLineCentricityItemDto> _reviews = [];
 
     [ObservableProperty]
-    private ObservableCollection<LaserLineCentricityItemDto> _selectReviewList = [];
+    private ObservableCollection<LaserLineCentricityItemDto> _selectReviews = [];
 
     #endregion Review
 
@@ -218,13 +199,21 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserLineCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>();
 
-        foreach (var calibrationStatus in Calibrations)
-        {
-            CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
-                .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == calibrationStatus.StageSpeedEnum)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        if (CalibrationStatuses.Count == 0)
+            CalibrationStatuses =
+            [
+                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+            ];
+
+        Calibrations =
+        [
+            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    return t;
+                })
+        ];
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
@@ -234,36 +223,23 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         return true;
     }
 
-    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-
-        Cache.FindPosition = Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius
-            ? new Point(0, 0)
-            : Cache.FindPosition;
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
-        return true;
-    }
-
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        ReviewList =
+        Reviews =
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
-                .ThenBy(t => t.StageSpeedEnum)
+                .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
 
-        if (ReviewList.All(t => t.IsCalibrated == false))
+        if (Reviews.All(t => t.IsCalibrated == false))
             return false;
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
 
         return true;
     }
@@ -274,27 +250,27 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 1:
-                foreach (var temp in CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).StageSpeedEnumCalibrationStatusList)
-                {
-                    CalibrationStatusListItem.Single(t => t.StageSpeedEnum == temp.StageSpeedEnum).IsCalibrated = temp.IsCalibrated;
-                }
+            case 0:
+                Cache.Item.FindPosition = Cache.Item.FindPosition.ToOriginLength >= Cache.ChuckRadius
+                    ? new Point(0, 0)
+                    : Cache.Item.FindPosition;
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+                return true;
 
+            case 1:
+                await AutomationRecipeInformationAsync(string.Empty);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
                 return true;
 
             case 2:
-                await AutomationRecipeInformationAsync(string.Empty);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
                 return true;
 
             case 3:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
 
             case 4:
-                return true;
-
-            case 5:
                 if (ResultLaserLineCentricityItemDtoList.Count <= 0)
                 {
                     DialogWindowProvider.TryShowDialog("Please find Offset!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
@@ -302,7 +278,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 }
                 else
                 {
-                    Calibrations = [.. Calibrations.ToList().Where(t => (t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.StageSpeedEnum == Cache.StageSpeedEnum) == false)];
+                    Calibrations = [.. Calibrations.ToList().Where(t => (t.ProductivityInformation == Cache.ProductivityInformation) == false)];
                     foreach (var (index, laserLineCentricityItemDto) in ResultLaserLineCentricityItemDtoList.Select((dto, i) => (i, dto)))
                     {
                         laserLineCentricityItemDto.IsCalibrated = true;
@@ -314,11 +290,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum)
-                    .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == Cache.StageSpeedEnum).IsCalibrated = true;
+                CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
                 //DialogWindowProvider.ShowDialog("Find Offset Ok!");
 
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -344,12 +319,12 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             {
                 var result = StageViewModel.GetBrightFieldStagePosition();
 
-                Cache.FindPosition = result;
+                Cache.Item.FindPosition = result;
 
-                Cache.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-                var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.BrightTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+                Cache.Item.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+                var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum);
                 if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                else Cache.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.BrightTemplateFilePath);
+                else Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
 
                 Logger.LogInformation("{@Name}: Get Point Image OK!", Name);
             }).ConfigureAwait(false);
@@ -368,7 +343,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             Logger.LogInformation("{@Name}: Move Point Start", Name);
             return await Task.Run(() =>
             {
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
 
                 Logger.LogInformation("{@Name}: Move Point OK!", Name);
                 return true;
@@ -389,10 +364,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.CIBConfiguration.Gain,
-                IsL0k = Cache.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
+                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
+                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -405,23 +380,50 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        var result = false;
+        await InvokeCalibrateAsync(() =>
         {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.StageSpeedEnum
-            }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+            result = Step1CalibrateAction();
+            return result;
         });
+        return result;
+    }
+
+    private bool Step1CalibrateAction()
+    {
+        if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, ImageFileDirectory, null, Name,
+                "High Magnification Matching Position", out var resultPosition, out _, out _, out var highResultImageFilePath, out _) == false)
+        {
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
+            return false;
+        }
+
+        Cache.Item.FindPosition = resultPosition;
+        Cache.Item.BrightTemplateImageFilePath = highResultImageFilePath;
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+        {
+            Cache.Item.AlgorithmTemplateTypeEnum,
+            Cache.MicroscopeLensInformation.LensName,
+            Cache.Item.FindPosition,
+            Cache.Item.BrightTemplateFilePath,
+            Cache.Item.BrightTemplateImageFilePath,
+            HtmlTab = new HtmlTab(new
+            {
+                HighMatchImage = new HtmlImage(highResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                HighTemplateImage = new HtmlImage(Cache.Item.BrightTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+            })
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        return true;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -438,73 +440,32 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     private bool Step2CalibrateAction()
     {
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.FindPosition, Cache.MicroscopeLensInformation, Cache.BrightTemplateFilePath, ImageFileDirectory, null, Name,
-                "High Magnification Matching Position", out var resultPosition, out _, out _, out var highResultImageFilePath, out _) == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
-            return false;
-        }
+        var machineStagePosition = StageViewModel.BrightFieldToMachinePosition(Cache.Item.FindPosition);
 
-        Cache.FindPosition = resultPosition;
-        Cache.BrightTemplateImageFilePath = highResultImageFilePath;
-        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
-        {
-            Cache.AlgorithmTemplateTypeEnum,
-            Cache.MicroscopeLensInformation.LensName,
-            Cache.FindPosition,
-            Cache.BrightTemplateFilePath,
-            Cache.BrightTemplateImageFilePath,
-            HtmlTab = new HtmlTab(new
-            {
-                HighMatchImage = new HtmlImage(highResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                HighTemplateImage = new HtmlImage(Cache.BrightTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-            })
-        }), HtmlLogUniqueId.LoggingHtml());
-
-        return true;
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
-        {
-            result = Step3CalibrateAction();
-            return result;
-        });
-        return result;
-    }
-
-    private bool Step3CalibrateAction()
-    {
-        var machineStagePosition = StageViewModel.BrightFieldToMachinePosition(Cache.FindPosition);
-
-        if (Cache.FindPosition.ToOriginLength >= Cache.ChuckRadius)
+        if (Cache.Item.FindPosition.ToOriginLength >= Cache.ChuckRadius)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("The Bright Field Position Out Of The Wafer!"), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
-        Cache.FindBrightMachinePosition = machineStagePosition;
+        Cache.Item.FindBrightMachinePosition = machineStagePosition;
 
         var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
             CalChipSiteModelEnum.ChuckModel,
-            Cache.FindPosition,
+            Cache.Item.FindPosition,
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
-            Cache.CIBConfiguration,
-            Cache.XWidthPixel,
-            Cache.OpticsMagTypeEnum,
-            Cache.StageSpeedEnum,
+            Cache.Item.CIBConfiguration,
+            Cache.ProductivityInformation,
+            Cache.Item.XWidthPixel,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
         var detectImageDirectory = ImageFileDirectory;
         using var _ = darkFieldImageDto;
 
-        Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-        if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
+        Cache.Item.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+        if (Cache.Item.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
         {
-            if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
+            if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.Item.TemplateFilePath) == false)
             {
                 DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -515,7 +476,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
             darkFieldImageDto.Image.Save(filePath);
             createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
-            createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
+            createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
             var showDialog = WindowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
 
@@ -526,34 +487,33 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             }
         }
 
-        Cache.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
+        Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
 
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
         {
-            Cache.OpticsMagTypeEnum,
-            Cache.StageSpeedEnum,
-            Cache.FindPosition,
+            Cache.ProductivityInformation,
+            Cache.Item.FindPosition,
             HtmlTab = new HtmlTab(new
             {
-                TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
             })
         }), HtmlLogUniqueId.LoggingHtml());
         return true;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var result = false;
         await InvokeCalibrateAsync(async () =>
         {
-            result = await Step4CalibrateAsync(cancellationToken);
+            result = await Step3CalibrateAsync(cancellationToken);
             return result;
         });
         return result;
     }
 
-    private Task<bool> Step4CalibrateAsync(CancellationToken cancellationToken)
+    private Task<bool> Step3CalibrateAsync(CancellationToken cancellationToken)
     {
         return Task.Run(() =>
         {
@@ -564,10 +524,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.PmtInterval,
-                Cache.FindPosition,
-                Cache.FindBrightMachinePosition,
+                Cache.Item.FindPosition,
+                Cache.Item.FindBrightMachinePosition,
                 ImageFileDirectory = detectImageDirectory,
                 TemplateFileDirectory = tempImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -575,11 +535,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             var centerPmt = new LaserLineCentricityItemDto
             {
                 MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                StageSpeedEnum = Cache.StageSpeedEnum,
+                ProductivityInformation = Cache.ProductivityInformation,
                 PmtId = 8,
-                FindBrightMachinePosition = Cache.FindBrightMachinePosition,
-                FindPosition = Cache.FindPosition,
+                FindBrightMachinePosition = Cache.Item.FindBrightMachinePosition,
+                FindPosition = Cache.Item.FindPosition,
                 FilePath = detectImageDirectory + "Forward",
                 TemplateFilePath = tempImageDirectory
             };
@@ -594,11 +553,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 var pmt = new LaserLineCentricityItemDto
                 {
                     MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    StageSpeedEnum = Cache.StageSpeedEnum,
+                    ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i)),
-                    FindBrightMachinePosition = Cache.FindBrightMachinePosition,
+                    FindPosition = Cache.Item.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i)),
+                    FindBrightMachinePosition = Cache.Item.FindBrightMachinePosition,
                     FilePath = detectImageDirectory,
                     TemplateFilePath = tempImageDirectory
                 };
@@ -612,11 +570,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 var pmt = new LaserLineCentricityItemDto
                 {
                     MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    StageSpeedEnum = Cache.StageSpeedEnum,
+                    ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
-                    FindPosition = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8)),
-                    FindBrightMachinePosition = Cache.FindBrightMachinePosition,
+                    FindPosition = Cache.Item.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8)),
+                    FindBrightMachinePosition = Cache.Item.FindBrightMachinePosition,
                     FilePath = detectImageDirectory,
                     TemplateFilePath = tempImageDirectory
                 };
@@ -628,7 +585,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             if (pmtConfig
                     .Where(t => t.Enabled)
-                    .All(t => LaserPixelSizes.Any(dto => dto.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && dto.PmtId == t.Id && dto.IsOk)) == false)
+                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation == Cache.ProductivityInformation && dto.PmtId == t.Id && dto.IsOk)) == false)
             {
                 DialogWindowProvider.ShowDialog("Missing pixel size for PMT configuration! Please check the pixel size calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -643,7 +600,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 }
             }
 
-            var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. ResultLaserLineCentricityItemDtoList], centerPmt.OpticsMagTypeEnum, centerPmt.StageSpeedEnum);
+            var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. ResultLaserLineCentricityItemDtoList], centerPmt.ProductivityInformation);
             LineCentricityOffsetsFit(calibrationOffsets);
             return true;
         });
@@ -656,30 +613,23 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         await InvokeVerifyAsync(() =>
         {
-            if (SelectReviewList.Count == 0)
+            if (SelectReviews.Count == 0)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
 
-            var opticsGroups = SelectReviewList.GroupBy(t => t.OpticsMagTypeEnum).ToList();
-            if (opticsGroups.Count() > 1)
+            var productiveGroups = SelectReviews.GroupBy(t => t.ProductivityInformation).ToList();
+            if (productiveGroups.Count > 1)
             {
                 DialogWindowProvider.ShowDialog("Please select same optics mag items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
 
-            var speedGroups = opticsGroups.First().Select(t => t).GroupBy(t => t.StageSpeedEnum).ToList();
-            if (speedGroups.Count() > 1)
-            {
-                DialogWindowProvider.ShowDialog("Please select same speed items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
+            var centerLineCentricityItemDto = Reviews.Single(t => t.ProductivityInformation == productiveGroups.First().Key && t.PmtId == 8);
 
-            var centerLineCentricityItemDto = ReviewList.Single(t => t.OpticsMagTypeEnum == opticsGroups.First().Key
-                                                                     && t.StageSpeedEnum == speedGroups.First().Key
-                                                                     && t.PmtId == 8);
             if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false) result = false;
+
             return result;
         }).ConfigureAwait(false);
     }
@@ -694,10 +644,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var verifyResultList = new List<bool>();
         var resultLineCentricityItemDtoList = new List<LaserLineCentricityItemDto>();
 
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.FindPosition, Cache.MicroscopeLensInformation, Cache.BrightTemplateFilePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
                 out var resultPosition, out _, out _, out _, out _) == false) return false;
         var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(resultPosition);
-        Cache.FindPosition = resultPosition;
+        Cache.Item.FindPosition = resultPosition;
 
         //暗场采图匹配后得到补偿offset后的暗场坐标
         if (LaserViewModel.TryGetMatchPositionByScanImage(
@@ -705,20 +655,19 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 CalChipSiteModelEnum.ChuckModel,
                 CalibrationConstantsHelper.MainPmtId,
                 resultPosition,
-                Cache.TemplateFilePath,
+                Cache.Item.TemplateFilePath,
                 centerLineCentricityItemDto.FilePath,
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{CalibrationConstantsHelper.MainPmtId}",
-                Cache.CIBConfiguration,
+                Cache.Item.CIBConfiguration,
+                centerLineCentricityItemDto.ProductivityInformation,
                 out var position,
                 out _,
                 out _,
                 out var resultImageFilePath,
                 true,
-                Cache.XWidthPixel,
-                centerLineCentricityItemDto.OpticsMagTypeEnum,
-                Cache.StageSpeedEnum,
+                Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
                 CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
         {
@@ -728,16 +677,16 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         var centerLineFindDarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(position);
 
-        var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(Calibrations, centerLineCentricityItemDto.OpticsMagTypeEnum, centerLineCentricityItemDto.StageSpeedEnum);
+        var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(Calibrations, centerLineCentricityItemDto.ProductivityInformation);
 
-        foreach (var selectReviewItemDto in SelectReviewList.OrderBy(t => t.PmtId))
+        foreach (var selectReviewItemDto in SelectReviews.OrderBy(t => t.PmtId))
         {
             cancellationToken.ThrowIfCancellationRequested();
             selectReviewItemDto.IsVerified = false;
 
             var laserLineCentricityItemDto = selectReviewItemDto.Clone();
             laserLineCentricityItemDto.FindBrightMachinePosition = brightFieldMachinePosition;
-            Cache.TemplateFilePath = laserLineCentricityItemDto.TemplateFilePath;
+            Cache.Item.TemplateFilePath = laserLineCentricityItemDto.TemplateFilePath;
 
             var pmtCenterRelativeOffset = calibrationOffsets.Single(t => t.Pmt == laserLineCentricityItemDto.PmtId).Offset;
             var pmtTotalUmDistance = Cache.PmtInterval * (laserLineCentricityItemDto.PmtId - CalibrationConstantsHelper.MainPmtId);
@@ -746,14 +695,14 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                                                                                                + (Vector)new Point(0, pmtTotalUmDistance * yDirection)
                                                                                                + (Vector)new Point(pmtCenterRelativeOffset.X * xDirection, pmtCenterRelativeOffset.Y * yDirection);
 
-            laserLineCentricityItemDto.FindPosition = Cache.FindPosition + (Vector)new Point(0, pmtTotalUmDistance);
+            laserLineCentricityItemDto.FindPosition = Cache.Item.FindPosition + (Vector)new Point(0, pmtTotalUmDistance);
             laserLineCentricityItemDto.FilePath = detectImageDirectory;
             laserLineCentricityItemDto.TemplateFilePath = templateFileDirectory;
 
             if (GetLineCentricity(laserLineCentricityItemDto) == false) return false;
 
             var error = selectReviewItemDto.DarkMachineCenterPosition - (Vector)laserLineCentricityItemDto.DarkMachineCenterPosition;
-            var result = error.ToOriginLength < Cache.Threshold.ToOriginLength;
+            var result = error.ToOriginLength < Cache.Item.Threshold.ToOriginLength;
 
             verifyResultList.Add(result);
 
@@ -789,7 +738,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             DialogWindowProvider.ShowDialog($"Verify {(selectListAllResult ? "OK" : "Failed")}", DialogButtonsEnum.OK,
                 selectListAllResult ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-        var verifyOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. resultLineCentricityItemDtoList], centerLineCentricityItemDto.OpticsMagTypeEnum, centerLineCentricityItemDto.StageSpeedEnum);
+        var verifyOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. resultLineCentricityItemDtoList], centerLineCentricityItemDto.ProductivityInformation);
         LineCentricityOffsetsFit(verifyOffsets);
 
         return selectListAllResult;
@@ -801,24 +750,23 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         //暗场采图匹配后得到补偿offset后的暗场坐标
         if (LaserViewModel.TryGetMatchPositionByScanImage(
-                Cache.AlgorithmTemplateTypeEnum,
+                Cache.Item.AlgorithmTemplateTypeEnum,
                 CalChipSiteModelEnum.ChuckModel,
                 laserLineCentricityItemDto.PmtId,
                 laserLineCentricityItemDto.FindDarkMachinePosition,
-                Cache.TemplateFilePath,
+                Cache.Item.TemplateFilePath,
                 laserLineCentricityItemDto.FilePath,
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{laserLineCentricityItemDto.PmtId}",
-                Cache.CIBConfiguration,
+                Cache.Item.CIBConfiguration,
+                laserLineCentricityItemDto.ProductivityInformation,
                 out var position,
                 out _,
                 out _,
                 out var resultImageFilePath,
                 true,
-                Cache.XWidthPixel,
-                laserLineCentricityItemDto.OpticsMagTypeEnum,
-                Cache.StageSpeedEnum,
+                Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
                 CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
         {
@@ -832,8 +780,8 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         laserLineCentricityItemDto.DarkMachineCenterPosition = ChuckCenter.NewBFCenterStagePosition + machineOffset;
         laserLineCentricityItemDto.FilePath = resultImageFilePath;
 
-        laserLineCentricityItemDto.TemplateFilePath = Cache.TemplateFilePath;
-        laserLineCentricityItemDto.TemplateImageFilePath = Cache.TemplateImageFilePath;
+        laserLineCentricityItemDto.TemplateFilePath = Cache.Item.TemplateFilePath;
+        laserLineCentricityItemDto.TemplateImageFilePath = Cache.Item.TemplateImageFilePath;
 
         Logger.LogHtmlInformation($"Success: {laserLineCentricityItemDto.PmtId}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
@@ -857,12 +805,12 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.StageSpeedEnum == itemDto.StageSpeedEnum) == false),
+                .Where(t => (t.PmtId == itemDto.PmtId && t.ProductivityInformation == Cache.ProductivityInformation) == false),
             itemDto.Clone()
         ];
         if (isSave == false) return;
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
+        CacheProvider.SetArray<LaserLineCentricityItemDto>(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
@@ -943,51 +891,31 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             GetAutoCalibrationStep();
             await base.AutomationActionAsync(cancellationToken);
-            WindowManagerService.ShowDialog(enableOpticsMagWindowViewModel);
-            WindowManagerService.ShowDialog(enableStageSpeedWindowViewModel);
-            _enableOpticsMagList = [.. enableOpticsMagWindowViewModel.OpticsMagEnableList.Select(t => (t.OpticsMagTypeEnum, t.IsEnable))];
-            _enableStageSpeedList = [.. enableStageSpeedWindowViewModel.StageSpeedEnableList.Select(t => (t.StageSpeedEnum, t.IsEnable))];
+            WindowManagerService.ShowDialog(enableProductiveInformationWindowViewModel);
+            _enableProductiveInformationList = [.. enableProductiveInformationWindowViewModel.ProductiveInformationEnableList.Select(t => (t.ProductivityInformation, t.IsEnable))];
             foreach (var stepItem in AutoCalibrationStepList.Select((t, index) => (t, index)))
             {
                 switch (stepItem.index)
                 {
                     case 0:
                         if (await LoadedingAsync(cancellationToken) == false) return false;
-                        CalibrationStepIndex = 1;
+                        CalibrationStepIndex = 0;
                         if (await NextingAsync(cancellationToken) == false) return false;
                         await InvokeCalibrateAsync(() =>
                         {
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                             {
-                                Cache.MicroscopeLensInformation.LensName
+                                Cache.ProductivityInformation
                             }), HtmlLogUniqueId.LoggingHtml());
                             return true;
                         });
                         if (await AutoNextingAsync(cancellationToken) == false) return false;
                         break;
 
-                    case 1:
-                        if (await AutoActionStepAsync((int)OpticsMagTypeEnum.Low, cancellationToken) == false)
+                    case 1 or 2 or 3:
+                        if (await AutoActionStepAsync(ApplicationCookie.ProductivityInformations[stepItem.index - 1], cancellationToken) == false)
                         {
-                            DialogWindowProvider.ShowDialog("Auto Calibration Low Magnification Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                            return false;
-                        }
-
-                        break;
-
-                    case 2:
-                        if (await AutoActionStepAsync((int)OpticsMagTypeEnum.Middle, cancellationToken) == false)
-                        {
-                            DialogWindowProvider.ShowDialog("Auto Calibration Middle Magnification Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                            return false;
-                        }
-
-                        break;
-
-                    case 3:
-                        if (await AutoActionStepAsync((int)OpticsMagTypeEnum.High, cancellationToken) == false)
-                        {
-                            DialogWindowProvider.ShowDialog("Auto Calibration High Magnification Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                            DialogWindowProvider.ShowDialog("Auto Calibration Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             return false;
                         }
 
@@ -999,27 +927,21 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                         var result = true;
                         await InvokeCalibrateAsync(() =>
                         {
-                            foreach (var opticsMagGroup in ReviewList.GroupBy(t => t.OpticsMagTypeEnum))
+                            foreach (var reviewItem in Reviews.GroupBy(t => t.ProductivityInformation))
                             {
-                                if (_enableOpticsMagList.Single(t => t.mag == opticsMagGroup.Key).isEnbale == false)
+                                if (_enableProductiveInformationList.Single(t => t.productiveInformation == reviewItem.Key).isEnbale == false)
                                     continue;
-                                Cache.OpticsMagTypeEnum = opticsMagGroup.Key;
-                                Logger.LogHtmlInformation($"{opticsMagGroup.Key} Mag", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                                var opticsMagGroupValue = opticsMagGroup.Select(t => t).ToList();
-                                foreach (var speedGroup in opticsMagGroupValue.GroupBy(t => t.StageSpeedEnum))
+                                Logger.LogHtmlInformation($"{reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                Cache.ProductivityInformation = reviewItem.Key;
+
+                                var centerLineCentricityItemDto = SelectReviews.Single(t => t.PmtId == 8);
+
+                                SelectReviews = [.. reviewItem];
+                                if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false)
                                 {
-                                    if (_enableStageSpeedList.Single(t => t.stageSpeed == speedGroup.Key).isEnbale == false)
-                                        continue;
-                                    Cache.StageSpeedEnum = speedGroup.Key;
-                                    Logger.LogHtmlInformation($"{speedGroup.Key} Speed", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                                    SelectReviewList = [.. speedGroup];
-                                    var centerLineCentricityItemDto = SelectReviewList.Single(t => t.PmtId == 8);
-                                    if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false)
-                                    {
-                                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {opticsMagGroup.Key} Mag-{speedGroup.Key} Speed Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                                        result = false;
-                                        return result;
-                                    }
+                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                    result = false;
+                                    return result;
                                 }
                             }
 
@@ -1061,48 +983,39 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, null, out var brightFieldMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, brightFieldMaskInfo, out var brightFieldMaskPosition);
-        Cache.FindPosition = brightFieldMaskPosition;
-        Cache.BrightTemplateFilePath = brightFieldMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
-        Cache.BrightTemplateImageFilePath = brightFieldMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
+        Cache.Item.FindPosition = brightFieldMaskPosition;
+        Cache.Item.BrightTemplateFilePath = brightFieldMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
+        Cache.Item.BrightTemplateImageFilePath = brightFieldMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
 
         // Dark Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, Cache.OpticsMagTypeEnum, Cache.StageSpeedEnum, out var darkFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, Cache.ProductivityInformation, out var darkFieldMaskInfo) == false)
             return false;
-        Cache.TemplateFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateFilePath;
-        Cache.TemplateImageFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateImageFilePath;
+        Cache.Item.TemplateFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateFilePath;
+        Cache.Item.TemplateImageFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateImageFilePath;
 
         return true;
     }
 
-    private Task<bool> AutoActionStepAsync(int magnification, CancellationToken cancellationToken)
+    private Task<bool> AutoActionStepAsync(ProductivityInformation productivityInformation, CancellationToken cancellationToken)
     {
         return Task.Run(async () =>
         {
-            Cache.OpticsMagTypeEnum = (OpticsMagTypeEnum)magnification;
-            if (_enableOpticsMagList.Single(t => t.mag == Cache.OpticsMagTypeEnum).isEnbale)
+            if (_enableProductiveInformationList.Single(t => t.productiveInformation == productivityInformation).isEnbale)
             {
-                Logger.LogHtmlInformation($"{AutoCalibrationStepIndex + 1}. {AutoCalibrationStepList[magnification + 1].StepName}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-                foreach (var speedEnum in EnumHelper.Enums<StageSpeedEnum>())
-                {
-                    Cache.StageSpeedEnum = speedEnum;
-                    if (_enableStageSpeedList.Single(t => t.stageSpeed == speedEnum).isEnbale == false)
-                        continue;
+                Logger.LogHtmlInformation($"{AutoCalibrationStepIndex + 1}. {AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
-                    Logger.LogHtmlInformation($"{speedEnum} Speed", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
 
-                    if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
+                Logger.LogHtmlInformation($"{CalibrationStepList[1].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                if (await Step1CalibrateActionAsync(cancellationToken) == false) return false;
 
-                    Logger.LogHtmlInformation($"{CalibrationStepList[2].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                    if (Step2CalibrateAction() == false) return false;
+                Logger.LogHtmlInformation($"{CalibrationStepList[2].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
 
-                    Logger.LogHtmlInformation($"{CalibrationStepList[3].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                    if (Step3CalibrateAction() == false) return false;
-
-                    Logger.LogHtmlInformation($"{CalibrationStepList[4].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                    if (await Step4CalibrateAsync(cancellationToken) == false) return false;
-                    CalibrationStepIndex = 5;
-                    if (await NextingAsync(cancellationToken) == false) return false;
-                }
+                Logger.LogHtmlInformation($"{CalibrationStepList[3].StepName}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                if (await Step3CalibrateAsync(cancellationToken) == false) return false;
+                CalibrationStepIndex = 4;
+                if (await NextingAsync(cancellationToken) == false) return false;
             }
 
             if (await AutoNextingAsync(cancellationToken) == false) return false;
@@ -1126,10 +1039,8 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             GetAutoCalibrationStep();
             await base.AutomationReviewActionAsync(cancellationToken);
-            WindowManagerService.ShowDialog(enableOpticsMagWindowViewModel);
-            WindowManagerService.ShowDialog(enableStageSpeedWindowViewModel);
-            _enableOpticsMagList = [.. enableOpticsMagWindowViewModel.OpticsMagEnableList.Select(t => (t.OpticsMagTypeEnum, t.IsEnable))];
-            _enableStageSpeedList = [.. enableStageSpeedWindowViewModel.StageSpeedEnableList.Select(t => (t.StageSpeedEnum, t.IsEnable))];
+            WindowManagerService.ShowDialog(enableProductiveInformationWindowViewModel);
+            _enableProductiveInformationList = [.. enableProductiveInformationWindowViewModel.ProductiveInformationEnableList.Select(t => (t.ProductivityInformation, t.IsEnable))];
 
             if (await LoadedingAsync(cancellationToken) == false) return false;
             if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
@@ -1139,32 +1050,27 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             }
 
             var result = false;
-            await InvokeVerifyAsync(async () =>
+            await InvokeVerifyAsync(() =>
             {
                 try
                 {
-                    foreach (var opticsMagGroup in ReviewList.GroupBy(t => t.OpticsMagTypeEnum))
+                    foreach (var reviewItem in Reviews.GroupBy(t => t.ProductivityInformation))
                     {
-                        if (_enableOpticsMagList.Single(t => t.mag == opticsMagGroup.Key).isEnbale == false)
+                        if (_enableProductiveInformationList.Single(t => t.productiveInformation == reviewItem.Key).isEnbale == false)
                             continue;
-                        Cache.OpticsMagTypeEnum = opticsMagGroup.Key;
-                        Logger.LogHtmlInformation($"{opticsMagGroup.Key} Mag", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                        var opticsMagGroupValue = opticsMagGroup.Select(t => t).ToList();
-                        foreach (var speedGroup in opticsMagGroupValue.GroupBy(t => t.StageSpeedEnum))
-                        {
-                            if (_enableStageSpeedList.Single(t => t.stageSpeed == speedGroup.Key).isEnbale == false)
-                                continue;
-                            if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
-                            Cache.StageSpeedEnum = speedGroup.Key;
-                            Logger.LogHtmlInformation($"{speedGroup.Key} Speed", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                            SelectReviewList = [.. speedGroup];
-                            var centerLineCentricityItemDto = SelectReviewList.Single(t => t.PmtId == 8);
 
-                            if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false)
-                            {
-                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {opticsMagGroup.Key} Mag-{speedGroup.Key} Speed Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                                return false;
-                            }
+                        Logger.LogHtmlInformation($"{reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                        Cache.ProductivityInformation = reviewItem.Key;
+
+                        var centerLineCentricityItemDto = SelectReviews.Single(t => t.PmtId == 8);
+
+                        SelectReviews = [.. reviewItem];
+
+                        if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false)
+                        {
+                            DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                            result = false;
+                            return result;
                         }
                     }
 

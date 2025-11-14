@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -10,8 +9,10 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
+using Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.View;
+using HalconDotNet;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
@@ -21,29 +22,32 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
+using System.Threading.Channels;
+using Point = Net.Utilities.Models.Geometries.Point;
+using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LaserXPixelSizeCalibrationViewModel(
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
-    EnableOpticsMagWindowViewModel enableOpticsMagWindowViewModel,
-    EnableStageSpeedWindowViewModel enableStageSpeedWindowViewModel) : CalibrationViewModelBase
+    EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
+    ICalibrationAlgorithmService calibrationAlgorithmService) : CalibrationViewModelBase
 {
     #region 属性
 
-    private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    private List<(StageSpeedEnum stageSpeed, bool isEnbale)> _enableStageSpeedList = [];
-
-    private List<(OpticsMagTypeEnum mag, StageSpeedEnum stageSpeed)> _opticsMagStageSpeedList = [];
+    private List<(ProductivityInformation productiveInformation, bool isEnbale)> _enableProductiveInformationList = [];
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -54,25 +58,15 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         new() { StepName = "X Pixel Size Calibration" }
     ];
 
+    [ObservableProperty]
+    private int _splitWidthPixel = 1000;
+
     #region 界面相关
 
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus
-        {
-            OpticsMagTypeEnum = t,
-            StageSpeedEnumCalibrationStatusList = [..EnumHelper.Enums<StageSpeedEnum>().Select(tt => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = tt, IsCalibrated = false })]
-        })
-    ];
-
-    [ObservableProperty]
-    private ObservableCollection<StageSpeedEnumCalibrationStatus> _calibrationStatusListItem =
-    [
-        .. EnumHelper.Enums<StageSpeedEnum>().Select(t => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = t, IsCalibrated = false })
-    ];
+    private ObservableCollection<ProductivityInformationCalibrationStatus> _calibrationStatusList = [];
 
     [ObservableProperty]
     private LaserXPixelSizeItemDto _laserXPixelSizeItem = new();
@@ -124,13 +118,20 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>();
 
-        foreach (var calibrationStatus in Calibrations)
-        {
-            CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
-                .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == calibrationStatus.XStageSpeedEnum)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        if (CalibrationStatusList.Count == 0)
+            CalibrationStatusList =
+            [
+                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+            ];
+        Calibrations =
+        [
+            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    t.IsCalibrated = CalibrationStatusList.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    return t;
+                })
+        ];
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
@@ -146,14 +147,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
-                .ThenBy(t => t.XStageSpeedEnum)
+                .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
 
         if (ReviewList.All(t => t.IsCalibrated == false))
             return false;
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindTemplatePosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindTemplatePosition);
 
         return true;
     }
@@ -203,8 +203,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum)
-                    .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == Cache.XStageSpeedEnum)
+                CalibrationStatusList.Single(t => t.ProductivityInformation == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
@@ -229,9 +228,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             await Task.Run(() =>
             {
-                Cache.FindTemplatePosition = StageViewModel.GetBrightFieldStagePosition();
-                Cache.FindStartPosition = new Point(Cache.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
-                Cache.FindEndPosition = new Point(Cache.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
+                Cache.Item.FindTemplatePosition = StageViewModel.GetBrightFieldStagePosition();
+                Cache.FindStartPosition = new Point(Cache.Item.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.Item.FindTemplatePosition.Y);
+                Cache.FindEndPosition = new Point(Cache.Item.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.Item.FindTemplatePosition.Y);
                 Cache.SplitImageCount = Cache.ColumnNumber * 2;
             }).ConfigureAwait(false);
         }
@@ -257,7 +256,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     break;
 
                 case "FindTemplatePosition":
-                    await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindTemplatePosition)).ConfigureAwait(false);
+                    await Task.Run(() => StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindTemplatePosition)).ConfigureAwait(false);
                     break;
             }
         }
@@ -311,7 +310,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                OpticsMagType = Cache.OpticsMagTypeEnum
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -324,7 +323,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                StageSpeed = Cache.XStageSpeedEnum
+                StageSpeed = Cache.ProductivityInformation.StageSpeedType
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -365,13 +364,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         LaserXPixelSizeItem.IsCalibrated = resultStatus;
 
         SynchronizationContextProvider.Send(() => ResultLaserXPixelSizeItemList.Add(LaserXPixelSizeItem));
-        //DialogWindowProvider.ShowDialog($"Calibrate {(resultStatus ? "OK" : "Failed")},Error: ({error:f2}) Threshold: ({Cache.Threshold})", DialogButtonsEnum.OK,
-        //resultStatus ? DialogIconEnum.Information : DialogIconEnum.Warning);
         Logger.LogHtmlInformation("End Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
             Cache.Threshold,
             Error = $"{error:f2}",
-            IdealUmPerPixel = $"{Cache.IdealUmPerPixel:f20}",
+            //IdealUmPerPixel = $"{Cache.IdealUmPerPixel:f20}",
             XPixelSize = $"{umPerPixel:f20}",
             Um = new HtmlPlot2DLinesChart([(nameof(calPixelDifferences), calPixelDifferences.ToPoints())], nameof(calPixelDifferences))
         }), HtmlLogUniqueId.LoggingHtml());
@@ -401,13 +398,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
     private async Task<bool> VerifyAsync(LaserXPixelSizeItemDto laserXPixelSizeItemDto, CancellationToken cancellationToken)
     {
-        Cache.IdealUmPerPixel = laserXPixelSizeItemDto.XPixelSize;
-        Cache.OpticsMagTypeEnum = laserXPixelSizeItemDto.OpticsMagTypeEnum;
-        Cache.XStageSpeedEnum = laserXPixelSizeItemDto.XStageSpeedEnum;
+        Cache.ProductivityInformation = laserXPixelSizeItemDto.ProductivityInformation;
         Cache.FindStartPosition = laserXPixelSizeItemDto.FindStartPosition;
         Cache.FindEndPosition = laserXPixelSizeItemDto.FindEndPosition;
-        Cache.TemplateFilePath = laserXPixelSizeItemDto.FilePath;
-        Cache.TemplateImageFilePath = laserXPixelSizeItemDto.FileTemplatePath;
+        Cache.Item.TemplateFilePath = laserXPixelSizeItemDto.FilePath;
+        Cache.Item.TemplateImageFilePath = laserXPixelSizeItemDto.FileTemplatePath;
         var (isSuccess, matchPoint) = await GetXPixelSizeAsync(laserXPixelSizeItemDto, Guid.NewGuid(), cancellationToken, true);
         if (isSuccess == false) return false;
 
@@ -452,21 +447,20 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
-                Cache.FindTemplatePosition,
+                Cache.Item.FindTemplatePosition,
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
+                Cache.ProductivityInformation,
                 Cache.SplitWidthPixel,
-                Cache.OpticsMagTypeEnum,
-                Cache.XStageSpeedEnum,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
             var detectImageDirectory = ImageFileDirectory;
             using var _ = darkFieldImageDto;
 
-            Cache.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            Cache.Item.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
             {
-                if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.TemplateFilePath) == false)
+                if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.Item.TemplateFilePath) == false)
                 {
                     DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
@@ -477,7 +471,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
                 darkFieldImageDto.Image.Save(filePath);
                 createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
-                createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
+                createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
                 var showDialog = WindowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
 
@@ -487,25 +481,24 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     return false;
                 }
 
-                Cache.FindStartPosition = new Point(Cache.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
-                Cache.FindEndPosition = new Point(Cache.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
+                Cache.FindStartPosition = new Point(Cache.Item.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.Item.FindTemplatePosition.Y);
+                Cache.FindEndPosition = new Point(Cache.Item.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.Item.FindTemplatePosition.Y);
                 Cache.SplitImageCount = Cache.ColumnNumber * 2;
             }
 
-            Cache.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
-            Cache.TemplateFilePath = $"{Cache.TemplateFilePath}.{Cache.AlgorithmTemplateTypeEnum.ToString().ToLower()}";
-            Cache.SetMagSpeedTemplateFilePath(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum, Cache.TemplateFilePath);
+            Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
+            Cache.Item.TemplateFilePath = $"{Cache.Item.TemplateFilePath}.{Cache.AlgorithmTemplateTypeEnum.ToString().ToLower()}";
             Logger.LogHtmlInformation("TemplateImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.AlgorithmTemplateTypeEnum,
-                FindPosition = Cache.FindTemplatePosition,
+                FindPosition = Cache.Item.FindTemplatePosition,
                 Cache.FindStartPosition,
                 Cache.FindEndPosition,
-                templateFilePath = Cache.TemplateFilePath,
-                templateImageFilePath = Cache.TemplateImageFilePath,
+                templateFilePath = Cache.Item.TemplateFilePath,
+                templateImageFilePath = Cache.Item.TemplateImageFilePath,
                 HtmlTab = new HtmlTab(new
                 {
-                    TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -515,35 +508,31 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
     private Task<(bool isSuccess, List<Point> matchPoint)> GetXPixelSizeAsync(LaserXPixelSizeItemDto laserXPixelSizeItem, Guid guid, CancellationToken cancellationToken, bool isReview)
     {
         var points = new List<Point>();
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             try
             {
-                if (isReview == false) Cache.GetMagSpeedIdeaXPixelSize(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
-                Cache.GetMagSpeedTemplateFilePath(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum);
                 ClearCalibrationTemp();
-                laserXPixelSizeItem.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
-                laserXPixelSizeItem.XStageSpeedEnum = Cache.XStageSpeedEnum;
+                laserXPixelSizeItem.ProductivityInformation = Cache.ProductivityInformation;
                 laserXPixelSizeItem.PmtId = 8;
-                laserXPixelSizeItem.FindPosition = Cache.FindTemplatePosition;
+                laserXPixelSizeItem.FindPosition = Cache.Item.FindTemplatePosition;
                 laserXPixelSizeItem.FindStartPosition = Cache.FindStartPosition;
                 laserXPixelSizeItem.FindEndPosition = Cache.FindEndPosition;
-                laserXPixelSizeItem.FilePath = Cache.TemplateFilePath;
-                laserXPixelSizeItem.FileTemplatePath = Cache.TemplateImageFilePath;
-                using var templateId = Cache.TemplateFilePath.ReadNccTemplate();
+                laserXPixelSizeItem.FilePath = Cache.Item.TemplateFilePath;
+                laserXPixelSizeItem.FileTemplatePath = Cache.Item.TemplateImageFilePath;
+                using var templateId = Cache.Item.TemplateFilePath.ReadNccTemplate();
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    opticsMagType = Cache.OpticsMagTypeEnum,
-                    stageSpeed = Cache.XStageSpeedEnum,
+                    opticsMagType = Cache.ProductivityInformation.OpticsMagType,
+                    stageSpeed = Cache.ProductivityInformation.StageSpeedType,
                     findStartPosition = Cache.FindStartPosition,
                     findEndPosition = Cache.FindEndPosition,
-                    idealUmPerPixel = Cache.IdealUmPerPixel,
                     dieWidthUm = Cache.DieWidthUm,
                     splitWidthPixel = Cache.SplitWidthPixel,
                     splitImageCount = Cache.SplitImageCount,
-                    templateFilePath = Cache.TemplateFilePath,
-                    templateImageFilePath = Cache.TemplateImageFilePath
+                    templateFilePath = Cache.Item.TemplateFilePath,
+                    templateImageFilePath = Cache.Item.TemplateImageFilePath
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(laserXPixelSizeItem.FindStartPosition, CalChipSiteModelEnum.ChuckModel);
@@ -551,18 +540,16 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(new Point(Cache.ChuckRadius - 10, laserXPixelSizeItem.FindStartPosition.Y), CalChipSiteModelEnum.ChuckModel);
                 var endMachinePosition = StageViewModel.GetMachineStagePosition();
 
-                var extendWidth = Cache.SplitWidthPixel * Cache.IdealUmPerPixel / 2.0;
+                var extendWidth = Cache.SplitWidthPixel * 0.333 / 2.0;
 
                 var (xDirection, _) = StageViewModel.GetMachineDirection();
-                // 计算采图的起点终点机械坐标
                 startMachinePosition -= new Vector(xDirection * extendWidth, 0);
-                //endMachinePosition += new Vector(xDirection * 3 * extendWidth, 0);
+
                 //采集长图
                 var resultImage = LaserViewModel.GetDarkFieldLineScanImageList(
                     startMachinePosition,
                     endMachinePosition,
-                    Cache.OpticsMagTypeEnum,
-                    Cache.XStageSpeedEnum,
+                    Cache.ProductivityInformation,
                     8,
                     StageCoordinateSystemEnum.Machine,
                     Cache.CIBConfiguration,
@@ -570,11 +557,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     false
                 );
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindTemplatePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindTemplatePosition);
                 var originFilePath = resultImage[2].Url;
                 laserXPixelSizeItem.OriginalFilePath = originFilePath;
 
-                var isSplitImage = SplitLongImage(originFilePath, Cache.IdealUmPerPixel, guid, out var matchPoint);
+                var (isSplitImage, matchPoint) = await SplitLongImageAsync(originFilePath, guid).ConfigureAwait(false);
                 if (isReview)
                 {
                     return (isSplitImage, matchPoint);
@@ -603,7 +590,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                 {
                                     XPixelSize = umPerPixel
                                 }), HtmlLogUniqueId.LoggingHtml());
-                                isSplitImage = SplitLongImage(originFilePath, umPerPixel, Guid.NewGuid(), out matchPoint);
+                                (isSplitImage, matchPoint) = await SplitLongImageAsync(originFilePath, Guid.NewGuid()).ConfigureAwait(false);
                                 if (isSplitImage) points = matchPoint;
                             }
                             else
@@ -629,107 +616,250 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         });
     }
 
-    private bool SplitLongImage(string uri, double xPixelSize, Guid guid, out List<Point> matchPoint)
+    private async Task<(bool isSuccess, List<Point> matchPoints)> SplitLongImageAsync(string uri, Guid guid)
     {
         SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Clear());
-
-        using var fileSteam = File.OpenRead(uri);
-        using var binaryReader = new BinaryReader(fileSteam);
-
-        var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.TemplateImageFilePath);
-        using var templateId = Cache.TemplateFilePath.ReadNccTemplate();
-        var detectImageDirectory = $"{ImageFileDirectory}\\{Cache.OpticsMagTypeEnum}\\PmtId(8)_Guid({guid}).jpg";
-        matchPoint = new List<Point>();
-
-        var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageFactory.GetSize(binaryReader);
-        var (_, calUmPerPixelHeightPixel) = (SizeI)calUmPerPixelBodyBytesSize;
-
-        var calUmPerPixelDieWidthPixel = Cache.DieWidthUm / xPixelSize;
-        var calUmPerPixelSplitImageWidthPixel = Convert.ToInt32(calUmPerPixelDieWidthPixel) / 10;
-        var calUmPerPixelHeightPixelByteLength = calUmPerPixelHeightPixel * 2;
-        var calUmPerPixelSplitImageAllPixelByteLength = calUmPerPixelSplitImageWidthPixel * calUmPerPixelHeightPixelByteLength;
-
-        // ReadOnlySpan<byte> calUmPerPixelSpan = ((byte[])[1,2,3]).AsSpan().Slice(calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength);
-        var calUmPerPixelPointerList = Enumerable
-            .Range(0, Cache.SplitImageCount)
-            .Select(t => 0 + t * calUmPerPixelDieWidthPixel * calUmPerPixelHeightPixelByteLength)
-            .Select(Convert.ToInt64)
-            .ToList(); // 分割指针集合
-        foreach (var (index, pointer) in calUmPerPixelPointerList.Select((t, i) => (Index: i, Pointer: t)))
+        var matchPoint = new List<Point>(); // 必须立即初始化
+        // 使用 Task.Run 并等待结果,//var task = Task.Run(() =>
         {
-            var pointerTemp = pointer - pointer % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
-            if (index > 0)
+            using var fileSteam = File.OpenRead(uri);
+            using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
+            var detectImageDirectory = $"{ImageFileDirectory}\\{Cache.ProductivityInformation.OpticsMagType}\\PmtId(8)_Guid({guid}).jpg";
+            using var templateId = Cache.Item.TemplateFilePath.ReadNccTemplate();
+            var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+
+            try
             {
-                pointerTemp -= calUmPerPixelSplitImageAllPixelByteLength / 2;
-                pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
-            }
+                #region Get Um Per Pixel
 
-            byte[] array;
-            if (pointerTemp + calUmPerPixelSplitImageAllPixelByteLength > calUmPerPixelBodyBytesLength)
-            {
-                if (index != calUmPerPixelPointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
-
-                var length = (calUmPerPixelBodyBytesLength - pointerTemp) / calUmPerPixelHeightPixelByteLength; // 算出右边差多少像素
-
-                fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                array = binaryReader.ReadBytes((int)length * calUmPerPixelHeightPixelByteLength);
-            }
-            else
-            {
-                fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
-                array = binaryReader.ReadBytes(calUmPerPixelSplitImageAllPixelByteLength);
-            }
-
-            var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
-            var calUmPerPixelSplitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(array, new Size(currentWidthPixel, calUmPerPixelHeightPixel));
-
-            var (image, _, _) = CalibrationAlgorithmService.ToHorizontalFlipImageInfo(calUmPerPixelSplitImageRawBytes);
-            var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
-            using var _ = image;
-            var originImageFilePath = Path.Combine(ImageFileDirectory, Path.GetFileNameWithoutExtension(detectImageDirectory), $"calUmPerPixelImage_{index + 1}.jpg");
-            image.Save(originImageFilePath);
-            //HalconFactory.TryNccTemplateMathToOffset(image, templateId, out var result, out var score, out var _);
-            var isSuccess = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var resultScore, out var _);
-            if (!isSuccess || resultScore < Cache.NccScoreThreshold)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                Logger.LogHtmlInformation("1. Get Um Per Pixel", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("1.1 Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
                 {
-                    Score = resultScore,
-                    RawImageFile = new HtmlDownload(calUmPerPixelSplitImageRawBytes, $"calUmPerPixelImage_{index + 1}.raw"),
-                    HtmlTab = new HtmlTab(new
-                    {
-                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(result, templateImageSize), new HtmlImageRectangleOverlay(result, templateImageSize)]),
-                        TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                    })
+                    detectImageDirectory,
+                    Cache.DieWidthUm,
+                    Cache.SlideWindowValue,
+                    Cache.SlideStepValue,
+                    uri,
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 }), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
 
-            var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
-            var darkFieldCropImage = new DarkFieldXPixelSizeICropImage
-            {
-                Position = point,
-                Width = currentWidthPixel,
-                Height = calUmPerPixelHeightPixel,
-                FilePath = originImageFilePath
-            };
-            SynchronizationContextProvider.Send(() => DarkFieldCropImageList.Add(darkFieldCropImage));
-            Logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-            {
-                Score = resultScore,
-                LeftPixel = calUmPerPixelImageLeftPixel,
-                Point = point,
-                RawImageFile = new HtmlDownload(calUmPerPixelSplitImageRawBytes, $"calUmPerPixelImage_{index + 1}.raw"),
-                HtmlTab = new HtmlTab(new
+
+                var (calUmPerPixelBodyBytesSize, calUmPerPixelBodyBytesStartIndex, calUmPerPixelBodyBytesLength) = RawImageFactory.GetSize(binaryReader);
+                var (_, calUmPerPixelHeightPixel) = (SizeI)calUmPerPixelBodyBytesSize;
+
+                var calUmPerPixelSplitImageWidthPixel = Cache.SlideWindowValue;
+                var calUmPerPixelHeightPixelByteLength = calUmPerPixelHeightPixel * 2;
+                var calUmPerPixelSplitImageAllPixelByteLength = calUmPerPixelSplitImageWidthPixel * calUmPerPixelHeightPixelByteLength;
+
+                // 预计算所有需要处理的块信息
+                var blockInfos = new List<(int k, long pointerTemp, int byteLength, int currentWidthPixel, long calUmPerPixelImageLeftPixel)>();
+
+                for (int k = 0; ; k++)
                 {
-                    OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(result, templateImageSize), new HtmlImageRectangleOverlay(result, templateImageSize)]),
-                    TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-            matchPoint.Add(point);
-        }
+                    long pointerTemp;
+                    if (k == 0)
+                        pointerTemp = 0;
+                    else
+                        pointerTemp = k * (Cache.SlideWindowValue * calUmPerPixelHeightPixelByteLength - (Cache.SlideWindowValue - Cache.SlideStepValue) * calUmPerPixelHeightPixelByteLength);
 
-        return true;
+                    int byteLength;
+                    bool isLastBlock = false;
+
+                    if (pointerTemp + calUmPerPixelSplitImageAllPixelByteLength > calUmPerPixelBodyBytesLength)
+                    {
+                        var offset = Cache.SlideWindowValue - (calUmPerPixelBodyBytesLength - pointerTemp) / calUmPerPixelHeightPixelByteLength;
+                        pointerTemp -= offset * calUmPerPixelHeightPixelByteLength;
+                        pointerTemp -= pointerTemp % calUmPerPixelHeightPixelByteLength;
+                        isLastBlock = true;
+                        byteLength = calUmPerPixelSplitImageAllPixelByteLength;
+                    }
+                    else
+                    {
+                        byteLength = calUmPerPixelSplitImageAllPixelByteLength;
+                    }
+
+                    var currentWidthPixel = byteLength / calUmPerPixelHeightPixelByteLength;
+                    var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
+
+                    blockInfos.Add((k, pointerTemp, byteLength, currentWidthPixel, calUmPerPixelImageLeftPixel));
+
+                    if (isLastBlock) break;
+                }
+
+                // 定义处理结果的数据结构
+                var results = new ConcurrentBag<(int k, Point matchPoint, double score, long pointerTemp, int currentWidthPixel, long calUmPerPixelImageLeftPixel)>();
+                var scoreList = new ConcurrentBag<Point>();
+                var scoreCalibrateList = new ConcurrentBag<Point>();
+
+                // 使用Channel实现生产者和消费者模式，带取消功能
+                await ProcessWithChannelAndCancellationAsync(
+                    blockInfos,
+                    fileSteam,
+                    binaryReader,
+                    templateId,
+                    calUmPerPixelHeightPixel,
+                    calUmPerPixelBodyBytesStartIndex,
+                    results,
+                    scoreList,
+                    scoreCalibrateList).ConfigureAwait(false);
+                // 按原始顺序排序结果
+                var orderedResults = results.OrderBy(r => r.k).ToList();
+                var calUmPerPixelMatchPoint = orderedResults.Select(r => r.matchPoint).ToList();
+                var orderedScores = scoreList.OrderBy(s => s.X).ToList();
+                var orderedCalibrateScores = scoreCalibrateList.OrderBy(s => s.X).ToList();
+
+                var calUmPerPixelMatchPointListValid = new List<Point>();
+                var scoreListValid = new List<Point>();
+                for (int j = 0; j < scoreList.Count; j++)
+                {
+                    if (orderedScores[j].Y > Cache.NccScoreThreshold)
+                    {
+                        //scoreListValid.Add(orderedScores[j]);
+                        scoreListValid.Add(orderedCalibrateScores[j]);
+                        calUmPerPixelMatchPointListValid.Add(calUmPerPixelMatchPoint[j]);
+                    }
+                }
+
+                scoreListValid = scoreListValid
+                    .Where(point => point.Y > Cache.NccScoreThreshold)
+                    .ToList();
+
+                List<Point> differencesMatchPointList = calUmPerPixelMatchPointListValid
+                    .Zip(calUmPerPixelMatchPointListValid.Skip(1), (prev, curr) => new Point(curr.X - prev.X, curr.Y - prev.Y))
+                    .ToList();
+                List<double> differencesMatchPointXList = differencesMatchPointList.Select(p => p.X).Where(x => x > 10).ToList();
+                var averageXList = differencesMatchPointXList.Average();
+                List<double> differencesMatchPointXListAverage = differencesMatchPointXList.Where(x => (x >= averageXList) && (x < averageXList + 1000)).ToList();
+                List<double> averagePointXList = Enumerable.Repeat(averageXList, differencesMatchPointXList.Count).ToList();
+
+                Logger.LogHtmlInformation("All Match Point Initial Scores", HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
+                {
+                    TraceBufferList = new HtmlPlot2DLinesChart([("orderedScoresInitialList", orderedCalibrateScores.ToArray())], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("All Match Point Process Scores", HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
+                {
+                    TraceBufferList = new HtmlPlot2DLinesChart([("orderedScoresProcessList", scoreListValid.ToArray())], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Origin Match Point Analysis Point", HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
+                {
+                    TraceBufferList = new HtmlPlot2DLinesChart([("MatchPointList", calUmPerPixelMatchPointListValid.ToArray())], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Origin Match Point Analysis X", HtmlHeaderLevelEnum.Header6, new HtmlQuote(new
+                {
+                    TraceBufferList = new HtmlPlot2DLinesChart([("MatchPointList X", calUmPerPixelMatchPointListValid.Select(p => p.X).ToPoints())], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                var realUmPerPixel = Cache.DieWidthUm / Vector<double>.Build.DenseOfEnumerable(differencesMatchPointXListAverage).Average();
+                var (calUmPerPixelWidthPixel, _) = (SizeI)calUmPerPixelBodyBytesSize;
+                Cache.SplitImageCount = (int)(calUmPerPixelWidthPixel * 1.0 / (Cache.DieWidthUm / realUmPerPixel));
+
+                Logger.LogHtmlInformation("1.2. End Split", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+                {
+                    RealUmPerPixel = $"{realUmPerPixel:f20}",
+                    //Um = new HtmlPlot2DLinesChart([(nameof(differencesMatchPointList), differencesMatchPointList.ToArray())], nameof(differencesMatchPointList))
+                    UmX = new HtmlPlot2DLinesChart([("differencesMatchPointListX", differencesMatchPointList.Select(p => p.X).ToPoints())], "differencesMatchPointListX"),
+                    UmXProcess = new HtmlPlot2DLinesChart([("differencesMatchPointListX_Process", differencesMatchPointXList.ToPoints()), ("differencesMatchPointListAverage", averagePointXList.ToPoints())], "differencesMatchPointListX_Process")
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                #endregion Get Um Per Pixel
+
+                Logger.LogHtmlInformation("2. Split Image", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("2.1 Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+                {
+                    detectImageDirectory,
+                    Cache.DieWidthUm,
+                    RealUmPerPixel = $"{realUmPerPixel:f20}",
+                    uri,
+                    SplitWidthPixel,
+                    SplitCount = Cache.SplitImageCount,
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                var (bodyBytesSize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
+                var (_, heightPixel) = (SizeI)bodyBytesSize;
+
+                var dieWidthPixel = Cache.DieWidthUm / realUmPerPixel;
+                var heightPixelByteLength = heightPixel * 2;
+                var splitImageAllPixelByteLength = SplitWidthPixel * heightPixelByteLength;
+
+                var matchOffsetPoint = new List<Point>();
+                var pointerList = Enumerable
+                    .Range(0, Cache.SplitImageCount + 1)
+                    .Select((count, index) => index == 0 ? 0 : count * dieWidthPixel * heightPixelByteLength)
+                    .Select(Convert.ToInt64)
+                    .ToList();
+                foreach (var (index, pointer) in pointerList.Select((t, i) => (Index: i, Pointer: t)))
+                {
+                    var pointerTemp = pointer - pointer % heightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+                    byte[] array;
+                    if (pointerTemp + splitImageAllPixelByteLength > bodyBytesLength)
+                    {
+                        if (index != pointerList.Count - 1) ThrowHelper.ThrowArgumentException("Data length is not a multiple of width.");
+
+                        var offset = SplitWidthPixel - (bodyBytesLength - pointerTemp) / heightPixelByteLength;
+
+                        pointerTemp += offset * heightPixelByteLength;
+                        pointerTemp -= pointerTemp % heightPixelByteLength; // dieWidthPixel不是整数倍, 需要对齐
+
+                        fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes(splitImageAllPixelByteLength);
+                    }
+                    else
+                    {
+                        fileSteam.Seek(bodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes(splitImageAllPixelByteLength);
+                    }
+
+                    var currentWidthPixel = array.Length / calUmPerPixelHeightPixelByteLength;
+                    var size = new Size(currentWidthPixel, heightPixel);
+                    var splitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(array, size);
+                    var (image, _) = CalibrationAlgorithmService.ToImageInfo(splitImageRawBytes);
+
+                    var calUmPerPixelImageLeftPixel = pointerTemp / calUmPerPixelHeightPixelByteLength;
+                    using var _ = image;
+                    var originImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(Cache.Item.TemplateImageFilePath), $"{index + 1}.jpg");
+                    image.Save(originImageFilePath);
+                    AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
+                    calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var result, out var _, out var score, out var _);
+
+                    var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y); // 水平翻转后的坐标
+                    matchPoint.Add(point);
+                    matchOffsetPoint.Add(new Point(result.X, result.Y) - (Vector)size / 2);
+                    Logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                    {
+                        score,
+                        LeftPixel = calUmPerPixelImageLeftPixel,
+                        Point = point,
+                        RawImageFile = new HtmlDownload(splitImageRawBytes, $"{index + 1}.raw"),
+                        HorizontalFlipRawImageFile = new HtmlDownload(splitImageRawBytes, $"HorizontalFlip_{index + 1}.raw"),
+                        HtmlTab = new HtmlTab(new
+                        {
+                            OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(result, templateImageSize), new HtmlImageRectangleOverlay(result, templateImageSize)]),
+                            TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                        })
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+
+                var differences = matchPoint
+                    .Zip(matchPoint.Skip(1), (prev, curr) => curr.X - prev.X)
+                    .ToList();
+                var error = differences.Max() - differences.Min();
+                Logger.LogHtmlInformation("2.2. End Split", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+                {
+                    Point = new HtmlPlot2DLinesChart([(nameof(differences), differences.ToPoints())], nameof(differences)),
+                    OffsetPointX = new HtmlPlot2DLinesChart([(nameof(matchOffsetPoint), matchOffsetPoint.Select(t => t.X).ToPoints())], nameof(differences))
+                    //OffsetPointY = new HtmlPlot2DLinesChart([(nameof(matchOffsetPoint), matchOffsetPoint.Select(t => t.Y).ToPoints())], nameof(differences))
+                }), HtmlLogUniqueId.LoggingHtml());
+                return (true, matchPoint);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogHtmlError(ex, "SplitImage Error", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                matchPoint.Clear();
+                // 异常时也需保持有效状态
+                return (false, matchPoint);
+            }
+        }
     }
 
     private bool Save(LaserXPixelSizeItemDto itemDto, CancellationToken cancellationToken, bool isSave = true) => InvokeSave(update =>
@@ -742,7 +872,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.XStageSpeedEnum == itemDto.XStageSpeedEnum) == false),
+                .Where(t => (t.ProductivityInformation.OpticsMagType == itemDto.ProductivityInformation.OpticsMagType && t.ProductivityInformation.StageSpeedType == itemDto.ProductivityInformation.StageSpeedType) == false),
             itemDto.Clone()
         ];
 
@@ -758,31 +888,213 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         SynchronizationContextProvider.Send(() => ResultLaserXPixelSizeItemList.Clear());
     }
 
+    // 新增的Channel处理方法
+    private async Task ProcessWithChannelAndCancellationAsync(
+        List<(int k, long pointerTemp, int byteLength, int currentWidthPixel, long calUmPerPixelImageLeftPixel)> blockInfos,
+        FileStream fileSteam,
+        BinaryReader binaryReader,
+        HTuple templateId,
+        int calUmPerPixelHeightPixel,
+        long calUmPerPixelBodyBytesStartIndex,
+        ConcurrentBag<(int k, Point matchPoint, double score, long pointerTemp, int currentWidthPixel, long calUmPerPixelImageLeftPixel)> results,
+        ConcurrentBag<Point> scoreList,
+        ConcurrentBag<Point> scoreCalibrateList,
+        CancellationToken cancellationToken = default)
+    {
+        // 定义Channel中传递的数据结构
+        var channel = Channel.CreateBounded<(int k, long pointerTemp, int byteLength, int currentWidthPixel, long calUmPerPixelImageLeftPixel, byte[] imageData)>(
+            new BoundedChannelOptions(Environment.ProcessorCount * 2)
+            {
+                FullMode = BoundedChannelFullMode.Wait,
+                SingleReader = false,
+                SingleWriter = false
+            });
+
+        // 创建模板匹配锁
+        var templateLock = new object();
+
+        // 生产者任务 - 读取图像数据
+        var producerTask = Task.Run(async () =>
+        {
+            try
+            {
+                foreach (var blockInfo in blockInfos)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var (k, pointerTemp, byteLength, currentWidthPixel, calUmPerPixelImageLeftPixel) = blockInfo;
+
+                    byte[] array;
+                    lock (fileSteam) // 文件读取需要加锁
+                    {
+                        fileSteam.Seek(calUmPerPixelBodyBytesStartIndex + pointerTemp, SeekOrigin.Begin);
+                        array = binaryReader.ReadBytes(byteLength);
+                    }
+
+                    // 将数据发送到Channel
+                    await channel.Writer.WriteAsync((k, pointerTemp, byteLength, currentWidthPixel, calUmPerPixelImageLeftPixel, array), cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Logger.LogInformation("生产者任务被取消");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "生产者任务发生错误");
+            }
+            finally
+            {
+                channel.Writer.Complete();
+            }
+        });
+
+        // 消费者任务 - 处理图像匹配
+        var consumerTasks = new List<Task>();
+        var consumerCount = Math.Max(1, Environment.ProcessorCount - 1); // 保留一个核心给其他任务
+
+        for (int i = 0; i < consumerCount; i++)
+        {
+            var consumerTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await foreach (var item in channel.Reader.ReadAllAsync(cancellationToken))
+                    {
+                        try
+                        {
+                            await ProcessBlockDataAsync(
+                                item.k,
+                                item.pointerTemp,
+                                item.byteLength,
+                                item.currentWidthPixel,
+                                item.calUmPerPixelImageLeftPixel,
+                                item.imageData,
+                                templateId,
+                                calUmPerPixelHeightPixel,
+                                results,
+                                scoreList,
+                                scoreCalibrateList,
+                                templateLock,
+                                cancellationToken);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            throw; // 重新抛出取消异常
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError(ex, "处理块 {Index} 时发生错误", item.k);
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Logger.LogInformation("消费者任务被取消");
+                }
+                catch (ChannelClosedException)
+                {
+                    // Channel正常关闭，不是错误
+                }
+            });
+
+            consumerTasks.Add(consumerTask);
+        }
+
+        // 等待所有任务完成
+        try
+        {
+            await Task.WhenAll(consumerTasks);
+            await producerTask;
+        }
+        catch (OperationCanceledException)
+        {
+            Logger.LogInformation("图像处理流程被取消");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "图像处理流程发生错误");
+            throw;
+        }
+    }
+
+    // 处理单个图像块的异步方法   
+    private async Task ProcessBlockDataAsync(
+        int k,
+        long pointerTemp,
+        int byteLength,
+        int currentWidthPixel,
+        long calUmPerPixelImageLeftPixel,
+        byte[] imageData,
+        HTuple templateId,
+        int calUmPerPixelHeightPixel,
+        ConcurrentBag<(int k, Point matchPoint, double score, long pointerTemp, int currentWidthPixel, long calUmPerPixelImageLeftPixel)> results,
+        ConcurrentBag<Point> scoreList,
+        ConcurrentBag<Point> scoreCalibrateList,
+        object templateLock,
+        CancellationToken cancellationToken)
+    {
+        // 立即让出控制权，避免阻塞消费者线程
+        await Task.Yield();
+
+        cancellationToken.ThrowIfCancellationRequested();
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
+        // 处理图像数据
+        var calUmPerPixelSplitImageRawBytes = CalibrationAlgorithmService.ToRawBytes(
+            imageData,
+            new Size(currentWidthPixel, calUmPerPixelHeightPixel));
+
+        var (image, _) = CalibrationAlgorithmService.ToImageInfo(calUmPerPixelSplitImageRawBytes);
+
+        using (image)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // 使用锁保护模板匹配操作
+            Point result;
+            double score;
+            lock (templateLock)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                //HalconHelper.TryNccTemplateMathToOffset(image, templateId, out result, out score, out var _);
+                calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out result, out var _, out score, out _);
+            }
+
+            var point = new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel, result.Y);
+            var pointScore = new Point(calUmPerPixelImageLeftPixel * 1.0, score);
+
+            results.Add((k, point, score, pointerTemp, currentWidthPixel, calUmPerPixelImageLeftPixel));
+            scoreList.Add(pointScore);
+            scoreCalibrateList.Add(new Point(currentWidthPixel - result.X + calUmPerPixelImageLeftPixel * 1.0, score));
+
+            // 可选：记录处理日志
+            if (k % 10 == 0) // 每10个块记录一次，避免日志过多
+            {
+                Logger.LogDebug("已处理块 {BlockIndex}, 分数: {Score}", k, score);
+            }
+        }
+    }
+
     #endregion 校准
 
     #region 自动化校准
 
     public override void GetAutoCalibrationStep()
     {
-        _opticsMagStageSpeedList.Clear();
+        _enableProductiveInformationList.Clear();
         var autoCalibrationStepList = new ObservableCollection<CalibrationItemStep>();
-        WindowManagerService.ShowDialog(enableOpticsMagWindowViewModel);
-        WindowManagerService.ShowDialog(enableStageSpeedWindowViewModel);
-        _enableOpticsMagList = [.. enableOpticsMagWindowViewModel.OpticsMagEnableList.Where(t => t.IsEnable).Select(t => (t.OpticsMagTypeEnum, t.IsEnable))];
-        _enableStageSpeedList = [.. enableStageSpeedWindowViewModel.StageSpeedEnableList.Where(t => t.IsEnable).Select(t => (t.StageSpeedEnum, t.IsEnable))];
-        if (_enableOpticsMagList.Count == 0 || _enableStageSpeedList.Count == 0) return;
+        WindowManagerService.ShowDialog(enableProductiveInformationWindowViewModel);
+        _enableProductiveInformationList = [.. enableProductiveInformationWindowViewModel.ProductiveInformationEnableList.Select(t => (t.ProductivityInformation, t.IsEnable))];
+        if (_enableProductiveInformationList.Count == 0) return;
         autoCalibrationStepList.Add(new() { StepName = "Loading" });
-        foreach (var opticsMag in _enableOpticsMagList)
+        foreach (var productivity in _enableProductiveInformationList)
         {
-            foreach (var stageSpeed in _enableStageSpeedList)
+            var calibrationItemStep = new CalibrationItemStep
             {
-                var calibrationItemStep = new CalibrationItemStep
-                {
-                    StepName = $"{opticsMag.mag} Mag-{stageSpeed.stageSpeed} Speed"
-                };
-                autoCalibrationStepList.Add(calibrationItemStep);
-                _opticsMagStageSpeedList.Add((opticsMag.mag, stageSpeed.stageSpeed));
-            }
+                StepName = productivity.ToString()
+            };
+            autoCalibrationStepList.Add(calibrationItemStep);
         }
 
         autoCalibrationStepList.Add(new() { StepName = "Review" });
@@ -808,11 +1120,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             });
             if (await AutoNextingAsync(cancellationToken) == false) return false;
 
-            foreach (var opticsMagStageSpeed in _opticsMagStageSpeedList)
+            foreach (var productivity in _enableProductiveInformationList)
             {
                 CalibrationStepIndex = 4;
-                Cache.OpticsMagTypeEnum = opticsMagStageSpeed.Item1;
-                Cache.XStageSpeedEnum = opticsMagStageSpeed.Item2;
+                Cache.ProductivityInformation = productivity.productiveInformation;
                 if (await AutomationRecipeInformationAsync() == false) return false;
                 if (await InvokeCalibrateAsync(async () =>
                     {
@@ -863,20 +1174,19 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
         // Bright Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, null, out var brightFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, Cache.ProductivityInformation, out var brightFieldMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, brightFieldMaskInfo, out var brightFieldMaskPosition);
-        Cache.FindTemplatePosition = brightFieldMaskPosition;
-        Cache.FindStartPosition = new Point(Cache.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
-        Cache.FindEndPosition = new Point(Cache.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.FindTemplatePosition.Y);
+        Cache.Item.FindTemplatePosition = brightFieldMaskPosition;
+        Cache.FindStartPosition = new Point(Cache.Item.FindTemplatePosition.X - Cache.DieWidthUm * Cache.ColumnNumber, Cache.Item.FindTemplatePosition.Y);
+        Cache.FindEndPosition = new Point(Cache.Item.FindTemplatePosition.X + Cache.DieWidthUm * Cache.ColumnNumber, Cache.Item.FindTemplatePosition.Y);
         Cache.SplitImageCount = Cache.ColumnNumber * 2;
 
         // Dark Field
-        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum, out var darkFieldMaskInfo) == false)
+        if (CalibrationRecipeService.GetLaserReticleMaskMachineInfo(Cache.WaferMaskTypeEnum, null, Cache.ProductivityInformation, out var darkFieldMaskInfo) == false)
             return false;
-        Cache.TemplateFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateFilePath;
-        Cache.TemplateImageFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateImageFilePath;
-        Cache.SetMagSpeedTemplateFilePath(Cache.OpticsMagTypeEnum, Cache.XStageSpeedEnum, Cache.TemplateFilePath);
+        Cache.Item.TemplateFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateFilePath;
+        Cache.Item.TemplateImageFilePath = darkFieldMaskInfo.RecipeDarkFieldTemplateDto.TemplateImageFilePath;
         return true;
     }
 
@@ -895,7 +1205,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         try
         {
             GetAutoCalibrationStep();
-            if (_opticsMagStageSpeedList.Count == 0) return false;
+            if (_enableProductiveInformationList.Count == 0) return false;
             await base.AutomationReviewActionAsync(cancellationToken);
             if (await LoadedingAsync(cancellationToken) == false) return false;
             if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
@@ -907,19 +1217,18 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var result = false;
             if (await InvokeVerifyAsync(async () =>
                 {
-                    foreach (var opticsMagStage in _opticsMagStageSpeedList)
+                    foreach (var productivity in _enableProductiveInformationList)
                     {
-                        var itemReview = ReviewList.FirstOrDefault(t => t.OpticsMagTypeEnum == opticsMagStage.Item1 && t.XStageSpeedEnum == opticsMagStage.Item2);
+                        var itemReview = ReviewList.FirstOrDefault(t => t.ProductivityInformation == productivity.productiveInformation);
                         if (itemReview is not null)
                         {
-                            Cache.OpticsMagTypeEnum = opticsMagStage.Item1;
-                            Cache.XStageSpeedEnum = opticsMagStage.Item2;
+                            Cache.ProductivityInformation = productivity.productiveInformation;
                             if (await AutomationRecipeInformationAsync() == false) return false;
                             if (await GetTemplateImagePathAsync() == false) return false;
                             itemReview.FindStartPosition = Cache.FindStartPosition;
                             itemReview.FindEndPosition = Cache.FindEndPosition;
-                            itemReview.FilePath = Cache.TemplateFilePath;
-                            itemReview.FileTemplatePath = Cache.TemplateImageFilePath;
+                            itemReview.FilePath = Cache.Item.TemplateFilePath;
+                            itemReview.FileTemplatePath = Cache.Item.TemplateImageFilePath;
                             if (await VerifyAsync(itemReview, cancellationToken) == false) return false;
                         }
                     }

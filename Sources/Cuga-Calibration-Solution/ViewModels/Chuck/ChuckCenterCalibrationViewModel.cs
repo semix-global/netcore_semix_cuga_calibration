@@ -964,7 +964,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 上低倍
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowChuckCenterCacheItem.LensInformation, null, out var maskInfoLow) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowChuckCenterCacheItem.LensInformation, opticsMagType: null, out var maskInfoLow) == false)
             return false;
 
         var reticleTop = reticleRows.ElementAt(reticleRows.Count - 2);
@@ -1007,7 +1007,7 @@ public sealed partial class ChuckCenterCalibrationViewModel : CalibrationViewMod
 
         #region 上高倍
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighChuckCenterCacheItem.LensInformation, null, out var maskInfoHigh) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighChuckCenterCacheItem.LensInformation, opticsMagType: null, out var maskInfoHigh) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfoHigh, out var highTopPosition);
         Cache.HighChuckCenterCacheItem.TopPosition = highTopPosition;

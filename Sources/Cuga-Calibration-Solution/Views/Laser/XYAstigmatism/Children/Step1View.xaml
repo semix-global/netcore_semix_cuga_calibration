@@ -81,7 +81,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
-                    <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
                              hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"

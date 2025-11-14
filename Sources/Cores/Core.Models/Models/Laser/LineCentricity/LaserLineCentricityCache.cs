@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using LiteDB;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
+using Newtonsoft.Json;
+using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.LineCentricity;
 
@@ -13,19 +15,29 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.GridConrner_100um;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
+    [NotifyPropertyChangedFor(nameof(Item))]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserLineCentricityCacheItem>> Items { get; init; } = [];
+
+    [JsonIgnore]
+    [BsonIgnore]
+    public LaserLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserLineCentricityCacheItem());
 
     [ObservableProperty]
     private double _chuckRadius = 150000;
+
+    [ObservableProperty]
+    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+}
+
+public sealed partial class LaserLineCentricityCacheItem : CalibrationCacheBase
+{
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
 
     /// <summary>
     /// 选定特征的明场坐标
@@ -41,9 +53,6 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
 
     [ObservableProperty]
     private int _xWidthPixel = 800;
-
-    [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
 
     [ObservableProperty]
     private string _brightTemplateFilePath = string.Empty;

@@ -118,10 +118,10 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Width="120"
                                             Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding ProductivityInformation.OpticsMagType}" />
                             <GridViewColumn Width="120"
                                             Header="StageSpeed"
-                                            DisplayMemberBinding="{Binding XStageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            DisplayMemberBinding="{Binding ProductivityInformation.StageSpeedType}" />
                             <GridViewColumn Width="100"
                                             Header="PMT Id"
                                             DisplayMemberBinding="{Binding PmtId}" />

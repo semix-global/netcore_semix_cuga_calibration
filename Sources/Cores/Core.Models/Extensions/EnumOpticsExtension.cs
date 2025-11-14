@@ -1,10 +1,10 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Cuga.Data.DataStruct.Optics;
 
 #if NET
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
-
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
@@ -44,7 +44,8 @@ public static class EnumOpticsExtension
         SxMAGEnum.Low => CgMagTypeEnum.Low,
         SxMAGEnum.Mid => CgMagTypeEnum.Mid,
         SxMAGEnum.High => CgMagTypeEnum.High,
-        _ => throw new ArgumentOutOfRangeException(nameof(sxMagEnum), sxMagEnum, null)
+        (SxMAGEnum)(-1) => (CgMagTypeEnum)(-1),
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgMagTypeEnum>(nameof(sxMagEnum))
     };
 
     public static CgMagTypeEnum ToCgMagTypeEnum(this OpticsMagTypeEnum opticsMagTypeEnum) => opticsMagTypeEnum switch
@@ -118,6 +119,7 @@ public static class EnumOpticsExtension
     #endregion Polarization
 
 #if NETFRAMEWORK
+
     #region OpticsAODTypeEnum
 
     public static CgWaveType ToCgWaveType(this OpticsAODTypeEnum @this) => @this switch

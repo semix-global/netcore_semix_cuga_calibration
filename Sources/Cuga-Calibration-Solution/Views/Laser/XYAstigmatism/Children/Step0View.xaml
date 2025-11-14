@@ -22,8 +22,8 @@
                        Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="OpticsMagType: "
-                       Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Subject="Productivity: "
+                       Status="{Binding Cache.ProductivityInformation}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -44,9 +44,9 @@
         <ItemsControl Grid.Column="2"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
-                      ItemsSource="{Binding CalibrationStatusList}">
+                      ItemsSource="{Binding CalibrationStatuses}">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsMagTypeEnum, Mode=TwoWay}" />
+                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -55,9 +55,9 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                    <RadioButton Content="{Binding .ProductivityInformation}"
                                  FontSize="35"
-                                 Tag="{Binding .OpticsMagTypeEnum}"
+                                 Tag="{Binding .ProductivityInformation}"
                                  GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

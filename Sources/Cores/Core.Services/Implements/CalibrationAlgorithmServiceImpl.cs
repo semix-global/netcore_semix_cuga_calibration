@@ -358,15 +358,15 @@ public sealed class CalibrationAlgorithmServiceImpl(
     }
 
     public bool CalculateChuckStageMapError(
-        StageMapDto stageMapDto,
-        bool isXOnlyGantryError,
-        Guid htmlLogUniqueId,
-        int calculateContainRowMinCount,
-        int calculateContainColumnMinCount,
-        double alignmentThreshold,
-        double gantryThreshold,
-        double scaleThreshold,
-        double diameter)
+       StageMapDto stageMapDto,
+       bool isXOnlyGantryError,
+       Guid htmlLogUniqueId,
+       int calculateContainRowMinCount,
+       int calculateContainColumnMinCount,
+       double alignmentThreshold,
+       double gantryThreshold,
+       double scaleThreshold,
+       double diameter)
     {
         var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
         var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();

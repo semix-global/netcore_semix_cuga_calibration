@@ -1069,7 +1069,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         var reticleBottom = reticleRows.ElementAt(1);
         var reticleLeft = reticleCols.ElementAt(1);
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, null, out var baseLowMaskInfo) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, opticsMagType: null, out var baseLowMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, baseLowMaskInfo, out var lowPosition);
         IdeaPositionCache.BaseLowSiteFindPosition = lowPosition;
@@ -1087,7 +1087,7 @@ public sealed partial class ChuckRotateScaleCalibrationViewModel(
         IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Left);
         IdeaPositionCache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, IdeaPositionCache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Right);
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation, null, out var baseHighMaskInfo) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(IdeaPositionCache.WaferMaskTypeEnum, IdeaPositionCache.HighGlobalScaleErrorCacheItem.LensInformation, opticsMagType: null, out var baseHighMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseHighMaskInfo, out var topHighSitePosition);
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseHighMaskInfo, out var bottomHighSitePosition);

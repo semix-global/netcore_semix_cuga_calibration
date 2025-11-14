@@ -559,7 +559,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
             List<Point> calibrationScaleErrorList = [];
             List<(double x, double y)> calibrationScaleList = [];
-            foreach (var times in Enumerable.Range(1, 5))
+            foreach (var times in Enumerable.Range(1, 3))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -1019,7 +1019,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         var reticleBottom = reticleRows.ElementAt(1);
         var reticleLeft = reticleCols.ElementAt(1);
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowGlobalScaleErrorCacheItem.LensInformation, null, out var baseLowMaskInfo) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowGlobalScaleErrorCacheItem.LensInformation, opticsMagType: null, out var baseLowMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, baseLowMaskInfo, out var lowPosition);
 
@@ -1045,7 +1045,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         Cache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, Cache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Left);
         Cache.SetTemplate(baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath, baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath, Cache.LowGlobalScaleErrorCacheItem.LensInformation, StageDirectionTypeEnum.Right);
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighGlobalScaleErrorCacheItem.LensInformation, null, out var baseHighMaskInfo) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighGlobalScaleErrorCacheItem.LensInformation, opticsMagType: null, out var baseHighMaskInfo) == false)
             return false;
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseHighMaskInfo, out var topHighSitePosition);
         CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseHighMaskInfo, out var bottomHighSitePosition);
