@@ -8,7 +8,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:mag="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXYAstigmatismCalibrationViewModel}"
