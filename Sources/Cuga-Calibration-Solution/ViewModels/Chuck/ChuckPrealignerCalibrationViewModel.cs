@@ -204,6 +204,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             case 3:
                 Cache.HighFindPosition2 = Cache.LowFindPosition2;
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighFindPosition2);
                 return true;
 
             case 5:
@@ -370,17 +371,18 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 SaveWaferCenterThumbImages(bitmapMemoryBytes);
             }
 
-            if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionErrorThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionErrorThreshold)
+            if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionThreshold || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionThreshold)
             {
                 CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
 
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
+                    Cache.PositionThreshold,
                     OffsetX = Cache.OffsetPosition.X,
                     OffsetY = Cache.OffsetPosition.Y
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                DialogWindowProvider.ShowDialog(" Chuck Prealigner calibration failed, please manually adjust EFEM.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                DialogWindowProvider.ShowDialog(" Chuck Prealigner calibration failed,offset result out of the threshold, please manually adjust EFEM.", DialogButtonsEnum.OK, DialogIconEnum.Error);
                 result = false;
                 return result;
             }
@@ -557,8 +559,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             {
                 ChuckPrealignerObjDto.OffsetPosition,
                 ChuckPrealignerObjDto.EfemLoadWaferStagePosition,
-                OffsetPositionCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
-                OffsetAngleCalibrationResult = ChuckPrealignerObjDto.EfemLoadWaferChuckAbsoluteAngle
+                CenterOffsetCalibrationResult = ChuckPrealignerObjDto.NewEfemLoadWaferStagePosition,
+                AngleOffsetCalibrationResult = ChuckPrealignerObjDto.EfemLoadWaferChuckAbsoluteAngle
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (IsAutoCalibrate == false)
@@ -585,6 +587,14 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             if (!Calibration.IsOk)
             {
+                if (Math.Abs(Cache.OffsetPosition.X) > Cache.PositionThreshold
+                    || Math.Abs(Cache.OffsetPosition.Y) > Cache.PositionThreshold
+                    || ReviewDto.EfemLoadWaferChuckAbsoluteAngle > Cache.AngleErrorThreshold)
+                {
+                    DialogWindowProvider.ShowDialog("Calibration result is out of range the threshold! Reload wafer failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return false;
+                }
+
                 if (await ReloadWaferAsync(IsReviewLoadWafer) == false)
                 {
                     DialogWindowProvider.ShowDialog("Please Reload Wafer!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -627,25 +637,25 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
             var (offsetPosition, _) = StageViewModel.FindWaferCenterByManually(Point.Origin);
-            Cache.OffsetPosition = offsetPosition;
 
             Logger.LogHtmlInformation("Find wafer center result OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 VerifyOffsetAngle = Cache.OffsetAngle,
                 VerifyOffsetPosition = offsetPosition
             }), HtmlLogUniqueId.LoggingHtml());
-            if (Math.Abs(offsetPosition.X) > Cache.PositionThreshold || Math.Abs(offsetPosition.Y) > Cache.PositionThreshold)
+            if (Math.Abs(offsetPosition.X) > Cache.PositionErrorThreshold || Math.Abs(offsetPosition.Y) > Cache.PositionErrorThreshold)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.PositionThreshold,
-                    Cache.AngleThreshold,
+                    VerifyOffsetThreshold = Cache.PositionErrorThreshold,
+                    VerifyAngleThreshold = Cache.AngleThreshold,
                     OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
                     VerifyOffsetPosition = offsetPosition,
                     VerifyOffsetAngle = Cache.OffsetAngle
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                DialogWindowProvider.ShowDialog("Verify Chuck Prealigner calibration failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog("Verify Chuck Prealigner calibration failed.Position Error Out Of The Threshold!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 result = false;
                 return result;
             }
@@ -662,6 +672,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("Verify Chuck Prealigner calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.PositionThreshold,
+                Cache.PositionErrorThreshold,
                 Cache.AngleThreshold,
                 OldOffsetPosition = selectChuckPrealignerObjDto.OffsetPosition,
                 VerifyOffsetPosition = offsetPosition,
@@ -710,9 +721,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Logger.LogHtmlInformation("P5 Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 OriginAngle = originAngle,
-                Cache.OffsetAngle,
-                Cache.AngleThreshold,
-                Cache.AngleErrorThreshold,
+                AlignmentAngleOffsetResult = Cache.OffsetAngle,
+                AlignmentThreshold = Cache.AngleErrorThreshold,
+                AlignmentVerifyThreshold = Cache.AngleThreshold,
                 LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
                 HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
                 Cache.AlgorithmWaferTypeEnum,
@@ -735,6 +746,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return result;
     }
 
+    // 此方法逻辑慎重修改，谨慎调试
     private async Task<bool> ReloadWaferAsync(bool isReviewLoadWafer)
     {
         var result = false;

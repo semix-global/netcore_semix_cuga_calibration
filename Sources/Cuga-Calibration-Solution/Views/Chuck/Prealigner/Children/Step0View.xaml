@@ -30,21 +30,23 @@
                     IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text=" Calibration position offset"
+                        <TextBlock Text=" Calibration Position Offset"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox x:Name="ThresholdTextBox"
-                             Text="{Binding Cache.PositionErrorThreshold, StringFormat={}{0:f3}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position Error Threshold(um):"
-                             hc:InfoElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:NumericUpDown x:Name="PositionThresholdNumeric"
+                                      Width="275"
+                                      hc:InfoElement.Title="Offset Threshold(um):"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Maximum="400"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.PositionThreshold}" />
                     <TextBox Text="{Binding Cache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Center offset position:"
+                             hc:InfoElement.Title="Center offset(um):"
                              hc:InfoElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"

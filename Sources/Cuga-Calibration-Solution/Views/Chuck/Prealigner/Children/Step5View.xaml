@@ -19,7 +19,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Chuck Gantry Step 6: "
+                <hc:Shield Subject="Chuck Prealigner Step 6: "
                            Status="{Binding CalibrationStepList[5].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
@@ -33,7 +33,7 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Angle Error Threshold(um):    "
+                                      hc:InfoElement.Title="Angle Offset Threshold(um):    "
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Maximum="1"
