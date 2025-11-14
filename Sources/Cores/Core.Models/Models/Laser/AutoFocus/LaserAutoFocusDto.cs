@@ -168,7 +168,7 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         NscGain = NscGain,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        IsRequiredCalibrate = IsRequiredSelfCheck,
         EcsMotorPositionRelationSlope = EcsMotorPositionRelationSlope,
         EcsMotorPositionRelationIntercept = EcsMotorPositionRelationIntercept
     };

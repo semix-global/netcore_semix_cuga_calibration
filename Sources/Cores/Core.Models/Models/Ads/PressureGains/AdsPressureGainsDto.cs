@@ -41,7 +41,7 @@ public sealed partial class AdsPressureGainsDto : CalibrationDtoBase, ICloneable
         PressureValue3 = PressureValue3,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

@@ -60,7 +60,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
         Offset = Offset.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     public MicroscopeCentricityItemDto AdaptIn(CalibrationMicroscopeCentricityItem obj) => new()
@@ -69,7 +69,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, IC
         Offset = obj.Offset.ToPoint(),
         IsCalibrated = obj.IsCalibrated,
         IsVerified = obj.IsVerified,
-        IsRequiredSelfCheck = obj.IsRequiredSelfCheck
+        IsRequiredSelfCheck = obj.IsRequiredCalibrate
     };
 
     #endregion Mapper

@@ -60,7 +60,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
         MicroscopeVoltage = MicroscopeVoltage,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     public MicroscopeFocusItemDto AdaptIn(CalibrationMicroscopeFocusItem obj) => new()
@@ -70,7 +70,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
         MicroscopeVoltage = obj.MicroscopeVoltage,
         IsCalibrated = obj.IsCalibrated,
         IsVerified = obj.IsVerified,
-        IsRequiredSelfCheck = obj.IsRequiredSelfCheck
+        IsRequiredSelfCheck = obj.IsRequiredCalibrate
     };
 
     #endregion Mapper

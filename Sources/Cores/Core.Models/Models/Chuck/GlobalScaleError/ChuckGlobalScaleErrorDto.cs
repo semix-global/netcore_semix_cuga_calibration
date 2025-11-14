@@ -157,7 +157,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
         ScaleY = ScaleY,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

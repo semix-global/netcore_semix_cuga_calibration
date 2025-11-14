@@ -77,7 +77,7 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
         Offset = Offset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

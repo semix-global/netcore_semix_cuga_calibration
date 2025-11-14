@@ -70,7 +70,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
         ExpandStageMap = ExpandStageMapDto.AdaptTo(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

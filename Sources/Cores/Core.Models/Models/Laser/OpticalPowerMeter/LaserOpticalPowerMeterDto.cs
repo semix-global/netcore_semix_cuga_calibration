@@ -66,7 +66,7 @@ public sealed partial class LaserOpticalPowerMeterDto : CalibrationDtoBase, IClo
             MeasureMaxPowerPosition = MeasureMaxPowerPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck
+            IsRequiredCalibrate = IsRequiredSelfCheck
         };
     }
 

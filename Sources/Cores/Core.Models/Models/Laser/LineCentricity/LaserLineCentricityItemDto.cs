@@ -76,7 +76,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
             DarkMachineCenterPosition = DarkMachineCenterPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck
+            IsRequiredCalibrate = IsRequiredSelfCheck
         };
     }
 

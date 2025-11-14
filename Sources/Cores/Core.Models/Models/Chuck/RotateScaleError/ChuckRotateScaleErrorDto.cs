@@ -223,7 +223,7 @@ public sealed partial class ChuckRotateScaleErrorDto : CalibrationDtoBase, IClon
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     public ChuckRotateScaleErrorDto Clone() => new()

@@ -93,7 +93,7 @@ public sealed partial class ChuckPrealignerObjDto : CalibrationDtoBase, ICloneab
         EfemLoadWaferChuckAbsoluteAngle = EfemLoadWaferChuckAbsoluteAngle,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper
