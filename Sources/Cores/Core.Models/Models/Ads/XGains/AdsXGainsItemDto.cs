@@ -260,7 +260,7 @@ public sealed partial class AdsXGainsItemDto : CalibrationDtoBase, ICloneable<Ad
         NegativeX4P3 = NegativeX4P3,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

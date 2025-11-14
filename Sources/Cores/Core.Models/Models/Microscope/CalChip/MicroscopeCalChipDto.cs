@@ -350,7 +350,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         ShinyWaferEcsValue = ShinyWaferEcsValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

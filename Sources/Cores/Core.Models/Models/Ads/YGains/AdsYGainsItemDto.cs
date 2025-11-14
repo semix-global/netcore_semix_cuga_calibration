@@ -359,7 +359,7 @@ public sealed partial class AdsYGainsItemDto : CalibrationDtoBase, ICloneable<Ad
         NegativeY6P3 = NegativeY6P3,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

@@ -58,7 +58,7 @@ public sealed partial class AODDelayDto : CalibrationDtoBase, ICloneable<AODDela
         ChirpAodDelayTime = RefinedChirpAODDelay,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

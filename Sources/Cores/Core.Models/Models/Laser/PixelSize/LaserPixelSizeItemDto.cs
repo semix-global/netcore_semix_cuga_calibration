@@ -55,7 +55,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
         YPixelSize = YPixelSize,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

@@ -170,7 +170,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
                 return true;
             }
 
-            Guard.IsNotNull(_calibrationObj, nameof(_calibrationObj));
+            Guard.IsNotNull(_calibrationObj);
 
             // 备份result
             if (_getResultFileService.TrySaveBackUp(_calibrationObj) == false)

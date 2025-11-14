@@ -40,7 +40,7 @@ public partial class LaserDOEAngleDto : CalibrationDtoBase, ICloneable<LaserDOEA
             DOEAngle = DOEAngle,
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck
+            IsRequiredCalibrate = IsRequiredSelfCheck
         };
     }
 
