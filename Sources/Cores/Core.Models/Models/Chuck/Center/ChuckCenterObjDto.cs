@@ -120,7 +120,7 @@ public sealed partial class ChuckCenterObjDto : CalibrationDtoBase, ICloneable<C
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

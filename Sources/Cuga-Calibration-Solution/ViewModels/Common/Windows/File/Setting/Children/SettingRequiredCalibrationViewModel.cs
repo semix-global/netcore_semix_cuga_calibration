@@ -24,7 +24,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
     [RelayCommand]
     private async Task LoadedAsync()
     {
-        await Task.Run(ReflectWcfObjToObservableObj);
+        await ReflectWcfObjToObservableObjAsync().ConfigureAwait(false);
     }
 
     public override async Task<bool> SavingAsync()
@@ -43,44 +43,47 @@ public sealed partial class SettingRequiredCalibrationViewModel(
         }
     }
 
-    private void ReflectWcfObjToObservableObj()
+    private Task ReflectWcfObjToObservableObjAsync()
     {
-        try
+        return Task.Run(() =>
         {
-            synchronizationContextProvider.Send(SettingRequiredCalibrationParamList.Clear);
-
-            var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
-
-            foreach (var calibrationCategory in calibrationCategoryList)
+            try
             {
-                var items = new List<SettingRequiredCalibrationCategoryItem>();
-                var calibrationCategoryObj = new SettingRequiredCalibrationParam
-                {
-                    Description = calibrationCategory.Description,
-                    CategoryItems = items
-                };
+                synchronizationContextProvider.Send(SettingRequiredCalibrationParamList.Clear);
 
-                var parentCalibrationCache = calibrationSetting.SettingRequiredCalibrationParamList.SingleOrDefault(t => t.Description == calibrationCategory.Description);
+                var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
 
-                foreach (var calibrationCategoryItem in calibrationCategory.Items)
+                foreach (var calibrationCategory in calibrationCategoryList)
                 {
-                    var categoryItem = new SettingRequiredCalibrationCategoryItem()
+                    var items = new List<SettingRequiredCalibrationCategoryItem>();
+                    var calibrationCategoryObj = new SettingRequiredCalibrationParam
                     {
-                        AssemblyQualifiedName = calibrationCategoryItem.CalibrationDtoType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false),
-                        Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last()
+                        Description = calibrationCategory.Description,
+                        CategoryItems = items
                     };
-                    var childCalibrationCache = parentCalibrationCache?.CategoryItems.SingleOrDefault(t => t.AssemblyQualifiedName == categoryItem.AssemblyQualifiedName);
-                    categoryItem.IsRequired = childCalibrationCache?.IsRequired ?? false;
 
-                    items.Add(categoryItem);
+                    var parentCalibrationCache = calibrationSetting.SettingRequiredCalibrationParamList.SingleOrDefault(t => t.Description == calibrationCategory.Description);
+
+                    foreach (var calibrationCategoryItem in calibrationCategory.Items)
+                    {
+                        var categoryItem = new SettingRequiredCalibrationCategoryItem()
+                        {
+                            AssemblyQualifiedName = calibrationCategoryItem.CalibrationDtoType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false),
+                            Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last()
+                        };
+                        var childCalibrationCache = parentCalibrationCache?.CategoryItems.SingleOrDefault(t => t.AssemblyQualifiedName == categoryItem.AssemblyQualifiedName);
+                        categoryItem.IsRequired = childCalibrationCache?.IsRequired ?? false;
+
+                        items.Add(categoryItem);
+                    }
+
+                    synchronizationContextProvider.Send(() => SettingRequiredCalibrationParamList.Add(calibrationCategoryObj));
                 }
-
-                synchronizationContextProvider.Send(() => SettingRequiredCalibrationParamList.Add(calibrationCategoryObj));
             }
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Get CalibrationObj IsOk Status Failed!");
-        }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Get CalibrationObj IsOk Status Failed!");
+            }
+        });
     }
 }

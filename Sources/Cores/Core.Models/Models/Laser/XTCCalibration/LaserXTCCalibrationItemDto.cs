@@ -88,7 +88,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
         CH3Delay = Convert.ToInt32(CH3Delay),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

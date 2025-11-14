@@ -48,7 +48,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
         PixelSize = PixelSize.ToCgSize(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     public MicroscopePixelSizeItemDto AdaptIn(CalibrationMicroscopePixelSizeItem obj) => new()
@@ -57,7 +57,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
         PixelSize = obj.PixelSize.ToSize(),
         IsCalibrated = obj.IsCalibrated,
         IsVerified = obj.IsVerified,
-        IsRequiredSelfCheck = obj.IsRequiredSelfCheck
+        IsRequiredSelfCheck = obj.IsRequiredCalibrate
     };
 
     #endregion Mapper

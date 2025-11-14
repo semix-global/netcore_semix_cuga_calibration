@@ -95,7 +95,7 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
             Offset = Offset.ToCgPoint(),
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck
+            IsRequiredCalibrate = IsRequiredSelfCheck
         };
     }
 

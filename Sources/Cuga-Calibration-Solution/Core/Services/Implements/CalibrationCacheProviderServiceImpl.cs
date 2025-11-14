@@ -51,7 +51,6 @@ public class CalibrationCacheProviderServiceImpl(
 
             var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
             var wcfObjProperties = calibrationObj.GetType().GetProperties();
-            var calibrationBase = new CalibrationBase();
             foreach (var calibrationCategory in calibrationCategoryList)
             {
                 var parentCalibrationRequiredCache = calibrationSetting.SettingRequiredCalibrationParamList.Single(t => t.Description == calibrationCategory.Description);
@@ -63,17 +62,17 @@ public class CalibrationCacheProviderServiceImpl(
                     {
                         var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
                         var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
-                        var wcfItems = dtoItems?.Select(t =>
+                        if (dtoItems is null || dtoItems.Length == 0)
+                            dtoItems = [GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
+                        var wcfItems = dtoItems.Select(t =>
                         {
                             var value = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
-                            GuardUtils.IsNotNullAndReturn(value.GetType().GetProperty(nameof(calibrationBase.IsRequiredSelfCheck))).SetValue(value, childCalibrationRequiredCache.IsRequired);
+                            GuardUtils.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, childCalibrationRequiredCache.IsRequired);
                             return value;
                         }).ToArray();
-                        if (wcfItems is not null && wcfItems.Length > 0)
-                        {
-                            var values = ObjectHelper.ConvertToArray(wcfItems, calibrationCategoryItem.WcfModelType);
-                            childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
-                        }
+
+                        var values = ObjectHelper.ConvertToArray(wcfItems, calibrationCategoryItem.WcfModelType);
+                        childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
                     }
                     else
                     {
@@ -82,7 +81,7 @@ public class CalibrationCacheProviderServiceImpl(
                         var wcfModel = dto is not null ? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null) : null;
                         if (wcfModel is not null)
                         {
-                            GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(calibrationBase.IsRequiredSelfCheck))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
+                            GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
                             childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
                         }
                     }
@@ -92,7 +91,6 @@ public class CalibrationCacheProviderServiceImpl(
             }
 
             FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, filePath ?? $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
-
             return true;
         }
         catch (Exception ex)
