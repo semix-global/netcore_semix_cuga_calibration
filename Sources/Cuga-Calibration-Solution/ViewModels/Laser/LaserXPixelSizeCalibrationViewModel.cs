@@ -140,6 +140,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
                     return t;
                 })
         ];
@@ -757,7 +758,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     verifyBodyBytesStartIndex,
                     verifyBodyBytesLength,
                     verifyHeightPixel,
-                    verifyHeightPixel,
+                    verifyHeightPixelByteLength,
                     imageCount,
                     templateId,
                     templateImageSize,
@@ -837,7 +838,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         Refresh(item);
 
         var errorPixel = Math.Abs(Cache.Item.WaferDiameter / verifyRealUmPerPixel - Cache.Item.WaferDiameter / item.XPixelSize);
-        var isOk = Math.Abs(item.VerifyItems.Max(t => t.MatchPoint.X) - item.VerifyItems.Min(t => t.MatchPoint.X)) <= Cache.Threshold
+        var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
                    && errorPixel <= Cache.Threshold;
 
         var htmlQuote = new HtmlQuote(new
