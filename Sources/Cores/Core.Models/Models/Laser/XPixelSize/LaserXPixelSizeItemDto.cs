@@ -62,8 +62,17 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     #endregion Mapper
 }
 
-public sealed record LaserXPixelSizeSlideItem(long StartPixel, byte[] Buffer, SizeI Size)
+public sealed class LaserXPixelSizeSlideItem
 {
+    public long StartPixel { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
+    public byte[] Buffer { get; init; }
+
+    public SizeI SizeI { get; init; }
+
     public Point MatchPoint { get; set; }
 
     public double Score { get; set; }

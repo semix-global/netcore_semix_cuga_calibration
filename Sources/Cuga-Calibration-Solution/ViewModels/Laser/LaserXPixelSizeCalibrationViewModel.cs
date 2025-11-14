@@ -909,7 +909,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         fileSteam.Seek(bodyBytesStartIndex + pointer, SeekOrigin.Begin);
         Guard.IsEqualTo(binaryReader.Read(buffer, 0, currentImageAllPixelByteLength), currentImageAllPixelByteLength);
 
-        var item = new LaserXPixelSizeSlideItem(pointer / heightPixelByteLength, buffer, new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel));
+        var item = new LaserXPixelSizeSlideItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
 
         return item;
     }
@@ -923,7 +923,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         CancellationToken cancellationToken,
         bool isOkLog = true)
     {
-        var (startPixel, buffer, sizeI) = item;
+        var startPixel = item.StartPixel;
+        var buffer = item.Buffer;
+        var sizeI = item.SizeI;
 
         try
         {
@@ -948,10 +950,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 {
                     currentMatchPoint = matchPoint,
                     item.StartPixel,
-                    item.Size,
+                    item.SizeI,
                     item.MatchPoint,
                     item.Score,
-                    DeltaOfCenter = (item.StartPixel + item.Size.Width / 2d) - item.MatchPoint.X,
+                    DeltaOfCenter = (item.StartPixel + item.SizeI.Width / 2d) - item.MatchPoint.X,
                     HtmlTab = new HtmlTab(new
                     {
                         OriginImage = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint, templateImageSize), new HtmlImageRectangleOverlay(matchPoint, templateImageSize)]),
