@@ -262,7 +262,8 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() =>
         {
             var waferCenter = Service!.FindWaferCenterWithoutVerify(out var bitmaps, offset.ToSxPointD(), offsets);
-            tempBitmaps = bitmaps;
+            tempBitmaps = bitmaps ?? [];
+
             return waferCenter;
         });
         bitmapMemoryBytes = tempBitmaps;
