@@ -1066,7 +1066,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 {
                     ImageCh3 = new HtmlImage(xyAstigmatismItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     ImageCh2 = new HtmlImage(ch2FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    ImageCh1 = new HtmlImage(ch1FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    ImageCh1 = new HtmlImage(ch1FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 

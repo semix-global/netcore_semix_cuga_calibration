@@ -21,7 +21,28 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     [ObservableProperty]
     private double _offsetFrequencyPeriodCoefficient;
 
-    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(OpticsAODElectrodeEnum.ToString(), OffsetFrequency, OffsetFrequencyPeriodCoefficient);
+    [ObservableProperty]
+    private double _amplitude = 1d;
+
+    [ObservableProperty]
+    private bool _isGenerateAODWaveformZero;
+
+    [ObservableProperty]
+    private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
+
+    public GenerateAODWaveformElectrodeConfiguration WithAmplitude(double amplitude)
+    {
+        Amplitude = amplitude;
+
+        return this;
+    }
+
+    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(
+        OpticsAODElectrodeEnum.ToString(),
+        OffsetFrequency,
+        OffsetFrequencyPeriodCoefficient,
+        Amplitude,
+        IsGenerateAODWaveformZero);
 
     public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
     {
@@ -37,5 +58,14 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         OffsetFrequency = OffsetFrequency,
         OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        OpticsAODElectrodeEnum,
+        OffsetFrequency,
+        OffsetFrequencyPeriodCoefficient,
+        Amplitude,
+        IsGenerateAODWaveformZero
     };
 }

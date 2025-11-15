@@ -554,7 +554,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             new HtmlBullet(new
             {
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorGantryX, Matrix<double>.Build.SameAs(errorGantryX), "Scale Map"),
-                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryX, "Gantry error X"),
+                ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, errorGantryX, "Gantry error X")
             }),
             htmlLogUniqueId.LoggingHtml()
         );

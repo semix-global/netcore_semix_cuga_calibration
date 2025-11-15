@@ -369,7 +369,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     var scatterPlotControl = ScatterPlotControls[keyValuePair.Key];
 
                     logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. scatterPlotControl.GetHtmlPlot2DLinesCharts(0)]), HtmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0)]), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
                 }
             }, cancellationToken);
@@ -455,8 +455,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
                     logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
-                        ..scatterPlotControl.GetHtmlPlot2DLinesCharts(0),
-                        ..scatterPlotControl.GetHtmlPlot2DLinesCharts(1)
+                        ..scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0),
+                        ..scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(1)
                     ]), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
                 }

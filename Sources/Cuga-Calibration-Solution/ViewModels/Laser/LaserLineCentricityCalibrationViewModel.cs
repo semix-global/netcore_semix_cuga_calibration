@@ -791,7 +791,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             ForwardFindDarkMachinePosition = laserLineCentricityItemDto.FindDarkMachinePosition,
             ForwardDarkMachineCenterPosition = laserLineCentricityItemDto.DarkMachineCenterPosition,
             laserLineCentricityItemDto.TemplateFilePath,
-            ForwardFilePath = laserLineCentricityItemDto.FilePath,
+            ForwardFilePath = laserLineCentricityItemDto.FilePath
         }), HtmlLogUniqueId.LoggingHtml());
         SynchronizationContextProvider.Send(() => ResultLaserLineCentricityItemDtoList.Add(laserLineCentricityItemDto));
         return true;
@@ -865,7 +865,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     ("PMT Y Errors(Y:um,X:PMT ID(um))", pmtYErrorCoordinatess),
                     (pmtYErrorTitle, pmtYErrorCoordinatess.Select(t => new Point(t.X, slopeYError * t.X + interceptYError)).ToArray())
                 ],
-                "PMT Y Errors"),
+                "PMT Y Errors")
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

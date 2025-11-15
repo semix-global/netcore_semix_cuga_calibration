@@ -209,21 +209,21 @@
                                                       Value="{Binding Cache.StopFrequency}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="All Action"
-                                                Command="{Binding Step1Command}"
+                                                Command="{Binding Step0Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="All Cancel"
-                                                Command="{Binding Step1CancelCommand}"
+                                                Command="{Binding Step0CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="One Action"
-                                                Command="{Binding Step1OneCommand}"
+                                                Command="{Binding Step0OneCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="One Cancel"
-                                                Command="{Binding Step1OneCancelCommand}"
+                                                Command="{Binding Step0OneCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -283,21 +283,21 @@
                                                       Value="{Binding Cache.TargetThresholdRateMax, Mode=OneWay}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="All Action"
-                                                Command="{Binding Step2Command}"
+                                                Command="{Binding Step1Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="All Cancel"
-                                                Command="{Binding Step2CancelCommand}"
+                                                Command="{Binding Step1CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="One Action"
-                                                Command="{Binding Step2OneCommand}"
+                                                Command="{Binding Step1OneCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="One Cancel"
-                                                Command="{Binding Step2OneCancelCommand}"
+                                                Command="{Binding Step1OneCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -309,7 +309,7 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Save"
-                                                Command="{Binding Step3Command}"
+                                                Command="{Binding Step2Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                     </hc:UniformSpacingPanel>
