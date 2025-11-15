@@ -13,11 +13,6 @@
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
-    <!--  在资源部分添加转换器  -->
-    <UserControl.Resources>
-        <viewModels:EcsNscToPointsConverter x:Key="EcsNscToPointsConverter" />
-    </UserControl.Resources>
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320" />

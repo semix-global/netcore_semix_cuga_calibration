@@ -10,7 +10,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -76,9 +75,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
     [ObservableProperty]
     private LaserAutoFocusDto? _nscStandardSelected;
-
-    [ObservableProperty]
-    private int _afPositionEcsCount;
 
     #endregion Calibrate
 
@@ -508,6 +504,14 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 var fb = traceBufferList.Select(t => t.Fb).ToArray();
                 var nb = traceBufferList.Select(t => t.Nb).ToArray();
 
+                ResultLaserAutoFocusDto.OriginalEcs = ecs;
+                ResultLaserAutoFocusDto.OriginalNsc = nsc;
+                ResultLaserAutoFocusDto.OriginalLvdt = lvdt;
+                ResultLaserAutoFocusDto.OriginalFa = fa;
+                ResultLaserAutoFocusDto.OriginalNa = na;
+                ResultLaserAutoFocusDto.OriginalFb = fb;
+                ResultLaserAutoFocusDto.OriginalNb = nb;
+
                 var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
                 var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
                 var nscMinIndex = nscVector.MinimumIndex();
@@ -517,16 +521,12 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 double nscLeftIntervalLeftEndpointValue, nscRightIntervalRightEndpointValue;
                 Vector<double> nscLeftIntervalVector, nscMiddleIntervalVector, nscRightIntervalVector;
                 Vector<double> ecsLeftIntervalVector, ecsMiddleIntervalVector, ecsRightIntervalVector;
-                var nscNegativeLeftIndex = 0;
-                var nscNegativeRightIndex = 0;
-                var nscPositiveLeftIndex = 0;
-                var nscPositiveRightIndex = 0;
 
                 var isMinMax = nscMinIndex < nscMaxIndex;
                 if (isMinMax)
                 {
-                    nscNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
-                    nscNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+                    var nscNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+                    var nscNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
 
                     var nscNegativeLeftVector = nscVector.SubVectorRange(nscNegativeLeftIndex, nscMinIndex);
                     var ecsNegativeLeftVector = ecsVector.SubVectorRange(nscNegativeLeftIndex, nscMinIndex);
@@ -551,8 +551,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 }
                 else
                 {
-                    nscPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
-                    nscPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+                    var nscPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+                    var nscPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
 
                     var nscPositiveLeftVector = nscVector.SubVectorRange(nscPositiveLeftIndex, nscMaxIndex);
                     var ecsPositiveLeftVector = ecsVector.SubVectorRange(nscPositiveLeftIndex, nscMaxIndex);
@@ -595,14 +595,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 {
                     var nscIntervalVector = result.Value.NscIntervalVector;
                     var ecsIntervalVector = result.Value.EcsIntervalVector;
-
-                    ResultLaserAutoFocusDto.OriginalEcs = ecs;
-                    ResultLaserAutoFocusDto.OriginalNsc = nsc;
-                    ResultLaserAutoFocusDto.OriginalLvdt = lvdt;
-                    ResultLaserAutoFocusDto.OriginalFa = fa;
-                    ResultLaserAutoFocusDto.OriginalNa = na;
-                    ResultLaserAutoFocusDto.OriginalFb = fb;
-                    ResultLaserAutoFocusDto.OriginalNb = nb;
 
                     ResultLaserAutoFocusDto.OriginEcsNscPoints =
                     [
@@ -826,6 +818,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         NscCurrentSymmetryRatio = currentSymmetryRatio,
                         CalibrationEcs = ecs,
                         CalibrationNsc = nsc,
+                        CalibrationLvdt = lvdt,
                         CalibrationFa = fa,
                         CalibrationNa = na,
                         CalibrationFb = fb,
@@ -919,69 +912,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        await InvokeCalibrateAsync(async () =>
+        await InvokeCalibrateAsync(() =>
         {
             Guard.IsNotNull(ResultLaserAutoFocusDto);
             Guard.IsNotNull(Cache);
 
-            AfPositionEcsCount++;
-            double position = 0;
-            Cache.EcsMotorOriginPositionList = [];
-            Cache.EcsMotorSmoothPositionList = [];
-            Cache.CurrentMotorPosition = 0;
-            ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope = 0;
-            ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept = 0;
-
-            if (AfPositionEcsCount <= 1)
-            {
-                StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                AfViewModel.SetDarkFieldAutoFocus(null, OpticsMagTypeEnum.High, CalChipSiteModelEnum.ShinyWaferModel);
-                AfViewModel.ToggleDarkFieldEnable(true);
-                position = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
-            }
-
-            var PointY = new List<double>();
-            var PointX = new List<double>();
-
-            (var min, var max) = AfViewModel.GetDarkFieldAutoFocusMotorMoveRange();
-            //for (double range = 6; range < max; range += Cache.IncreateMotorPosition)
-            for (double range = 6; range < max - 1; range += 1)
-            {
-                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(range);
-                await Task.Delay(3600, cancellationToken);
-                Cache.CurrentMotorPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
-                var averageEcs0 = AfViewModel.GetSensorAverageEcsValue();
-                var point0 = new Point(Cache.CurrentMotorPosition, averageEcs0);
-
-                PointX.Add(Cache.CurrentMotorPosition);
-                PointY.Add(averageEcs0);
-
-                var exists0 = Cache.EcsMotorOriginPositionList.Any(p => Math.Abs(p.X - point0.X) < 1e-6);
-                if (!exists0)
-                {
-                    Cache.EcsMotorOriginPositionList = [.. Cache.EcsMotorOriginPositionList, point0];
-                }
-            }
-
-            var (p0, p1, p2, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(PointX), Vector<double>.Build.DenseOfEnumerable(PointY));
-            List<double> smoothY = [.. yPredicted];
-            for (var j = 0; j < PointX.Count; j++)
-            {
-                var point0 = new Point(PointX[j], smoothY[j]);
-                Cache.EcsMotorSmoothPositionList = [.. Cache.EcsMotorSmoothPositionList, point0];
-            }
-
-            ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope = p0;
-            ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept = p1;
-            AfPositionEcsCount = 0;
-            AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(position);
-
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope,
-                ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept,
-                TraceBufferList = new HtmlPlot2DLinesChart([("OriginPosition", Cache.EcsMotorOriginPositionList), ("SmoothPosition", Cache.EcsMotorSmoothPositionList)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
         }).ConfigureAwait(false);
@@ -1187,33 +1122,4 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     });
 
     #endregion 校准
-}
-
-// 用于将ECS和NSC数据转换为坐标点（如果需要）
-public class EcsNscToPointsConverter : IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (values.Length >= 2 &&
-            values[0] is IList<double> ecsData &&
-            values[1] is IList<double> nscData &&
-            ecsData.Count == nscData.Count)
-        {
-            // 将ECS数据乘以200作为X坐标，NSC数据作为Y坐标
-            var points = new List<Tuple<double, double>>();
-            for (var i = 0; i < ecsData.Count; i++)
-            {
-                points.Add(Tuple.Create(ecsData[i] * 200, nscData[i]));
-            }
-
-            return points;
-        }
-
-        return null;
-    }
-
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
 }
