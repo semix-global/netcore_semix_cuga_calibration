@@ -142,7 +142,7 @@ public interface ICalibrationAfService
     /// <param name="speedEcs">速度Ecs</param>
     /// <param name="timeSpan">多长时间Buffer</param>
     /// <returns>TraceBuffer ECS NSC Lvdt当前值</returns>
-    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
+    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
 
     #region 自动聚焦下发参数
 

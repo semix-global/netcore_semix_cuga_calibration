@@ -224,7 +224,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
                 afViewModel.SetSensorEcsValue(StartEcs);
                 await Task.Delay(100, cancellationToken);
 
-                var traceBufferList = afViewModel.GetNscCompensationCoefficientTraceBufferList(StartEcs, EndEcs, SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(EndEcs - StartEcs) / SpeedEcsPerSecond + 2));
+                var traceBufferList = afViewModel.GetSensorNscTraceBufferList(StartEcs, EndEcs, SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(EndEcs - StartEcs) / SpeedEcsPerSecond + 2));
                 var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                 var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                 var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
