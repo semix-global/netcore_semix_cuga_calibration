@@ -120,6 +120,7 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
 
     [ObservableProperty]
     private Point[] _calibrationEcsNscPointList = [];
+
     [ObservableProperty]
     private Point[] _calibrationEcsNscMaxMinList = [];
 

@@ -346,7 +346,7 @@ public sealed partial class StageViewModel(
             xStageSpeedEnum,
             lowMicroscopeLensInformation,
             algorithmWaferTypeEnum);
-        
+
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;

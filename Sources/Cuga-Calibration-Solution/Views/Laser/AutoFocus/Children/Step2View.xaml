@@ -178,7 +178,7 @@
                                                                 Plot1Color="{x:Static scottPlot:Colors.Green}"
                                                                 Plot1="{Binding ResultLaserAutoFocusDto.EcsNscMaxMinList}" />
                             </i:Interaction.Behaviors>
-                        </wpf:WpfPlot>   
+                        </wpf:WpfPlot>
                     </Grid>
                 </Border>
             </GroupBox>

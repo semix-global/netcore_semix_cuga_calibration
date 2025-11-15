@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 
@@ -128,8 +128,8 @@ public static class Extremumor
         if (filteredIndices.Count == 0)
             return (Vector<double>.Build.Dense(0), Vector<double>.Build.Dense(0));
 
-        var extremaX = x.GetByIndices([..filteredIndices]);
-        var extremaY = y.GetByIndices([..filteredIndices]);
+        var extremaX = x.GetByIndices([.. filteredIndices]);
+        var extremaY = y.GetByIndices([.. filteredIndices]);
 
         return (extremaX, extremaY);
     }

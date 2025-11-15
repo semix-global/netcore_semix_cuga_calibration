@@ -414,6 +414,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
+
     public SxExecuteRet<double> GetDarkFieldAutoFocusMotorAbsoluteValue()
     {
         Thread.Sleep(150);
@@ -423,6 +424,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0)
             : SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(sxExecuteRet.Anything));
     }
+
     public SxExecuteRet<(double, double)> GetDarkFieldAutoFocusMotorMoveRange()
     {
         Thread.Sleep(100);

@@ -36,7 +36,6 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
         Item.EcsInterval = Item.EcsYInterval;
         Item.EcsYInitial = Item.EcsXInitial;
     }
-
 }
 
 public sealed partial class LaserXYAstigmatismCalibrationCacheItem : CalibrationCacheBase
@@ -140,5 +139,4 @@ public sealed partial class LaserXYAstigmatismCalibrationCacheItem : Calibration
     private double _startSpectralDensity;
 
     #endregion 波形参数
-
 }

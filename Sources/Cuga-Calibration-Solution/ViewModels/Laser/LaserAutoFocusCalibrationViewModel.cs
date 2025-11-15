@@ -616,6 +616,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                     ResultLaserAutoFocusDto.OriginalNsc[i]
                                 );
                             }
+
                             ResultLaserAutoFocusDto.EcsNscPointList = points;
                         }
                         else
@@ -635,10 +636,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nscVector[nscNegativeLeftIndex]
                             );
                             points[1] = new Point(
-                                 ecsVector[nscMinIndex] * ecsToNmRatio,
-                                 nscVector[nscMinIndex]
+                                ecsVector[nscMinIndex] * ecsToNmRatio,
+                                nscVector[nscMinIndex]
                             );
                         }
+
                         if (isMiddleVector == true)
                         {
                             points[0] = new Point(
@@ -650,6 +652,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nscVector[nscMaxIndex]
                             );
                         }
+
                         if (isRightVector == true)
                         {
                             points[0] = new Point(
@@ -661,6 +664,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nscVector[nscNegativeRightIndex]
                             );
                         }
+
                         ResultLaserAutoFocusDto.EcsNscMaxMinList = points;
                     }
                     else
@@ -673,10 +677,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nscVector[nscPositiveLeftIndex]
                             );
                             points[1] = new Point(
-                                 ecsVector[nscMaxIndex] * ecsToNmRatio,
-                                 nscVector[nscMaxIndex]
+                                ecsVector[nscMaxIndex] * ecsToNmRatio,
+                                nscVector[nscMaxIndex]
                             );
                         }
+
                         if (isMiddleVector == true)
                         {
                             points[0] = new Point(
@@ -688,6 +693,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nscVector[nscMinIndex]
                             );
                         }
+
                         if (isRightVector == true)
                         {
                             points[0] = new Point(
@@ -699,8 +705,10 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nscVector[nscPositiveRightIndex]
                             );
                         }
+
                         ResultLaserAutoFocusDto.EcsNscMaxMinList = points;
                     }
+
                     ResultLaserAutoFocusDto.IsNscUseMaxValue = result.Value.Result.IsNscUseMaxValue;
                     ResultLaserAutoFocusDto.IsNscUsePositiveSlope = result.Value.Result.IsNscUsePositiveSlope;
                     var nscAbsMax = Math.Abs(nscIntervalVector.Maximum());
@@ -839,6 +847,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         Logger.LogError("ECS or NSC data is empty!!");
                         return false;
                     }
+
                     {
                         if (ecs != null && nsc != null && ecs.Length == nsc.Length)
                         {
@@ -850,6 +859,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                     nsc[i]
                                 );
                             }
+
                             calibrationEcsNscPointList = points;
                         }
                         else
@@ -877,8 +887,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nsc[nscMinPositiveLeftIndex]
                             );
                             points[1] = new Point(
-                                 ecs[nscMaxIndex] * ecsToNmRatio,
-                                 nsc[nscMaxIndex]
+                                ecs[nscMaxIndex] * ecsToNmRatio,
+                                nsc[nscMaxIndex]
                             );
                         }
                         else
@@ -892,6 +902,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nsc[nscMinNegativeRightIndex]
                             );
                         }
+
                         calibrationEcsNscMaxMinList = points;
                     }
                     else
@@ -911,8 +922,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nsc[nscMinIndex]
                             );
                             points[1] = new Point(
-                                 ecs[nscMaxPositiveRightIndex] * ecsToNmRatio,
-                                 nsc[nscMaxPositiveRightIndex]
+                                ecs[nscMaxPositiveRightIndex] * ecsToNmRatio,
+                                nsc[nscMaxPositiveRightIndex]
                             );
                         }
                         else
@@ -926,6 +937,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                                 nsc[nscMinIndex]
                             );
                         }
+
                         calibrationEcsNscMaxMinList = points;
                     }
 
@@ -1101,7 +1113,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             }
             finally
             {
-
             }
         }).ConfigureAwait(false);
     }
@@ -1305,7 +1316,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         CacheProvider.Set(Cache, cancellationToken);
     });
 
-    #endregion 校准    
+    #endregion 校准
 }
 
 // 用于将ECS和NSC数据转换为坐标点（如果需要）
@@ -1324,8 +1335,10 @@ public class EcsNscToPointsConverter : IMultiValueConverter
             {
                 points.Add(Tuple.Create(ecsData[i] * 200, nscData[i]));
             }
+
             return points;
         }
+
         return null;
     }
 

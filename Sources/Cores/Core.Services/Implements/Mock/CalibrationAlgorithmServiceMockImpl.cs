@@ -29,10 +29,12 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
     {
         return Random.Next(100, 1000);
     }
+
     public double GetDarkFieldQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
+
     public (double XQuality, double YQuality) GetXyQuality(HImage image)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
@@ -202,15 +204,15 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
     }
 
     public bool CalculateChuckStageMapError(
-         StageMapDto stageMapDto,
-         bool isXOnlyGantryError,
-         Guid htmlLogUniqueId,
-         int calculateContainRowMinCount,
-         int calculateContainColumnMinCount,
-         double alignmentThreshold,
-         double gantryThreshold,
-         double scaleThreshold,
-         double diameter)
+        StageMapDto stageMapDto,
+        bool isXOnlyGantryError,
+        Guid htmlLogUniqueId,
+        int calculateContainRowMinCount,
+        int calculateContainColumnMinCount,
+        double alignmentThreshold,
+        double gantryThreshold,
+        double scaleThreshold,
+        double diameter)
     {
         try
         {

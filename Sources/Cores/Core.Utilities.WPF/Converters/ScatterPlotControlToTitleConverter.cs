@@ -1,9 +1,9 @@
-﻿using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.Converters;
 using ScottPlot;
+using System.Globalization;
 
 namespace Core.Utilities.WPF.Converters;
 

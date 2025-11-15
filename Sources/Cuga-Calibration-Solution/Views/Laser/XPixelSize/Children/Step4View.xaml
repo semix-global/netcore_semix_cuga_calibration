@@ -107,17 +107,17 @@
                                 <DataTemplate>
                                     <hc:SimplePanel>
                                         <view:CanvasView AxisColor="Red"
-                                                             BackgroundColor="#0A0A0A"
-                                                             BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                             Interactive="True"
-                                                             ShowAxes="True"
-                                                             ShowCursor="False"
-                                                             ShowGrid="False"
-                                                             Tag="{Binding .}" />
+                                                         BackgroundColor="#0A0A0A"
+                                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                         Interactive="True"
+                                                         ShowAxes="True"
+                                                         ShowCursor="False"
+                                                         ShowGrid="False"
+                                                         Tag="{Binding .}" />
                                         <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Top"
-                                                       Foreground="Yellow" />
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Top"
+                                                   Foreground="Yellow" />
                                     </hc:SimplePanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

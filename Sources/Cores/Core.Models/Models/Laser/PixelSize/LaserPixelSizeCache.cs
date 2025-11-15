@@ -37,7 +37,6 @@ public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
-
 }
 
 public sealed partial class LaserPixelSizeCacheItem : CalibrationCacheBase

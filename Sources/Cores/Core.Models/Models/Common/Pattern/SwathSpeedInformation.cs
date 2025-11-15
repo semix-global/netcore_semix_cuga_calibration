@@ -64,7 +64,6 @@ namespace Core.Models.Models.Common.Pattern
 
         public override int GetHashCode() => HashCode.Combine(YPixelSize, YPixel);
 
-
         #endregion IEquatable
 
         #region Operator
@@ -99,6 +98,5 @@ namespace Core.Models.Models.Common.Pattern
             YPixelSize = YPixelSize,
             YPixel = YPixel
         };
-
     }
 }

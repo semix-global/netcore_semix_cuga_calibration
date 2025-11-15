@@ -1,4 +1,3 @@
-using System.Buffers;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,8 +6,12 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
+using Core.Utilities;
+using CugaCalibration.ViewModels.Common.Windows.Tools;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
@@ -19,19 +22,15 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.WPF.Enums;
-using System.IO;
-using System.Text;
-using System.Threading.Channels;
-using Core.Models.Models.Common.Alignment;
-using Core.Utilities;
-using CugaCalibration.ViewModels.Common.Windows.Tools;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
+using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
-using ScottPlot;
+using System.Buffers;
+using System.IO;
+using System.Text;
+using System.Threading.Channels;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -282,7 +281,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
-                       && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
         });
     }
 
@@ -292,9 +291,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         return InvokeCalibrateAsync(() =>
         {
             DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
-                 out var dialogResult,
-                 DialogButtonsEnum.YesNo,
-                 DialogIconEnum.Question);
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
 
             Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
 
@@ -317,7 +316,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
                     AlignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
                 }
-
             }
             else
             {
@@ -859,8 +857,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
     private void Refresh(LaserXPixelSizeItemDto item)
     {
-        ScatterPlotControl.GetOrAddScatterLine("Slide Score", [.. item.SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))], Colors.Blue);
-        ScatterPlotControl.GetOrAddScatterLine("Verify Score", [.. item.VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))], Colors.Red);
+        ScatterPlotControl.GetOrAddScatterLine("Slide Score", [.. item.SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))]);
+        ScatterPlotControl.GetOrAddScatterLine("Verify Score", [.. item.VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))]);
 
         ScatterPlotControl.AutoScaleRefresh();
     }

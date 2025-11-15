@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
@@ -16,11 +16,11 @@ public static class Interpolator
         switch (order)
         {
             case 1:
-                interpolator = LinearSpline.InterpolateSorted([..x], [..y]);
+                interpolator = LinearSpline.InterpolateSorted([.. x], [.. y]);
                 break;
 
             case 3:
-                interpolator = CubicSpline.InterpolateNaturalSorted([..x], [..y]);
+                interpolator = CubicSpline.InterpolateNaturalSorted([.. x], [.. y]);
                 break;
 
             default:
