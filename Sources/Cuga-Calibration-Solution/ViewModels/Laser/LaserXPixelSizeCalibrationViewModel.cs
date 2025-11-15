@@ -382,7 +382,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             using var _ = darkFieldImageDto;
 
-            var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.ProductivityInformation.ToString(), Cache.Item.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
+            var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
             Cache.Item.TemplateFilePath = $"{originImageFilePath}_Template";
             darkFieldImageDto.Image.Save(originImageFilePath);
 
