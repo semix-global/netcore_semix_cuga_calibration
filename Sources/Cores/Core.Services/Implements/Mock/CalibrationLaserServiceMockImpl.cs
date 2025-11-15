@@ -16,6 +16,8 @@ using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.PMT;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Extensions;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Semix.WcfTransfer.DTO;
 
 #if NET
@@ -131,12 +133,12 @@ public sealed class CalibrationLaserServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true })
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 1560 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 1560 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.109, YPixel = 520 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.109, YPixel = 520 })
         ]);
     }
 

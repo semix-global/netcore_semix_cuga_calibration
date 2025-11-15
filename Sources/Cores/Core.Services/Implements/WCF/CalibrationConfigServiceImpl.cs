@@ -129,11 +129,4 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
 
         return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigList);
     }
-
-    public SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation)
-    {
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(productivityInformation.AdaptTo().Mag));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<SwathSpeedInformation>(sxExecuteRet.ErrorMsg, new());
-        return SxExecuteRetHelper.CreateSuccess(new SwathSpeedInformation().AdaptIn(sxExecuteRet.Anything));
-    }
 }

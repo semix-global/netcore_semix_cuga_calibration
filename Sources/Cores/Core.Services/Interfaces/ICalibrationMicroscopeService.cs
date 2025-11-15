@@ -16,7 +16,7 @@ public interface ICalibrationMicroscopeService
     /// 获取cuga配置的显微镜镜头列表
     /// </summary>
     /// <returns>cuga配置的显微镜镜头列表</returns>
-    SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformationList();
+    SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformations();
 
     /// <summary>
     /// 倍镜类型转换

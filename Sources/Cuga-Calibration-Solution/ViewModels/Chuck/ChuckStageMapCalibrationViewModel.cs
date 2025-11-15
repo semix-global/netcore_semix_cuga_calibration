@@ -269,7 +269,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         Cache.IsDarkField = false;
 
-        Cache.ProductivityInformation = applicationCookie.LowestProductivityInformation.Clone();
+        Cache.ProductivityInformation = applicationCookie.LoweProductivityInformation.Clone();
 
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 

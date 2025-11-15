@@ -53,7 +53,7 @@ public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneabl
 
     public DarkFieldPmtDataDto AdaptIn(CgPMTDataModel obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PMTId;
         Channel = obj.Channel;

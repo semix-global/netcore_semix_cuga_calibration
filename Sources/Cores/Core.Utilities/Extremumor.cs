@@ -1,4 +1,4 @@
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 
@@ -31,7 +31,7 @@ public static class Extremumor
     /// <returns>最优组合（索引和值）以及最小跨度</returns>
     public static (IReadOnlyList<(int Index, double Value)> Results, double Span) FindClosestExtremum(IReadOnlyList<Vector<double>> extremums)
     {
-        Guard.IsNotEmpty(extremums, nameof(extremums));
+        Guard.IsNotEmpty(extremums);
         Guard.IsTrue(extremums.All(e => e.Count > 0), nameof(extremums));
 
         var minSpan = double.MaxValue; // 记录最小跨度

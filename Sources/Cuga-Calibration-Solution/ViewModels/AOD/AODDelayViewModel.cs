@@ -257,7 +257,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var aodDelays = Generate.LinearRange(Cache.Item.RoughStartAODDelay, Cache.Item.RoughStepAODDelay, Cache.Item.RoughStopAODDelay);
-                Guard.IsNotEmpty(aodDelays, nameof(aodDelays));
+                Guard.IsNotEmpty(aodDelays);
 
                 foreach (var aodDelay in aodDelays)
                 {
@@ -279,7 +279,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     roughAODDelay - Cache.Item.RefinedRangeAODDelay,
                     Cache.Item.RefinedStepAODDelay,
                     roughAODDelay + Cache.Item.RefinedRangeAODDelay);
-                Guard.IsNotEmpty(aodDelays, nameof(aodDelays));
+                Guard.IsNotEmpty(aodDelays);
 
                 foreach (var aodDelay in aodDelays)
                 {
@@ -375,7 +375,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     SelectedReviewItem.RefinedAODDelay - Cache.Item.RefinedRangeAODDelay,
                     Cache.Item.RefinedStepAODDelay,
                     SelectedReviewItem.RefinedAODDelay + Cache.Item.RefinedRangeAODDelay);
-                Guard.IsNotEmpty(aodDelays, nameof(aodDelays));
+                Guard.IsNotEmpty(aodDelays);
 
                 foreach (var aodDelay in aodDelays)
                 {

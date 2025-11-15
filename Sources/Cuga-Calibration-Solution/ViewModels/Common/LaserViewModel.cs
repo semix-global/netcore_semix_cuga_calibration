@@ -105,18 +105,7 @@ public sealed class LaserViewModel(
     {
         var ret = calibrationLaserService.GetProductivityInformations();
 
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-        var productivityInfos = ret.Anything;
-
-        foreach (var productivityInfo in productivityInfos)
-        {
-            var speedInfoRet = calibrationConfigService.GetSwathSpeedInformation(productivityInfo);
-            if (speedInfoRet.IsSuccess == false) throw new CugaException(speedInfoRet.ErrorMsg);
-
-            productivityInfo.SwathSpeedInformation = speedInfoRet.Anything;
-        }
-
-        return ret.IsSuccess ? productivityInfos : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]

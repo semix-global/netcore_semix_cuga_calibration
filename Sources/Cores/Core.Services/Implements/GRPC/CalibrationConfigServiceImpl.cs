@@ -47,9 +47,4 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
     {
         throw new NotImplementedException();
     }
-
-    public SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation)
-    {
-        throw new NotImplementedException();
-    }
 }

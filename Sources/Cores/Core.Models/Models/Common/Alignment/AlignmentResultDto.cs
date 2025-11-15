@@ -54,7 +54,7 @@ public sealed partial class AlignmentResultDto : ObservableCacheBase, ICloneable
 
     public AlignmentResultDto AdaptIn(C2MAlignResult obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         Degrees = obj.Degrees;
         MarkPoint1 = obj.EndPoint1.ToPoint();

@@ -36,11 +36,4 @@ public interface ICalibrationConfigService
     /// </summary>
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum);
-
-
-    /// <summary>
-    /// 获得cuga WaferTransfer CgSwathSpeedInfo
-    /// </summary>
-    /// <returns>speed config</returns>
-    SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation);
 }

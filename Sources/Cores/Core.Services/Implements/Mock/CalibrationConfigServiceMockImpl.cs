@@ -62,9 +62,4 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode4, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt"))
         ]);
     }
-
-    public SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation)
-    {
-        return SxExecuteRetHelper.CreateSuccess(new SwathSpeedInformation() { YPixelSize = Random.NextDouble(), YPixel = 800 });
-    }
 }

@@ -234,7 +234,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 CalibratingItem.RSquared = 0;
 
                 var coefficients = GenerateUtils.LinearContainsEdgeRange(startCoefficient, Cache.Item.CoefficientStep, stopCoefficient);
-                Guard.IsNotEmpty(coefficients, nameof(coefficients));
+                Guard.IsNotEmpty(coefficients);
 
                 foreach (var coefficient in coefficients)
                 {
