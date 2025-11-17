@@ -338,7 +338,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             Cache.Item.AlignmentResult = alignmentResult;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous())
@@ -476,10 +476,16 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 pmtId: Cache.Item.PMTId,
                 channelId: Cache.Item.ChannelId,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+
+            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+
             var rawImageFilePath = darkFieldLineScanImage.Url;
 
             Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { rawImageFilePath, }), HtmlLogUniqueId.LoggingHtml());
 
+#if NET
+            await
+#endif
             using var fileSteam = File.OpenRead(rawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
@@ -583,70 +589,32 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 .ToArray();
             var average = xDifferences.Average();
             var xFilterDifferences = xDifferences.Where(t => t >= average).ToArray();
-            Guard.IsEqualTo(xFilterDifferences.Length, imageCount - 1);
-            CalibratingItem.XPixelSize = Cache.Item.ColumnCellWidth / xFilterDifferences.Average();
+            var isOk = xFilterDifferences.Length == imageCount - 1;
 
-            Logger.LogHtmlInformation("1.3. Split Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            var htmlAnonymous = new
             {
                 AllScore = new HtmlPlot2DLinesChart([(string.Empty, [.. CalibratingItem.SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))])], string.Empty),
                 matchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
                 xDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. xDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-                xFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. xFilterDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-                CalibratingItem.XPixelSize
+                xFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. xFilterDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty)
+            };
+
+            if (isOk == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+
+
+            CalibratingItem.XPixelSize = Cache.Item.ColumnCellWidth / xFilterDifferences.Average();
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                CalibratingItem.XPixelSize,
+                Plot = new HtmlQuote(htmlAnonymous)
             }), HtmlLogUniqueId.LoggingHtml());
 
             #endregion
-
-            var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.WidthPixel * CalibratingItem.XPixelSize / 2d, 0);
-            var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.ColumnCellWidth / 2d, 0);
-
-            var verifyDarkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
-                CalChipSiteModelEnum.ChuckModel,
-                verifyStartPosition,
-                verifyEndPosition,
-                (false, Cache.Item.LaserLightInformation),
-                false,
-                Cache.Item.CIBConfiguration,
-                Cache.ProductivityInformation,
-                xWidthPixel: Cache.Item.WidthPixel,
-                pmtId: Cache.Item.PMTId,
-                channelId: Cache.Item.ChannelId,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
-            var verifyRawImageFilePath = verifyDarkFieldLineScanImage.Url;
-
-            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
-
-            Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                verifyRawImageFilePath,
-                Cache.Item.WidthPixel,
-                imageCount
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            using var verifyFileSteam = File.OpenRead(verifyRawImageFilePath);
-            using var verifyBinaryReader = new BinaryReader(verifyFileSteam, Encoding.UTF8, true);
-
-            var (verifySize, verifyBodyBytesStartIndex, verifyBodyBytesLength) = RawImageFactory.GetSize(verifyBinaryReader);
-            var (_, verifyHeightPixel) = (SizeI)verifySize;
-            var verifyHeightPixelByteLength = verifyHeightPixel * 2;
-
-            var isOk = await VerifyAsync(
-                CalibratingItem,
-                verifyFileSteam,
-                verifyBinaryReader,
-                verifyBodyBytesStartIndex,
-                verifyBodyBytesLength,
-                verifyHeightPixel,
-                verifyHeightPixelByteLength,
-                imageCount,
-                templateId,
-                templateImageSize,
-                detectImageDirectory,
-                semaphore,
-                cancellationToken,
-                false).ConfigureAwait(false);
-
-            if (isOk == false) return false;
 
             CalibratingItem.IsCalibrated = true;
             Guard.IsTrue(Save(CalibratingItem, cancellationToken));
@@ -673,6 +641,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Logger.LogHtmlInformation(item.ProductivityInformation.ToString(), HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var detectImageDirectory = ImageFileDirectory;
+
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     Cache.ProductivityInformation,
@@ -739,32 +708,81 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     imageCount
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                using var verifyFileSteam = File.OpenRead(verifyRawImageFilePath);
-                using var verifyBinaryReader = new BinaryReader(verifyFileSteam, Encoding.UTF8, true);
+#if NET
+                await
+#endif
+                using var fileSteam = File.OpenRead(verifyRawImageFilePath);
+                using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
-                var (verifySize, verifyBodyBytesStartIndex, verifyBodyBytesLength) = RawImageFactory.GetSize(verifyBinaryReader);
-                var (_, verifyHeightPixel) = (SizeI)verifySize;
-                var verifyHeightPixelByteLength = verifyHeightPixel * 2;
+                var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
+                var (_, heightPixel) = (SizeI)verifySize;
+                var heightPixelByteLength = heightPixel * 2;
 
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
-                var isOk = await VerifyAsync(
-                    item,
-                    verifyFileSteam,
-                    verifyBinaryReader,
-                    verifyBodyBytesStartIndex,
-                    verifyBodyBytesLength,
-                    verifyHeightPixel,
-                    verifyHeightPixelByteLength,
-                    imageCount,
-                    templateId,
-                    templateImageSize,
-                    detectImageDirectory,
-                    semaphore,
-                    cancellationToken,
-                    false).ConfigureAwait(false);
+                var imageAllPixelByteLength = Cache.Item.WidthPixel * heightPixelByteLength;
+                var verifyStepAllPixelByteLength = (Cache.Item.ColumnCellWidth / item.XPixelSize) * heightPixelByteLength;
 
-                if (isOk == false) return false;
+                Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
+
+                var verifyItems = new LaserXPixelSizeSlideItem[imageCount];
+                foreach (var (index, pointer) in Enumerable
+                             .Range(0, imageCount)
+                             .Select(t => t * verifyStepAllPixelByteLength)
+                             .Select(Convert.ToInt64)
+                             .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
+                             .Index())
+                {
+                    verifyItems[index] = GetLaserXPixelSizeSlideItem(
+                        pointer,
+                        imageAllPixelByteLength,
+                        fileSteam,
+                        binaryReader,
+                        bodyBytesStartIndex,
+                        bodyBytesLength,
+                        heightPixel,
+                        heightPixelByteLength);
+
+                    await ResolveLaserXPixelSizeSlideItemAsync(
+                        verifyItems[index],
+                        templateId,
+                        templateImageSize,
+                        detectImageDirectory,
+                        semaphore,
+                        cancellationToken,
+                        false).ConfigureAwait(false);
+
+                    if (verifyItems[index].IsMatchOk == false) return false;
+                }
+
+                item.VerifyItems = [.. verifyItems];
+
+                var verifyXDifferences = item.VerifyItems
+                    .Zip(item.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
+                    .ToArray();
+                var verifyRealUmPerPixel = Cache.Item.ColumnCellWidth / verifyXDifferences.Average();
+
+                Refresh(item);
+
+                var errorPixel = Math.Abs(Cache.Item.WaferDiameter / verifyRealUmPerPixel - Cache.Item.WaferDiameter / item.XPixelSize);
+                var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
+                           && errorPixel <= Cache.Threshold;
+
+                var htmlQuote = new HtmlQuote(new
+                {
+                    Cache.Threshold,
+                    verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. item.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
+                    verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
+                    verifyRealUmPerPixel,
+                    errorPixel = $"{errorPixel:0.###}px/{Cache.Item.WaferDiameter:0.###}um"
+                });
+
+                if (isOk)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                else
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+
+                if (isOk == false) continue;
 
                 item.IsVerified = true;
                 Guard.IsTrue(Save(item, cancellationToken));
@@ -772,87 +790,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             return true;
         }).ConfigureAwait(false);
-    }
-
-    private async Task<bool> VerifyAsync(
-        LaserXPixelSizeItemDto item,
-        FileStream fileSteam,
-        BinaryReader binaryReader,
-        long bodyBytesStartIndex,
-        long bodyBytesLength,
-        int heightPixel,
-        int heightPixelByteLength,
-        int imageCount,
-        HTuple templateId,
-        Size templateImageSize,
-        string detectImageDirectory,
-        SemaphoreSlim semaphore,
-        CancellationToken cancellationToken,
-        bool isOkLog = true)
-    {
-        var imageAllPixelByteLength = Cache.Item.WidthPixel * heightPixelByteLength;
-        var verifyStepAllPixelByteLength = (Cache.Item.ColumnCellWidth / item.XPixelSize) * heightPixelByteLength;
-
-        Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
-
-        var verifyItems = new LaserXPixelSizeSlideItem[imageCount];
-        foreach (var (index, pointer) in Enumerable
-                     .Range(0, imageCount)
-                     .Select(t => t * verifyStepAllPixelByteLength)
-                     .Select(Convert.ToInt64)
-                     .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
-                     .Index())
-        {
-            verifyItems[index] = GetLaserXPixelSizeSlideItem(
-                pointer,
-                imageAllPixelByteLength,
-                fileSteam,
-                binaryReader,
-                bodyBytesStartIndex,
-                bodyBytesLength,
-                heightPixel,
-                heightPixelByteLength);
-
-            await ResolveLaserXPixelSizeSlideItemAsync(
-                verifyItems[index],
-                templateId,
-                templateImageSize,
-                detectImageDirectory,
-                semaphore,
-                cancellationToken,
-                isOkLog).ConfigureAwait(false);
-
-            if (verifyItems[index].IsMatchOk == false) return false;
-        }
-
-        item.VerifyItems = [.. verifyItems];
-
-        var verifyXDifferences = item.VerifyItems
-            .Zip(item.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
-            .ToArray();
-        var verifyRealUmPerPixel = Cache.Item.ColumnCellWidth / verifyXDifferences.Average();
-
-        Refresh(item);
-
-        var errorPixel = Math.Abs(Cache.Item.WaferDiameter / verifyRealUmPerPixel - Cache.Item.WaferDiameter / item.XPixelSize);
-        var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
-                   && errorPixel <= Cache.Threshold;
-
-        var htmlQuote = new HtmlQuote(new
-        {
-            Cache.Threshold,
-            verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. item.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
-            verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-            verifyRealUmPerPixel,
-            errorPixel = $"{errorPixel:0.###}px/{Cache.Item.WaferDiameter:0.###}um"
-        });
-
-        if (isOk)
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
-        else
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
-
-        return isOk;
     }
 
     private void Refresh(LaserXPixelSizeItemDto item)
