@@ -365,10 +365,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
-                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -456,7 +456,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             Cache.Item.FindPosition,
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
-            Cache.Item.CIBConfiguration,
+            Cache.CIBConfiguration,
             Cache.ProductivityInformation,
             Cache.Item.XWidthPixel,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
@@ -661,7 +661,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{CalibrationConstantsHelper.MainPmtId}",
-                Cache.Item.CIBConfiguration,
+                Cache.CIBConfiguration,
                 centerLineCentricityItemDto.ProductivityInformation,
                 out var position,
                 out _,
@@ -760,7 +760,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{laserLineCentricityItemDto.PmtId}",
-                Cache.Item.CIBConfiguration,
+                Cache.CIBConfiguration,
                 laserLineCentricityItemDto.ProductivityInformation,
                 out var position,
                 out _,

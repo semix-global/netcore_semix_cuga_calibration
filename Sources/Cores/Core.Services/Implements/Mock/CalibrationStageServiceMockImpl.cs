@@ -309,8 +309,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
         _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
         Thread.Sleep(100);

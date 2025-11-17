@@ -54,10 +54,10 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     private AlignmentSiteDto _highSite2 = new();
 
     [ObservableProperty]
-    private Point _teachingOffsetPosition;
+    private Point _offsetPosition;
 
     [ObservableProperty]
-    private double _teachingDegrees;
+    private double _degrees;
 
     [ObservableProperty]
     private Point _efemLoadWaferStagePosition;
@@ -100,30 +100,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 
     [ObservableProperty]
     private Point _findWaferCenterOffset8;
-
-    [ObservableProperty]
-    private Point _lowFindPosition1;
-
-    [ObservableProperty]
-    private Point _lowFindPosition2;
-
-    [ObservableProperty]
-    private Point _highFindPosition1;
-
-    [ObservableProperty]
-    private Point _highFindPosition2;
-
-    [ObservableProperty]
-    private string _lowTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateImageFilePath = string.Empty;
 
     [property: LiteDB.BsonIgnore]
     [ObservableProperty]

@@ -51,7 +51,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.TeachingOffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding CalibratingItem.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Teaching offset(um):"
                              hc:TitleElement.TitleWidth="190"
                              hc:TitleElement.TitlePlacement="Left"

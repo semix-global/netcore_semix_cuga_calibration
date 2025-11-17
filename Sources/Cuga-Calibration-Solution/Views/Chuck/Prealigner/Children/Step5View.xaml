@@ -47,28 +47,28 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.LowFindPosition1, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.LowSite1.Location, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Low Site1(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.LowFindPosition2, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.LowSite2.Location, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Low Site2(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.HighFindPosition1, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.HighSite1.Location, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="High Site1(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.HighFindPosition2, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.HighSite2.Location, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="High Site2(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
@@ -102,14 +102,14 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.TeachingDegrees, StringFormat={}{0:f10}}"
+                    <TextBox Text="{Binding CalibratingItem.EfemLoadWaferChuckAbsoluteAngle, StringFormat={}{0:f10}}"
                              hc:TitleElement.Title="Teaching Degrees(°): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.TeachingOffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding CalibratingItem.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Teaching Offset Position(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"

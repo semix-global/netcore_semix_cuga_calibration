@@ -304,10 +304,10 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
-                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -508,7 +508,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
                 laserPixelSizeItemDto.FindPosition,
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
-                Cache.Item.CIBConfiguration,
+                Cache.CIBConfiguration,
                 laserPixelSizeItemDto.ProductivityInformation,
                 Cache.Item.XWidthPixel,
                 laserPixelSizeItemDto.PmtId);

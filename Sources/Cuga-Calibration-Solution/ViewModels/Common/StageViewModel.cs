@@ -301,10 +301,10 @@ public sealed partial class StageViewModel(
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
-        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum,laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -334,8 +334,8 @@ public sealed partial class StageViewModel(
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
@@ -345,7 +345,8 @@ public sealed partial class StageViewModel(
             opticsMagTypeEnum,
             xStageSpeedEnum,
             lowMicroscopeLensInformation,
-            algorithmWaferTypeEnum);
+            algorithmWaferTypeEnum,
+            laserLightInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 

@@ -370,7 +370,8 @@ public sealed class CalibrationStageServiceImpl(
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
@@ -378,7 +379,8 @@ public sealed class CalibrationStageServiceImpl(
         var sxExecuteRet = Invoke(() => Service!.MarkAlignDFSite1(
             opticsMagTypeEnum.ToESxLevelEnum(),
             xStageSpeedEnum.ToESxLevelEnum(),
-            algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize()));
+            algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize(),
+            laserLightInformation.Coefficient));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
