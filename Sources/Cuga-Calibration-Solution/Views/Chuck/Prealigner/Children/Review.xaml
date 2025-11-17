@@ -27,45 +27,67 @@
                     IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text="Verify"
+                        <TextBlock Text="Verify Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:NumericUpDown x:Name="PositionThresholdNumeric"
-                                      Width="275"
-                                      hc:InfoElement.Title="Offset Threshold(um):"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.Title="Verify Offset Threshold(um):"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
-                                      Maximum="100"
+                                      Maximum="500"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.PositionErrorThreshold}" />
+                                      Value="{Binding Cache.VerifyPositionThreshold}" />
                     <hc:NumericUpDown x:Name="AngleThresholdNumeric"
-                                      Width="275"
-                                      hc:InfoElement.Title="Angle Threshold(°):"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.Title="Verify Degrees Threshold(°): "
+                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
-                                      Maximum="0.1"
+                                      Maximum="1"
                                       Increment="0.0001"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.AngleThreshold}" />
-                    <TextBox Text="{Binding Cache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Center offset Result:"
-                             hc:InfoElement.TitlePlacement="Left"
+                                      Value="{Binding Cache.VerifyDegreesThreshold}" />
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding Cache.TeachingDegrees, StringFormat={}{0:f10}}"
+                             hc:TitleElement.Title="Teaching Degrees(°): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.OffsetAngle, StringFormat={}{0:f10}}"
-                             Width="275"
-                             hc:InfoElement.Title="Angle Offset Result:"
-                             hc:InfoElement.TitlePlacement="Left"
+                    <TextBox Text="{Binding Cache.TeachingOffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="Teaching Offset Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.TeachingDegrees, StringFormat={}{0:f10}}"
+                             hc:TitleElement.Title="Teaching Degrees(°): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="190"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.TeachingOffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="Teaching Offset Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="190"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-
                         <Button x:Name="ActionButton"
                                 Content="Action"
                                 Command="{Binding VerifyActionCommand}"

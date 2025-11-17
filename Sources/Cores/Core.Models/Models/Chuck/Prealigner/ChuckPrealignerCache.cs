@@ -54,10 +54,10 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     private AlignmentSiteDto _highSite2 = new();
 
     [ObservableProperty]
-    private Point _offsetPosition;
+    private Point _teachingOffsetPosition;
 
     [ObservableProperty]
-    private double _offsetAngle;
+    private double _teachingDegrees;
 
     [ObservableProperty]
     private Point _efemLoadWaferStagePosition;
@@ -66,16 +66,16 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     private double _efemLoadWaferChuckAngle;
 
     [ObservableProperty]
-    private double _angleErrorThreshold = 0.3;
+    private double _teachingDegreesThreshold = 0.3;
 
     [ObservableProperty]
-    private double _angleThreshold = 0.1;
+    private double _verifyDegreesThreshold = 0.1;
 
     [ObservableProperty]
-    private double _positionThreshold = 100;
+    private double _teachingPositionThreshold = 100;
 
     [ObservableProperty]
-    private double _positionErrorThreshold = 300;
+    private double _verifyPositionThreshold = 300;
 
     [ObservableProperty]
     private Point _findWaferCenterOffset1;

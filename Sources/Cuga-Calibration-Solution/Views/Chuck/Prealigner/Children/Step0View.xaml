@@ -13,7 +13,7 @@
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="350" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -30,24 +30,33 @@
                     IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
-                        <TextBlock Text=" Calibration Position Offset"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:NumericUpDown x:Name="PositionThresholdNumeric"
-                                      Width="275"
-                                      hc:InfoElement.Title="Offset Threshold(um):"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.Title="Teaching Offset Threshold(um):"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
-                                      Maximum="400"
+                                      Maximum="5000"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.PositionThreshold}" />
-                    <TextBox Text="{Binding Cache.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Center offset(um):"
-                             hc:InfoElement.TitlePlacement="Left"
+                                      Value="{Binding Cache.TeachingPositionThreshold}" />
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding Cache.TeachingOffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="Teaching offset(um):"
+                             hc:TitleElement.TitleWidth="190"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
@@ -101,8 +110,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset1, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -121,8 +130,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset2, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -141,8 +150,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset3, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -161,8 +170,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset4, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -181,8 +190,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset5, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -201,8 +210,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset6, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -221,8 +230,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset7, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
@@ -241,8 +250,8 @@
                             <TextBox Text="{Binding Cache.FindWaferCenterOffset8, Converter={StaticResource PointToStringConverter}}"
                                      Width="180"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Top"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Top"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>

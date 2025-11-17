@@ -25,17 +25,19 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find High Position2"
+                        <TextBlock Text="Result Find High Position2"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <TextBox Text="{Binding Cache.HighFindPosition2, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
                              Margin="5"
-                             hc:InfoElement.Title="Position2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
+                             hc:TitleElement.Title="Position2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
