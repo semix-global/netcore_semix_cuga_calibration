@@ -926,14 +926,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Cache.Threshold,
                     //SpeedXPositiveTable = new HtmlTable([.. AdsYGainsDichotomySpeedCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
-                    SpeedYPositiveTable = new HtmlTable([.. AdsYGainsCacheBestItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
+                    SpeedYPositiveTable = new HtmlTable([.. AdsYGainsCacheBestItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("SpeedBestYValueTable_Converse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
                     //SpeedXNegativeTable = new HtmlTable([.. AdsYGainsDichotomySpeedCacheConverseItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
-                    SpeedYNegativeTable = new HtmlTable([.. AdsYGainsCacheConverseBestItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
+                    SpeedYNegativeTable = new HtmlTable([.. AdsYGainsCacheConverseBestItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 })])
                 }), HtmlLogUniqueId.LoggingHtml());
             }
             catch (Exception ex)
@@ -997,13 +997,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 Logger.LogHtmlInformation("SpeedBestYValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedYPositiveTable = new HtmlTable([.. ResultAdsYGainsHrpCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
+                    SpeedYPositiveTable = new HtmlTable([.. ResultAdsYGainsHrpCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("SpeedBestYValueTable_Converse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedYNegativeTable = new HtmlTable([.. ResultAdsYGainsHrpCacheConverseItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
+                    SpeedYNegativeTable = new HtmlTable([.. ResultAdsYGainsHrpCacheConverseItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 {

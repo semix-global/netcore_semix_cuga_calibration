@@ -1019,8 +1019,8 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                         (nameof(itemCache.WaveFormVSmoothDarkFieldImageList), itemCache.WaveFormVSmoothDarkFieldImageList.ToPoints())
                     ], "DarkFieldImageVList"),
                     ImageVMinIndexList = string.Join(", ", itemCache.WaveFormVImageMinList),
-                    ServingToPrescanListIndicesList = new HtmlExpand(new HtmlTable([.. itemCache.ServingToPrescanListIndicesList.Select((t, i) => new { Serving = i, Value = t }).Cast<object>()]), "ServingToPrescanListIndicesList"),
-                    ServingToDarkFieldImageListIndicesList = new HtmlExpand(new HtmlTable([.. itemCache.ServingToDarkFieldImageListIndicesList.Select((t, i) => new { Serving = i, Value = t }).Cast<object>()]), "ServingToDarkFieldImageListIndicesList")
+                    ServingToPrescanListIndicesList = new HtmlExpand("ServingToPrescanListIndicesList", new HtmlTable([.. itemCache.ServingToPrescanListIndicesList.Select((t, i) => new { Serving = i, Value = t })])),
+                    ServingToDarkFieldImageListIndicesList = new HtmlExpand("ServingToDarkFieldImageListIndicesList", new HtmlTable([.. itemCache.ServingToDarkFieldImageListIndicesList.Select((t, i) => new { Serving = i, Value = t })]))
                 }), HtmlLogUniqueId.LoggingHtml());
             }
         });
@@ -1286,9 +1286,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                     targetServing,
                     targetValue,
                     tempIlluminationProfileDto.ChannelId,
-                    okIndexList = new HtmlExpand(new HtmlTable([.. okIndexList.Select(t => new { t.Serving, t.Value }).Cast<object>()]), nameof(okIndexList)),
-                    greaterThanIndexList = new HtmlExpand(new HtmlTable([.. greaterThanIndexList.Select(t => new { t.Serving, t.Value }).Cast<object>()]), nameof(greaterThanIndexList)),
-                    lessThanIndexList = new HtmlExpand(new HtmlTable([.. lessThanIndexList.Select(t => new { t.Serving, t.Value }).Cast<object>()]), nameof(lessThanIndexList)),
+                    okIndexList = new HtmlExpand(nameof(okIndexList), new HtmlTable([.. okIndexList.Select(t => new { t.Serving, t.Value })])),
+                    greaterThanIndexList = new HtmlExpand(nameof(greaterThanIndexList), new HtmlTable([.. greaterThanIndexList.Select(t => new { t.Serving, t.Value })])),
+                    lessThanIndexList = new HtmlExpand(nameof(lessThanIndexList), new HtmlTable([.. lessThanIndexList.Select(t => new { t.Serving, t.Value })])),
                     cacheCoefficientLimitMin,
                     cacheCoefficientLimitMax,
                     tempIlluminationProfileDto.DarkFieldImageListRateMin,

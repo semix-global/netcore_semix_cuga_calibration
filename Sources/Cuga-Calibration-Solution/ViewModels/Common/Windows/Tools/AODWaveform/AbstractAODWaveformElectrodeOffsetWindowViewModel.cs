@@ -218,12 +218,12 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             {
                 0 => new
                 {
-                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]), t.Title))])
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
                 1 => new
                 {
-                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]), t.Title))]),
-                    UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]), t.Title))])
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]),
+                    UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }

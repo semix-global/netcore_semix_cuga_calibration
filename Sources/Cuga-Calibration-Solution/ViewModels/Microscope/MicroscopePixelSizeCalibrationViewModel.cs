@@ -563,7 +563,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                         {
                             Logger.LogHtmlInformation("ResultPixelSize", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                             {
-                                ResultPixelSize = new HtmlTable([.. ResultMicroscopePixelSizeItemDtoList.Select(t => new { t.LensInformation.LensName, t.PixelSize }).Cast<object>()])
+                                ResultPixelSize = new HtmlTable([.. ResultMicroscopePixelSizeItemDtoList.Select(t => new { t.LensInformation.LensName, t.PixelSize })])
                             }), HtmlLogUniqueId.LoggingHtml());
                         }
 

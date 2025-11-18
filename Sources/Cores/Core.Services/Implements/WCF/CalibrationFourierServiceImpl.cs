@@ -34,8 +34,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var sxExecuteRet = Invoke(() => Service!.GetFFReviewImg(channelId - 1));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<HImage>(sxExecuteRet.ErrorMsg, HalconFactory.EmptyHImage);
 
-        using var skBitmap = SKBitmap.Decode(sxExecuteRet.Anything);
-        using var bitmapImage = new BitmapImage(ImageInfoFactory.Create(skBitmap.Info), skBitmap.GetPixels());
+        using var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
 
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
     }

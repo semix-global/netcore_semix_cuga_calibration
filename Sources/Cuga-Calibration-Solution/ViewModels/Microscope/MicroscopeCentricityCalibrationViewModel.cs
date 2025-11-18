@@ -495,7 +495,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         concentricOffset,
                         MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
                         MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
-                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength }).Cast<object>()])
+                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength })])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
             }

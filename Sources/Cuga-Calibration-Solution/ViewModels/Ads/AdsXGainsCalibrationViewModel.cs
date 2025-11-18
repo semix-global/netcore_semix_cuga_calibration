@@ -772,13 +772,13 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Cache.Threshold,
                     //SpeedXPositiveTable = new HtmlTable([.. AdsXGainsDichotomySpeedCacheItemList.Select(t => new { t.SpeedXValue, t.PositiveX1, t.PositiveX2 }).Cast<object>()])
-                    SpeedXPositiveTable = new HtmlTable([.. AdsXGainsCacheBestItemList.Select(t => new { t.SpeedXValue, t.PositiveX1, t.PositiveX2 }).Cast<object>()])
+                    SpeedXPositiveTable = new HtmlTable([.. AdsXGainsCacheBestItemList.Select(t => new { t.SpeedXValue, t.PositiveX1, t.PositiveX2 })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("SpeedBestXValueTable_Converse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedXNegativeTable = new HtmlTable([.. AdsXGainsCacheConverseBestItemList.Select(t => new { t.SpeedXValue, t.NegativeX3, t.NegativeX4 }).Cast<object>()])
+                    SpeedXNegativeTable = new HtmlTable([.. AdsXGainsCacheConverseBestItemList.Select(t => new { t.SpeedXValue, t.NegativeX3, t.NegativeX4 })])
                 }), HtmlLogUniqueId.LoggingHtml());
             }
             catch (Exception ex)
@@ -864,13 +864,13 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 Logger.LogHtmlInformation("SpeedBestXValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedXPositiveTable = new HtmlTable([.. ResultAdsXGainsHrpCacheItemList.Select(t => new { t.SpeedXValue, t.PositiveX1, t.PositiveX2 }).Cast<object>()])
+                    SpeedXPositiveTable = new HtmlTable([.. ResultAdsXGainsHrpCacheItemList.Select(t => new { t.SpeedXValue, t.PositiveX1, t.PositiveX2 })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("SpeedBestXValueTable_Converse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedXNegativeTable = new HtmlTable([.. ResultAdsXGainsHrpCacheConverseItemList.Select(t => new { t.SpeedXValue, t.NegativeX3, t.NegativeX4 }).Cast<object>()])
+                    SpeedXNegativeTable = new HtmlTable([.. ResultAdsXGainsHrpCacheConverseItemList.Select(t => new { t.SpeedXValue, t.NegativeX3, t.NegativeX4 })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 {
