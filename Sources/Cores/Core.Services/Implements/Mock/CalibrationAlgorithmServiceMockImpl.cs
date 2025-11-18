@@ -180,7 +180,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
     {
         var size = hazeImage.GetSize();
         var sizeI = (SizeI)size;
-        using var bitmapImage = BitmapImageGenerator.GenerateRandomImage(sizeI.Width, sizeI.Height, 10, Random);
+        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(sizeI.Width, sizeI.Height, 10, Random);
 
         drawingImage = bitmapImage.ToHImage();
 

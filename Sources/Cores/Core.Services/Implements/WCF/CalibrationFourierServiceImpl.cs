@@ -9,7 +9,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Semix.CoreLib;
-using SkiaSharp;
 
 namespace Core.Services.Implements.WCF;
 

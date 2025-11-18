@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace Core.Utilities;
 
-public static class BitmapImageGenerator
+public static class BitmapImageGenerate
 {
     public static BitmapImage GenerateRandomImage(int width, int height, int shapeCount, Random random)
     {
@@ -47,10 +47,9 @@ public static class BitmapImageGenerator
 
         var centerX = width / 2f;
         var centerY = height / 2f;
-        var centerRadius = Math.Min(width, height) * 0.1f; // 可改成固定值
 
         paint.Color = SKColors.Black;
-        canvas.DrawCircle(centerX, centerY, centerRadius, paint);
+        canvas.DrawCircle(centerX, centerY, 10, paint);
 
         return new BitmapImage(ImageInfoFactory.Create(skBitmap.Info), skBitmap.GetPixels());
     }

@@ -23,7 +23,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
     public SxExecuteRet<HImage> GetFourierImage(int channelId)
     {
-        using var bitmapImage = BitmapImageGenerator.GenerateRandomImage(2048, 2044, 10, Random);
+        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(2048, 2044, 10, Random);
 
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
     }
