@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
@@ -10,10 +11,9 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Models.Geometries;
 using System.IO;
-using Core.Utilities;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements.Mock;
@@ -176,7 +176,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return ([], []);
     }
 
-    public double GetOpticsObjectiveYAngleDregress(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    public double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
     {
         var size = hazeImage.GetSize();
         var sizeI = (SizeI)size;

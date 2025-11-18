@@ -5,6 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 #if NET
 using CgPMTDataModel = Cuga.Data.DataStruct.PMT.CgPMTdataModel;
+
 #else
 using Cuga.Data.DataStruct.PMT;
 

@@ -6,6 +6,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -141,7 +142,7 @@ public sealed class ProductivityInformation :
                 : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
             Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
                 ? (SxSpeedEnum)StageSpeedType
-                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType)),
+                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
         }
         : new C2MProductivityInfo
         {

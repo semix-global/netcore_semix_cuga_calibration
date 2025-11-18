@@ -193,7 +193,7 @@ public sealed partial class SplitImageWindowViewModel(ILogger<SplitImageWindowVi
                 logger.LogHtmlInformation("1.4. Verify", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ImageWidthPixel,
-                    ImageCount,
+                    ImageCount
                 }), guid.LoggingHtml());
 
                 var verifyItems = new Item[ImageCount];

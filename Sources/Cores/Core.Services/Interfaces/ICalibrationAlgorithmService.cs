@@ -206,7 +206,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="shinyWaferImage">傅里叶相机的ShinyWafer图片</param>
     /// <param name="drawingImage">绘图图片</param>
     /// <returns>光学物镜Y的夹角°</returns>
-    double GetOpticsObjectiveYAngleDregress(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage);
+    double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage);
 
     #endregion 暗场
 

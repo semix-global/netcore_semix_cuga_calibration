@@ -327,7 +327,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (datavge1, data1);
     }
 
-    public double GetOpticsObjectiveYAngleDregress(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    public double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
     {
         throw new NotImplementedException();
     }

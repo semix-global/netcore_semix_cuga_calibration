@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,12 +28,19 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
 public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 {
     #region Param
+
+    [ObservableProperty]
+    private OpticsMagTypeEnum _opticsMagTypeEnum;
+
+    [ObservableProperty]
+    private int _channelId = CalibrationConstantsHelper.MainChannelId;
 
     [ObservableProperty]
     private double _prescanFrequency;
@@ -47,12 +53,6 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 
     [ObservableProperty]
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
-
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-    [ObservableProperty]
-    private int _channelId = CalibrationConstantsHelper.MainChannelId;
 
     [ObservableProperty]
     private Point _hazeBFMachinePosition = Point.Origin;
@@ -88,10 +88,10 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 
     public object ToHtmlAnonymous() => new
     {
-        GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
-        GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
         OpticsMagTypeEnum,
         ChannelId,
+        GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+        GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
         HazeBFMachinePosition,
         HazeLaserLightInformation,
         ShinyWaferBFMachinePosition,
@@ -218,6 +218,11 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     var resultHazeImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     hazeFourierImage.Save(resultHazeImageFilePath);
                     Cache.Result.HazeImageFilePath = resultHazeImageFilePath;
+
+                    logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                    {
+                        HazeImage = new HtmlImage(Cache.Result.HazeImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {
@@ -244,7 +249,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
                     Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
-                    laserViewModel.SetPrescanAODWaveProfiles([..Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
+                    laserViewModel.SetPrescanAODWaveProfiles([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
                     laserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
@@ -254,18 +259,28 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     var resultShinyWaferImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     shinyWaferFourierImage.Save(resultShinyWaferImageFilePath);
                     Cache.Result.ShinyWaferImageFilePath = resultShinyWaferImageFilePath;
+
+                    logger.LogHtmlInformation("ShinyWafer", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                    {
+                        Cache.PrescanAODWaveformResultFilePath,
+                        PrescanAODWaveformProfiles = new HtmlTable([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+                        Cache.ChirpAODWaveformResultFilePath,
+                        ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+                        ShinyWaferImage = new HtmlImage(Cache.Result.ShinyWaferImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                 }
 
-                var yAngleDregress = calibrationAlgorithmService.GetOpticsObjectiveYAngleDregress(hazeFourierImage, shinyWaferFourierImage, out var drawingImage);
+                Cache.Result.YAngleDegrees = calibrationAlgorithmService.GetOpticsObjectiveYAngleDegrees(hazeFourierImage, shinyWaferFourierImage, out var drawingImage);
 
-                Cache.Result.YAngleDegrees = yAngleDregress;
                 var resultImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 drawingImage.Save(resultImageFilePath);
                 Cache.Result.ResultImageFilePath = resultImageFilePath;
+
+                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(Cache.Result.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
                 isSuccess = true;
             }

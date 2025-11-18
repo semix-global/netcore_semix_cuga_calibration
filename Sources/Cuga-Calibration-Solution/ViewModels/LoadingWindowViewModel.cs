@@ -24,6 +24,7 @@ public sealed partial class LoadingWindowViewModel(
     AdsViewModel adsViewModel,
     LaserViewModel laserViewModel,
     EFEMViewModel efemViewModel,
+    FourierViewModel fourierViewModel,
     ConfigViewModel configViewModel,
     MonitorViewModel monitorViewModel,
     ILogger<LoadingWindowViewModel> logger,
@@ -32,7 +33,7 @@ public sealed partial class LoadingWindowViewModel(
     ApplicationCookie applicationCookie,
     string applicationName) : ViewModelBase
 {
-    private const int ConnectCount = 8;
+    private const int ConnectCount = 10;
 
     [ObservableProperty]
     private string _title = applicationName;
@@ -62,8 +63,9 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(adsViewModel.Connect, "Connecting Ads Wcf Service", 5).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(laserViewModel.Connect, "Connecting Laser Wcf Service", 6).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(efemViewModel.Connect, "Connecting EFEM Wcf Service", 7).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Wcf Service", 8).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Wcf Service", 9).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(fourierViewModel.Connect, "Connecting Fourier Wcf Service", 8).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Wcf Service", 9).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Wcf Service", 10).ConfigureAwait(false) == false) return;
 
             CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
                 microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,

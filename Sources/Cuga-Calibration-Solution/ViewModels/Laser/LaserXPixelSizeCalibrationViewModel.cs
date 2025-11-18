@@ -481,7 +481,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             var rawImageFilePath = darkFieldLineScanImage.Url;
 
-            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { rawImageFilePath, }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { rawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
             await
