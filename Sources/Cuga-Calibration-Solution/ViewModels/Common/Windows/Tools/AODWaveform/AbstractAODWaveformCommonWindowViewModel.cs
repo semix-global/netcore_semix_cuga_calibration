@@ -179,9 +179,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                 if (isShowDialog) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
             }
             else
-            {
                 DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            }
 
             return isSuccess;
         }).ConfigureAwait(false);

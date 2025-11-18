@@ -199,7 +199,14 @@ public interface ICalibrationAlgorithmService
     /// <returns>是否成功</returns>
     (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue);
 
-    (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image);
+    /// <summary>
+    /// 传入图片获取光学物镜Y的夹角°
+    /// </summary>
+    /// <param name="hazeImage">傅里叶相机的Haze图片</param>
+    /// <param name="shinyWaferImage">傅里叶相机的ShinyWafer图片</param>
+    /// <param name="drawingImage">绘图图片</param>
+    /// <returns>光学物镜Y的夹角°</returns>
+    double GetOpticsObjectiveYAngleDregress(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage);
 
     #endregion 暗场
 

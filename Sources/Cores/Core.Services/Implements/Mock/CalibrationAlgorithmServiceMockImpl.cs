@@ -12,6 +12,8 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using System.IO;
+using Core.Utilities;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements.Mock;
@@ -23,7 +25,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     private readonly Algorithm _algorithm = new();
 
-    public string Version => HAlgorithm.Algorithm.Version;
+    public string Version => Algorithm.Version;
 
     public double GetQuality(HImage image)
     {
@@ -174,6 +176,17 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return ([], []);
     }
 
+    public double GetOpticsObjectiveYAngleDregress(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    {
+        var size = hazeImage.GetSize();
+        var sizeI = (SizeI)size;
+        using var bitmapImage = BitmapImageGenerator.GenerateRandomImage(sizeI.Width, sizeI.Height, 10, Random);
+
+        drawingImage = bitmapImage.ToHImage();
+
+        return Random.NextDouble();
+    }
+
     public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
     {
         var ch1YList = new List<double>();
@@ -253,7 +266,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
             return isSuccess;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }

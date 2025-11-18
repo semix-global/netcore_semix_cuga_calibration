@@ -327,6 +327,11 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (datavge1, data1);
     }
 
+    public double GetOpticsObjectiveYAngleDregress(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    {
+        throw new NotImplementedException();
+    }
+
     public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
     {
         _algorithm.ChannelFineSamePositionPoint(image.Select(t => (HObject)t).ToList(), out var ch3SubCh1, out var ch3SubCh2, out var result);

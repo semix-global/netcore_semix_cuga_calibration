@@ -21,7 +21,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -42,7 +41,7 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
-public sealed partial class AODWaveformCommonCache : ObservableCacheBase
+public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;
@@ -279,14 +278,14 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
     public string Name => "Collection Focus Align Optics Focus";
 
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", DirectoryHelper.RemoveInvalidDirectoryName(nameof(CollectionFocusAlignOpticsFocusWindowViewModel)), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionFocusAlignOpticsFocusWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public IReadOnlyList<LaserLightInformation> LaserLightInformations => applicationCookie.LaserLightInformations;
 
-    public Guid HtmlLogUniqueId { get; set; }
+    public Guid HtmlLogUniqueId { get; private set; }
 
     [ObservableProperty]
-    private AODWaveformCommonCache _cache = new();
+    private CollectionFocusAlignOpticsFocusCache _cache = new();
 
     [ObservableProperty]
     private IDictionary<int, IScatterPlotControl> _scatterPlotControls = ImmutableDictionary<int, IScatterPlotControl>.Empty;
@@ -296,7 +295,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     {
         try
         {
-            Cache = cacheProvider.GetOrDefault<AODWaveformCommonCache>();
+            Cache = cacheProvider.GetOrDefault<CollectionFocusAlignOpticsFocusCache>();
 
             if (ScatterPlotControls.Count > 0) return;
 
@@ -309,7 +308,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1Async(CancellationToken cancellationToken)
+    private async Task Step0Async(CancellationToken cancellationToken)
     {
         await InvokeAsync(
             "Step1 Haze",
@@ -376,7 +375,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2Async(CancellationToken cancellationToken)
+    private async Task Step1Async(CancellationToken cancellationToken)
     {
         await InvokeAsync(
             "Step1 DSW",
