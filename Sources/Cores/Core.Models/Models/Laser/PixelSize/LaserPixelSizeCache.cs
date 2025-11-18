@@ -15,7 +15,7 @@ public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
-    
+
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 

@@ -296,7 +296,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.HighDarkFieldOpticsMagTypeEnum, Cache.HighDarkFieldStageSpeedEnum, Cache.HighSizeEnum, Cache.AlgorithmWaferTypeEnum,_calibrationSetting.SettingCommonParam.MainLaserLightInformation);
+                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.HighDarkFieldOpticsMagTypeEnum, Cache.HighDarkFieldStageSpeedEnum, Cache.HighSizeEnum, Cache.AlgorithmWaferTypeEnum);
 
                     Cache.HighSite1 = resultHighSite1;
                     Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -335,7 +335,16 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     {
         return InvokeAsync(() =>
         {
-            var result = StageViewModel.AlignmentDarkField(Cache.LowSite1, Cache.LowSite2, Cache.HighSite1, Cache.HighSite2, Cache.HighDarkFieldOpticsMagTypeEnum, Cache.HighDarkFieldStageSpeedEnum, Cache.LowMag, Cache.AlgorithmWaferTypeEnum);
+            var result = StageViewModel.AlignmentDarkField(
+                Cache.LowSite1,
+                Cache.LowSite2,
+                Cache.HighSite1,
+                Cache.HighSite2,
+                Cache.HighDarkFieldOpticsMagTypeEnum,
+                Cache.HighDarkFieldStageSpeedEnum,
+                Cache.LowMag,
+                Cache.AlgorithmWaferTypeEnum,
+                _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
             Cache.Result = result;

@@ -666,7 +666,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 out var position,
                 out _,
                 out _,
-                out var resultImageFilePath,
+                out _,
                 true,
                 Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
@@ -811,7 +811,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         ];
         if (isSave == false) return;
 
-        CacheProvider.SetArray<LaserLineCentricityItemDto>(Calibrations, cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
@@ -835,7 +835,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.X)).ToArray();
-        var (polynomialX, rSquaredXError, yPredictedXError) = PolynomialLeastSquares.PolynomialFit(
+        var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.Y)),
             1);

@@ -361,8 +361,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
         Thread.Sleep(100);
         var offsetAngle = 0.01 + Random.NextDouble() * (0.1 - 0.05);

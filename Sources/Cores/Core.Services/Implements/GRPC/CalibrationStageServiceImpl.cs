@@ -410,6 +410,7 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
         darkFieldHighSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         darkFieldHighSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
+        // todo:缺光强
         var sxExecuteRet = Invoke(() => Service2?.DFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ESxLevelEnum mag, ESxLevelEnum speed, ushort ll)>
         ((brightFieldLowSite1.AdaptTo(),
             brightFieldLowSite2.AdaptTo(),
@@ -417,7 +418,8 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
             darkFieldHighSite2.AdaptTo(),
             opticsMagTypeEnum.ToESxLevelEnum(),
             xStageSpeedEnum.ToESxLevelEnum(),
-            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)))));
+            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)
+            ))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())

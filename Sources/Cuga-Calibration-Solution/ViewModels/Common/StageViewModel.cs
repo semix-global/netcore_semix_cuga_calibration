@@ -6,6 +6,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -17,7 +18,8 @@ namespace CugaCalibration.ViewModels.Common;
 [IOCAppService(ServiceType = typeof(StageViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StageViewModel(
     ICalibrationStageService calibrationStageService,
-    AfViewModel afViewModel) : ViewModelBase
+    AfViewModel afViewModel,
+    CalibrationSetting calibrationSetting) : ViewModelBase
 {
     #region 服务
 
@@ -302,9 +304,10 @@ public sealed partial class StageViewModel(
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        LaserLightInformation laserLightInformation)
+        LaserLightInformation? laserLightInformation = null)
     {
-        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum,laserLightInformation);
+        laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
+        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -335,8 +338,9 @@ public sealed partial class StageViewModel(
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        LaserLightInformation laserLightInformation)
+        LaserLightInformation? laserLightInformation = null)
     {
+        laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
             brightFieldLowSite2,

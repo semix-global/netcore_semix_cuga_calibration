@@ -13,7 +13,7 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
-    
+
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 

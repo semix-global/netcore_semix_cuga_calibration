@@ -1,8 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
@@ -11,7 +9,6 @@ using Core.Models.Models.Microscope.Focus;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -19,8 +16,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Globalization;
-using System.Windows.Data;
 
 namespace CugaCalibration.ViewModels.Laser;
 
