@@ -195,6 +195,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 Cache.ChirpAODWaveformProfiles = [];
                 Cache.Result.HazeImageFilePath = string.Empty;
                 Cache.Result.ShinyWaferImageFilePath = string.Empty;
+                Cache.Result.ResultImageFilePath = string.Empty;
                 Cache.Result.YAngleDegrees = 0d;
                 Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
                 Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
