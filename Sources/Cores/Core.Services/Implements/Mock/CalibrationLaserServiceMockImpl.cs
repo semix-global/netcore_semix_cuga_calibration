@@ -18,14 +18,15 @@ using CommunityToolkit.Diagnostics;
 using Core.Models.Extensions;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
-using Semix.WcfTransfer.DTO;
 
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
+
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
+
 #endif
 
 namespace Core.Services.Implements.Mock;

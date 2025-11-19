@@ -69,6 +69,9 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     [ObservableProperty]
     private double _waitTime = 5;
 
+    [ObservableProperty]
+    private double _threshold = 2;
+
     #endregion
 
     [ObservableProperty]
@@ -96,12 +99,16 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
         HazeLaserLightInformation,
         ShinyWaferBFMachinePosition,
         ShinyWaferLaserLightInformation,
-        WaitTime
+        WaitTime,
+        Threshold
     };
 }
 
 public sealed partial class OpticsObjectiveYAngleResult : ObservableCacheBase
 {
+    [ObservableProperty]
+    private bool _isOk;
+
     [ObservableProperty]
     private string _hazeImageFilePath = string.Empty;
 
@@ -116,6 +123,7 @@ public sealed partial class OpticsObjectiveYAngleResult : ObservableCacheBase
 
     public object ToHtmlAnonymous() => new
     {
+        IsOk,
         HazeImage = new HtmlImage(HazeImageFilePath),
         ShinyWaferImage = new HtmlImage(ShinyWaferImageFilePath),
         ResultImageh = new HtmlImage(ResultImageFilePath),
@@ -193,6 +201,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 Cache.PrescanAODWaveformProfiles = [];
                 Cache.ChirpAODWaveformResultFilePath = string.Empty;
                 Cache.ChirpAODWaveformProfiles = [];
+
+                Cache.Result.IsOk = false;
                 Cache.Result.HazeImageFilePath = string.Empty;
                 Cache.Result.ShinyWaferImageFilePath = string.Empty;
                 Cache.Result.ResultImageFilePath = string.Empty;
@@ -283,7 +293,9 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(Cache.Result.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-                isSuccess = true;
+                Cache.Result.IsOk = Math.Abs(Cache.Result.YAngleDegrees) <= Cache.Threshold;
+
+                isSuccess = Cache.Result.IsOk;
             }
             catch (Exception ex)
             {
@@ -292,7 +304,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     dialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                    return false;
+                    return;
                 }
 
                 dialogWindowProvider.ShowDialog($"""
@@ -300,6 +312,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 logger.LogHtmlError(ex, "Failed", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                return;
             }
             finally
             {
@@ -310,11 +324,9 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
             }
 
             if (isSuccess)
-                dialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
+                dialogWindowProvider.ShowDialog($"{Name}: {stepName} Success, Result: {Cache.Result.YAngleDegrees:0.###}°");
             else
-                dialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-            return isSuccess;
+                dialogWindowProvider.ShowDialog($"{Name}: {stepName} Error, Result: {Cache.Result.YAngleDegrees:0.###}°", DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }, cancellationToken).ConfigureAwait(false);
     }
 

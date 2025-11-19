@@ -12,6 +12,7 @@
            xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:OpticsObjectiveYAngleWindowViewModel}"
@@ -201,6 +202,12 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(°): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.Threshold}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -219,8 +226,20 @@
                                              hc:TitleElement.TitlePlacement="Left"
                                              hc:TitleElement.TitleWidth="200"
                                              IsReadOnly="True"
-                                             Background="{StaticResource SecondaryRegionBrush}"
-                                             Style="{StaticResource TextBoxExtend}" />
+                                             Background="{StaticResource SecondaryRegionBrush}">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Cache.Result.IsOk}" Value="{x:Static models:Constants.True}">
+                                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Cache.Result.IsOk}" Value="{x:Static models:Constants.False}">
+                                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Step1 Action"
                                                 Command="{Binding Step0Command}"
