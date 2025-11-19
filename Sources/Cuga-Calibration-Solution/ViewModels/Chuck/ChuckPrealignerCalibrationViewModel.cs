@@ -555,6 +555,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             result = Math.Abs(offsetPosition.X) < Cache.VerifyPositionThreshold
                      && Math.Abs(offsetPosition.Y) < Cache.VerifyPositionThreshold;
 
+            Cache.OffsetPosition = offsetPosition;
+
             Logger.LogHtmlInformation($"Verify {(result ? "Success" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 VerifyPositionOffsetThreshold = Cache.VerifyPositionThreshold,

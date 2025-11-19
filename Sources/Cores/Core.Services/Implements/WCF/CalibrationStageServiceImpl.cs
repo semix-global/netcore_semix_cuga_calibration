@@ -380,7 +380,7 @@ public sealed class CalibrationStageServiceImpl(
             opticsMagTypeEnum.ToESxLevelEnum(),
             xStageSpeedEnum.ToESxLevelEnum(),
             algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize(),
-            laserLightInformation.Coefficient));
+            laserLightInformation.Level));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
@@ -433,7 +433,7 @@ public sealed class CalibrationStageServiceImpl(
             opticsMagTypeEnum.ToESxLevelEnum(),
             xStageSpeedEnum.ToESxLevelEnum(),
             Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
-            laserLightInformation.Coefficient));
+            laserLightInformation.Level));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
