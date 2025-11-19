@@ -51,7 +51,7 @@ public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
     private AlignmentResultDto _alignmentResult = new();
 
     [ObservableProperty]
-    private int _widthPixel = 1000;
+    private int _imageWidth = 1000;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Caliper;
@@ -66,8 +66,11 @@ public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
     private string _templateImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private double _waferDiameter = 280_000;
+    private double _waferRadius = 140_000;
 
     [ObservableProperty]
-    private double _columnCellWidth = 15300;
+    private double _diePitchWith = 5100;
+
+    [ObservableProperty]
+    private int _reticleDieCountX = 3;
 }

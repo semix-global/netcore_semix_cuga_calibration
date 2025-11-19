@@ -1,5 +1,9 @@
 <Project>
 
     <Import Project="$(BuildToolsDirectory)\Common.Packages.props" />
+    
+    <ItemGroup>
+        <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
+    </ItemGroup>
 
 </Project>

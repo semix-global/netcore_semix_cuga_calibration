@@ -33,16 +33,17 @@
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
-                            <TextBlock Text="Alignment Setting Param"
+                            <TextBlock Text="Result: Alignment Setting Param"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
                         <TextBox hc:TitleElement.Title="Low Site1(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="150"
-                                 IsReadOnly="True">
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                     <Style.Triggers>
@@ -59,7 +60,8 @@
                         <TextBox hc:TitleElement.Title="Low Site2(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="150"
-                                 IsReadOnly="True">
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                     <Style.Triggers>
@@ -76,7 +78,8 @@
                         <TextBox hc:TitleElement.Title="High Site1(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="150"
-                                 IsReadOnly="True">
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                     <Style.Triggers>
@@ -93,7 +96,8 @@
                         <TextBox hc:TitleElement.Title="High Site2(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="150"
-                                 IsReadOnly="True">
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}">
                             <TextBox.Style>
                                 <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                     <Style.Triggers>
@@ -157,20 +161,19 @@
                              hc:TitleElement.TitleWidth="150"
                              hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                VerticalAlignment="Top"
-                                                Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step2CalibrateActionCommand}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step2CalibrateActionCancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding Step2CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step2CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

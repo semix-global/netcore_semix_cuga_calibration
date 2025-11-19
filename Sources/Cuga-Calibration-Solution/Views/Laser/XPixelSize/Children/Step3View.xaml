@@ -60,11 +60,28 @@
                                       hc:TitleElement.TitleWidth="160"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.WidthPixel}" />
+                                      Value="{Binding Cache.Item.ImageWidth}" />
                     <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="BF Machine Position(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="160"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultSuccess}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding Cache.Item.TemplateFilePath}"
+                             Height="100"
+                             TextWrapping="Wrap"
+                             hc:TitleElement.Title="Template: "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                              Style="{StaticResource TextBoxExtend}" />
                     <view:CanvasView Width="100"
                                      Height="100"
@@ -75,19 +92,17 @@
                                      ShowCursor="False"
                                      ShowGrid="False"
                                      BackgroundImage="{Binding Cache.Item.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                VerticalAlignment="Top"
-                                                Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding Step3CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step3CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

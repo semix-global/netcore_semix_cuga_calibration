@@ -363,7 +363,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Cache.Item.ChannelId,
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
-                Cache.Item.WidthPixel
+                Cache.Item.ImageWidth
             }), HtmlLogUniqueId.LoggingHtml());
 
             Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
@@ -375,7 +375,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 false,
                 Cache.Item.CIBConfiguration,
                 Cache.ProductivityInformation,
-                xWidthPixel: Cache.Item.WidthPixel,
+                xWidthPixel: Cache.Item.ImageWidth,
                 pmtId: Cache.Item.PMTId,
                 channelId: Cache.Item.ChannelId,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
@@ -431,14 +431,15 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Cache.Item.ChannelId,
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
-                Cache.Item.WidthPixel,
+                Cache.Item.ImageWidth,
                 Cache.AlgorithmTemplateTypeEnum,
                 Cache.AlgorithmTemplateSizeEnum,
                 Cache.Item.FindBFMachinePosition,
                 Cache.Item.TemplateFilePath,
                 TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                Cache.Item.WaferDiameter,
-                Cache.Item.ColumnCellWidth,
+                Cache.Item.WaferRadius,
+                Cache.Item.DiePitchWith,
+                Cache.Item.ReticleDieCountX,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -449,11 +450,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
-                DiePitchSize = new Size(Cache.Item.ColumnCellWidth, Cache.Item.ColumnCellWidth),
+                DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
                 OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
             };
 
-            var dies = waferMapDieBuilder.BuildDie(new Circle(Point.Origin, Cache.Item.WaferDiameter / 2d));
+            var dies = waferMapDieBuilder.BuildDie(new Circle(Point.Origin, Cache.Item.WaferRadius));
 
             var currentRowDies = dies
                 .Where(t => t.Index.Y == 0)
@@ -461,8 +462,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             var imageCount = currentRowDies.Length;
             Guard.IsGreaterThan(imageCount, 2);
 
-            var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ColumnCellWidth / 2d, 0);
-            var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.ColumnCellWidth / 2d, 0);
+            var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
+            var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
             var darkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
                 CalChipSiteModelEnum.ChuckModel,
@@ -472,7 +473,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 false,
                 Cache.Item.CIBConfiguration,
                 Cache.ProductivityInformation,
-                xWidthPixel: Cache.Item.WidthPixel,
                 pmtId: Cache.Item.PMTId,
                 channelId: Cache.Item.ChannelId,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
@@ -486,7 +486,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 #if NET
             await
 #endif
-            using var fileSteam = File.OpenRead(rawImageFilePath);
+                using var fileSteam = File.OpenRead(rawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -606,7 +606,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             }
 
 
-            CalibratingItem.XPixelSize = Cache.Item.ColumnCellWidth / xFilterDifferences.Average();
+            CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / xFilterDifferences.Average();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -652,15 +652,17 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     Cache.Item.ChannelId,
                     Cache.Item.IsDarkFieldAlignment,
                     AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
-                    Cache.Item.WidthPixel,
+                    Cache.Item.ImageWidth,
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.AlgorithmTemplateSizeEnum,
                     Cache.Item.FindBFMachinePosition,
                     Cache.Item.TemplateFilePath,
                     TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    Cache.Item.WaferDiameter,
-                    Cache.Item.ColumnCellWidth,
-                    detectImageDirectory
+                    Cache.Item.WaferRadius,
+                    Cache.Item.DiePitchWith,
+                    Cache.Item.ReticleDieCountX,
+                    detectImageDirectory,
+                    Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Guard.IsTrue(CalibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.Item.TemplateFilePath, out var templateId), nameof(CalibrationAlgorithmService.TryReadTemplate));
@@ -670,11 +672,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
                 var waferMapDieBuilder = new WaferMapDieBuilder
                 {
-                    DiePitchSize = new Size(Cache.Item.ColumnCellWidth, Cache.Item.ColumnCellWidth),
+                    DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
                     OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                 };
 
-                var dies = waferMapDieBuilder.BuildDie(new Circle(Point.Origin, Cache.Item.WaferDiameter / 2d));
+                var dies = waferMapDieBuilder.BuildDie(new Circle(Point.Origin, Cache.Item.WaferRadius));
 
                 var currentRowDies = dies
                     .Where(t => t.Index.Y == 0)
@@ -682,8 +684,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 var imageCount = currentRowDies.Length;
                 Guard.IsGreaterThan(imageCount, 2);
 
-                var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.WidthPixel * CalibratingItem.XPixelSize / 2d, 0);
-                var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.ColumnCellWidth / 2d, 0);
+                var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * CalibratingItem.XPixelSize / 2d, 0);
+                var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
                 var verifyDarkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.ChuckModel,
@@ -693,7 +695,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     false,
                     Cache.Item.CIBConfiguration,
                     Cache.ProductivityInformation,
-                    xWidthPixel: Cache.Item.WidthPixel,
                     pmtId: Cache.Item.PMTId,
                     channelId: Cache.Item.ChannelId,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
@@ -704,14 +705,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     verifyRawImageFilePath,
-                    Cache.Item.WidthPixel,
                     imageCount
                 }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
                 await
 #endif
-                using var fileSteam = File.OpenRead(verifyRawImageFilePath);
+                    using var fileSteam = File.OpenRead(verifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -720,8 +720,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
-                var imageAllPixelByteLength = Cache.Item.WidthPixel * heightPixelByteLength;
-                var verifyStepAllPixelByteLength = (Cache.Item.ColumnCellWidth / item.XPixelSize) * heightPixelByteLength;
+                var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
+                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / item.XPixelSize * heightPixelByteLength;
 
                 Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
 
@@ -760,11 +760,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 var verifyXDifferences = item.VerifyItems
                     .Zip(item.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
-                var verifyRealUmPerPixel = Cache.Item.ColumnCellWidth / verifyXDifferences.Average();
+                var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / verifyXDifferences.Average();
 
                 Refresh(item);
 
-                var errorPixel = Math.Abs(Cache.Item.WaferDiameter / verifyRealUmPerPixel - Cache.Item.WaferDiameter / item.XPixelSize);
+                var waferDiameter = Cache.Item.WaferRadius * 2d;
+                var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / item.XPixelSize);
                 var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
                            && errorPixel <= Cache.Threshold;
 
@@ -774,7 +775,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. item.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
                     verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
                     verifyRealUmPerPixel,
-                    errorPixel = $"{errorPixel:0.###}px/{Cache.Item.WaferDiameter:0.###}um"
+                    errorPixel = $"({errorPixel:0.###}px)/({waferDiameter:0.###}um)"
                 });
 
                 if (isOk)

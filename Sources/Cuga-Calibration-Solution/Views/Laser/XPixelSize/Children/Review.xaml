@@ -77,7 +77,7 @@
                     <RowDefinition Height="10" />
                     <RowDefinition Height="0.5*" />
                 </Grid.RowDefinitions>
-                <ListView x:Name="listview"
+                <ListView x:Name="Listview"
                           d:SelectedIndex="0"
                           ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
@@ -120,7 +120,7 @@
                 </ListView>
                 <hc:ScrollViewer Grid.Row="2">
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=listview}">
+                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter">
                                     <Setter Property="Width" Value="400" />

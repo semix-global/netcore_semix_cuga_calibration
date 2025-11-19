@@ -59,19 +59,17 @@
                                  SelectedItem="{Binding Cache.Item.ChannelId}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                VerticalAlignment="Top"
-                                                Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step1CalibrateActionCommand}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step1CalibrateActionCancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding Step1CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step1CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

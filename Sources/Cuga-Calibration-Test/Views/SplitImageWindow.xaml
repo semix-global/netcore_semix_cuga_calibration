@@ -5,8 +5,10 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibrationTest.ViewModels"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:xPixelSize="clr-namespace:CugaCalibration.Views.Laser.XPixelSize;assembly=Cuga-Calibration-Solution"
            Title="Split Image"
-           Width="1000"
+           Width="1800"
+           Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:SplitImageWindowViewModel,
                                             IsDesignTimeCreatable=True}"
            SizeToContent="Height"
@@ -14,83 +16,94 @@
            WindowStartupLocation="CenterScreen"
            Icon="/Assets/Images/Function.ico"
            mc:Ignorable="d">
-    <Border Margin="1"
-            Style="{StaticResource BorderRegion}"
-            Effect="{StaticResource EffectShadow1}">
-        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical">
-            <TextBox Text="{Binding TemplateFilePath}"
-                     Height="100"
-                     TextWrapping="Wrap"
-                     hc:TitleElement.Title="TemplateFilePath: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <TextBox Text="{Binding TemplateImageFilePath}"
-                     Height="100"
-                     TextWrapping="Wrap"
-                     hc:TitleElement.Title="TemplateImageFilePath: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <TextBox Text="{Binding RawImageFilePath}"
-                     Height="100"
-                     TextWrapping="Wrap"
-                     hc:TitleElement.Title="RawImageFilePath: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <Separator />
-            <TextBox Text="{Binding DieWidthUm}"
-                     hc:TitleElement.Title="DieWidthUm: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <TextBox Text="{Binding ImageMatchThreshold}"
-                     hc:TitleElement.Title="ImageMatchThreshold: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <Separator />
-            <TextBox Text="{Binding RealUmPerPixel}"
-                     hc:TitleElement.Title="RealUmPerPixel: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Background="{StaticResource SecondaryRegionBrush}"
-                     IsReadOnly="True"
-                     Style="{StaticResource TextBoxExtend}" />
-            <Separator />
-            <TextBox Text="{Binding ImageWidthPixel}"
-                     hc:TitleElement.Title="ImageWidthPixel: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <TextBox Text="{Binding ImageCount}"
-                     hc:TitleElement.Title="ImageCount: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <Separator />
-            <TextBox Text="{Binding WaferDiameterUm}"
-                     hc:TitleElement.Title="WaferDiameterUm: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <TextBox Text="{Binding VerifyThresholdPixel}"
-                     hc:TitleElement.Title="VerifyThresholdPixel: "
-                     hc:TitleElement.TitlePlacement="Left"
-                     hc:TitleElement.TitleWidth="200"
-                     Style="{StaticResource TextBoxExtend}" />
-            <Separator />
-            <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="20">
-                <Button Content="Action"
-                        Command="{Binding SplitImageCommand}"
-                        Width="200"
-                        Style="{StaticResource ButtonPrimary.Loading}" />
-                <Button Content="Cancel"
-                        Command="{Binding SplitImageCancelCommand}"
-                        Width="200"
-                        Style="{StaticResource ButtonWarning}" />
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <Border Margin="1"
+                Style="{StaticResource BorderRegion}"
+                Effect="{StaticResource EffectShadow1}">
+            <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical">
+                <TextBox Text="{Binding TemplateFilePath}"
+                         Height="100"
+                         TextWrapping="Wrap"
+                         hc:TitleElement.Title="TemplateFilePath: "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="200"
+                         Style="{StaticResource TextBoxExtend}" />
+                <TextBox Text="{Binding TemplateImageFilePath}"
+                         Height="100"
+                         TextWrapping="Wrap"
+                         hc:TitleElement.Title="TemplateImageFilePath: "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="200"
+                         Style="{StaticResource TextBoxExtend}" />
+                <TextBox Text="{Binding SlideRawImageFilePath}"
+                         Height="50"
+                         TextWrapping="Wrap"
+                         hc:TitleElement.Title="SlideRawImageFilePath: "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="200"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         Style="{StaticResource TextBoxExtend}" />
+                <TextBox Text="{Binding VerifyRawImageFilePath}"
+                         Height="50"
+                         TextWrapping="Wrap"
+                         hc:TitleElement.Title="VerifyRawImageFilePath: "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="200"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         Style="{StaticResource TextBoxExtend}" />
+                <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                                  hc:TitleElement.TitleWidth="200"
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  Minimum="0"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding Threshold}" />
+                <hc:NumericUpDown hc:TitleElement.Title="NCC Match Threshold: "
+                                  hc:TitleElement.TitleWidth="200"
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  Minimum="0"
+                                  Maximum="1"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding NccTypeTemplateMatchScoreThreshold}" />
+                <hc:NumericUpDown hc:TitleElement.Title="Sharpe Match Threshold: "
+                                  hc:TitleElement.TitleWidth="200"
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  Minimum="0"
+                                  Maximum="1"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding SharpeTypeTemplateMatchScoreThreshold}" />
+                <Separator />
+                <TextBox Text="{Binding XPixelSize}"
+                         hc:TitleElement.Title="XPixelSize(um/px): "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="200"
+                         Background="{StaticResource SecondaryRegionBrush}"
+                         IsReadOnly="True"
+                         Style="{StaticResource TextBoxExtend}" />
+                <Separator />
+                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Spacing="10">
+                    <Button Content="Action"
+                            Command="{Binding SplitImageCommand}"
+                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
+                    <Button Content="Continue"
+                            Command="{Binding ContinueCommand}"
+                            Style="{StaticResource ButtonDefault}" />
+                    <Button Content="Cancel"
+                            Command="{Binding SplitImageCancelCommand}"
+                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                            Style="{StaticResource ButtonWarning}" />
+                </hc:UniformSpacingPanel>
             </hc:UniformSpacingPanel>
-        </hc:UniformSpacingPanel>
-    </Border>
+        </Border>
+        <Border Grid.Column="2">
+            <xPixelSize:LaserXPixelSizeCalibrationUserControl />
+        </Border>
+    </Grid>
 </hc:Window>

@@ -45,37 +45,49 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown hc:TitleElement.Title="Wafer Diameter(um): "
+                    <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.WaferDiameter}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Column Cell Width(um): "
+                                      Value="{Binding Cache.Item.WaferRadius}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Die Pitch With(um): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.ColumnCellWidth}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
-                                      hc:TitleElement.TitleWidth="160"
+                                      Value="{Binding Cache.Item.DiePitchWith}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Reticle Die Count X: "
                                       hc:TitleElement.TitlePlacement="Left"
-                                      Minimum="0"
+                                      hc:TitleElement.TitleWidth="160"
+                                      Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Threshold}" />
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                VerticalAlignment="Top"
-                                                Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step4CalibrateActionCommand}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step4CalibrateActionCancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
+                                      Value="{Binding Cache.Item.ReticleDieCountX}" />
+                    <StackPanel>
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultSuccess}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding CalibratingItem.XPixelSize, StringFormat='0.##########'}"
+                             hc:TitleElement.Title="X Pixel Size(um/px): "
+                             hc:TitleElement.TitleWidth="160"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding Step4CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step4CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
@@ -90,7 +102,7 @@
                 </Grid.RowDefinitions>
                 <hc:ScrollViewer>
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding CalibratingItem.VerifyItems}">
+                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding CalibratingItem.SlideItems}">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter">
                                     <Setter Property="Width" Value="400" />

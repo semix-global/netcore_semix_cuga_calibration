@@ -69,7 +69,7 @@ public sealed class LaserXPixelSizeSlideItem
     [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
     [LiteDB.BsonIgnore]
-    public byte[] Buffer { get; init; }
+    public byte[] Buffer { get; init; } = [];
 
     public SizeI SizeI { get; init; }
 
