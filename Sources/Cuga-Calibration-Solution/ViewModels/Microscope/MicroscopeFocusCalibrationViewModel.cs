@@ -512,7 +512,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 parfocalOffset,
                 MinEcsMicroscopeType = Calibrations.OrderBy(t => t.EcsValue).First().LensInformation.LensName,
                 MaxEcsMicroscopeType = Calibrations.OrderBy(t => t.EcsValue).Last().LensInformation.LensName,
-                EcsResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.EcsValue }).Cast<object>()])
+                EcsResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.EcsValue })])
             }), HtmlLogUniqueId.LoggingHtml());
         }
 

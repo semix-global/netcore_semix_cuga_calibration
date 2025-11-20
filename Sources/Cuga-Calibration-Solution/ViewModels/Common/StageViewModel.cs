@@ -6,6 +6,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -17,7 +18,8 @@ namespace CugaCalibration.ViewModels.Common;
 [IOCAppService(ServiceType = typeof(StageViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StageViewModel(
     ICalibrationStageService calibrationStageService,
-    AfViewModel afViewModel) : ViewModelBase
+    AfViewModel afViewModel,
+    CalibrationSetting calibrationSetting) : ViewModelBase
 {
     #region 服务
 
@@ -266,12 +268,14 @@ public sealed partial class StageViewModel(
     {
         var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum);
 
-        if (ret.IsSuccess == false)
-            throw new CugaException(ret.ErrorMsg);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2);
+
         result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
+
         return result;
     }
 
@@ -299,10 +303,11 @@ public sealed partial class StageViewModel(
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation? laserLightInformation = null)
     {
-        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum);
+        laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
+        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -332,9 +337,10 @@ public sealed partial class StageViewModel(
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation? laserLightInformation = null)
     {
+        laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
             brightFieldLowSite2,
@@ -343,12 +349,18 @@ public sealed partial class StageViewModel(
             opticsMagTypeEnum,
             xStageSpeedEnum,
             lowMicroscopeLensInformation,
-            algorithmWaferTypeEnum);
+            algorithmWaferTypeEnum,
+            laserLightInformation);
+
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.MarkPoint2);
+        var result = ret.Anything;
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2);
 
-        return ret.Anything;
+        result.MarkPoint1 = DarkFieldToMachinePosition(result.MarkPoint1);
+        result.MarkPoint2 = DarkFieldToMachinePosition(result.MarkPoint2);
+
+        return result;
     }
 
     public void SetGantryOffset(double gantryOffset)

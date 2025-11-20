@@ -27,35 +27,38 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find High Position1"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:ComboBox x:Name="HighMagCombobox"
-                                 Width="275"
                                  HorizontalAlignment="Left"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="High Magnification: "
-                                 hc:InfoElement.Necessary="True"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="High Magnification: "
+                                 hc:TitleElement.TitleWidth="150"
                                  SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding LensName}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
                                 <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
-                    <TextBox Text="{Binding Cache.HighFindPosition1, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                    <StackPanel>
+                        <TextBlock Text="Result: Find High Position1"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding Cache.HighSite1.Location, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="Position1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
                     <view:CanvasView Width="100"
                                      Height="100"

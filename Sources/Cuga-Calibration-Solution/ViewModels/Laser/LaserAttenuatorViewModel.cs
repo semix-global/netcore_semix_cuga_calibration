@@ -104,14 +104,27 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
 
-        foreach (var calibrationStatus in Calibrations)
-        {
-            var status = CalibrationStatuses.SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
+        Calibrations =
+        [
+            ..Calibrations.Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
 
-            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+                    return t;
+                })
+        ];
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+
+        return true;
+    }
+
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        CalibratingItem = null;
 
         return true;
     }
@@ -177,8 +190,6 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         {
             try
             {
-                CalibratingItem = null;
-
                 var startCoefficient = applicationCookie.LaserLightInformations.Min(t => t.Coefficient);
                 var stopCoefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
                 var laserOpticalPower = LaserOpticalPowers.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
@@ -227,7 +238,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 CalibratingItem.RSquared = 0;
 
                 var coefficients = GenerateUtils.LinearContainsEdgeRange(startCoefficient, Cache.Item.CoefficientStep, stopCoefficient);
-                Guard.IsNotEmpty(coefficients, nameof(coefficients));
+                Guard.IsNotEmpty(coefficients);
 
                 foreach (var coefficient in coefficients)
                 {

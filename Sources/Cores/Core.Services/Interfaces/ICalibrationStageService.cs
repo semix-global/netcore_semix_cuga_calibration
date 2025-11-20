@@ -291,13 +291,14 @@ public interface ICalibrationStageService
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="algorithmTemplateSizeEnum">标记的模板尺寸大小</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
+    /// <param name="laserLightInformation">光强值</param>
     /// <returns>暗场标记点1的坐标和模板</returns>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    );
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation);
 
     /// <summary>
     /// 设置标记点2
@@ -324,6 +325,7 @@ public interface ICalibrationStageService
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="lowMicroscopeLensInformation">对准使用的低倍镜</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
+    /// <param name="laserLightInformation">光强值</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> AlignmentDarkField(
         AlignmentSiteDto brightFieldLowSite1,
@@ -333,8 +335,8 @@ public interface ICalibrationStageService
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    );
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation);
 
     #endregion 暗场晶圆对准P5
 

@@ -4,10 +4,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -21,7 +22,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Pixel Size Step : "
+                <hc:Shield Subject="X Pixel Size Review : "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
@@ -38,11 +39,9 @@
                                            FontWeight="Bold"
                                            Style="{StaticResource TextBlockDefaultInfo}" />
                             </StackPanel>
-                            <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                              Width="275"
-                                              hc:InfoElement.Title="Threshold: "
-                                              hc:TitleElement.TitleWidth="90"
-                                              hc:InfoElement.TitlePlacement="Left"
+                            <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                                              hc:TitleElement.TitleWidth="160"
+                                              hc:TitleElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding Cache.Threshold}" />
@@ -72,24 +71,23 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <!--#region Right-->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.5*" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="0.5*" />
-            </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="Calibration Data">
-                <ListView x:Name="listview"
+        <GroupBox Grid.Column="2" Header="Calibration Data">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="Listview"
                           d:SelectedIndex="0"
-                          ItemsSource="{Binding ReviewList}"
+                          ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          IsEnabled="{Binding RelativeSource={RelativeSource AncestorType=hc:Window}, Path=DataContext.IsCancelEnable}"
                           SelectionMode="Extended">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectReviewList}" />
+                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -116,86 +114,68 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="120"
-                                            Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding ProductivityInformation.OpticsMagType}" />
-                            <GridViewColumn Width="120"
-                                            Header="StageSpeed"
-                                            DisplayMemberBinding="{Binding ProductivityInformation.StageSpeedType}" />
-                            <GridViewColumn Width="100"
-                                            Header="PMT Id"
-                                            DisplayMemberBinding="{Binding PmtId}" />
-                            <GridViewColumn Width="200"
-                                            Header="Find Start Position"
-                                            DisplayMemberBinding="{Binding FindStartPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Width="200"
-                                            Header="Find End Position"
-                                            DisplayMemberBinding="{Binding FindEndPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Y Pixel Size"
-                                            DisplayMemberBinding="{Binding XPixelSize, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="200" Header="Action Review">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <hc:ButtonGroup>
-                                            <Button Content="Image"
-                                                    Command="{Binding Path=DataContext.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding .}" />
-                                        </hc:ButtonGroup>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                            <GridViewColumn Header="ProductivityInformation" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="X Pixel Size(um/px)" DisplayMemberBinding="{Binding XPixelSize, StringFormat={}{0:f3}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
-            </GroupBox>
-            <GridSplitter Grid.Row="1" />
-            <Border Grid.Row="2"
-                    Padding="0"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <Grid>
-                    <GroupBox Header="Images">
-                        <hc:ScrollViewer>
-                            <Border Padding="5" Style="{StaticResource BorderRegion}">
-                                <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding DarkFieldCropImageList}">
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="Width" Value="400" />
-                                            <Setter Property="Height" Value="400" />
-                                            <Setter Property="Margin" Value="5" />
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <hc:SimplePanel>
-                                                <view:CanvasView AxisColor="Red"
-                                                                 BackgroundColor="#0A0A0A"
-                                                                 BackgroundImage="{Binding FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                 Interactive="True"
-                                                                 ShowAxes="True"
-                                                                 ShowCursor="False"
-                                                                 ShowGrid="False"
-                                                                 Tag="{Binding .}" />
-                                                <TextBlock Text="{Binding Position, Converter={StaticResource PointToStringConverter}}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Top"
-                                                           Foreground="Yellow" />
-                                            </hc:SimplePanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <hc:ScrollViewer>
+                        <Border Padding="5" Style="{StaticResource BorderRegion}">
+                            <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="300"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <Image Source="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" Stretch="Uniform" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </hc:ScrollViewer>
+                    <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource BorderRegion}">
+                                <controls:ScatterMultiPlotControl Title="Match(Y: Score - X: px)"
+                                                                  ScatterLine0Title="Calibrate"
+                                                                  ScatterLine0Points="{Binding SelectedItem.SlideItemPoints, ElementName=Listview}"
+                                                                  ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
+                                                                  ScatterLine1Title="Verify"
+                                                                  ScatterLine1Points="{Binding SelectedItem.VerifyItemPoints, ElementName=Listview}"
+                                                                  ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
                             </Border>
-                        </hc:ScrollViewer>
-                    </GroupBox>
+                            <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
+                                <controls:ScatterMultiPlotControl Title="Split Differences(Y: px - X: Die)"
+                                                                  ScatterLine0Title="Slide"
+                                                                  ScatterLine0Points="{Binding SelectedItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
+                                                                  ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
+                                                                  ScatterLine1Title="Verify"
+                                                                  ScatterLine1Points="{Binding SelectedItem.VerifySplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
+                                                                  ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
+                            </Border>
+                        </Grid>
+
+                    </Border>
                 </Grid>
-            </Border>
-        </Grid>
+            </Grid>
+        </GroupBox>
         <!--#endregion-->
     </Grid>
 </UserControl>

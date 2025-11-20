@@ -22,8 +22,12 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 
 [IOCAppService(ServiceType = typeof(AdsXYMoveDiagnosisWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel stageViewModel,
-    AdsViewModel adsViewModel, IHostEnvironment hostEnvironment, ISynchronizationContextProvider SynchronizationContextProvider, ILogger<AdsXYMoveDiagnosisWindowViewModel> logger) : ViewModelBase, IRecipient<ValueChangedMessage<ToggleCalibrateEvent>>
+public sealed partial class AdsXYMoveDiagnosisWindowViewModel(
+    StageViewModel stageViewModel,
+    AdsViewModel adsViewModel,
+    IHostEnvironment hostEnvironment,
+    ISynchronizationContextProvider SynchronizationContextProvider,
+    ILogger<AdsXYMoveDiagnosisWindowViewModel> logger) : ViewModelBase, IRecipient<ValueChangedMessage<ToggleCalibrateEvent>>
 {
     public static string LogHtmlFileName => "AdsXY_MoveDiagnosis_AnyDirection";
 
@@ -66,10 +70,7 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
 
     public IEnumerable<StageCoordinateSystemEnum> StageCoordinateSystemValues
     {
-        get
-        {
-            return Enum.GetValues(typeof(StageCoordinateSystemEnum)).Cast<StageCoordinateSystemEnum>();
-        }
+        get { return Enum.GetValues(typeof(StageCoordinateSystemEnum)).Cast<StageCoordinateSystemEnum>(); }
     }
 
     public struct XYMoveData
@@ -165,6 +166,7 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
                     await Task.Delay(hostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
                     stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(EndPosition, calChipSiteModelEnum);
                 }
+
                 if (StageCoordinateSystemEnum == StageCoordinateSystemEnum.Dark)
                 {
                     stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StartPosition, calChipSiteModelEnum);
@@ -173,6 +175,7 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
                     await Task.Delay(hostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
                     stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(EndPosition, calChipSiteModelEnum);
                 }
+
                 if (StageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
                 {
                     stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(StartPosition, false);
@@ -181,6 +184,7 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
                     await Task.Delay(hostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
                     stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(EndPosition, false);
                 }
+
                 var transBuffer = await task.ConfigureAwait(false);
                 if (transBuffer.Count > 0)
                 {
@@ -239,9 +243,9 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
                             SpeedY,
                             RunTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                             PlotZ1Z2Z3 = new HtmlPlot2DLinesChart([
-                                    ("Z1", z1List.ToPoints()),
-                                    ("Z2", z2List.ToPoints()),
-                                    ("Z3", z3List.ToPoints())
+                                ("Z1", z1List.ToPoints()),
+                                ("Z2", z2List.ToPoints()),
+                                ("Z3", z3List.ToPoints())
                             ], "PlotZ1Z2Z3Curve")
                         }), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation($"StartPosition_{StartPosition} EndPosition_{EndPosition} MoveCurve",
@@ -258,11 +262,11 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
                             SumHrp = heightMax + rollMax + pitchMax,
                             RunTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                             PlotHrp = new HtmlPlot2DLinesChart([
-                                    ("H", heightList.ToPoints()),
-                                    ("R", rollList.ToPoints()),
-                                    ("P", pitchList.ToPoints()),
-                                    ("Xspeed", xspeedList.ToPoints()),
-                                    ("Yspeed", yspeedList.ToPoints())
+                                ("H", heightList.ToPoints()),
+                                ("R", rollList.ToPoints()),
+                                ("P", pitchList.ToPoints()),
+                                ("Xspeed", xspeedList.ToPoints()),
+                                ("Yspeed", yspeedList.ToPoints())
                             ], "PlotHrpAndSpeedCurve")
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -272,6 +276,7 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(StageViewModel sta
                 logger.LogError(ex, "{@Name}: Once Diagnosis Action Failed", nameof(AdsGainsDiagnosisViewModel));
             }
         }
+
         logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_OK"));
         logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
         HtmlLogUniqueId = Guid.NewGuid();

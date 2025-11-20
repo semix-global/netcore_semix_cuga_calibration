@@ -202,7 +202,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
 
         Calibrations =
@@ -210,7 +210,8 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
                     return t;
                 })
         ];
@@ -364,10 +365,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
-                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
+                IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
+                DcGainVoltage = Cache.CIBConfiguration.Gain,
+                IsL0k = Cache.CIBConfiguration.IsL0K,
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -455,7 +456,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             Cache.Item.FindPosition,
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
-            Cache.Item.CIBConfiguration,
+            Cache.CIBConfiguration,
             Cache.ProductivityInformation,
             Cache.Item.XWidthPixel,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
@@ -585,7 +586,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             if (pmtConfig
                     .Where(t => t.Enabled)
-                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation == Cache.ProductivityInformation && dto.PmtId == t.Id && dto.IsOk)) == false)
+                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && dto.PmtId == t.Id && dto.IsOk)) == false)
             {
                 DialogWindowProvider.ShowDialog("Missing pixel size for PMT configuration! Please check the pixel size calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -644,6 +645,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var verifyResultList = new List<bool>();
         var resultLineCentricityItemDtoList = new List<LaserLineCentricityItemDto>();
 
+        Cache.ProductivityInformation = centerLineCentricityItemDto.ProductivityInformation;
         if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
                 out var resultPosition, out _, out _, out _, out _) == false) return false;
         var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(resultPosition);
@@ -660,12 +662,12 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{CalibrationConstantsHelper.MainPmtId}",
-                Cache.Item.CIBConfiguration,
+                Cache.CIBConfiguration,
                 centerLineCentricityItemDto.ProductivityInformation,
                 out var position,
                 out _,
                 out _,
-                out var resultImageFilePath,
+                out _,
                 true,
                 Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
@@ -759,7 +761,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 HtmlLogUniqueId,
                 string.Empty,
                 $"{laserLineCentricityItemDto.PmtId}",
-                Cache.Item.CIBConfiguration,
+                Cache.CIBConfiguration,
                 laserLineCentricityItemDto.ProductivityInformation,
                 out var position,
                 out _,
@@ -791,7 +793,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             ForwardFindDarkMachinePosition = laserLineCentricityItemDto.FindDarkMachinePosition,
             ForwardDarkMachineCenterPosition = laserLineCentricityItemDto.DarkMachineCenterPosition,
             laserLineCentricityItemDto.TemplateFilePath,
-            ForwardFilePath = laserLineCentricityItemDto.FilePath,
+            ForwardFilePath = laserLineCentricityItemDto.FilePath
         }), HtmlLogUniqueId.LoggingHtml());
         SynchronizationContextProvider.Send(() => ResultLaserLineCentricityItemDtoList.Add(laserLineCentricityItemDto));
         return true;
@@ -810,7 +812,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         ];
         if (isSave == false) return;
 
-        CacheProvider.SetArray<LaserLineCentricityItemDto>(Calibrations, cancellationToken);
+        CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
@@ -834,7 +836,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.X)).ToArray();
-        var (polynomialX, rSquaredXError, yPredictedXError) = PolynomialLeastSquares.PolynomialFit(
+        var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.Y)),
             1);
@@ -865,7 +867,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     ("PMT Y Errors(Y:um,X:PMT ID(um))", pmtYErrorCoordinatess),
                     (pmtYErrorTitle, pmtYErrorCoordinatess.Select(t => new Point(t.X, slopeYError * t.X + interceptYError)).ToArray())
                 ],
-                "PMT Y Errors"),
+                "PMT Y Errors")
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

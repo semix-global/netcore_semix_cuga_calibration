@@ -164,7 +164,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.NextDouble()).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 

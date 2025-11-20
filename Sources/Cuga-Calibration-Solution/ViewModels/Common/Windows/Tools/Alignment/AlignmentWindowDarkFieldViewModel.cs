@@ -335,7 +335,16 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     {
         return InvokeAsync(() =>
         {
-            var result = StageViewModel.AlignmentDarkField(Cache.LowSite1, Cache.LowSite2, Cache.HighSite1, Cache.HighSite2, Cache.HighDarkFieldOpticsMagTypeEnum, Cache.HighDarkFieldStageSpeedEnum, Cache.LowMag, Cache.AlgorithmWaferTypeEnum);
+            var result = StageViewModel.AlignmentDarkField(
+                Cache.LowSite1,
+                Cache.LowSite2,
+                Cache.HighSite1,
+                Cache.HighSite2,
+                Cache.HighDarkFieldOpticsMagTypeEnum,
+                Cache.HighDarkFieldStageSpeedEnum,
+                Cache.LowMag,
+                Cache.AlgorithmWaferTypeEnum,
+                _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
             Cache.Result = result;

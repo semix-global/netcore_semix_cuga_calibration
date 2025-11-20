@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -409,7 +410,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             Cache.GeneratePrescanAODWaveformParam.DirectoryPath = PrescanFileDirectory;
 
             var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
-            if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
+            if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
             ResultCalibrateDto.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
             ResultCalibrateDto.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;

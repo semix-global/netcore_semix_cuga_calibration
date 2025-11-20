@@ -5,7 +5,6 @@ using Net.Utilities.Mapper.Interfaces;
 
 #if NET
 using CgPMTDataModel = Cuga.Data.DataStruct.PMT.CgPMTdataModel;
-
 #else
 using Cuga.Data.DataStruct.PMT;
 
@@ -54,7 +53,7 @@ public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneabl
 
     public DarkFieldPmtDataDto AdaptIn(CgPMTDataModel obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PMTId;
         Channel = obj.Channel;

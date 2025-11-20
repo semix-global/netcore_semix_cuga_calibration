@@ -1,7 +1,6 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -44,20 +43,19 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
         Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
-        Cache.GeneratePrescanAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
         var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
+        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
         Cache.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
         Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
-            GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+            GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
             Cache.PrescanAODWaveformResultFilePath,
-            PrescanAODWaveformProfiles = new HtmlTable([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+            PrescanAODWaveformProfiles = new HtmlTable([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -65,35 +63,20 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
     {
         Cache.GenerateChirpAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(item.Frequency);
-        Cache.GenerateChirpAODWaveformParam.Amplitude = Cache.DefaultAmplitude;
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-        Cache.GenerateChirpAODWaveformParam.ElectrodeConfigurations =
-        [
-            new GenerateAODWaveformElectrodeConfiguration
-            {
-                OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1,
-                OffsetFrequency = Cache.OffsetFrequency,
-                OffsetFrequencyPeriodCoefficient = 0
-            },
-            new GenerateAODWaveformElectrodeConfiguration
-            {
-                OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2,
-                OffsetFrequency = Cache.OffsetFrequency,
-                OffsetFrequencyPeriodCoefficient = item.OffsetFrequencyPeriodCoefficient
-            }
-        ];
+        Cache.GenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
 
         var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exception);
+        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         item.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
         Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
-            GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+            GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
             item.ChirpAODWaveformResultFilePath,
-            ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+            ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

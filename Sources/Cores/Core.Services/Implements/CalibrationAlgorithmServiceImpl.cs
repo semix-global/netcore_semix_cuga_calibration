@@ -191,7 +191,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             var tryGetMatchPosition = score >= templateMatchScoreThreshold;
             if (tryGetMatchPosition == false)
             {
-                logger.LogWarning("{@Name} Error: Match Score is Less Than Threshold {@MatchScoreThreshold} > {@Score}", nameof(CalibrationAlgorithmServiceImpl), templateMatchScoreThreshold, score);
+                //logger.LogWarning("{@Name} Error: Match Score is Less Than Threshold {@MatchScoreThreshold} > {@Score}", nameof(CalibrationAlgorithmServiceImpl), templateMatchScoreThreshold, score);
                 return false;
             }
 
@@ -327,6 +327,11 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (datavge1, data1);
     }
 
+    public double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    {
+        throw new NotImplementedException();
+    }
+
     public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
     {
         _algorithm.ChannelFineSamePositionPoint(image.Select(t => (HObject)t).ToList(), out var ch3SubCh1, out var ch3SubCh2, out var result);
@@ -358,15 +363,15 @@ public sealed class CalibrationAlgorithmServiceImpl(
     }
 
     public bool CalculateChuckStageMapError(
-       StageMapDto stageMapDto,
-       bool isXOnlyGantryError,
-       Guid htmlLogUniqueId,
-       int calculateContainRowMinCount,
-       int calculateContainColumnMinCount,
-       double alignmentThreshold,
-       double gantryThreshold,
-       double scaleThreshold,
-       double diameter)
+        StageMapDto stageMapDto,
+        bool isXOnlyGantryError,
+        Guid htmlLogUniqueId,
+        int calculateContainRowMinCount,
+        int calculateContainColumnMinCount,
+        double alignmentThreshold,
+        double gantryThreshold,
+        double scaleThreshold,
+        double diameter)
     {
         var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
         var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();

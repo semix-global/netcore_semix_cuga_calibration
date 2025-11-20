@@ -34,9 +34,9 @@ public sealed class MicroscopeViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<MicroscopeLensInformation> GetMicroscopeLensInformationList()
+    public IReadOnlyList<MicroscopeLensInformation> GetMicroscopeLensInformations()
     {
-        var ret = calibrationMicroscopeService.GetMicroscopeLensInformationList();
+        var ret = calibrationMicroscopeService.GetMicroscopeLensInformations();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

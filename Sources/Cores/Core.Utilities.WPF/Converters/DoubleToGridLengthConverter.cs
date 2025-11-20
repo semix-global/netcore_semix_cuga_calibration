@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace Core.Utilities.WPF.Converters;
 
-public class DoubleToGridLengthConverter : AbstractSingletonConverterBase<DoubleToGridLengthConverter>
+public sealed class DoubleToGridLengthConverter : AbstractSingletonConverterBase<DoubleToGridLengthConverter>
 {
     public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value is double i
         ? new GridLength(i)

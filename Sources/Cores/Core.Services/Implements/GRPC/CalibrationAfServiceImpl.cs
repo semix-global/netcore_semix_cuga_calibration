@@ -188,7 +188,7 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         throw new NotImplementedException();
     }
