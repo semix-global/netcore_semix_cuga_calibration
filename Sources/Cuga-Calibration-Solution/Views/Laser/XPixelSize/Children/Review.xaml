@@ -127,28 +127,25 @@
                     </Grid.RowDefinitions>
                     <hc:ScrollViewer>
                         <Border Padding="5" Style="{StaticResource BorderRegion}">
-                            <ItemsControl ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}"
-                                          VirtualizingPanel.IsVirtualizing="True"
-                                          VirtualizingPanel.VirtualizationMode="Recycling"
-                                          VirtualizingPanel.CacheLength="2,2"
-                                          VirtualizingPanel.CacheLengthUnit="Page">
-                                <ItemsControl.ItemContainerStyle>
-                                    <Style TargetType="ContentPresenter">
-                                        <Setter Property="Width" Value="300" />
-                                        <Setter Property="Height" Value="300" />
-                                    </Style>
-                                </ItemsControl.ItemContainerStyle>
-                                <ItemsControl.ItemsPanel>
+                            <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}"
+                                     VirtualizingPanel.IsVirtualizing="True"
+                                     VirtualizingPanel.VirtualizationMode="Recycling"
+                                     VirtualizingPanel.CacheLength="2,2"
+                                     VirtualizingPanel.CacheLengthUnit="Page">
+                                <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel Orientation="Horizontal" />
                                     </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Image Source="{Binding ImageFilePath}" Stretch="Uniform" />
+                                        <Image Width="300"
+                                               Height="300"
+                                               Source="{Binding ImageFilePath}"
+                                               Stretch="Uniform" />
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Border>
                     </hc:ScrollViewer>
                     <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
