@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -42,8 +43,12 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         OffsetFrequency,
         OffsetFrequencyPeriodCoefficient,
         Amplitude,
-        IsGenerateAODWaveformZero);
+        IsGenerateAODWaveformZero)
+    {
+        UniformityConfigurations = [..UniformityConfigurations.Select(t => t.AdaptTo())]
+    };
 
+    [Obsolete]
     public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
     {
         OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
@@ -57,10 +62,21 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         OffsetFrequency = OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient
+        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient,
+        UniformityConfigurations = [..UniformityConfigurations.Select(t => t.Clone())]
     };
 
     public object ToHtmlAnonymous() => new
+    {
+        OpticsAODElectrodeEnum,
+        OffsetFrequency,
+        OffsetFrequencyPeriodCoefficient,
+        Amplitude,
+        IsGenerateAODWaveformZero,
+        UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => t.ToHtmlAnonymous())])
+    };
+    
+    public object ToFlatnessHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
         OffsetFrequency,

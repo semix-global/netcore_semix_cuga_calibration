@@ -26,7 +26,6 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         EndpointSampleCount = EndpointSampleCount,
         GenerateRetryTimes = GenerateRetryTimes,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())],
         SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
         SincCoefficient = SincCoefficient,
         AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient,

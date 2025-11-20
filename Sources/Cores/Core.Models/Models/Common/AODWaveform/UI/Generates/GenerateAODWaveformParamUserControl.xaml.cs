@@ -11,6 +11,9 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.ComponentModel;
+using System.Globalization;
+using System.Windows.Data;
+using System.Windows.Markup;
 
 namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 
@@ -81,7 +84,7 @@ public sealed partial class GenerateAODWaveformParamUserControl
     });
 
     [RelayCommand]
-    private void ImportUniformityConfiguration() => Invoke(param =>
+    private void ImportUniformityConfiguration(GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration) => Invoke(_ =>
     {
         try
         {
@@ -89,7 +92,7 @@ public sealed partial class GenerateAODWaveformParamUserControl
             if (dialog == false) return;
 
             var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath).ToArray();
-            if (values.Length > 0) param.UniformityConfigurations = values;
+            if (values.Length > 0) generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
         }
         catch (Exception ex)
         {
@@ -102,23 +105,23 @@ public sealed partial class GenerateAODWaveformParamUserControl
     });
 
     [RelayCommand]
-    private void AddUniformityConfiguration() => Invoke(param =>
+    private void AddUniformityConfiguration(GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration) => Invoke(_ =>
     {
-        var configurationList = param.UniformityConfigurations.ToList();
+        var configurationList = generateAODWaveformElectrodeConfiguration.UniformityConfigurations.ToList();
         configurationList.Add(new GenerateAODWaveformUniformityConfiguration());
 
-        param.UniformityConfigurations = configurationList;
+        generateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
     });
 
     [RelayCommand]
-    private void RemoveUniformityConfiguration(IEnumerable? selectItems) => Invoke(param =>
+    private void RemoveUniformityConfiguration((GenerateAODWaveformElectrodeConfiguration GenerateAODWaveformElectrodeConfiguration, IEnumerable? SelectItems)? valueTuple) => Invoke(_ =>
     {
-        if (selectItems is null) return;
+        if (valueTuple?.SelectItems is null) return;
 
-        var configurationList = param.UniformityConfigurations.ToList();
-        foreach (GenerateAODWaveformUniformityConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
+        var configurationList = valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations.ToList();
+        foreach (GenerateAODWaveformUniformityConfiguration selectItem in valueTuple.Value.SelectItems) configurationList.Remove(selectItem);
 
-        param.UniformityConfigurations = configurationList;
+        valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
     });
 
     [RelayCommand]
@@ -150,4 +153,19 @@ public sealed partial class GenerateAODWaveformParamUserControl
 
         action.Invoke(param);
     }
+}
+
+public sealed class RemoveUniformityConfigurationConvert : MarkupExtension, IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        return values is [GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration, IEnumerable selectItems]
+            ? (generateAODWaveformElectrodeConfiguration, selectItems)
+            : ThrowHelper.ThrowNotSupportedException<object>();
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => ThrowHelper.ThrowNotSupportedException<object[]>();
+
+    public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }

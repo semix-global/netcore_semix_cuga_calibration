@@ -76,8 +76,7 @@ public class AODWaveformUnitTest
         {
             param.FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness;
             param.BandWidth = 0d;
-            param.UniformityConfigurations = [];
-            param.UniformityConfigurations = [];
+            foreach (var item in param.ElectrodeConfigurations) item.UniformityConfigurations = [];
             param.SincCoefficient = 0d;
             param.AstigmatismCompensationCoefficient = 0d;
             param.SphericalAberrationCompensationCoefficient = 0d;
@@ -91,7 +90,7 @@ public class AODWaveformUnitTest
 
         if (isUseUniformityConfigurations)
         {
-            param.UniformityConfigurations = uniformityConfigurations;
+            foreach (var item in param.ElectrodeConfigurations) item.UniformityConfigurations = uniformityConfigurations;
             param.SincCoefficient = 0d;
         }
 
