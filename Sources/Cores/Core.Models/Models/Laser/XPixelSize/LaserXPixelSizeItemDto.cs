@@ -41,12 +41,12 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
     [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> SlideItemPoints => [..SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
+    public IReadOnlyList<Point> SlideItemPoints => [.. SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
     [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> VerifyItemPoints => [..VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
+    public IReadOnlyList<Point> VerifyItemPoints => [.. VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     [ObservableProperty]
     private IReadOnlyList<double> _verifySplitDifferences = [];
@@ -60,7 +60,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
         XPixelSize = XPixelSize,
         RawImageFilePath = RawImageFilePath,
         SlideItems = [.. SlideItems],
-        SlideSplitDifferences = [..SlideSplitDifferences],
+        SlideSplitDifferences = [.. SlideSplitDifferences],
         VerifyItems = [.. VerifyItems],
         VerifySplitDifferences = [.. VerifySplitDifferences],
         IsCalibrated = IsCalibrated,

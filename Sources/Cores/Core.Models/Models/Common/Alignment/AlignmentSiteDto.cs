@@ -9,7 +9,6 @@ using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 

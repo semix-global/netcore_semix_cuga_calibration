@@ -413,12 +413,12 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
         // todo:缺光强
         var sxExecuteRet = Invoke(() => Service2?.DFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ESxLevelEnum mag, ESxLevelEnum speed, ushort ll)>
         ((brightFieldLowSite1.AdaptTo(),
-            brightFieldLowSite2.AdaptTo(),
-            darkFieldHighSite1.AdaptTo(),
-            darkFieldHighSite2.AdaptTo(),
-            opticsMagTypeEnum.ToESxLevelEnum(),
-            xStageSpeedEnum.ToESxLevelEnum(),
-            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)
+                brightFieldLowSite2.AdaptTo(),
+                darkFieldHighSite1.AdaptTo(),
+                darkFieldHighSite2.AdaptTo(),
+                opticsMagTypeEnum.ToESxLevelEnum(),
+                xStageSpeedEnum.ToESxLevelEnum(),
+                Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)
             ))));
 
         return sxExecuteRet.IsSuccess == false

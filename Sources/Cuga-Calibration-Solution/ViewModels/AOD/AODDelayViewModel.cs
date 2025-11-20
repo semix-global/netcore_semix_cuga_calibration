@@ -133,7 +133,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
-                    
+
                     return t;
                 })
         ];

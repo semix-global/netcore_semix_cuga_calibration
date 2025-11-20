@@ -110,7 +110,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
-                    
+
                     return t;
                 })
         ];

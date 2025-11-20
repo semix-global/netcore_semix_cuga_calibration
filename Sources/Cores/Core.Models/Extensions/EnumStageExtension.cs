@@ -7,7 +7,6 @@ using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Basic;
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
-
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;

@@ -5,7 +5,6 @@ using Cuga.Data.DataStruct.Optics;
 #if NET
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
-
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
