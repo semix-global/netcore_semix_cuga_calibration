@@ -164,7 +164,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         return Reviews.Any(t => t.IsCalibrated);
     }
 
-
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -206,8 +205,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return true;
 
             case 2:
-                if (Cache.Item.FindBFMachinePosition != Point.Origin) StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
-                else StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindBFMachinePosition != Point.Origin
+                    ? StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
+                    : Point.Origin);
 
                 return true;
 
@@ -864,7 +864,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             {
                 var title = item.IsMatchOk ? $"{item.MatchPoint.X:0.###}px" : $"{startPixel}px";
 
-                item.ImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(Cache.Item.TemplateImageFilePath), $"{startPixel}.jpg");
+                item.ImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(Cache.Item.TemplateImageFilePath), $"{startPixel}_{Guid.NewGuid():N}.jpg");
                 image.Save(item.ImageFilePath);
 
                 var bullet = new HtmlBullet(new

@@ -14,7 +14,6 @@ using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -1429,6 +1428,7 @@ public sealed class LaserViewModel(
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
+
         var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
                                   && t.PmtId == pmtId);
