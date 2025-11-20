@@ -104,7 +104,7 @@
                     <controls:ScatterMultiPlotControl Title="Slide Match(Y: Score - X: px)" ScatterLine0Points="{Binding CalibratingItem.SlideItemPoints}" />
                 </Border>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <controls:ScatterMultiPlotControl Title="Slide Split Differences(Y: px - X: Die)" ScatterLine0Points="{Binding CalibratingItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}}" />
+                    <controls:ScatterMultiPlotControl Title="Slide Split Differences(Y: px - X: Die - Die)" ScatterLine0Points="{Binding CalibratingItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}}" />
                 </Border>
             </Grid>
         </GroupBox>
