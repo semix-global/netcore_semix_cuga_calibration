@@ -145,8 +145,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        CalibratingItem = new LaserXPixelSizeItemDto();
-
         return true;
     }
 
@@ -199,6 +197,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         switch (CalibrationStepIndex)
         {
             case 0:
+                CalibratingItem = new LaserXPixelSizeItemDto();
+
                 return true;
 
             case 1:
@@ -238,11 +238,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
-            CalibratingItem = new LaserXPixelSizeItemDto
-            {
-                ProductivityInformation = Cache.ProductivityInformation
-            };
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation
@@ -259,10 +254,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         {
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
             MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-
-            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
-            CalibratingItem.PMTId = Cache.Item.PMTId;
-            CalibratingItem.ChannelId = Cache.Item.ChannelId;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -442,6 +433,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
 
+            CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
+            CalibratingItem.PMTId = Cache.Item.PMTId;
+            CalibratingItem.ChannelId = Cache.Item.ChannelId;
+
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
                 DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
@@ -582,6 +578,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 .ToArray();
             var average = xDifferences.Average();
             var xFilterDifferences = xDifferences.Where(t => t >= average).ToArray();
+            CalibratingItem.SlideSplitDifferences = xFilterDifferences;
+
             var isOk = xFilterDifferences.Length == imageCount - 1;
 
             var htmlAnonymous = new
@@ -597,7 +595,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
                 return false;
             }
-
 
             CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / xFilterDifferences.Average();
 
@@ -677,7 +674,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 var imageCount = currentRowDies.Length;
                 Guard.IsGreaterThan(imageCount, 2);
 
-                var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * CalibratingItem.XPixelSize / 2d, 0);
+                var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * item.XPixelSize / 2d, 0);
                 var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
                 var verifyDarkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
@@ -753,6 +750,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 var verifyXDifferences = item.VerifyItems
                     .Zip(item.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
+                item.VerifySplitDifferences = verifyXDifferences;
+
                 var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / verifyXDifferences.Average();
 
                 var waferDiameter = Cache.Item.WaferRadius * 2d;

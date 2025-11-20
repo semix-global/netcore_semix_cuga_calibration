@@ -645,6 +645,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var verifyResultList = new List<bool>();
         var resultLineCentricityItemDtoList = new List<LaserLineCentricityItemDto>();
 
+        Cache.ProductivityInformation = centerLineCentricityItemDto.ProductivityInformation;
         if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
                 out var resultPosition, out _, out _, out _, out _) == false) return false;
         var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(resultPosition);

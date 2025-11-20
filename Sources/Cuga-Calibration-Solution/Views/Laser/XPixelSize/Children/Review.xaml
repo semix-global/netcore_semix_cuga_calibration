@@ -74,9 +74,9 @@
         <GroupBox Grid.Column="2" Header="Calibration Data">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="0.5*" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="10" />
-                    <RowDefinition Height="0.5*" />
+                    <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
                 <ListView x:Name="Listview"
                           d:SelectedIndex="0"
@@ -127,11 +127,7 @@
                     </Grid.RowDefinitions>
                     <hc:ScrollViewer>
                         <Border Padding="5" Style="{StaticResource BorderRegion}">
-                            <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}"
-                                     VirtualizingPanel.IsVirtualizing="True"
-                                     VirtualizingPanel.VirtualizationMode="Recycling"
-                                     VirtualizingPanel.CacheLength="2,2"
-                                     VirtualizingPanel.CacheLengthUnit="Page">
+                            <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel Orientation="Horizontal" />
@@ -139,23 +135,43 @@
                                 </ListBox.ItemsPanel>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Image Width="300"
-                                               Height="300"
-                                               Source="{Binding ImageFilePath}"
-                                               Stretch="Uniform" />
+                                        <Border Width="300"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <Image Source="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" Stretch="Uniform" />
+                                        </Border>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
                         </Border>
                     </hc:ScrollViewer>
                     <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                        <controls:ScatterMultiPlotControl Title="Match(Y: Score - X: px)"
-                                                          ScatterLine0Title="Slide"
-                                                          ScatterLine0Points="{Binding SelectedItem.SlideItemPoints, ElementName=Listview}"
-                                                          ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
-                                                          ScatterLine1Title="Verify"
-                                                          ScatterLine1Points="{Binding SelectedItem.VerifyItemPoints, ElementName=Listview}"
-                                                          ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource BorderRegion}">
+                                <controls:ScatterMultiPlotControl Title="Match(Y: Score - X: px)"
+                                                                  ScatterLine0Title="Calibrate"
+                                                                  ScatterLine0Points="{Binding SelectedItem.SlideItemPoints, ElementName=Listview}"
+                                                                  ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
+                                                                  ScatterLine1Title="Verify"
+                                                                  ScatterLine1Points="{Binding SelectedItem.VerifyItemPoints, ElementName=Listview}"
+                                                                  ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
+                                <controls:ScatterMultiPlotControl Title="Split Differences(Y: px - X: Die)"
+                                                                  ScatterLine0Title="Slide"
+                                                                  ScatterLine0Points="{Binding SelectedItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
+                                                                  ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
+                                                                  ScatterLine1Title="Verify"
+                                                                  ScatterLine1Points="{Binding SelectedItem.VerifySplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
+                                                                  ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
+                            </Border>
+                        </Grid>
+
                     </Border>
                 </Grid>
             </Grid>

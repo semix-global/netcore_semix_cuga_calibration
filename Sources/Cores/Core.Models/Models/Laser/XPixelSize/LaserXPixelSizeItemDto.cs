@@ -32,6 +32,9 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     private IReadOnlyList<LaserXPixelSizeSlideItem> _slideItems = [];
 
     [ObservableProperty]
+    private IReadOnlyList<double> _slideSplitDifferences = [];
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
     private IReadOnlyList<LaserXPixelSizeSlideItem> _verifyItems = [];
 
@@ -45,6 +48,9 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     [LiteDB.BsonIgnore]
     public IReadOnlyList<Point> VerifyItemPoints => [..VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
+    [ObservableProperty]
+    private IReadOnlyList<double> _verifySplitDifferences = [];
+
     #region Mapper
 
     public LaserXPixelSizeItemDto Clone() => new()
@@ -54,7 +60,9 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
         XPixelSize = XPixelSize,
         RawImageFilePath = RawImageFilePath,
         SlideItems = [.. SlideItems],
+        SlideSplitDifferences = [..SlideSplitDifferences],
         VerifyItems = [.. VerifyItems],
+        VerifySplitDifferences = [.. VerifySplitDifferences],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

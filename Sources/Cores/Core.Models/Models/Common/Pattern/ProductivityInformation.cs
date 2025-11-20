@@ -6,7 +6,6 @@ using Net.Utilities.Mapper.Interfaces;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -73,7 +72,7 @@ public sealed class ProductivityInformation :
         if (other is null) return 1;
 
         var opticsMagTypeComparison = OpticsMagType.CompareTo(other.OpticsMagType);
-        if (opticsMagTypeComparison != 0) return opticsMagTypeComparison;
+        if (opticsMagTypeComparison != 0) return -opticsMagTypeComparison;
 
         var stageSpeedTypeComparison = StageSpeedType.CompareTo(other.StageSpeedType);
         if (stageSpeedTypeComparison != 0) return stageSpeedTypeComparison;

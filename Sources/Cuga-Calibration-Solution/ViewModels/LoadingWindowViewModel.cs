@@ -82,7 +82,7 @@ public sealed partial class LoadingWindowViewModel(
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone()).OrderBy(t => t)];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone()).OrderByDescending(t => t)];
-            applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone()).OrderByDescending(t => t)];
+            applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone()).OrderBy(t => t)];
 
             contextProvider.Send(() => CloseView(true));
 
