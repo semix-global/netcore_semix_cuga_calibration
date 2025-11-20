@@ -1,8 +1,8 @@
-﻿using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Converters;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 

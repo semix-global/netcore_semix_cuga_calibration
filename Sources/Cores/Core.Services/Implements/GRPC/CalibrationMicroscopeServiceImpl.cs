@@ -30,7 +30,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
         });
     }
 
-    public SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformationList()
+    public SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformations()
     {
         if (_microscopeLensInformationList is not null) return SxExecuteRetHelper.CreateSuccess(_microscopeLensInformationList);
 
@@ -53,7 +53,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
 
     public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
     {
-        var sxExecuteRet = GetMicroscopeLensInformationList();
+        var sxExecuteRet = GetMicroscopeLensInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, MicroscopeLensInformation.Default);
 
         var result = sxExecuteRet.Anything

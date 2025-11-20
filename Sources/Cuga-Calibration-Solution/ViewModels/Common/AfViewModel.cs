@@ -183,11 +183,11 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)> GetNscCompensationCoefficientTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetNscCompensationCoefficientTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
+        var ret = calibrationAfService.GetSensorNscTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
 
         logger.LogInformation("End TraceBuffer");
 

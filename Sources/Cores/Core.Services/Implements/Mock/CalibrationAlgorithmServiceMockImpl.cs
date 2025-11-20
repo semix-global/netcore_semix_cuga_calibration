@@ -2,14 +2,18 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Models.Geometries;
 using System.IO;
 using Rect = Net.Utilities.Models.Geometries.Rect;
@@ -17,22 +21,29 @@ using Rect = Net.Utilities.Models.Geometries.Rect;
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation affineTransformation) : ICalibrationAlgorithmService
+public sealed class CalibrationAlgorithmServiceMockImpl(
+    ILogger<CalibrationAlgorithmServiceImpl> logger,
+    CalibrationSetting calibrationSetting,
+    AffineTransformation affineTransformation) : ICalibrationAlgorithmService
 {
     private static readonly Random Random = new();
 
+    private readonly CalibrationAlgorithmServiceImpl _calibrationAlgorithmServiceImpl = new(logger, calibrationSetting, affineTransformation);
     private readonly Algorithm _algorithm = new();
+    private readonly bool _isUseMock = true;
 
-    public string Version => HAlgorithm.Algorithm.Version;
+    public string Version => Algorithm.Version;
 
     public double GetQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
+
     public double GetDarkFieldQuality(HImage image)
     {
         return Random.Next(100, 1000);
     }
+
     public (double XQuality, double YQuality) GetXyQuality(HImage image)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
@@ -63,55 +74,68 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
     public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage)
     {
-        templateImage = image.ToRoi(rect);
-        templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
-
-        switch (algorithmTemplateTypeEnum)
+        if (_isUseMock)
         {
-            case AlgorithmTemplateTypeEnum.Sharpe:
-                templateImage.SaveSharpeTemplate(templateFilePath);
-                break;
+            templateImage = image.ToRoi(rect);
+            templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
 
-            case AlgorithmTemplateTypeEnum.Ncc:
-                templateImage.SaveNccTemplate(templateFilePath);
-                break;
+            switch (algorithmTemplateTypeEnum)
+            {
+                case AlgorithmTemplateTypeEnum.Sharpe:
+                    templateImage.SaveSharpeTemplate(templateFilePath);
+                    break;
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null);
+                case AlgorithmTemplateTypeEnum.Ncc:
+                    templateImage.SaveNccTemplate(templateFilePath);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null);
+            }
+
+            return true;
         }
 
-        return true;
+        return _calibrationAlgorithmServiceImpl.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, out templateImage);
     }
 
     public bool TryReadTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, out HTuple templateId)
     {
-        templateId = HalconFactory.EmptyHTuple;
+        if (_isUseMock)
+        {
+            templateId = HalconFactory.EmptyHTuple;
 
-        var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
-        if (File.Exists(temp) == false) throw new FileNotFoundException(nameof(templateFilePath), temp);
+            var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
+            if (File.Exists(temp) == false) throw new FileNotFoundException(nameof(templateFilePath), temp);
 
-        _algorithm.HReadModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, out templateId);
+            _algorithm.HReadModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, out templateId);
 
-        return true;
+            return true;
+        }
+
+        return _calibrationAlgorithmServiceImpl.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out templateId);
     }
 
     public bool TryCleanTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HTuple templateId)
     {
-        _algorithm.HClearModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId);
+        if (_isUseMock) _algorithm.HClearModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId);
 
-        return true;
+        return _calibrationAlgorithmServiceImpl.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
     }
 
     public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
-        score = Random.NextDouble() * 10;
-        angle = Random.Next(1, 10);
-        offsetPoint = new Point(Random.Next(1, 10), Random.Next(1, 10));
+        if (_isUseMock)
+        {
+            score = Random.NextDouble() * 10;
+            angle = Random.Next(1, 10);
+            offsetPoint = new Point(Random.Next(1, 10), Random.Next(1, 10));
 
-        var size = image.GetSize();
-        markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+            var size = image.GetSize();
+            markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+        }
 
-        return true;
+        return _calibrationAlgorithmServiceImpl.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out markPoint, out offsetPoint, out score, out angle);
     }
 
     public bool TryGenerateProjectionTemplate(HImage image, string templateFilePath, out HImage templateImage)
@@ -172,6 +196,17 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
         return ([], []);
     }
 
+    public double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    {
+        var size = hazeImage.GetSize();
+        var sizeI = (SizeI)size;
+        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(sizeI.Width, sizeI.Height, 10, Random);
+
+        drawingImage = bitmapImage.ToHImage();
+
+        return Random.NextDouble();
+    }
+
     public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
     {
         var ch1YList = new List<double>();
@@ -202,15 +237,15 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
     }
 
     public bool CalculateChuckStageMapError(
-         StageMapDto stageMapDto,
-         bool isXOnlyGantryError,
-         Guid htmlLogUniqueId,
-         int calculateContainRowMinCount,
-         int calculateContainColumnMinCount,
-         double alignmentThreshold,
-         double gantryThreshold,
-         double scaleThreshold,
-         double diameter)
+        StageMapDto stageMapDto,
+        bool isXOnlyGantryError,
+        Guid htmlLogUniqueId,
+        int calculateContainRowMinCount,
+        int calculateContainColumnMinCount,
+        double alignmentThreshold,
+        double gantryThreshold,
+        double scaleThreshold,
+        double diameter)
     {
         try
         {
@@ -251,7 +286,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(AffineTransformation aff
 
             return isSuccess;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }

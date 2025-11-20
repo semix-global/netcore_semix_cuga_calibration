@@ -1,11 +1,6 @@
-using System.Collections;
-using System.ComponentModel;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.Nlog.Extensions;
-using System.IO;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities;
@@ -17,11 +12,16 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
+using System.Collections;
+using System.ComponentModel;
+using System.IO;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -218,12 +218,12 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             {
                 0 => new
                 {
-                    ElectrodeOffsetItems = new HtmlContainer([..Cache.Step0Items.Select(t => new HtmlExpand(new HtmlContainer([..t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]), t.Title))])
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
                 1 => new
                 {
-                    ElectrodeOffsetItems = new HtmlContainer([..Cache.Step0Items.Select(t => new HtmlExpand(new HtmlContainer([..t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]), t.Title))]),
-                    UniformityItems = new HtmlContainer([..Cache.Step1Items.Select(t => new HtmlExpand(new HtmlContainer([..t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]), t.Title))])
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]),
+                    UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
@@ -673,7 +673,6 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 
     public AODWaveformElectrodeOffsetStep0()
     {
-        ScatterPlotControl.Configure();
         ScatterPlotControl.ToggleLegend(false);
     }
 
@@ -748,7 +747,7 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
             ];
         }
 
-        var (results, _) = Extremumor.FindClosestExtremum([..Items.Select(t => Vector<double>.Build.DenseOfEnumerable(t.FrequencyMaximaPoints.Select(tt => tt.X)))]);
+        var (results, _) = Extremumor.FindClosestExtremum([.. Items.Select(t => Vector<double>.Build.DenseOfEnumerable(t.FrequencyMaximaPoints.Select(tt => tt.X)))]);
 
         foreach (var (index, (xIndex, xValue)) in results.Index())
         {
@@ -840,7 +839,7 @@ public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableC
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
                 $"{item.FrequencyItems[0].Frequency}(MHz)",
-                [..item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
+                [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
                 index,
                 new Range(0, Items.Count - 1));
 

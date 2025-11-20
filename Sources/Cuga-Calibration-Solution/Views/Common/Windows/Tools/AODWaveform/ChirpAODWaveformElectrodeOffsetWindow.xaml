@@ -260,7 +260,7 @@
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:TitleElement.Title="Measure Machine Position:"
+                                             hc:TitleElement.Title="Measure Machine Position(um):"
                                              hc:TitleElement.TitlePlacement="Left"
                                              hc:TitleElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />

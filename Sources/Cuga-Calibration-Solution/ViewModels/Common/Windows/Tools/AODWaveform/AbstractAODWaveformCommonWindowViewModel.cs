@@ -17,9 +17,9 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
+using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Net.Utilities.WPF.MVVM.Services;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -179,9 +179,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                 if (isShowDialog) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
             }
             else
-            {
                 DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            }
 
             return isSuccess;
         }).ConfigureAwait(false);

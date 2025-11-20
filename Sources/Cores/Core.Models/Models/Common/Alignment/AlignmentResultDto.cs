@@ -7,7 +7,6 @@ using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -55,7 +54,7 @@ public sealed partial class AlignmentResultDto : ObservableCacheBase, ICloneable
 
     public AlignmentResultDto AdaptIn(C2MAlignResult obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         Degrees = obj.Degrees;
         MarkPoint1 = obj.EndPoint1.ToPoint();
@@ -65,4 +64,11 @@ public sealed partial class AlignmentResultDto : ObservableCacheBase, ICloneable
     }
 
     #endregion Mapper
+
+    public object ToHtmlAnonymous() => new
+    {
+        Degrees,
+        MarkPoint1,
+        MarkPoint2
+    };
 }

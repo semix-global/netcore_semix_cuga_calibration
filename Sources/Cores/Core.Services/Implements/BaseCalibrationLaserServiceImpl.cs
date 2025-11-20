@@ -8,6 +8,7 @@ using Semix.CoreLib;
 #if NET
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.GRPC;
+
 #else
 
 // ReSharper disable once CheckNamespace

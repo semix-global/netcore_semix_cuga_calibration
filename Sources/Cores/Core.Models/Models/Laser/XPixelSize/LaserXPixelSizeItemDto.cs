@@ -10,37 +10,46 @@ namespace Core.Models.Models.Laser.XPixelSize;
 public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDto>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _pmtId;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _findPosition;
+    private int _pMTId;
 
     [ObservableProperty]
-    private Point _findStartPosition;
-
-    [ObservableProperty]
-    private Point _findEndPosition;
+    private int _channelId;
 
     [ObservableProperty]
     private double _xPixelSize;
 
     [ObservableProperty]
-    private string _fileTemplatePath = String.Empty;
+    private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _filePath = String.Empty;
+    [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
+    private IReadOnlyList<LaserXPixelSizeSlideItem> _slideItems = [];
 
     [ObservableProperty]
-    private string _originalFilePath = String.Empty;
+    private IReadOnlyList<double> _slideSplitDifferences = [];
 
     [ObservableProperty]
-    private List<DarkFieldXPixelSizeICropImage> _darkFieldCropImageList = [];
+    [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
+    private IReadOnlyList<LaserXPixelSizeSlideItem> _verifyItems = [];
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
+    public IReadOnlyList<Point> SlideItemPoints => [.. SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
+    public IReadOnlyList<Point> VerifyItemPoints => [.. VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _verifySplitDifferences = [];
 
     #region Mapper
 
@@ -48,14 +57,12 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     {
         MicroscopeLensInformation = MicroscopeLensInformation,
         ProductivityInformation = ProductivityInformation.Clone(),
-        PmtId = PmtId,
-        FindPosition = FindPosition,
-        FindStartPosition = FindStartPosition,
-        FindEndPosition = FindEndPosition,
         XPixelSize = XPixelSize,
-        FilePath = FilePath,
-        FileTemplatePath = FileTemplatePath,
-        DarkFieldCropImageList = [.. DarkFieldCropImageList.Select(x => x.Clone())],
+        RawImageFilePath = RawImageFilePath,
+        SlideItems = [.. SlideItems],
+        SlideSplitDifferences = [.. SlideSplitDifferences],
+        VerifyItems = [.. VerifyItems],
+        VerifySplitDifferences = [.. VerifySplitDifferences],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -75,33 +82,22 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     #endregion Mapper
 }
 
-public sealed partial class DarkFieldXPixelSizeICropImage : ObservableObject, ICloneable<DarkFieldXPixelSizeICropImage>
+public sealed class LaserXPixelSizeSlideItem
 {
-    [ObservableProperty]
-    private Point _position;
+    public long StartPixel { get; init; }
 
-    [ObservableProperty]
-    private byte[] _byteArray = [];
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
+    public byte[] Buffer { get; init; } = [];
 
-    [ObservableProperty]
-    private double _width;
+    public SizeI SizeI { get; init; }
 
-    [ObservableProperty]
-    private double _height;
+    public Point MatchPoint { get; set; }
 
-    [ObservableProperty]
-    private string _filePath = string.Empty;
+    public double Score { get; set; }
 
-    [ObservableProperty]
-    private List<double> _darkFieldImageList = [];
+    public string ImageFilePath { get; set; } = string.Empty;
 
-    public DarkFieldXPixelSizeICropImage Clone() => new()
-    {
-        Position = Position,
-        ByteArray = ByteArray,
-        Width = Width,
-        Height = Height,
-        FilePath = FilePath,
-        DarkFieldImageList = DarkFieldImageList
-    };
+    public bool IsMatchOk { get; set; }
 }

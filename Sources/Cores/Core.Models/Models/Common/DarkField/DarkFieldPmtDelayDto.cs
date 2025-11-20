@@ -62,7 +62,7 @@ public sealed partial class DarkFieldPmtDelayDto : ObservableCacheBase, ICloneab
 
     public DarkFieldPmtDelayDto AdaptIn(CgPMTDelayModel obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PMTId;
         ChannelId = obj.Channel;

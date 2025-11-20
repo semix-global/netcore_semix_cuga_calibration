@@ -13,11 +13,6 @@
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
-    <!--  在资源部分添加转换器  -->
-    <UserControl.Resources>
-        <viewModels:EcsNscToPointsConverter x:Key="EcsNscToPointsConverter" />
-    </UserControl.Resources>
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320" />
@@ -173,12 +168,12 @@
                                 <behaviors:WpfPlotMultiBehavior Title="EcsNsc"
                                                                 Plot0Title="EcsNscCurve"
                                                                 Plot0Color="{x:Static scottPlot:Colors.DarkOrange}"
-                                                                Plot0="{Binding ResultLaserAutoFocusDto.EcsNscPointList}"
+                                                                Plot0="{Binding ResultLaserAutoFocusDto.OriginEcsNscPoints}"
                                                                 Plot1Title="EcsNscSlope"
                                                                 Plot1Color="{x:Static scottPlot:Colors.Green}"
-                                                                Plot1="{Binding ResultLaserAutoFocusDto.EcsNscMaxMinList}" />
+                                                                Plot1="{Binding ResultLaserAutoFocusDto.OriginEcsNscMaxMins}" />
                             </i:Interaction.Behaviors>
-                        </wpf:WpfPlot>   
+                        </wpf:WpfPlot>
                     </Grid>
                 </Border>
             </GroupBox>

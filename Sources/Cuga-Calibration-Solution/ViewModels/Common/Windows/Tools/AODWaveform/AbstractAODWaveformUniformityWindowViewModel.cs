@@ -129,7 +129,7 @@ public abstract partial class AbstractAODWaveformUniformityWindowViewModel<TCach
             CoefficientPoints = new HtmlPlot2DLinesChart([(string.Empty, Cache.CoefficientPoints)], string.Empty)
         }), HtmlLogUniqueId.LoggingHtml());
     }
-    
+
     [RelayCommand]
     private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
 

@@ -57,7 +57,7 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     private Point _offsetPosition;
 
     [ObservableProperty]
-    private double _offsetAngle;
+    private double _degrees;
 
     [ObservableProperty]
     private Point _efemLoadWaferStagePosition;
@@ -66,16 +66,16 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     private double _efemLoadWaferChuckAngle;
 
     [ObservableProperty]
-    private double _angleErrorThreshold = 0.3;
+    private double _teachingDegreesThreshold = 0.3;
 
     [ObservableProperty]
-    private double _angleThreshold = 0.1;
+    private double _verifyDegreesThreshold = 0.1;
 
     [ObservableProperty]
-    private double _positionThreshold = 100;
+    private double _teachingPositionThreshold = 100;
 
     [ObservableProperty]
-    private double _positionErrorThreshold = 300;
+    private double _verifyPositionThreshold = 300;
 
     [ObservableProperty]
     private Point _findWaferCenterOffset1;
@@ -100,30 +100,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 
     [ObservableProperty]
     private Point _findWaferCenterOffset8;
-
-    [ObservableProperty]
-    private Point _lowFindPosition1;
-
-    [ObservableProperty]
-    private Point _lowFindPosition2;
-
-    [ObservableProperty]
-    private Point _highFindPosition1;
-
-    [ObservableProperty]
-    private Point _highFindPosition2;
-
-    [ObservableProperty]
-    private string _lowTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTemplateImageFilePath = string.Empty;
 
     [property: LiteDB.BsonIgnore]
     [ObservableProperty]

@@ -28,7 +28,7 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformationList()
+    public SxExecuteRet<IReadOnlyList<MicroscopeLensInformation>> GetMicroscopeLensInformations()
     {
         Thread.Sleep(100);
 
@@ -77,7 +77,7 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
 
     public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)
     {
-        var sxExecuteRet = GetMicroscopeLensInformationList();
+        var sxExecuteRet = GetMicroscopeLensInformations();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, MicroscopeLensInformation.Default);
 
         var result = sxExecuteRet.Anything

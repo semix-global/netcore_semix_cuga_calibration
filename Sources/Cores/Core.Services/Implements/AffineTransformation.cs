@@ -1008,13 +1008,13 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
         // 计算出需要扩展的行列数
         var expandLeftColumnCount = (int)Math.Ceiling((baseStageMapLeftMinX - expandedStageMapLeftMinX) / baseStageMap.ColumnCellWidth);
-        Guard.IsGreaterThanOrEqualTo(expandLeftColumnCount, 0, nameof(expandLeftColumnCount));
+        Guard.IsGreaterThanOrEqualTo(expandLeftColumnCount, 0);
         var expandRightColumnCount = (int)Math.Ceiling((expandedStageMapRightMaxX - baseStageMapRightMaxX) / baseStageMap.ColumnCellWidth);
-        Guard.IsGreaterThanOrEqualTo(expandRightColumnCount, 0, nameof(expandRightColumnCount));
+        Guard.IsGreaterThanOrEqualTo(expandRightColumnCount, 0);
         var expandBottomRowCount = (int)Math.Ceiling((baseStageMapBottomMinY - expandedStageMapBottomMinY) / baseStageMap.RowCellHeight);
-        Guard.IsGreaterThanOrEqualTo(expandBottomRowCount, 0, nameof(expandBottomRowCount));
+        Guard.IsGreaterThanOrEqualTo(expandBottomRowCount, 0);
         var expandTopRowCount = (int)Math.Ceiling((expandedStageMapTopMaxY - baseStageMapTopMaxY) / baseStageMap.RowCellHeight);
-        Guard.IsGreaterThanOrEqualTo(expandTopRowCount, 0, nameof(expandTopRowCount));
+        Guard.IsGreaterThanOrEqualTo(expandTopRowCount, 0);
 
         var expandColumnNumber = baseStageMap.ColumnNumber + expandLeftColumnCount + expandRightColumnCount;
         var expandRowNumber = baseStageMap.RowNumber + expandBottomRowCount + expandTopRowCount;
@@ -1078,8 +1078,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                     Guard.IsLessThanOrEqualTo((baseStageMapItem.Point - (Vector)idealPoint).ToOriginLength, 1e-8, nameof(baseStageMapItem));
                     if (baseStageMapItem.IsInWafer) // 如果基中有数据且在晶圆内
                     {
-                        Guard.IsNotNull(baseReal, nameof(baseReal));
-                        Guard.IsNotNull(baseError, nameof(baseError));
+                        Guard.IsNotNull(baseReal);
+                        Guard.IsNotNull(baseError);
                         resultStageMap.IdealStageMapItemMatrix[row][column] = baseStageMapItem.Clone();
                         resultStageMap.RealMatrix[row][column] = baseReal.Value;
                         resultStageMap.ErrorMatrix[row][column] = baseError.Value;

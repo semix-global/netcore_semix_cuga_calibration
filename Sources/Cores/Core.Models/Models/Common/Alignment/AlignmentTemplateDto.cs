@@ -7,7 +7,6 @@ using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -55,7 +54,7 @@ public sealed partial class AlignmentTemplateDto : ObservableCacheBase, ICloneab
 
     public AlignmentTemplateDto AdaptIn(C2MTemplateDTO obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         Name = obj.Name ?? string.Empty;
         Thumb = obj.Thumb is not null ? [.. obj.Thumb] : [];

@@ -1,15 +1,14 @@
 using Core.Models.Helper;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.IOC.Providers;
-using Net.Utilities.WPF.Helper;
+using Net.Utilities.Models.Enums.Files;
 using Semix.CoreLib;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.IO;
 using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace Core.Services.Implements.Mock;
@@ -32,50 +31,19 @@ public sealed class CalibrationReviewServiceMockImpl(ISynchronizationContextProv
 
     public SxExecuteRet<HImage> GetBrightFieldImage()
     {
-        var bitmapMemoryByteArray = GetBrightFieldImageMemoryByteArray().Anything;
-        var bytes = BitmapSourceHelper.BitmapSourceToByteRawArray(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(bitmapMemoryByteArray));
+        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(Width, Height, 10, Random);
 
-        return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes, Width, Height, Channels, Channels * 8));
+        return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()
     {
-        try
-        {
-            BitmapSource bmp = null!;
-            contextProvider.Send(() =>
-            {
-                var drawingVisual = new DrawingVisual();
-                using (var drawingContext = drawingVisual.RenderOpen())
-                {
-                    drawingContext.DrawRectangle(Brushes.DarkGray, null, new Rect(0, 0, Width, Height));
-                    // 画50个随机椭圆
-                    for (var i = 0; i < 10; i++)
-                    {
-                        double centerX = Random.Next(Width);
-                        double centerY = Random.Next(Height);
-                        double radiusX = Random.Next(500);
-                        double radiusY = Random.Next(500);
-                        drawingContext.DrawEllipse(Brushes.LightBlue, null, new Point(centerX, centerY), radiusX, radiusY);
-                    }
+        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(Width, Height, 10, Random);
+        using var memorySteam = new MemoryStream();
 
-                    drawingContext.DrawEllipse(Brushes.Black, null, new Point(Width / 2d + Random.NextDouble(), Height / 2d + Random.NextDouble()), 10, 10);
-                }
+        bitmapImage.Save(memorySteam, ImageTypeEnum.Bmp);
 
-                // 创建一个RenderTargetBitmap，用于保存绘制的内容
-                var temp = new RenderTargetBitmap(Width, Height, 96, 96, PixelFormats.Pbgra32);
-                temp.Render(drawingVisual);
-                temp.Freeze();
-                bmp = new FormatConvertedBitmap(temp, BitmapSourceHelper.GetPixelFormat(Channels), null, 0);
-                bmp.Freeze();
-            });
-
-            return SxExecuteRetHelper.CreateSuccess(BitmapSourceHelper.BitmapSourceToBitmapMemoryByteArray(bmp));
-        }
-        catch (Exception ex)
-        {
-            return SxExecuteRetHelper.CreateError(ex.Message, Array.Empty<byte>());
-        }
+        return SxExecuteRetHelper.CreateSuccess(memorySteam.ToArray());
     }
 
     public SxExecuteRet<Size> GetBrightFieldImagePixelSize()

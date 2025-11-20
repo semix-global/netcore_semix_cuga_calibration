@@ -28,8 +28,14 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 
 [IOCAppService(ServiceType = typeof(AfGetAnyNscDiagnosisWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel stageViewModel,
-    AdsViewModel adsViewModel, AfViewModel afViewModel, ICalibrationStatusService CalibrationStatusService, IDialogWindowProvider DialogWindowProvider, IHostEnvironment hostEnvironment, ILogger<AfGetAnyNscDiagnosisWindowViewModel> logger) : ViewModelBase, IRecipient<ValueChangedMessage<ToggleCalibrateEvent>>
+public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
+    StageViewModel stageViewModel,
+    AdsViewModel adsViewModel,
+    AfViewModel afViewModel,
+    ICalibrationStatusService CalibrationStatusService,
+    IDialogWindowProvider DialogWindowProvider,
+    IHostEnvironment hostEnvironment,
+    ILogger<AfGetAnyNscDiagnosisWindowViewModel> logger) : ViewModelBase, IRecipient<ValueChangedMessage<ToggleCalibrateEvent>>
 {
     public static string LogHtmlFileName => "AfGetNscCurveDiagnosis_AnyPosition";
 
@@ -109,6 +115,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
             EndEcs = 6700;
             Ecs = 100;
         }
+
         public Position(string number, Point value, double startecs, double endecs, double ecs)
         {
             Number = number;
@@ -137,9 +144,9 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
     [ObservableProperty]
     private ObservableCollection<Position> _selectPositions = new ObservableCollection<Position>
     {
-        new Position { Number = "pos1", Value = new Point(-39118.185, -142953.168), StartEcs=6000, EndEcs=6700, Ecs = 6000 },
-        new Position { Number = "pos2", Value = new Point(-39132.469, -142973.516), StartEcs=6000, EndEcs=6700, Ecs = 6000 },
-        new Position { Number = "pos3", Value = new Point(-39215.956, -143125.986), StartEcs=6000, EndEcs=6700, Ecs = 6000 }
+        new Position { Number = "pos1", Value = new Point(-39118.185, -142953.168), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 },
+        new Position { Number = "pos2", Value = new Point(-39132.469, -142973.516), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 },
+        new Position { Number = "pos3", Value = new Point(-39215.956, -143125.986), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 }
     };
 
     [ObservableProperty]
@@ -172,6 +179,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
+
         ResultLaserAutoFocusDto = laserAutoFocusDto;
     }
 
@@ -216,7 +224,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                 afViewModel.SetSensorEcsValue(StartEcs);
                 await Task.Delay(100, cancellationToken);
 
-                var traceBufferList = afViewModel.GetNscCompensationCoefficientTraceBufferList(StartEcs, EndEcs, SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(EndEcs - StartEcs) / SpeedEcsPerSecond + 2));
+                var traceBufferList = afViewModel.GetSensorNscTraceBufferList(StartEcs, EndEcs, SpeedEcsPerSecond, TimeSpan.FromSeconds(Math.Abs(EndEcs - StartEcs) / SpeedEcsPerSecond + 2));
                 var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                 var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                 var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
@@ -251,6 +259,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                                 nsc[i]
                             );
                         }
+
                         CurrentEcsNscPointList = points;
                     }
                     else
@@ -282,13 +291,13 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                     {
                         RunTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                         PlotHrp = new HtmlPlot2DLinesChart([
-                                    ("ecs", ecs?.ToPoints() ?? []),
-                                    ("nsc", nsc?.ToPoints() ?? []),
-                                    ("lvdt", lvdt?.ToPoints() ?? []),
-                                    ("fa", fa?.ToPoints() ?? []),
-                                    ("na", na?.ToPoints() ?? []),
-                                    ("fb", fb?.ToPoints() ?? []),
-                                    ("nb", nb?.ToPoints() ?? [])
+                            ("ecs", ecs?.ToPoints() ?? []),
+                            ("nsc", nsc?.ToPoints() ?? []),
+                            ("lvdt", lvdt?.ToPoints() ?? []),
+                            ("fa", fa?.ToPoints() ?? []),
+                            ("na", na?.ToPoints() ?? []),
+                            ("fb", fb?.ToPoints() ?? []),
+                            ("nb", nb?.ToPoints() ?? [])
                         ], "PlotAfCurveOfAnyPosition1")
                     }), HtmlLogUniqueId.LoggingHtml());
                 logger.LogHtmlInformation($"SelectPosition_{SelectPosition} StartPosition_{StartEcs} EndPosition_{EndEcs} DataCurve",
@@ -296,7 +305,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                     {
                         RunTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                         PlotHrp = new HtmlPlot2DLinesChart([
-                                        ("ecs_nsc", CurrentEcsNscPointList)
+                            ("ecs_nsc", CurrentEcsNscPointList)
                         ], "PlotAfCurveOfAnyPosition2")
                     }), HtmlLogUniqueId.LoggingHtml());
             }
@@ -305,6 +314,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                 logger.LogError(ex, "{@Name}: Once Diagnosis Action Failed", nameof(AdsGainsDiagnosisViewModel));
             }
         }
+
         logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_OK"));
         logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
         HtmlLogUniqueId = Guid.NewGuid();
@@ -385,6 +395,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                     }
                 }
             }
+
             SelectPositions[j].Ecs = (int)MotorEcs;
             var nscMax = nscIntervalVector.Maximum();
             var nscMin = nscIntervalVector.Minimum();
@@ -425,6 +436,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(StageViewModel s
                                 nsc[i]
                             );
                         }
+
                         CurrentEcsNscPointList = points;
                     }
                     else

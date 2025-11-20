@@ -356,7 +356,8 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
@@ -398,7 +399,8 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        LaserLightInformation laserLightInformation)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
@@ -408,14 +410,16 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
         darkFieldHighSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         darkFieldHighSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
+        // todo:缺光强
         var sxExecuteRet = Invoke(() => Service2?.DFAlignment(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ESxLevelEnum mag, ESxLevelEnum speed, ushort ll)>
         ((brightFieldLowSite1.AdaptTo(),
-            brightFieldLowSite2.AdaptTo(),
-            darkFieldHighSite1.AdaptTo(),
-            darkFieldHighSite2.AdaptTo(),
-            opticsMagTypeEnum.ToESxLevelEnum(),
-            xStageSpeedEnum.ToESxLevelEnum(),
-            Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)))));
+                brightFieldLowSite2.AdaptTo(),
+                darkFieldHighSite1.AdaptTo(),
+                darkFieldHighSite2.AdaptTo(),
+                opticsMagTypeEnum.ToESxLevelEnum(),
+                xStageSpeedEnum.ToESxLevelEnum(),
+                Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode)
+            ))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())

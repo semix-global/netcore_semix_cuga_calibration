@@ -1,7 +1,7 @@
+using CommunityToolkit.Diagnostics;
 using Net.Utilities.WPF.Converters.MultiValueConverters;
 using System.Globalization;
 using System.Windows;
-using CommunityToolkit.Diagnostics;
 using ValueConverters;
 
 namespace Core.Utilities.WPF.Converters.MultiValueConverters;
