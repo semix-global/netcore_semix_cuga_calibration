@@ -206,7 +206,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return true;
 
             case 2:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                if (Cache.Item.FindBFMachinePosition != Point.Origin) StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                else StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
                 return true;
 
@@ -764,6 +765,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     Cache.Threshold,
                     verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. item.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
                     verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
+                    CalibratedXPixelSize = item.XPixelSize,
                     verifyRealUmPerPixel,
                     errorPixel = $"({errorPixel:0.###}px)/({waferDiameter:0.###}um)"
                 });
@@ -775,6 +777,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
                 if (isOk == false) continue;
 
+                item.XPixelSize = verifyRealUmPerPixel;
                 item.IsVerified = true;
                 Guard.IsTrue(Save(item, cancellationToken));
             }

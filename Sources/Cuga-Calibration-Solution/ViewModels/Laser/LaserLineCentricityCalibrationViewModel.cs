@@ -586,7 +586,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             if (pmtConfig
                     .Where(t => t.Enabled)
-                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation == Cache.ProductivityInformation && dto.PmtId == t.Id && dto.IsOk)) == false)
+                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && dto.PmtId == t.Id && dto.IsOk)) == false)
             {
                 DialogWindowProvider.ShowDialog("Missing pixel size for PMT configuration! Please check the pixel size calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
