@@ -26,7 +26,7 @@
                                                         hc:InfoElement.TitleWidth="150"
                                                         hc:InfoElement.TitlePlacement="Left"
                                                         hc:InfoElement.Title="Cib Grab Mode: "
-                                                        DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                                                        DataContext="{Binding Cache.CIBConfiguration}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

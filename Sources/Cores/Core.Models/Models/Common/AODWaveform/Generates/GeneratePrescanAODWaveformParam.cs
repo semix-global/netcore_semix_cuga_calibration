@@ -20,7 +20,6 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         CenterFrequency = CenterFrequency,
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum,
         SampleRate = SampleRate,
-        Amplitude = Amplitude,
         DirectoryPath = DirectoryPath,
         FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString(),
         ZeroSampleCount = ZeroSampleCount,
@@ -48,6 +47,13 @@ public sealed partial class GeneratePrescanAODWaveformParam :
 
         return param;
     }
+
+    public override object ToFlatnessHtmlAnonymous() => new
+    {
+        FlatnessTime,
+        OpticsMagTypeEnum,
+        Base = new HtmlQuote(base.ToFlatnessHtmlAnonymous())
+    };
 
     public override object ToHtmlAnonymous() => new
     {

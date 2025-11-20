@@ -239,7 +239,7 @@ public sealed partial class ReviewViewModel(
                 originImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
                 image.Save(originImageFilePath);
                 if (logGuid is not null && logName is not null)
-                    logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         microscopeLensInformation.LensName,
                         OriginPosition = position,

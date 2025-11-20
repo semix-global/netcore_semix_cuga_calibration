@@ -299,6 +299,20 @@ public abstract class AbstractAODWaveformProfile :
         return this;
     }
 
+    public virtual object ToFlatnessHtmlAnonymous() => new
+    {
+        OpticsAODElectrodeEnum,
+        FilePath,
+        ZeroSampleCount,
+        OffsetFrequency,
+        OffsetFrequencyPeriodCoefficient,
+        Plot = new HtmlTab(new
+        {
+            Signals = new HtmlPlot2DLinesChart([(string.Empty, [.. Signals])], string.Empty),
+            FFTSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FFTSignals])], string.Empty)
+        })
+    };
+
     public virtual object ToHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
@@ -319,7 +333,7 @@ public abstract class AbstractAODWaveformProfile :
             FlatnessComaCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessComaCompensationSignals])], string.Empty),
             FlatnessTrefoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessTrefoilCompensationSignals])], string.Empty),
             FlatnessQuadrafoilCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessQuadrafoilCompensationSignals])], string.Empty),
-            FlatnessAlphaOrderCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessAlphaOrderCompensationSignals])], string.Empty),
+            FlatnessAlphaOrderCompensationSignals = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessAlphaOrderCompensationSignals])], string.Empty)
         })
     };
 }

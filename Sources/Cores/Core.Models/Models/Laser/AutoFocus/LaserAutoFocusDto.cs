@@ -70,16 +70,16 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     private IReadOnlyList<double> _originalNb = [];
 
     [ObservableProperty]
-    private Point[] _ecsNscPointList = [];
+    private Point[] _originEcsNscPoints = [];
 
     [ObservableProperty]
-    private Point[] _ecsNscMaxMinList = [];
+    private Point[] _originEcsNscMaxMins = [];
 
     [ObservableProperty]
-    private double _ecsMotorPositionRelationSlope = 0;
+    private double _ecsMotorPositionRelationSlope;
 
     [ObservableProperty]
-    private double _ecsMotorPositionRelationIntercept = 0;
+    private double _ecsMotorPositionRelationIntercept;
 
     #endregion NSC Profile
 
@@ -119,9 +119,10 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     private IReadOnlyList<double> _calibrationNb = [];
 
     [ObservableProperty]
-    private Point[] _calibrationEcsNscPointList = [];
+    private Point[] _calibrationEcsNscPoints = [];
+
     [ObservableProperty]
-    private Point[] _calibrationEcsNscMaxMinList = [];
+    private Point[] _calibrationEcsNscMaxMins = [];
 
     #endregion NscGain
 

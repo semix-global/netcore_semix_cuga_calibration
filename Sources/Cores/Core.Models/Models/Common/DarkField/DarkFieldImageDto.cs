@@ -110,7 +110,7 @@ public sealed partial class DarkFieldImageDto :
 
     public DarkFieldImageDto AdaptIn(C2MImgModel obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PMTId;
         ChannelId = obj.Channel;
@@ -123,7 +123,7 @@ public sealed partial class DarkFieldImageDto :
 
     public DarkFieldImageDto AdaptIn(M2CImgSysCollectImgDTO obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PMTId;
         ChannelId = obj.Channel;
@@ -135,7 +135,7 @@ public sealed partial class DarkFieldImageDto :
 
     public DarkFieldImageDto AdaptIn(DarkFieldRawScanImageDto obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PmtId;
         ChannelId = obj.ChannelId;
@@ -223,7 +223,7 @@ public sealed partial class DarkFieldRawScanImageDto :
 
     public DarkFieldRawScanImageDto AdaptIn(M2CImgSysCollectImgDTO obj)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
 
         PmtId = obj.PMTId;
         ChannelId = obj.Channel;

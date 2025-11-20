@@ -33,7 +33,6 @@ public sealed partial class GenerateChirpAODWaveformParam :
         CenterFrequency = CenterFrequency,
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum,
         SampleRate = SampleRate,
-        Amplitude = Amplitude,
         DirectoryPath = DirectoryPath,
         FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString(),
         ZeroSampleCount = ZeroSampleCount,
@@ -62,6 +61,13 @@ public sealed partial class GenerateChirpAODWaveformParam :
 
         return param;
     }
+
+    public override object ToFlatnessHtmlAnonymous() => new
+    {
+        SoundPacketLength,
+        SoundSpeed,
+        Base = new HtmlQuote(base.ToFlatnessHtmlAnonymous())
+    };
 
     public override object ToHtmlAnonymous() => new
     {

@@ -76,7 +76,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 
     public CalibrationLaserXTCCalibrationItem AdaptTo() => new()

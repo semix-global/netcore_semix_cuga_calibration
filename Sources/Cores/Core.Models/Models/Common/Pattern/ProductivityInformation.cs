@@ -1,10 +1,11 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Extensions;
+using Cuga.Data.DataStruct.DTO.Swath;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -18,7 +19,7 @@ public sealed class ProductivityInformation :
     IEquatable<ProductivityInformation>,
     IFormattable,
     IAdaptTo<C2MProductivityInfo>,
-    IAdaptIn<C2MProductivityInfo, ProductivityInformation>,
+    /*IAdaptIn<C2MProductivityInfo, ProductivityInformation>,*/
     ICloneable<ProductivityInformation>
 {
     public static readonly ProductivityInformation Default = new();
@@ -26,7 +27,8 @@ public sealed class ProductivityInformation :
     private string _name = "N/A";
     private int _opticsMagType = -1;
     private int _stageSpeedType = -1;
-    private SwathSpeedInformation _swathSpeedInformation = SwathSpeedInformation.Default;
+    private double _yPixelSize = -1;
+    private double _yPixel = -1;
 
     public string Name
     {
@@ -46,10 +48,16 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref _stageSpeedType, value);
     }
 
-    public SwathSpeedInformation SwathSpeedInformation
+    public double YPixelSize
     {
-        get => _swathSpeedInformation;
-        set => SetProperty(ref _swathSpeedInformation, value);
+        get => _yPixelSize;
+        private set => SetProperty(ref _yPixelSize, value);
+    }
+
+    public double YPixel
+    {
+        get => _yPixel;
+        private set => SetProperty(ref _yPixel, value);
     }
 
     private ProductivityInformation()
@@ -64,13 +72,16 @@ public sealed class ProductivityInformation :
         if (other is null) return 1;
 
         var opticsMagTypeComparison = OpticsMagType.CompareTo(other.OpticsMagType);
-        if (opticsMagTypeComparison != 0) return opticsMagTypeComparison;
+        if (opticsMagTypeComparison != 0) return -opticsMagTypeComparison;
 
         var stageSpeedTypeComparison = StageSpeedType.CompareTo(other.StageSpeedType);
         if (stageSpeedTypeComparison != 0) return stageSpeedTypeComparison;
 
-        var swathSpeedInfoComparison = SwathSpeedInformation.CompareTo(other.SwathSpeedInformation);
-        if (swathSpeedInfoComparison != 0) return swathSpeedInfoComparison;
+        var yPixelSizeComparison = YPixelSize.CompareTo(other.YPixelSize);
+        if (yPixelSizeComparison != 0) return yPixelSizeComparison;
+
+        var yPixelComparison = YPixel.CompareTo(other.YPixel);
+        if (yPixelComparison != 0) return yPixelComparison;
 
         return string.Compare(Name, other.Name, StringComparison.Ordinal);
     }
@@ -86,11 +97,11 @@ public sealed class ProductivityInformation :
 
     public override bool Equals(object? obj) => obj is ProductivityInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(Name, OpticsMagType, StageSpeedType);
+    public override int GetHashCode() => HashCode.Combine(Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel);
 
     public override string ToString() => ToString(null);
 
-    public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}/{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
+    public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
 
     #endregion IEquatable、IFormattable
 
@@ -104,7 +115,8 @@ public sealed class ProductivityInformation :
         (_, _) => ReferenceEquals(left, right) || (Equals(left.Name, right.Name) &&
                                                    Equals(left.OpticsMagType, right.OpticsMagType) &&
                                                    Equals(left.StageSpeedType, right.StageSpeedType) &&
-                                                   Equals(left.SwathSpeedInformation, right.SwathSpeedInformation))
+                                                   Equals(left.YPixelSize, right.YPixelSize) &&
+                                                   Equals(left.YPixel, right.YPixel))
     };
 
     public static bool operator !=(ProductivityInformation? left, ProductivityInformation? right) => !(left == right);
@@ -113,8 +125,8 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out SwathSpeedInformation swathSpeedInformation)
-        => (name, opticsMagType, stageSpeedType, swathSpeedInformation) = (Name, OpticsMagType, StageSpeedType, SwathSpeedInformation);
+    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double yPixelSize, out double yPixel)
+        => (name, opticsMagType, stageSpeedType, yPixelSize, yPixel) = (Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel);
 
     #endregion Deconstruct
 
@@ -129,7 +141,7 @@ public sealed class ProductivityInformation :
                 : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
             Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
                 ? (SxSpeedEnum)StageSpeedType
-                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType)),
+                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
         }
         : new C2MProductivityInfo
         {
@@ -138,13 +150,16 @@ public sealed class ProductivityInformation :
             Speed = (SxSpeedEnum)StageSpeedType
         };
 
-    public ProductivityInformation AdaptIn(C2MProductivityInfo obj)
+    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo)
     {
-        Guard.IsNotNull(obj, nameof(obj));
+        Guard.IsNotNull(obj);
+        Guard.IsTrue(obj.Mag.ToCgMagTypeEnum() == swathSpeedInfo.Mag);
 
         Name = obj.Name;
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
+        YPixelSize = swathSpeedInfo.YPixelSize;
+        YPixel = swathSpeedInfo.YPixel;
 
         return this;
     }
@@ -154,7 +169,8 @@ public sealed class ProductivityInformation :
         Name = Name,
         OpticsMagType = OpticsMagType,
         StageSpeedType = StageSpeedType,
-        SwathSpeedInformation = SwathSpeedInformation
+        YPixelSize = YPixelSize,
+        YPixel = YPixel
     };
 
     #endregion Mapper

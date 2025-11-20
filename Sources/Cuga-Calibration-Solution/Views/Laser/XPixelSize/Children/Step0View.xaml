@@ -17,15 +17,10 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-            <hc:Shield Subject="X Pixel Size Step 0: "
-                       Status="{Binding CalibrationStepList[1].StepName}"
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+            <hc:Shield Subject="X Pixel Size Step 1: "
+                       Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="OpticsMagType:"
-                       Status="{Binding Cache.ProductivityInformation.OpticsMagType}"
-                       Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
@@ -43,45 +38,38 @@
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
-        <!--#endregion-->
-
         <GridSplitter Grid.Column="1" Width="5" />
-
-        <!--#region Right-->
-        <Border Grid.Column="2"
-                Style="{StaticResource BorderRegion}"
-                Effect="{StaticResource EffectShadow1}">
-            <ItemsControl HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          ItemsSource="{Binding CalibrationStatusList}">
-                <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
-                </i:Interaction.Behaviors>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton Content="{Binding ProductivityInformation}"
-                                     FontSize="35"
-                                     Tag="{Binding ProductivityInformation}"
-                                     GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
-                            <RadioButton.Style>
-                                <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </RadioButton.Style>
-                        </RadioButton>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
+        <ItemsControl Grid.Column="2"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      ItemsSource="{Binding CalibrationStatuses}">
+            <i:Interaction.Behaviors>
+                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="32" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <RadioButton Content="{Binding ProductivityInformation}"
+                                 FontSize="35"
+                                 Tag="{Binding ProductivityInformation}"
+                                 GroupName="b0b3441a-7785-427d-bc95-53d7721e8d27">
+                        <RadioButton.Style>
+                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </RadioButton.Style>
+                    </RadioButton>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </UserControl>

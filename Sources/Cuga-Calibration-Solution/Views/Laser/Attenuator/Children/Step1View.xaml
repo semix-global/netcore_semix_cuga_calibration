@@ -51,6 +51,8 @@
                     <StackPanel>
                         <TextBlock Text="Result"
                                    HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <TextBox Text="{Binding CalibratingItem.OpticalPowerMeterCoefficient, StringFormat='0.###'}"

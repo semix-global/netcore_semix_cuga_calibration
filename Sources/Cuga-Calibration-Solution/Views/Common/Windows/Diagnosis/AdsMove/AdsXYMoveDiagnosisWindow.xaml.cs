@@ -6,7 +6,6 @@ using System.Windows.Controls;
 namespace CugaCalibration.Views.Common.Windows.Diagnosis.AdsMove;
 
 [IOCAppService(ServiceType = typeof(AdsXYMoveDiagnosisWindow), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
-
 public partial class AdsXYMoveDiagnosisWindow
 {
     public AdsXYMoveDiagnosisWindow()

@@ -14,6 +14,9 @@ namespace Core.Models.Models.Laser.PixelSize;
 public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
@@ -37,14 +40,10 @@ public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
-
 }
 
 public sealed partial class LaserPixelSizeCacheItem : CalibrationCacheBase
 {
-    [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
-
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_10um;
 

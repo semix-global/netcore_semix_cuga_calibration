@@ -3,7 +3,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
@@ -128,12 +127,5 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
             .ToList();
 
         return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigList);
-    }
-
-    public SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation)
-    {
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(productivityInformation.AdaptTo().Mag));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<SwathSpeedInformation>(sxExecuteRet.ErrorMsg, new());
-        return SxExecuteRetHelper.CreateSuccess(new SwathSpeedInformation().AdaptIn(sxExecuteRet.Anything));
     }
 }

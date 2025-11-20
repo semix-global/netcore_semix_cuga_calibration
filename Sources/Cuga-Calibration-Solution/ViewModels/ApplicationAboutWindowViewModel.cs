@@ -60,7 +60,7 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
                 Configuration = CugaCalibrationSolutionAssemblyMetadata.Configuration,
                 Version = CugaCalibrationSolutionAssemblyMetadata.Version,
                 NeutralResourcesLanguage = CugaCalibrationSolutionAssemblyMetadata.NeutralResourcesLanguage,
-                InformationalVersion = CugaCalibrationSolutionAssemblyMetadata.InformationalVersion,
+                InformationalVersion = CugaCalibrationSolutionAssemblyMetadata.InformationalVersion
             };
             ApplicationInfo.VersionInfo = AssemblyVersionGenerator.GenerateAssemblyVersionsJson(ApplicationInfo);
             AssemblyList = new ObservableCollection<AssemblyInfo>(ApplicationInfo.VersionInfo.Assemblies);

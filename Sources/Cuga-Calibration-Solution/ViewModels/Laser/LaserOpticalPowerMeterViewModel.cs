@@ -114,10 +114,11 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+            ..Calibrations.Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
                     return t;
                 })
         ];
@@ -312,15 +313,17 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                         MaxColumn = maximumIndexCol,
                         IsInEdge = isInEdge,
                         Map = new HtmlPlot3DChart([.. laserOpticalPowerObjDto.Map.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))], string.Empty, HtmlPlot3DType.Bar3D),
-                        Table = new HtmlExpand(new HtmlTable([
-                            .. laserOpticalPowerObjDto.Map.Select(t => new
-                            {
-                                t.Row,
-                                t.Column,
-                                t.MeasurePosition,
-                                t.MeasurePower
-                            })
-                        ]), string.Empty)
+                        Table = new HtmlExpand(
+                            string.Empty,
+                            new HtmlTable([
+                                .. laserOpticalPowerObjDto.Map.Select(t => new
+                                {
+                                    t.Row,
+                                    t.Column,
+                                    t.MeasurePosition,
+                                    t.MeasurePower
+                                })
+                            ]))
                     });
 
                     // 判断maximumIndexRow,maximumIndexCol是不是再边缘点上

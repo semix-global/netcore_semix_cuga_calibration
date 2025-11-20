@@ -16,6 +16,11 @@ public sealed partial class GenerateAODWaveformSlopeDeltaKConfiguration :
 
     public GenerateAODWaveformSlopeDeltaKConfiguration Clone() => new()
     {
-        DeltaK = DeltaK,
+        DeltaK = DeltaK
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        DeltaK
     };
 }

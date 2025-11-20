@@ -1,7 +1,6 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Options;
@@ -61,10 +60,5 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode3, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt")),
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode4, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt"))
         ]);
-    }
-
-    public SxExecuteRet<SwathSpeedInformation> GetSwathSpeedInformation(ProductivityInformation productivityInformation)
-    {
-        return SxExecuteRetHelper.CreateSuccess(new SwathSpeedInformation() { YPixelSize = Random.NextDouble(), YPixel = 800 });
     }
 }

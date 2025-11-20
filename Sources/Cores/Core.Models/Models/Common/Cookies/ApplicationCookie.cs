@@ -85,8 +85,16 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// 最低产率
     /// </summary>
-    [ObservableProperty]
-    private ProductivityInformation _lowestProductivityInformation = ProductivityInformation.Default;
+    public ProductivityInformation LoweProductivityInformation => ProductivityInformations
+        .OrderBy(t => t.YPixelSize)
+        .First();
+
+    /// <summary>
+    /// 最高产率
+    /// </summary>
+    public ProductivityInformation HighProductivityInformation => ProductivityInformations
+        .OrderByDescending(t => t.YPixelSize)
+        .First();
 
     /// <summary>
     /// 校准当前应用配方

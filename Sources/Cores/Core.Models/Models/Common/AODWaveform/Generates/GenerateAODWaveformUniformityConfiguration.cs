@@ -22,4 +22,10 @@ public sealed partial class GenerateAODWaveformUniformityConfiguration :
         Frequency = Frequency,
         Coefficient = Coefficient
     };
+
+    public object ToHtmlAnonymous() => new
+    {
+        Frequency,
+        Coefficient
+    };
 }

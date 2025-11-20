@@ -109,7 +109,7 @@
                   Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}">
             <children:BrightFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}" ChildName="Step4View">
                 <children:BrightFieldMapView.IsEnabled>
-                    <MultiBinding Converter="{StaticResource MultiValueBooleanConverter}">
+                    <MultiBinding Converter="{StaticResource MultiValueBooleanAllConverter}">
                         <Binding Path="Step2CalibrateActionCommand.IsRunning" Converter="{StaticResource BoolNegationConverter}" />
                         <Binding Path="Cache.IsDarkField" Converter="{StaticResource Boolean2BooleanReConverter}" />
                     </MultiBinding>
@@ -122,7 +122,7 @@
                   Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityConverter}}">
             <children:DarkFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}" ChildName="Step4View">
                 <children:DarkFieldMapView.IsEnabled>
-                    <MultiBinding Converter="{StaticResource MultiValueBooleanConverter}">
+                    <MultiBinding Converter="{StaticResource MultiValueBooleanAllConverter}">
                         <Binding Path="Step2CalibrateActionCommand.IsRunning" Converter="{StaticResource BoolNegationConverter}" />
                         <Binding Path="Cache.IsDarkField" />
                     </MultiBinding>

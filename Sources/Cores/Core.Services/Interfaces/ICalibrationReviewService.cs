@@ -13,9 +13,9 @@ public interface ICalibrationReviewService
     SxExecuteRet<bool> Connect();
 
     /// <summary>
-    /// 获取halcon图片
+    /// 获取明场相机的图片
     /// </summary>
-    /// <returns>halcon图片</returns>
+    /// <returns>明场相机的图片</returns>
     SxExecuteRet<HImage> GetBrightFieldImage();
 
     /// <summary>

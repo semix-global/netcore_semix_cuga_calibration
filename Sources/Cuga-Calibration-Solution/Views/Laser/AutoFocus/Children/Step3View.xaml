@@ -4,12 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:autoFocus="clr-namespace:Core.Models.Models.Laser.AutoFocus;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:autoFocus="clr-namespace:Core.Models.Models.Laser.AutoFocus;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserAutoFocusCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -149,7 +149,7 @@
                             </GridViewColumn>
                             <GridViewColumn Width="600" Header="Trans buffer">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate DataType="{x:Type autoFocus:LaserAutoFocusDto}">
                                         <wpf:WpfPlot Width="600" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotMultiBehavior Plot0Title="ECS"
@@ -180,16 +180,16 @@
                             </GridViewColumn>
                             <GridViewColumn Width="600" Header="Ecs Nsc Curve And Slope">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate DataType="{x:Type autoFocus:LaserAutoFocusDto}">
                                         <wpf:WpfPlot Width="600" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:WpfPlotMultiBehavior Title="EcsNsc"
                                                                                 Plot0Title="EcsNscCurve"
                                                                                 Plot0Color="{x:Static scottPlot:Colors.DarkOrange}"
-                                                                                Plot0="{Binding CalibrationEcsNscPointList}"
+                                                                                Plot0="{Binding CalibrationEcsNscPoints}"
                                                                                 Plot1Title="EcsNscSlope"
                                                                                 Plot1Color="{x:Static scottPlot:Colors.Green}"
-                                                                                Plot1="{Binding CalibrationEcsNscMaxMinList}" />
+                                                                                Plot1="{Binding CalibrationEcsNscMaxMins}" />
                                             </i:Interaction.Behaviors>
                                         </wpf:WpfPlot>
                                     </DataTemplate>
@@ -197,18 +197,16 @@
                             </GridViewColumn>
                             <GridViewColumn Width="600" Header="Ecs Nsc Curve And Slope">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <wpf:WpfPlot Width="600"
-                                            Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                             >
+                                    <DataTemplate DataType="{x:Type autoFocus:LaserAutoFocusDto}">
+                                        <wpf:WpfPlot Width="600" Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}">
                                             <i:Interaction.Behaviors>
-                                                <behaviors:WpfPlotMultiBehavior  Title="EcsNsc"                        
-                                                    Plot0Title="EcsNscCurve"
-                                                    Plot0Color="{x:Static scottPlot:Colors.DarkOrange}"
-                                                    Plot0="{Binding CalibrationEcsNscPointList}"
-                                                    Plot1Title="EcsNscSlope"
-                                                    Plot1Color="{x:Static scottPlot:Colors.Green}"
-                                                    Plot1="{Binding CalibrationEcsNscMaxMinList}"/>
+                                                <behaviors:WpfPlotMultiBehavior Title="EcsNsc"
+                                                                                Plot0Title="EcsNscCurve"
+                                                                                Plot0Color="{x:Static scottPlot:Colors.DarkOrange}"
+                                                                                Plot0="{Binding CalibrationEcsNscPoints}"
+                                                                                Plot1Title="EcsNscSlope"
+                                                                                Plot1Color="{x:Static scottPlot:Colors.Green}"
+                                                                                Plot1="{Binding CalibrationEcsNscMaxMins}" />
                                             </i:Interaction.Behaviors>
                                         </wpf:WpfPlot>
                                     </DataTemplate>

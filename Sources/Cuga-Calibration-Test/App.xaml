@@ -1,6 +1,9 @@
 ﻿<Application x:Class="CugaCalibrationTest.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:coreModels="clr-namespace:Core.Models.Enums;assembly=Core.Models"
+             xmlns:wpfMvvmConverters="clr-namespace:Net.Utilities.WPF.MVVM.Converters;assembly=Net.Utilities.WPF.MVVM"
+             xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
@@ -11,7 +14,82 @@
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Geometries.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/DrawingImages.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Styles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Core.Utilities.WPF;component/UI/Themes/ConvertersTest.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <wpfMvvmConverters:ViewModel2ViewConverter x:Key="ViewModel2ViewConverter" />
+            <valueConverters:ValueConverterGroup x:Key="IntIs0ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="0" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs1ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="1" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs2ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="2" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs3ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="3" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs4ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="4" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs5ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="5" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs6ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="6" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs7ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="7" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs8ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="8" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs9ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="9" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs10ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="10" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs11ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="11" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="IntIs12ToVisibilityConverter">
+                <valueConverters:IntegerToBoolConverter TrueValue="12" FalseValue="-999" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsLoadingToVisibilityConverter">
+                <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Review}" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsWelcomeToVisibilityConverter">
+                <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Welcome}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsCalibrationToVisibilityConverter">
+                <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Calibration}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsAutoCalibrationToVisibilityConverter">
+                <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Auto}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
+            <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsReviewToVisibilityConverter">
+                <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Review}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
+                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
+            </valueConverters:ValueConverterGroup>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -173,11 +173,11 @@
                                              Style="{StaticResource TextBoxExtend}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
-                                                Command="{Binding Step1Command}"
+                                                Command="{Binding Step0Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Cancel"
-                                                Command="{Binding Step1CancelCommand}"
+                                                Command="{Binding Step0CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -247,11 +247,11 @@
                                                       Value="{Binding Cache.DSWYPointDiameter}" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
-                                                Command="{Binding Step2Command}"
+                                                Command="{Binding Step1Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Cancel"
-                                                Command="{Binding Step2CancelCommand}"
+                                                Command="{Binding Step1CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>

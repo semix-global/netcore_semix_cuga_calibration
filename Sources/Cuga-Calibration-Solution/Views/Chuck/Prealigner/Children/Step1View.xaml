@@ -29,19 +29,17 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="1. Param"
+                        <TextBlock Text="Param"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:ComboBox x:Name="TemplateTypeComboBox"
-                                 Width="275"
                                  HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="140"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Template Type: "
-                                 hc:InfoElement.Necessary="True"
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Template Type: "
                                  SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
@@ -51,18 +49,12 @@
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:ComboBox x:Name="LowMagCombobox"
-                                 Width="275"
                                  HorizontalAlignment="Left"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Low Magnification: "
-                                 hc:InfoElement.Necessary="True"
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Low Magnification: "
                                  SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding LensName}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
                                 <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />
@@ -74,16 +66,18 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="2. Find Low Position1"
+                        <TextBlock Text="Result: Find Low Position1"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.LowFindPosition1, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.LowSite1.Location, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
                     <view:CanvasView Width="100"
                                      Height="100"
