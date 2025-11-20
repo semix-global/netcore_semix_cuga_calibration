@@ -22,8 +22,6 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -94,9 +92,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
 
     [ObservableProperty]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-    [ObservableProperty]
     private LaserXPixelSizeCache _cache = new();
 
     [ObservableProperty]
@@ -117,8 +112,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
-
-        ScatterPlotControl.Configure();
 
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -486,7 +479,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 #if NET
             await
 #endif
-                using var fileSteam = File.OpenRead(rawImageFilePath);
+            using var fileSteam = File.OpenRead(rawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -580,7 +573,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
             CalibratingItem.SlideItems = [.. items];
-            Refresh(CalibratingItem);
 
             var matchPoints = CalibratingItem.SlideItems.Where(t => t.IsMatchOk).Select(t => t.MatchPoint).ToArray();
 
@@ -711,7 +703,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 #if NET
                 await
 #endif
-                    using var fileSteam = File.OpenRead(verifyRawImageFilePath);
+                using var fileSteam = File.OpenRead(verifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -762,8 +754,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     .ToArray();
                 var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / verifyXDifferences.Average();
 
-                Refresh(item);
-
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
                 var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / item.XPixelSize);
                 var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
@@ -791,14 +781,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             return true;
         }).ConfigureAwait(false);
-    }
-
-    private void Refresh(LaserXPixelSizeItemDto item)
-    {
-        ScatterPlotControl.GetOrAddScatterLine("Slide Score", [.. item.SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))]);
-        ScatterPlotControl.GetOrAddScatterLine("Verify Score", [.. item.VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))]);
-
-        ScatterPlotControl.AutoScaleRefresh();
     }
 
     private bool Save(LaserXPixelSizeItemDto item, CancellationToken cancellationToken) => InvokeSave(update =>

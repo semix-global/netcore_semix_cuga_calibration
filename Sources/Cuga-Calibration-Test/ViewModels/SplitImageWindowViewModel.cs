@@ -41,7 +41,7 @@ public sealed partial class SplitImageWindowViewModel(
     private string _slideRawImageFilePath = @"C:\Users\DELL\Pictures\20251117_22327_0_0_1_short_1250481_PMT08-CH3_8.raw";
 
     [ObservableProperty]
-    private string _verifyRawImageFilePath = @"C:\Users\DELL\Pictures\20251117_22327_0_0_1_short_1250481_PMT08-CH3_8.raw";
+    private string _verifyRawImageFilePath = @"C:\Users\DELL\Pictures\20251117_22330_0_0_1_short_1214201_PMT08-CH3_8.raw";
 
     public double Threshold
     {
@@ -108,7 +108,31 @@ public sealed partial class SplitImageWindowViewModel(
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             await LaserXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
-            await LaserXPixelSizeCalibrationViewModel.VerifyActionCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await LaserXPixelSizeCalibrationViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", VerifyRawImageFilePath);
+        }
+        catch (Exception ex)
+        {
+            if (ex is OperationCanceledException)
+            {
+                dialogWindowProvider.ShowDialog("Operation Cancelled");
+
+                return;
+            }
+
+            logger.LogError(ex, "SplitImageAsync Error");
+        }
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\0823\\cache.db", cancellationToken);
+
+            await LaserXPixelSizeCalibrationViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await LaserXPixelSizeCalibrationViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", VerifyRawImageFilePath);
         }
         catch (Exception ex)

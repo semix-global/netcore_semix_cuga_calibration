@@ -673,7 +673,6 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 
     public AODWaveformElectrodeOffsetStep0()
     {
-        ScatterPlotControl.Configure();
         ScatterPlotControl.ToggleLegend(false);
     }
 

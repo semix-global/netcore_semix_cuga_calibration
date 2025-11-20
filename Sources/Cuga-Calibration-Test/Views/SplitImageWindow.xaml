@@ -18,7 +18,7 @@
            mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="350" />
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
@@ -31,21 +31,21 @@
                          TextWrapping="Wrap"
                          hc:TitleElement.Title="TemplateFilePath: "
                          hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="200"
+                         hc:TitleElement.TitleWidth="150"
                          Style="{StaticResource TextBoxExtend}" />
                 <TextBox Text="{Binding TemplateImageFilePath}"
                          Height="100"
                          TextWrapping="Wrap"
                          hc:TitleElement.Title="TemplateImageFilePath: "
                          hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="200"
+                         hc:TitleElement.TitleWidth="150"
                          Style="{StaticResource TextBoxExtend}" />
                 <TextBox Text="{Binding SlideRawImageFilePath}"
                          Height="50"
                          TextWrapping="Wrap"
                          hc:TitleElement.Title="SlideRawImageFilePath: "
                          hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="200"
+                         hc:TitleElement.TitleWidth="150"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          Style="{StaticResource TextBoxExtend}" />
                 <TextBox Text="{Binding VerifyRawImageFilePath}"
@@ -53,24 +53,24 @@
                          TextWrapping="Wrap"
                          hc:TitleElement.Title="VerifyRawImageFilePath: "
                          hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="200"
+                         hc:TitleElement.TitleWidth="150"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          Style="{StaticResource TextBoxExtend}" />
                 <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
-                                  hc:TitleElement.TitleWidth="200"
+                                  hc:TitleElement.TitleWidth="150"
                                   hc:TitleElement.TitlePlacement="Left"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding Threshold}" />
                 <hc:NumericUpDown hc:TitleElement.Title="NCC Match Threshold: "
-                                  hc:TitleElement.TitleWidth="200"
+                                  hc:TitleElement.TitleWidth="150"
                                   hc:TitleElement.TitlePlacement="Left"
                                   Minimum="0"
                                   Maximum="1"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding NccTypeTemplateMatchScoreThreshold}" />
                 <hc:NumericUpDown hc:TitleElement.Title="Sharpe Match Threshold: "
-                                  hc:TitleElement.TitleWidth="200"
+                                  hc:TitleElement.TitleWidth="150"
                                   hc:TitleElement.TitlePlacement="Left"
                                   Minimum="0"
                                   Maximum="1"
@@ -80,7 +80,7 @@
                 <TextBox Text="{Binding XPixelSize}"
                          hc:TitleElement.Title="XPixelSize(um/px): "
                          hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="200"
+                         hc:TitleElement.TitleWidth="150"
                          Background="{StaticResource SecondaryRegionBrush}"
                          IsReadOnly="True"
                          Style="{StaticResource TextBoxExtend}" />
@@ -88,7 +88,7 @@
                 <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         Spacing="10">
-                    <Button Content="Action"
+                    <Button Content="Split"
                             Command="{Binding SplitImageCommand}"
                             hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                             Style="{StaticResource ButtonPrimary.Loading}" />
@@ -97,6 +97,18 @@
                             Style="{StaticResource ButtonDefault}" />
                     <Button Content="Cancel"
                             Command="{Binding SplitImageCancelCommand}"
+                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                            Style="{StaticResource ButtonWarning}" />
+                </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Spacing="10">
+                    <Button Content="Verify"
+                            Command="{Binding VerifyCommand}"
+                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
+                    <Button Content="Cancel"
+                            Command="{Binding VerifyCancelCommand}"
                             hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                             Style="{StaticResource ButtonWarning}" />
                 </hc:UniformSpacingPanel>

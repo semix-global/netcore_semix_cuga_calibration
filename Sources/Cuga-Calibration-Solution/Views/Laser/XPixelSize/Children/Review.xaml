@@ -4,10 +4,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -118,42 +119,48 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <hc:ScrollViewer Grid.Row="2">
-                    <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Width" Value="400" />
-                                    <Setter Property="Height" Value="400" />
-                                    <Setter Property="Margin" Value="5" />
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <hc:SimplePanel>
-                                        <view:CanvasView AxisColor="Red"
-                                                         BackgroundColor="#0A0A0A"
-                                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                         Interactive="True"
-                                                         ShowAxes="True"
-                                                         ShowCursor="False"
-                                                         ShowGrid="False"
-                                                         Tag="{Binding .}" />
-                                        <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Top"
-                                                   Foreground="Yellow" />
-                                    </hc:SimplePanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <hc:ScrollViewer>
+                        <Border Padding="5" Style="{StaticResource BorderRegion}">
+                            <ItemsControl ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          VirtualizingPanel.CacheLength="2,2"
+                                          VirtualizingPanel.CacheLengthUnit="Page">
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Width" Value="300" />
+                                        <Setter Property="Height" Value="300" />
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding ImageFilePath}" Stretch="Uniform" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+                    </hc:ScrollViewer>
+                    <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                        <controls:ScatterMultiPlotControl Title="Match(Y: Score - X: px)"
+                                                          ScatterLine0Title="Slide"
+                                                          ScatterLine0Points="{Binding SelectedItem.SlideItemPoints, ElementName=Listview}"
+                                                          ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
+                                                          ScatterLine1Title="Verify"
+                                                          ScatterLine1Points="{Binding SelectedItem.VerifyItemPoints, ElementName=Listview}"
+                                                          ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
                     </Border>
-                </hc:ScrollViewer>
+                </Grid>
             </Grid>
         </GroupBox>
         <!--#endregion-->

@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -102,42 +102,32 @@
                 </Grid.RowDefinitions>
                 <hc:ScrollViewer>
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ItemsControl VerticalAlignment="Bottom" ItemsSource="{Binding CalibratingItem.SlideItems}">
+                        <ItemsControl ItemsSource="{Binding CalibratingItem.SlideItems}"
+                                      VirtualizingPanel.IsVirtualizing="True"
+                                      VirtualizingPanel.VirtualizationMode="Recycling"
+                                      VirtualizingPanel.CacheLength="2,2"
+                                      VirtualizingPanel.CacheLengthUnit="Page">
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter">
-                                    <Setter Property="Width" Value="400" />
-                                    <Setter Property="Height" Value="400" />
-                                    <Setter Property="Margin" Value="5" />
+                                    <Setter Property="Width" Value="300" />
+                                    <Setter Property="Height" Value="300" />
                                 </Style>
                             </ItemsControl.ItemContainerStyle>
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <hc:WaterfallPanel hc:PanelElement.FluidMoveBehavior="{StaticResource BehaviorXY200}" Groups="2" />
+                                    <WrapPanel Orientation="Horizontal" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <hc:SimplePanel>
-                                        <view:CanvasView AxisColor="Red"
-                                                         BackgroundColor="#0A0A0A"
-                                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                         Interactive="True"
-                                                         ShowAxes="True"
-                                                         ShowCursor="False"
-                                                         ShowGrid="False"
-                                                         Tag="{Binding .}" />
-                                        <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Top"
-                                                   Foreground="Yellow" />
-                                    </hc:SimplePanel>
+                                    <Image Source="{Binding ImageFilePath}" Stretch="Uniform" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Border>
                 </hc:ScrollViewer>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                    <controls:ScatterMultiPlotControl Title="Slide Match(Y: Score - X: px)" ScatterLine0Points="{Binding CalibratingItem.SlideItemPoints}" />
                 </Border>
             </Grid>
         </GroupBox>

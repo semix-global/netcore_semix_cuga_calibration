@@ -28,10 +28,22 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
     private IReadOnlyList<LaserXPixelSizeSlideItem> _slideItems = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
     private IReadOnlyList<LaserXPixelSizeSlideItem> _verifyItems = [];
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
+    public IReadOnlyList<Point> SlideItemPoints => [..SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
+    public IReadOnlyList<Point> VerifyItemPoints => [..VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     #region Mapper
 
