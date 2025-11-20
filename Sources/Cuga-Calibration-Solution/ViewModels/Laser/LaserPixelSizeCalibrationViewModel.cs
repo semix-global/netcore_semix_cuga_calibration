@@ -162,7 +162,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+            ..Calibrations.Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

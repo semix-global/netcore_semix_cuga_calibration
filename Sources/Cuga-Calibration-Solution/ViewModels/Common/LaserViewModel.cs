@@ -1313,7 +1313,7 @@ public sealed class LaserViewModel(
                 darkFieldImageDto.Image.Save(resultImageFilePath);
                 File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
                 if (logGuid is not null && logName is not null)
-                    logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                    logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
                         darkFieldImageDto.PmtId,
                         darkFieldImageDto.ChannelId,
@@ -1468,7 +1468,7 @@ public sealed class LaserViewModel(
                 darkFieldImageDto.Image.Save(resultImageFilePath);
                 File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
                 if (logGuid is not null && logName is not null)
-                    logger.LogHtmlInformation($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                    logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
                         darkFieldImageDto.PmtId,
                         darkFieldImageDto.ChannelId,

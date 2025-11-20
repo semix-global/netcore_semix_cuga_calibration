@@ -202,7 +202,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
 
         Calibrations =

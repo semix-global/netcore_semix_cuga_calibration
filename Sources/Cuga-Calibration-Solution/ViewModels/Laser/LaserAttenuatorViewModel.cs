@@ -104,12 +104,16 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDto>();
 
-        foreach (var calibrationStatus in Calibrations)
-        {
-            var status = CalibrationStatuses.SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
-
-            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        Calibrations =
+        [
+            ..Calibrations.Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+                    
+                    return t;
+                })
+        ];
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 

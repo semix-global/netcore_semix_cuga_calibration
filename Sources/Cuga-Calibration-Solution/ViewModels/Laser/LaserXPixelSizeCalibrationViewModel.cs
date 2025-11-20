@@ -119,7 +119,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
