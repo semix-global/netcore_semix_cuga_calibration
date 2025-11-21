@@ -114,22 +114,27 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
         LaserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles);
     }
 
-    protected override void GenerateResultAODWaveform(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    protected override void GenerateResultAODWaveform(CancellationToken cancellationToken)
     {
-        result.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
-        result.GeneratePrescanAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
+        Guard.IsTrue(Cache.Results.DistinctBy(t => t.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum).Count() == Cache.Results.Count, "The OpticsMagTypeEnum of the results must be the same.");
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(result.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
-
-        result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
-        result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
-
-        Logger.LogHtmlInformation("Result Prescan AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        foreach (var result in Cache.Results)
         {
-            GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
-            result.PrescanAODWaveformResultFilePath,
-            PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+            result.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
+            result.GeneratePrescanAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
+
+            var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(result.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+            if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+            result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
+            result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
+
+            Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            {
+                GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                result.PrescanAODWaveformResultFilePath,
+                PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+            }), HtmlLogUniqueId.LoggingHtml());
+        }
     }
 }

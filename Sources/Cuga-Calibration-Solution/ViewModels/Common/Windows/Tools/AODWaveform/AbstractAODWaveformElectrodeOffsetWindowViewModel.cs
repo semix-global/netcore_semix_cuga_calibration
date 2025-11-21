@@ -109,17 +109,17 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     #region Items
 
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [Newtonsoft.Json.JsonIgnore]
-    [LiteDB.BsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> _step0Items = [];
 
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [Newtonsoft.Json.JsonIgnore]
-    [LiteDB.BsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>> _step1Items = [];
 
@@ -228,7 +228,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
     protected string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    protected abstract void GenerateResultAODWaveform(TResult result, CancellationToken cancellationToken);
+    protected abstract void GenerateResultAODWaveform(CancellationToken cancellationToken);
 
     protected override void LoggerResult(int stepIndex)
     {
@@ -464,6 +464,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         OffsetFrequencyPeriodCoefficient = GuardUtils.IsNotNullAndReturn(step0.OffsetFrequencyPeriodCoefficient)
                     }
                 ];
+
+                GC.Collect();
             }
 
             return Cache.ElectrodeConfigurationResults.Count == Cache.ElectrodeOffsetParams.Count;
@@ -568,6 +570,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         })
                     ];
                 }
+
+                GC.Collect();
             }
 
             return true;
@@ -581,8 +585,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         return await InvokeAsync(2, "Step 2 Generate AOD Waveform", () =>
         {
             Guard.IsNotEmpty(Cache.ElectrodeFrequencyUniformityParams);
+            Guard.IsTrue(Cache.ElectrodeFrequencyUniformityParams.Count == Cache.ElectrodeOffsetFrequencyWeightParams.Count);
+            Guard.IsNotEmpty(Cache.Results);
 
-            foreach (var result in Cache.Results) GenerateResultAODWaveform(result, cancellationToken);
+            Logger.LogHtmlInformation("Result Chirp AOD Waveforms", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            GenerateResultAODWaveform(cancellationToken);
 
             return Task.FromResult(true);
         }, isShowDialog).ConfigureAwait(false);
@@ -594,7 +601,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 #if NET
         await
 #endif
-        using
+            using
             var _ = cancellationToken.Register(() =>
             {
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();
