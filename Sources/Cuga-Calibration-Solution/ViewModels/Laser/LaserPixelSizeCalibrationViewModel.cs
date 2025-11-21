@@ -415,6 +415,15 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
             }
 
             result = true;
+
+            Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                PmtYPixelSize = new HtmlPlot2DLinesChart(
+                    [
+                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", ResultLaserPixelSizeItemDtoList.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize)).ToArray()),
+                    ],
+                    "PMT Y Pixel Size"),
+            }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });
         return result;
