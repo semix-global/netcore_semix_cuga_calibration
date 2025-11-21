@@ -27,8 +27,9 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonCache
+public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWaveformCommonCache
     where TItem : AODWaveformElectrodeOffsetItem, new()
+    where TResult : AODWaveformElectrodeOffsetResult, new()
 {
     #region Param
 
@@ -108,9 +109,17 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
 
     #region Items
 
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> _step0Items = [];
 
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>> _step1Items = [];
 
@@ -167,6 +176,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem> : AODWaveformCommonC
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurationResults = [];
 
+    [ObservableProperty]
+    private IReadOnlyList<TResult> _results = [];
+
     #endregion Result
 
     public override object ToHtmlAnonymous() => new
@@ -205,11 +217,18 @@ public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
     };
 }
 
-public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<TCache, TItem> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
-    where TCache : AODWaveformElectrodeOffsetCache<TItem>, new()
+public class AODWaveformElectrodeOffsetResult : ObservableCacheBase;
+
+public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<TCache, TItem, TResult> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
+    where TCache : AODWaveformElectrodeOffsetCache<TItem, TResult>, new()
     where TItem : AODWaveformElectrodeOffsetItem, new()
+    where TResult : AODWaveformElectrodeOffsetResult, new()
 {
     protected string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
+
+    protected string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
+    protected abstract void GenerateResultAODWaveform(TResult result, CancellationToken cancellationToken);
 
     protected override void LoggerResult(int stepIndex)
     {
@@ -225,19 +244,43 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]),
                     UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
+                2 => new HtmlComment("See Above!"),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
         ), HtmlLogUniqueId.LoggingHtml());
     }
 
+    [RelayCommand]
+    private async Task LoadedAsync()
+    {
+        await Task.Run(() =>
+        {
+            Cache = CacheProvider.GetOrDefault<TCache>();
+
+            foreach (var step0 in Cache.Step0Items) step0.RefreshPlot();
+            foreach (var step1 in Cache.Step1Items) step1.RefreshPlot();
+        });
+    }
 
     [RelayCommand]
-    private void Loaded()
+    private void AddResult()
     {
-        Cache = CacheProvider.GetOrDefault<TCache>();
+        var resultList = Cache.Results.ToList();
+        resultList.Add(new TResult());
 
-        foreach (var step0 in Cache.Step0Items) step0.RefreshPlot();
-        foreach (var step1 in Cache.Step1Items) step1.RefreshPlot();
+        Cache.Results = resultList;
+    }
+
+    [RelayCommand]
+    private void RemoveResult(TResult? result)
+    {
+        if(result is null) return;
+        
+        var resultList = Cache.Results.ToList();
+
+        resultList.Remove(result);
+
+        Cache.Results = resultList;
     }
 
     [RelayCommand]
@@ -436,6 +479,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
             Guard.IsNotEmpty(Cache.ElectrodeFrequencyUniformityParams);
 
+            // 配合界面直接修改结果, 更新step0的界面
             foreach (var step0 in Cache.Step0Items)
             {
                 step0.OffsetFrequencyPeriodCoefficient = Cache.ElectrodeConfigurationResults
@@ -531,23 +575,39 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step2Async(bool isShowDialog, CancellationToken cancellationToken)
+    {
+        return await InvokeAsync(2, "Step 2 Generate AOD Waveform", () =>
+        {
+            Guard.IsNotEmpty(Cache.ElectrodeFrequencyUniformityParams);
+
+            foreach (var result in Cache.Results) GenerateResultAODWaveform(result, cancellationToken);
+
+            return Task.FromResult(true);
+        }, isShowDialog).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {
 #if NET
-        await using
-#else
-        using
+        await
 #endif
+        using
             var _ = cancellationToken.Register(() =>
             {
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();
                 if (Step1Command.CanBeCanceled) Step1Command.Cancel();
+                if (Step2Command.CanBeCanceled) Step2Command.Cancel();
             });
 
         var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync(false));
         if (await step0Task == false) return;
 
-        await Step1Command.ExecuteAsync(true);
+        var step1Task = GuardUtils.IsAssignableToType<Task<bool>>(Step1Command.ExecuteAsync(false));
+        if (await step1Task == false) return;
+
+        await Step2Command.ExecuteAsync(true);
     }
 }
 

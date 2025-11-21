@@ -12,7 +12,7 @@ using Net.Utilities.Nlog.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class PrescanAODWaveformElectrodeOffsetCache : AODWaveformElectrodeOffsetCache<PrescanAODWaveformElectrodeOffsetItem>
+public sealed partial class PrescanAODWaveformElectrodeOffsetCache : AODWaveformElectrodeOffsetCache<PrescanAODWaveformElectrodeOffsetItem, PrescanAODWaveformElectrodeOffsetResult>
 {
     [ObservableProperty]
     private double _chirpFrequency;
@@ -33,8 +33,20 @@ public sealed partial class PrescanAODWaveformElectrodeOffsetItem : AODWaveformE
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 }
 
+public sealed partial class PrescanAODWaveformElectrodeOffsetResult : AODWaveformElectrodeOffsetResult
+{
+    [ObservableProperty]
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+
+    [ObservableProperty]
+    private string _prescanAODWaveformResultFilePath = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+}
+
 [IOCAppService(ServiceType = typeof(PrescanAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWaveformElectrodeOffsetWindowViewModel<PrescanAODWaveformElectrodeOffsetCache, PrescanAODWaveformElectrodeOffsetItem>
+public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWaveformElectrodeOffsetWindowViewModel<PrescanAODWaveformElectrodeOffsetCache, PrescanAODWaveformElectrodeOffsetItem, PrescanAODWaveformElectrodeOffsetResult>
 {
     public override string Name => "Prescan AOD Waveform Electrode Offset";
 
@@ -100,5 +112,24 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
     {
         LaserViewModel.SetPrescanAODWaveProfiles(item.PrescanAODWaveformProfiles);
         LaserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles);
+    }
+
+    protected override void GenerateResultAODWaveform(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        result.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
+        result.GeneratePrescanAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
+
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+        result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
+        result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
+
+        Logger.LogHtmlInformation("Result Prescan AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+            result.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 }

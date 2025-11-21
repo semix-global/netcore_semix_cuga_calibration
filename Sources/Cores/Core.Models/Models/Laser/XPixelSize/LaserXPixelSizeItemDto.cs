@@ -87,6 +87,7 @@ public sealed class LaserXPixelSizeSlideItem
     public long StartPixel { get; init; }
 
     [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
     [Newtonsoft.Json.JsonIgnore]
     [LiteDB.BsonIgnore]
     public byte[] Buffer { get; init; } = [];
