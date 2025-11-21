@@ -834,6 +834,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
     {
+        if (results.Count < 3) return;
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.X)).ToArray();
         var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(
