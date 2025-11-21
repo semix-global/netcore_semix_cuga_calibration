@@ -38,6 +38,13 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         return this;
     }
 
+    public GenerateAODWaveformElectrodeConfiguration WithUniformityConfigurations(IReadOnlyList<GenerateAODWaveformUniformityConfiguration> uniformityConfigurations)
+    {
+        UniformityConfigurations = uniformityConfigurations;
+
+        return this;
+    }
+
     public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(
         OpticsAODElectrodeEnum.ToString(),
         OffsetFrequency,
@@ -75,7 +82,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         IsGenerateAODWaveformZero,
         UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => t.ToHtmlAnonymous())])
     };
-    
+
     public object ToFlatnessHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,

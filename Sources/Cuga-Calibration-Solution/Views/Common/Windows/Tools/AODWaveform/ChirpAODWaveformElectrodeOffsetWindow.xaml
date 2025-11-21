@@ -855,8 +855,8 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step 2 Uniformity Details">
-                        <ScrollViewer>
+                    <TabItem Header="Step 3 Result Chirp AOD Waveform Profiles">
+                        <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -865,7 +865,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Style="{StaticResource BorderRegion}">
+                                        <Border Height="800" Style="{StaticResource BorderRegion}">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto" />
@@ -885,7 +885,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </ScrollViewer>
+                        </hc:ScrollViewer>
                     </TabItem>
                 </TabControl>
             </GroupBox>

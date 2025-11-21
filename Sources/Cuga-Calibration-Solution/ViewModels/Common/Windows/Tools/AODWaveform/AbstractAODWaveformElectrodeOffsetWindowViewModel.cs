@@ -274,8 +274,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     [RelayCommand]
     private void RemoveResult(TResult? result)
     {
-        if(result is null) return;
-        
+        if (result is null) return;
+
         var resultList = Cache.Results.ToList();
 
         resultList.Remove(result);
@@ -529,7 +529,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                 .. Cache.ElectrodeConfigurationResults
                                     .Select(t =>
                                     {
-                                        if (electrodes.Contains(t.OpticsAODElectrodeEnum)) return t.Clone().WithAmplitude(amplitude);
+                                        if (electrodes.Contains(t.OpticsAODElectrodeEnum)) return t.Clone().WithAmplitude(amplitude).WithUniformityConfigurations([]);
 
                                         var uniformityConfigurationResults = Cache.ElectrodeConfigurationResults
                                             .Single(tt => tt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum)
@@ -538,7 +538,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                         return t.Clone()
                                             .WithAmplitude(uniformityConfigurationResults.Count > 0
                                                 ? uniformityConfigurationResults.Single(tt => Equals(tt.Frequency, frequency)).Coefficient
-                                                : Cache.DefaultAmplitude);
+                                                : Cache.DefaultAmplitude)
+                                            .WithUniformityConfigurations([]);
                                     })
                             ],
                             Amplitude = amplitude,
