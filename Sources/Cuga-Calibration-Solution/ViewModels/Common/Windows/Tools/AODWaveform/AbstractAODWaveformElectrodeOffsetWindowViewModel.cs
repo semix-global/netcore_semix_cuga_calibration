@@ -584,8 +584,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         return await InvokeAsync(2, "Step 2 Generate AOD Waveform", () =>
         {
-            Guard.IsNotEmpty(Cache.ElectrodeFrequencyUniformityParams);
-            Guard.IsTrue(Cache.ElectrodeFrequencyUniformityParams.Count == Cache.ElectrodeOffsetFrequencyWeightParams.Count);
+            Guard.IsNotEmpty(Cache.ElectrodeOffsetParams);
+            Guard.IsTrue(Cache.ElectrodeOffsetParams.Count == Cache.ElectrodeConfigurationResults.Count);
             Guard.IsNotEmpty(Cache.Results);
 
             Logger.LogHtmlInformation("Result Chirp AOD Waveforms", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());

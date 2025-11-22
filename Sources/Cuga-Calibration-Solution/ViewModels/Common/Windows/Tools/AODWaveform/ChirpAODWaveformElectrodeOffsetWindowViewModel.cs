@@ -116,9 +116,9 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
             Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.OpticsMagTypeEnum}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
                 result.ChirpAODWaveformResultFilePath,
-                ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+                ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
             }), HtmlLogUniqueId.LoggingHtml());
         }
     }
