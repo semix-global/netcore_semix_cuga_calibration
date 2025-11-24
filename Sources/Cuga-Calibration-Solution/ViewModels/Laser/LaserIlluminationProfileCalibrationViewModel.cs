@@ -15,7 +15,6 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
@@ -42,6 +41,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Models.Models.AOD.AODAlignment;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -210,7 +210,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPrescanChirpAodAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

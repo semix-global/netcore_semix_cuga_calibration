@@ -226,9 +226,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
-    protected string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
+    public string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
 
-    protected string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     protected abstract void GenerateResultAODWaveform(CancellationToken cancellationToken);
 

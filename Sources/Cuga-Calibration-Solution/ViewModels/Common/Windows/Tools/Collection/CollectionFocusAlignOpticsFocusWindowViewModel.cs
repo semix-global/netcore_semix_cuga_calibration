@@ -160,10 +160,10 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
         RangeEcs,
         StepEcs,
         HazeCIBConfiguration = new HtmlQuote(HazeCIBConfiguration.ToHtmlAnonymous()),
-        HazeLaserLightInformation = new HtmlQuote(HazeLaserLightInformation.ToHtmlAnonymous()),
+        HazeLaserLightInformation,
         HazeBrightFieldPosition,
         DSWCIBConfiguration = new HtmlQuote(DSWCIBConfiguration.ToHtmlAnonymous()),
-        DSWLaserLightInformation = new HtmlQuote(DSWLaserLightInformation.ToHtmlAnonymous()),
+        DSWLaserLightInformation,
         DSWBrightFieldPosition
     };
 }

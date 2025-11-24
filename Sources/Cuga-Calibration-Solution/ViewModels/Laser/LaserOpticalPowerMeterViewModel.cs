@@ -16,7 +16,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -52,7 +51,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<LaserOpticalPowerMeterDto> _reviews = [];
+    private IReadOnlyList<LaserOpticalPowerMeterDto> _reviews = [];
 
     [ObservableProperty]
     private LaserOpticalPowerMeterDto? _selectedReviewItem;

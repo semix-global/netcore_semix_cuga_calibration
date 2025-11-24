@@ -29,7 +29,6 @@ using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PmtAgcDelay;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.Rtfc;
 using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
@@ -65,6 +64,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AOD.AODAlignment;
 
 namespace CugaCalibration.ViewModels;
 
@@ -611,8 +611,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserXYAstigmatismCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPrescanChirpAodAlignmentCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPrescanChirpAodAlignmentDto>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<AODAlignmentViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODAlignmentDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserFocusShiftCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<FocusShiftDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserRtfcCalibrationViewModel>();

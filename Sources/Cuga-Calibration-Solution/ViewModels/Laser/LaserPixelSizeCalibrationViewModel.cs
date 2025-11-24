@@ -10,7 +10,6 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -27,6 +26,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AOD.AODAlignment;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -127,7 +127,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPrescanChirpAodAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -420,9 +420,9 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
             {
                 PmtYPixelSize = new HtmlPlot2DLinesChart(
                     [
-                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", ResultLaserPixelSizeItemDtoList.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize)).ToArray()),
+                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", ResultLaserPixelSizeItemDtoList.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize)).ToArray())
                     ],
-                    "PMT Y Pixel Size"),
+                    "PMT Y Pixel Size")
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });

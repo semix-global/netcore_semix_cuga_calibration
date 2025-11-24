@@ -18,7 +18,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Collections.ObjectModel;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -58,7 +57,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     #endregion Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<AODDelayDto> _reviews = [];
+    private IReadOnlyList<AODDelayDto> _reviews = [];
 
     [ObservableProperty]
     private AODDelayDto? _selectedReviewItem;
@@ -234,7 +233,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.WaitTime,
                 Cache.Item.PMTDataCount,
-                LaserLightInformation = new HtmlQuote(Cache.Item.LaserLightInformation.ToHtmlAnonymous()),
+                Cache.Item.LaserLightInformation,
                 Cache.Item.PMTId,
                 Cache.Item.ChannelId,
                 Cache.Item.FindBFMachinePosition,
@@ -340,7 +339,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.WaitTime,
                 Cache.Item.PMTDataCount,
-                LaserLightInformation = new HtmlQuote(Cache.Item.LaserLightInformation.ToHtmlAnonymous()),
+                Cache.Item.LaserLightInformation,
                 Cache.Item.PMTId,
                 Cache.Item.ChannelId,
                 Cache.Item.FindBFMachinePosition,

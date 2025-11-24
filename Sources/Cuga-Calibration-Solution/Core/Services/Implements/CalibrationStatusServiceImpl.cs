@@ -3,6 +3,7 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -12,7 +13,6 @@ using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PmtGain;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
@@ -119,7 +119,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserAodDelayCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<LaserPrescanChirpAodAlignmentDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<AODAlignmentDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
