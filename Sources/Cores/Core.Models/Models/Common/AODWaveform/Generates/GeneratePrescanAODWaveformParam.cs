@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -21,7 +20,7 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum,
         SampleRate = SampleRate,
         DirectoryPath = DirectoryPath,
-        FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString(),
+        FileNameSuffix = ProductivityInformation.AdaptTo().Mag.ToString(),
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         GenerateRetryTimes = GenerateRetryTimes,
@@ -50,14 +49,12 @@ public sealed partial class GeneratePrescanAODWaveformParam :
     public override object ToFlatnessHtmlAnonymous() => new
     {
         FlatnessTime,
-        OpticsMagTypeEnum,
         Base = new HtmlQuote(base.ToFlatnessHtmlAnonymous())
     };
 
     public override object ToHtmlAnonymous() => new
     {
         FlatnessTime,
-        OpticsMagTypeEnum,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }

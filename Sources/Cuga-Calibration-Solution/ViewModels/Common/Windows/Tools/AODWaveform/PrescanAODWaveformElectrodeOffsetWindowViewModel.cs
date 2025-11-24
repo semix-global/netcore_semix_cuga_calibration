@@ -55,7 +55,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
         Cache.ChirpAODWaveformProfiles = [];
         Cache.ChirpAODWaveformResultFilePath = string.Empty;
 
-        Cache.GenerateChirpAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+        Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
@@ -75,7 +75,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void GenerateChangedAODWaveform(PrescanAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
     {
-        Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+        Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
         Cache.GeneratePrescanAODWaveformParam.ElectrodeConfigurations =
@@ -116,7 +116,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void GenerateResultAODWaveform(CancellationToken cancellationToken)
     {
-        Guard.IsTrue(Cache.Results.DistinctBy(t => t.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum).Count() == Cache.Results.Count, "The OpticsMagTypeEnum of the results must be the same.");
+        Guard.IsTrue(Cache.Results.DistinctBy(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation).Count() == Cache.Results.Count, "The Productivity Information of the results must be the same.");
 
         foreach (var result in Cache.Results)
         {
@@ -129,7 +129,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
             result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
             result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
-            Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 result.PrescanAODWaveformResultFilePath,

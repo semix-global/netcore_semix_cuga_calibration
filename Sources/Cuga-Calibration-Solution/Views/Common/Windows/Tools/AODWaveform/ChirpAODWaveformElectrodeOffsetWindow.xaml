@@ -191,18 +191,12 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
+                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
-                                            <hc:ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                </DataTemplate>
-                                            </hc:ComboBox.ItemTemplate>
-                                        </hc:ComboBox>
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude(AMP): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"
@@ -518,7 +512,7 @@
                                                 <TabControl x:Name="ResultTabControl" ItemsSource="{Binding Cache.Results}">
                                                     <TabControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock Text="{Binding GenerateChirpAODWaveformParam.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                            <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}" />
                                                         </DataTemplate>
                                                     </TabControl.ItemTemplate>
                                                     <TabControl.ContentTemplate>
@@ -871,7 +865,7 @@
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="*" />
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding GenerateChirpAODWaveformParam.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                                                <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}"
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />

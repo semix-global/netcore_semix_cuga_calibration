@@ -54,7 +54,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
         Cache.PrescanAODWaveformProfiles = [];
         Cache.PrescanAODWaveformResultFilePath = string.Empty;
 
-        Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+        Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
@@ -74,7 +74,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
     protected override void GenerateChangedAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
     {
-        Cache.GenerateChirpAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+        Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
         Cache.GenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
@@ -101,7 +101,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
     protected override void GenerateResultAODWaveform(CancellationToken cancellationToken)
     {
-        Guard.IsTrue(Cache.Results.DistinctBy(t => t.GenerateChirpAODWaveformParam.OpticsMagTypeEnum).Count() == Cache.Results.Count, "The OpticsMagTypeEnum of the results must be the same.");
+        Guard.IsTrue(Cache.Results.DistinctBy(t => t.GenerateChirpAODWaveformParam.ProductivityInformation).Count() == Cache.Results.Count, "The Productivity Information of the results must be the same.");
 
         foreach (var result in Cache.Results)
         {
@@ -114,7 +114,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
             result.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
             result.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
-            Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.OpticsMagTypeEnum}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
                 result.ChirpAODWaveformResultFilePath,

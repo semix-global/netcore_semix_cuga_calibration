@@ -208,78 +208,79 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     {
         await InvokeCalibrateAsync(async () =>
         {
-            try
+            Calibratings = [];
+            SelectedCalibratingItem = null;
+
+            var coefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Calibratings = [];
-                SelectedCalibratingItem = null;
+                coefficient,
+                Cache.ProductivityInformation,
+                Cache.Item.FindPosition,
+                Cache.Item.RowNumber,
+                Cache.Item.ColumnNumber,
+                Cache.Item.ColumnCellWidth,
+                Cache.Item.RowCellHeight,
+                Cache.Item.WaitTime,
+                Cache.Item.RepeatCount,
+                Cache.Threshold
+            }), HtmlLogUniqueId.LoggingHtml());
 
-                var coefficient = applicationCookie.LaserLightInformations.Max(t => t.Coefficient);
+            // 中心点的索引
+            var centerX = (Cache.Item.ColumnNumber - 1) / 2d;
+            var centerY = (Cache.Item.RowNumber - 1) / 2d;
 
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            var laserOpticalPowerObjDto = new LaserOpticalPowerMeterDto
+            {
+                Coefficient = coefficient,
+                ProductivityInformation = Cache.ProductivityInformation,
+                FindCenterPosition = Cache.Item.FindPosition,
+                RowNumber = Cache.Item.RowNumber,
+                ColumnNumber = Cache.Item.ColumnNumber,
+                Map = []
+            };
+
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+
+            var repeatCout = 0;
+
+            while (repeatCout < Cache.Item.RepeatCount)
+            {
+                repeatCout++;
+
+                var temp = laserOpticalPowerObjDto.Map;
+                laserOpticalPowerObjDto.Map = [];
+
+                for (var row = 0; row < Cache.Item.RowNumber; row++)
                 {
-                    coefficient,
-                    Cache.ProductivityInformation,
-                    Cache.Item.FindPosition,
-                    Cache.Item.RowNumber,
-                    Cache.Item.ColumnNumber,
-                    Cache.Item.ColumnCellWidth,
-                    Cache.Item.RowCellHeight,
-                    Cache.Item.WaitTime,
-                    Cache.Item.RepeatCount,
-                    Cache.Threshold
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                // 中心点的索引
-                var centerX = (Cache.Item.ColumnNumber - 1) / 2d;
-                var centerY = (Cache.Item.RowNumber - 1) / 2d;
-
-                var laserOpticalPowerObjDto = new LaserOpticalPowerMeterDto
-                {
-                    Coefficient = coefficient,
-                    ProductivityInformation = Cache.ProductivityInformation,
-                    FindCenterPosition = Cache.Item.FindPosition,
-                    RowNumber = Cache.Item.RowNumber,
-                    ColumnNumber = Cache.Item.ColumnNumber,
-                    Map = []
-                };
-
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
-                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, coefficient);
-                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
-                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-
-                var repeatCout = 0;
-
-                while (repeatCout < Cache.Item.RepeatCount)
-                {
-                    repeatCout++;
-
-                    var temp = laserOpticalPowerObjDto.Map;
-                    laserOpticalPowerObjDto.Map = [];
-
-                    for (var row = 0; row < Cache.Item.RowNumber; row++)
+                    for (var column = 0; column < Cache.Item.ColumnNumber; column++)
                     {
-                        for (var column = 0; column < Cache.Item.ColumnNumber; column++)
+                        var position = laserOpticalPowerObjDto.FindCenterPosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnCellWidth, (row - centerY) * Cache.Item.RowCellHeight);
+                        laserOpticalPowerObjDto.Map.Add(new LaserOpticalPowerItemDto
                         {
-                            var position = laserOpticalPowerObjDto.FindCenterPosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnCellWidth, (row - centerY) * Cache.Item.RowCellHeight);
-                            laserOpticalPowerObjDto.Map.Add(new LaserOpticalPowerItemDto
-                            {
-                                MeasurePosition = position,
-                                MeasurePower = temp.SingleOrDefault(t => t.MeasurePosition == position)?.MeasurePower ?? 0,
-                                Row = row,
-                                Column = column
-                            });
-                        }
+                            MeasurePosition = position,
+                            MeasurePower = temp.SingleOrDefault(t => t.MeasurePosition == position)?.MeasurePower ?? 0,
+                            Row = row,
+                            Column = column
+                        });
                     }
+                }
 
-                    SelectedCalibratingItem = laserOpticalPowerObjDto;
+                SelectedCalibratingItem = laserOpticalPowerObjDto;
 
-                    foreach (var laserOpticalPowerObjItem in laserOpticalPowerObjDto.Map)
+                foreach (var laserOpticalPowerObjItem in laserOpticalPowerObjDto.Map)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (laserOpticalPowerObjItem.MeasurePower > 0) continue;
+
+                    try
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        if (laserOpticalPowerObjItem.MeasurePower > 0) continue;
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjItem.MeasurePosition);
 
@@ -288,78 +289,75 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                         var measurePower = LaserViewModel.GetOpticalPowerMeter();
 
                         laserOpticalPowerObjItem.MeasurePower = measurePower;
-
-                        OnPropertyChanged(nameof(SelectedCalibratingItem));
+                    }
+                    finally
+                    {
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                     }
 
-                    var maximumIndex = Vector<double>.Build.DenseOfEnumerable(laserOpticalPowerObjDto.Map.Select(t => t.MeasurePower)).MaximumIndex();
-                    // maximumIndex转换为二维数组的索引
-                    var maximumIndexRow = maximumIndex / Cache.Item.ColumnNumber;
-                    var maximumIndexCol = maximumIndex % Cache.Item.ColumnNumber;
-                    laserOpticalPowerObjDto.MeasureMaxPower = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePower;
-                    laserOpticalPowerObjDto.MeasureMaxPowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
-
-                    var resultLaserOpticalPowerDto = laserOpticalPowerObjDto.Clone();
-                    Calibratings = [.. Calibratings, resultLaserOpticalPowerDto];
-
-                    var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.Item.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.Item.ColumnNumber - 1;
-
-                    var htmlBulletList = new HtmlBullet(new
-                    {
-                        laserOpticalPowerObjDto.FindCenterPosition,
-                        laserOpticalPowerObjDto.MeasureMaxPower,
-                        laserOpticalPowerObjDto.MeasureMaxPowerPosition,
-                        MaxRow = maximumIndexRow,
-                        MaxColumn = maximumIndexCol,
-                        IsInEdge = isInEdge,
-                        Map = new HtmlPlot3DChart([.. laserOpticalPowerObjDto.Map.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))], string.Empty, HtmlPlot3DType.Bar3D),
-                        Table = new HtmlExpand(
-                            string.Empty,
-                            new HtmlTable([
-                                .. laserOpticalPowerObjDto.Map.Select(t => new
-                                {
-                                    t.Row,
-                                    t.Column,
-                                    t.MeasurePosition,
-                                    t.MeasurePower
-                                })
-                            ]))
-                    });
-
-                    // 判断maximumIndexRow,maximumIndexCol是不是再边缘点上
-                    if (isInEdge)
-                    {
-                        Logger.LogHtmlInformation($"{repeatCout}", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
-                        laserOpticalPowerObjDto.FindCenterPosition = laserOpticalPowerObjDto.MeasureMaxPowerPosition;
-
-                        continue;
-                    }
-
-                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
-
-                    Logger.LogHtmlInformation($"{repeatCout} OK", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
-
-                    SelectedCalibratingItem.IsCalibrated = true;
-                    if (Save(SelectedCalibratingItem, cancellationToken) == false)
-                    {
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                        SelectedCalibratingItem.IsCalibrated = false;
-
-                        return false;
-                    }
-
-                    return true;
+                    OnPropertyChanged(nameof(SelectedCalibratingItem));
                 }
 
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Retry count exceeded!"), HtmlLogUniqueId.LoggingHtml());
-                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
+                var maximumIndex = Vector<double>.Build.DenseOfEnumerable(laserOpticalPowerObjDto.Map.Select(t => t.MeasurePower)).MaximumIndex();
+                // maximumIndex转换为二维数组的索引
+                var maximumIndexRow = maximumIndex / Cache.Item.ColumnNumber;
+                var maximumIndexCol = maximumIndex % Cache.Item.ColumnNumber;
+                laserOpticalPowerObjDto.MeasureMaxPower = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePower;
+                laserOpticalPowerObjDto.MeasureMaxPowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
 
-                return false;
+                var resultLaserOpticalPowerDto = laserOpticalPowerObjDto.Clone();
+                Calibratings = [.. Calibratings, resultLaserOpticalPowerDto];
+
+                var isInEdge = maximumIndexRow == 0 || maximumIndexRow == Cache.Item.RowNumber - 1 || maximumIndexCol == 0 || maximumIndexCol == Cache.Item.ColumnNumber - 1;
+
+                var htmlBulletList = new HtmlBullet(new
+                {
+                    laserOpticalPowerObjDto.FindCenterPosition,
+                    laserOpticalPowerObjDto.MeasureMaxPower,
+                    laserOpticalPowerObjDto.MeasureMaxPowerPosition,
+                    MaxRow = maximumIndexRow,
+                    MaxColumn = maximumIndexCol,
+                    IsInEdge = isInEdge,
+                    Map = new HtmlPlot3DChart([.. laserOpticalPowerObjDto.Map.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))], string.Empty, HtmlPlot3DType.Bar3D),
+                    Table = new HtmlExpand(
+                        string.Empty,
+                        new HtmlTable([
+                            .. laserOpticalPowerObjDto.Map.Select(t => new
+                            {
+                                t.Row,
+                                t.Column,
+                                t.MeasurePosition,
+                                t.MeasurePower
+                            })
+                        ]))
+                });
+
+                // 判断maximumIndexRow,maximumIndexCol是不是再边缘点上
+                if (isInEdge)
+                {
+                    Logger.LogHtmlInformation($"{repeatCout}", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+                    laserOpticalPowerObjDto.FindCenterPosition = laserOpticalPowerObjDto.MeasureMaxPowerPosition;
+
+                    continue;
+                }
+
+                Logger.LogHtmlInformation($"{repeatCout} OK", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+
+                SelectedCalibratingItem.IsCalibrated = true;
+                if (Save(SelectedCalibratingItem, cancellationToken) == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    SelectedCalibratingItem.IsCalibrated = false;
+
+                    return false;
+                }
+
+                return true;
             }
-            finally
-            {
-                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
-            }
+
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Retry count exceeded!"), HtmlLogUniqueId.LoggingHtml());
+
+            return false;
         }).ConfigureAwait(false);
     }
 
@@ -374,30 +372,30 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
         await InvokeVerifyAsync(async () =>
         {
+            Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.Item.WaitTime,
+                Cache.Threshold,
+                SelectedReviewItem.Coefficient,
+                SelectedReviewItem.MeasureMaxPowerPosition,
+                SelectedReviewItem.MeasureMaxPower
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            SelectedReviewItem.IsVerified = false;
+
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, SelectedReviewItem.Coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+
+            var resultList = new List<double>();
+
             try
             {
-                Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
-
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    Cache.ProductivityInformation,
-                    Cache.Item.WaitTime,
-                    Cache.Threshold,
-                    SelectedReviewItem.Coefficient,
-                    SelectedReviewItem.MeasureMaxPowerPosition,
-                    SelectedReviewItem.MeasureMaxPower
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                SelectedReviewItem.IsVerified = false;
-
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
-                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, SelectedReviewItem.Coefficient);
-                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-
-                var resultList = new List<double>();
-
                 foreach (var _ in Enumerable.Range(0, 3))
                 {
                     await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
@@ -406,42 +404,40 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                     resultList.Add(measurePower);
                 }
-
-                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
-
-                var average = resultList.Average();
-                var errorRate = Math.Abs((average - SelectedReviewItem.MeasureMaxPower) / SelectedReviewItem.MeasureMaxPower);
-                var result = errorRate < Cache.Threshold;
-
-                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    ReviewMeasureMaxPower = average,
-                    errorRate
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                SelectedReviewItem.IsVerified = result;
-                if (Save(SelectedReviewItem, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    SelectedReviewItem.IsVerified = false;
-
-                    return false;
-                }
-
-                DialogWindowProvider.ShowDialog($"""
-                                                 Verify {(result ? "OK" : "Failed")}
-                                                 New Measure Max Power: ({average:0.###})
-                                                 Old Measure Max Power:({SelectedReviewItem.MeasureMaxPower:0.###})
-                                                 Error:({errorRate:0.###})
-                                                 """,
-                    DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-
-                return result;
             }
             finally
             {
-                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
+                LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
             }
+
+            var average = resultList.Average();
+            var errorRate = Math.Abs((average - SelectedReviewItem.MeasureMaxPower) / SelectedReviewItem.MeasureMaxPower);
+            var result = errorRate < Cache.Threshold;
+
+            Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                ReviewMeasureMaxPower = average,
+                errorRate
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            SelectedReviewItem.IsVerified = result;
+            if (Save(SelectedReviewItem, cancellationToken) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                SelectedReviewItem.IsVerified = false;
+
+                return false;
+            }
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify {(result ? "OK" : "Failed")}
+                                             New Measure Max Power: ({average:0.###})
+                                             Old Measure Max Power:({SelectedReviewItem.MeasureMaxPower:0.###})
+                                             Error:({errorRate:0.###})
+                                             """,
+                DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
         }).ConfigureAwait(false);
     }
 

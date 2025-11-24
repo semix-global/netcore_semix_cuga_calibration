@@ -1,5 +1,4 @@
 using Core.Models.Enums.Optics;
-using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MiniExcelLibs;
@@ -9,7 +8,17 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Enums.Maths;
 using System.IO;
+using Core.Models.Models.Common.Pattern;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Xunit;
+
+#if NET
+using Semix.GRPC.DTO;
+
+#else
+using Semix.WcfTransfer.DTO;
+#endif
 
 namespace CugaCalibrationUnitTest;
 
@@ -36,7 +45,7 @@ public class AODWaveformUnitTest
 
         AbstractGenerateAODWaveformParam param = new GeneratePrescanAODWaveformParam
         {
-            OpticsMagTypeEnum = OpticsMagTypeEnum.Middle,
+            ProductivityInformation = ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = string.Empty, Mag = SxMAGEnum.Mid, Speed = (SxSpeedEnum)(-1), IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid }),
             IsHeaderAndFooter = false,
             BandWidth = 210d,
             CenterFrequency = 200d,
@@ -107,13 +116,13 @@ public class AODWaveformUnitTest
 
         var resultFilePath = isChirp
             ? $"chirp_" +
-              $"{((GenerateChirpAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}_" +
+              $"{((GenerateChirpAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag.ToString()}_" +
               $"{((GenerateChirpAODWaveformParam)param).SoundPacketLength:0.###}mm_" +
               $"{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
               $"{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
               $"{AODWaveformGenerator.ChirpAODWaveformFileExtension}"
             : $"prescan_" +
-              $"{((GeneratePrescanAODWaveformParam)param).OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}_" +
+              $"{((GeneratePrescanAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag.ToString()}_" +
               $"{((GeneratePrescanAODWaveformParam)param).FlatnessTime:0.###}ns_" +
               $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
               $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
@@ -158,14 +167,14 @@ public class AODWaveformUnitTest
 
             var profileFilePath = isChirp
                 ? $"chirp_" +
-                  $"{param.OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
+                  $"{param.ProductivityInformation.AdaptTo().Mag.ToString()}" +
                   $"${((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount:0.###}" +
                   $"$600$03" +
                   $"${configuration.OffsetFrequency:0.###}" +
                   $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt"
                 : $"prescan_" +
-                  $"{param.OpticsMagTypeEnum.ToCgMagTypeEnum().ToString()}" +
+                  $"{param.ProductivityInformation.AdaptTo().Mag.ToString()}" +
                   $"${((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount:0.###}" +
                   $"$600$02" +

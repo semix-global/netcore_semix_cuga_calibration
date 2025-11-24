@@ -5,12 +5,10 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:wpf="http://schemas.scottplot.net/2008/xaml/presentation"
-           xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Width="1500"
@@ -100,18 +98,12 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
+                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
-                                            <hc:ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                </DataTemplate>
-                                            </hc:ComboBox.ItemTemplate>
-                                        </hc:ComboBox>
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude: "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"

@@ -53,7 +53,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         Amplitude,
         IsGenerateAODWaveformZero)
     {
-        UniformityConfigurations = [..UniformityConfigurations.Select(t => t.AdaptTo())]
+        UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())]
     };
 
     [Obsolete]
@@ -71,7 +71,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         OffsetFrequency = OffsetFrequency,
         OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient,
-        UniformityConfigurations = [..UniformityConfigurations.Select(t => t.Clone())]
+        UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.Clone())]
     };
 
     public object ToHtmlAnonymous() => new

@@ -3,7 +3,6 @@
                                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                                                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                                                xmlns:optics="clr-namespace:Core.Models.Enums.Optics"
                                                 xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.Generates"
                                                 xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates"
                                                 xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
@@ -21,7 +20,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Common.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Generates.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <attachedHelper:BindingProxy x:Key="Proxy" Value="{Binding RelativeSource={RelativeSource AncestorType=ui:AbstractGenerateAODWaveformParamUserControl}}" />
+            <attachedHelper:BindingProxy x:Key="Proxy" Value="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}" />
         </ResourceDictionary>
     </ui:AbstractGenerateAODWaveformParamUserControl.Resources>
     <GroupBox>
@@ -35,19 +34,13 @@
                 <hc:UniformSpacingPanel Margin="11,0"
                                         Orientation="Vertical"
                                         Spacing="2">
-                    <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                    <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                 SelectedItem="{Binding OpticsMagTypeEnum}"
+                                 SelectedItem="{Binding ProductivityInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}"
-                                 Visibility="{Binding IsVisibleOpticsMagTypeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                 Visibility="{Binding IsVisibleOpticsMagTypeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>
                 <Expander Header="Frequency(MHz)"

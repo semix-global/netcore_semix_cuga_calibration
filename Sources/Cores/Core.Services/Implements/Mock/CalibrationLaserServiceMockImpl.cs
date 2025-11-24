@@ -22,6 +22,7 @@ using Cuga.Data.DataStruct.Optics;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
+
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -87,7 +88,8 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([
+        var laserLightInformations = new[]
+        {
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 170, LightCoeff = 0.85 }),
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 157, LightCoeff = 0.785 }),
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 127, LightCoeff = 0.635 }),
@@ -101,7 +103,9 @@ public sealed class CalibrationLaserServiceMockImpl(
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 10, LightCoeff = 0.05 }),
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 7, LightCoeff = 0.035 }),
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 1, LightCoeff = 0.005 })
-        ]);
+        };
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([.. laserLightInformations.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
@@ -132,14 +136,17 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([
+        var productivityInformations = new[]
+        {
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520 }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520 }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080 }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080 }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560 }),
             ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560 })
-        ]);
+        };
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformations.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
@@ -186,7 +193,10 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsMagTypeEnum);
+        var sxExecuteRet = GetProductivityInformations();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -202,7 +212,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -233,7 +243,10 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsMagTypeEnum);
+        var sxExecuteRet = GetProductivityInformations();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
@@ -245,7 +258,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);

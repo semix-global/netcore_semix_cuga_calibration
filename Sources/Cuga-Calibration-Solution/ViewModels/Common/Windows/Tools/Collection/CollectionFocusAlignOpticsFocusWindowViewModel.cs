@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
@@ -44,10 +43,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
 {
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -158,8 +154,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
 
     public object ToHtmlAnonymous() => new
     {
-        OpticsMagTypeEnum,
-        StageSpeedEnum,
+        ProductivityInformation,
         PmtId,
         ImageWidth = ImageWidthPixel,
         RangeEcs,
@@ -280,7 +275,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionFocusAlignOpticsFocusWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformations => applicationCookie.LaserLightInformations;
+    public ApplicationCookie ApplicationCookie => applicationCookie;
 
     public Guid HtmlLogUniqueId { get; private set; }
 
@@ -388,9 +383,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     (false, Cache.DSWLaserLightInformation),
                     false,
                     Cache.DSWCIBConfiguration,
-                    Cache.ImageWidthPixel,
-                    Cache.OpticsMagTypeEnum,
-                    Cache.StageSpeedEnum,
+                    Cache.ProductivityInformation,
+                    xWidthPixel: Cache.ImageWidthPixel,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
                     pmtId: Cache.PmtId,
                     isAutoFocus: true);
@@ -554,8 +548,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         calChipSiteModelEnum,
                         brightFieldPosition,
                         Cache.ImageWidthPixel,
-                        Cache.OpticsMagTypeEnum,
-                        Cache.StageSpeedEnum,
+                        Cache.ProductivityInformation,
                         Cache.PmtId,
                         StageCoordinateSystemEnum.Dark,
                         cibConfiguration,

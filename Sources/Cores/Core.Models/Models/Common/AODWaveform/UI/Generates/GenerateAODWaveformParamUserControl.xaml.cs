@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Models.Models.Common.Cookies;
 using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -21,6 +22,8 @@ public sealed partial class GenerateAODWaveformParamUserControl
 {
     private readonly ILogger<GenerateAODWaveformParamUserControl>? _logger;
     private readonly IDialogWindowProvider? _dialogWindowProvider;
+
+    public ApplicationCookie ApplicationCookie => HostApplication.GetRequiredService<ApplicationCookie>();
 
     protected override GenerateAODWaveformParamUserControl InnerControl => this;
 

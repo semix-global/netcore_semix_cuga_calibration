@@ -78,22 +78,22 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations => ProductivityInformations
         .GroupBy(p => p.OpticsMagType)
-        .Select(g => g.OrderByDescending(p => p.StageSpeedType).First())
-        .OrderByDescending(t => t)
+        .Select(g => g.OrderByDescending(p => p).First())
+        .OrderBy(t => t)
         .ToList();
 
     /// <summary>
     /// 最低产率
     /// </summary>
     public ProductivityInformation LoweProductivityInformation => ProductivityInformations
-        .OrderBy(t => t.YPixelSize)
+        .OrderByDescending(t => t)
         .First();
 
     /// <summary>
     /// 最高产率
     /// </summary>
     public ProductivityInformation HighProductivityInformation => ProductivityInformations
-        .OrderByDescending(t => t.YPixelSize)
+        .OrderBy(t => t)
         .First();
 
     /// <summary>

@@ -32,14 +32,8 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
     {
         Thread.Sleep(100);
 
-        var microscopeLensInformationList = new List<MicroscopeLensInformation>
+        var microscopeLensInformations = new[]
         {
-            // MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
-            // {
-            //     Lens = 2,
-            //     LensCode = CgMicroscopeLens.One,
-            //     LensName = "2X"
-            // }),
             MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
                 Lens = 5,
@@ -66,13 +60,13 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
             }),
             MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
             {
-                Lens = 150,
+                Lens = 10,
                 LensCode = CgMicroscopeLens.Five,
-                LensName = "150X"
+                LensName = "10X-IR"
             })
         };
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<MicroscopeLensInformation>>(microscopeLensInformationList);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<MicroscopeLensInformation>>([.. microscopeLensInformations.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<MicroscopeLensInformation> CgMicroscopeLensToMicroscopeLensInfo(CgMicroscopeLens cgMicroscopeLens)

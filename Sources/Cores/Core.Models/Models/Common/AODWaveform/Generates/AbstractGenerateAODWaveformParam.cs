@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -14,9 +13,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     ObservableCacheBase,
     IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -200,7 +196,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
     {
-        OpticsMagTypeEnum = obj.OpticsMagTypeEnum;
         ProductivityInformation = obj.ProductivityInformation;
         IsHeaderAndFooter = obj.IsHeaderAndFooter;
         HeaderFrequency = obj.HeaderFrequency;
@@ -230,7 +225,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public virtual object ToFlatnessHtmlAnonymous() => new
     {
-        OpticsMagTypeEnum,
+        ProductivityInformation,
         IsHeaderAndFooter,
         HeaderFrequency,
         FooterFrequency,
@@ -247,7 +242,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public virtual object ToHtmlAnonymous() => new
     {
-        OpticsMagTypeEnum,
         ProductivityInformation,
         IsHeaderAndFooter,
         HeaderFrequency,
