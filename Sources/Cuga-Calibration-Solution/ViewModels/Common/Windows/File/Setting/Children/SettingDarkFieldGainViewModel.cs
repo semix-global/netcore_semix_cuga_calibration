@@ -22,6 +22,8 @@ using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
+using Core.Models.Models.Common.Cookies;
+using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
@@ -31,12 +33,15 @@ public sealed partial class SettingDarkFieldGainViewModel(
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
+    ApplicationCookie applicationCookie,
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider)
     : SettingWindowViewModelBase
 {
+    public ApplicationCookie ApplicationCookie => applicationCookie;
+    
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private ObservableCollection<SettingDarkFieldGainParam> _settingDarkFieldGainParamList = [];
@@ -68,19 +73,19 @@ public sealed partial class SettingDarkFieldGainViewModel(
     [RelayCommand]
     private void Loaded()
     {
-        SettingDarkFieldGainParam = SettingDarkFieldGainParamList.SingleOrDefault(t => t.PmtId == PmtId && t.ChannelId == ChannelId);
+        SettingDarkFieldGainParam = SettingDarkFieldGainParamList.Single(t => t.PmtId == PmtId && t.ChannelId == ChannelId);
     }
 
     [RelayCommand]
     private void SelectedPmtIdChanged(int pmtId)
     {
-        SettingDarkFieldGainParam = SettingDarkFieldGainParamList.SingleOrDefault(t => t.PmtId == pmtId && t.ChannelId == ChannelId);
+        SettingDarkFieldGainParam = SettingDarkFieldGainParamList.Single(t => t.PmtId == pmtId && t.ChannelId == ChannelId);
     }
 
     [RelayCommand]
     private void SelectedChannelChanged(int channelId)
     {
-        SettingDarkFieldGainParam = SettingDarkFieldGainParamList.SingleOrDefault(t => t.PmtId == PmtId && t.ChannelId == channelId);
+        SettingDarkFieldGainParam = SettingDarkFieldGainParamList.Single(t => t.PmtId == PmtId && t.ChannelId == channelId);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -101,7 +106,16 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     return;
                 }
 
-                var (isSuccess, gain) = await AutoPmtGainAsync(coefficient.Value, microscopeCalChipCache.HazePosition, CalChipSiteModelEnum.HazeModel, Guid.NewGuid(), cancellationToken, true, PmtId, ChannelId).ConfigureAwait(false);
+                var (isSuccess, gain) = await AutoPmtGainAsync(
+                    coefficient.Value,
+                    microscopeCalChipCache.HazePosition,
+                    CalChipSiteModelEnum.HazeModel, 
+                    ProductivityInformation,
+                    Guid.NewGuid(), 
+                    cancellationToken, 
+               true, 
+                    PmtId, 
+                    ChannelId).ConfigureAwait(false);
                 if (isSuccess == false) return;
 
                 dialogWindowProvider.ShowDialog($"Auto Pmt Gain Success, Gain: {gain}");
@@ -123,148 +137,6 @@ public sealed partial class SettingDarkFieldGainViewModel(
     private void ShowPlot(List<double> list)
     {
         dialogWindowProvider.ShowPlot([.. list]);
-    }
-
-    [Obsolete]
-    public async Task<(bool IsSuccess, double Gain)> AutoPmtGainAsync(
-        double coefficient,
-        Point position,
-        CalChipSiteModelEnum calChipSiteModelEnum,
-        Guid htmlLogUniqueId,
-        CancellationToken cancellationToken,
-        bool isContainsEnd = false,
-        int pmtId = 8,
-        int channelId = 3,
-        OpticsMagTypeEnum opticsMagTypeEnum = OpticsMagTypeEnum.High)
-    {
-        var isSuccess = false;
-        try
-        {
-            try
-            {
-                logger.LogHtmlInformation("Auto PmtGain Start", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
-
-                logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
-                {
-                    OpticsMagTypeEnum = opticsMagTypeEnum,
-                    coefficient,
-                    position,
-                    calChipSiteModelEnum
-                }), htmlLogUniqueId.LoggingHtml());
-
-                var gainCoefficientsParam = SettingDarkFieldGainParam.GainOfCoefficientList.SingleOrDefault(t => t.Coefficient - coefficient == 0);
-                if (gainCoefficientsParam is null)
-                {
-                    gainCoefficientsParam = new GainOfCoefficientParam();
-                    SettingDarkFieldGainParam.GainOfCoefficientList.Add(gainCoefficientsParam);
-                }
-
-                laserViewModel.SetGain(-10);
-                stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
-
-                afViewModel.ToggleDarkFieldEnable(true);
-                laserViewModel.ToggleOpticsMagType(opticsMagTypeEnum);
-                laserViewModel.SetPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, coefficient);
-                laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-                laserViewModel.ToggleEnableAutoGainControl(false);
-                laserViewModel.ToggleEnableL0K(false);
-
-                PlotList = [];
-                var targetGain = SettingDarkFieldGainParam.GainMin;
-                foreach (var gain in ((double[])
-                         [
-                             SettingDarkFieldGainParam.GainMin,
-                             .. Enumerable.Range(1, (int)Math.Floor((SettingDarkFieldGainParam.GainMax - SettingDarkFieldGainParam.GainMin) / SettingDarkFieldGainParam.GainInterval))
-                                 .Select(x => SettingDarkFieldGainParam.GainMin + x * SettingDarkFieldGainParam.GainInterval),
-                             SettingDarkFieldGainParam.GainMax
-                         ]).Distinct())
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    laserViewModel.SetGain(gain);
-                    await Task.Delay(300, cancellationToken).ConfigureAwait(false);
-
-                    var pmtDataList = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId);
-                    var result = Enumerable.Range(0, pmtDataList.First().Count)
-                        .Select(t => pmtDataList.Select(tt => tt[t]).Average())
-                        .ToList();
-                    PlotList = [.. PlotList, new WpfPlotModel($"Gain: {gain}", [.. result.ToPoints()], (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, gain))];
-                    var gainAverage = result.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
-
-                    logger.LogHtmlInformation($"Gain: {gain}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                    {
-                        Gain = gain,
-                        Average = gainAverage,
-                        Max = result.Max(),
-                        Min = result.Min(),
-                        Plot = new HtmlPlot2DLinesChart([($"Gain: {gain}", result.ToPoints())], "Gain")
-                    }), htmlLogUniqueId.LoggingHtml());
-
-                    if (gainAverage > 4000)
-                    {
-                        laserViewModel.SetGain(-10);
-                        throw new CalibrationException("Pmt Value is too high");
-                    }
-
-                    if (gainAverage < SettingDarkFieldGainParam.TargetPmtAverageValue)
-                    {
-                        targetGain = gain;
-                        continue;
-                    }
-
-                    if (gainAverage > SettingDarkFieldGainParam.TargetPmtAverageValue)
-                    {
-                        targetGain = (gain + targetGain) / 2;
-                        break;
-                    }
-
-                    targetGain = gain;
-                    break;
-                }
-
-                laserViewModel.SetGain(targetGain);
-                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
-
-                gainCoefficientsParam.Gain = targetGain;
-                var resultTargetGain = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId).Select(t => t.Average()).ToList();
-                //if (isSuccess == false) return (false, 0);
-                PlotList = [.. PlotList, new WpfPlotModel($"{coefficient:f3} OK: {targetGain}", [.. resultTargetGain.ToPoints()], (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, targetGain))];
-
-                gainCoefficientsParam.TargetPmtAverageValue = resultTargetGain.Skip(SettingDarkFieldGainParam.JudgeGainSkipCout).SkipLast(SettingDarkFieldGainParam.JudgeGainSkipCout).Average();
-                gainCoefficientsParam.TargetPmtValueList = resultTargetGain;
-
-                logger.LogHtmlInformation($"Ok Gain: {gainCoefficientsParam.Gain}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    gainCoefficientsParam.Gain,
-                    gainCoefficientsParam.TargetPmtAverageValue,
-                    TargePlot = new HtmlPlot2DLinesChart([($"Gain: {gainCoefficientsParam.Gain}", gainCoefficientsParam.TargetPmtValueList.ToPoints())], "Gain"),
-                    AllPlots = new HtmlPlot2DLinesChart([.. PlotList.Select(t => (t.Title, PointList: t.Points))], "All Plots")
-                }), htmlLogUniqueId.LoggingHtml());
-
-                isSuccess = true;
-                return (isSuccess, targetGain);
-            }
-            finally
-            {
-                laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
-                stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
-            }
-        }
-        catch (Exception ex)
-        {
-            if (ex is OperationCanceledException) throw;
-
-            logger.LogHtmlCritical(ex, "Critical", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
-            return (false, 0);
-        }
-        finally
-        {
-            if (isContainsEnd)
-            {
-                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(
-                    $"AutoGain_Coefficient({coefficient})_Mag({EnumHelper.ToDescriptionString(opticsMagTypeEnum)})_Position({position})_CalChip({EnumHelper.ToDescriptionString(calChipSiteModelEnum)})_{(isSuccess ? "OK" : "Failed")}"));
-            }
-        }
     }
 
     public async Task<(bool IsSuccess, double Gain)> AutoPmtGainAsync(

@@ -18,7 +18,6 @@ using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -50,9 +49,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}-{Cache.LaserLightInformation}";
+    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.ProductivityInformation)}-{Cache.LaserLightInformation}";
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}-{Cache.LaserLightInformation}";
+    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.ProductivityInformation)}-{Cache.LaserLightInformation}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -79,10 +78,10 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     private SettingDarkFieldGainViewModel _darkFieldImageListToPrescanListSettingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndLaserLightInformationCalibration> _calibrationStatusList;
+    private ObservableCollection<OpticsMagTypeEnumAndLaserLightInformationCalibration> _calibrationStatusList = [];
 
     [ObservableProperty]
-    private ObservableCollection<LaserLightInformationStatus> _calibrationStatusListItem;
+    private ObservableCollection<LaserLightInformationStatus> _calibrationStatusListItem = [];
 
     [ObservableProperty]
     private ObservableCollection<LaserIlluminationProfileItemDto> _calibrationLaserIlluminationProfileDtoList = [];
@@ -149,15 +148,6 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
     #endregion 属性
 
-    public LaserIlluminationProfileCalibrationViewModel()
-    {
-        _calibrationStatusList =
-        [
-            ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { OpticsMagTypeEnum = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)] })
-        ];
-        _calibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)];
-    }
-
     #region 控制校准业务
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
@@ -222,6 +212,21 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             return false;
         }
 
+        if (CalibrationStatusList.Count == 0)
+        {
+            CalibrationStatusList =
+            [
+                ..ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { ProductivityInformation = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)] })
+            ];
+
+        }
+
+        if (CalibrationStatusListItem.Count ==0)
+        {
+            CalibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)];
+        }
+
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserIlluminationProfileCache>();
         Cache.CurrentCalibrationCacheItem.Reset();
         Clear();
@@ -230,7 +235,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         foreach (var calibration in Calibrations)
         {
             var laserLightInformationStatus = CalibrationStatusList
-                .SingleOrDefault(t => t.OpticsMagTypeEnum == calibration.OpticsMagTypeEnum)
+                .SingleOrDefault(t => t.ProductivityInformation == calibration.ProductivityInformation)
                 ?.LaserLightInformationStatusList
                 .SingleOrDefault(t => t.LaserLightInformation == calibration.LaserLightInformation);
 
@@ -265,7 +270,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
+                .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
 
@@ -283,23 +288,17 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         switch (CalibrationStepIndex)
         {
             case 1:
-                foreach (var temp in CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).LaserLightInformationStatusList)
+                foreach (var temp in CalibrationStatusList.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).LaserLightInformationStatusList)
                 {
                     CalibrationStatusListItem.Single(t => t.LaserLightInformation == temp.LaserLightInformation).IsCalibrated = temp.IsCalibrated;
                 }
 
-                var calibrationSettingMiddleMagSettingDarkFieldGainParam = Cache.OpticsMagTypeEnum switch
-                {
-                    OpticsMagTypeEnum.Low => CalibrationSetting.LowMagSettingDarkFieldGainParam,
-                    OpticsMagTypeEnum.Middle => CalibrationSetting.MiddleMagSettingDarkFieldGainParam,
-                    OpticsMagTypeEnum.High => CalibrationSetting.HighMagSettingDarkFieldGainParam,
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<ObservableCollection<SettingDarkFieldGainParam>>(nameof(Cache.OpticsMagTypeEnum))
-                };
+                var calibrationSettingMiddleMagSettingDarkFieldGainParam = CalibrationSetting.SettingDarkFieldGainParam;
                 AutoGainSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t is { PmtId: 8, ChannelId: 3 });
-                AutoGainSettingDarkFieldGainViewModel.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                AutoGainSettingDarkFieldGainViewModel.ProductivityInformation = Cache.ProductivityInformation;
 
                 DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t is { PmtId: 8, ChannelId: 3 });
-                DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.ProductivityInformation =  Cache.ProductivityInformation;
 
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
@@ -348,7 +347,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                     }
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum)
+                CalibrationStatusList.Single(t => t.ProductivityInformation == Cache.ProductivityInformation)
                     .LaserLightInformationStatusList.Single(t => t.LaserLightInformation == Cache.LaserLightInformation)
                     .IsCalibrated = true;
                 DialogWindowProvider.ShowDialog("Find Illumination Ok!");
@@ -440,7 +439,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             {
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
@@ -457,7 +456,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             {
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel
@@ -501,7 +500,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation.LensName,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel
@@ -509,7 +508,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             LaserViewModel.ToggleOpticsPolarization(OpticsPolarizationTypeEnum.P);
 
-            var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.LaserLightInformation.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, HtmlLogUniqueId, cancellationToken, false, Cache.PmtId, Cache.ChannelId).ConfigureAwait(false);
+            var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.LaserLightInformation.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, Cache.ProductivityInformation, HtmlLogUniqueId, cancellationToken, false, Cache.PmtId, Cache.ChannelId).ConfigureAwait(false);
             if ((isSuccess) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -553,13 +552,13 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation,
                 Cache.PmtId,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
@@ -580,7 +579,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             item.Reset();
 
-            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
+            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.ProductivityInformation);
             if (servings > yPixelHeight || yPixelHeight % servings != 0)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Servings must be a factor of {yPixelHeight}!"), HtmlLogUniqueId.LoggingHtml());
@@ -751,7 +750,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var itemCache = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
             itemCache.ServingToPrescanListIndicesList.Clear();
             itemCache.ServingToDarkFieldImageListIndicesList.Clear();
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
             var coefficient = Cache.LaserLightInformation.Coefficient;
 
             var resultPrescanWindowList = new List<double>();
@@ -1040,13 +1039,13 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         {
             var item = Cache.CurrentCalibrationCacheItem;
             var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
             var servings = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Servings;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation.LensName,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
@@ -1130,7 +1129,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             PlotAverageList = [];
             var item = Cache.CurrentCalibrationCacheItem;
             var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsMagTypeEnum);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
             var servings = darkFieldImageListToPrescanListCacheItem.Servings;
             var judgeDarkFieldImageListRateSkipCout = item.JudgeDarkFieldImageListRateSkipCout;
             var repeatCoefficientInterval = item.RepeatCoefficientInterval;
@@ -1145,7 +1144,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation.LensName,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
@@ -1170,7 +1169,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             {
                 Index = 0,
                 LaserLightInformation = Cache.LaserLightInformation,
-                OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
+                ProductivityInformation = Cache.ProductivityInformation,
                 PmtId = CalibrationConstantsHelper.MainPmtId,
                 PrescanAODWaveformProfileList = prescanAODWaveProfiles,
                 FindPosition = Cache.FindPosition,
@@ -1421,7 +1420,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         await InvokeVerifyAsync(() =>
         {
-            Cache.OpticsMagTypeEnum = SelectReviewItemDto.OpticsMagTypeEnum;
+            Cache.ProductivityInformation = SelectReviewItemDto.ProductivityInformation;
             Cache.LaserLightInformation = SelectReviewItemDto.LaserLightInformation;
 
             var item = Cache.CurrentCalibrationCacheItem;
@@ -1438,7 +1437,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             {
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.PmtId,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.FindPosition,
                 Cache.WidthPixel,
                 prescanAODWaveProfiles = string.Join(",", SelectReviewItemDto.PrescanAODWaveformProfileList.Select(t => t.FilePath)),
@@ -1540,7 +1539,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         Logger.LogHtmlInformation($"PmtId: {pmtCacheItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
             Cache.MicroscopeLensInformation.LensName,
-            Cache.OpticsMagTypeEnum,
+            Cache.ProductivityInformation,
             Cache.LaserLightInformation,
             pmtCacheItem.PmtId,
             pmtCacheItem.ChannelId,
@@ -1622,8 +1621,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             CalChipSiteModelEnum.HazeModel,
             position,
             Cache.WidthPixel,
-            Cache.OpticsMagTypeEnum,
-            Cache.XSpeed,
+            Cache.ProductivityInformation,
             pmtId,
             StageCoordinateSystemEnum.Bright,
             Cache.CIBConfiguration,
@@ -1676,7 +1674,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.LaserLightInformation == itemDto.LaserLightInformation) == false),
+                .Where(t => (t.PmtId == itemDto.PmtId && t.ProductivityInformation == itemDto.ProductivityInformation && t.LaserLightInformation == itemDto.LaserLightInformation) == false),
             itemDto.Clone()
         ];
 

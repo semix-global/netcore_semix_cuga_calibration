@@ -27,7 +27,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "
@@ -203,8 +203,8 @@
                                             Header="Coefficient"
                                             DisplayMemberBinding="{Binding LaserLightInformation}" />
                             <GridViewColumn Width="100"
-                                            Header="Optics Mag"
-                                            DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                            Header="Productivity Information"
+                                            DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="100"
                                             Header="Rate Min"
                                             DisplayMemberBinding="{Binding DarkFieldImageListRateMin, StringFormat={}{0:f3}}" />
