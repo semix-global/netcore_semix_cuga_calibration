@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using LiteDB;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -34,7 +33,10 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private ConcurrentDictionary<string, MicroscopeFocusCacheItem> _microscopeFocusCacheItemDic = [];
 
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public MicroscopeFocusCacheItem CurrentCalibrationCacheItem =>
         MicroscopeFocusCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeFocusCacheItem() { LensInformation = MicroscopeLensInformation.Clone() });
 

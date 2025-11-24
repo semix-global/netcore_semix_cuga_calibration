@@ -1,10 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
-using LiteDB;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AOD.AODDelay;
@@ -20,8 +18,10 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, AODDelayCacheItem>> Items { get; init; } = [];
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AODDelayCacheItem());
 }
 

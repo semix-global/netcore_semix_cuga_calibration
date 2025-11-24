@@ -108,19 +108,19 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #endregion Param
 
     #region Items
-
+    
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: Newtonsoft.Json.JsonIgnore]
     [property: LiteDB.BsonIgnore]
-    [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> _step0Items = [];
-
+    
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: Newtonsoft.Json.JsonIgnore]
     [property: LiteDB.BsonIgnore]
-    [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>> _step1Items = [];
 
     partial void OnStep0ItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> newValue)
@@ -730,10 +730,10 @@ public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableC
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: LiteDB.BsonIgnore]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
@@ -880,10 +880,10 @@ public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableC
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: LiteDB.BsonIgnore]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657

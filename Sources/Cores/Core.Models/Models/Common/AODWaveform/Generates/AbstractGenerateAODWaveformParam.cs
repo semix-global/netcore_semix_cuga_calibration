@@ -196,7 +196,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
     {
-        ProductivityInformation = obj.ProductivityInformation;
+        ProductivityInformation = obj.ProductivityInformation.Clone();
         IsHeaderAndFooter = obj.IsHeaderAndFooter;
         HeaderFrequency = obj.HeaderFrequency;
         FooterFrequency = obj.FooterFrequency;

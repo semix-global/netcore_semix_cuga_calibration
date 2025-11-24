@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODDelay;
@@ -42,11 +41,9 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 {
     #region 属性
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => ApplicationCookie.LaserLightInformations;
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.ProductivityInformation);
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
-
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.ProductivityInformation);
 
     public string PrescanFileDirectory => Path.Combine(AppHomeDirectory, "Prescan", nameof(LaserPrescanChirpAodAlignmentCalibrationViewModel), DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.MiddleFileDateTimeFormat));
 
@@ -63,10 +60,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumCalibrationStatus> _calibrationStatusList =
-    [
-        .. EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumCalibrationStatus { OpticsMagTypeEnum = t, IsCalibrated = false })
-    ];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
     private LaserPrescanChirpAodAlignmentDto _resultCalibrateDto = new();
@@ -146,7 +140,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         foreach (var calibrationStatus in Calibrations)
         {
             CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
+                .Single(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation)
                 .IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
@@ -176,7 +170,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         if (ReviewList.All(t => t.IsCalibrated == false))
@@ -210,7 +204,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                     return false;
                 }
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).IsCalibrated = true;
+                CalibrationStatusList.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog("Find Offset Ok!");
 
                 IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
@@ -252,7 +246,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
             Cache.FindPosition = result;
 
-            ResultCalibrateDto.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+            ResultCalibrateDto.ProductivityInformation = Cache.ProductivityInformation;
             ResultCalibrateDto.FindPosition = Cache.FindPosition;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -261,7 +255,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -279,7 +273,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -310,7 +304,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 Cache.XSpeed,
                 Cache.PmtId,
                 Cache.WidthPixel,
-                Cache.OpticsMagTypeEnum,
+                Cache.ProductivityInformation,
                 Cache.FindPosition,
                 Cache.Gain,
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
@@ -325,7 +319,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum);
+            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.ProductivityInformation);
 
             ResultCalibrateDto.Clear();
 
@@ -335,7 +329,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
 
                 var item = new LaserPrescanChirpAodAlignmentItemDto();
 
-                Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                 Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(centerFrequency);
                 Cache.GeneratePrescanAODWaveformParam.DirectoryPath = PrescanFileDirectory;
                 var (aodWaveformResultItem, exceptionItem) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
@@ -344,7 +338,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
                 item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem);
                 item.PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath;
 
-                item.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                item.ProductivityInformation = Cache.ProductivityInformation;
                 item.PrescanCenterFrequency = centerFrequency;
 
                 var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(item.PrescanAODWaveformProfiles);
@@ -402,7 +396,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             ResultCalibrateDto.ItemFitPoints = [.. itemPoints.Select((t, i) => new Point(t.X, yPredicted[i]))];
 
             var generatePrescanAODWaveformParam = Cache.GeneratePrescanAODWaveformParam.Clone();
-            Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+            Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GeneratePrescanAODWaveformParam.BandWidth = Math.Abs(yPixelHeight / ResultCalibrateDto.Slope);
             Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness((yPixelHeight / 2d - ResultCalibrateDto.Intercept) / ResultCalibrateDto.Slope);
             Cache.GeneratePrescanAODWaveformParam.FunctionMonotonicTypeEnum = Cache.FunctionMonotonicTypeEnum;
@@ -474,8 +468,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
             CalChipSiteModelEnum.HazeModel,
             Cache.FindPosition,
             Cache.WidthPixel,
-            Cache.OpticsMagTypeEnum,
-            Cache.XSpeed,
+            Cache.ProductivityInformation,
             Cache.PmtId,
             StageCoordinateSystemEnum.Bright,
             Cache.CIBConfiguration,
@@ -502,7 +495,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentCalibrationViewModel : 
         Calibrations =
         [
             .. Calibrations
-                .Where(t => t.OpticsMagTypeEnum != dto.OpticsMagTypeEnum),
+                .Where(t => t.ProductivityInformation != dto.ProductivityInformation),
             dto.Clone()
         ];
 

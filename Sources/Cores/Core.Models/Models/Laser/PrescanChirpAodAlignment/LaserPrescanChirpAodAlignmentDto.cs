@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -10,7 +10,7 @@ namespace Core.Models.Models.Laser.PrescanChirpAodAlignment;
 public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBase, ICloneable<LaserPrescanChirpAodAlignmentDto>
 {
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private Point _findPosition;
@@ -46,7 +46,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentDto : CalibrationDtoBas
 
     public LaserPrescanChirpAodAlignmentDto Clone() => new()
     {
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         FindPosition = FindPosition,
         Gain = Gain,
         Items = [.. Items.Select(x => x.Clone())],
@@ -83,7 +83,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentItemDto : ObservableCac
     private double _prescanCenterFrequency;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private string _prescanAODWaveformResultFilePath = string.Empty;
@@ -120,7 +120,7 @@ public sealed partial class LaserPrescanChirpAodAlignmentItemDto : ObservableCac
     public LaserPrescanChirpAodAlignmentItemDto Clone() => new()
     {
         PrescanCenterFrequency = PrescanCenterFrequency,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
         PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         Channel1ImageFilePath = Channel1ImageFilePath,

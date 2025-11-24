@@ -25,9 +25,12 @@ public sealed partial class WaferDto : ObservableCacheBase, ICloneable<WaferDto>
 
     [ObservableProperty]
     private WaferMapDataDto _waferMapData = new();
-
-    [property: LiteDB.BsonIgnore]
+    
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private WaferMapCanvasDocument _waferMapCanvasDocument = new();
 
     [ObservableProperty]

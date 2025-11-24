@@ -2,9 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
-using LiteDB;
 using Net.Utilities.Mapper.Interfaces;
-using Newtonsoft.Json;
 
 namespace Core.Models.Models.AOD.AODDelay;
 
@@ -24,16 +22,22 @@ public sealed partial class AODDelayDto : CalibrationDtoBase, ICloneable<AODDela
     [NotifyPropertyChangedFor(nameof(AveragePmtData))]
     private IReadOnlyList<double> _pmtData = [];
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double RefinedPrescanAODDelay => RefinedAODDelay >= 0 ? 0 : Math.Abs(RefinedAODDelay);
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double RefinedChirpAODDelay => RefinedAODDelay <= 0 ? 0 : Math.Abs(RefinedAODDelay);
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double AveragePmtData => PmtData.Count > 0 ? PmtData.Average() : 0d;
 
     #region Mapper

@@ -38,13 +38,15 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
     private IReadOnlyList<LaserXPixelSizeSlideItem> _verifyItems = [];
 
-    [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
     public IReadOnlyList<Point> SlideItemPoints => [.. SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
-    [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
     public IReadOnlyList<Point> VerifyItemPoints => [.. VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
@@ -86,9 +88,9 @@ public sealed class LaserXPixelSizeSlideItem
 {
     public long StartPixel { get; init; }
 
+    [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [Newtonsoft.Json.JsonIgnore]
     [LiteDB.BsonIgnore]
     public byte[] Buffer { get; init; } = [];
 
