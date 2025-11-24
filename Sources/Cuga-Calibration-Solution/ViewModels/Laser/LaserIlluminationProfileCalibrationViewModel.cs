@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
@@ -40,7 +41,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
-using Core.Models.Models.AOD.AODAlignment;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -218,10 +218,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             [
                 ..ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { ProductivityInformation = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)] })
             ];
-
         }
 
-        if (CalibrationStatusListItem.Count ==0)
+        if (CalibrationStatusListItem.Count == 0)
         {
             CalibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)];
         }
@@ -298,7 +297,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 AutoGainSettingDarkFieldGainViewModel.ProductivityInformation = Cache.ProductivityInformation;
 
                 DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.SettingDarkFieldGainParam = calibrationSettingMiddleMagSettingDarkFieldGainParam.Single(t => t is { PmtId: 8, ChannelId: 3 });
-                DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.ProductivityInformation =  Cache.ProductivityInformation;
+                DarkFieldImageListToPrescanListSettingDarkFieldGainViewModel.ProductivityInformation = Cache.ProductivityInformation;
 
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;

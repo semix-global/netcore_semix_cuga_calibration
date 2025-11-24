@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
@@ -22,8 +23,6 @@ using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
-using Core.Models.Models.Common.Cookies;
-using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
@@ -39,7 +38,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
     : SettingWindowViewModelBase
 {
     public ApplicationCookie ApplicationCookie => applicationCookie;
-    
+
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -109,12 +108,12 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 var (isSuccess, gain) = await AutoPmtGainAsync(
                     coefficient.Value,
                     microscopeCalChipCache.HazePosition,
-                    CalChipSiteModelEnum.HazeModel, 
+                    CalChipSiteModelEnum.HazeModel,
                     ProductivityInformation,
-                    Guid.NewGuid(), 
-                    cancellationToken, 
-               true, 
-                    PmtId, 
+                    Guid.NewGuid(),
+                    cancellationToken,
+                    true,
+                    PmtId,
                     ChannelId).ConfigureAwait(false);
                 if (isSuccess == false) return;
 

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.RotateScaleError;
@@ -539,7 +540,7 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<LaserOpticalPowerMeterDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserAttenuatorDto>([], CancellationToken.None);
         cacheProvider.SetArray<AODDelayDto>([], CancellationToken.None);
-        cacheProvider.SetArray<LaserPrescanChirpAodAlignmentDto>([], CancellationToken.None);
+        cacheProvider.SetArray<AODAlignmentDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserIlluminationProfileItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXTCCalibrationItemDto>([], CancellationToken.None);

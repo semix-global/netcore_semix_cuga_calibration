@@ -108,14 +108,14 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #endregion Param
 
     #region Items
-    
+
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
     private IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> _step0Items = [];
-    
+
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]

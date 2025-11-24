@@ -7,6 +7,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
@@ -38,7 +39,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
-using Core.Models.Models.AOD.AODAlignment;
 
 namespace CugaCalibration.ViewModels.Laser;
 

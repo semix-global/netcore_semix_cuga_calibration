@@ -11,7 +11,7 @@ public sealed partial class AODAlignmentDto : CalibrationDtoBase, ICloneable<AOD
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-    
+
     [ObservableProperty]
     private int _pMTId;
 
