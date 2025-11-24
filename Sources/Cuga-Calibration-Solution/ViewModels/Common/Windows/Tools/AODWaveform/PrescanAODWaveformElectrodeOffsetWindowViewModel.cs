@@ -131,9 +131,9 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
             Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 result.PrescanAODWaveformResultFilePath,
-                PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+                PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
             }), HtmlLogUniqueId.LoggingHtml());
         }
     }

@@ -185,7 +185,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         IsHeaderAndFooter = false;
         BandWidth = 0d;
         CenterFrequency = frequency;
-
         foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
         SlopeDeltaKConfigurations = [];
         SincCoefficient = 0d;

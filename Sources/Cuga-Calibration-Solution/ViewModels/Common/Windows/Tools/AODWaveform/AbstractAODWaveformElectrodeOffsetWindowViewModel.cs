@@ -185,11 +185,13 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     {
         OffsetFrequency,
         InterpolationCount,
+        ElectrodeOffsetParams = new HtmlTable([.. ElectrodeOffsetParams.Select(t => t.ToHtmlAnonymous())]),
+        IsConfirmAODWaveformElectrodeOffsetResult,
         Frequencies,
         StepFrequency,
-        ElectrodeOffsetParams = new HtmlTable([.. ElectrodeOffsetParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyWeightParams = new HtmlTable([.. ElectrodeOffsetFrequencyWeightParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeFrequencyUniformityParams = new HtmlTable([.. ElectrodeFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),
+        ElectrodeFrequencyUniformityParamChunkSize,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
@@ -582,7 +584,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step2Async(bool isShowDialog, CancellationToken cancellationToken)
     {
-        return await InvokeAsync(2, "Step 2 Generate AOD Waveform", () =>
+        return await InvokeAsync(2, "Step 3 Generate AOD Waveform", () =>
         {
             Guard.IsNotEmpty(Cache.ElectrodeOffsetParams);
             Guard.IsTrue(Cache.ElectrodeOffsetParams.Count == Cache.ElectrodeConfigurationResults.Count);

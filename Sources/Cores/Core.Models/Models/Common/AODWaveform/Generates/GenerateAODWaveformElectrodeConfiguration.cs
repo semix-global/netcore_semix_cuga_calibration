@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
@@ -80,7 +81,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         OffsetFrequencyPeriodCoefficient,
         Amplitude,
         IsGenerateAODWaveformZero,
-        UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => t.ToHtmlAnonymous())])
+        UniformityConfigurations = new HtmlPlot2DLinesChart([(string.Empty, [.. UniformityConfigurations.Select(t => new Point(t.Frequency, t.Coefficient))])], string.Empty)
     };
 
     public object ToFlatnessHtmlAnonymous() => new
