@@ -571,33 +571,7 @@
                                                                            PopupAnimation="Slide"
                                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
                                                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                            <TabControl>
-                                                                                <TabItem Header="Plots">
-                                                                                    <Border Style="{StaticResource BorderRegion}">
-                                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                                                    </Border>
-                                                                                </TabItem>
-                                                                                <TabItem Header="Details">
-                                                                                    <Border Style="{StaticResource BorderRegion}">
-                                                                                        <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                                                  hc:DataGridAttach.ShowRowNumber="True"
-                                                                                                  Style="{StaticResource DataGrid.Small}"
-                                                                                                  HeadersVisibility="All"
-                                                                                                  RowHeaderWidth="60"
-                                                                                                  AutoGenerateColumns="False"
-                                                                                                  ItemsSource="{Binding UniformityConfigurations}">
-                                                                                            <DataGrid.Columns>
-                                                                                                <DataGridTextColumn IsReadOnly="True"
-                                                                                                                    Header="Frequency(MHz)"
-                                                                                                                    Binding="{Binding Frequency}" />
-                                                                                                <DataGridTextColumn IsReadOnly="True"
-                                                                                                                    Header="Coefficient"
-                                                                                                                    Binding="{Binding Coefficient}" />
-                                                                                            </DataGrid.Columns>
-                                                                                        </DataGrid>
-                                                                                    </Border>
-                                                                                </TabItem>
-                                                                            </TabControl>
+                                                                            <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                         </Border>
                                                                     </Popup>
                                                                 </Grid>

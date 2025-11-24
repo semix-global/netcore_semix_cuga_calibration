@@ -116,8 +116,8 @@
                                                 Header="Coefficient"
                                                 DisplayMemberBinding="{Binding LaserLightInformation}" />
                                 <GridViewColumn Width="100"
-                                                Header="Optics Mag"
-                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                Header="Productivity Information"
+                                                DisplayMemberBinding="{Binding ProductivityInformation}" />
                                 <GridViewColumn Width="100"
                                                 Header="Rate Min"
                                                 DisplayMemberBinding="{Binding DarkFieldImageListRateMin, StringFormat={}{0:f3}}" />
