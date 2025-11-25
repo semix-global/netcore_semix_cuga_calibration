@@ -76,7 +76,14 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<double> GetOpticalPowerMeter()
+    public SxExecuteRet<double> GetOpticalMeasurePower()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+    }
+
+    public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
     {
         Thread.Sleep(100);
 
@@ -324,6 +331,13 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
     {
         Thread.Sleep(100);
@@ -335,6 +349,19 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
+    {
+        var cibInformationList =
+            (
+                from pmtId in Enumerable.Range(1, 15)
+                from channelId in Enumerable.Range(1, 3)
+                select CIBInformation.Default.Clone().AdaptIn((pmtId, channelId, true))
+            )
+            .ToList();
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([..cibInformationList.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()

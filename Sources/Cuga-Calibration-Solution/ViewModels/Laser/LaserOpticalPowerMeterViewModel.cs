@@ -285,7 +285,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                         await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                        var measurePower = LaserViewModel.GetOpticalPowerMeter();
+                        var measurePower = LaserViewModel.GetOpticalMeasurePower();
 
                         laserOpticalPowerObjItem.MeasurePower = measurePower;
                     }
@@ -399,7 +399,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 {
                     await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                    var measurePower = LaserViewModel.GetOpticalPowerMeter();
+                    var measurePower = LaserViewModel.GetOpticalMeasurePower();
 
                     resultList.Add(measurePower);
                 }

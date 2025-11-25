@@ -97,6 +97,12 @@ public sealed partial class ApplicationCookie : ObservableObject
         .First();
 
     /// <summary>
+    /// CIB列表
+    /// </summary>
+    [ObservableProperty]
+    private IReadOnlyList<CIBInformation> _cIBInformations = [];
+
+    /// <summary>
     /// 校准当前应用配方
     /// </summary>
     [ObservableProperty]

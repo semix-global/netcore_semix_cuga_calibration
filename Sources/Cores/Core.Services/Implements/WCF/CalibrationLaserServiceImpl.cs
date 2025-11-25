@@ -79,13 +79,22 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<double> GetOpticalPowerMeter()
+    public SxExecuteRet<double> GetOpticalMeasurePower()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
+    {
+        var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything / (flatnessTime /*ns*/ / ((1 / productivityInformation.SampleRate /*KHz*/) * 1000_000)));
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
@@ -336,6 +345,15 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, sendDataList)));
 
+    public SxExecuteRet<bool> SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SendDc([.. cibInformations.Select(t => (gain, t.PMTId, t.ChannelId))]));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId) => SetCIBControlValue(gain, pmtId, channelId, sendDataList => Invoke(() => /* direct current */Service?.SendDc(sendDataList)));
 
     public SxExecuteRet<bool> SetSaturation(double saturation)
@@ -362,13 +380,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -381,6 +399,20 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRetAll.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetAll.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
+    {
+        var pmtConfigListSxExecuteRet = GetCIBConfigList();
+        if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CIBInformation>>(pmtConfigListSxExecuteRet.Msg, []);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(
+        [
+            .. pmtConfigListSxExecuteRet.Anything
+                .Where(t => t.IsUsed)
+                .SelectMany(t => t.ChannelIdList.Select(tt => CIBInformation.Default.Clone().AdaptIn((t.PmtId, tt, true))))
+                .OrderBy(t => t)
+        ]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()

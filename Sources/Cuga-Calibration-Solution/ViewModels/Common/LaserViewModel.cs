@@ -73,9 +73,16 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetOpticalPowerMeter()
+    public double GetOpticalMeasurePower()
     {
-        var ret = calibrationLaserService.GetOpticalPowerMeter();
+        var ret = calibrationLaserService.GetOpticalMeasurePower();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public double GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
+    {
+        var ret = calibrationLaserService.GetOpticalMeasurePower(productivityInformation, flatnessTime);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -245,6 +252,13 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations)
+    {
+        var ret = calibrationLaserService.SetGain(gain, cibInformations);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.SetGain(gain, pmtId, channelId);
@@ -257,6 +271,13 @@ public sealed class LaserViewModel(
         var ret = calibrationLaserService.SetSaturation(saturation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<CIBInformation> GetCIBInformations()
+    {
+        var ret = calibrationLaserService.GetCIBInformations();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public IReadOnlyList<(int PmtId, IReadOnlyList<int> ChannelIdList)> GetIsUsedCIBConfigList()
@@ -274,6 +295,13 @@ public sealed class LaserViewModel(
     public IReadOnlyList<IReadOnlyList<double>> GetCIBOfPMTDataList(int count, int pmtId, int channel)
     {
         var ret = calibrationLaserService.GetCIBOfPMTDataList(count, pmtId, channel);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<IReadOnlyList<double>> GetCIBOfPMTDataList(int count, CIBInformation cibInformation)
+    {
+        var ret = calibrationLaserService.GetCIBOfPMTDataList(count, cibInformation.PMTId, cibInformation.ChannelId);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

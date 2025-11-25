@@ -201,7 +201,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-            var measurePower = LaserViewModel.GetOpticalPowerMeter();
+            var measurePower = LaserViewModel.GetOpticalMeasurePower();
 
             item.MeasurePower = measurePower;
 
