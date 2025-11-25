@@ -34,13 +34,13 @@
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding SoundSpeed}" />
-                <hc:NumericUpDown hc:TitleElement.Title="Spectral Density(MHz/mm): "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                  IsReadOnly="True"
-                                  IsEnabled="False"
-                                  Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding SpectralDensity, Mode=OneWay}" />
+                <TextBox Text="{Binding SpectralDensity, Mode=OneWay, StringFormat='0.###'}"
+                         hc:TitleElement.Title="Spectral Density(MHz/mm): "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                         IsReadOnly="True"
+                         Background="{StaticResource SecondaryRegionBrush}"
+                         Style="{StaticResource TextBoxExtend}" />
             </hc:UniformSpacingPanel>
         </ui:GenerateAODWaveformParamUserControl.HeaderContent>
     </ui:GenerateAODWaveformParamUserControl>

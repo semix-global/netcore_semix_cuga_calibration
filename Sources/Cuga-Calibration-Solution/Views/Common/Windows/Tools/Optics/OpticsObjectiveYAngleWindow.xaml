@@ -120,7 +120,7 @@
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.PrescanFrequency}" />
                                                 </hc:UniformSpacingPanel>
-                                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                       IsVisibleFrequency="False"
                                                                                                       IsVisibleAmplitude="False"
                                                                                                       IsVisibleDirectoryPath="False"
@@ -146,7 +146,7 @@
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.ChirpFrequency}" />
                                                 </hc:UniformSpacingPanel>
-                                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleFrequency="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"

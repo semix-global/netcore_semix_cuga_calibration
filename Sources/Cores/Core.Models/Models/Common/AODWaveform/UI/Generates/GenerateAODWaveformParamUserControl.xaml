@@ -10,6 +10,7 @@
                                                 xmlns:hc="https://handyorg.github.io/handycontrol"
                                                 xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
                                                 xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+                                                xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern"
                                                 d:DataContext="{d:DesignInstance Type=generates:AbstractGenerateAODWaveformParam}"
                                                 d:DesignWidth="400"
                                                 d:DesignHeight="1000"
@@ -37,10 +38,10 @@
                     <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                 SelectedItem="{Binding ProductivityInformation}"
+                                 SelectedItem="{Binding ProductivityInformation, FallbackValue={x:Static pattern:ProductivityInformation.Default}}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                 Visibility="{Binding IsVisibleOpticsMagTypeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                 Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>
                 <Expander Header="Frequency(MHz)"
@@ -222,9 +223,9 @@
                                     <DataGridTextColumn IsReadOnly="True"
                                                         Header="AOD Electrode"
                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency}" />
-                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
-                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude}" />
+                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
+                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
                                     <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
                                     <DataGridTemplateColumn Header="Uniformity Configurations" Visibility="{Binding Value.IsVisibleUniformityConfiguration, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -283,8 +284,8 @@
                                                                                 <DataGrid.Columns>
                                                                                     <DataGridTextColumn Width="130"
                                                                                                         Header="Frequency(MHz)"
-                                                                                                        Binding="{Binding Frequency}" />
-                                                                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient}" />
+                                                                                                        Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
                                                                                 </DataGrid.Columns>
                                                                             </DataGrid>
                                                                         </hc:UniformSpacingPanel>
@@ -292,8 +293,7 @@
                                                                 </TabItem>
                                                                 <TabItem Header="Plots">
                                                                     <Border Style="{StaticResource BorderRegion}">
-                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                     </Border>
                                                                 </TabItem>
                                                             </TabControl>

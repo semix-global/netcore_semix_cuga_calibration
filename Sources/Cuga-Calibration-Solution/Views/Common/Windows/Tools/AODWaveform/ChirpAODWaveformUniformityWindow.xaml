@@ -118,7 +118,7 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                   IsVisibleFrequency="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
@@ -145,7 +145,7 @@
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.PrescanFrequency}" />
                                                 </hc:UniformSpacingPanel>
-                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleFrequency="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"

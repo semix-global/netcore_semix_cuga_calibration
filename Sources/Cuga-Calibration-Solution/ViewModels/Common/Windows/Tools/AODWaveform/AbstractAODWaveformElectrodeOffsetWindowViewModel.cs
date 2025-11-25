@@ -274,13 +274,15 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     }
 
     [RelayCommand]
-    private void RemoveResult(TResult? result)
+    private void RemoveResult(IEnumerable? selectItems)
     {
-        if (result is null) return;
+        if (selectItems is null) return;
 
         var resultList = Cache.Results.ToList();
-
-        resultList.Remove(result);
+        foreach (TResult selectItem in selectItems)
+        {
+            resultList.Remove(selectItem);
+        }
 
         Cache.Results = resultList;
     }

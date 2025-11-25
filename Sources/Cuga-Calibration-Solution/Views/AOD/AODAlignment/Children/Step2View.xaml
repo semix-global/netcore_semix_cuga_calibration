@@ -20,7 +20,7 @@
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="400" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -48,7 +48,11 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                    <Expander Header="CIB Configuration Param"
+                              IsExpanded="False"
+                              ExpandDirection="Down">
+                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                    </Expander>
                     <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
@@ -90,7 +94,15 @@
                                       hc:TitleElement.TitleWidth="190"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Item.ImageWidth}" />
-                    <generates:GeneratePrescanAODWaveformParamUserControl DataContext="{Binding Cache.Item.GeneratePrescanAODWaveformParam}" />
+                    <Expander Header="Generate Prescan AOD Waveform Param"
+                              IsExpanded="False"
+                              ExpandDirection="Down">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                  IsVisibleDirectoryPath="False"
+                                                                                  DataContext="{Binding Cache.Item.GeneratePrescanAODWaveformParam}" />
+                        </Border>
+                    </Expander>
                     <hc:NumericUpDown hc:TitleElement.Title="Start Prescan Frequency(MHz): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
