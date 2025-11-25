@@ -12,7 +12,7 @@
            d:DataContext="{d:DesignInstance Type=viewModels:SplitImageWindowViewModel,
                                             IsDesignTimeCreatable=True}"
            SizeToContent="Height"
-           WindowState="Normal"
+           WindowState="Maximized"
            WindowStartupLocation="CenterScreen"
            Icon="/Assets/Images/Function.ico"
            mc:Ignorable="d">

@@ -76,17 +76,7 @@
                         <children:SettingCommonUserControl DataContext="{Binding SettingCommonViewModel}" />
                     </TabItem>
                     <TabItem Header="Dark Field Gain">
-                        <TabControl Margin="5" Style="{StaticResource TabControlCapsuleSolid}">
-                            <TabItem Header="Low Mag">
-                                <children:SettingDarkFieldGainUserControl DataContext="{Binding LowMagSettingDarkFieldGainViewModel}" />
-                            </TabItem>
-                            <TabItem Header="Middle Mag">
-                                <children:SettingDarkFieldGainUserControl DataContext="{Binding MiddleMagSettingDarkFieldGainViewModel}" />
-                            </TabItem>
-                            <TabItem Header="High Mag">
-                                <children:SettingDarkFieldGainUserControl DataContext="{Binding HighMagSettingDarkFieldGainViewModel}" />
-                            </TabItem>
-                        </TabControl>
+                        <children:SettingDarkFieldGainUserControl DataContext="{Binding SettingDarkFieldGainViewModel}" />
                     </TabItem>
                     <TabItem Header="Template">
                         <children:SettingTemplateMatchUserControl DataContext="{Binding SettingTemplateMatchViewModel}" />

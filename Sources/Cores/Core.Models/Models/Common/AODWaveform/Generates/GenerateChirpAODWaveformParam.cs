@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -34,12 +33,11 @@ public sealed partial class GenerateChirpAODWaveformParam :
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum,
         SampleRate = SampleRate,
         DirectoryPath = DirectoryPath,
-        FileNameSuffix = OpticsMagTypeEnum.ToCgMagTypeEnum().ToString(),
+        FileNameSuffix = ProductivityInformation.AdaptTo().Mag.ToString(),
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         GenerateRetryTimes = GenerateRetryTimes,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())],
         SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
         SincCoefficient = SincCoefficient,
         AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient,

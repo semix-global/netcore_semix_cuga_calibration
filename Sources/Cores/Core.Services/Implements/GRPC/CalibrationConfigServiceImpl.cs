@@ -1,6 +1,6 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Interface.Calibration;
 using Net.Utilities.Attributes;
@@ -37,12 +37,12 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }

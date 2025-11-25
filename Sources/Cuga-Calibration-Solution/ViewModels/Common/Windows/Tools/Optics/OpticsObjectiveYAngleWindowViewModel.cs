@@ -37,7 +37,7 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     #region Param
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _channelId = CalibrationConstantsHelper.MainChannelId;
@@ -91,7 +91,7 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 
     public object ToHtmlAnonymous() => new
     {
-        OpticsMagTypeEnum,
+        ProductivityInformation,
         ChannelId,
         GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
         GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
@@ -150,7 +150,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(OpticsObjectiveYAngleWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public IReadOnlyList<LaserLightInformation> LaserLightInformations => applicationCookie.LaserLightInformations;
+    public ApplicationCookie ApplicationCookie => applicationCookie;
 
     public Guid HtmlLogUniqueId { get; private set; }
 
@@ -212,15 +212,15 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-                laserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
+                laserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
                 laserViewModel.ToggleEnableAutoGainControl(true);
 
                 try
                 {
                     stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition));
                     afViewModel.ToggleDarkFieldEnable(true);
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, Cache.HazeLaserLightInformation.Coefficient);
-                    laserViewModel.SetChirpAODWaveProfile(Cache.OpticsMagTypeEnum);
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
+                    laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
@@ -245,14 +245,14 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     stageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition));
                     afViewModel.ToggleDarkFieldEnable(true);
 
-                    Cache.GeneratePrescanAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                    Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                     var (prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
                     if (prescanAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
                     Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
                     Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
-                    Cache.GenerateChirpAODWaveformParam.OpticsMagTypeEnum = Cache.OpticsMagTypeEnum;
+                    Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
                     Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                     (var chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);

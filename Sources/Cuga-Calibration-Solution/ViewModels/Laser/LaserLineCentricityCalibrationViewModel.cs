@@ -4,6 +4,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.Center;
 using Core.Models.Models.Common.Pattern;
@@ -13,7 +14,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -164,7 +164,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPrescanChirpAodAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -834,6 +834,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
     {
+        if (results.Count < 3) return;
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.X)).ToArray();
         var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(

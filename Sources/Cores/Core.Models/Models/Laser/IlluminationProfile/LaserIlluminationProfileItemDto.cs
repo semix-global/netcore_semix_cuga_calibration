@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
@@ -21,7 +20,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -135,7 +134,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
         Index = Index,
         LaserLightInformation = LaserLightInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation,
-        OpticsMagTypeEnum = OpticsMagTypeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         PmtId = PmtId,
         ChannelId = ChannelId,
         PrescanAODWaveformProfileList = [.. PrescanAODWaveformProfileList.Select(t => t.Clone())],
@@ -163,7 +162,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     public CalibrationLaserIlluminationProfileItem AdaptTo() => new()
     {
         Coefficient = LaserLightInformation.Coefficient,
-        OpticsMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
+        OpticsMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         CalibrationPrescanAODWaveformResults =
         [
             .. PrescanAODWaveformResultList

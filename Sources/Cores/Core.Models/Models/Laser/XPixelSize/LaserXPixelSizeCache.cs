@@ -3,10 +3,8 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using LiteDB;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.XPixelSize;
@@ -22,8 +20,10 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserXPixelSizeCacheItem>> Items { get; init; } = [];
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public LaserXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserXPixelSizeCacheItem());
 }
 

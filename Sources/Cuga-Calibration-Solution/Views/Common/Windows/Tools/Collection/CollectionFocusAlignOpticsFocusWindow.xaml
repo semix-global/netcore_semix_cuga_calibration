@@ -4,13 +4,10 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
-           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Width="1500"
@@ -94,30 +91,12 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
+                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
-                                            <hc:ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                </DataTemplate>
-                                            </hc:ComboBox.ItemTemplate>
-                                        </hc:ComboBox>
-                                        <hc:ComboBox hc:TitleElement.Title="Stage Speed: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.StageSpeedEnum}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageSpeedEnum}}}">
-                                            <hc:ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                </DataTemplate>
-                                            </hc:ComboBox.ItemTemplate>
-                                        </hc:ComboBox>
+                                                     ItemsSource="{Binding ApplicationCookie.ProductivityInformations}" />
                                         <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
                                                      hc:TitleElement.Title="PMT ID: "
@@ -165,7 +144,7 @@
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.Title="Laser Light Information: "
                                                  SelectedItem="{Binding Cache.HazeLaserLightInformation}"
-                                                 ItemsSource="{Binding LaserLightInformations}" />
+                                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.HazeBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:TitleElement.Title="Bright Field Position:"
                                              hc:TitleElement.TitlePlacement="Left"
@@ -209,7 +188,7 @@
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.Title="Coefficient: "
                                                  SelectedItem="{Binding Cache.DSWLaserLightInformation}"
-                                                 ItemsSource="{Binding LaserLightInformations}" />
+                                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.DSWBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:TitleElement.Title="Bright Field Position:"
                                              hc:TitleElement.TitlePlacement="Left"

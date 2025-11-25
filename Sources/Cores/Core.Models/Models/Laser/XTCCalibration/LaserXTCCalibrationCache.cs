@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.IlluminationProfile;
-using LiteDB;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
@@ -20,8 +19,10 @@ public sealed partial class LaserXTCCalibrationCache : CalibrationCacheBase
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserXTCCalibrationCacheItem>> Items { get; init; } = [];
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public LaserXTCCalibrationCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserXTCCalibrationCacheItem());
 
     [ObservableProperty]

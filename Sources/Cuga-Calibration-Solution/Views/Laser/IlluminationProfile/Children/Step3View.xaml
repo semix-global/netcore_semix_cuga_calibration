@@ -27,7 +27,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Coefficient: "

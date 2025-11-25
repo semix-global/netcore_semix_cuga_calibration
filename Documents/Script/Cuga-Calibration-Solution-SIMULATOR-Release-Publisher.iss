@@ -2,9 +2,15 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Cuga-Calibration-Solution-Simulator"
+
+#ifndef AppId
+#define AppId "Na"
+#endif
+
 #ifndef MyAppVersion
 #define MyAppVersion "2.1.0.08221"
 #endif
+
 #define MyAppPublisher "My Company, Inc."
 #define MyAppURL "https://www.example.com/"
 #define MyAppExeName "Cuga-Calibration-Solution.exe"
@@ -35,7 +41,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{0E645F39-A4CC-4B53-9F82-53468BA1C964}
+AppId={#AppId}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}

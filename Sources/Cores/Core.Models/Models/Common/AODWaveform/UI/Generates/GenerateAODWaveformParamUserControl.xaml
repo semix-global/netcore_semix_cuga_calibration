@@ -3,25 +3,27 @@
                                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                                                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                                                xmlns:optics="clr-namespace:Core.Models.Enums.Optics"
                                                 xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.Generates"
                                                 xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates"
                                                 xmlns:enumAlgorithm="clr-namespace:Net.Utilities.Models.Enums.Maths;assembly=Net.Utilities.Models"
                                                 xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
                                                 xmlns:hc="https://handyorg.github.io/handycontrol"
                                                 xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+                                                xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+                                                xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern"
                                                 d:DataContext="{d:DesignInstance Type=generates:AbstractGenerateAODWaveformParam}"
                                                 d:DesignWidth="400"
                                                 d:DesignHeight="1000"
                                                 mc:Ignorable="d">
-    <UserControl.Resources>
+    <ui:AbstractGenerateAODWaveformParamUserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Common.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Core.Models;component/Models/Common/AODWaveform/UI/Themes/Generates.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <attachedHelper:BindingProxy x:Key="Proxy" Value="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}" />
         </ResourceDictionary>
-    </UserControl.Resources>
+    </ui:AbstractGenerateAODWaveformParamUserControl.Resources>
     <GroupBox>
         <GroupBox.HeaderTemplate>
             <DataTemplate>
@@ -33,19 +35,13 @@
                 <hc:UniformSpacingPanel Margin="11,0"
                                         Orientation="Vertical"
                                         Spacing="2">
-                    <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                    <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
-                                 SelectedItem="{Binding OpticsMagTypeEnum}"
+                                 hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                                 SelectedItem="{Binding ProductivityInformation, FallbackValue={x:Static pattern:ProductivityInformation.Default}}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}"
-                                 Visibility="{Binding IsVisibleOpticsMagTypeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                 Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>
                 <Expander Header="Frequency(MHz)"
@@ -56,7 +52,7 @@
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Enable Header Footer: "
-                                           Width="{StaticResource TitleWidth}"
+                                           Width="{StaticResource TitleWidthDouble}"
                                            VerticalAlignment="Center" />
                                 <ToggleButton IsChecked="{Binding IsHeaderAndFooter}"
                                               VerticalAlignment="Center"
@@ -65,7 +61,7 @@
                             </StackPanel>
                             <hc:NumericUpDown hc:TitleElement.Title="Header Frequency(MHz): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter}"
                                               Value="{Binding HeaderFrequency}">
@@ -81,7 +77,7 @@
                             </hc:NumericUpDown>
                             <hc:NumericUpDown hc:TitleElement.Title="Footer Frequency(MHz): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter}"
                                               Value="{Binding FooterFrequency}">
@@ -97,7 +93,7 @@
                             </hc:NumericUpDown>
                             <hc:NumericUpDown hc:TitleElement.Title="Band Width(MHz): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                               Value="{Binding BandWidth}">
@@ -113,7 +109,7 @@
                             </hc:NumericUpDown>
                             <hc:NumericUpDown hc:TitleElement.Title="Center Frequency(MHz): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Minimum="0"
                                               IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                               Value="{Binding CenterFrequency}">
@@ -129,7 +125,7 @@
                             </hc:NumericUpDown>
                             <hc:ComboBox hc:TitleElement.Title="Monotonic: "
                                          hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                         hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                          IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
                                          SelectedItem="{Binding FunctionMonotonicTypeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
@@ -158,14 +154,14 @@
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <hc:NumericUpDown hc:TitleElement.Title="Sample Rate(Msa/s): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding SampleRate}" />
                             <TextBox Text="{Binding DirectoryPath}"
                                      Height="50"
                                      TextWrapping="Wrap"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      hc:TitleElement.Title="AOD Waveform Directory Path:"
                                      hc:TitleElement.TitlePlacement="Left"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -178,19 +174,19 @@
                             <Separator />
                             <hc:NumericUpDown hc:TitleElement.Title="Zero Sample Count(sa): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
                                               Value="{Binding ZeroSampleCount}" />
                             <hc:NumericUpDown hc:TitleElement.Title="Endpoint Sample Count(sa): "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
                                               Value="{Binding EndpointSampleCount}" />
                             <hc:NumericUpDown hc:TitleElement.Title="Generate Retry Times: "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Maximum="1000000"
                                               Minimum="1"
@@ -227,54 +223,83 @@
                                     <DataGridTextColumn IsReadOnly="True"
                                                         Header="AOD Electrode"
                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency}" />
-                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
-                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude}" />
-                                    <DataGridTemplateColumn Header="Uniformity Configurations">
+                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
+                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                    <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
+                                    <DataGridTemplateColumn Header="Uniformity Configurations" Visibility="{Binding Value.IsVisibleUniformityConfiguration, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Border Style="{StaticResource BorderRegion}">
-                                                    <TabControl>
-                                                        <TabItem Header="Plots">
-                                                            <controls:ScatterMultiPlotControl Title="Total" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                        </TabItem>
-                                                        <TabItem Header="Details">
-                                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                                    <Button Content="Import"
-                                                                            Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                                            Style="{StaticResource ButtonSuccess}" />
-                                                                    <Button Content="Add"
-                                                                            Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                                            Style="{StaticResource ButtonInfo}" />
-                                                                    <Button Content="Delete"
-                                                                            Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridUniformityConfigurations}"
-                                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                            Style="{StaticResource ButtonDanger}" />
-                                                                </hc:UniformSpacingPanel>
-                                                                <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                          Width="500"
-                                                                          Height="500"
-                                                                          hc:DataGridAttach.ShowRowNumber="True"
-                                                                          Style="{StaticResource DataGrid.Small}"
-                                                                          HeadersVisibility="All"
-                                                                          RowHeaderWidth="60"
-                                                                          AutoGenerateColumns="False"
-                                                                          ItemsSource="{Binding UniformityConfigurations}">
-                                                                    <DataGrid.Columns>
-                                                                        <DataGridTextColumn Width="130"
-                                                                                            Header="Frequency(MHz)"
-                                                                                            Binding="{Binding Frequency}" />
-                                                                        <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient}" />
-                                                                    </DataGrid.Columns>
-                                                                </DataGrid>
-                                                            </hc:UniformSpacingPanel>
-                                                        </TabItem>
-                                                    </TabControl>
-                                                </Border>
+                                                <Grid Margin="2">
+                                                    <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
+                                                                  Content="Profiles"
+                                                                  Margin="0,2"
+                                                                  HorizontalAlignment="Left"
+                                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                  Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                    <Popup Width="800"
+                                                           Height="800"
+                                                           StaysOpen="False"
+                                                           PlacementTarget="{Binding ElementName=ToggleButtonUniformityConfigurations}"
+                                                           Placement="Right"
+                                                           AllowsTransparency="True"
+                                                           PopupAnimation="Slide"
+                                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
+                                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                            <TabControl>
+                                                                <TabItem Header="Details">
+                                                                    <Border Style="{StaticResource BorderRegion}">
+                                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                                                <Button Content="Import"
+                                                                                        Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                                        CommandParameter="{Binding}"
+                                                                                        hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                                                        Style="{StaticResource ButtonSuccess}" />
+                                                                                <Button Content="Add"
+                                                                                        Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                                        CommandParameter="{Binding}"
+                                                                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                                        Style="{StaticResource ButtonInfo}" />
+                                                                                <Button Content="Delete"
+                                                                                        Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                                        Style="{StaticResource ButtonDanger}">
+                                                                                    <Button.CommandParameter>
+                                                                                        <MultiBinding Converter="{ui:RemoveUniformityConfigurationConvert}">
+                                                                                            <Binding />
+                                                                                            <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
+                                                                                        </MultiBinding>
+                                                                                    </Button.CommandParameter>
+                                                                                </Button>
+                                                                            </hc:UniformSpacingPanel>
+                                                                            <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                                      MaxHeight="500"
+                                                                                      hc:DataGridAttach.ShowRowNumber="True"
+                                                                                      Style="{StaticResource DataGrid.Small}"
+                                                                                      HeadersVisibility="All"
+                                                                                      RowHeaderWidth="60"
+                                                                                      AutoGenerateColumns="False"
+                                                                                      ItemsSource="{Binding UniformityConfigurations}">
+                                                                                <DataGrid.Columns>
+                                                                                    <DataGridTextColumn Width="130"
+                                                                                                        Header="Frequency(MHz)"
+                                                                                                        Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                                                                </DataGrid.Columns>
+                                                                            </DataGrid>
+                                                                        </hc:UniformSpacingPanel>
+                                                                    </Border>
+                                                                </TabItem>
+                                                                <TabItem Header="Plots">
+                                                                    <Border Style="{StaticResource BorderRegion}">
+                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                    </Border>
+                                                                </TabItem>
+                                                            </TabControl>
+                                                        </Border>
+                                                    </Popup>
+                                                </Grid>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -283,10 +308,6 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Uniformity Configurations"
-                          IsExpanded="False"
-                          ExpandDirection="Down"
-                          Visibility="{Binding IsVisibleUniformityConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <Expander Header="Slope ΔK Configurations"
                           IsExpanded="False"
                           ExpandDirection="Down"
@@ -330,7 +351,7 @@
                             <TextBox Text="{Binding SincCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Sinc Coefficient: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="0"
@@ -339,7 +360,7 @@
                             <TextBox Text="{Binding AstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Astigmatism Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -348,7 +369,7 @@
                             <TextBox Text="{Binding SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Spherical Aberration Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -357,7 +378,7 @@
                             <TextBox Text="{Binding SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Secondary Astigmatism Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -366,7 +387,7 @@
                             <TextBox Text="{Binding ComaCompensationCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Coma Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -375,7 +396,7 @@
                             <TextBox Text="{Binding TrefoilCompensationCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Trefoil Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -384,7 +405,7 @@
                             <TextBox Text="{Binding QuadrafoilCompensationCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Quadrafoil Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -393,7 +414,7 @@
                             <TextBox Text="{Binding AlphaOrder, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Alpha Order: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"
@@ -402,7 +423,7 @@
                             <TextBox Text="{Binding AlphaOrderCoefficient, StringFormat={}{0:0.######}}"
                                      hc:TitleElement.Title="Alpha Order Coefficient: "
                                      hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
                             <Slider VerticalAlignment="Center"
                                     Minimum="-100"

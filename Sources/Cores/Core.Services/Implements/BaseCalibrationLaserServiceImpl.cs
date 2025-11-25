@@ -10,7 +10,6 @@ using Semix.CoreLib;
 namespace Core.Services.Implements.GRPC;
 
 #else
-
 // ReSharper disable once CheckNamespace
 namespace Core.Services.Implements.WCF;
 #endif
@@ -19,7 +18,7 @@ public sealed partial class CalibrationLaserServiceImpl
 {
     public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(generatePrescanAODWaveformParam.OpticsMagTypeEnum);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(generatePrescanAODWaveformParam.ProductivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, []);
 
         generatePrescanAODWaveformParam.ElectrodeConfigurations =
@@ -39,7 +38,7 @@ public sealed partial class CalibrationLaserServiceImpl
 
     public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(generateChirpAODWaveformParam.OpticsMagTypeEnum);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(generateChirpAODWaveformParam.ProductivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRetByGetChirpAODWaveProfiles.Msg, []);
 
         generateChirpAODWaveformParam.ElectrodeConfigurations =

@@ -4,6 +4,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Center;
@@ -24,7 +25,6 @@ using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.PmtAgcDelay;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.Rtfc;
 using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
@@ -405,12 +405,12 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserPrescanChirpAodAlignmentDto[] result, out string errorMessage)
+    public static bool IsOk(this AODAlignmentDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 
         var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Prescan Chirp Aod Alignment is Empty";
+        if (isOk == false) errorMessage = "AOD Alignment is Empty";
 
         return isOk;
     }
