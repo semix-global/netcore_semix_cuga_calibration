@@ -27,7 +27,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser AOD Alignment Step 3: "
+                <hc:Shield Subject="AOD Alignment Step 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
@@ -58,13 +58,7 @@
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.LaserLightInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                     <hc:ComboBox hc:TitleElement.Title="PMT Id: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
@@ -218,12 +212,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <GridSplitter Grid.Row="1" Height="5" />
-                <Border Grid.Row="2"
-                        Padding="0"
-                        Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}"
-                        IsEnabled="{Binding Step1CalibrateActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}">
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

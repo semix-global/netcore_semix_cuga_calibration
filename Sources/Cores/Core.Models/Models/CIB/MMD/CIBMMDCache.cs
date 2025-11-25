@@ -98,7 +98,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _scaleFactor = 2000000d;
 
     [ObservableProperty]
-    private double _minValidFraction = 0d;
+    private double _minValidFraction;
 
     [ObservableProperty]
     private double _maxValidFraction = 300000d;
