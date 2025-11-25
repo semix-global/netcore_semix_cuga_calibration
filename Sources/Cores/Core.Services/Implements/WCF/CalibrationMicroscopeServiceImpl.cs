@@ -39,9 +39,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
 
         _microscopeLensInformationList =
         [
-            ..sxExecuteRet.Anything.Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t))
-                .OrderBy(t => t.ObjectiveMagnification)
-                .ThenBy(t => t.LensCode)
+            ..sxExecuteRet.Anything.Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)
         ];
 
         Guard.IsTrue(_microscopeLensInformationList.Select(t => t.LensCode).Distinct().Count() == _microscopeLensInformationList.Count, "Microscope Lens Information Lens Code is not unique");

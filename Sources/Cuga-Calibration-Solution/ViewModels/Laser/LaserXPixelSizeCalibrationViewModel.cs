@@ -624,6 +624,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return false;
             }
 
+            var verifyResultList = new List<bool>();
+
             foreach (var item in SelectedReviewItems)
             {
                 Cache.ProductivityInformation = item.ProductivityInformation;
@@ -758,6 +760,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / item.XPixelSize);
                 var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
                            && errorPixel <= Cache.Threshold;
+                verifyResultList.Add(isOk);
 
                 var htmlQuote = new HtmlQuote(new
                 {
@@ -781,7 +784,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Guard.IsTrue(Save(item, cancellationToken));
             }
 
-            return true;
+            var result = verifyResultList.All(t => t);
+
+            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}",
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
         }).ConfigureAwait(false);
     }
 

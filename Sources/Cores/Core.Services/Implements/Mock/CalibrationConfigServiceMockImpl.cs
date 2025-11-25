@@ -1,6 +1,7 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Options;
@@ -42,7 +43,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         return SxExecuteRetHelper.CreateSuccess(filePath);
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>([
             AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$0$0$.txt")),
@@ -52,7 +53,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         ]);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>([
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt")),

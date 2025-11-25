@@ -96,7 +96,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        _laserLightInformations = [.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t))];
+        _laserLightInformations = [.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
 
         Guard.IsTrue(_laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
         Guard.IsTrue(_laserLightInformations.Select(t => t.Level).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Level is not unique");
@@ -148,7 +148,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         Guard.IsNotEmpty(productivityInformationList, "Productivity Information is empty");
 
-        _productivityInformations = productivityInformationList;
+        _productivityInformations = [.. productivityInformationList.OrderBy(t => t)];
 
         return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
     }
@@ -210,7 +210,10 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsMagTypeEnum);
+        var sxExecuteRet = GetProductivityInformations();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -226,7 +229,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -261,7 +264,10 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsMagTypeEnum);
+        var sxExecuteRet = GetProductivityInformations();
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
@@ -273,7 +279,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation.AdaptTo().Mag.ToOpticsMagTypeEnum());
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);

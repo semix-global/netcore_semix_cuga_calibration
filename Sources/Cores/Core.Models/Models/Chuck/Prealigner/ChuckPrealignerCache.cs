@@ -101,35 +101,59 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _findWaferCenterOffset8;
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb1 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb2 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb3 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb4 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb5 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb6 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb7 = [];
 
-    [property: LiteDB.BsonIgnore]
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb8 = [];
 }

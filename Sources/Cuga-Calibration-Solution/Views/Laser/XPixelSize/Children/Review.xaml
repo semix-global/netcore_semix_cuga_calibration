@@ -9,6 +9,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -76,7 +77,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="10" />
-                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2.5*" />
                 </Grid.RowDefinitions>
                 <ListView x:Name="Listview"
                           d:SelectedIndex="0"
@@ -125,26 +126,48 @@
                         <RowDefinition Height="5" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <hc:ScrollViewer>
-                        <Border Padding="5" Style="{StaticResource BorderRegion}">
-                            <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Width="300"
-                                                Height="300"
-                                                Style="{StaticResource BorderRegion}">
-                                            <Image Source="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" Stretch="Uniform" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Border>
-                    </hc:ScrollViewer>
+                    <Border Padding="5" Style="{StaticResource BorderRegion}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Split Images"
+                                       HorizontalAlignment="Center"
+                                       Style="{StaticResource TextBlockSubTitleBold}"
+                                       Foreground="{StaticResource SuccessBrush}" />
+                            <hc:ScrollViewer Grid.Row="1">
+                                <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="300"
+                                                    Height="300"
+                                                    Style="{StaticResource BorderRegion}">
+                                                <hc:SimplePanel>
+                                                    <view:CanvasView AxisColor="Red"
+                                                                     BackgroundColor="#0A0A0A"
+                                                                     BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                     Interactive="True"
+                                                                     ShowAxes="True"
+                                                                     ShowCursor="False"
+                                                                     ShowGrid="False" />
+                                                    <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Top"
+                                                               Foreground="Yellow" />
+                                                </hc:SimplePanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </hc:ScrollViewer>
+                        </Grid>
+                    </Border>
                     <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -162,7 +185,7 @@
                                                                   ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
                             </Border>
                             <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
-                                <controls:ScatterMultiPlotControl Title="Split Differences(Y: px - X: Die)"
+                                <controls:ScatterMultiPlotControl Title="Split Differences(Y: px - X: Die - Die)"
                                                                   ScatterLine0Title="Slide"
                                                                   ScatterLine0Points="{Binding SelectedItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
                                                                   ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"

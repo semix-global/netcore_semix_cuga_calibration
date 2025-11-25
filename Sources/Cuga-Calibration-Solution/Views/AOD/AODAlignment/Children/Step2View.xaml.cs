@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Laser.PrescanChirpAodAlignment.Children;
+﻿namespace CugaCalibration.Views.AOD.AODAlignment.Children;
 
 public sealed partial class Step2View
 {

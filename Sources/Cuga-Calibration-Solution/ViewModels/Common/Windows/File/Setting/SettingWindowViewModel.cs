@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
@@ -27,13 +26,7 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
     private SettingCommonViewModel _settingCommonViewModel = HostApplication.GetRequiredService<SettingCommonViewModel>();
 
     [ObservableProperty]
-    private SettingDarkFieldGainViewModel _lowMagSettingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
-
-    [ObservableProperty]
-    private SettingDarkFieldGainViewModel _middleMagSettingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
-
-    [ObservableProperty]
-    private SettingDarkFieldGainViewModel _highMagSettingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
+    private SettingDarkFieldGainViewModel _settingDarkFieldGainViewModel = HostApplication.GetRequiredService<SettingDarkFieldGainViewModel>();
 
     [ObservableProperty]
     private SettingTemplateMatchViewModel _settingTemplateMatchViewModel = HostApplication.GetRequiredService<SettingTemplateMatchViewModel>();
@@ -60,45 +53,22 @@ public sealed partial class SettingWindowViewModel : ViewModelBase
         SettingCommonViewModel.SettingCommonParam = _calibrationSetting.SettingCommonParam;
         SettingCommonViewModel.SettingCommonParam.IsDebugEnvironment = true; // todo:更改为管理员权限
         SettingTemplateMatchViewModel.SettingTemplateMatchParam = _calibrationSetting.SettingTemplateMatchParam;
-        LowMagSettingDarkFieldGainViewModel.SettingDarkFieldGainParamList = _calibrationSetting.LowMagSettingDarkFieldGainParam;
-        LowMagSettingDarkFieldGainViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.Low;
-        MiddleMagSettingDarkFieldGainViewModel.SettingDarkFieldGainParamList = _calibrationSetting.MiddleMagSettingDarkFieldGainParam;
-        MiddleMagSettingDarkFieldGainViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.Middle;
-        HighMagSettingDarkFieldGainViewModel.SettingDarkFieldGainParamList = _calibrationSetting.HighMagSettingDarkFieldGainParam;
-        HighMagSettingDarkFieldGainViewModel.OpticsMagTypeEnum = OpticsMagTypeEnum.High;
+        SettingDarkFieldGainViewModel.SettingDarkFieldGainParamList = _calibrationSetting.SettingDarkFieldGainParam;
         foreach (var pmtId in CalibrationConstantsHelper.PmtIds)
         {
             foreach (var channel in CalibrationConstantsHelper.ChannelIds)
             {
-                var lowMagSettingDarkField = _calibrationSetting.LowMagSettingDarkFieldGainParam.FirstOrDefault(t => t.PmtId == pmtId && t.ChannelId == channel);
-                if (lowMagSettingDarkField is null) _calibrationSetting.LowMagSettingDarkFieldGainParam.Add(new SettingDarkFieldGainParam { PmtId = pmtId, ChannelId = channel });
-
-                var middleMagSettingDarkField = _calibrationSetting.MiddleMagSettingDarkFieldGainParam.FirstOrDefault(t => t.PmtId == pmtId && t.ChannelId == channel);
-                if (middleMagSettingDarkField is null) _calibrationSetting.MiddleMagSettingDarkFieldGainParam.Add(new SettingDarkFieldGainParam { PmtId = pmtId, ChannelId = channel });
-
-                var highMagSettingDarkField = _calibrationSetting.HighMagSettingDarkFieldGainParam.FirstOrDefault(t => t.PmtId == pmtId && t.ChannelId == channel);
-                if (highMagSettingDarkField is null) _calibrationSetting.HighMagSettingDarkFieldGainParam.Add(new SettingDarkFieldGainParam { PmtId = pmtId, ChannelId = channel });
+                var darkFieldGainParam = _calibrationSetting.SettingDarkFieldGainParam.FirstOrDefault(t => t.PmtId == pmtId && t.ChannelId == channel);
+                if (darkFieldGainParam is null) _calibrationSetting.SettingDarkFieldGainParam.Add(new SettingDarkFieldGainParam { PmtId = pmtId, ChannelId = channel });
             }
         }
 
         foreach (var (_, coefficient) in applicationCookie.LaserLightInformations)
         {
-            foreach (var lowItem in _calibrationSetting.LowMagSettingDarkFieldGainParam)
+            foreach (var lowItem in _calibrationSetting.SettingDarkFieldGainParam)
             {
                 var gainCoefficientsParam = lowItem.GainOfCoefficientList.SingleOrDefault(t => t.Coefficient - coefficient == 0);
                 if (gainCoefficientsParam is null) lowItem.GainOfCoefficientList.Add(new GainOfCoefficientParam { Coefficient = coefficient });
-            }
-
-            foreach (var middleItem in _calibrationSetting.MiddleMagSettingDarkFieldGainParam)
-            {
-                var gainCoefficientsParam = middleItem.GainOfCoefficientList.SingleOrDefault(t => t.Coefficient - coefficient == 0);
-                if (gainCoefficientsParam is null) middleItem.GainOfCoefficientList.Add(new GainOfCoefficientParam { Coefficient = coefficient });
-            }
-
-            foreach (var highItem in _calibrationSetting.HighMagSettingDarkFieldGainParam)
-            {
-                var gainCoefficientsParam = highItem.GainOfCoefficientList.SingleOrDefault(t => t.Coefficient - coefficient == 0);
-                if (gainCoefficientsParam is null) highItem.GainOfCoefficientList.Add(new GainOfCoefficientParam { Coefficient = coefficient });
             }
         }
 

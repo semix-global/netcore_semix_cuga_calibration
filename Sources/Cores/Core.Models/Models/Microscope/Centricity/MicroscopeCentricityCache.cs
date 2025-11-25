@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using LiteDB;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -14,7 +13,10 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
     [ObservableProperty]
     private ConcurrentDictionary<string, MicroscopeCentricityCacheItem> _microscopeCentricityCacheItemDic = [];
 
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public MicroscopeCentricityCacheItem CurrentCalibrationCacheItem =>
         MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem() { LensInformation = MicroscopeLensInformation.Clone() });
 

@@ -656,7 +656,7 @@ function New-InnoSetupInstallers {
     Write-Host "Looking for Inno Setup script:" -ForegroundColor Cyan
     Write-Host "Inno setup script name: $issScriptName" -ForegroundColor Yellow
     Write-Host "Inno setup script alternative name: $issScriptNameAlt" -ForegroundColor Yellow
-
+    Write-Host "issScriptPath: $issScriptPath" -ForegroundColor Yellow
 
     Write-Host "Step: Creating installer(s) with Inno Setup..." -ForegroundColor Green
     
@@ -676,8 +676,18 @@ function New-InnoSetupInstallers {
         $currentVersion = "1.0.0"
     }
     
+    Write-Host "My App Version: $currentVersion" -ForegroundColor Yellow
+    Write-Host "My App CompileMode: $Configuration" -ForegroundColor Yellow
+    Write-Host "Environment Mode: $EnvironmentMode" -ForegroundColor Yellow
+    Write-Host "Csproj Output Name: $CsprojOutputPath" -ForegroundColor Yellow
+    Write-Host "My App Publish Path: $RepositoryPath" -ForegroundColor Yellow
+    Write-Host "Installer Exe OutPut Path: $InstallerOutputPath" -ForegroundColor Yellow
+
+    $guid = [guid]::NewGuid().ToString()
+    $appId = "{{" + $guid + "}"
     # Prepare common Inno Setup parameters
     $issParams = @{
+        AppId = $appId
         MyAppVersion = $currentVersion
         MyAppCompileMode = $Configuration
         EnvironmentMode = $EnvironmentMode
@@ -705,7 +715,9 @@ function New-InnoSetupInstallers {
             }
         }
     }
-    
+    Write-Host "IssScriptPaths $IssScriptPaths" -ForegroundColor Green
+    Write-Host "scriptsToProcess $scriptsToProcess" -ForegroundColor Green
+
     if ($scriptsToProcess.Count -eq 0) {
         # Auto-discover scripts based on naming patterns
         $namingPatterns = @(
@@ -720,6 +732,7 @@ function New-InnoSetupInstallers {
             if (Test-Path -Path $scriptPath -PathType Leaf) {
                 $scriptsToProcess += $scriptPath
                 Write-Host "Auto-discovered ISS script: $pattern" -ForegroundColor Green
+                Write-Host "PSScriptRoot: $PSScriptRoot" -ForegroundColor Green
             }
         }
     }

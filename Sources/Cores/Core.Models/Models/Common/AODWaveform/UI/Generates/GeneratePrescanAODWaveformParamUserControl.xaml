@@ -24,7 +24,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:NumericUpDown hc:TitleElement.Title="Flatness Time(ns): "
                                   hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="{Binding Source={StaticResource TitleWidth}, Converter={StaticResource DoubleToGridLengthConverter}}"
+                                  hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                   Minimum="0"
                                   Style="{StaticResource NumericUpDownExtend}"
                                   Value="{Binding FlatnessTime}" />

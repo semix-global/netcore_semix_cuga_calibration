@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -10,7 +11,6 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.PrescanChirpAodAlignment;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -127,7 +127,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPrescanChirpAodAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -415,6 +415,15 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(EnableProductiveI
             }
 
             result = true;
+
+            Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                PmtYPixelSize = new HtmlPlot2DLinesChart(
+                    [
+                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", ResultLaserPixelSizeItemDtoList.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize)).ToArray())
+                    ],
+                    "PMT Y Pixel Size")
+            }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });
         return result;

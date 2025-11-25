@@ -3,6 +3,8 @@ using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -37,13 +39,24 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         return this;
     }
 
+    public GenerateAODWaveformElectrodeConfiguration WithUniformityConfigurations(IReadOnlyList<GenerateAODWaveformUniformityConfiguration> uniformityConfigurations)
+    {
+        UniformityConfigurations = uniformityConfigurations;
+
+        return this;
+    }
+
     public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(
         OpticsAODElectrodeEnum.ToString(),
         OffsetFrequency,
         OffsetFrequencyPeriodCoefficient,
         Amplitude,
-        IsGenerateAODWaveformZero);
+        IsGenerateAODWaveformZero)
+    {
+        UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())]
+    };
 
+    [Obsolete]
     public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
     {
         OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
@@ -57,10 +70,21 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         OffsetFrequency = OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient
+        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient,
+        UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.Clone())]
     };
 
     public object ToHtmlAnonymous() => new
+    {
+        OpticsAODElectrodeEnum,
+        OffsetFrequency,
+        OffsetFrequencyPeriodCoefficient,
+        Amplitude,
+        IsGenerateAODWaveformZero,
+        UniformityConfigurations = new HtmlPlot2DLinesChart([(string.Empty, [.. UniformityConfigurations.Select(t => new Point(t.Frequency, t.Coefficient))])], string.Empty)
+    };
+
+    public object ToFlatnessHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
         OffsetFrequency,
