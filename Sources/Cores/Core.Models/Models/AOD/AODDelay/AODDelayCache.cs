@@ -49,17 +49,17 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase
     private Point _findBFMachinePosition;
 
     [ObservableProperty]
-    private double _roughStartAODDelay = -1500;
+    private double _startRoughAODDelay = -1500;
 
     [ObservableProperty]
-    private double _roughStepAODDelay = 100;
+    private double _stepRoughAODDelay = 100;
 
     [ObservableProperty]
-    private double _roughStopAODDelay = 3000;
+    private double _stopRoughAODDelay = 3000;
 
     [ObservableProperty]
-    private double _refinedRangeAODDelay = 200;
+    private double _rangeRefinedAODDelay = 200;
 
     [ObservableProperty]
-    private double _refinedStepAODDelay = 10;
+    private double _stepRefinedAODDelay = 10;
 }
