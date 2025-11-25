@@ -18,8 +18,8 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(GenerateAODWaveformParamUserControl),
         new PropertyMetadata(null, OnHeaderContentChanged));
 
-    public static readonly DependencyProperty IsVisibleOpticsMagTypeEnumProperty = DependencyProperty.Register(
-        nameof(IsVisibleOpticsMagTypeEnum),
+    public static readonly DependencyProperty IsVisibleProductivityInformationProperty = DependencyProperty.Register(
+        nameof(IsVisibleProductivityInformation),
         typeof(bool),
         typeof(AbstractGenerateAODWaveformParamUserControl),
         new PropertyMetadata(true, OnIsVisibleOpticsMagTypeEnumChanged));
@@ -78,7 +78,7 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
 
     private static void OnIsVisibleOpticsMagTypeEnumChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleOpticsMagTypeEnum = value;
+        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleProductivityInformation = value;
     }
 
     private static void OnIsVisibleFrequencyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -128,10 +128,10 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         set => SetValue(HeaderContentProperty, value);
     }
 
-    public bool IsVisibleOpticsMagTypeEnum
+    public bool IsVisibleProductivityInformation
     {
-        get => (bool)GetValue(IsVisibleOpticsMagTypeEnumProperty);
-        set => SetValue(IsVisibleOpticsMagTypeEnumProperty, value);
+        get => (bool)GetValue(IsVisibleProductivityInformationProperty);
+        set => SetValue(IsVisibleProductivityInformationProperty, value);
     }
 
     public bool IsVisibleFrequency
@@ -178,7 +178,7 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
 
     protected void InitializeTransparentProperties()
     {
-        InnerControl.IsVisibleOpticsMagTypeEnum = IsVisibleOpticsMagTypeEnum;
+        InnerControl.IsVisibleProductivityInformation = IsVisibleProductivityInformation;
         InnerControl.IsVisibleFrequency = IsVisibleFrequency;
         InnerControl.IsVisibleAmplitude = IsVisibleAmplitude;
         InnerControl.IsVisibleDirectoryPath = IsVisibleDirectoryPath;

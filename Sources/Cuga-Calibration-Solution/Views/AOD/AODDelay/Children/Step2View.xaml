@@ -95,34 +95,34 @@
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <Separator />
-                    <hc:NumericUpDown hc:TitleElement.Title="Rough Start AOD Delay(sa): "
+                    <hc:NumericUpDown hc:TitleElement.Title="Start Rough AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.RoughStartAODDelay}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Rough Step AOD Delay(sa): "
+                                      Value="{Binding Cache.Item.StartRoughAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Step Rough AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.RoughStepAODDelay}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Rough Stop AOD Delay(sa): "
+                                      Value="{Binding Cache.Item.StepRoughAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Stop Rough AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.RoughStopAODDelay}" />
+                                      Value="{Binding Cache.Item.StopRoughAODDelay}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Refined AOD Delay ±Range(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.RefinedRangeAODDelay}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Refined Step AOD Delay(sa): "
+                                      Value="{Binding Cache.Item.RangeRefinedAODDelay}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Step Refined AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.RefinedStepAODDelay}" />
+                                      Value="{Binding Cache.Item.StepRefinedAODDelay}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

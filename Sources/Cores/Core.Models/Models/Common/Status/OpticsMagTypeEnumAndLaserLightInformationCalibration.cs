@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using System.ComponentModel;
@@ -9,7 +8,7 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class OpticsMagTypeEnumAndLaserLightInformationCalibration : ObservableCacheBase
 {
     [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private BindingList<LaserLightInformationStatus> _laserLightInformationStatusList = [];

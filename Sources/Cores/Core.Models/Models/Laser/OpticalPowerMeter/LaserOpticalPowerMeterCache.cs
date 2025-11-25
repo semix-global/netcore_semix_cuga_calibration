@@ -1,9 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using LiteDB;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
@@ -19,8 +17,10 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserOpticalPowerMeterCacheItem>> Items { get; init; } = [];
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public LaserOpticalPowerMeterCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserOpticalPowerMeterCacheItem());
 }
 

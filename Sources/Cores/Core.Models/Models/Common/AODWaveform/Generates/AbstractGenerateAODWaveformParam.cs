@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -14,9 +13,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     ObservableCacheBase,
     IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -55,9 +51,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
 
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> _slopeDeltaKConfigurations = [];
@@ -188,8 +181,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         IsHeaderAndFooter = false;
         BandWidth = 0d;
         CenterFrequency = frequency;
-
-        UniformityConfigurations = [];
+        foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
         SlopeDeltaKConfigurations = [];
         SincCoefficient = 0d;
         AstigmatismCompensationCoefficient = 0d;
@@ -204,8 +196,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
     {
-        OpticsMagTypeEnum = obj.OpticsMagTypeEnum;
-        ProductivityInformation = obj.ProductivityInformation;
+        ProductivityInformation = obj.ProductivityInformation.Clone();
         IsHeaderAndFooter = obj.IsHeaderAndFooter;
         HeaderFrequency = obj.HeaderFrequency;
         FooterFrequency = obj.FooterFrequency;
@@ -218,7 +209,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         EndpointSampleCount = obj.EndpointSampleCount;
         GenerateRetryTimes = obj.GenerateRetryTimes;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
-        UniformityConfigurations = [.. obj.UniformityConfigurations.Select(t => t.Clone())];
         SlopeDeltaKConfigurations = [.. obj.SlopeDeltaKConfigurations.Select(t => t.Clone())];
         SincCoefficient = obj.SincCoefficient;
         AstigmatismCompensationCoefficient = obj.AstigmatismCompensationCoefficient;
@@ -235,7 +225,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public virtual object ToFlatnessHtmlAnonymous() => new
     {
-        OpticsMagTypeEnum,
+        ProductivityInformation,
         IsHeaderAndFooter,
         HeaderFrequency,
         FooterFrequency,
@@ -247,12 +237,11 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount,
         EndpointSampleCount,
         GenerateRetryTimes,
-        ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())])
+        ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToFlatnessHtmlAnonymous())])
     };
 
     public virtual object ToHtmlAnonymous() => new
     {
-        OpticsMagTypeEnum,
         ProductivityInformation,
         IsHeaderAndFooter,
         HeaderFrequency,
@@ -266,7 +255,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         EndpointSampleCount,
         GenerateRetryTimes,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        UniformityConfigurations = new HtmlTable([.. UniformityConfigurations.Select(t => t.ToHtmlAnonymous())]),
         SlopeDeltaKConfigurations = new HtmlTable([.. SlopeDeltaKConfigurations.Select(t => t.ToHtmlAnonymous())]),
         SincCoefficient,
         AstigmatismCompensationCoefficient,

@@ -2,10 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using LiteDB;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.XYAstigmatism;
@@ -25,8 +23,10 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserXYAstigmatismCalibrationCacheItem>> Items { get; init; } = [];
 
-    [JsonIgnore]
-    [BsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public LaserXYAstigmatismCalibrationCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserXYAstigmatismCalibrationCacheItem());
 
     public void SetEcsYParams()

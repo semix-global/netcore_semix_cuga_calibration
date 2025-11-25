@@ -23,19 +23,7 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     /// 低倍暗场增益参数
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<SettingDarkFieldGainParam> _lowMagSettingDarkFieldGainParam = [];
-
-    /// <summary>
-    /// 中倍暗场增益参数
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<SettingDarkFieldGainParam> _middleMagSettingDarkFieldGainParam = [];
-
-    /// <summary>
-    /// 高倍暗场增益参数
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<SettingDarkFieldGainParam> _highMagSettingDarkFieldGainParam = [];
+    private ObservableCollection<SettingDarkFieldGainParam> _settingDarkFieldGainParam = [];
 
     /// <summary>
     /// PMT使能参数
@@ -55,9 +43,7 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     {
         SettingCommonParam = new SettingCommonParam().AdaptIn(obj.SettingCommonParam);
         SettingTemplateMatchParam = new SettingTemplateMatchParam().AdaptIn(obj.SettingTemplateMatchParam);
-        LowMagSettingDarkFieldGainParam = [.. obj.LowMagSettingDarkFieldGainParam.Select(x => new SettingDarkFieldGainParam().AdaptIn(x))];
-        MiddleMagSettingDarkFieldGainParam = [.. obj.MiddleMagSettingDarkFieldGainParam.Select(x => new SettingDarkFieldGainParam().AdaptIn(x))];
-        HighMagSettingDarkFieldGainParam = [.. obj.HighMagSettingDarkFieldGainParam.Select(x => new SettingDarkFieldGainParam().AdaptIn(x))];
+        SettingDarkFieldGainParam = [.. obj.SettingDarkFieldGainParam.Select(x => new SettingDarkFieldGainParam().AdaptIn(x))];
         SettingPmtConfigParam = new SettingPmtConfigParam().AdaptIn(obj.SettingPmtConfigParam);
         SettingRequiredCalibrationParamList = [.. obj.SettingRequiredCalibrationParamList.Select(x => new SettingRequiredCalibrationParam().AdaptIn(x))];
 

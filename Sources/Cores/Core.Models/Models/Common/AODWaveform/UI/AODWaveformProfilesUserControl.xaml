@@ -108,7 +108,7 @@
                                                                           ScatterLine7Title="Alpha Order"
                                                                           ScatterLine7Points="{Binding FlatnessAlphaOrderCompensationSignals}" />
                                         <controls:ScatterMultiPlotControl Grid.Column="1"
-                                                                          Title="Total"
+                                                                          Title="Total Flatness Frequency"
                                                                           ScatterLine0Points="{Binding FlatnessTotalFrequencySignals}" />
                                     </Grid>
                                 </TabItem>

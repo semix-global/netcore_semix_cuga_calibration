@@ -46,7 +46,7 @@
                 </Expander.Header>
                 <Border Style="{StaticResource BorderRegion}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <generates:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                        <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                             IsVisibleDirectoryPath="False"
                                                                             IsVisibleElectrodeConfiguration="False"
                                                                             DataContext="{Binding Cache.Item.ChirpAodDefaultDto}" />

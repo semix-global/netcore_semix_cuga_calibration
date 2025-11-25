@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -16,9 +14,6 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
-    private StageSpeedEnum _xSpeed = StageSpeedEnum.Low;
 
     [ObservableProperty]
     private int _pmtId = CalibrationConstantsHelper.MainPmtId;
@@ -84,7 +79,7 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentDarkFieldImageListToPrescanListCacheItem), nameof(CurrentCalibrationCacheItem))]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     /// <summary>
     /// 波形功率系数(1表示100%, 0表示0%)
@@ -101,13 +96,13 @@ public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
 
     [JsonIgnore]
     public LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem CurrentDarkFieldImageListToPrescanListCacheItem =>
-        DarkFieldImageListToPrescanListCacheItemDic.GetOrAdd($"{OpticsMagTypeEnum}", new LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem());
+        DarkFieldImageListToPrescanListCacheItemDic.GetOrAdd($"{ProductivityInformation}", new LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem());
 
     [JsonIgnore]
     public LaserIlluminationProfileCalibrationCacheItem CurrentCalibrationCacheItem =>
-        CalibrationCacheItemDic.GetOrAdd($"{OpticsMagTypeEnum}-{LaserLightInformation}", new LaserIlluminationProfileCalibrationCacheItem());
+        CalibrationCacheItemDic.GetOrAdd($"{ProductivityInformation}-{LaserLightInformation}", new LaserIlluminationProfileCalibrationCacheItem());
 
-    partial void OnOpticsMagTypeEnumChanged(OpticsMagTypeEnum value)
+    partial void OnProductivityInformationChanged(ProductivityInformation value)
     {
         _ = value;
         CurrentDarkFieldImageListToPrescanListCacheItem.Reset();

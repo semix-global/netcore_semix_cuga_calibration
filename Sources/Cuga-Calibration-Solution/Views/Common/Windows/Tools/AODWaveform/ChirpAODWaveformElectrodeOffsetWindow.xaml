@@ -14,9 +14,11 @@
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
            xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeOffsetWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
            ResizeMode="NoResize"
@@ -29,6 +31,7 @@
             <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
             <system:String x:Key="PrimaryParamTitleString">Changed Chirp AOD Waveform</system:String>
             <system:String x:Key="SecondaryParamTitleString">Fixed Prescan AOD Waveform</system:String>
+            <system:String x:Key="ResultParamTitleString">Result Chirp AOD Waveform</system:String>
             <Style x:Key="FrequencyItemsListViewStyle"
                    x:Shared="False"
                    TargetType="ListView"
@@ -188,18 +191,12 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Mag Type: "
+                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsMagTypeEnum}"
+                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">
-                                            <hc:ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                </DataTemplate>
-                                            </hc:ComboBox.ItemTemplate>
-                                        </hc:ComboBox>
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude(AMP): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"
@@ -214,7 +211,7 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                   IsVisibleFrequency="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
@@ -242,7 +239,7 @@
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.PrescanFrequency}" />
                                                 </hc:UniformSpacingPanel>
-                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsMagTypeEnum="False"
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleFrequency="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
@@ -491,13 +488,68 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <Separator />
+                                    <StackPanel>
+                                        <TextBlock Text="Step3 Params"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <Expander Header="{StaticResource ResultParamTitleString}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Add"
+                                                            Command="{Binding AddResultCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                            Style="{StaticResource ButtonInfo}" />
+                                                    <Button Content="Delete"
+                                                            Command="{Binding RemoveResultCommand}"
+                                                            CommandParameter="{Binding SelectedItems, ElementName=ResultTabControl}"
+                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                </hc:UniformSpacingPanel>
+                                                <ListBox x:Name="ResultTabControl"
+                                                         SelectionMode="Extended"
+                                                         ItemsSource="{Binding Cache.Results}">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetResult}">
+                                                            <Border Height="360"
+                                                                    Margin="0,2"
+                                                                    Style="{StaticResource BorderRegion}">
+                                                                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                                                                 IsInertiaEnabled="True"
+                                                                                 VerticalScrollBarVisibility="Auto">
+                                                                    <Grid>
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition Height="Auto" />
+                                                                            <RowDefinition Height="5" />
+                                                                            <RowDefinition Height="*" />
+                                                                        </Grid.RowDefinitions>
+                                                                        <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Style="{StaticResource TextBlockSubTitleBold}"
+                                                                                   Foreground="{StaticResource InfoBrush}" />
+                                                                        <paramUI:GenerateChirpAODWaveformParamUserControl Grid.Row="2"
+                                                                                                                          IsVisibleDirectoryPath="False"
+                                                                                                                          IsVisibleElectrodeConfiguration="False"
+                                                                                                                          IsVisibleUniformityConfiguration="False"
+                                                                                                                          DataContext="{Binding GenerateChirpAODWaveformParam}" />
+                                                                    </Grid>
+                                                                </hc:ScrollViewer>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
                         <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
                                             <TextBlock Text="Electrode Offset Results" Style="{StaticResource TextBlockDefaultSuccess}" />
@@ -514,9 +566,9 @@
                                                     <DataGridTextColumn IsReadOnly="True"
                                                                         Header="AOD Electrode"
                                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency}" />
-                                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient}" />
-                                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude}" />
+                                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
+                                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
                                                     <DataGridTemplateColumn Header="Uniformity">
                                                         <DataGridTemplateColumn.CellTemplate>
                                                             <DataTemplate>
@@ -535,33 +587,7 @@
                                                                            PopupAnimation="Slide"
                                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
                                                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                            <TabControl>
-                                                                                <TabItem Header="Plots">
-                                                                                    <Border Style="{StaticResource BorderRegion}">
-                                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                                                    </Border>
-                                                                                </TabItem>
-                                                                                <TabItem Header="Details">
-                                                                                    <Border Style="{StaticResource BorderRegion}">
-                                                                                        <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                                                  hc:DataGridAttach.ShowRowNumber="True"
-                                                                                                  Style="{StaticResource DataGrid.Small}"
-                                                                                                  HeadersVisibility="All"
-                                                                                                  RowHeaderWidth="60"
-                                                                                                  AutoGenerateColumns="False"
-                                                                                                  ItemsSource="{Binding UniformityConfigurations}">
-                                                                                            <DataGrid.Columns>
-                                                                                                <DataGridTextColumn IsReadOnly="True"
-                                                                                                                    Header="Frequency(MHz)"
-                                                                                                                    Binding="{Binding Frequency}" />
-                                                                                                <DataGridTextColumn IsReadOnly="True"
-                                                                                                                    Header="Coefficient"
-                                                                                                                    Binding="{Binding Coefficient}" />
-                                                                                            </DataGrid.Columns>
-                                                                                        </DataGrid>
-                                                                                    </Border>
-                                                                                </TabItem>
-                                                                            </TabControl>
+                                                                            <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                         </Border>
                                                                     </Popup>
                                                                 </Grid>
@@ -582,6 +608,7 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
@@ -601,12 +628,33 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
                                         <Button Content="Step2 Cancel"
                                                 Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Step3 Action"
+                                                Command="{Binding Step2Command}"
+                                                CommandParameter="{x:Static models:Constants.True}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Step3 Cancel"
+                                                Command="{Binding Step2CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -619,6 +667,7 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
@@ -783,6 +832,38 @@
                                                         </DataTemplate>
                                                     </TabControl.ContentTemplate>
                                                 </TabControl>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Step 3 Result Chirp AOD Waveform Profiles">
+                        <hc:ScrollViewer>
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="800" Style="{StaticResource BorderRegion}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}"
+                                                           HorizontalAlignment="Center"
+                                                           Style="{StaticResource TextBlockSubTitleBold}"
+                                                           Foreground="{StaticResource SuccessBrush}" />
+                                                <Border Grid.Row="1"
+                                                        Style="{StaticResource BorderRegion}"
+                                                        Effect="{StaticResource EffectShadow1}">
+                                                    <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                </Border>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

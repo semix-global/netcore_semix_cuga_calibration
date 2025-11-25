@@ -1,5 +1,5 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
@@ -27,12 +27,14 @@ public interface ICalibrationConfigService
     /// <summary>
     /// 获取prescan默认波形列表
     /// </summary>
+    /// <param name="productivityInformation">产率</param>
     /// <returns>prescan波形列表</returns>
-    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum);
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 获取chirp默认波形列表
     /// </summary>
+    /// <param name="productivityInformation">产率</param>
     /// <returns>chirp波形列表</returns>
-    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsMagTypeEnum opticsMagTypeEnum);
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation);
 }
