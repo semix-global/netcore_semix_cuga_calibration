@@ -86,7 +86,7 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// CIB MMD 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItemS { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
+    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
 }
 
 /// <summary>
@@ -489,19 +489,29 @@ public class CalibrationPrescanAODWaveformResult
 }
 
 /// <summary>
-/// StageMap矩阵(笛卡尔坐标系)
+/// Chirp 波形结果
 /// </summary>
 [Serializable]
 public sealed class CalibrationChirpAODWaveformResult
 {
-    // todo: 待cuga3.0升级
-    public int CgAwgElectrodeEnum { get; set; }
+#if NETFRAMEWORK
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
+
+#else
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public int OpticsAODElectrodeEnum { get; set; }
+#endif
 
     public string FilePath { get; set; }
 }
 
 /// <summary>
-/// 暗场散光校准
+/// CIB MMD 校准
 /// </summary>
 [Serializable]
 public sealed class CalibrationLaserCIBMMDItem : CalibrationBase

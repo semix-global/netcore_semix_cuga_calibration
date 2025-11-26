@@ -23,7 +23,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     private double _gainResidual;
 
     [ObservableProperty]
-    private double _gainNorm;
+    private double _gainL2Norm;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _gainPoints = [];
@@ -97,25 +97,25 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         if (GainPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 2,
-                $"Gain Residual: {GainResidual:0.000#} Gain Norm: {GainNorm:0.###}",
+                $"Gain Residual: {GainResidual:0.000#} Gain Norm: {GainL2Norm:0.###}",
                 GainPoints);
 
         if (LogGainPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
-                $"Residual: {GainResidual:0.000#} GainNorm: {GainNorm:0.###}",
+                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 LogGainPoints);
 
         if (LogGainMul128U12BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
-                $"Residual: {GainResidual:0.000#} GainNorm: {GainNorm:0.###}",
+                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 LogGainMul128U12BitPoints);
 
         if (GainS16BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
-                $"Residual: {GainResidual:0.000#} GainNorm: {GainNorm:0.###}",
+                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 GainS16BitPoints);
 
         ScatterPlotControl.AutoScaleRefresh();
@@ -128,7 +128,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         CIBInformation = CIBInformation.Clone(),
         Items = [..Items.Select(t => t.Clone())],
         GainResidual = GainResidual,
-        GainNorm = GainNorm,
+        GainL2Norm = GainL2Norm,
         GainPoints = [..GainPoints],
         LogGainPoints = [..LogGainPoints],
         LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],

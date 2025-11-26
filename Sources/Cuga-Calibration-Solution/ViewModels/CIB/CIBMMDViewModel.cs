@@ -69,7 +69,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     private IReadOnlyList<CIBMMDDto> _reviews = [];
 
     [ObservableProperty]
-    private List<CIBMMDDto> _selectedReviewItems = [];
+    private IReadOnlyList<CIBMMDDto> _selectedReviewItems = [];
 
     #endregion 界面相关
 
@@ -584,10 +584,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             var xLogVector = Vector<double>.Build.Dense([..xLogMeasurePowerVector, ..xLogGainVector]);
             var gainResidual = (aValidMatrix * xLogVector - bLogCurrentValidVector).L2Norm();
-            var gainNorm = xLogGainVector.L2Norm();
+            var gainL2Norm = xLogGainVector.L2Norm();
 
             cibMMDDto.GainResidual = gainResidual;
-            cibMMDDto.GainNorm = gainNorm;
+            cibMMDDto.GainL2Norm = gainL2Norm;
 
             cibMMDDto.GainPoints =
             [
@@ -613,7 +613,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 xLogVector = Environment.NewLine + xLogVector.ToVectorString(),
                 bLogCurrentValidVector = Environment.NewLine + bLogCurrentValidVector.ToVectorString(),
                 gainResidual,
-                gainNorm,
+                gainNorm = gainL2Norm,
                 Plot = new HtmlContainer([..cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 

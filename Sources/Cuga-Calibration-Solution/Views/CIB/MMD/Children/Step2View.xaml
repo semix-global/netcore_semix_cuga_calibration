@@ -374,7 +374,7 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
                             <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainNorm, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

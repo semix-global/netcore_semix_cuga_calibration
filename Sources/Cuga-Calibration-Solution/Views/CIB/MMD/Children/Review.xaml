@@ -5,11 +5,11 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
-             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.AODDelay;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
+             xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
              mc:Ignorable="d">
@@ -22,25 +22,12 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser AOD Delay: "
+                <hc:Shield Subject="CIB MMD: "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
-                                      hc:TitleElement.TitleWidth="190"
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Threshold}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -64,16 +51,15 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="5" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding Reviews}"
+                <ListView ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedReviewItem}">
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDto}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -83,12 +69,6 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
-                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
-                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
-                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
@@ -100,50 +80,25 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Prescan AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedPrescanAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Chirp AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedChirpAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Average PMT Data" DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
-                            <GridViewColumn Header="PMT Data">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
-                                        <Grid>
-                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                                          Margin="0,2"
-                                                          HorizontalAlignment="Left"
-                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                            <Popup Width="600"
-                                                   Height="600"
-                                                   StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
-                                                   Placement="Right"
-                                                   AllowsTransparency="True"
-                                                   PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <wpf:WpfPlot>
-                                                        <i:Interaction.Behaviors>
-                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data(Y: - X: -)" Plot0="{Binding PmtData, Converter={StaticResource DoublesToPointsConverter}}" />
-                                                        </i:Interaction.Behaviors>
-                                                    </wpf:WpfPlot>
-                                                </Border>
-                                            </Popup>
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                            <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
+                            <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Border Grid.Row="2"
-                        Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot>
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Verify AOD Delay(Y: - X: sa)" Plot0="{Binding CalibratingPoints}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CIBInformation}" />
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
                 </Border>
             </Grid>
         </GroupBox>
