@@ -14,7 +14,7 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
-             d:DesignHeight="800"
+             d:DesignHeight="1920"
              d:DesignWidth="1920"
              mc:Ignorable="d">
     <Grid>
@@ -249,6 +249,42 @@
                                                   Minimum="0"
                                                   Style="{StaticResource NumericUpDownExtend}"
                                                   Value="{Binding Cache.MaxValidFraction}" />
+                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        Spacing="10">
+                                    <Button Content="Import"
+                                            Command="{Binding ImportGainConfigurationCommand}"
+                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                            Style="{StaticResource ButtonInfo}" />
+                                    <ToggleButton x:Name="ToggleButtonGainConfigurations"
+                                                  Content="Gain Configurations"
+                                                  HorizontalAlignment="Left"
+                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                    <Popup Width="800"
+                                           Height="800"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
+                                           Placement="Right"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Slide"
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
+                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                            <DataGrid MaxHeight="500"
+                                                      hc:DataGridAttach.ShowRowNumber="True"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="All"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      ItemsSource="{Binding Cache.GainConfigurations}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
+                                                    <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
+                                                    <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Border>
+                                    </Popup>
+                                </hc:UniformSpacingPanel>
                             </hc:UniformSpacingPanel>
                         </Border>
                     </Expander>

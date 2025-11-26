@@ -238,7 +238,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations)
+    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
         throw new NotImplementedException();
     }
@@ -311,6 +311,11 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
         throw new NotImplementedException();
     }

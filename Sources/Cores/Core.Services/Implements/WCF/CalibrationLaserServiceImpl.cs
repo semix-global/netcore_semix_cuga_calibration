@@ -24,6 +24,7 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Services.Implements.WCF;
 
@@ -345,7 +346,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, sendDataList)));
 
-    public SxExecuteRet<bool> SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations)
+    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
         var sxExecuteRet = Invoke(() => Service?.SendDc([.. cibInformations.Select(t => (gain, t.PMTId, t.ChannelId))]));
 
@@ -503,8 +504,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
     {
         // pmt增益电压范围 [-14, 14]
-        var senseVector = Vector<double>.Build.DenseOfEnumerable(gainList) / 14;
-        var senseValues = senseVector
+        var senseValues = (Vector<double>.Build.DenseOfEnumerable(gainList) / 14)
             .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .ToArray();
 
@@ -518,8 +518,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         // 取反, 差分信号
-        var pmtVector = Vector<double>.Build.DenseOfEnumerable(gainList) * -1 / 14;
-        var pmtValues = pmtVector
+        var pmtValues = (Vector<double>.Build.DenseOfEnumerable(gainList) * -1 / 14)
             .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .ToArray();
 
@@ -537,6 +536,33 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
+    {
+        var logGainMul128Bytes = new List<byte>();
+        foreach (var compArray in logGainMul128U12Bits
+                     .Select(t => (int)t)
+                     .Select(BitConverter.GetBytes))
+        {
+            logGainMul128Bytes.Add(0);
+            logGainMul128Bytes.Add(0);
+            logGainMul128Bytes.Add(compArray[1]);
+            logGainMul128Bytes.Add(compArray[0]);
+        }
+
+        var gainS16BitBytes = new List<byte>();
+        foreach (var compArray in gainS16Bits
+                     .Select(t => (int)t)
+                     .Select(BitConverter.GetBytes))
+        {
+            gainS16BitBytes.Add(0);
+            gainS16BitBytes.Add(0);
+            gainS16BitBytes.Add(compArray[1]);
+            gainS16BitBytes.Add(compArray[0]);
+        }
+
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)

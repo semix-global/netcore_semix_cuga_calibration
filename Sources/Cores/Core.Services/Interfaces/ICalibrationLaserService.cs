@@ -265,10 +265,10 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 设置增益
     /// </summary>
-    /// <param name="gain">增益</param>
     /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="gain">增益</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations);
+    SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
 
     /// <summary>
     /// 设置增益<br/>
@@ -352,6 +352,15 @@ public interface ICalibrationLaserService
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId);
+
+    /// <summary>
+    /// 设置CIB MMD
+    /// </summary>
+    /// <param name="cibInformation">CIB信息</param>
+    /// <param name="logGainMul128U12Bits">LogGain * 128 [0, 4095]</param>
+    /// <param name="gainS16Bits">GainS16Bit [-2^15, 2^15-1]</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits);
 
     /// <summary>
     /// 将45个光斑的PMTGain数据下发给CIB

@@ -16,6 +16,8 @@ using Core.Models.Models.Microscope.Focus;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Logging;
+using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -219,6 +221,27 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     #region 校准
 
+    [RelayCommand]
+    private void ImportGainConfiguration()
+    {
+        try
+        {
+            var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
+            if (dialog == false) return;
+
+            var values = MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath).ToArray();
+            if (values.Length > 0) Cache.GainConfigurations = values;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Import Gain Configuration");
+            DialogWindowProvider.ShowDialog($"""
+                                             Import Gain Configuration Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
@@ -286,7 +309,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ProtectedPMTValue,
                 Cache.ProtectedCount,
                 Cache.CatchPMTValueCount,
-                Cache.ConcurrentCount
+                Cache.ConcurrentCount,
+                Table = new HtmlTable([..Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItems = [];
@@ -336,6 +360,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Guard.IsNotEmpty(coefficients);
             var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
+            var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[..gains.Select(t => Cache.GainConfigurations.Single(tt => Equals(tt.Gain, t)))];
 
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -403,7 +428,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             var noProtectedCIBMMDDtos = cibMMDDtos
                                 .Where(t => t.Items[coefficientIndex].ProtectedCount < Cache.ProtectedCount /* 不超过保护次数 */)
                                 .ToArray();
-                            LaserViewModel.SetGain(gain, [..noProtectedCIBMMDDtos.Select(t => t.CIBInformation)]);
+                            LaserViewModel.SetGain([..noProtectedCIBMMDDtos.Select(t => t.CIBInformation)], gain);
 
                             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -420,7 +445,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                     if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedCount++;
                                     itemItem.PMTValue = pmtValue;
 
-                                    if (item.ProtectedCount >= Cache.ProtectedCount /* 超过保护次数 */) LaserViewModel.SetGain(Cache.StartGain, [cibMMDDto.CIBInformation]);
+                                    if (item.ProtectedCount >= Cache.ProtectedCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
                                 }
                                 finally
                                 {
@@ -449,13 +474,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Algorithm(cibMMDDto);
+                    Algorithm(cibMMDDto, gainConfigurations);
                 }, cancellationToken)));
             }
 
             Guard.IsTrue(Save(CalibratingItems, cancellationToken));
 
-            return true;
+            return CalibratingItems.All(t => t.IsCalibrated);
         });
     }
 
@@ -480,106 +505,194 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private void Algorithm(CIBMMDDto cibMMDDto)
+    private void Algorithm(CIBMMDDto cibMMDDto, IReadOnlyList<CIBMMDCache.GainConfiguration> gainConfigurations)
     {
-        var coefficientCount = cibMMDDto.Items.Count;
-        var gainCount = cibMMDDto.Items[0].Items.Count;
+        var htmlList = new List<BaseHtmlElement>();
+        var htmlContainer = new HtmlContainer(htmlList);
+        var isSuccess = false;
 
-        // A * X = B (最小二乘法)
-        var aMatrix = Matrix<double>.Build.Dense(coefficientCount * gainCount, coefficientCount + gainCount);
-        for (var i = 0; i < gainCount; i++)
+        try
         {
-            var startRow = coefficientCount * i;
-            var endRow = coefficientCount * (i + 1);
-            for (var row = startRow; row < endRow; row++)
+            var coefficientCount = cibMMDDto.Items.Count;
+            var gainCount = cibMMDDto.Items[0].Items.Count;
+
+            // A * X = B (最小二乘法)
+            var aMatrix = Matrix<double>.Build.Dense(coefficientCount * gainCount, coefficientCount + gainCount);
+            for (var i = 0; i < gainCount; i++)
             {
-                aMatrix[row, i] = 1.0;
+                var startRow = coefficientCount * i;
+                var endRow = coefficientCount * (i + 1);
+                for (var row = startRow; row < endRow; row++)
+                {
+                    aMatrix[row, i] = 1.0;
+                }
             }
-        }
 
-        for (var j = 0; j < coefficientCount; j++)
-        {
-            for (var k = 0; k < gainCount; k++)
+            for (var j = 0; j < coefficientCount; j++)
             {
-                var row = coefficientCount * k + j;
-                aMatrix[row, j + gainCount] = 1.0;
+                for (var k = 0; k < gainCount; k++)
+                {
+                    var row = coefficientCount * k + j;
+                    aMatrix[row, j + gainCount] = 1.0;
+                }
             }
-        }
 
-        var bMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(cibMMDDto.Items.Select(t => t.MeasurePower));
-        var bLogMeasurePowerVector = bMeasurePowerVector.Map(t => Math.Log(t, 2));
+            var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(cibMMDDto.Items.Select(t => t.MeasurePower));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t, 2));
 
-        var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
-        for (var row = 0; row < gainCount; row++)
-        {
-            for (var col = 0; col < coefficientCount; col++)
+            var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
+            for (var row = 0; row < gainCount; row++)
             {
-                currentMatrix[row, col] = cibMMDDto.Items[col].Items[row].PMTValue;
+                for (var col = 0; col < coefficientCount; col++)
+                {
+                    currentMatrix[row, col] = cibMMDDto.Items[col].Items[row].PMTValue;
+                }
             }
-        }
 
-        currentMatrix -= Cache.DarkCurrent;
-        currentMatrix /= Cache.Denominator;
-        currentMatrix *= Cache.ScaleFactor;
+            currentMatrix -= Cache.DarkCurrent;
+            currentMatrix /= Cache.Denominator;
+            currentMatrix *= Cache.ScaleFactor;
 
-        var logCurrentMatrix = currentMatrix.Map(t => t <= Cache.MinValidFraction || Cache.MaxValidFraction <= t ? double.NaN : Math.Log(t, 2));
-        var cLogCurrentVector = Vector<double>.Build.Dense(logCurrentMatrix.ToColumnMajorArray());
-        var validIndices = cLogCurrentVector
-            .Index()
-            .Where(t => double.IsNaN(t.Item) == false)
-            .Select(t => t.Index).ToArray();
+            var logCurrentMatrix = currentMatrix.Map(t => t <= Cache.MinValidFraction || Cache.MaxValidFraction <= t ? double.NaN : Math.Log(t, 2));
+            var bLogCurrentVector = Vector<double>.Build.Dense(logCurrentMatrix.ToColumnMajorArray());
 
-        var aValidMatrix = Matrix<double>.Build.Dense(validIndices.Length, aMatrix.ColumnCount);
-        var cLogCurrentValidVector = Vector<double>.Build.Dense(validIndices.Length);
-        for (var i = 0; i < validIndices.Length; i++)
-        {
-            var originalRow = validIndices[i];
-            aValidMatrix.SetRow(i, aMatrix.Row(originalRow));
-            cLogCurrentValidVector[i] = cLogCurrentVector[originalRow];
-        }
+            htmlList.Add(new HtmlBullet(new
+            {
+                aMatrix = Environment.NewLine + aMatrix.ToMatrixString(aMatrix.RowCount, aMatrix.ColumnCount),
+                xLogMeasurePowerVector = Environment.NewLine + xLogMeasurePowerVector.ToVectorString(),
+                bLogCurrentVector = Environment.NewLine + bLogCurrentVector.ToVectorString(),
+            }));
 
-        var aValidCoefficientSubMatrix = aValidMatrix.SubMatrix(0, validIndices.Length, 0, coefficientCount);
-        var aValidGainSubMatrix = aValidMatrix.SubMatrix(0, validIndices.Length, coefficientCount, gainCount);
-
-        var rightSide = cLogCurrentValidVector - aValidCoefficientSubMatrix * bLogMeasurePowerVector;
-        var bLogGainVector = aValidGainSubMatrix.Solve(rightSide);
-
-        var bLogVector = Vector<double>.Build.Dense([..bMeasurePowerVector, ..bLogGainVector]);
-        var gainResidual = (aValidMatrix * bLogVector - cLogCurrentValidVector).L2Norm();
-        var gainNorm = bLogGainVector.L2Norm();
-
-        cibMMDDto.GainResidual = gainResidual;
-        cibMMDDto.GainNorm = gainNorm;
-        cibMMDDto.GainPoints =
-        [
-            ..bLogGainVector
-                .Map(t => Math.Pow(2, t))
-                .Enumerate()
+            var validIndices = bLogCurrentVector
                 .Index()
-                .Select(t => new Point(cibMMDDto.Items[0].Items[t.Index].Gain, t.Item))
-        ];
-        cibMMDDto.LogGainPoints =
-        [
-            ..bLogGainVector
-                .Enumerate()
+                .Where(t => double.IsNaN(t.Item) == false)
+                .Select(t => t.Index).ToArray();
+
+            var aValidMatrix = Matrix<double>.Build.Dense(validIndices.Length, aMatrix.ColumnCount);
+            var bLogCurrentValidVector = Vector<double>.Build.Dense(validIndices.Length);
+            for (var i = 0; i < validIndices.Length; i++)
+            {
+                var originalRow = validIndices[i];
+                aValidMatrix.SetRow(i, aMatrix.Row(originalRow));
+                bLogCurrentValidVector[i] = bLogCurrentVector[originalRow];
+            }
+
+            var aValidCoefficientSubMatrix = aValidMatrix.SubMatrix(0, validIndices.Length, 0, coefficientCount);
+            var aValidGainSubMatrix = aValidMatrix.SubMatrix(0, validIndices.Length, coefficientCount, gainCount);
+
+            var xLogGainVector = aValidGainSubMatrix.Solve(bLogCurrentValidVector - aValidCoefficientSubMatrix * xLogMeasurePowerVector);
+
+            var xLogVector = Vector<double>.Build.Dense([..xLogMeasurePowerVector, ..xLogGainVector]);
+            var gainResidual = (aValidMatrix * xLogVector - bLogCurrentValidVector).L2Norm();
+            var gainNorm = xLogGainVector.L2Norm();
+
+            cibMMDDto.GainResidual = gainResidual;
+            cibMMDDto.GainNorm = gainNorm;
+
+            cibMMDDto.GainPoints =
+            [
+                ..xLogGainVector
+                    .Map(t => Math.Pow(2, t))
+                    .Enumerate()
+                    .Index()
+                    .Select(t => new Point(cibMMDDto.Items[0].Items[t.Index].Gain, t.Item))
+            ];
+            cibMMDDto.LogGainPoints =
+            [
+                ..xLogGainVector
+                    .Enumerate()
+                    .Index()
+                    .Select(t => new Point(cibMMDDto.Items[0].Items[t.Index].Gain, t.Item))
+            ];
+
+            cibMMDDto.RefreshPlot();
+
+            htmlList.Add(new HtmlBullet(new
+            {
+                aValidMatrix = Environment.NewLine + aValidMatrix.ToMatrixString(aValidMatrix.RowCount, aValidMatrix.ColumnCount),
+                xLogVector = Environment.NewLine + xLogVector.ToVectorString(),
+                bLogCurrentValidVector = Environment.NewLine + bLogCurrentValidVector.ToVectorString(),
+                gainResidual,
+                gainNorm,
+                Plot = new HtmlContainer([..cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+            }));
+
+            isSuccess = xLogGainVector.All(t => t is >= 0 and <= 14); // logGain 不能超过 14
+            if (isSuccess == false)
+            {
+                htmlList.Add(new HtmlBullet("LogGain out of range! [0, 14]"));
+
+                return;
+            }
+
+            var results = cibMMDDto.LogGainPoints
                 .Index()
-                .Select(t => new Point(cibMMDDto.Items[0].Items[t.Index].Gain, t.Item))
-        ];
+                .Select(t => (
+                    Gain: t.Item.X,
+                    LogGainMultiplication128: (int)Math.Round(t.Item.Y * 128 /* KLA写死128 */, MidpointRounding.AwayFromZero),
+                    gainConfigurations[t.Index].SenseU14Bit,
+                    gainConfigurations[t.Index].GainS16Bit
+                ))
+                .ToArray();
 
-        cibMMDDto.RefreshPlot();
+            var logGainMul128U12BitPoints = Enumerable.Range(0, (int)Math.Pow(2, 14)).Select(t => new Point(t, double.NaN)).ToArray();
+            /*
+             * logGainMul128U12BitPoints
+             * 0 - results.SenseU14Bit[0] 的所有索引: 全部设置为 results.LogGainMultiplication128[0]
+             * (results.SenseU14Bit[0] + 1) - results.SenseU14Bit[1] 的所有索引: 全部设置为 results.LogGainMultiplication128[1]
+             * ...
+             * (results.SenseU14Bit[^2] + 1) - results.SenseU14Bit[^1] 的所有索引: 全部设置为 results.LogGainMultiplication128[^1]
+             * (results.SenseU14Bit[^1] + 1) - (logGainMul128U12BitPoints.Length - 1) 的所有索引: 全部设置为 results.LogGainMultiplication128[^1]
+             */
+            for (var i = 0; i < results.Length; i++)
+            {
+                var startIndex = i == 0 ? 0 : results[i - 1].SenseU14Bit + 1;
+                var endIndex = i == results.Length - 1 ? logGainMul128U12BitPoints.Length - 1 : results[i].SenseU14Bit; // 最后一个合并
+                var yValue = results[i].LogGainMultiplication128;
 
-        Logger.LogHtmlInformation(cibMMDDto.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                for (var j = startIndex; j <= endIndex; j++) logGainMul128U12BitPoints[j] = new Point(j, yValue);
+            }
+
+            var gainS16BitPoints = Enumerable.Range(0, (int)Math.Pow(2, 12)).Select(t => new Point(t, double.NaN)).ToArray();
+            /*
+             * gainS16BitPoints
+             * 0 - results.LogGainMultiplication128[0] 的所有索引: 全部设置为 results.GainS16Bit[0]
+             * (results.LogGainMultiplication128[0] + 1) - results.LogGainMultiplication128[1] 的所有索引: 全部设置为 results.GainS16Bit[1]
+             * ...
+             * (results.LogGainMultiplication128[^2] + 1) - results.LogGainMultiplication128[^1] 的所有索引: 全部设置为 results.GainS16Bit[^1]
+             * (results.LogGainMultiplication128[^1] + 1) - (gainS16BitPoints.Length - 1) 的所有索引: 全部设置为 results.GainS16Bit[^1]
+             */
+            for (var i = 0; i < results.Length; i++)
+            {
+                var startIndex = i == 0 ? 0 : results[i - 1].LogGainMultiplication128 + 1;
+                var endIndex = i == results.Length - 1 ? gainS16BitPoints.Length - 1 : results[i].LogGainMultiplication128; // 最后一个合并
+                double yValue = results[i].GainS16Bit;
+
+                for (var j = startIndex; j <= endIndex; j++) gainS16BitPoints[j] = new Point(j, yValue);
+            }
+
+            cibMMDDto.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
+            cibMMDDto.GainS16BitPoints = gainS16BitPoints;
+
+            cibMMDDto.RefreshPlot();
+
+            htmlList.Add(new HtmlBullet(new
+            {
+                SuccessPlot = new HtmlContainer([..cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+            }));
+
+            isSuccess = true;
+
+            LaserViewModel.SetCIBMMD(cibMMDDto.CIBInformation, [..logGainMul128U12BitPoints.Select(t => t.Y)], [..gainS16BitPoints.Select(t => t.Y)]);
+        }
+        finally
         {
-            aMatrix = aMatrix.ToMatrixString(aMatrix.RowCount, aMatrix.ColumnCount),
-            bLogMeasurePowerVector = bLogMeasurePowerVector.ToVectorString(),
-            cLogCurrentVector = cLogCurrentVector.ToVectorString(),
-            bLogVector = bLogVector.ToVectorString(),
-            gainResidual,
-            gainNorm,
-            Plot = new HtmlContainer([..cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-        }), HtmlLogUniqueId.LoggingHtml());
-
-        cibMMDDto.IsCalibrated = true;
+            cibMMDDto.IsCalibrated = true;
+            if (isSuccess)
+                Logger.LogHtmlInformation($"OK: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
+            else
+                Logger.LogHtmlError($"Error: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
+        }
     }
 
     private bool Save(IReadOnlyList<CIBMMDDto> dtos, CancellationToken cancellationToken) => InvokeSave(update =>

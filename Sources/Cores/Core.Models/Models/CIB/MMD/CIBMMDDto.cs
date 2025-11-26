@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
+using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -10,7 +11,7 @@ using ScottPlot.MultiplotLayouts;
 
 namespace Core.Models.Models.CIB.MMD;
 
-public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto>
+public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto>, IAdaptTo<CalibrationLaserCIBMMDItem>
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
@@ -29,6 +30,12 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     [ObservableProperty]
     private IReadOnlyList<Point> _logGainPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _logGainMul128U12BitPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _gainS16BitPoints = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -61,20 +68,10 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         ScatterPlotControl.SetTitle(0, "Origin(Y: PMTValue - X: V)");
         ScatterPlotControl.SetTitle(1, "Origin(Y: mW - X: Coefficient)");
         ScatterPlotControl.SetTitle(2, "Gain(Y: Gain - X: V)");
-        ScatterPlotControl.SetTitle(3, "LogGain(Y: Log Gain - X: V)");
-        ScatterPlotControl.SetTitle(4, "Gain(Y:  - X: )");
-        ScatterPlotControl.SetTitle(5, "LogGain(Y:  - X: )");
+        ScatterPlotControl.SetTitle(3, "LogGain(Y: LogGain - X: V)");
+        ScatterPlotControl.SetTitle(4, "LogGain * 128 U12Bit(Y: LogGain * 128 U12Bit - X: Sense U14Bit)");
+        ScatterPlotControl.SetTitle(5, "Gain S16Bit(Y: Gain S16Bit - X: LogGain * 128 U12Bit )");
     }
-
-    public CIBMMDDto Clone() => new()
-    {
-        CIBInformation = CIBInformation.Clone(),
-        Items = [..Items.Select(t => t.Clone())],
-        GainResidual = GainResidual,
-        GainNorm = GainNorm,
-        GainPoints = [..GainPoints],
-        LogGainPoints = [..LogGainPoints]
-    };
 
     public void RefreshPlot()
     {
@@ -109,8 +106,44 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 $"Residual: {GainResidual:0.000#} GainNorm: {GainNorm:0.###}",
                 LogGainPoints);
 
+        if (LogGainMul128U12BitPoints.Count > 0)
+            ScatterPlotControl.GetOrAddScatterLine(
+                3,
+                $"Residual: {GainResidual:0.000#} GainNorm: {GainNorm:0.###}",
+                LogGainMul128U12BitPoints);
+
+        if (GainS16BitPoints.Count > 0)
+            ScatterPlotControl.GetOrAddScatterLine(
+                3,
+                $"Residual: {GainResidual:0.000#} GainNorm: {GainNorm:0.###}",
+                GainS16BitPoints);
+
         ScatterPlotControl.AutoScaleRefresh();
     }
+
+    #region Mapper
+
+    public CIBMMDDto Clone() => new()
+    {
+        CIBInformation = CIBInformation.Clone(),
+        Items = [..Items.Select(t => t.Clone())],
+        GainResidual = GainResidual,
+        GainNorm = GainNorm,
+        GainPoints = [..GainPoints],
+        LogGainPoints = [..LogGainPoints],
+        LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],
+        GainS16BitPoints = [..GainS16BitPoints]
+    };
+
+    public CalibrationLaserCIBMMDItem AdaptTo() => new()
+    {
+        PMTId = CIBInformation.PMTId,
+        ChannelId = CIBInformation.ChannelId,
+        LogGainMul128U12Bits = [..LogGainMul128U12BitPoints.Select(t => t.Y)],
+        GainS16Bits = [..LogGainPoints.Select(t => t.Y)]
+    };
+
+    #endregion Mapper
 }
 
 public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIBMMDItemDto>

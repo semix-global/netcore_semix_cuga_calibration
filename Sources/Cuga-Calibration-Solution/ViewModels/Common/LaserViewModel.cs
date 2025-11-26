@@ -252,9 +252,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetGain(double gain, IReadOnlyList<CIBInformation> cibInformations)
+    public void SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
-        var ret = calibrationLaserService.SetGain(gain, cibInformations);
+        var ret = calibrationLaserService.SetGain(cibInformations, gain);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -347,6 +347,13 @@ public sealed class LaserViewModel(
     public void SendCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
     {
         var ret = calibrationLaserService.SetCIBChirp(gainList, pmtId, channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+    
+    public void SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bit)
+    {
+        var ret = calibrationLaserService.SetCIBMMD(cibInformation, logGainMul128U12Bits, gainS16Bit);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

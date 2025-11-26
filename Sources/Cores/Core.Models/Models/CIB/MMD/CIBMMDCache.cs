@@ -101,4 +101,22 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _maxValidFraction = 300000d;
+
+    [ObservableProperty]
+    private IReadOnlyList<GainConfiguration> _gainConfigurations = [];
+
+    public sealed class GainConfiguration
+    {
+        public double Gain { get; init; }
+        
+        /// <summary>
+        /// 14bitSense值, 无符号位
+        /// </summary>
+        public int SenseU14Bit { get; init; }
+
+        /// <summary>
+        /// 16位增益值, 有符号位
+        /// </summary>
+        public int GainS16Bit { get; init; }
+    }
 }
