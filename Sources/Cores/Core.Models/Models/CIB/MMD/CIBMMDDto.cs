@@ -47,7 +47,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     public CIBMMDDto()
     {
         var customGrid = new CustomGrid();
-        ScatterPlotControl.Configure(customGrid, 4,
+        ScatterPlotControl.Configure(customGrid, 6,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 3, 2));
@@ -58,10 +58,10 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 customGrid.Set(plots[5], new GridCell(2, 1, 3, 2));
             });
 
-        ScatterPlotControl.SetTitle(0, "Origin(Y: PMTValue - X: gain)");
+        ScatterPlotControl.SetTitle(0, "Origin(Y: PMTValue - X: V)");
         ScatterPlotControl.SetTitle(1, "Origin(Y: mW - X: Coefficient)");
-        ScatterPlotControl.SetTitle(2, "Gain(Y: Gain - X: gain)");
-        ScatterPlotControl.SetTitle(3, "LogGain(Y: Log Gain - X: gain)");
+        ScatterPlotControl.SetTitle(2, "Gain(Y: Gain - X: V)");
+        ScatterPlotControl.SetTitle(3, "LogGain(Y: Log Gain - X: V)");
         ScatterPlotControl.SetTitle(4, "Gain(Y:  - X: )");
         ScatterPlotControl.SetTitle(5, "LogGain(Y:  - X: )");
     }
@@ -78,22 +78,22 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     public void RefreshPlot()
     {
-        if (Items.Count > 0)
+        var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
+        if (items.Length > 0)
         {
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
                 "Attenuator",
-                [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
+                [.. items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
 
-            foreach (var item in Items)
+            foreach (var item in items)
             {
                 var itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
-                if (itemItems.Length <= 0) continue;
-
-                ScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    $"{item.Coefficient}",
-                    [.. itemItems.Select(t => new Point(t.Gain, t.PMTValue))]);
+                if (itemItems.Length > 0)
+                    ScatterPlotControl.GetOrAddScatterLine(
+                        1,
+                        $"{item.Coefficient}",
+                        [.. itemItems.Select(t => new Point(t.Gain, t.PMTValue))]);
             }
         }
 
@@ -129,7 +129,7 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private double _protectedCount = 3;
+    private double _protectedCount;
 
     public CIBMMDItemDto Clone() => new()
     {

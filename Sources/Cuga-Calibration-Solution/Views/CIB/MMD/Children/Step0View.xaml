@@ -5,6 +5,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -26,7 +29,6 @@
                                             Spacing="10">
                         <Button Content="Action"
                                 Command="{Binding Step0CalibrateActionCommand}"
-                                CommandParameter="{Binding SelectedItems, ElementName=ListBox}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button Content="Cancel"
@@ -38,21 +40,46 @@
             </Border>
         </hc:UniformSpacingPanel>
         <GridSplitter Grid.Column="1" Width="5" />
-        <ListBox x:Name="ListBox" Grid.Column="2"
+        <ListBox Grid.Column="2"
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  ItemsSource="{Binding CalibrationStatuses}"
                  SelectionMode="Extended">
-            <ItemsControl.ItemTemplate>
+            <i:Interaction.Behaviors>
+                <behaviours:CIBInformationCalibrationStatusListBoxSelectedItemsBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" />
+            </i:Interaction.Behaviors>
+            <ListBox.ItemContainerStyle>
+                <Style BasedOn="{StaticResource ListBoxItemBaseStyle}" TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border>
                         <TextBlock Text="{Binding CIBInformation}"
+                                   Margin="100,10"
                                    HorizontalAlignment="Center"
-                                   Style="{StaticResource TextBlockSubTitleBold}"
-                                   Foreground="{StaticResource InfoBrush}" />
+                                   FontSize="16"
+                                   Tag="{Binding CIBInformation}">
+                            <TextBlock.Style>
+                                <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
+                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Border>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
     </Grid>
 </UserControl>

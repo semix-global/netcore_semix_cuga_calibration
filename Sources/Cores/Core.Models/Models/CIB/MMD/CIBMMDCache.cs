@@ -3,7 +3,6 @@ using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.CIB.MMD;
@@ -77,7 +76,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _stopGain = 10;
 
     [ObservableProperty]
-    private double _protectedPMTValue;
+    private double _protectedPMTValue = 409.6;
 
     [ObservableProperty]
     private double _protectedCount = 3;

@@ -11,6 +11,8 @@
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB;assembly=Core.Models"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1920"
@@ -27,10 +29,6 @@
                 <hc:Shield Subject="CIB MMD Step 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Productivity: "
-                           Status="{Binding Cache.ProductivityInformation}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position(um): "
                            Status="{Binding Cache.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
@@ -66,10 +64,10 @@
                                       Background="{StaticResource DangerBrush}"
                                       Style="{StaticResource ToggleButtonSwitch}" />
                     </StackPanel>
-                    <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
+                    <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.PrescanAODWaveformProfiles}"
+                                 SelectedItem="{Binding Cache.ProductivityInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
                     <Expander Header="Prescan AOD Waveform"
@@ -171,27 +169,39 @@
                                       Maximum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.StopCoefficient}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Start Gain: "
+                    <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Minimum="-10"
                                       Maximum="10"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.StartGain}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Step Gain: "
+                    <hc:NumericUpDown hc:TitleElement.Title="Step Gain(V): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Minimum="-10"
                                       Maximum="10"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.StepGain}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Stop Gain: "
+                    <hc:NumericUpDown hc:TitleElement.Title="Stop Gain(V): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
                                       Minimum="-10"
                                       Maximum="10"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.StopGain}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.ProtectedPMTValue}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Protected Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.ProtectedCount}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"
@@ -297,23 +307,20 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="5" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView x:Name="ListView"
-                          d:SelectedIndex="0"
-                          ItemsSource="{Binding CalibratingItems}"
-                          SelectedItem="{Binding SelectedCalibratingItem}"
+                <ListView ItemsSource="{Binding CalibratingItems}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDto}" BindableSelectedItems="{Binding SelectedCalibratingItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Center" />
                             <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Setter Property="Height" Value="250" />
                             <Style.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
@@ -336,7 +343,18 @@
                     </ListView.View>
                 </ListView>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <ContentControl Grid.Row="1" Content="{Binding SelectedItem.ScatterPlotControl, ElementName=ListView, Mode=OneWay}" />
+                    <TabControl ItemsSource="{Binding SelectedCalibratingItems}" SelectedIndex="0">
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CIBInformation}" />
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
                 </Border>
             </Grid>
         </GroupBox>
