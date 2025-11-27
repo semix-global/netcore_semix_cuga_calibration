@@ -84,19 +84,7 @@ public sealed class ProductivityInformation :
         var opticsMagTypeComparison = OpticsMagType.CompareTo(other.OpticsMagType);
         if (opticsMagTypeComparison != 0) return -opticsMagTypeComparison;
 
-        var stageSpeedTypeComparison = StageSpeedType.CompareTo(other.StageSpeedType);
-        if (stageSpeedTypeComparison != 0) return stageSpeedTypeComparison;
-
-        var yPixelSizeComparison = YPixelSize.CompareTo(other.YPixelSize);
-        if (yPixelSizeComparison != 0) return yPixelSizeComparison;
-
-        var yPixelComparison = YPixel.CompareTo(other.YPixel);
-        if (yPixelComparison != 0) return yPixelComparison;
-
-        var sampleMHzComparison = SampleRate.CompareTo(other.SampleRate);
-        if (sampleMHzComparison != 0) return sampleMHzComparison;
-
-        return string.Compare(Name, other.Name, StringComparison.Ordinal);
+        return StageSpeedType.CompareTo(other.StageSpeedType);
     }
 
     public int CompareTo(object? obj)

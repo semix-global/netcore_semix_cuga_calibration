@@ -56,7 +56,10 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTVoltage;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    private double _measurePowerWaitTime = 5;
+
+    [ObservableProperty]
+    private double _pMTValueWaitTime = 1;
 
     [ObservableProperty]
     private double _startCoefficient = 0.01;
@@ -89,7 +92,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private int _concurrentCount = 2;
 
     [ObservableProperty]
-    private double _darkCurrent = 1460d;
+    private double _darkCurrent;
 
     [ObservableProperty]
     private double _denominator = 16384d;
@@ -101,7 +104,16 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _minValidFraction;
 
     [ObservableProperty]
-    private double _maxValidFraction = 300000d;
+    private double _maxValidFraction = 250000d;
+
+    [ObservableProperty]
+    private int _logGainSmoothOrder = 3;
+
+    [ObservableProperty]
+    private int _logGainSmoothWindowSize = 5;
+
+    [ObservableProperty]
+    private double _minLogGain = 0.1;
 
     [ObservableProperty]
     private IReadOnlyList<GainConfiguration> _gainConfigurations = [];
@@ -109,7 +121,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     public sealed class GainConfiguration
     {
         public double Gain { get; init; }
-        
+
         /// <summary>
         /// 14bitSense值, 无符号位
         /// </summary>
