@@ -42,7 +42,8 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <ListBox Grid.Column="2"
                  HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
+                 VerticalAlignment="Stretch"
+                 BorderThickness="0"
                  ItemsSource="{Binding CalibrationStatuses}"
                  SelectionMode="Extended">
             <i:Interaction.Behaviors>
@@ -61,23 +62,21 @@
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border>
-                        <TextBlock Text="{Binding CIBInformation}"
-                                   Margin="100,10"
-                                   HorizontalAlignment="Center"
-                                   FontSize="16"
-                                   Tag="{Binding CIBInformation}">
-                            <TextBlock.Style>
-                                <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
-                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Border>
+                    <TextBlock Text="{Binding CIBInformation}"
+                               Margin="100,5"
+                               HorizontalAlignment="Center"
+                               FontSize="16"
+                               Tag="{Binding CIBInformation}">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
+                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

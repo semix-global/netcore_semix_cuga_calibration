@@ -66,7 +66,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     private IReadOnlyList<AODAlignmentDto> _reviews = [];
 
     [ObservableProperty]
-    private AODAlignmentDto? _selectedReviewItem;
+    private IReadOnlyList<AODAlignmentDto> _selectedReviewItems = [];
 
     #endregion 界面相关
 
@@ -340,7 +340,10 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 CalibratingItem.PrescanAODWaveformResultFilePath,
                 PrescanAODWaveformProfiles = new HtmlTable([.. CalibratingItem.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                Result = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.ItemPoints)], string.Empty)
+                Result = new HtmlPlot2DLinesChart([
+                    (nameof(CalibratingItem.ItemPoints), CalibratingItem.ItemPoints),
+                    (nameof(CalibratingItem.ItemFitPoints), CalibratingItem.ItemFitPoints)
+                ], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -350,7 +353,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        if (SelectedReviewItem is null)
+        if (SelectedReviewItems.Count == 0)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
@@ -358,16 +361,23 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
-
-            SelectedReviewItem.IsVerified = true;
-
-            Guard.IsTrue(Save(SelectedReviewItem, cancellationToken));
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                Result = new HtmlPlot2DLinesChart([(string.Empty, SelectedReviewItem.ItemPoints)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
+                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
+
+                selectedReviewItem.IsVerified = true;
+
+                Guard.IsTrue(Save(selectedReviewItem, cancellationToken));
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    Result = new HtmlPlot2DLinesChart([
+                        (nameof(selectedReviewItem.ItemPoints), selectedReviewItem.ItemPoints),
+                        (nameof(selectedReviewItem.ItemFitPoints), selectedReviewItem.ItemFitPoints)
+                    ], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+            }
+
 
             DialogWindowProvider.ShowDialog("Verify OK");
 

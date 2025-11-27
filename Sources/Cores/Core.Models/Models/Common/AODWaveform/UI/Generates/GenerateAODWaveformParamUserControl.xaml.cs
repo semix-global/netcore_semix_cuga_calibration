@@ -96,6 +96,8 @@ public sealed partial class GenerateAODWaveformParamUserControl
 
             var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath).ToArray();
             if (values.Length > 0) generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+
+            GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
         }
         catch (Exception ex)
         {

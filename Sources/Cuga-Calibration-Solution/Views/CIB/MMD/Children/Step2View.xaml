@@ -269,8 +269,7 @@
                                            PopupAnimation="Slide"
                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                            <DataGrid MaxHeight="500"
-                                                      hc:DataGridAttach.ShowRowNumber="True"
+                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
                                                       Style="{StaticResource DataGrid.Small}"
                                                       HeadersVisibility="All"
                                                       RowHeaderWidth="60"

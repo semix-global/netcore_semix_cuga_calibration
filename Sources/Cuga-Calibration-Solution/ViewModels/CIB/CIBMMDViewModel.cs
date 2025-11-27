@@ -71,6 +71,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     [ObservableProperty]
     private IReadOnlyList<CIBMMDDto> _selectedReviewItems = [];
 
+    partial void OnSelectedReviewItemsChanged(IReadOnlyList<CIBMMDDto> value)
+    {
+        foreach (var cibmmdDto in value) cibmmdDto.RefreshPlot();
+    }
+
     #endregion 界面相关
 
     #region 缓存
@@ -231,6 +236,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             var values = MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath).ToArray();
             if (values.Length > 0) Cache.GainConfigurations = values;
+
+            DialogWindowProvider.ShowDialog("Import Gain Configuration OK!");
         }
         catch (Exception ex)
         {
@@ -360,7 +367,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Guard.IsNotEmpty(coefficients);
             var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
-            var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[..gains.Select(t => Cache.GainConfigurations.Single(tt => Equals(tt.Gain, t)))];
+
+            var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[..gains.Select(t => Cache.GainConfigurations.Single(tt => Math.Abs(tt.Gain - t) < 1e-3))];
 
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {

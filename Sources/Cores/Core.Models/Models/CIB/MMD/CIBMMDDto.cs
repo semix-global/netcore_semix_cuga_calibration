@@ -108,13 +108,13 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
         if (LogGainMul128U12BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
-                3,
+                4,
                 $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 LogGainMul128U12BitPoints);
 
         if (GainS16BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
-                3,
+                5,
                 $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 GainS16BitPoints);
 
@@ -132,7 +132,12 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         GainPoints = [..GainPoints],
         LogGainPoints = [..LogGainPoints],
         LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],
-        GainS16BitPoints = [..GainS16BitPoints]
+        GainS16BitPoints = [..GainS16BitPoints],
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
     };
 
     public CalibrationLaserCIBMMDItem AdaptTo() => new()
@@ -140,7 +145,10 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
         LogGainMul128U12Bits = [..LogGainMul128U12BitPoints.Select(t => t.Y)],
-        GainS16Bits = [..LogGainPoints.Select(t => t.Y)]
+        GainS16Bits = [..LogGainPoints.Select(t => t.Y)],
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper
