@@ -86,6 +86,15 @@ public sealed partial class LoadingWindowViewModel(
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
 
+            applicationCookie.LowProductivityInformation = applicationCookie.ProductivityInformations
+                .OrderByDescending(t => t.YPixelSize)
+                .ThenByDescending(t => t.XPixelSize)
+                .First();
+
+            applicationCookie.HighProductivityInformation = applicationCookie.ProductivityInformations
+                .OrderBy(t => t.YPixelSize)
+                .ThenBy(t => t.XPixelSize)
+                .First();
             contextProvider.Send(() => CloseView(true));
 
             await Task.Delay(300).ConfigureAwait(false);

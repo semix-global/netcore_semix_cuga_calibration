@@ -1,3 +1,4 @@
+using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
@@ -37,12 +38,17 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<(double XPixelSize, double YPixelSize)> GetProductivityPixelSize(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }

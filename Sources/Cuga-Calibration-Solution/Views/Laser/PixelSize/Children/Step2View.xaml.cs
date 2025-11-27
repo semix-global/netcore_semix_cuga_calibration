@@ -1,6 +1,6 @@
 ﻿namespace CugaCalibration.Views.Laser.PixelSize.Children;
 
-public sealed partial class Step2View
+public partial class Step2View
 {
     public Step2View()
     {

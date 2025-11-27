@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -81,7 +82,7 @@ public class ChirpAODWaveformUniformityWindowViewModel : AbstractAODWaveformUnif
 
     protected override void SetAODWaveformProfiles(ChirpAODWaveformUniformityItem item)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(Cache.PrescanAODWaveformProfiles);
-        LaserViewModel.SetChirpAODWaveProfiles(item.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.PrescanAODWaveformProfiles, OpticsIncidentModeEnum.OI);
+        LaserViewModel.SetChirpAODWaveProfiles(item.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.OI);
     }
 }

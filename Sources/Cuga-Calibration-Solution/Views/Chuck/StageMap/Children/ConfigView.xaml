@@ -6,6 +6,8 @@
              xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -20,6 +22,29 @@
             <hc:Shield Subject="Config Step: "
                        Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                    <StackPanel>
+                        <TextBlock Text="Optics Incident"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:InfoElement.TitleWidth="150"
+                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:InfoElement.Title="OpticsIncident Mode: "
+                                 SelectedItem="{Binding Cache.OpticsIncidentModeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIncidentModeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                </hc:UniformSpacingPanel>
+            </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"

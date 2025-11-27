@@ -3,12 +3,12 @@ using Core.Models.Enums.Optics;
 using Cuga.Data.DataStruct.Optics;
 
 #if NET
-using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
+using Semix.GRPC.DTO;
+using SxNIOIEnum = Cuga.Data.DataStruct.Optics.CgNIOIType;
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
-using CommunityToolkit.Diagnostics;
 using Cuga.Data.DataStruct.PMT;
 
 #endif
@@ -117,6 +117,31 @@ public static class EnumOpticsExtension
     };
 
     #endregion Polarization
+
+    #region  OpticsIncidentMode
+
+    public static OpticsIncidentModeEnum ToOpticsIncidentModeEnum(this CgNIOIType cgNIOIType) => cgNIOIType switch
+    {
+        CgNIOIType.OI=> OpticsIncidentModeEnum.OI,
+        CgNIOIType.NI => OpticsIncidentModeEnum.NI,
+        _ => throw new ArgumentOutOfRangeException(nameof(cgNIOIType), cgNIOIType, null)
+    };
+
+    public static CgNIOIType ToCgNIOITypeEnum(this OpticsIncidentModeEnum opticsIncidentModeEnum) => opticsIncidentModeEnum switch
+    {
+        OpticsIncidentModeEnum.OI => CgNIOIType.OI,
+        OpticsIncidentModeEnum.NI => CgNIOIType.NI,
+        _ => throw new ArgumentOutOfRangeException(nameof(opticsIncidentModeEnum), opticsIncidentModeEnum, null)
+    };
+
+    public static SxNIOIEnum ToSxNIOIEnum(this OpticsIncidentModeEnum opticsIncidentModeEnum) => opticsIncidentModeEnum switch
+    {
+        OpticsIncidentModeEnum.OI => SxNIOIEnum.OI,
+        OpticsIncidentModeEnum.NI => SxNIOIEnum.NI,
+        _ => throw new ArgumentOutOfRangeException(nameof(opticsIncidentModeEnum), opticsIncidentModeEnum, null)
+    };
+
+    #endregion
 
 #if NETFRAMEWORK
 

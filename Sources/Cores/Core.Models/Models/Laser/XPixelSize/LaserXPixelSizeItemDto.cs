@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -9,6 +10,9 @@ namespace Core.Models.Models.Laser.XPixelSize;
 
 public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDto>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
+    [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentMode = OpticsIncidentModeEnum.OI;
+
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -57,6 +61,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     public LaserXPixelSizeItemDto Clone() => new()
     {
+        OpticsIncidentMode = OpticsIncidentMode,
         MicroscopeLensInformation = MicroscopeLensInformation,
         ProductivityInformation = ProductivityInformation.Clone(),
         XPixelSize = XPixelSize,
@@ -74,6 +79,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationLaserXPixelSizeItem AdaptTo() => new()
     {
+        CgNIOITypeEnum = OpticsIncidentMode.ToCgNIOITypeEnum(),
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
         XPixelSize = XPixelSize,

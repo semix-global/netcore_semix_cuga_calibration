@@ -430,6 +430,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+                        FocusShiftCache.OpticsIncidentModeEnum,
                         FocusShiftCache.LaserLightInformation) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -580,6 +581,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                         FocusShiftCache.OpticsMagTypeEnum,
                         FocusShiftCache.StageSpeedEnum,
                         CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+                        FocusShiftCache.OpticsIncidentModeEnum,
                         FocusShiftCache.LaserLightInformation,
                         isAutoFocus: false) == false)
                 {
@@ -807,6 +809,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                     800,
                     FocusShiftCache.OpticsMagTypeEnum,
                     FocusShiftCache.StageSpeedEnum,
+                    FocusShiftCache.OpticsIncidentModeEnum,
                     8,
                     3,
                     StageCoordinateSystemEnum.Machine);
@@ -958,6 +961,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 800,
                 FocusShiftCache.OpticsMagTypeEnum,
                 StageSpeedEnum.Low,
+                FocusShiftCache.OpticsIncidentModeEnum,
                 8,
                 3,
                 StageCoordinateSystemEnum.Dark,
@@ -1089,6 +1093,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 FocusShiftCache.OpticsMagTypeEnum,
                 FocusShiftCache.StageSpeedEnum,
                 CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+                FocusShiftCache.OpticsIncidentModeEnum,
                 FocusShiftCache.LaserLightInformation,
                 false) == false)
         {

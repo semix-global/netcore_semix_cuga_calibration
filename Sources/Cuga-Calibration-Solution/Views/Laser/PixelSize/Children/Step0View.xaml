@@ -7,8 +7,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -21,34 +19,20 @@
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="Laser Pixel Size Step 1: "
-                       Status="{Binding CalibrationStepList[1].StepName}"
+                       Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Productivity: "
-                       Status="{Binding Cache.ProductivityInformation}"
+                       Subject="Optics Incident Mode: "
+                       Status="{Binding Cache.OpticsIncidentModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                    <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="150"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Cal Chip: "
-                                 SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step0CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                    </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Spacing="10">
+                    <Button Content="Action"
+                            Command="{Binding Step0CalibrateActionCommand}"
+                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
@@ -60,7 +44,7 @@
                       VerticalAlignment="Center"
                       ItemsSource="{Binding CalibrationStatuses}">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
+                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsIncidentModeEnum, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -69,10 +53,10 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .ProductivityInformation}"
+                    <RadioButton Content="{Binding .OpticsIncidentModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                  FontSize="35"
-                                 Tag="{Binding .ProductivityInformation}"
-                                 GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
+                                 Tag="{Binding .OpticsIncidentModeEnum}"
+                                 GroupName="7c5f8a2b-9d3e-4f61-88a2-0c1b3d9e4f7a">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
                                 <Style.Triggers>

@@ -416,7 +416,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
             foreach (var pmtItem in LaserXTCCalibrationItemDtoList)
             {
-                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Item.LaserLightInformation.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, Cache.ProductivityInformation, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3).ConfigureAwait(false);
+                var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.Item.LaserLightInformation.Coefficient, pmtItem.FindPosition, CalChipSiteModelEnum.HazeModel, Cache.ProductivityInformation, HtmlLogUniqueId, cancellationToken, false, pmtItem.PmtId, 3, Cache.OpticsIncidentModeEnum).ConfigureAwait(false);
                 if ((isSuccess) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Auto Pmt Gain Error!"), HtmlLogUniqueId.LoggingHtml());
@@ -453,7 +453,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -719,7 +719,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
         var k = 1d / Cache.Item.PrescanInterval;
         var resultWindow = new List<double>();
         var startIndex = Cache.Item.PrescanStartIndex;
@@ -807,13 +807,14 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         DarkFieldImageDto Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, LaserXTCCalibrationItemDto laserXTCCalibrationItem)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(darkFieldPrescanDto);
+        LaserViewModel.SetPrescanAODWaveProfiles(darkFieldPrescanDto, OpticsIncidentModeEnum.OI);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,
             laserXTCCalibrationItem.FindPosition,
             Cache.Item.WidthPixel,
             Cache.ProductivityInformation,
+            Cache.OpticsIncidentModeEnum,
             laserXTCCalibrationItem.PmtId,
             StageCoordinateSystemEnum.Bright,
             Cache.Item.CIBConfiguration,

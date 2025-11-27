@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
@@ -13,6 +15,9 @@ public sealed partial class LaserXYAstigmatismCalibrationCache : CalibrationCach
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;

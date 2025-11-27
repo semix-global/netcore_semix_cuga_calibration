@@ -216,9 +216,9 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(CalibratingItem.OpticalPowerMeterMaxMeasurePowerPosition);
-                LaserViewModel.ToggleOpticsMagType(CalibratingItem.ProductivityInformation);
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(CalibratingItem.ProductivityInformation, stopCoefficient);
-                LaserViewModel.SetChirpAODWaveProfile(CalibratingItem.ProductivityInformation);
+                LaserViewModel.ToggleOpticsMagType(CalibratingItem.ProductivityInformation, Cache.OpticsIncidentModeEnum);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(CalibratingItem.ProductivityInformation, Cache.OpticsIncidentModeEnum, stopCoefficient);
+                LaserViewModel.SetChirpAODWaveProfile(CalibratingItem.ProductivityInformation, Cache.OpticsIncidentModeEnum);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 await Task.Delay(TimeSpan.FromSeconds(CalibratingItem.WaitTime), cancellationToken).ConfigureAwait(false);
@@ -244,7 +244,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(CalibratingItem.ProductivityInformation, coefficient);
+                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(CalibratingItem.ProductivityInformation, Cache.OpticsIncidentModeEnum, coefficient);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 

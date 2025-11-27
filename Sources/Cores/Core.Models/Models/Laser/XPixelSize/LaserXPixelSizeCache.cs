@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
+using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -12,26 +14,33 @@ namespace Core.Models.Models.Laser.XPixelSize;
 public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+
+    [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+
+    [ObservableProperty]
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
 
     [ObservableProperty]
     private double _threshold = 15;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserXPixelSizeCacheItem>> Items { get; init; } = [];
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+  
+    public ConcurrentBag<KeyValuePair<(OpticsIncidentModeEnum, ProductivityInformation), LaserXPixelSizeCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserXPixelSizeCacheItem());
+    public LaserXPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIncidentModeEnum, ProductivityInformation),new LaserXPixelSizeCacheItem());
 }
 
 public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
-{
-    [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
+{ 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 

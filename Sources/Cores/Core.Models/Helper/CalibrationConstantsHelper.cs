@@ -47,6 +47,11 @@ public static class CalibrationConstantsHelper
     public const StageSpeedEnum MainStageSpeedEnum = StageSpeedEnum.Low;
 
     /// <summary>
+    /// 主校准暗场入射方式
+    /// </summary>
+    public const OpticsIncidentModeEnum MainOpticsIncidentModeEnum = OpticsIncidentModeEnum.OI;
+
+    /// <summary>
     /// 主校准暗场采集坐标系系统
     /// </summary>
     public const StageCoordinateSystemEnum MainStageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;

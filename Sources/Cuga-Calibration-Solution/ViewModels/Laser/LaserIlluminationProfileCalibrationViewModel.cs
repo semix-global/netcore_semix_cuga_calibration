@@ -551,7 +551,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -749,7 +749,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var itemCache = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
             itemCache.ServingToPrescanListIndicesList.Clear();
             itemCache.ServingToDarkFieldImageListIndicesList.Clear();
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
             var coefficient = Cache.LaserLightInformation.Coefficient;
 
             var resultPrescanWindowList = new List<double>();
@@ -1038,7 +1038,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         {
             var item = Cache.CurrentCalibrationCacheItem;
             var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
             var servings = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Servings;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -1128,7 +1128,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             PlotAverageList = [];
             var item = Cache.CurrentCalibrationCacheItem;
             var darkFieldImageListToPrescanListCacheItem = Cache.CurrentDarkFieldImageListToPrescanListCacheItem;
-            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+            var prescanAODWaveProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
             var servings = darkFieldImageListToPrescanListCacheItem.Servings;
             var judgeDarkFieldImageListRateSkipCout = item.JudgeDarkFieldImageListRateSkipCout;
             var repeatCoefficientInterval = item.RepeatCoefficientInterval;
@@ -1177,7 +1177,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             foreach (var prescanAODWaveformProfile in prescanAODWaveProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(illuminationIntensityConsistentDto.PrescanRateList);
 
-            LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+            LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles, OpticsIncidentModeEnum.OI);
 
             int? targetServing = null;
             double? targetValue = null;
@@ -1357,7 +1357,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
                 SelectCalibrateItemDto.PrescanAODWaveformResultList = AODWaveformResultFactory.CreatePrescanList(prescanAODWaveProfiles, PrescanFileDirectory);
 
-                LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+                LaserViewModel.SetPrescanAODWaveProfiles(prescanAODWaveProfiles, OpticsIncidentModeEnum.OI);
 
                 // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
                 //
@@ -1614,13 +1614,14 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         DarkFieldImageDto Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, int pmtId = 8, Point position = default)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(darkFieldPrescanDto);
+        LaserViewModel.SetPrescanAODWaveProfiles(darkFieldPrescanDto, OpticsIncidentModeEnum.OI);
 
         var list = LaserViewModel.GetDarkFieldLineScanImageList(
             CalChipSiteModelEnum.HazeModel,
             position,
             Cache.WidthPixel,
             Cache.ProductivityInformation,
+            Cache.OpticsIncidentModeEnum,
             pmtId,
             StageCoordinateSystemEnum.Bright,
             Cache.CIBConfiguration,

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -9,6 +10,9 @@ namespace Core.Models.Models.Laser.IlluminationProfile;
 
 public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
 {
+    [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 

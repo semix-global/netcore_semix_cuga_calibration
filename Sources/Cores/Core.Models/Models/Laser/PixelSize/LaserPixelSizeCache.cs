@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
@@ -12,38 +13,44 @@ namespace Core.Models.Models.Laser.PixelSize;
 public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+
+    [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentMode = OpticsIncidentModeEnum.OI;
-
-    [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserPixelSizeCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(OpticsIncidentModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserPixelSizeCacheItem());
+    public LaserPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIncidentModeEnum, ProductivityInformation), new LaserPixelSizeCacheItem());
 
     [ObservableProperty]
     private double _chuckRadius = 150000;
 
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
+
+    [ObservableProperty]
+    private double _p5Angle;
+
+    [ObservableProperty]
+    private bool _isDarkFieldAlignment;
 }
 
 public sealed partial class LaserPixelSizeCacheItem : CalibrationCacheBase
 {
+    [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_10um;
 

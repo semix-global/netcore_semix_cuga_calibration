@@ -116,16 +116,16 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public void ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
+    public void ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentModeEnum)
     {
-        var ret = calibrationLaserService.ToggleOpticsMagType(opticsMagTypeEnum);
+        var ret = calibrationLaserService.ToggleOpticsMagType(opticsMagTypeEnum, opticsIncidentModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    public void ToggleOpticsMagType(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum)
     {
-        var ret = calibrationLaserService.ToggleOpticsMagType(productivityInformation);
+        var ret = calibrationLaserService.ToggleOpticsMagType(productivityInformation, opticsIncidentModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -145,74 +145,74 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public void SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    public void SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentModeEnum, double prescanAodDelay, double chirpAodDelay)
     {
-        var ret = calibrationLaserService.SetAODDelayValue(opticsMagTypeEnum, prescanAodDelay, chirpAodDelay);
+        var ret = calibrationLaserService.SetAODDelayValue(opticsMagTypeEnum, opticsIncidentModeEnum, prescanAodDelay, chirpAodDelay);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
+    public void SetAODDelayValue(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum, double prescanAodDelay, double chirpAodDelay)
     {
-        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, prescanAodDelay, chirpAodDelay);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    [Obsolete]
-    public void SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
-    {
-        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, coefficient);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
-    {
-        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
-    {
-        var ret = calibrationLaserService.SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, opticsIncidentModeEnum, prescanAodDelay, chirpAodDelay);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]
-    public void SetChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    public void SetPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentModeEnum, double coefficient)
     {
-        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(opticsMagTypeEnum);
+        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(opticsMagTypeEnum, opticsIncidentModeEnum, coefficient);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveProfile(ProductivityInformation productivityInformation)
+    public void SetPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum, double coefficient)
     {
-        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(productivityInformation);
+        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(productivityInformation, opticsIncidentModeEnum, coefficient);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
+    public void SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles, OpticsIncidentModeEnum opticsIncidentModeEnum)
     {
-        var ret = calibrationLaserService.SetChirpAODWaveProfiles(chirpAODWaveProfiles);
+        var ret = calibrationLaserService.SetPrescanAODWaveProfiles(prescanAODWaveProfiles,opticsIncidentModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<PrescanAODWaveformProfile> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
+    [Obsolete]
+    public void SetChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentModeEnum)
     {
-        var ret = calibrationLaserService.GeneratePrescanAodWaves(generatePrescanAODWaveformParam);
+        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(opticsMagTypeEnum, opticsIncidentModeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChirpAODWaveProfile(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum)
+    {
+        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(productivityInformation, opticsIncidentModeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles,OpticsIncidentModeEnum opticsIncidentModeEnum)
+    {
+        var ret = calibrationLaserService.SetChirpAODWaveProfiles(chirpAODWaveProfiles,opticsIncidentModeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public IReadOnlyList<PrescanAODWaveformProfile> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam, OpticsIncidentModeEnum opticsIncidentModeEnum)
+    {
+        var ret = calibrationLaserService.GeneratePrescanAodWaves(opticsIncidentModeEnum, generatePrescanAODWaveformParam);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<ChirpAODWaveformProfile> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
+    public IReadOnlyList<ChirpAODWaveformProfile> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam, OpticsIncidentModeEnum opticsIncidentModeEnum)
     {
-        var ret = calibrationLaserService.GenerateChirpAodWaves(generateChirpAODWaveformParam);
+        var ret = calibrationLaserService.GenerateChirpAodWaves(opticsIncidentModeEnum, generateChirpAODWaveformParam);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -376,6 +376,7 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = OpticsMagTypeEnum.High,
         StageSpeedEnum xStageSpeedEnum = StageSpeedEnum.Low,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         string? saveImageFileDirectory = null,
         Guid? logGuid = null,
         string? logName = null
@@ -405,6 +406,7 @@ public sealed class LaserViewModel(
             800,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum: stageCoordinateSystemEnum); // 模板匹配只能通道3(1, 2特征不明显)
 
@@ -441,6 +443,7 @@ public sealed class LaserViewModel(
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         string? saveImageFileDirectory = null,
         Guid? logGuid = null,
         string? logName = null
@@ -468,6 +471,7 @@ public sealed class LaserViewModel(
             false,
             cibConfiguration,
             productivityInformation,
+            opticsIncidentModeEnum,
             800,
             pmtId,
             stageCoordinateSystemEnum: stageCoordinateSystemEnum); // 模板匹配只能通道3(1, 2特征不明显)
@@ -514,6 +518,7 @@ public sealed class LaserViewModel(
     [Obsolete]
     public bool TrySendAodFile(
         OpticsMagTypeEnum yOpticsMagTypeEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         out string errorMessage)
@@ -524,14 +529,14 @@ public sealed class LaserViewModel(
         {
             Guard.IsNotNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
-            SetPrescanAODWaveProfileByCoefficient(yOpticsMagTypeEnum, customPrescanAod.LaserLightInformation.Coefficient);
+            SetPrescanAODWaveProfileByCoefficient(yOpticsMagTypeEnum, opticsIncidentModeEnum, customPrescanAod.LaserLightInformation.Coefficient);
         }
         else
             Guard.IsNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
         if (isCustomChirpAod == false)
         {
-            SetChirpAODWaveProfile(yOpticsMagTypeEnum);
+            SetChirpAODWaveProfile(yOpticsMagTypeEnum, opticsIncidentModeEnum);
         }
 
         return true;
@@ -539,6 +544,7 @@ public sealed class LaserViewModel(
 
     public bool TrySendAodFile(
         ProductivityInformation productivityInformation,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         out string errorMessage)
@@ -549,14 +555,14 @@ public sealed class LaserViewModel(
         {
             Guard.IsNotNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
-            SetPrescanAODWaveProfileByCoefficient(productivityInformation, customPrescanAod.LaserLightInformation.Coefficient);
+            SetPrescanAODWaveProfileByCoefficient(productivityInformation, opticsIncidentModeEnum, customPrescanAod.LaserLightInformation.Coefficient);
         }
         else
             Guard.IsNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
         if (isCustomChirpAod == false)
         {
-            SetChirpAODWaveProfile(productivityInformation);
+            SetChirpAODWaveProfile(productivityInformation, opticsIncidentModeEnum);
         }
 
         return true;
@@ -586,6 +592,7 @@ public sealed class LaserViewModel(
         int xWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
@@ -615,12 +622,12 @@ public sealed class LaserViewModel(
                     break;
             }
 
-            if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+            if (TrySendAodFile(yOpticsMagTypeEnum, opticsIncidentModeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
             ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, yOpticsMagTypeEnum, xStageSpeedEnum, opticsIncidentModeEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -652,6 +659,7 @@ public sealed class LaserViewModel(
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
@@ -673,7 +681,9 @@ public sealed class LaserViewModel(
                     break;
 
                 case StageCoordinateSystemEnum.Machine:
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
+                    position=stageViewModel.MachineToDarkFieldPosition(position);
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
+                    stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
                     break;
 
                 default:
@@ -681,12 +691,12 @@ public sealed class LaserViewModel(
                     break;
             }
 
-            if (TrySendAodFile(productivityInformation, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+            if (TrySendAodFile(productivityInformation, opticsIncidentModeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
             ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, productivityInformation, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(position, xWidthPixel, productivityInformation, opticsIncidentModeEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -723,6 +733,7 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
@@ -735,6 +746,7 @@ public sealed class LaserViewModel(
             xWidthPixel,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             cIbConfiguration,
@@ -760,6 +772,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         CIBConfiguration cIbConfiguration,
         ProductivityInformation productivityInformation,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
@@ -772,6 +785,7 @@ public sealed class LaserViewModel(
             position,
             xWidthPixel,
             productivityInformation,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             cIbConfiguration,
@@ -797,6 +811,7 @@ public sealed class LaserViewModel(
     /// <param name="endPosition"></param>
     /// <param name="yOpticsMagTypeEnum"></param>
     /// <param name="xStageSpeedEnum"></param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
     /// <param name="cibConfiguration">采图模式</param>
@@ -812,6 +827,7 @@ public sealed class LaserViewModel(
         Point endPosition,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
@@ -833,13 +849,13 @@ public sealed class LaserViewModel(
                     break;
             }
 
-            if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+            if (TrySendAodFile(yOpticsMagTypeEnum, opticsIncidentModeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
             var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
             if (toggleCIBModeRet.IsSuccess == false) throw new CugaException(toggleCIBModeRet.ErrorMsg);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startPosition, endPosition, yOpticsMagTypeEnum, xStageSpeedEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startPosition, endPosition, yOpticsMagTypeEnum, xStageSpeedEnum, opticsIncidentModeEnum, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -858,18 +874,36 @@ public sealed class LaserViewModel(
         }
     }
 
+    /// <summary>
+    /// PTP行扫
+    /// </summary>
+    /// <param name="startPosition"></param>
+    /// <param name="endPosition"></param>
+    /// <param name="yOpticsMagTypeEnum"></param>
+    /// <param name="xStageSpeedEnum"></param>
+    /// <param name="opticsIncidentModeEnum"></param>
+    /// <param name="pmtId"></param>
+    /// <param name="stageCoordinateSystemEnum"></param>
+    /// <param name="cibConfiguration">采图模式</param>
+    /// <param name="customPrescanAod"></param>
+    /// <param name="isCustomChirpAod"></param>
+    /// <param name="isForward"></param>
+    /// <param name="isAutoFocus"></param>
+    /// <returns></returns>
+    /// <exception cref="CugaException"></exception>
     public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
-        CalChipSiteModelEnum calChipSiteModelEnum,
-        Point startPosition,
-        Point endPosition,
-        ProductivityInformation productivityInformation,
-        int pmtId,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        CIBConfiguration cibConfiguration,
-        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
-        bool isCustomChirpAod,
-        bool isForward = true,
-        bool isAutoFocus = true)
+      CalChipSiteModelEnum calChipSiteModelEnum,
+      Point startPosition,
+      Point endPosition,
+      ProductivityInformation productivityInformation,
+      OpticsIncidentModeEnum opticsIncidentModeEnum,
+      int pmtId,
+      StageCoordinateSystemEnum stageCoordinateSystemEnum,
+      CIBConfiguration cibConfiguration,
+      (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+      bool isCustomChirpAod,
+      bool isForward = true,
+      bool isAutoFocus = true)
     {
         try
         {
@@ -901,12 +935,12 @@ public sealed class LaserViewModel(
                     break;
             }
 
-            if (TrySendAodFile(productivityInformation, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+            if (TrySendAodFile(productivityInformation, opticsIncidentModeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
             // 采图模式下发
             ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, pmtId, StageCoordinateSystemEnum.Machine, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, opticsIncidentModeEnum, pmtId, StageCoordinateSystemEnum.Machine, isAutoFocus, isForward);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -941,6 +975,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         CIBConfiguration cIbConfiguration,
         ProductivityInformation productivityInformation,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
@@ -952,6 +987,7 @@ public sealed class LaserViewModel(
             startPosition,
             endPosition,
             productivityInformation,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             cIbConfiguration,
@@ -964,77 +1000,13 @@ public sealed class LaserViewModel(
     }
 
     /// <summary>
-    /// PTP行扫
-    /// </summary>
-    /// <param name="startPosition"></param>
-    /// <param name="endPosition"></param>
-    /// <param name="productivityInformation"></param>
-    /// <param name="pmtId"></param>
-    /// <param name="stageCoordinateSystemEnum"></param>
-    /// <param name="cibConfiguration">采图模式</param>
-    /// <param name="customPrescanAod"></param>
-    /// <param name="isCustomChirpAod"></param>
-    /// <param name="isForward"></param>
-    /// <param name="isAutoFocus"></param>
-    /// <returns></returns>
-    /// <exception cref="CugaException"></exception>
-    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
-        Point startPosition,
-        Point endPosition,
-        ProductivityInformation productivityInformation,
-        int pmtId,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        CIBConfiguration cibConfiguration,
-        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
-        bool isCustomChirpAod,
-        bool isForward = true,
-        bool isAutoFocus = true)
-    {
-        try
-        {
-            switch (stageCoordinateSystemEnum)
-            {
-                case StageCoordinateSystemEnum.Machine:
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
-                    break;
-
-                default:
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
-                    break;
-            }
-
-            if (TrySendAodFile(productivityInformation, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
-
-            // 采图模式下发
-            var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
-            if (toggleCIBModeRet.IsSuccess == false) throw new CugaException(toggleCIBModeRet.ErrorMsg);
-
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startPosition, endPosition, productivityInformation, pmtId, stageCoordinateSystemEnum, isAutoFocus, isForward);
-
-            return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-        }
-        finally
-        {
-            switch (stageCoordinateSystemEnum)
-            {
-                case StageCoordinateSystemEnum.Machine:
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
-                    break;
-
-                default:
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
-                    break;
-            }
-        }
-    }
-
-    /// <summary>
     /// 行扫采图分割
     /// </summary>
     /// <param name="positionList"></param>
     /// <param name="xWidthPixel"></param>
     /// <param name="yOpticsMagTypeEnum"></param>
     /// <param name="xStageSpeedEnum"></param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
     /// <param name="cibConfiguration">采图模式</param>
@@ -1050,6 +1022,7 @@ public sealed class LaserViewModel(
         int xWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
@@ -1075,7 +1048,7 @@ public sealed class LaserViewModel(
                 throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null);
         }
 
-        if (TrySendAodFile(yOpticsMagTypeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+        if (TrySendAodFile(yOpticsMagTypeEnum, opticsIncidentModeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
         // 采图模式下发
         var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
@@ -1087,6 +1060,7 @@ public sealed class LaserViewModel(
             xSize.XPixelSize,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             isAutoFocus);
@@ -1100,6 +1074,7 @@ public sealed class LaserViewModel(
     /// <param name="positionList"></param>
     /// <param name="xWidthPixel"></param>
     /// <param name="productivityInformation"></param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
     /// <param name="cibConfiguration">采图模式</param>
@@ -1113,6 +1088,7 @@ public sealed class LaserViewModel(
         List<Point> positionList,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
+        OpticsIncidentModeEnum opticsIncidentModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBConfiguration cibConfiguration,
@@ -1137,7 +1113,7 @@ public sealed class LaserViewModel(
                 throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null);
         }
 
-        if (TrySendAodFile(productivityInformation, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
+        if (TrySendAodFile(productivityInformation, opticsIncidentModeEnum, customPrescanAod, isCustomChirpAod, out var errorMessage) == false) throw new CugaException(errorMessage);
 
         // 采图模式下发
         var toggleCIBModeRet = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cibConfiguration, pmtId, -1);
@@ -1148,6 +1124,7 @@ public sealed class LaserViewModel(
             xWidthPixel,
             xSize.XPixelSize,
             productivityInformation,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             isAutoFocus);
@@ -1165,6 +1142,7 @@ public sealed class LaserViewModel(
     /// <param name="xWidthPixel"></param>
     /// <param name="yOpticsMagTypeEnum"></param>
     /// <param name="xStageSpeedEnum"></param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="channelId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
@@ -1180,6 +1158,7 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
@@ -1190,6 +1169,7 @@ public sealed class LaserViewModel(
             xWidthPixel,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             cibConfiguration,
@@ -1215,6 +1195,7 @@ public sealed class LaserViewModel(
     /// <param name="isCustomChirpAod"></param>
     /// <param name="cibConfiguration">采图模式</param>
     /// <param name="productivityInformation"></param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="xWidthPixel"></param>
     /// <param name="pmtId"></param>
     /// <param name="channelId"></param>
@@ -1228,6 +1209,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         CIBConfiguration cibConfiguration,
         ProductivityInformation productivityInformation,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,
@@ -1238,6 +1220,7 @@ public sealed class LaserViewModel(
             positionList,
             xWidthPixel,
             productivityInformation,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum,
             cibConfiguration,
@@ -1278,6 +1261,7 @@ public sealed class LaserViewModel(
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <exception cref="AlgorithmException"></exception>
     /// <returns>是否成功</returns>
     [Obsolete]
@@ -1299,7 +1283,8 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum)
     {
         resultPosition = Point.Origin;
         resultScore = 0;
@@ -1307,7 +1292,8 @@ public sealed class LaserViewModel(
         resultImageFilePath = string.Empty;
 
         var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
-            .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
+            .SingleOrDefault(t => t.OpticsIncidentMode == opticsIncidentModeEnum
+                                  && t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
@@ -1438,6 +1424,7 @@ public sealed class LaserViewModel(
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <exception cref="AlgorithmException"></exception>
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
@@ -1457,7 +1444,8 @@ public sealed class LaserViewModel(
         out string resultImageFilePath,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum)
     {
         resultPosition = Point.Origin;
         resultScore = 0;
@@ -1465,7 +1453,8 @@ public sealed class LaserViewModel(
         resultImageFilePath = string.Empty;
 
         var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
-            .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
+            .SingleOrDefault(t => t.OpticsIncidentMode == opticsIncidentModeEnum
+                                  && t.ProductivityInformation == productivityInformation
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
         {
@@ -1593,6 +1582,7 @@ public sealed class LaserViewModel(
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="opticsIncidentModeEnum">入射方式</param>
     /// <param name="laserLightInformation">功率</param>
     /// <param name="isAutoFocus"></param>
     /// <exception cref="AlgorithmException"></exception>
@@ -1618,6 +1608,7 @@ public sealed class LaserViewModel(
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1632,6 +1623,7 @@ public sealed class LaserViewModel(
             xWidthPixel,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum,
             pmtId,
             stageCoordinateSystemEnum: stageCoordinateSystemEnum,
             isForward: isForward,
@@ -1678,6 +1670,7 @@ public sealed class LaserViewModel(
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
+    /// <param name="opticsIncidentModeEnum">入射方式</param>
     /// <param name="laserLightInformation">功率</param>
     /// <param name="isAutoFocus"></param>
     /// <exception cref="AlgorithmException"></exception>
@@ -1701,6 +1694,7 @@ public sealed class LaserViewModel(
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1713,6 +1707,7 @@ public sealed class LaserViewModel(
             false,
             cibConfiguration,
             productivityInformation,
+            opticsIncidentModeEnum,
             xWidthPixel,
             pmtId,
             stageCoordinateSystemEnum: stageCoordinateSystemEnum,
@@ -1735,7 +1730,8 @@ public sealed class LaserViewModel(
             out resultImageFilePath,
             isForward,
             xWidthPixel,
-            stageCoordinateSystemEnum);
+            stageCoordinateSystemEnum,
+            opticsIncidentModeEnum);
     }
 
     /// <summary>
@@ -1752,6 +1748,7 @@ public sealed class LaserViewModel(
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1768,6 +1765,7 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1790,6 +1788,7 @@ public sealed class LaserViewModel(
             xWidthPixel,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum: opticsIncidentModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }
@@ -1807,6 +1806,7 @@ public sealed class LaserViewModel(
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1821,6 +1821,7 @@ public sealed class LaserViewModel(
         out Point resultPosition,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1842,6 +1843,7 @@ public sealed class LaserViewModel(
             out _,
             isForward,
             xWidthPixel,
+            opticsIncidentModeEnum: opticsIncidentModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }
@@ -1863,6 +1865,7 @@ public sealed class LaserViewModel(
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="yOpticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1882,6 +1885,7 @@ public sealed class LaserViewModel(
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum = CalibrationConstantsHelper.MainOpticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum = CalibrationConstantsHelper.MainStageSpeedEnum,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1904,6 +1908,7 @@ public sealed class LaserViewModel(
             xWidthPixel,
             yOpticsMagTypeEnum,
             xStageSpeedEnum,
+            opticsIncidentModeEnum: opticsIncidentModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }
@@ -1924,6 +1929,7 @@ public sealed class LaserViewModel(
     /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
+    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1941,6 +1947,7 @@ public sealed class LaserViewModel(
         out string resultImageFilePath,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1962,6 +1969,7 @@ public sealed class LaserViewModel(
             out resultImageFilePath,
             isForward,
             xWidthPixel,
+            opticsIncidentModeEnum: opticsIncidentModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }

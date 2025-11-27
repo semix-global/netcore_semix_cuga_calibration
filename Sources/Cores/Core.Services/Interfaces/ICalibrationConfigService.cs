@@ -1,3 +1,4 @@
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Semix.CoreLib;
@@ -29,24 +30,24 @@ public interface ICalibrationConfigService
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <returns>prescan波形列表</returns>
-    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation);
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum);
 
     /// <summary>
     /// 获取chirp默认波形列表
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <returns>chirp波形列表</returns>
-    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation);
-
-    /// <summary>
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    
+    /*/// <summary>
     /// 获取prescan默认波形列表
     /// </summary>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath);
+    SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath, OpticsIncidentModeEnum opticsIncidentModeEnum);
 
     /// <summary>
     /// 获取chirp默认波形列表
     /// </summary>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath);
+    SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath, OpticsIncidentModeEnum opticsIncidentModeEnum);*/
 }

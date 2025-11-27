@@ -310,8 +310,9 @@ public static class CoreWcfModelsExtension
         errorMessage = string.Empty;
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
-                                               && t.ProductivityInformation == applicationCookie.LoweProductivityInformation)?.IsOk == true;
+        var isOk = result.SingleOrDefault(t => t.OpticsIncidentMode == CalibrationConstantsHelper.MainOpticsIncidentModeEnum
+                                               && t.PmtId == CalibrationConstantsHelper.MainPmtId
+                                               && t.ProductivityInformation == applicationCookie.LowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Line Centricity is Empty";
@@ -346,8 +347,9 @@ public static class CoreWcfModelsExtension
         errorMessage = string.Empty;
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
-                                               && t.ProductivityInformation == applicationCookie.LoweProductivityInformation)?.IsOk == true;
+        var isOk = result.SingleOrDefault(t => t.OpticsIncidentMode == CalibrationConstantsHelper.MainOpticsIncidentModeEnum
+                                               && t.PmtId == CalibrationConstantsHelper.MainPmtId
+                                               && t.ProductivityInformation == applicationCookie.LowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Pixel Size is Empty";
@@ -360,7 +362,7 @@ public static class CoreWcfModelsExtension
         errorMessage = string.Empty;
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.LoweProductivityInformation)?.IsOk == true;
+        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.LowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser X Pixel Size is Empty";
@@ -374,7 +376,7 @@ public static class CoreWcfModelsExtension
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
-                                               && t.ProductivityInformation == applicationCookie.LoweProductivityInformation)?.IsOk == true;
+                                               && t.ProductivityInformation == applicationCookie.LowProductivityInformation)?.IsOk == true;
         if (isOk == false) errorMessage = "Laser XTC is Empty";
 
         return isOk;

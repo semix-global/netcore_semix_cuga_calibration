@@ -110,8 +110,8 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void SetAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetItem item)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(item.PrescanAODWaveformProfiles);
-        LaserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(item.PrescanAODWaveformProfiles, OpticsIncidentModeEnum.OI);
+        LaserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.OI);
     }
 
     protected override void GenerateResultAODWaveform(CancellationToken cancellationToken)
@@ -142,7 +142,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void SetResultAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(result.PrescanAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(result.PrescanAODWaveformProfiles, OpticsIncidentModeEnum.NI);
     }
 
     protected override void SetResultAODWaveformConfig(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)

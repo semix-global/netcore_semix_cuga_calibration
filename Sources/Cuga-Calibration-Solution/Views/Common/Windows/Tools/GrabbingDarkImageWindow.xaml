@@ -332,6 +332,18 @@
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"
+                                         hc:InfoElement.Title="OpticsIncident Mode: "
+                                         SelectedItem="{Binding OpticsIncidentModeEnum}"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIncidentModeEnum}}}">
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
+                            <hc:ComboBox HorizontalAlignment="Left"
+                                         hc:InfoElement.TitleWidth="150"
+                                         hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="Optics Mag: "
                                          SelectedItem="{Binding OpticsMagTypeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsMagTypeEnum}}}">

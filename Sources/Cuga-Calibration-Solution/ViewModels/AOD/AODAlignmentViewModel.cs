@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
@@ -285,7 +286,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem);
                 item.PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath;
 
-                LaserViewModel.SetPrescanAODWaveProfiles(item.PrescanAODWaveformProfiles);
+                LaserViewModel.SetPrescanAODWaveProfiles(item.PrescanAODWaveformProfiles,OpticsIncidentModeEnum.OI);
 
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.HazeModel,

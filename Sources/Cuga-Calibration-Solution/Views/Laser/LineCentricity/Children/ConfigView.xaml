@@ -17,8 +17,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="Config Step: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+            <hc:Shield Subject="Laser Line Centricity Step 3: "
+                       Status="{Binding CalibrationStepList[2].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -26,7 +26,7 @@
                                                         hc:InfoElement.TitleWidth="150"
                                                         hc:InfoElement.TitlePlacement="Left"
                                                         hc:InfoElement.Title="Cib Grab Mode: "
-                                                        DataContext="{Binding Cache.CIBConfiguration}" />
+                                                        DataContext="{Binding Cache.Item.CIBConfiguration}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

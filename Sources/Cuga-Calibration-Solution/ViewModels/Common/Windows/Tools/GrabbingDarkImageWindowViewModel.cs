@@ -73,6 +73,9 @@ public partial class GrabbingDarkImageWindowViewModel(
     private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
 
     [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+
+    [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
@@ -196,13 +199,13 @@ public partial class GrabbingDarkImageWindowViewModel(
                 if (isCustomPrescanAod)
                 {
                     foreach (var prescanAODWaveformProfile in PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(LaserLightInformation.Coefficient);
-                    laserViewModel.SetPrescanAODWaveProfiles(PrescanAODWaveformProfiles);
+                    laserViewModel.SetPrescanAODWaveProfiles(PrescanAODWaveformProfiles,OpticsIncidentModeEnum);
                 }
 
                 var isCustomChirpAod = ChirpAODWaveformProfiles.Count > 0 && string.IsNullOrWhiteSpace(ChirpAODWaveformResultFilePath) == false;
                 if (isCustomChirpAod)
                 {
-                    laserViewModel.SetChirpAODWaveProfiles(ChirpAODWaveformProfiles);
+                    laserViewModel.SetChirpAODWaveProfiles(ChirpAODWaveformProfiles, OpticsIncidentModeEnum);
                 }
 
                 var resultPosition = StageCoordinateSystemEnum switch
@@ -221,6 +224,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                             EndPosition,
                             OpticsMagTypeEnum,
                             StageSpeedEnum,
+                            OpticsIncidentModeEnum,
                             PmtId,
                             StageCoordinateSystemEnum,
                             CIBConfiguration,
@@ -234,6 +238,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                         XWidth,
                         OpticsMagTypeEnum,
                         StageSpeedEnum,
+                        OpticsIncidentModeEnum,
                         PmtId,
                         StageCoordinateSystemEnum,
                         CIBConfiguration,

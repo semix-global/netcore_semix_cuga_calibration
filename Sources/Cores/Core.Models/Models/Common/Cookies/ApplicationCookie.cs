@@ -85,16 +85,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// 最低产率
     /// </summary>
-    public ProductivityInformation LoweProductivityInformation => ProductivityInformations
-        .OrderByDescending(t => t)
-        .First();
+    public ProductivityInformation LowProductivityInformation = ProductivityInformation.Default;
 
     /// <summary>
     /// 最高产率
     /// </summary>
-    public ProductivityInformation HighProductivityInformation => ProductivityInformations
-        .OrderBy(t => t)
-        .First();
+    public ProductivityInformation HighProductivityInformation = ProductivityInformation.Default;
 
     /// <summary>
     /// CIB列表

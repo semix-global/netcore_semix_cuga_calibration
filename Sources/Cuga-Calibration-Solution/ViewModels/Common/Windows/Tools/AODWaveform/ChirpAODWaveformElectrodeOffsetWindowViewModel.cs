@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Algorithms.Modules;
@@ -95,8 +96,8 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
     protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetItem item)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(Cache.PrescanAODWaveformProfiles);
-        LaserViewModel.SetChirpAODWaveProfiles(item.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.PrescanAODWaveformProfiles, OpticsIncidentModeEnum.OI);
+        LaserViewModel.SetChirpAODWaveProfiles(item.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.OI);
     }
 
     protected override void GenerateResultAODWaveform(CancellationToken cancellationToken)
@@ -127,7 +128,7 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
     protected override void SetResultAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
     {
-        LaserViewModel.SetChirpAODWaveProfiles(result.ChirpAODWaveformProfiles);
+        LaserViewModel.SetChirpAODWaveProfiles(result.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.NI);
     }
 
     protected override void SetResultAODWaveformConfig(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)

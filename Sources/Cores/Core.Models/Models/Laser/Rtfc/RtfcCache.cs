@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Helper;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.Rtfc;
@@ -8,6 +9,9 @@ public sealed partial class RtfcCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
+
+    [ObservableProperty]
+    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
 
     /// <summary>
     /// 入射角（°）

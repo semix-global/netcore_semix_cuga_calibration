@@ -728,6 +728,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                     800,
                     Cache.OpticsMagTypeEnum,
                     FocusShiftCache.StageSpeedEnum,
+                    Cache.OpticsIncidentModeEnum,
                     8,
                     3,
                     StageCoordinateSystemEnum.Machine,
@@ -950,6 +951,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                             Cache.OpticsMagTypeEnum,
                             FocusShiftCache.StageSpeedEnum,
                             StageCoordinateSystemEnum.Bright,
+                            Cache.OpticsIncidentModeEnum,
                             FocusShiftCache.LaserLightInformation,
                             isAutoFocus: false) == false)
                     {
@@ -1135,6 +1137,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 800,
                 Cache.OpticsMagTypeEnum,
                 StageSpeedEnum.Low,
+                Cache.OpticsIncidentModeEnum,
                 8,
                 3,
                 StageCoordinateSystemEnum.Dark,

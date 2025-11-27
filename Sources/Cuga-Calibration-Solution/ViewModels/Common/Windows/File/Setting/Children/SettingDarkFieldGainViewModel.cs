@@ -147,7 +147,8 @@ public sealed partial class SettingDarkFieldGainViewModel(
         CancellationToken cancellationToken,
         bool isContainsEnd = false,
         int pmtId = 8,
-        int channelId = 3)
+        int channelId = 3,
+        OpticsIncidentModeEnum opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum)
     {
         var isSuccess = false;
         try
@@ -175,8 +176,8 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
 
                 afViewModel.ToggleDarkFieldEnable(true);
-                laserViewModel.ToggleOpticsMagType(productivityInformation);
-                laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
+                laserViewModel.ToggleOpticsMagType(productivityInformation, opticsIncidentModeEnum);
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, opticsIncidentModeEnum, coefficient);
                 laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                 laserViewModel.ToggleEnableAutoGainControl(false);
                 laserViewModel.ToggleEnableL0K(false);
