@@ -95,7 +95,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything / (flatnessTime /*ns*/ / ((1 / productivityInformation.SampleRate /*KHz*/) * 1000_000)));
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything /*/ (flatnessTime *//*ns*//* / ((1 / productivityInformation.SampleRate *//*KHz*//*) * 1000_000))*/);
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()

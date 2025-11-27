@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.CIB.MMD;
@@ -31,7 +32,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _prescanFrequency;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
     private double _chirpFrequency;
@@ -43,7 +44,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
     private string _chirpAODWaveformResultFilePath = string.Empty;

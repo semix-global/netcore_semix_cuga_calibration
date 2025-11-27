@@ -42,7 +42,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <ListBox Grid.Column="2"
                  HorizontalAlignment="Center"
-                 VerticalAlignment="Stretch"
+                 VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemsSource="{Binding CalibrationStatuses}"
                  SelectionMode="Extended">

@@ -19,7 +19,7 @@
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400" />
+            <ColumnDefinition Width="450" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -122,98 +122,106 @@
                             </hc:UniformSpacingPanel>
                         </Border>
                     </Expander>
-                    <hc:ComboBox hc:TitleElement.Title="Log Mode: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
-                                 SelectedItem="{Binding Path=Cache.CIBProfileMode}">
-                        <hc:ComboBox.Style>
-                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
-                                <Style.Triggers>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Background" Value="LightGray" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:ComboBox.Style>
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                    <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.WaitTime}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Maximum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StartCoefficient}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Maximum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StepCoefficient}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Maximum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StopCoefficient}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="-10"
-                                      Maximum="10"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StartGain}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Step Gain(V): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="-10"
-                                      Maximum="10"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StepGain}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Stop Gain(V): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="-10"
-                                      Maximum="10"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StopGain}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ProtectedPMTValue}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Protected Count: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ProtectedCount}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.CatchPMTValueCount}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Concurrent Count: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ConcurrentCount}" />
+                    <Expander Header="MMD"
+                              IsExpanded="False"
+                              ExpandDirection="Down">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:ComboBox hc:TitleElement.Title="Log Mode: "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
+                                         SelectedItem="{Binding Path=Cache.CIBProfileMode}">
+                                <hc:ComboBox.Style>
+                                    <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="LightGray" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </hc:ComboBox.Style>
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
+                            <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.WaitTime}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Maximum="1"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.StartCoefficient}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Maximum="1"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.StepCoefficient}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Maximum="1"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.StopCoefficient}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="-10"
+                                              Maximum="10"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.StartGain}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Step Gain(V): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="-10"
+                                              Maximum="10"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.StepGain}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Stop Gain(V): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="-10"
+                                              Maximum="10"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.StopGain}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.ProtectedPMTValue}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Protected Count: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.ProtectedCount}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.CatchPMTValueCount}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Concurrent Count: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.ConcurrentCount}" />
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
                     <Expander Header="Algorithm"
                               IsExpanded="False"
                               ExpandDirection="Down">
