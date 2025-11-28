@@ -1,0 +1,239 @@
+﻿<UserControl x:Class="CugaCalibration.Views.CIB.MMD.Children.Review"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
+             xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
+             d:DesignHeight="700"
+             d:DesignWidth="1500"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!--#region Left-->
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="CIB MMD: "
+                           Status="Review"
+                           Color="{StaticResource InfoBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="Algorithm Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <Expander Header="Algorithm"
+                              IsExpanded="False"
+                              ExpandDirection="Down">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.DarkCurrent}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.Denominator}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.ScaleFactor}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.MinValidFraction}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.MaxValidFraction}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.MinLogGain}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Order: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.LogGainSmoothOrder}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Window Size: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.LogGainSmoothWindowSize}" />
+                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        Spacing="10">
+                                    <Button Content="Import"
+                                            Command="{Binding ImportGainConfigurationCommand}"
+                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                            Style="{StaticResource ButtonInfo}" />
+                                    <ToggleButton x:Name="ToggleButtonGainConfigurations"
+                                                  Content="Gain Configurations"
+                                                  HorizontalAlignment="Left"
+                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                    <Popup Width="800"
+                                           Height="800"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
+                                           Placement="Right"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Slide"
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
+                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="All"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      ItemsSource="{Binding Cache.GainConfigurations}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
+                                                    <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
+                                                    <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Border>
+                                    </Popup>
+                                </hc:UniformSpacingPanel>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Algorithm"
+                                Command="{Binding AlgorithmActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                Style="{StaticResource ButtonInfo.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding AlgorithmActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
+                    </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Verify"
+                                Command="{Binding VerifyActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding VerifyActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+            </Border>
+        </hc:UniformSpacingPanel>
+        <!--#endregion-->
+        <GridSplitter Grid.Column="1" Width="5" />
+        <!--#region Right-->
+        <GroupBox Grid.Column="2" Header="Calibration Data">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <ListView ItemsSource="{Binding Reviews}"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDto}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                    <Setter Property="Background" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
+                            <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Set CIB MMD">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                                        <Grid>
+                                            <Button Content="Set"
+                                                    Command="{Binding DataContext.SetCIBMMDCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Margin="0,2"
+                                                    HorizontalAlignment="Left" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CIBInformation}" />
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
+                </Border>
+            </Grid>
+        </GroupBox>
+        <!--#endregion-->
+    </Grid>
+</UserControl>

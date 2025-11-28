@@ -1,6 +1,9 @@
-using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
+
+#if NETFRAMEWORK
+using Core.Models.Extensions;
+#endif
 
 namespace Core.Models.Models.Common.AODWaveform;
 

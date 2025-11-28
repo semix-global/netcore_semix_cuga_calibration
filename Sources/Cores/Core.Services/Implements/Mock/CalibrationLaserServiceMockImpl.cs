@@ -76,7 +76,14 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<double> GetOpticalPowerMeter()
+    public SxExecuteRet<double> GetOpticalMeasurePower()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+    }
+
+    public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
     {
         Thread.Sleep(100);
 
@@ -137,12 +144,12 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         var productivityInformations = new[]
         {
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560 })
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520, Hz = 219 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520, Hz = 219 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080, Hz = 302 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080, Hz = 302 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560, Hz = 425 }),
+            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560, Hz = 425 })
         };
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformations.OrderBy(t => t)]);
@@ -230,6 +237,8 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
+        Guard.IsNotEmpty(prescanAODWaveProfiles);
+
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -269,6 +278,8 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
+        Guard.IsNotEmpty(chirpAODWaveProfiles);
+
         foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -324,6 +335,13 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
     {
         Thread.Sleep(100);
@@ -335,6 +353,19 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
+    {
+        var cibInformationList =
+            (
+                from pmtId in Enumerable.Range(1, 15)
+                from channelId in Enumerable.Range(1, 3)
+                select CIBInformation.Default.Clone().AdaptIn((pmtId, channelId, true))
+            )
+            .ToList();
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformationList.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
@@ -416,6 +447,13 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
         Thread.Sleep(100);
 

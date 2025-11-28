@@ -46,7 +46,13 @@ public interface ICalibrationLaserService
     /// 读取台面功率计的光强值
     /// </summary>
     /// <returns>返回台面功率计的光强值</returns>
-    SxExecuteRet<double> GetOpticalPowerMeter();
+    SxExecuteRet<double> GetOpticalMeasurePower();
+
+    /// <summary>
+    /// 读取台面功率计的光强值
+    /// </summary>
+    /// <returns>返回台面功率计的光强值</returns>
+    SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime);
 
     /// <summary>
     /// 获取cuga配置的激光光强的信息列表
@@ -205,7 +211,7 @@ public interface ICalibrationLaserService
     /// <param name="cIbConfiguration"></param>
     /// <param name="pmtId"></param>
     /// <param name="channelId"></param>
-    /// <returns></returns>
+    /// <returns>是否成功</returns>
     SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId);
 
     /// <summary>
@@ -257,6 +263,14 @@ public interface ICalibrationLaserService
     SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId);
 
     /// <summary>
+    /// 设置增益
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="gain">增益</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
+
+    /// <summary>
     /// 设置增益<br/>
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
@@ -278,6 +292,12 @@ public interface ICalibrationLaserService
     #endregion Control
 
     #region CIB 数据
+
+    /// <summary>
+    /// 获取CIB信息列表
+    /// </summary>
+    /// <returns>CIB信息列表</returns>
+    SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations();
 
     /// <summary>
     /// 获取CIB ID列表
@@ -332,6 +352,15 @@ public interface ICalibrationLaserService
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId);
+
+    /// <summary>
+    /// 设置CIB MMD
+    /// </summary>
+    /// <param name="cibInformation">CIB信息</param>
+    /// <param name="logGainMul128U12Bits">LogGain * 128 [0, 4095]</param>
+    /// <param name="gainS16Bits">GainS16Bit [-2^15, 2^15-1]</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits);
 
     /// <summary>
     /// 将45个光斑的PMTGain数据下发给CIB

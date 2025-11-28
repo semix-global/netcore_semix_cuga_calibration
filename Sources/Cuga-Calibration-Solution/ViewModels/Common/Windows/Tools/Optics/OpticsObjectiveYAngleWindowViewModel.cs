@@ -304,7 +304,6 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
                     Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
-                    Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
                     Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                     (var chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
                     if (chirpAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));

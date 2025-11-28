@@ -5,11 +5,13 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
-             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.AODDelay;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:mmd="clr-namespace:Core.Models.Models.AOD.AODAlignment;assembly=Core.Models"
+             xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
              mc:Ignorable="d">
@@ -22,7 +24,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser AOD Delay: "
+                <hc:Shield Subject="AOD Alignment: "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
@@ -70,10 +72,10 @@
                           ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedReviewItem}">
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:AODAlignmentDto}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -100,50 +102,41 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Prescan AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedPrescanAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Chirp AOD Delay(sa)" DisplayMemberBinding="{Binding RefinedChirpAODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Average PMT Data" DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
-                            <GridViewColumn Header="PMT Data">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
-                                        <Grid>
-                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                                          Margin="0,2"
-                                                          HorizontalAlignment="Left"
-                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                            <Popup Width="600"
-                                                   Height="600"
-                                                   StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
-                                                   Placement="Right"
-                                                   AllowsTransparency="True"
-                                                   PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <wpf:WpfPlot>
-                                                        <i:Interaction.Behaviors>
-                                                            <behaviors:WpfPlotMultiBehavior Title="PMT Data(Y: - X: -)" Plot0="{Binding PmtData, Converter={StaticResource DoublesToPointsConverter}}" />
-                                                        </i:Interaction.Behaviors>
-                                                    </wpf:WpfPlot>
-                                                </Border>
-                                            </Popup>
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                            <GridViewColumn Header="Productivity Information" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Slope" DisplayMemberBinding="{Binding Slope, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Intercept" DisplayMemberBinding="{Binding Intercept, StringFormat='0.###'}" />
+                            <GridViewColumn Header="RSquared" DisplayMemberBinding="{Binding RSquared, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Border Grid.Row="2"
-                        Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot>
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Verify AOD Delay(Y: - X: sa)" Plot0="{Binding CalibratingPoints}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
+                        <TabControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ProductivityInformation}" />
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type mmd:AODAlignmentDto}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <controls:ScatterMultiPlotControl Title="Result"
+                                                                      ScatterLine0Title="Origin"
+                                                                      ScatterLine0Points="{Binding ItemPoints}"
+                                                                      ScatterLine1Title="Fit"
+                                                                      ScatterLine1Points="{Binding ItemFitPoints}" />
+                                    <Border Grid.Column="1"
+                                            Style="{StaticResource BorderRegion}"
+                                            Effect="{StaticResource EffectShadow1}">
+                                        <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
                 </Border>
             </Grid>
         </GroupBox>
