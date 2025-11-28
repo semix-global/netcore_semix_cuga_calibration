@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
@@ -5,14 +6,13 @@ using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
-using CommunityToolkit.Diagnostics;
-using Net.Utilities.Algorithms.Modules;
 
 namespace Core.Services.Implements.Mock;
 
@@ -69,7 +69,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
-        
+
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);

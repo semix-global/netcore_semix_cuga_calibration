@@ -141,7 +141,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
         return true;
     }
-    
+
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);

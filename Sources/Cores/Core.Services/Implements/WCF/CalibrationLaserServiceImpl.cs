@@ -94,7 +94,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything /*/ (flatnessTime *//*ns*//* / ((1 / productivityInformation.SampleRate *//*KHz*//*) * 1000_000))*/);
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything /*/ (flatnessTime */ /*ns*/ /* / ((1 / productivityInformation.SampleRate */ /*KHz*/ /*) * 1000_000))*/);
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
@@ -255,7 +255,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
         Guard.IsNotEmpty(prescanAODWaveProfiles);
-        
+
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -303,7 +303,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
         Guard.IsNotEmpty(chirpAODWaveProfiles);
-        
+
         foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -384,13 +384,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case (> 0, > 0):
+            case ( > 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case (> 0, Constants.NegInt32Value):
+            case ( > 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 

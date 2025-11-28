@@ -1,9 +1,9 @@
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using Core.Models.Models.Common.Pattern;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace Core.Models.Models.Common.Status.Behaviours;
 

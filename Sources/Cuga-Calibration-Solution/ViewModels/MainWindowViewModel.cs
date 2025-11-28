@@ -18,6 +18,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -44,6 +45,7 @@ using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Ads;
 using CugaCalibration.ViewModels.AOD;
 using CugaCalibration.ViewModels.Chuck;
+using CugaCalibration.ViewModels.CIB;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -65,8 +67,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using Core.Models.Models.CIB.MMD;
-using CugaCalibration.ViewModels.CIB;
 
 namespace CugaCalibration.ViewModels;
 
@@ -623,8 +623,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPmtAgcDelayItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserDOEAngleCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserDOEAngleDto>().IsOk(out _);
-                
-                
+
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBMMDViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBMMDDto>().IsOk(out _);
             }

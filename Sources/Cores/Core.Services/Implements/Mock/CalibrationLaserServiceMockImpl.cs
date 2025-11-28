@@ -238,7 +238,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
         Guard.IsNotEmpty(prescanAODWaveProfiles);
-        
+
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -365,7 +365,7 @@ public sealed class CalibrationLaserServiceMockImpl(
             )
             .ToList();
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([..cibInformationList.OrderBy(t => t)]);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformationList.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()

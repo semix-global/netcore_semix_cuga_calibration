@@ -261,7 +261,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return;
             }
 
-            LaserViewModel.SetCIBMMD(cibMMDDto.CIBInformation, [..cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)], [..cibMMDDto.GainS16BitPoints.Select(t => t.Y)]);
+            LaserViewModel.SetCIBMMD(cibMMDDto.CIBInformation, [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)], [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)]);
 
             DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} OK!");
         }
@@ -353,7 +353,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinLogGain,
                 Cache.LogGainSmoothOrder,
                 Cache.LogGainSmoothWindowSize,
-                Table = new HtmlTable([..Cache.GainConfigurations])
+                Table = new HtmlTable([.. Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItems = [];
@@ -488,7 +488,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 .. cibMMDDtos
                                     .Where(t => t.Items[coefficientIndex].ProtectedCount < Cache.ProtectedCount /* 不超过保护次数 */)
                             ];
-                            LaserViewModel.SetGain([..noProtectedCIBMMDDtos.Select(t => t.CIBInformation)], gain);
+                            LaserViewModel.SetGain([.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)], gain);
 
                             await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -560,7 +560,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinLogGain,
                 Cache.LogGainSmoothOrder,
                 Cache.LogGainSmoothWindowSize,
-                Table = new HtmlTable([..Cache.GainConfigurations])
+                Table = new HtmlTable([.. Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
 
             foreach (var selectedReviewItem in SelectedReviewItems)
@@ -616,7 +616,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         try
         {
-            var gains = (IReadOnlyList<double>)[..cibMMDDto.Items[0].Items.Select(t => t.Gain)];
+            var gains = (IReadOnlyList<double>)[.. cibMMDDto.Items[0].Items.Select(t => t.Gain)];
             var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)
             [
                 ..gains.Select(t => Cache.GainConfigurations.Single(tt => Math.Abs(tt.Gain - t) < 1e-3))
@@ -693,7 +693,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             var xLogGainVector = aValidGainSubMatrix.Solve(bLogCurrentValidVector - aValidCoefficientSubMatrix * xLogMeasurePowerVector);
 
-            var xLogVector = Vector<double>.Build.Dense([..xLogMeasurePowerVector, ..xLogGainVector]);
+            var xLogVector = Vector<double>.Build.Dense([.. xLogMeasurePowerVector, .. xLogGainVector]);
             var gainResidual = (aValidMatrix * xLogVector - bLogCurrentValidVector).L2Norm();
             var gainL2Norm = xLogGainVector.L2Norm();
 
@@ -718,7 +718,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             var distance = Math.Abs(cibMMDDto.OriginLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
             var (smoothLogGainX, smoothLogGainY) = SavitzkyGolayFilter2D.SmoothCurve(Cache.LogGainSmoothOrder, Cache.LogGainSmoothWindowSize, Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y - distance)));
-            cibMMDDto.SmoothLogGainPoints = [..smoothLogGainX.Index().Select(t => new Point(t.Item, smoothLogGainY[t.Index]))];
+            cibMMDDto.SmoothLogGainPoints = [.. smoothLogGainX.Index().Select(t => new Point(t.Item, smoothLogGainY[t.Index]))];
 
             cibMMDDto.RefreshPlot();
 
@@ -729,7 +729,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 bLogCurrentValidVector = Environment.NewLine + bLogCurrentValidVector.ToVectorString(bLogCurrentValidVector.Count, 1),
                 gainResidual,
                 gainNorm = gainL2Norm,
-                Plot = new HtmlContainer([..cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                Plot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             isSuccess = xLogGainVector.All(t => t >= 0 && double.IsNaN(t) == false && double.IsNegativeInfinity(t) == false && double.IsPositiveInfinity(t) == false); // logGain 不能超过 14
@@ -793,7 +793,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             htmlList.Add(new HtmlBullet(new
             {
-                SuccessPlot = new HtmlContainer([..cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                SuccessPlot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             isSuccess = true;

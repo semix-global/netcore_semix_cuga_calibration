@@ -121,7 +121,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
         foreach (var result in Cache.Results)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             result.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
             result.GeneratePrescanAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
 

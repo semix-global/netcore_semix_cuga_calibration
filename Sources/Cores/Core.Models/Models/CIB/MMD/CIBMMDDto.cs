@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
@@ -30,7 +30,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     [ObservableProperty]
     private IReadOnlyList<Point> _originLogGainPoints = [];
-    
+
     [ObservableProperty]
     private IReadOnlyList<Point> _smoothLogGainPoints = [];
 
@@ -48,14 +48,15 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    private IScatterPlotControl _scatterPlotControl;
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-
     public CIBMMDDto()
     {
+        _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
         var customGrid = new CustomGrid();
         ScatterPlotControl.Configure(customGrid, 6,
             plots =>
@@ -74,6 +75,11 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         ScatterPlotControl.SetTitle(3, "LogGain(Y: LogGain - X: V)");
         ScatterPlotControl.SetTitle(4, "LogGain * 128 U12Bit(Y: LogGain * 128 U12Bit - X: Sense U14Bit)");
         ScatterPlotControl.SetTitle(5, "Gain S16Bit(Y: Gain S16Bit - X: LogGain * 128 U12Bit )");
+    }
+
+    private CIBMMDDto(IScatterPlotControl scatterPlotControl)
+    {
+        _scatterPlotControl = scatterPlotControl;
     }
 
     public void RefreshPlot()
@@ -108,7 +114,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 3,
                 $"Origin Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 OriginLogGainPoints);
-        
+
         if (SmoothLogGainPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
@@ -132,17 +138,17 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     #region Mapper
 
-    public CIBMMDDto Clone() => new()
+    public CIBMMDDto Clone() => new(ScatterPlotControl)
     {
         CIBInformation = CIBInformation.Clone(),
-        Items = [..Items.Select(t => t.Clone())],
+        Items = [.. Items.Select(t => t.Clone())],
         GainResidual = GainResidual,
         GainL2Norm = GainL2Norm,
-        GainPoints = [..GainPoints],
-        OriginLogGainPoints = [..OriginLogGainPoints],
-        SmoothLogGainPoints = [..SmoothLogGainPoints],
-        LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],
-        GainS16BitPoints = [..GainS16BitPoints],
+        GainPoints = [.. GainPoints],
+        OriginLogGainPoints = [.. OriginLogGainPoints],
+        SmoothLogGainPoints = [.. SmoothLogGainPoints],
+        LogGainMul128U12BitPoints = [.. LogGainMul128U12BitPoints],
+        GainS16BitPoints = [.. GainS16BitPoints],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -154,8 +160,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        LogGainMul128U12Bits = [..LogGainMul128U12BitPoints.Select(t => t.Y)],
-        GainS16Bits = [..SmoothLogGainPoints.Select(t => t.Y)],
+        LogGainMul128U12Bits = [.. LogGainMul128U12BitPoints.Select(t => t.Y)],
+        GainS16Bits = [.. SmoothLogGainPoints.Select(t => t.Y)],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -186,7 +192,7 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     {
         Coefficient = Coefficient,
         MeasurePower = MeasurePower,
-        Items = [..Items.Select(t => t.Clone())]
+        Items = [.. Items.Select(t => t.Clone())]
     };
 
     public sealed class Item : ICloneable<Item>
