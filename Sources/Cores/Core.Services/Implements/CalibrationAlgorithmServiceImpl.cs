@@ -327,9 +327,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (datavge1, data1);
     }
 
-    public double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    public (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage, double rotateAngle)
     {
-        throw new NotImplementedException();
+        _algorithm.CalculateTwoRegionCenter(hazeImage, shinyWaferImage, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
+
+        var drawingImage = new HImage(resultImage);
+
+        return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
     }
 
     public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)

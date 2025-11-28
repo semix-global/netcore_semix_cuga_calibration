@@ -112,11 +112,8 @@ public sealed class ProductivityInformation :
         (null, null) => true,
         (null, _) => false,
         (_, null) => false,
-        (_, _) => ReferenceEquals(left, right) || (Equals(left.Name, right.Name) &&
-                                                   Equals(left.OpticsMagType, right.OpticsMagType) &&
-                                                   Equals(left.StageSpeedType, right.StageSpeedType) &&
-                                                   Equals(left.YPixelSize, right.YPixelSize) &&
-                                                   Equals(left.YPixel, right.YPixel))
+        (_, _) => ReferenceEquals(left, right) || (Equals(left.OpticsMagType, right.OpticsMagType) &&
+                                                   Equals(left.StageSpeedType, right.StageSpeedType))
     };
 
     public static bool operator !=(ProductivityInformation? left, ProductivityInformation? right) => !(left == right);

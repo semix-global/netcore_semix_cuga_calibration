@@ -200,13 +200,13 @@ public interface ICalibrationAlgorithmService
     (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue);
 
     /// <summary>
-    /// 传入图片获取光学物镜Y的夹角°
+    /// 获取D型光斑和反射光光斑 Y Angle结果集
     /// </summary>
     /// <param name="hazeImage">傅里叶相机的Haze图片</param>
     /// <param name="shinyWaferImage">傅里叶相机的ShinyWafer图片</param>
-    /// <param name="drawingImage">绘图图片</param>
-    /// <returns>光学物镜Y的夹角°</returns>
-    double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage);
+    /// <param name="rotateAngle">图像旋转角度 符号为正：逆时针 符号为负：顺时针</param>
+    /// <returns>(结果绘图图像,D型光斑像素直径长度,D型光斑图像水平夹角,D型光斑中心坐标，反射光光斑中心坐标)</returns>
+    (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage, double rotateAngle);
 
     #endregion 暗场
 
