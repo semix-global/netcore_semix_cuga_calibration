@@ -195,3 +195,51 @@
 >        #47 AOD相位延迟校准工具
 >
 >        feat: prealigner角度补偿改成绝对值
+
+## 2.3.0.1120
+
+> 1.   优化：
+>
+>      #50 校准中涉及到RTFC的步骤（CalChip、DOE校准），其结果图片会打印日志，方便查看。公共参数增加默认低倍高倍倍镜配置，校准中涉及到配置倍镜的部分初始化时从公共参数同步。
+>
+>      #53 chuck center 验证方式更改为下发后验证，line centricity验证方式更改为和cuga same points相同的逻辑
+>
+>      #54 移除ApplicationCookies中倍镜缓存列表，校准IsOK方法中取消判断cuga配置倍镜和校准缓存倍镜不一致的逻辑，简洁代码
+>
+>      #58 暗场stagemap包含gantry误差，用于缩小缺陷定位误差
+>
+>      #59 scottplot图表的架构以及绑定架构
+>
+>      #60 dark stage map x only gantry、#60 MAG Speed改为S40 S50产率架构
+>
+>      #61 optical power meter, attenuator AOD delay 傻瓜式校准优化(并且修改为产率架构)、#61 remove morelinq
+>
+>      #65 Line Centricity/ XY Pixel Size/ XTC /XY Astigmatism /Stage Map mag、speed更改为产率
+>
+>      #74 Cuga自检配置优化，集合类型校准结果为空时，序列化时插入一个默认的对象元素
+>
+>      #76 prealigner区别示教和验证的阈值，增加防呆，修复验证时offset阈值过小导致的reload wafer无法使用校准值补偿，界面重构简化，优化用户体验
+>
+> 2.   校准：
+>
+>      #24 ADS4.0 优化完善ADS校准，最大限度提升性能，解决之前的软件BUG
+>
+>      #42 AutoFocus4.0 暗场自动聚焦新功能开发(AF与ECS标定)
+>
+>      #49 ADS诊断工具1.0 按照制定位置起点终点，速度然后动态获取校准结果后输出HTML日志
+>
+>      #52 AF诊断工具1.0 按照制定位置模式等获取所有nsc曲线, AF添加一个自动化找offset对应的ecs方法
+>
+>      #56 照明和采集对齐校准工具1.0
+>
+>      #57 暗场正反向offset校准1.0
+>
+>      #71 多电极相位延迟校准工具初版本1.0
+>
+>      #75 XPixelSize3.0 滑动窗口匹配
+>
+>      #77 objective Y Angle校准工具1.0
+>      
+>      #81 MMD1.0
+>      
+>      #84 下发波形文件配置
