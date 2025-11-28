@@ -35,96 +35,103 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.DarkCurrent}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Denominator}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ScaleFactor}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MinValidFraction}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MaxValidFraction}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.MinLogGain}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Order: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.LogGainSmoothOrder}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Window Size: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.LogGainSmoothWindowSize}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Import"
-                                Command="{Binding ImportGainConfigurationCommand}"
-                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                Style="{StaticResource ButtonInfo}" />
-                        <ToggleButton x:Name="ToggleButtonGainConfigurations"
-                                      Content="Gain Configurations"
-                                      HorizontalAlignment="Left"
-                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                        <Popup Width="800"
-                               Height="800"
-                               StaysOpen="False"
-                               PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
-                               Placement="Right"
-                               AllowsTransparency="True"
-                               PopupAnimation="Slide"
-                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
-                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                          Style="{StaticResource DataGrid.Small}"
-                                          HeadersVisibility="All"
-                                          RowHeaderWidth="60"
-                                          AutoGenerateColumns="False"
-                                          ItemsSource="{Binding Cache.GainConfigurations}">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
-                                        <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
-                                        <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Border>
-                        </Popup>
-                    </hc:UniformSpacingPanel>
-                    <Separator />
+                    <Expander Header="Algorithm"
+                              IsExpanded="False"
+                              ExpandDirection="Down">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.DarkCurrent}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.Denominator}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.ScaleFactor}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.MinValidFraction}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.MaxValidFraction}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.MinLogGain}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Order: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.LogGainSmoothOrder}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Window Size: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Minimum="0"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.LogGainSmoothWindowSize}" />
+                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        Spacing="10">
+                                    <Button Content="Import"
+                                            Command="{Binding ImportGainConfigurationCommand}"
+                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                            Style="{StaticResource ButtonInfo}" />
+                                    <ToggleButton x:Name="ToggleButtonGainConfigurations"
+                                                  Content="Gain Configurations"
+                                                  HorizontalAlignment="Left"
+                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                    <Popup Width="800"
+                                           Height="800"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
+                                           Placement="Right"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Slide"
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
+                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="All"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      ItemsSource="{Binding Cache.GainConfigurations}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
+                                                    <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
+                                                    <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Border>
+                                    </Popup>
+                                </hc:UniformSpacingPanel>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button Content="Algorithm"
                                 Command="{Binding AlgorithmActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
                                 Style="{StaticResource ButtonInfo.Loading}" />
                         <Button Content="Cancel"
                                 Command="{Binding AlgorithmActionCancelCommand}"
@@ -195,6 +202,19 @@
                             <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
                             <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
                             <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Set CIB MMD">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                                        <Grid>
+                                            <Button Content="Set"
+                                                    Command="{Binding DataContext.SetCIBMMDCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Margin="0,2"
+                                                    HorizontalAlignment="Left" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>

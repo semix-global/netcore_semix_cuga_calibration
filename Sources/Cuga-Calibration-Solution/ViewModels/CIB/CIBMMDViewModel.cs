@@ -254,6 +254,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         try
         {
+            if (cibMMDDto.IsOk == false)
+            {
+                DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is OK Failed!");
+
+                return;
+            }
+
             LaserViewModel.SetCIBMMD(cibMMDDto.CIBInformation, [..cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)], [..cibMMDDto.GainS16BitPoints.Select(t => t.Y)]);
 
             DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} OK!");
