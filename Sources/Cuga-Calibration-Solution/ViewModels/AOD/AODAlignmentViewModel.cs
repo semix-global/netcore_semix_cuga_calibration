@@ -18,6 +18,7 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -38,9 +39,9 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -65,7 +66,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     private IReadOnlyList<AODAlignmentDto> _reviews = [];
 
     [ObservableProperty]
-    private AODAlignmentDto? _selectedReviewItem;
+    private IReadOnlyList<AODAlignmentDto> _selectedReviewItems = [];
 
     #endregion 界面相关
 
@@ -147,6 +148,13 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         return true;
     }
 
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        return true;
+    }
+
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -171,7 +179,9 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 CalibratingItem = new AODAlignmentDto();
 
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.HazeBrightFieldMachinePosition));
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition != Point.Origin
+                    ? Cache.Item.FindBFMachinePosition
+                    : MicroscopeCalChip.HazeBrightFieldMachinePosition));
 
                 return true;
 
@@ -330,7 +340,10 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 CalibratingItem.PrescanAODWaveformResultFilePath,
                 PrescanAODWaveformProfiles = new HtmlTable([.. CalibratingItem.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                Result = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.ItemPoints)], string.Empty)
+                Result = new HtmlPlot2DLinesChart([
+                    (nameof(CalibratingItem.ItemPoints), CalibratingItem.ItemPoints),
+                    (nameof(CalibratingItem.ItemFitPoints), CalibratingItem.ItemFitPoints)
+                ], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -340,7 +353,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        if (SelectedReviewItem is null)
+        if (SelectedReviewItems.Count == 0)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
@@ -348,16 +361,23 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Cache.ProductivityInformation = SelectedReviewItem.ProductivityInformation;
-
-            SelectedReviewItem.IsVerified = true;
-
-            Guard.IsTrue(Save(SelectedReviewItem, cancellationToken));
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                Result = new HtmlPlot2DLinesChart([(string.Empty, SelectedReviewItem.ItemPoints)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
+                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
+
+                selectedReviewItem.IsVerified = true;
+
+                Guard.IsTrue(Save(selectedReviewItem, cancellationToken));
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    Result = new HtmlPlot2DLinesChart([
+                        (nameof(selectedReviewItem.ItemPoints), selectedReviewItem.ItemPoints),
+                        (nameof(selectedReviewItem.ItemFitPoints), selectedReviewItem.ItemFitPoints)
+                    ], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+            }
+
 
             DialogWindowProvider.ShowDialog("Verify OK");
 

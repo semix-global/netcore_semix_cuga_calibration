@@ -66,13 +66,18 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<double> GetOpticalPowerMeter()
+    public SxExecuteRet<double> GetOpticalMeasurePower()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
@@ -233,6 +238,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
     {
         throw new NotImplementedException();
@@ -245,6 +255,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
@@ -296,6 +311,11 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
         throw new NotImplementedException();
     }

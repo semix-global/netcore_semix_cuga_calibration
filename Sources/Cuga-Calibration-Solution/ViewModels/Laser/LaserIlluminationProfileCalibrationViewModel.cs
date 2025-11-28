@@ -1400,7 +1400,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                var result = LaserViewModel.GetOpticalPowerMeter();
+                var result = LaserViewModel.GetOpticalMeasurePower();
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
 
                 return (true, result);

@@ -29,6 +29,7 @@ public sealed class ProductivityInformation :
     private int _stageSpeedType = -1;
     private double _yPixelSize = -1;
     private double _yPixel = -1;
+    private double _sampleRate = -1;
 
     public string Name
     {
@@ -60,6 +61,15 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref _yPixel, value);
     }
 
+    /// <summary>
+    /// KHz
+    /// </summary>
+    public double SampleRate
+    {
+        get => _sampleRate;
+        private set => SetProperty(ref _sampleRate, value);
+    }
+
     private ProductivityInformation()
     {
     }
@@ -74,16 +84,7 @@ public sealed class ProductivityInformation :
         var opticsMagTypeComparison = OpticsMagType.CompareTo(other.OpticsMagType);
         if (opticsMagTypeComparison != 0) return -opticsMagTypeComparison;
 
-        var stageSpeedTypeComparison = StageSpeedType.CompareTo(other.StageSpeedType);
-        if (stageSpeedTypeComparison != 0) return stageSpeedTypeComparison;
-
-        var yPixelSizeComparison = YPixelSize.CompareTo(other.YPixelSize);
-        if (yPixelSizeComparison != 0) return yPixelSizeComparison;
-
-        var yPixelComparison = YPixel.CompareTo(other.YPixel);
-        if (yPixelComparison != 0) return yPixelComparison;
-
-        return string.Compare(Name, other.Name, StringComparison.Ordinal);
+        return StageSpeedType.CompareTo(other.StageSpeedType);
     }
 
     public int CompareTo(object? obj)
@@ -97,7 +98,7 @@ public sealed class ProductivityInformation :
 
     public override bool Equals(object? obj) => obj is ProductivityInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel);
+    public override int GetHashCode() => HashCode.Combine(Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel, SampleRate);
 
     public override string ToString() => ToString(null);
 
@@ -122,8 +123,8 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double yPixelSize, out double yPixel)
-        => (name, opticsMagType, stageSpeedType, yPixelSize, yPixel) = (Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel);
+    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double yPixelSize, out double yPixel, out double sampleRate)
+        => (name, opticsMagType, stageSpeedType, yPixelSize, yPixel, sampleRate) = (Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel, SampleRate);
 
     #endregion Deconstruct
 
@@ -149,7 +150,6 @@ public sealed class ProductivityInformation :
 
     public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo)
     {
-        Guard.IsNotNull(obj);
         Guard.IsTrue(obj.Mag.ToCgMagTypeEnum() == swathSpeedInfo.Mag);
 
         Name = obj.Name;
@@ -157,6 +157,7 @@ public sealed class ProductivityInformation :
         StageSpeedType = (int)obj.Speed;
         YPixelSize = swathSpeedInfo.YPixelSize;
         YPixel = swathSpeedInfo.YPixel;
+        SampleRate = swathSpeedInfo.Hz;
 
         return this;
     }
@@ -167,7 +168,8 @@ public sealed class ProductivityInformation :
         OpticsMagType = OpticsMagType,
         StageSpeedType = StageSpeedType,
         YPixelSize = YPixelSize,
-        YPixel = YPixel
+        YPixel = YPixel,
+        SampleRate = SampleRate
     };
 
     #endregion Mapper

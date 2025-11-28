@@ -37,4 +37,16 @@ public interface ICalibrationConfigService
     /// <param name="productivityInformation">产率</param>
     /// <returns>chirp波形列表</returns>
     SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation);
+
+    /// <summary>
+    /// 获取prescan默认波形列表
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath);
+
+    /// <summary>
+    /// 获取chirp默认波形列表
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath);
 }

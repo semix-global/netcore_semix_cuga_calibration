@@ -13,6 +13,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -458,6 +459,20 @@ public static class CoreWcfModelsExtension
     }
 
     #endregion Laser
+
+    #region CIB
+
+    public static bool IsOk(this CIBMMDDto[] result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.Length > 0 && result.All(t => t.IsOk);
+        if (isOk == false) errorMessage = "CIB MMD is Empty";
+
+        return isOk;
+    }
+
+    #endregion
 
     public static bool IsOk(this CalibrationSetting result, out string errorMessage)
     {

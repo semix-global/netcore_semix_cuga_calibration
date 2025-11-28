@@ -142,6 +142,13 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
         return true;
     }
 
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        return true;
+    }
+
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -164,7 +171,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
         {
             case 0:
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.HazeBrightFieldMachinePosition));
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition != Point.Origin
+                    ? Cache.Item.FindBFMachinePosition
+                    : MicroscopeCalChip.HazeBrightFieldMachinePosition));
 
                 return true;
 
@@ -246,6 +255,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             if (Cache.Item.CIBConfiguration.IsAutoGainControl == false) Guard.IsLessThanOrEqualTo(Cache.Item.CIBConfiguration.Gain, 0);
 
+            StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
             LaserViewModel.ToggleCIBControlModeAndProfileType(Cache.Item.CIBConfiguration, Constants.NegInt32Value, Constants.NegInt32Value);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);

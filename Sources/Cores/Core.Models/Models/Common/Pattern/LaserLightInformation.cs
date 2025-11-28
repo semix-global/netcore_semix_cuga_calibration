@@ -106,8 +106,6 @@ public sealed class LaserLightInformation :
 
     public LaserLightInformation AdaptIn(CgLightConfig obj)
     {
-        Guard.IsNotNull(obj);
-
         Level = obj.LightProp;
         Coefficient = obj.LightCoeff;
 

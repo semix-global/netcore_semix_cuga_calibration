@@ -82,6 +82,11 @@ public sealed class CalibrationLaserObj
     /// 暗场DOE角度校准对象
     /// </summary>
     public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
+
+    /// <summary>
+    /// CIB MMD 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
 }
 
 /// <summary>
@@ -484,13 +489,50 @@ public class CalibrationPrescanAODWaveformResult
 }
 
 /// <summary>
-/// StageMap矩阵(笛卡尔坐标系)
+/// Chirp 波形结果
 /// </summary>
 [Serializable]
 public sealed class CalibrationChirpAODWaveformResult
 {
-    // todo: 待cuga3.0升级
-    public int CgAwgElectrodeEnum { get; set; }
+#if NETFRAMEWORK
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
+
+#else
+    /// <summary>
+    /// 电极Id
+    /// </summary>
+    public int OpticsAODElectrodeEnum { get; set; }
+#endif
 
     public string FilePath { get; set; }
+}
+
+/// <summary>
+/// CIB MMD 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
+{
+    /// <summary>
+    /// CIB PMT ID
+    /// </summary>
+    public int PMTId { get; set; }
+
+    /// <summary>
+    /// CIB Channel ID
+    /// </summary>
+    public int ChannelId { get; set; }
+
+    /// <summary>
+    /// LogGain * 128 [0, 4095], **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<double> LogGainMul128U12Bits { get; set; }
+
+    /// <summary>
+    /// GainS16Bit [-2^15, 2^15-1], **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<double> GainS16Bits { get; set; }
 }

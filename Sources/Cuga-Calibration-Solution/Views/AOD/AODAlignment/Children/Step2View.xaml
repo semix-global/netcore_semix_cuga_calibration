@@ -11,9 +11,9 @@
              xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
              xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-             xmlns:aodWaveform="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
              xmlns:aodAlignment="clr-namespace:Core.Models.Models.AOD.AODAlignment;assembly=Core.Models"
              xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1920"
@@ -27,7 +27,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser AOD Alignment Step 3: "
+                <hc:Shield Subject="AOD Alignment Step 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
@@ -35,7 +35,7 @@
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Position(um): "
+                           Subject="BF Machine Position(um): "
                            Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
@@ -58,13 +58,7 @@
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.LaserLightInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                     <hc:ComboBox hc:TitleElement.Title="PMT Id: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
@@ -156,7 +150,6 @@
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Center" />
                             <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Setter Property="Height" Value="250" />
                             <Style.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
@@ -176,7 +169,7 @@
                             <GridViewColumn Header="Max Pixel" DisplayMemberBinding="{Binding ImageProjectionYsMaxPixel}" />
                             <GridViewColumn Header="Profiles">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type aodWaveform:PrescanAODWaveformUniformityItem}">
+                                    <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentItemDto}">
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                           Content="Profiles"
@@ -191,39 +184,32 @@
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                                </Border>
+                                                <TabControl>
+                                                    <TabItem Header="Prescan AOD Waveform Profiles">
+                                                        <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                    </TabItem>
+                                                    <TabItem Header="Image Projection">
+                                                        <controls:ScatterMultiPlotControl ScatterLine0Points="{Binding ImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                    </TabItem>
+                                                    <TabItem Header="Image Projection">
+                                                        <view:CanvasView AxisColor="Red"
+                                                                         BackgroundColor="#0A0A0A"
+                                                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                         Interactive="True"
+                                                                         ShowAxes="True"
+                                                                         ShowCursor="False"
+                                                                         ShowGrid="False" />
+                                                    </TabItem>
+                                                </TabControl>
                                             </Popup>
                                         </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="400" Header="Image ProjectionYs">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentItemDto}">
-                                        <controls:ScatterMultiPlotControl Width="400"
-                                                                          Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}}"
-                                                                          ScatterLine0Points="{Binding ImageProjectionYs, Converter={StaticResource DoublesToPointsConverter}}" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="200" Header="Image">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentItemDto}">
-                                        <Image Source="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <GridSplitter Grid.Row="1" Height="5" />
-                <Border Grid.Row="2"
-                        Padding="0"
-                        Style="{StaticResource BorderRegion}"
-                        Effect="{StaticResource EffectShadow1}"
-                        IsEnabled="{Binding Step1CalibrateActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}">
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

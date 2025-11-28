@@ -105,6 +105,8 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
 
         foreach (var result in Cache.Results)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             result.GenerateChirpAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
             result.GenerateChirpAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
 
@@ -121,5 +123,22 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
                 ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
             }), HtmlLogUniqueId.LoggingHtml());
         }
+    }
+
+    protected override void SetResultAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        LaserViewModel.SetChirpAODWaveProfiles(result.ChirpAODWaveformProfiles);
+    }
+
+    protected override void SetResultAODWaveformConfig(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        ConfigViewModel.SetChirpAODWaveProfiles(result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
+
+        Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+            result.ChirpAODWaveformResultFilePath,
+            ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 }

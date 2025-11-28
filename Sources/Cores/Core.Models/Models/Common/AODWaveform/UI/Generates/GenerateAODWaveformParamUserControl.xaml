@@ -255,7 +255,7 @@
                                                                                         Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                                         CommandParameter="{Binding}"
                                                                                         hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                                                        Style="{StaticResource ButtonSuccess}" />
+                                                                                        Style="{StaticResource ButtonInfo}" />
                                                                                 <Button Content="Add"
                                                                                         Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                                         CommandParameter="{Binding}"
@@ -282,9 +282,7 @@
                                                                                       AutoGenerateColumns="False"
                                                                                       ItemsSource="{Binding UniformityConfigurations}">
                                                                                 <DataGrid.Columns>
-                                                                                    <DataGridTextColumn Width="130"
-                                                                                                        Header="Frequency(MHz)"
-                                                                                                        Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
                                                                                     <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
                                                                                 </DataGrid.Columns>
                                                                             </DataGrid>
@@ -293,7 +291,8 @@
                                                                 </TabItem>
                                                                 <TabItem Header="Plots">
                                                                     <Border Style="{StaticResource BorderRegion}">
-                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
+                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                     </Border>
                                                                 </TabItem>
                                                             </TabControl>

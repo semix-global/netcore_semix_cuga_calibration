@@ -6,6 +6,10 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 
+#if NETFRAMEWORK
+using Core.Models.Extensions;
+#endif
+
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
@@ -47,7 +51,11 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     }
 
     public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(
+#if NETFRAMEWORK
+        OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum().ToString(),
+#else
         OpticsAODElectrodeEnum.ToString(),
+#endif
         OffsetFrequency,
         OffsetFrequencyPeriodCoefficient,
         Amplitude,

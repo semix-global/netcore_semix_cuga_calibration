@@ -222,10 +222,10 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 await Task.Delay(TimeSpan.FromSeconds(CalibratingItem.WaitTime), cancellationToken).ConfigureAwait(false);
-                var firstMeasurePowerPower = LaserViewModel.GetOpticalPowerMeter();
+                var firstMeasurePowerPower = LaserViewModel.GetOpticalMeasurePower();
 
                 await Task.Delay(TimeSpan.FromSeconds(CalibratingItem.WaitTime), cancellationToken).ConfigureAwait(false);
-                var secondMeasurePowerPower = LaserViewModel.GetOpticalPowerMeter();
+                var secondMeasurePowerPower = LaserViewModel.GetOpticalMeasurePower();
 
                 CalibratingItem.MaxCoefficientAverageMeasurePower = (firstMeasurePowerPower + secondMeasurePowerPower) / 2; // 计算平均值
                 CalibratingItem.CoefficientMeasurePowerPoints = [];
@@ -248,7 +248,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
-                    var measurePower = LaserViewModel.GetOpticalPowerMeter();
+                    var measurePower = LaserViewModel.GetOpticalMeasurePower();
                     var coefficientMeasurePowerPoint = new Point
                     (
                         coefficient,
