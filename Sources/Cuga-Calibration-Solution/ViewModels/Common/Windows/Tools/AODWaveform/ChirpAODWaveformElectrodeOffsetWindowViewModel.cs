@@ -122,4 +122,14 @@ public class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavefor
             }), HtmlLogUniqueId.LoggingHtml());
         }
     }
+
+    protected override void SetResultAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        LaserViewModel.SetChirpAODWaveProfiles(result.ChirpAODWaveformProfiles);
+    }
+
+    protected override void SetResultAODWaveformConfig(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        ConfigViewModel.SetChirpAODWaveProfiles(result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
+    }
 }

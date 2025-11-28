@@ -75,6 +75,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
     protected readonly StageViewModel StageViewModel;
+    protected readonly ConfigViewModel ConfigViewModel;
 
     public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -104,6 +105,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
         StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
+        ConfigViewModel = HostApplication.GetRequiredService<ConfigViewModel>();
     }
 
     [RelayCommand]
@@ -170,7 +172,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                                                  {Name}: {stepName} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlError(ex, "Failed", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             }
             finally
             {

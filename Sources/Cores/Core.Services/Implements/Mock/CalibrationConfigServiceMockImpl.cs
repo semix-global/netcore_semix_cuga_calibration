@@ -11,6 +11,8 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
+using CommunityToolkit.Diagnostics;
+using Net.Utilities.Algorithms.Modules;
 
 namespace Core.Services.Implements.Mock;
 
@@ -61,5 +63,23 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode3, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt")),
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode4, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt"))
         ]);
+    }
+
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -8,6 +9,7 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -78,6 +80,32 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
             .ToList();
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>(result);
+    }
+
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+
+        /*var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);*/
+
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+
+        /*var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);*/
+
+        throw new NotImplementedException();
     }
 
     private SxExecuteRet<IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, int OpticsMagType)>> GetPrescanChirpDarkFieldAodWaveProfileList()

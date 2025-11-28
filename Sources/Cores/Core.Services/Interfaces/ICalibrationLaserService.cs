@@ -211,7 +211,7 @@ public interface ICalibrationLaserService
     /// <param name="cIbConfiguration"></param>
     /// <param name="pmtId"></param>
     /// <param name="channelId"></param>
-    /// <returns></returns>
+    /// <returns>是否成功</returns>
     SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId);
 
     /// <summary>

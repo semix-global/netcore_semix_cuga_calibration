@@ -137,4 +137,14 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
             }), HtmlLogUniqueId.LoggingHtml());
         }
     }
+
+    protected override void SetResultAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        LaserViewModel.SetPrescanAODWaveProfiles(result.PrescanAODWaveformProfiles);
+    }
+
+    protected override void SetResultAODWaveformConfig(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        ConfigViewModel.SetPrescanAODWaveProfiles(result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
+    }
 }

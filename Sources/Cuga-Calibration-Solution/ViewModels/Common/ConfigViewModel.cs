@@ -47,4 +47,18 @@ public sealed class ConfigViewModel(
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
+
+    public void SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        var ret = calibrationConfigService.SetPrescanAODWaveProfiles(productivityInformation, filePath);
+        
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        var ret = calibrationConfigService.SetPrescanAODWaveProfiles(productivityInformation, filePath);
+        
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
 }
