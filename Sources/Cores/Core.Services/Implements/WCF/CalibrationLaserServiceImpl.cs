@@ -24,7 +24,6 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
-using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Services.Implements.WCF;
 
