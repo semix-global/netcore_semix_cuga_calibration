@@ -355,21 +355,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.ChirpAODWaveformProfiles = [];
 
-            StageViewModel.SetAbsoluteStageTheta(0);
-            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition));
-
-            if (Cache.IsAFEnable)
-            {
-                AfViewModel.SetSensorDarkFieldCalChipStandardEcsValue(CalChipSiteModelEnum.HazeModel, Cache.AFECS);
-                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(Cache.AFOffsetMotor);
-                AfViewModel.ToggleDarkFieldEnable(true);
-            }
-            else
-            {
-                AfViewModel.ToggleBrightFieldEnable(false);
-                AfViewModel.SetSensorEcsValue(Cache.AFECS);
-            }
-
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
 
             Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
@@ -426,14 +411,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .OrderBy(t => t.CIBInformation)
             ];
 
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
             foreach (var (coefficientIndex, coefficient) in coefficients.Index())
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 try
                 {
-                    StageViewModel.SetMachineAbsoluteStageXy(laserOpticalPowerMeter.MeasureMaxPowerPosition);
-
                     LaserViewModel.SetPrescanAODWaveProfiles([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
@@ -445,7 +429,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                         SelectedCalibratingItems = cibMMDDtos;
 
-                        foreach (var cibMMDDto in cibMMDDtos) cibMMDDto.Items[coefficientIndex].MeasurePower = measurePower;
+                        foreach (var cibMMDDto in cibMMDDtos)
+                        {
+                            cibMMDDto.Items[coefficientIndex].MeasurePower = measurePower;
+                            cibMMDDto.RefreshPlot();
+                        }
                     }
                 }
                 finally
@@ -454,7 +442,19 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
             }
 
+            StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition));
+            if (Cache.IsAFEnable)
+            {
+                AfViewModel.SetSensorDarkFieldCalChipStandardEcsValue(CalChipSiteModelEnum.HazeModel, Cache.AFECS);
+                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(Cache.AFOffsetMotor);
+                AfViewModel.ToggleDarkFieldEnable(true);
+            }
+            else
+            {
+                AfViewModel.ToggleBrightFieldEnable(false);
+                AfViewModel.SetSensorEcsValue(Cache.AFECS);
+            }
 
             foreach (var (coefficientIndex, coefficient) in coefficients.Index())
             {
