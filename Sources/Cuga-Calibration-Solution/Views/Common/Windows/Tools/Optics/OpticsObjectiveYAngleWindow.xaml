@@ -194,12 +194,45 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Rotate Angle(°): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="-180"
+                                                      Maximum="180"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.RotateAngle}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Threshold(°): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.Threshold}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Optics Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.Title="Center Channel Lens Diameter(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="300"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.CenterChannelLensDiameterUm}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Center Channel Lens Maximum Angle(°): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="300"
+                                                      Minimum="0"
+                                                      Maximum="360"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.CenterChannelLensMaximumAngle}" />
+                                    <TextBox Text="{Binding Cache.DegreePerUm, Mode=OneWay, StringFormat={}{0:f5}}"
+                                             hc:TitleElement.Title="DegreePerUm(°/um):"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="300"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -213,10 +246,24 @@
                                                    FontWeight="Bold"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
-                                    <TextBox Text="{Binding Cache.Result.YAngleDegrees, StringFormat='0.###'}"
-                                             hc:TitleElement.Title="YAngle(°): "
+                                    <TextBox Text="{Binding Cache.Result.PixelSize, StringFormat={}{0:f5}}"
+                                             hc:TitleElement.Title="Pixel Size(um/pix):"
                                              hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
+                                             hc:TitleElement.TitleWidth="300"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Result.HorizontalDegree, StringFormat={}{0:f5}}"
+                                             hc:TitleElement.Title="Center Channel Light Horizontal Degree(°):"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="300"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Result.YAngleDegrees, StringFormat={}{0:f5}}"
+                                             hc:TitleElement.Title="Y Angle(°): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="300"
                                              IsReadOnly="True"
                                              Background="{StaticResource SecondaryRegionBrush}">
                                         <TextBox.Style>

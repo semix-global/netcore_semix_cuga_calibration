@@ -70,6 +70,25 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     private double _waitTime = 5;
 
     [ObservableProperty]
+    private double _rotateAngle;
+
+    /// <summary>
+    /// D型光斑直径(um)
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DegreePerUm))]
+    private double _centerChannelLensDiameterUm = 33_000;
+
+    /// <summary>
+    /// 最大半角度(°)
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DegreePerUm))]
+    private double _centerChannelLensMaximumAngle = 41.3;
+
+    public double DegreePerUm => CenterChannelLensMaximumAngle / CenterChannelLensDiameterUm;
+
+    [ObservableProperty]
     private double _threshold = 2;
 
     #endregion
@@ -119,11 +138,34 @@ public sealed partial class OpticsObjectiveYAngleResult : ObservableCacheBase
     private string _resultImageFilePath = string.Empty;
 
     [ObservableProperty]
+    private Point _centerChannelLightCenterPosition = Point.Origin;
+
+    [ObservableProperty]
+    private Point _reflectedLightCenterPosition = Point.Origin;
+
+    public double LightCenterXPixelOffset => ReflectedLightCenterPosition.X - CenterChannelLightCenterPosition.X;
+
+    [ObservableProperty]
+    private double _centerChannelLightDiameterPixel;
+
+    [ObservableProperty]
+    private double _horizontalDegree;
+
+    [ObservableProperty]
+    private double _pixelSize;
+
+    [ObservableProperty]
     private double _yAngleDegrees;
 
     public object ToHtmlAnonymous() => new
     {
         IsOk,
+        CenterChannelLightCenterPosition,
+        ReflectedLightCenterPosition,
+        LightCenterXPixelOffset = Math.Round(LightCenterXPixelOffset, 4),
+        HorizontalDegree = Math.Round(HorizontalDegree, 4),
+        CenterChannelLightDiameterPixel,
+        PixelSize = Math.Round(PixelSize, 4),
         HazeImage = new HtmlImage(HazeImageFilePath),
         ShinyWaferImage = new HtmlImage(ShinyWaferImageFilePath),
         ResultImageh = new HtmlImage(ResultImageFilePath),
@@ -191,6 +233,15 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
             logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+
+            logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.RotateAngle,
+                Cache.Threshold,
+                Cache.CenterChannelLensMaximumAngle,
+                Cache.CenterChannelLensDiameterUm,
+                Cache.DegreePerUm,
+            }), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             HImage? hazeFourierImage = null;
@@ -285,9 +336,20 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                 }
 
-                Cache.Result.YAngleDegrees = calibrationAlgorithmService.GetOpticsObjectiveYAngleDegrees(hazeFourierImage, shinyWaferFourierImage, out var drawingImage);
+                var (drawingImage,
+                    diameter,
+                    horizontalDegree,
+                    centerChannelLightCenterPosition,
+                    reflectedLightCenterPosition) = calibrationAlgorithmService.GetOpticsObjectiveYAngleResult(hazeFourierImage, shinyWaferFourierImage, Cache.RotateAngle);
+                Cache.Result.CenterChannelLightCenterPosition = centerChannelLightCenterPosition;
+                Cache.Result.ReflectedLightCenterPosition = reflectedLightCenterPosition;
+                Cache.Result.HorizontalDegree = horizontalDegree;
+                Cache.Result.CenterChannelLightDiameterPixel = diameter;
+                Cache.Result.PixelSize = Cache.CenterChannelLensDiameterUm / diameter;
+                Cache.Result.YAngleDegrees = (reflectedLightCenterPosition.X - centerChannelLightCenterPosition.X) * Cache.Result.PixelSize * Cache.DegreePerUm;
 
                 var resultImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                using var _ = drawingImage;
                 drawingImage.Save(resultImageFilePath);
                 Cache.Result.ResultImageFilePath = resultImageFilePath;
 
@@ -319,7 +381,6 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
             {
                 hazeFourierImage?.Dispose();
                 shinyWaferFourierImage?.Dispose();
-
                 logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
