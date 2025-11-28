@@ -120,6 +120,8 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
         foreach (var result in Cache.Results)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             result.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
             result.GeneratePrescanAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
 
@@ -136,5 +138,22 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
                 PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
             }), HtmlLogUniqueId.LoggingHtml());
         }
+    }
+
+    protected override void SetResultAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        LaserViewModel.SetPrescanAODWaveProfiles(result.PrescanAODWaveformProfiles);
+    }
+
+    protected override void SetResultAODWaveformConfig(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    {
+        ConfigViewModel.SetPrescanAODWaveProfiles(result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
+
+        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+            result.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 }

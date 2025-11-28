@@ -49,7 +49,12 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
     public CalibrationLaserXYAstigmatismItem AdaptTo() => new()
     {
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        ChirpAODWaveformResultList = ChirpAodWaveResultList.Select(t => new CalibrationChirpAODWaveformResult { CgAwgElectrodeEnum = (int)t.OpticsAODElectrodeEnum, FilePath = t.FilePath }).ToArray()
+        ChirpAODWaveformResultList =
+        [
+            .. ChirpAodWaveResultList
+                .Cast<IAdaptTo<CalibrationChirpAODWaveformResult>>()
+                .Select(t => t.AdaptTo())
+        ],
     };
 
     #region Mapper

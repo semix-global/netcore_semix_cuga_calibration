@@ -7,6 +7,7 @@ using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -16,6 +17,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
@@ -232,6 +234,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
     protected abstract void GenerateResultAODWaveform(CancellationToken cancellationToken);
 
+    protected abstract void SetResultAODWaveformProfiles(TResult result, CancellationToken cancellationToken);
+
+    protected abstract void SetResultAODWaveformConfig(TResult result, CancellationToken cancellationToken);
+
     protected override void LoggerResult(int stepIndex)
     {
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(
@@ -246,7 +252,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]),
                     UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
-                2 => new HtmlComment("See Above!"),
+                2 or 3 => new HtmlComment("See Above!"),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
         ), HtmlLogUniqueId.LoggingHtml());
@@ -351,6 +357,58 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         }
 
         Cache.ElectrodeFrequencyUniformityParams = electrodeFrequencyUniformityParamList;
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task SetResultAODWaveformProfilesAsync(TResult result, CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                SetResultAODWaveformProfiles(result, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
+                DialogWindowProvider.ShowDialog($"""
+                                                 {Name}: {nameof(SetResultAODWaveformProfilesAsync)} Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, nameof(SetResultAODWaveformProfilesAsync));
+            }
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task SetResultAODWaveformConfigAsync(TResult result, CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                SetResultAODWaveformConfig(result, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
+                DialogWindowProvider.ShowDialog($"""
+                                                 {Name}: {nameof(SetResultAODWaveformConfigAsync)} Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, nameof(SetResultAODWaveformConfigAsync));
+            }
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -600,6 +658,24 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step3Async(bool isShowDialog, CancellationToken cancellationToken)
+    {
+        return await InvokeAsync(3, "Step 4 Set AOD Waveform Config", async () =>
+        {
+            Guard.IsNotEmpty(Cache.Results);
+
+            foreach (var result in Cache.Results)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await SetResultAODWaveformConfigAsync(result, cancellationToken);
+            }
+
+            return true;
+        }, isShowDialog).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {
 #if NET
@@ -611,6 +687,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();
                 if (Step1Command.CanBeCanceled) Step1Command.Cancel();
                 if (Step2Command.CanBeCanceled) Step2Command.Cancel();
+                if (Step3Command.CanBeCanceled) Step3Command.Cancel();
             });
 
         var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync(false));
@@ -619,7 +696,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         var step1Task = GuardUtils.IsAssignableToType<Task<bool>>(Step1Command.ExecuteAsync(false));
         if (await step1Task == false) return;
 
-        await Step2Command.ExecuteAsync(true);
+        var step2Task = GuardUtils.IsAssignableToType<Task<bool>>(Step2Command.ExecuteAsync(false));
+        if (await step2Task == false) return;
+
+        await Step3Command.ExecuteAsync(true);
     }
 }
 

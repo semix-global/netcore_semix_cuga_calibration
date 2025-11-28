@@ -115,8 +115,6 @@ public sealed class MicroscopeLensInformation :
 
     public MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
     {
-        Guard.IsNotNull(obj);
-
         LensName = GuardUtils.IsNotNullAndReturn(obj.LensName);
         LensCode = (int)obj.LensCode;
         ObjectiveMagnification = obj.Lens;

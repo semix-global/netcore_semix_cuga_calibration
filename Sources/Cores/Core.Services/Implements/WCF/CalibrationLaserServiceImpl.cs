@@ -79,13 +79,22 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<double> GetOpticalPowerMeter()
+    public SxExecuteRet<double> GetOpticalMeasurePower()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
+    {
+        var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything /*/ (flatnessTime */ /*ns*/ /* / ((1 / productivityInformation.SampleRate */ /*KHz*/ /*) * 1000_000))*/);
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
@@ -245,6 +254,8 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
+        Guard.IsNotEmpty(prescanAODWaveProfiles);
+
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -289,9 +300,11 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> prescanAODWaveProfiles)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
-        foreach (var aodWaveProfile in prescanAODWaveProfiles)
+        Guard.IsNotEmpty(chirpAODWaveProfiles);
+
+        foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
 
@@ -335,6 +348,15 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.MarkMode, sendDataList)));
 
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, sendDataList)));
+
+    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SendDc([.. cibInformations.Select(t => (gain, t.PMTId, t.ChannelId))]));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
 
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId) => SetCIBControlValue(gain, pmtId, channelId, sendDataList => Invoke(() => /* direct current */Service?.SendDc(sendDataList)));
 
@@ -381,6 +403,20 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRetAll.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetAll.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
+    {
+        var pmtConfigListSxExecuteRet = GetCIBConfigList();
+        if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CIBInformation>>(pmtConfigListSxExecuteRet.Msg, []);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(
+        [
+            .. pmtConfigListSxExecuteRet.Anything
+                .Where(t => t.IsUsed)
+                .SelectMany(t => t.ChannelIdList.Select(tt => CIBInformation.Default.Clone().AdaptIn((t.PmtId, tt, true))))
+                .OrderBy(t => t)
+        ]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
@@ -471,8 +507,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
     {
         // pmt增益电压范围 [-14, 14]
-        var senseVector = Vector<double>.Build.DenseOfEnumerable(gainList) / 14;
-        var senseValues = senseVector
+        var senseValues = (Vector<double>.Build.DenseOfEnumerable(gainList) / 14)
             .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .ToArray();
 
@@ -486,8 +521,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         // 取反, 差分信号
-        var pmtVector = Vector<double>.Build.DenseOfEnumerable(gainList) * -1 / 14;
-        var pmtValues = pmtVector
+        var pmtValues = (Vector<double>.Build.DenseOfEnumerable(gainList) * -1 / 14)
             .Select(t => ConvertUtils.ToInt16NotOverflowException(Math.Round(Math.Pow(2, 15) * t, MidpointRounding.AwayFromZero)))
             .ToArray();
 
@@ -505,6 +539,33 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
+    {
+        var logGainMul128Bytes = new List<byte>();
+        foreach (var compArray in logGainMul128U12Bits
+                     .Select(t => (int)t)
+                     .Select(BitConverter.GetBytes))
+        {
+            logGainMul128Bytes.Add(0);
+            logGainMul128Bytes.Add(0);
+            logGainMul128Bytes.Add(compArray[1]);
+            logGainMul128Bytes.Add(compArray[0]);
+        }
+
+        var gainS16BitBytes = new List<byte>();
+        foreach (var compArray in gainS16Bits
+                     .Select(t => (int)t)
+                     .Select(BitConverter.GetBytes))
+        {
+            gainS16BitBytes.Add(0);
+            gainS16BitBytes.Add(0);
+            gainS16BitBytes.Add(compArray[1]);
+            gainS16BitBytes.Add(compArray[0]);
+        }
+
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)

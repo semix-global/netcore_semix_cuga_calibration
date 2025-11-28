@@ -46,4 +46,14 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
     {
         throw new NotImplementedException();
     }
+
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    {
+        throw new NotImplementedException();
+    }
 }

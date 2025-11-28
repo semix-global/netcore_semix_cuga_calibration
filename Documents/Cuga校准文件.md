@@ -859,9 +859,14 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = Array.Empty<CalibrationLaserXPixelSizeItem>();
 
     /// <summary>
-    /// 暗场相机的像素尺寸校准对象列表
+    /// 暗场相机的光斑中心校准对象列表
     /// </summary>
     public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = Array.Empty<CalibrationLaserLineCentricityItem>();
+
+    /// <summary>
+    /// 暗场相机的Swath扫描正反向误差校准对象列表
+    /// </summary>
+    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = Array.Empty<CalibrationLaserLineOrientationOffsetItem>();
 
     /// <summary>
     /// 暗场AOD散光校准对象列表
@@ -872,6 +877,11 @@ public sealed class CalibrationLaserObj
     /// 暗场DOE角度校准对象
     /// </summary>
     public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
+
+    /// <summary>
+    /// CIB MMD 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
 }
 ```
 
@@ -1275,7 +1285,36 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 }
 ```
 
-## 4.11. 待定 Pmt Gain
+## 4.11 MMD校准 `CalibrationLaserCIBMMDItem`
+
+```csharp
+/// <summary>
+/// CIB MMD 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
+{
+    /// <summary>
+    /// CIB PMT ID
+    /// </summary>
+    public int PMTId { get; set; }
+
+    /// <summary>
+    /// CIB Channel ID
+    /// </summary>
+    public int ChannelId { get; set; }
+
+    /// <summary>
+    /// LogGain * 128 [0, 4095], **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<double> LogGainMul128U12Bits { get; set; }
+
+    /// <summary>
+    /// GainS16Bit [-2^15, 2^15-1], **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<double> GainS16Bits { get; set; }
+}
+```
 
 ## 4.12. PMT AGC Delay
 
@@ -1329,3 +1368,4 @@ public sealed class CalibrationLaserDOEAngle : CalibrationBase
     public double DOEAngle { get; set; }
 }
 ```
+
