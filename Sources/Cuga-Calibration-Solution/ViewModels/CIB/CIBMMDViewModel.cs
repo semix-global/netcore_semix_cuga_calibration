@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -28,6 +27,8 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using NLog;
+using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -798,9 +799,18 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             isSuccess = true;
         }
+        catch(Exception ex)
+        {
+            isSuccess = false;
+
+            htmlList.Add(new HtmlQuote(new
+            {
+                Exception = ex
+            }));
+        }
         finally
         {
-            cibMMDDto.IsCalibrated = true;
+            cibMMDDto.IsCalibrated = isSuccess;
             if (isSuccess)
                 Logger.LogHtmlInformation($"OK: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
             else
