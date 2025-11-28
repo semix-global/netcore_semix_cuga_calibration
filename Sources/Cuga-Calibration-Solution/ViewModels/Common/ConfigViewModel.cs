@@ -57,7 +57,7 @@ public sealed class ConfigViewModel(
 
     public void SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
     {
-        var ret = calibrationConfigService.SetPrescanAODWaveProfiles(productivityInformation, filePath);
+        var ret = calibrationConfigService.SetChirpAODWaveProfiles(productivityInformation, filePath);
         
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

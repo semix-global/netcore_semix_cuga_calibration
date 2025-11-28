@@ -15,6 +15,9 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private Point _findBFMachinePosition;
+    
+    [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private double _aFOffsetMotor;
@@ -24,9 +27,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private bool _isAFEnable;
-
-    [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private double _prescanFrequency;

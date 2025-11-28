@@ -254,6 +254,8 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
+        Guard.IsNotEmpty(prescanAODWaveProfiles);
+        
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -298,9 +300,11 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> prescanAODWaveProfiles)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
-        foreach (var aodWaveProfile in prescanAODWaveProfiles)
+        Guard.IsNotEmpty(chirpAODWaveProfiles);
+        
+        foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
 

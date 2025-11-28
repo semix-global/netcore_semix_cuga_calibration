@@ -85,6 +85,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
         /*var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
 
@@ -98,6 +99,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
     public SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
         /*var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
 

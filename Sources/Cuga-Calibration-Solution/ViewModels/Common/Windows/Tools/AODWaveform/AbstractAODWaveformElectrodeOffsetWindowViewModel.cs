@@ -252,7 +252,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]),
                     UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 },
-                2 => new HtmlComment("See Above!"),
+                2 or 3 => new HtmlComment("See Above!"),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(stepIndex), stepIndex, null)
             }
         ), HtmlLogUniqueId.LoggingHtml());

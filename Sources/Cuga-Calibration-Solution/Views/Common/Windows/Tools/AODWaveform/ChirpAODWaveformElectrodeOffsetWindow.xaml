@@ -598,7 +598,7 @@
                                             </DataGrid>
                                         </Border>
                                     </Expander>
-                                    <hc:Divider Content="Step 1 Electrode Offset" />
+                                    <hc:Divider Content="Step 1 Electrode Offset" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step0Command}"
@@ -620,7 +620,7 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="Step 2 Uniformity" />
+                                    <hc:Divider Content="Step 2 Uniformity" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step1Command}"
@@ -642,7 +642,7 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="Step 3 Generate AOD Waveform" />
+                                    <hc:Divider Content="Step 3 Generate AOD Waveform" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step2Command}"
@@ -664,7 +664,7 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="Step 4 Set AOD Waveform Config" />
+                                    <hc:Divider Content="Step 4 Set AOD Waveform Config" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step3Command}"
@@ -686,7 +686,7 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider />
+                                    <hc:Divider Content="One-click start" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="All Action"
                                                 Command="{Binding AllCommand}"
@@ -891,28 +891,36 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <hc:UniformSpacingPanel Grid.Row="1"
-                                                                        Orientation="Vertical"
-                                                                        Spacing="5">
+                                                <UniformGrid Grid.Row="1"
+                                                             Margin="2"
+                                                             HorizontalAlignment="Center"
+                                                             Rows="1"
+                                                             Columns="2">
                                                     <Button Content="Set Profiles"
                                                             Command="{Binding DataContext.SetResultAODWaveformProfilesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
+                                                            Margin="2"
                                                             Style="{StaticResource ButtonInfo.Loading}" />
                                                     <Button Content="Cancel"
                                                             Command="{Binding DataContext.SetResultAODWaveformProfilesCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Margin="2"
                                                             Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                                <hc:UniformSpacingPanel Grid.Row="2"
-                                                                        Orientation="Vertical"
-                                                                        Spacing="5">
+                                                </UniformGrid>
+                                                <UniformGrid Grid.Row="2"
+                                                             Margin="0,0,0,2"
+                                                             HorizontalAlignment="Center"
+                                                             Rows="1"
+                                                             Columns="2">
                                                     <Button Content="Set Config"
                                                             Command="{Binding DataContext.SetResultAODWaveformConfigCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
+                                                            Margin="2"
                                                             Style="{StaticResource ButtonInfo.Loading}" />
                                                     <Button Content="Cancel"
                                                             Command="{Binding DataContext.SetResultAODWaveformConfigCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Margin="2"
                                                             Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
+                                                </UniformGrid>
                                                 <Border Grid.Row="3"
                                                         Style="{StaticResource BorderRegion}"
                                                         Effect="{StaticResource EffectShadow1}">

@@ -237,6 +237,8 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
+        Guard.IsNotEmpty(prescanAODWaveProfiles);
+        
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
@@ -276,6 +278,8 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
+        Guard.IsNotEmpty(chirpAODWaveProfiles);
+
         foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);

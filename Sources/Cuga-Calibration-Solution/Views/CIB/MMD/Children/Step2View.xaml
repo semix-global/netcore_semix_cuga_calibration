@@ -43,33 +43,41 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown hc:TitleElement.Title="AF Offset Motor(mm): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.AFOffsetMotor}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="AF ECS: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.AFECS}" />
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="AF Enable: "
-                                   Width="190"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center" />
-                        <ToggleButton IsChecked="{Binding Cache.IsAFEnable}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Background="{StaticResource DangerBrush}"
-                                      Style="{StaticResource ToggleButtonSwitch}" />
-                    </StackPanel>
                     <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.ProductivityInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
+                    <Expander Header="AF"
+                              IsExpanded="True"
+                              ExpandDirection="Down">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                <hc:NumericUpDown hc:TitleElement.Title="AF Offset Motor(mm): "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.AFOffsetMotor}" />
+                                <hc:NumericUpDown hc:TitleElement.Title="AF ECS: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="190"
+                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                  Value="{Binding Cache.AFECS}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="AF Enable: "
+                                               Width="190"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center" />
+                                    <ToggleButton IsChecked="{Binding Cache.IsAFEnable}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Background="{StaticResource DangerBrush}"
+                                                  Style="{StaticResource ToggleButtonSwitch}" />
+                                </StackPanel>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </Expander>
                     <Expander Header="Prescan AOD Waveform"
                               IsExpanded="False"
                               ExpandDirection="Down">

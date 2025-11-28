@@ -27,7 +27,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
-using NLog;
 using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -326,11 +325,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 laserOpticalPowerMeter.MeasureMaxPowerPosition,
                 Cache.CIBInformations,
+                Cache.ProductivityInformation,
                 Cache.FindBFMachinePosition,
                 Cache.AFOffsetMotor,
                 Cache.AFECS,
                 Cache.IsAFEnable,
-                Cache.ProductivityInformation,
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.CIBProfileMode,
@@ -799,7 +798,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             isSuccess = true;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             isSuccess = false;
 
