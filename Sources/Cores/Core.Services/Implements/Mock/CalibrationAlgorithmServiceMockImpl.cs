@@ -4,7 +4,6 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
@@ -13,7 +12,6 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Models.Geometries;
 using System.IO;
 using Rect = Net.Utilities.Models.Geometries.Rect;
@@ -196,15 +194,18 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return ([], []);
     }
 
-    public double GetOpticsObjectiveYAngleDegrees(HImage hazeImage, HImage shinyWaferImage, out HImage drawingImage)
+    public (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage, double rotateAngle)
     {
-        var size = hazeImage.GetSize();
-        var sizeI = (SizeI)size;
-        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(sizeI.Width, sizeI.Height, 10, Random);
+        var hazeImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3HazeTestImg.jpg");
+        var shinyImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3ShinyTestImg.jpg");
 
-        drawingImage = bitmapImage.ToHImage();
+        using var hazeImg = HalconFactory.CreateImage(hazeImagePath);
+        using var shinyImg = HalconFactory.CreateImage(shinyImagePath);
+        _algorithm.CalculateTwoRegionCenter(hazeImg, shinyImg, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
 
-        return Random.NextDouble();
+        var drawingImage = new HImage(resultImage);
+
+        return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
     }
 
     public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
