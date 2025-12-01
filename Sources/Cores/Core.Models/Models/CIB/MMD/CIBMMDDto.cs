@@ -130,10 +130,13 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 OriginLogGainPoints);
 
         if (SmoothLogGainPoints.Count > 0)
+        {
+            ScatterPlotControl.Clear(3);
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
                 $"Smooth Residual: y = {A2:0.######} + {A1:0.######} - {A2:0.######}) / (1 + exp((x - {X0:0.######}) / {Dx:0.######})) r^2 = {RSquared:0.######}",
                 SmoothLogGainPoints);
+        }
 
         if (LogGainMul128U12BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
