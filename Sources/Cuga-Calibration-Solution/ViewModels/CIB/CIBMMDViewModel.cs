@@ -442,6 +442,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                             foreach (var cibMMDDto in cibMMDDtos)
                             {
+                                cibMMDDto.Items[coefficientIndex].OriginMeasurePower = measurePower;
                                 cibMMDDto.Items[coefficientIndex].MeasurePower = measurePower - measurePowerNoise;
                                 cibMMDDto.RefreshPlot();
                             }
@@ -571,6 +572,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.LogGainSmoothWindowSize,
                 Table = new HtmlTable([.. Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             foreach (var cibMMDDtos in SelectedReviewItems.Chunk(Cache.ConcurrentCount))
             {
