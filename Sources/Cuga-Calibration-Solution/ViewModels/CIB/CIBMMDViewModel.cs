@@ -28,6 +28,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using Core.Utilities;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -746,8 +747,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
 
             var distance = Math.Abs(cibMMDDto.OriginLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            var (smoothLogGainX, smoothLogGainY) = SavitzkyGolayFilter2D.SmoothCurve(Cache.LogGainSmoothOrder, Cache.LogGainSmoothWindowSize, Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y - distance)));
-            cibMMDDto.SmoothLogGainPoints = [.. smoothLogGainX.Index().Select(t => new Point(t.Item, smoothLogGainY[t.Index]))];
+            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y - distance)));
+            cibMMDDto.A1 = a1;
+            cibMMDDto.A2 = a2;
+            cibMMDDto.X0 = x0;
+            cibMMDDto.Dx = dx;
+            cibMMDDto.RSquared = rSquared;
+            cibMMDDto.SmoothLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
 
             cibMMDDto.RefreshPlot();
 
@@ -761,10 +767,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Plot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
-            isSuccess = xLogGainVector.All(t => t >= 0 && double.IsNaN(t) == false && double.IsNegativeInfinity(t) == false && double.IsPositiveInfinity(t) == false); // logGain 不能超过 14
+            isSuccess = cibMMDDto.SmoothLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.SmoothLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
             if (isSuccess == false)
             {
-                htmlList.Add(new HtmlComment("LogGain out of range"));
+                htmlList.Add(new HtmlComment("LogGain out of range[0, 14]"));
 
                 return;
             }
