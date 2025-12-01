@@ -54,7 +54,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
             .. ChirpAodWaveResultList
                 .Cast<IAdaptTo<CalibrationChirpAODWaveformResult>>()
                 .Select(t => t.AdaptTo())
-        ],
+        ]
     };
 
     #region Mapper

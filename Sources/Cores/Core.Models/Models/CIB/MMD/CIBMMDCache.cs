@@ -62,13 +62,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _pMTValueWaitTime = 1;
 
     [ObservableProperty]
-    private double _startCoefficient = 0.01;
-
-    [ObservableProperty]
-    private double _stepCoefficient = 0.1;
-
-    [ObservableProperty]
-    private double _stopCoefficient = 1;
+    private IReadOnlyList<double> _coefficients = [0.01];
 
     [ObservableProperty]
     private double _startGain = -10;
