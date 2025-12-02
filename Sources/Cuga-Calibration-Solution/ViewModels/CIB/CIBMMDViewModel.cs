@@ -28,6 +28,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using Core.Utilities;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -263,7 +264,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             LaserViewModel.SetCIBMMD(cibMMDDto.CIBInformation, [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)], [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)]);
 
-            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} OK!");
+            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {cibMMDDto.CIBInformation} OK!");
         }
         catch (Exception ex)
         {
@@ -351,8 +352,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Cache.LogGainSmoothOrder,
-                Cache.LogGainSmoothWindowSize,
                 Table = new HtmlTable([.. Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -422,7 +421,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
-                var measurePowerNoise = LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                var measurePowerNoises = Enumerable.Range(0, 10000)
+                    .Select(_ =>
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        return LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                    })
+                    .ToArray();
+                var measurePowerNoise = measurePowerNoises.Average();
                 foreach (var (coefficientIndex, coefficient) in Cache.Coefficients.Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -568,8 +575,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Cache.LogGainSmoothOrder,
-                Cache.LogGainSmoothWindowSize,
                 Table = new HtmlTable([.. Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -745,16 +750,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Select(t => new Point(gains[t.Index], t.Item))
             ];
 
-            var distance = Math.Abs(cibMMDDto.OriginLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            var (smoothLogGainX, smoothLogGainY) = SavitzkyGolayFilter2D.SmoothCurve(Cache.LogGainSmoothOrder, Cache.LogGainSmoothWindowSize, Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y - distance)));
-            cibMMDDto.SmoothLogGainPoints = [.. smoothLogGainX.Index().Select(t => new Point(t.Item, smoothLogGainY[t.Index]))];
-            /*var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y - distance)));
-            cibMMDDto.A1 = a1;
-            cibMMDDto.A2 = a2;
-            cibMMDDto.X0 = x0;
-            cibMMDDto.Dx = dx;
-            cibMMDDto.RSquared = rSquared;
-            cibMMDDto.SmoothLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];*/
+            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y)));
+            cibMMDDto.LogGainA1 = a1;
+            cibMMDDto.LogGainA2 = a2;
+            cibMMDDto.LogGainX0 = x0;
+            cibMMDDto.LogGainDx = dx;
+            cibMMDDto.LogGainRSquared = rSquared;
+            cibMMDDto.FitLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+            var distance = Math.Abs(cibMMDDto.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
+            cibMMDDto.ResultLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, cibMMDDto.FitLogGainPoints[t.Index].Y - distance))];
 
             cibMMDDto.RefreshPlot();
 
@@ -768,7 +772,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Plot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
-            isSuccess = cibMMDDto.SmoothLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.SmoothLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
+            isSuccess = cibMMDDto.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
             if (isSuccess == false)
             {
                 htmlList.Add(new HtmlComment("LogGain out of range[0, 14]"));
@@ -776,7 +780,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return;
             }
 
-            var results = cibMMDDto.SmoothLogGainPoints
+            var results = cibMMDDto.ResultLogGainPoints
                 .Index()
                 .Select(t => (
                     Gain: t.Item.X,
@@ -845,7 +849,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }
         finally
         {
+            cibMMDDto.RefreshPlot();
             cibMMDDto.IsCalibrated = isSuccess;
+            cibMMDDto.IsVerified = false;
             if (isSuccess)
                 Logger.LogHtmlInformation($"OK: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
             else

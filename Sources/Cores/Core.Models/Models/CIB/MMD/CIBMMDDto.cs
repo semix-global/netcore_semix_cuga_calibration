@@ -32,22 +32,25 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     private IReadOnlyList<Point> _originLogGainPoints = [];
 
     [ObservableProperty]
-    private double _a1;
+    private double _logGainA1;
 
     [ObservableProperty]
-    private double _a2;
+    private double _logGainA2;
 
     [ObservableProperty]
-    private double _x0;
+    private double _logGainX0;
 
     [ObservableProperty]
-    private double _dx;
+    private double _logGainDx;
 
     [ObservableProperty]
-    private double _rSquared;
+    private double _logGainRSquared;
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _smoothLogGainPoints = [];
+    private IReadOnlyList<Point> _fitLogGainPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _resultLogGainPoints = [];
 
     [ObservableProperty]
     private IReadOnlyList<Point> _logGainMul128U12BitPoints = [];
@@ -124,18 +127,28 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 GainPoints);
 
         if (OriginLogGainPoints.Count > 0)
+        {
+            ScatterPlotControl.Clear(3);
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
                 $"Origin Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 OriginLogGainPoints);
 
-        if (SmoothLogGainPoints.Count > 0)
-        {
-            ScatterPlotControl.Clear(3);
-            ScatterPlotControl.GetOrAddScatterLine(
-                3,
-                $"Smooth Residual: y = {A2:0.######} + {A1:0.######} - {A2:0.######}) / (1 + exp((x - {X0:0.######}) / {Dx:0.######})) r^2 = {RSquared:0.######}",
-                SmoothLogGainPoints);
+            if (FitLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Fit Residual: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
+                    FitLogGainPoints);
+            }
+
+            if (ResultLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Result Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                    ResultLogGainPoints);
+            }
         }
 
         if (LogGainMul128U12BitPoints.Count > 0)
@@ -163,12 +176,13 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         GainL2Norm = GainL2Norm,
         GainPoints = [..GainPoints],
         OriginLogGainPoints = [..OriginLogGainPoints],
-        A1 = A1,
-        A2 = A2,
-        X0 = X0,
-        Dx = Dx,
-        RSquared = RSquared,
-        SmoothLogGainPoints = [..SmoothLogGainPoints],
+        LogGainA1 = LogGainA1,
+        LogGainA2 = LogGainA2,
+        LogGainX0 = LogGainX0,
+        LogGainDx = LogGainDx,
+        LogGainRSquared = LogGainRSquared,
+        FitLogGainPoints = [..FitLogGainPoints],
+        ResultLogGainPoints = [..ResultLogGainPoints],
         LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],
         GainS16BitPoints = [..GainS16BitPoints],
         IsCalibrated = IsCalibrated,
@@ -183,7 +197,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
         LogGainMul128U12Bits = [..LogGainMul128U12BitPoints.Select(t => t.Y)],
-        GainS16Bits = [..SmoothLogGainPoints.Select(t => t.Y)],
+        GainS16Bits = [..GainS16BitPoints.Select(t => t.Y)],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck

@@ -264,18 +264,6 @@
                                                   Minimum="0"
                                                   Style="{StaticResource NumericUpDownExtend}"
                                                   Value="{Binding Cache.MinLogGain}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Order: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.LogGainSmoothOrder}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Window Size: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.LogGainSmoothWindowSize}" />
                                 <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                         VerticalAlignment="Top"
                                                         Spacing="10">
@@ -401,6 +389,7 @@
                             <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
                             <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
                             <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
+                            <GridViewColumn Header="LogGain RSquared" DisplayMemberBinding="{Binding LogGainRSquared, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

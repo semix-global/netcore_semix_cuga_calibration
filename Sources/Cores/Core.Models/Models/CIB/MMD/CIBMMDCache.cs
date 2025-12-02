@@ -101,12 +101,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _maxValidFraction = 250000d;
 
     [ObservableProperty]
-    private int _logGainSmoothOrder = 3;
-
-    [ObservableProperty]
-    private int _logGainSmoothWindowSize = 5;
-
-    [ObservableProperty]
     private double _minLogGain = 0.1;
 
     [ObservableProperty]
