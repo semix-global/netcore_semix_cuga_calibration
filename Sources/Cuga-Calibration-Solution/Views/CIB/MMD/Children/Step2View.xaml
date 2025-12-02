@@ -167,27 +167,14 @@
                                                   Minimum="0"
                                                   Style="{StaticResource NumericUpDownExtend}"
                                                   Value="{Binding Cache.PMTValueWaitTime}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StartCoefficient}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StepCoefficient}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StopCoefficient}" />
+                                <TextBox Text="{Binding Cache.Coefficients, Converter={StaticResource DoublesToStringConverter}}"
+                                         Height="100"
+                                         TextWrapping="Wrap"
+                                         hc:TitleElement.Title="Coefficients: "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="200"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         Style="{StaticResource TextBoxExtend}" />
                                 <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="190"
@@ -277,18 +264,6 @@
                                                   Minimum="0"
                                                   Style="{StaticResource NumericUpDownExtend}"
                                                   Value="{Binding Cache.MinLogGain}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Order: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.LogGainSmoothOrder}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="LogGain Smooth Window Size: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.LogGainSmoothWindowSize}" />
                                 <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                         VerticalAlignment="Top"
                                                         Spacing="10">
@@ -414,6 +389,7 @@
                             <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
                             <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
                             <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
+                            <GridViewColumn Header="LogGain RSquared" DisplayMemberBinding="{Binding LogGainRSquared, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

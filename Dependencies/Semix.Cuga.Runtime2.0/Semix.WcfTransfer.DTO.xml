@@ -44,6 +44,103 @@
             返回消息
             </summary>
         </member>
+        <member name="T:Semix.WcfTransfer.DTO.SxCollectImgParam">
+            <summary>
+            基础采图功能
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.Type">
+            <summary>
+            采图功能类型
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.Mag">
+            <summary>
+            Mag
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.Speed">
+            <summary>
+            Speed
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.NIOI">
+            <summary>
+            光照模式(NI垂直入射/OI斜入射)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.CoordinateSystem">
+            <summary>
+            坐标系
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.CollectMode">
+            <summary>
+            采图模式(起始点+宽度/起始点+结束点)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.PMTId">
+            <summary>
+            PMTId
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.Width">
+            <summary>
+            图像宽度
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.DieHeightPx">
+            <summary>
+            Die的高度(Die采图专用对象,单位px)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.StartPoint">
+            <summary>
+            起始坐标
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.EndPoint">
+            <summary>
+            结束坐标
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.Light">
+            <summary>
+            光强
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.IsSingle">
+            <summary>
+            是否单向
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.AF">
+            <summary>
+            AF模式(NSC = 0/ECS = 1)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.IsForward">
+            <summary>
+            是否正向
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.IsCalibration">
+            <summary>
+            是否校准模式(校准模式不下发波形)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.NotGetImgThisTime">
+            <summary>
+            本次采图不获取图像(默认不设置)
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.ImgArrayResoult">
+            <summary>
+            是否获取包含图像数据的返回对象
+            true返回对像CgRawImgModel/C2MImgModel集合 图像array数据对象
+            false返回对象M2CImgSysCollectImgDTO集合   图像url对象
+            </summary>
+        </member>
         <member name="T:Semix.WcfTransfer.DTO.SxErrorData">
             <summary>
             错误信息
@@ -915,7 +1012,7 @@
             偏正 [1.S 垂直偏振 2.P 水平偏振 3.C 圆偏振]
             </summary>
         </member>
-        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.IncidenceAngle">
+        <member name="P:Semix.WcfTransfer.DTO.SxInspectionOptics.NiOi">
             <summary>
             入射倾斜角
             倾斜 or 正常  Oblique or Normal
@@ -1699,6 +1796,46 @@
         <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.WaferId">
             <summary>
             
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectMode.PW">
+            <summary>
+            StartPoint Width
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectMode.PTP">
+            <summary>
+            Point To Point
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Normal">
+            <summary>
+            通用采图
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.NoMove">
+            <summary>
+            非移动采图
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.LightTraining">
+            <summary>
+            光强训练
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Preprocessing">
+            <summary>
+            预处理
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.MosaicImage">
+            <summary>
+            拼图
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Using">
+            <summary>
+            使用中的PMT都采集
             </summary>
         </member>
         <member name="M:Semix.WcfTransfer.DTO.SxRectangleD.Intersect(Semix.WcfTransfer.DTO.SxRectangleD,Semix.WcfTransfer.DTO.SxRectangleD)">

@@ -240,7 +240,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 Cache.Threshold,
                 Cache.CenterChannelLensMaximumAngle,
                 Cache.CenterChannelLensDiameterUm,
-                Cache.DegreePerUm,
+                Cache.DegreePerUm
             }), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;

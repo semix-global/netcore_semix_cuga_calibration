@@ -32,7 +32,25 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     private IReadOnlyList<Point> _originLogGainPoints = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _smoothLogGainPoints = [];
+    private double _logGainA1;
+
+    [ObservableProperty]
+    private double _logGainA2;
+
+    [ObservableProperty]
+    private double _logGainX0;
+
+    [ObservableProperty]
+    private double _logGainDx;
+
+    [ObservableProperty]
+    private double _logGainRSquared;
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _fitLogGainPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _resultLogGainPoints = [];
 
     [ObservableProperty]
     private IReadOnlyList<Point> _logGainMul128U12BitPoints = [];
@@ -48,15 +66,14 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _scatterPlotControl;
+    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
+
     public CIBMMDDto()
     {
-        _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
         var customGrid = new CustomGrid();
         ScatterPlotControl.Configure(customGrid, 6,
             plots =>
@@ -77,16 +94,16 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         ScatterPlotControl.SetTitle(5, "Gain S16Bit(Y: Gain S16Bit - X: LogGain * 128 U12Bit )");
     }
 
-    private CIBMMDDto(IScatterPlotControl scatterPlotControl)
-    {
-        _scatterPlotControl = scatterPlotControl;
-    }
-
     public void RefreshPlot()
     {
         var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
         if (items.Length > 0)
         {
+            ScatterPlotControl.GetOrAddScatterLine(
+                0,
+                "Origin Attenuator",
+                [.. items.Select(t => new Point(t.Coefficient, t.OriginMeasurePower))]);
+
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
                 "Attenuator",
@@ -110,16 +127,29 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 GainPoints);
 
         if (OriginLogGainPoints.Count > 0)
+        {
+            ScatterPlotControl.Clear(3);
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
                 $"Origin Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 OriginLogGainPoints);
 
-        if (SmoothLogGainPoints.Count > 0)
-            ScatterPlotControl.GetOrAddScatterLine(
-                3,
-                $"Smooth Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
-                SmoothLogGainPoints);
+            if (FitLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Fit Residual: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
+                    FitLogGainPoints);
+            }
+
+            if (ResultLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Result Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                    ResultLogGainPoints);
+            }
+        }
 
         if (LogGainMul128U12BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
@@ -138,17 +168,23 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     #region Mapper
 
-    public CIBMMDDto Clone() => new(ScatterPlotControl)
+    public CIBMMDDto Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
-        Items = [.. Items.Select(t => t.Clone())],
+        Items = [..Items.Select(t => t.Clone())],
         GainResidual = GainResidual,
         GainL2Norm = GainL2Norm,
-        GainPoints = [.. GainPoints],
-        OriginLogGainPoints = [.. OriginLogGainPoints],
-        SmoothLogGainPoints = [.. SmoothLogGainPoints],
-        LogGainMul128U12BitPoints = [.. LogGainMul128U12BitPoints],
-        GainS16BitPoints = [.. GainS16BitPoints],
+        GainPoints = [..GainPoints],
+        OriginLogGainPoints = [..OriginLogGainPoints],
+        LogGainA1 = LogGainA1,
+        LogGainA2 = LogGainA2,
+        LogGainX0 = LogGainX0,
+        LogGainDx = LogGainDx,
+        LogGainRSquared = LogGainRSquared,
+        FitLogGainPoints = [..FitLogGainPoints],
+        ResultLogGainPoints = [..ResultLogGainPoints],
+        LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],
+        GainS16BitPoints = [..GainS16BitPoints],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -160,8 +196,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        LogGainMul128U12Bits = [.. LogGainMul128U12BitPoints.Select(t => t.Y)],
-        GainS16Bits = [.. SmoothLogGainPoints.Select(t => t.Y)],
+        LogGainMul128U12Bits = [..LogGainMul128U12BitPoints.Select(t => t.Y)],
+        GainS16Bits = [..GainS16BitPoints.Select(t => t.Y)],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -174,6 +210,9 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
 {
     [ObservableProperty]
     private double _coefficient;
+
+    [ObservableProperty]
+    private double _originMeasurePower;
 
     [ObservableProperty]
     private double _measurePower;
@@ -191,8 +230,9 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     public CIBMMDItemDto Clone() => new()
     {
         Coefficient = Coefficient,
+        OriginMeasurePower = OriginMeasurePower,
         MeasurePower = MeasurePower,
-        Items = [.. Items.Select(t => t.Clone())]
+        Items = [..Items.Select(t => t.Clone())]
     };
 
     public sealed class Item : ICloneable<Item>

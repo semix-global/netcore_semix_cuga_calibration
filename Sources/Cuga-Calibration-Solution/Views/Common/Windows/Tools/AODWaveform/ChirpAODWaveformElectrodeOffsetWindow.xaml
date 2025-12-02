@@ -346,9 +346,12 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                                 <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
+                                                         Height="100"
+                                                         TextWrapping="Wrap"
                                                          hc:TitleElement.Title="Frequencies(MHz): "
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          hc:TitleElement.TitleWidth="200"
+                                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                          Style="{StaticResource TextBoxExtend}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(MHz): "
                                                                   hc:TitleElement.TitlePlacement="Left"
