@@ -131,14 +131,14 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
             ScatterPlotControl.Clear(3);
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
-                $"Origin Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                $"Origin Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                 OriginLogGainPoints);
 
             if (FitLogGainPoints.Count > 0)
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
-                    $"Fit Residual: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
+                    $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
                     FitLogGainPoints);
             }
 
@@ -146,7 +146,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
-                    $"Result Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                    $"Result Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
                     ResultLogGainPoints);
             }
         }
