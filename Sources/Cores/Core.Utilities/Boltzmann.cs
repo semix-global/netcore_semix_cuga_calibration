@@ -36,24 +36,24 @@ public static class Boltzmann
         if (x.Count != y.Count) return ThrowHelper.ThrowArgumentException<(double A1, double A2, double X0, double Dx, double RSquared, Vector<double> YPredicted)>("Vectors x and y must have the same length.");
 
         // 初始参数估计
-        var a1Init = y.Maximum();
-        var a2Init = y.Minimum();
-        var x0Init = x[(y - (a1Init + a2Init) / 2d).AbsoluteMinimumIndex()];
-        var dxInit = (y.Differentiate() / x.Differentiate()).PointwiseAbs().Median();
-        // x0Init = x[x.Count / 2];
-        // dxInit = 1d;
+        var guessA1 = y.Maximum();
+        var guessA2 = y.Minimum();
+        var guessX0 = x[(y - (guessA1 + guessA2) / 2d).AbsoluteMinimumIndex()];
+        var guessDx = (y.Differentiate() / x.Differentiate()).PointwiseAbs().Median();
+        // guessX0 = x[x.Count / 2];
+        // guessDx = 1d;
 
-        if (dxInit < 0.1) dxInit = 0.5;
+        if (guessDx < 0.1) guessDx = 0.5;
 
         // 使用非线性最小二乘法拟合
         var (a1Fit, a2Fit, x0Fit, dxFit) = Fit.Curve(
             x.AsArray() ?? x.ToArray(),
             y.AsArray() ?? y.ToArray(),
             BoltzmannFunction,
-            a1Init,
-            a2Init,
-            x0Init,
-            dxInit,
+            guessA1,
+            guessA2,
+            guessX0,
+            guessDx,
             maxIterations: 1000);
 
         // 计算拟合的 Y 值

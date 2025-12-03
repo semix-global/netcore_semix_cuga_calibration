@@ -223,7 +223,7 @@ public sealed class BoltzmannTest
         var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(x, y);
 
         using var plot = new Plot();
-
+        plot.Title("Boltzmann Fit");
         var scatterLine = ScatterLine.Empty;
         scatterLine.Update(
             "Origin Curve",
@@ -249,8 +249,14 @@ public sealed class BoltzmannTest
         });
 
         // File.Delete(imageFullPath);
+        /*
+         * % Guess Param: A1=22.252956, A2=9.136571, x0=-0.100000, dx=1.000000
+         * % 可能存在局部最小值。
+         * % lsqcurvefit 已停止，因为平方和相对于其初始值的最终变化小于函数容差值。
+         * % Result: A1=8.114388, A2=23.196753, x0=0.201398, dx=3.473488, R2=0.991339
+         */
         a1.Should().BeApproximately(8.114388, 1e-4);
-        a2.Should().BeApproximately(23.196754, 1e-4);
+        a2.Should().BeApproximately(23.196753, 1e-4);
         x0.Should().BeApproximately(0.201398, 1e-4);
         dx.Should().BeApproximately(3.473488, 1e-4);
         rSquared.Should().BeApproximately(0.991339, 1e-4);
