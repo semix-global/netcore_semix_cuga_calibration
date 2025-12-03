@@ -171,20 +171,20 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     public CIBMMDDto Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
-        Items = [..Items.Select(t => t.Clone())],
+        Items = [.. Items.Select(t => t.Clone())],
         GainResidual = GainResidual,
         GainL2Norm = GainL2Norm,
-        GainPoints = [..GainPoints],
-        OriginLogGainPoints = [..OriginLogGainPoints],
+        GainPoints = [.. GainPoints],
+        OriginLogGainPoints = [.. OriginLogGainPoints],
         LogGainA1 = LogGainA1,
         LogGainA2 = LogGainA2,
         LogGainX0 = LogGainX0,
         LogGainDx = LogGainDx,
         LogGainRSquared = LogGainRSquared,
-        FitLogGainPoints = [..FitLogGainPoints],
-        ResultLogGainPoints = [..ResultLogGainPoints],
-        LogGainMul128U12BitPoints = [..LogGainMul128U12BitPoints],
-        GainS16BitPoints = [..GainS16BitPoints],
+        FitLogGainPoints = [.. FitLogGainPoints],
+        ResultLogGainPoints = [.. ResultLogGainPoints],
+        LogGainMul128U12BitPoints = [.. LogGainMul128U12BitPoints],
+        GainS16BitPoints = [.. GainS16BitPoints],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -196,8 +196,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        LogGainMul128U12Bits = [..LogGainMul128U12BitPoints.Select(t => t.Y)],
-        GainS16Bits = [..GainS16BitPoints.Select(t => t.Y)],
+        LogGainMul128U12Bits = [.. LogGainMul128U12BitPoints.Select(t => t.Y)],
+        GainS16Bits = [.. GainS16BitPoints.Select(t => t.Y)],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -232,7 +232,7 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
         Coefficient = Coefficient,
         OriginMeasurePower = OriginMeasurePower,
         MeasurePower = MeasurePower,
-        Items = [..Items.Select(t => t.Clone())]
+        Items = [.. Items.Select(t => t.Clone())]
     };
 
     public sealed class Item : ICloneable<Item>

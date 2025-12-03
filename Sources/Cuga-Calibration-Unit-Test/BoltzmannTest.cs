@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using System.IO;
 using AwesomeAssertions;
 using Core.Utilities;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Plottables;
 using ScottPlot;
+using System.Diagnostics;
+using System.IO;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;
@@ -227,13 +227,13 @@ public sealed class BoltzmannTest
         var scatterLine = ScatterLine.Empty;
         scatterLine.Update(
             "Origin Curve",
-            [..x.Index().Select(t => new Point(t.Item, y[t.Index]))],
+            [.. x.Index().Select(t => new Point(t.Item, y[t.Index]))],
             Colors.Blue);
         lock (plot.Sync) plot.PlottableList.Add(scatterLine);
         scatterLine = ScatterLine.Empty;
         scatterLine.Update(
             $"Fit Curve: y = {a2:0.######} + ({a1:0.######} - {a2:0.######}) / (1 + exp((x - {x0:0.######}) / {dx:0.######})) r^2 = {rSquared:0.######}",
-            [..x.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))],
+            [.. x.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))],
             Colors.Red);
         lock (plot.Sync) plot.PlottableList.Add(scatterLine);
 
