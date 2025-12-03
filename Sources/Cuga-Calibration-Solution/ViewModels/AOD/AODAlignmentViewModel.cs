@@ -312,7 +312,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     item.PrescanAODWaveformResultFilePath,
                     PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                     HtmlImage = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    ImageProjectionYs = new HtmlPlot2DLinesChart([(string.Empty, item.ImageProjectionYs.ToPoints()),], string.Empty),
+                    ImageProjectionYs = new HtmlPlot2DLinesChart([(string.Empty, item.ImageProjectionYs.ToPoints())], string.Empty),
                     item.ImageProjectionYsMaxPixel
                 }), HtmlLogUniqueId.LoggingHtml());
             }

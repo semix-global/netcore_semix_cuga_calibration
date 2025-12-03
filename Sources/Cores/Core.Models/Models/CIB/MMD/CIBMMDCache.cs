@@ -62,13 +62,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _pMTValueWaitTime = 1;
 
     [ObservableProperty]
-    private double _startCoefficient = 0.01;
-
-    [ObservableProperty]
-    private double _stepCoefficient = 0.1;
-
-    [ObservableProperty]
-    private double _stopCoefficient = 1;
+    private IReadOnlyList<double> _coefficients = [0.01, 0.013, 0.0169, 0.02197, 0.028561, 0.0371293, 0.04826809, 0.062748517, 0.081573072, 0.106044994, 0.137858492, 0.179216039, 0.232980851, 0.302875107, 0.393737639, 0.51185893, 0.665416609, 0.865041592, 1];
 
     [ObservableProperty]
     private double _startGain = -10;
@@ -105,12 +99,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _maxValidFraction = 250000d;
-
-    [ObservableProperty]
-    private int _logGainSmoothOrder = 3;
-
-    [ObservableProperty]
-    private int _logGainSmoothWindowSize = 5;
 
     [ObservableProperty]
     private double _minLogGain = 0.1;

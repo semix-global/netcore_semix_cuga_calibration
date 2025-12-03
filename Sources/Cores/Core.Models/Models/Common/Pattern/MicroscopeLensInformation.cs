@@ -87,9 +87,7 @@ public sealed class MicroscopeLensInformation :
         (null, null) => true,
         (null, _) => false,
         (_, null) => false,
-        (_, _) => ReferenceEquals(left, right) || (Equals(left.LensName, right.LensName) &&
-                                                   Equals(left.LensCode, right.LensCode) &&
-                                                   Equals(left.ObjectiveMagnification, right.ObjectiveMagnification))
+        (_, _) => ReferenceEquals(left, right) || (Equals(left.LensCode, right.LensCode))
     };
 
     public static bool operator !=(MicroscopeLensInformation? left, MicroscopeLensInformation? right) => !(left == right);
