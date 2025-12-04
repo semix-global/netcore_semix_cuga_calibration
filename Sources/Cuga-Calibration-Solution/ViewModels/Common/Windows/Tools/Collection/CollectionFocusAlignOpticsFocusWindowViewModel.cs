@@ -48,7 +48,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private int _pmtId;
@@ -554,7 +554,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         brightFieldPosition,
                         Cache.ImageWidthPixel,
                         Cache.ProductivityInformation,
-                        Cache.OpticsIncidentModeEnum,
+                        Cache.OpticsIlluminationModeEnum,
                         Cache.PmtId,
                         StageCoordinateSystemEnum.Dark,
                         cibConfiguration,

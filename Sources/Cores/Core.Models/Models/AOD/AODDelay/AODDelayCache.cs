@@ -11,7 +11,7 @@ namespace Core.Models.Models.AOD.AODDelay;
 public sealed partial class AODDelayCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]

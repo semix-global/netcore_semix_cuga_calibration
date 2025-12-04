@@ -28,7 +28,7 @@ public sealed partial class GenerateAODWaveformCache<TParam, TProfile> : Observa
     private string _aODWaveformResultFilePath = string.Empty;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = OpticsIncidentModeEnum.OI;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
 }
 
 public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : ViewModelBase

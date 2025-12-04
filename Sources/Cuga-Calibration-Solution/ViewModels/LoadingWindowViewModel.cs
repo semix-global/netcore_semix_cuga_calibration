@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
@@ -77,24 +78,17 @@ public sealed partial class LoadingWindowViewModel(
             var deviceCode = configViewModel.GetDeviceCode();
             var microscopeLensInformations = microscopeViewModel.GetMicroscopeLensInformations();
             var laserLightInformations = laserViewModel.GetLaserLightInformations();
-            var productivityInformations = laserViewModel.GetProductivityInformations();
+            var niProductivityInformations = laserViewModel.GetProductivityInformations(OpticsIlluminationModeEnum.NI);
+            var oiProductivityInformations = laserViewModel.GetProductivityInformations(OpticsIlluminationModeEnum.OI);
             var cibInformations = laserViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
-            applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
+            applicationCookie.NIProductivityInformations = [.. niProductivityInformations.Select(t => t.Clone())];
+            applicationCookie.OIProductivityInformations = [.. oiProductivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
 
-            applicationCookie.LowProductivityInformation = applicationCookie.ProductivityInformations
-                .OrderByDescending(t => t.YPixelSize)
-                .ThenByDescending(t => t.XPixelSize)
-                .First();
-
-            applicationCookie.HighProductivityInformation = applicationCookie.ProductivityInformations
-                .OrderBy(t => t.YPixelSize)
-                .ThenBy(t => t.XPixelSize)
-                .First();
             contextProvider.Send(() => CloseView(true));
 
             await Task.Delay(300).ConfigureAwait(false);

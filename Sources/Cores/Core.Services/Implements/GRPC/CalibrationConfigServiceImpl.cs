@@ -33,32 +33,25 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
 
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
-        var sxExecuteRet = Invoke(() => Service?.GetCalibrationFilePath());
-
-        return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<(double XPixelSize, double YPixelSize)> GetProductivityPixelSize(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
-    {
-        throw new NotImplementedException();
-    }
-
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
     {
         throw new NotImplementedException();
     }

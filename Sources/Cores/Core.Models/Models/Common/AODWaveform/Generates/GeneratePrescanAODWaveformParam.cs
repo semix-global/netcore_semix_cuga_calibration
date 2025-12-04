@@ -20,7 +20,7 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum,
         SampleRate = SampleRate,
         DirectoryPath = DirectoryPath,
-        FileNameSuffix = ProductivityInformation.AdaptTo().Mag.ToString(),
+        FileNameSuffix = $"{OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         GenerateRetryTimes = GenerateRetryTimes,

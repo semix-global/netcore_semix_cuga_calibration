@@ -38,7 +38,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using static SkiaSharp.HarfBuzz.SKShaper;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -47,19 +46,19 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     IApplicationCookieService applicationCookieService,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
-    EnableOpticsIncidentModeWindowViewModel enableOpticsIncidentModeWindowViewModel,
+    EnableOpticsIlluminationModeWindowViewModel enableOpticsIlluminationModeWindowViewModel,
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
+    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
 
-    public override string CalibrateFileName => $"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
+    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Incident Mode" },
+        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity" },
         new() { StepName = "Config" },
         new() { StepName = "P5" },
@@ -68,7 +67,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         new() { StepName = "Line Centricity Calibration" }
     ];
 
-    private List<(OpticsIncidentModeEnum opticsIncidentMode, bool isEnbale)> _enableOpticsIncidentList = [];
+    private List<(OpticsIlluminationModeEnum OpticsIlluminationModeEnum, bool isEnbale)> _enableOpticsIlluminationModeList = [];
 
     private List<(ProductivityInformation productiveInformation, bool isEnbale)> _enableProductiveInformationList = [];
 
@@ -80,7 +79,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private ObservableCollection<LaserLineCentricityItemDto> _resultLaserLineCentricityItemDtoList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIncidentModeEnumAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatusesItem = [];
@@ -224,19 +223,19 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         CalibrationStatuses =
         [
-            ..EnumHelper.Enums<OpticsIncidentModeEnum>()
-                .Select(t => new OpticsIncidentModeEnumAndProductivityInformationCalibrationStatus()
+            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
-                    OpticsIncidentModeEnum = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.OpticsMagTypeProductivityInformations)]
+                    OpticsIlluminationModeEnum = t,
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
-        CalibrationStatusesItem = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.OpticsMagTypeProductivityInformations)];
+        CalibrationStatusesItem = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)];
 
         foreach (var calibrationStatus in Calibrations)
         {
-            var opticsIncidentModeStatus = CalibrationStatuses.Single(t => t.OpticsIncidentModeEnum == calibrationStatus.OpticsIncidentMode);
-            var status = opticsIncidentModeStatus
+            var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == calibrationStatus.OpticsIlluminationMode);
+            var status = opticsIlluminationModeEnumStatus
                 .ProductivityInformationCalibrationStatusList
                 .SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
@@ -258,7 +257,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIncidentMode)
+                .OrderBy(t => t.OpticsIlluminationMode)
                 .ThenBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
@@ -279,7 +278,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 0:
-                foreach (var temp in CalibrationStatuses.Single(t => t.OpticsIncidentModeEnum == Cache.OpticsIncidentModeEnum).ProductivityInformationCalibrationStatusList)
+                foreach (var temp in CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum).ProductivityInformationCalibrationStatusList)
                 {
                     CalibrationStatusesItem.Single(t => t.ProductivityInformation == temp.ProductivityInformation).IsCalibrated = temp.IsCalibrated;
                 }
@@ -330,7 +329,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     }
                 }
 
-                CalibrationStatuses.Single(t => t.OpticsIncidentModeEnum == Cache.OpticsIncidentModeEnum)
+                CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
                     .Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
 
@@ -421,7 +420,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -584,7 +583,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             false,
             Cache.Item.CIBConfiguration,
             Cache.ProductivityInformation,
-            Cache.OpticsIncidentModeEnum,
+            Cache.OpticsIlluminationModeEnum,
             Cache.Item.XWidthPixel,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
         var detectImageDirectory = ImageFileDirectory;
@@ -652,7 +651,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
             {
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.PmtInterval,
                 Cache.Item.FindPosition,
@@ -663,7 +662,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             var centerPmt = new LaserLineCentricityItemDto
             {
-                OpticsIncidentMode = Cache.OpticsIncidentModeEnum,
+                OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                 MicroscopeLensInformation = Cache.MicroscopeLensInformation,
                 ProductivityInformation = Cache.ProductivityInformation,
                 PmtId = 8,
@@ -682,7 +681,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             {
                 var pmt = new LaserLineCentricityItemDto
                 {
-                    OpticsIncidentMode = Cache.OpticsIncidentModeEnum,
+                    OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                     MicroscopeLensInformation = Cache.MicroscopeLensInformation,
                     ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
@@ -700,7 +699,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             {
                 var pmt = new LaserLineCentricityItemDto
                 {
-                    OpticsIncidentMode = Cache.OpticsIncidentModeEnum,
+                    OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                     MicroscopeLensInformation = Cache.MicroscopeLensInformation,
                     ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
@@ -737,6 +736,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. ResultLaserLineCentricityItemDtoList], centerPmt.ProductivityInformation);
                 LineCentricityOffsetsFit(calibrationOffsets);
             }
+
             return true;
         });
     }
@@ -754,10 +754,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 return false;
             }
 
-            var opticsIncidentGroups = SelectReviews.GroupBy(t => t.OpticsIncidentMode).ToList();
-            if (opticsIncidentGroups.Count > 1)
+            var opticsIlluminationModeGroups = SelectReviews.GroupBy(t => t.OpticsIlluminationMode).ToList();
+            if (opticsIlluminationModeGroups.Count > 1)
             {
-                DialogWindowProvider.ShowDialog("Please select same optics incident mode items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog("Please select same optics illumination mode items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
 
@@ -837,7 +837,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 true,
                 Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
                 CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -877,7 +877,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                selectReviewItemDto.OpticsIncidentMode,
+                selectReviewItemDto.OpticsIlluminationMode,
                 findDarkMachinePosition,
                 ResultDarkMachinePosition = laserLineCentricityItemDto.FindDarkMachinePosition,
                 newForwardDarkMachineCenterPosition = laserLineCentricityItemDto.DarkMachineCenterPosition,
@@ -913,6 +913,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             var verifyOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. resultLineCentricityItemDtoList], centerLineCentricityItemDto.ProductivityInformation);
             LineCentricityOffsetsFit(verifyOffsets);
         }
+
         return selectListAllResult;
     }
 
@@ -940,7 +941,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 true,
                 Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
                 CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -980,7 +981,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId
                              && t.ProductivityInformation == itemDto.ProductivityInformation
-                             && t.OpticsIncidentMode == itemDto.OpticsIncidentMode) == false),
+                             && t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode) == false),
             itemDto.Clone()
         ];
         if (isSave == false) return;
@@ -1007,7 +1008,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
     {
-      
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.X)).ToArray();
         var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(
@@ -1058,7 +1058,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 calibrationStatus => calibrationStatus.ProductivityInformationCalibrationStatusList,
                 (calibrationStatus, productivityInformations) => new CalibrationItemStep()
                 {
-                    StepName = $"{calibrationStatus.OpticsIncidentModeEnum.ToDescriptionOrString()} {productivityInformations.ProductivityInformation}"
+                    StepName = $"{calibrationStatus.OpticsIlluminationModeEnum.ToDescriptionOrString()} {productivityInformations.ProductivityInformation}"
                 }),
             new() { StepName = "Review" }
         ];
@@ -1071,8 +1071,8 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             GetAutoCalibrationStep();
             await base.AutomationActionAsync(cancellationToken);
 
-            WindowManagerService.ShowDialog(enableOpticsIncidentModeWindowViewModel);
-            _enableOpticsIncidentList = [.. enableOpticsIncidentModeWindowViewModel.OpticsIncidentModeEnableList.Select(t => (t.OpticsIncidentModeEnum, t.IsEnable))];
+            WindowManagerService.ShowDialog(enableOpticsIlluminationModeWindowViewModel);
+            _enableOpticsIlluminationModeList = [.. enableOpticsIlluminationModeWindowViewModel.OpticsIlluminationModeEnableList.Select(t => (t.OpticsIlluminationModeEnum, t.IsEnable))];
 
             WindowManagerService.ShowDialog(enableProductiveInformationWindowViewModel);
             _enableProductiveInformationList = [.. enableProductiveInformationWindowViewModel.ProductiveInformationEnableList.Select(t => (t.ProductivityInformation, t.IsEnable))];
@@ -1089,7 +1089,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     {
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                         {
-                            Cache.OpticsIncidentModeEnum,
+                            Cache.OpticsIlluminationModeEnum,
                             Cache.ProductivityInformation
                         }), HtmlLogUniqueId.LoggingHtml());
                         return true;
@@ -1103,16 +1103,16 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     var result = true;
                     await InvokeCalibrateAsync(() =>
                     {
-                        foreach (var opticsIncidentReviews in Reviews.GroupBy(t => t.OpticsIncidentMode))
+                        foreach (var opticsIlluminationModeReviews in Reviews.GroupBy(t => t.OpticsIlluminationMode))
                         {
-                            if (_enableOpticsIncidentList.Single(t => t.opticsIncidentMode == opticsIncidentReviews.Key).isEnbale == false)
+                            if (_enableOpticsIlluminationModeList.Single(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeReviews.Key).isEnbale == false)
                                 continue;
-                            Cache.OpticsIncidentModeEnum = opticsIncidentReviews.Key;
-                            foreach (var reviewItem in opticsIncidentReviews.GroupBy(t => t.ProductivityInformation))
+                            Cache.OpticsIlluminationModeEnum = opticsIlluminationModeReviews.Key;
+                            foreach (var reviewItem in opticsIlluminationModeReviews.GroupBy(t => t.ProductivityInformation))
                             {
                                 if (_enableProductiveInformationList.Single(t => t.productiveInformation == reviewItem.Key).isEnbale == false)
                                     continue;
-                                Logger.LogHtmlInformation($"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                Logger.LogHtmlInformation($"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                                 Cache.ProductivityInformation = reviewItem.Key;
 
                                 var centerLineCentricityItemDto = SelectReviews.Single(t => t.PmtId == 8);
@@ -1120,7 +1120,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                                 SelectReviews = [.. reviewItem];
                                 if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false)
                                 {
-                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                     result = false;
                                     return result;
                                 }
@@ -1135,7 +1135,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 {
                     foreach (var status in CalibrationStatuses)
                     {
-                        Cache.OpticsIncidentModeEnum = status.OpticsIncidentModeEnum;
+                        Cache.OpticsIlluminationModeEnum = status.OpticsIlluminationModeEnum;
 
                         foreach (var productivity in status.ProductivityInformationCalibrationStatusList)
                         {
@@ -1255,16 +1255,16 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             {
                 try
                 {
-                    foreach (var opticsIncidentReviews in Reviews.GroupBy(t => t.OpticsIncidentMode))
+                    foreach (var opticsIlluminationModeReviews in Reviews.GroupBy(t => t.OpticsIlluminationMode))
                     {
-                        if (_enableOpticsIncidentList.Single(t => t.opticsIncidentMode == opticsIncidentReviews.Key).isEnbale == false)
+                        if (_enableOpticsIlluminationModeList.Single(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeReviews.Key).isEnbale == false)
                             continue;
-                        Cache.OpticsIncidentModeEnum = opticsIncidentReviews.Key;
-                        foreach (var reviewItem in opticsIncidentReviews.GroupBy(t => t.ProductivityInformation))
+                        Cache.OpticsIlluminationModeEnum = opticsIlluminationModeReviews.Key;
+                        foreach (var reviewItem in opticsIlluminationModeReviews.GroupBy(t => t.ProductivityInformation))
                         {
                             if (_enableProductiveInformationList.Single(t => t.productiveInformation == reviewItem.Key).isEnbale == false)
                                 continue;
-                            Logger.LogHtmlInformation($"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                            Logger.LogHtmlInformation($"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                             Cache.ProductivityInformation = reviewItem.Key;
 
                             var centerLineCentricityItemDto = SelectReviews.Single(t => t.PmtId == 8);
@@ -1272,7 +1272,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                             SelectReviews = [.. reviewItem];
                             if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false)
                             {
-                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                 result = false;
                                 return result;
                             }

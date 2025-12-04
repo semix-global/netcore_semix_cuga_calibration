@@ -5,10 +5,10 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsIncidentModeCalibrationStatus : ObservableCacheBase
+public sealed partial class OpticsIlluminationModeCalibrationStatus : ObservableCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private bool _isCalibrated;

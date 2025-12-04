@@ -39,17 +39,17 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
-    EnableOpticsIncidentModeWindowViewModel enableOpticsIncidentModeWindowViewModel) : CalibrationViewModelBase
+    EnableOpticsIlluminationModeWindowViewModel enableOpticsIlluminationModeWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
+    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
 
-    public override string CalibrateFileName => $"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
+    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Incident Mode" },
+        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity" },
         new() { StepName = "Config" },
         new() { StepName = "P5" },
@@ -57,7 +57,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         new() { StepName = "Pixel Size" }
     ];
 
-    private List<(OpticsIncidentModeEnum opticsIncidentMode, bool isEnbale)> _enableOpticsIncidentList = [];
+    private List<(OpticsIlluminationModeEnum OpticsIlluminationModeEnum, bool isEnbale)> _enableOpticsIlluminationModetList = [];
 
     private List<(ProductivityInformation productiveInformation, bool isEnbale)> _enableProductiveInformationList = [];
 
@@ -69,7 +69,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     private ObservableCollection<LaserPixelSizeItemDto> _resultLaserPixelSizeItemDtoList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIncidentModeEnumAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatusesItem = [];
@@ -180,19 +180,19 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
 
         CalibrationStatuses =
         [
-            ..EnumHelper.Enums<OpticsIncidentModeEnum>()
-                .Select(t => new OpticsIncidentModeEnumAndProductivityInformationCalibrationStatus()
+            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
-                    OpticsIncidentModeEnum = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.OpticsMagTypeProductivityInformations)]
+                    OpticsIlluminationModeEnum = t,
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
-        CalibrationStatusesItem = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.OpticsMagTypeProductivityInformations)];
+        CalibrationStatusesItem = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)];
 
         foreach (var calibrationStatus in Calibrations)
         {
-            var opticsIncidentModeStatus = CalibrationStatuses.Single(t => t.OpticsIncidentModeEnum == calibrationStatus.OpticsIncidentMode);
-            var status = opticsIncidentModeStatus
+            var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == calibrationStatus.OpticsIlluminationMode);
+            var status = opticsIlluminationModeStatus
                 .ProductivityInformationCalibrationStatusList
                 .SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
@@ -222,7 +222,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             .. Calibrations
                 .Select(t => t.Clone())
                 .Where(t => pmtConfig.Count <= 0 || pmtConfig[t.PmtId - 1].Enabled)
-                .OrderBy(t => t.OpticsIncidentMode)
+                .OrderBy(t => t.OpticsIlluminationMode)
                 .ThenBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
@@ -237,7 +237,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 0:
-                foreach (var temp in CalibrationStatuses.Single(t => t.OpticsIncidentModeEnum == Cache.OpticsIncidentModeEnum).ProductivityInformationCalibrationStatusList)
+                foreach (var temp in CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum).ProductivityInformationCalibrationStatusList)
                 {
                     CalibrationStatusesItem.Single(t => t.ProductivityInformation == temp.ProductivityInformation).IsCalibrated = temp.IsCalibrated;
                 }
@@ -278,7 +278,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                     Calibrations =
                     [
                         .. Calibrations
-                            .Where(t => t.OpticsIncidentMode != Cache.OpticsIncidentModeEnum
+                            .Where(t => t.OpticsIlluminationMode != Cache.OpticsIlluminationModeEnum
                                         || t.ProductivityInformation != Cache.ProductivityInformation)
                     ];
                     foreach (var (index, laserPixelSizeItemDto) in ResultLaserPixelSizeItemDtoList.Select((dto, i) => (i, dto)))
@@ -292,7 +292,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                     }
                 }
 
-                CalibrationStatuses.Single(t => t.OpticsIncidentModeEnum == Cache.OpticsIncidentModeEnum)
+                CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
                     .Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
 
@@ -367,7 +367,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -484,7 +484,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.PmtInterval,
                 Cache.Item.FindPosition,
@@ -496,7 +496,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             [
                 new()
                 {
-                    OpticsIncidentMode = Cache.OpticsIncidentModeEnum,
+                    OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                     ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = 8,
                     FindPosition = Cache.Item.FindPosition,
@@ -510,7 +510,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             {
                 var pmt = new LaserPixelSizeItemDto
                 {
-                    OpticsIncidentMode = Cache.OpticsIncidentModeEnum,
+                    OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                     ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
                     FindPosition = Cache.Item.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i)),
@@ -525,7 +525,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             {
                 var pmt = new LaserPixelSizeItemDto
                 {
-                    OpticsIncidentMode = Cache.OpticsIncidentModeEnum,
+                    OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                     ProductivityInformation = Cache.ProductivityInformation,
                     PmtId = i,
                     FindPosition = Cache.Item.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8)),
@@ -579,10 +579,10 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 return false;
             }
 
-            var productiveGroups = SelectReviews.GroupBy(t => t.OpticsIncidentMode).ToList();
+            var productiveGroups = SelectReviews.GroupBy(t => t.OpticsIlluminationMode).ToList();
             if (productiveGroups.Count > 1)
             {
-                DialogWindowProvider.ShowDialog("Please select same optics incident mode items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog("Please select same optics illumination mode items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
 
@@ -652,7 +652,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
 
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                selectReviewItemDto.OpticsIncidentMode,
+                selectReviewItemDto.OpticsIlluminationMode,
                 selectReviewItemDto.ProductivityInformation,
                 NewOffset = yPixelSize,
                 OldOffset = selectReviewItemDto.YPixelSize,
@@ -690,7 +690,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 false,
                 Cache.Item.CIBConfiguration,
                 laserPixelSizeItemDto.ProductivityInformation,
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
                 Cache.Item.XWidthPixel,
                 laserPixelSizeItemDto.PmtId);
         try
@@ -740,7 +740,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             .. Calibrations
                 .Where(t => (t.PmtId == itemDto.PmtId
                              && t.ProductivityInformation == itemDto.ProductivityInformation
-                             && t.OpticsIncidentMode == itemDto.OpticsIncidentMode) == false),
+                             && t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode) == false),
             itemDto.Clone()
         ];
 
@@ -779,7 +779,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 calibrationStatus => calibrationStatus.ProductivityInformationCalibrationStatusList,
                 (calibrationStatus, productivityInformations) => new CalibrationItemStep()
                 {
-                    StepName = $"{calibrationStatus.OpticsIncidentModeEnum.ToDescriptionOrString()} {productivityInformations.ProductivityInformation}"
+                    StepName = $"{calibrationStatus.OpticsIlluminationModeEnum.ToDescriptionOrString()} {productivityInformations.ProductivityInformation}"
                 }),
             new() { StepName = "Review" }
         ];
@@ -791,8 +791,8 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         {
             GetAutoCalibrationStep();
             await base.AutomationActionAsync(cancellationToken);
-            WindowManagerService.ShowDialog(enableOpticsIncidentModeWindowViewModel);
-            _enableOpticsIncidentList = [.. enableOpticsIncidentModeWindowViewModel.OpticsIncidentModeEnableList.Select(t => (t.OpticsIncidentModeEnum, t.IsEnable))];
+            WindowManagerService.ShowDialog(enableOpticsIlluminationModeWindowViewModel);
+            _enableOpticsIlluminationModetList = [.. enableOpticsIlluminationModeWindowViewModel.OpticsIlluminationModeEnableList.Select(t => (t.OpticsIlluminationModeEnum, t.IsEnable))];
 
             WindowManagerService.ShowDialog(enableProductiveInformationWindowViewModel);
             _enableProductiveInformationList = [.. enableProductiveInformationWindowViewModel.ProductiveInformationEnableList.Select(t => (t.ProductivityInformation, t.IsEnable))];
@@ -809,7 +809,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                     {
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                         {
-                            Cache.OpticsIncidentModeEnum,
+                            Cache.OpticsIlluminationModeEnum,
                             Cache.ProductivityInformation,
                             Cache.MicroscopeLensInformation.LensName
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -824,21 +824,21 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                     var result = true;
                     await InvokeCalibrateAsync(() =>
                     {
-                        foreach (var opticsIncidentReviews in Reviews.GroupBy(t => t.OpticsIncidentMode))
+                        foreach (var opticsIlluminationModeEnumReviews in Reviews.GroupBy(t => t.OpticsIlluminationMode))
                         {
-                            if (_enableOpticsIncidentList.Single(t => t.opticsIncidentMode == opticsIncidentReviews.Key).isEnbale == false)
+                            if (_enableOpticsIlluminationModetList.Single(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeEnumReviews.Key).isEnbale == false)
                                 continue;
-                            Cache.OpticsIncidentModeEnum = opticsIncidentReviews.Key;
-                            foreach (var reviewItem in opticsIncidentReviews.GroupBy(t => t.ProductivityInformation))
+                            Cache.OpticsIlluminationModeEnum = opticsIlluminationModeEnumReviews.Key;
+                            foreach (var reviewItem in opticsIlluminationModeEnumReviews.GroupBy(t => t.ProductivityInformation))
                             {
                                 if (_enableProductiveInformationList.Single(t => t.productiveInformation == reviewItem.Key).isEnbale == false)
                                     continue;
-                                Logger.LogHtmlInformation($"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                Logger.LogHtmlInformation($"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                                 Cache.ProductivityInformation = reviewItem.Key;
                                 SelectReviews = [.. reviewItem];
                                 if (VerifyCalibration(cancellationToken) == false)
                                 {
-                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                    DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                     result = false;
                                     return result;
                                 }
@@ -853,7 +853,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 {
                     foreach (var status in CalibrationStatuses)
                     {
-                        Cache.OpticsIncidentModeEnum = status.OpticsIncidentModeEnum;
+                        Cache.OpticsIlluminationModeEnum = status.OpticsIlluminationModeEnum;
 
                         foreach (var productivity in status.ProductivityInformationCalibrationStatusList)
                         {
@@ -953,16 +953,16 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             {
                 try
                 {
-                    foreach (var opticsIncidentReviews in Reviews.GroupBy(t => t.OpticsIncidentMode))
+                    foreach (var opticsIlluminationModeReviews in Reviews.GroupBy(t => t.OpticsIlluminationMode))
                     {
-                        if (_enableOpticsIncidentList.Single(t => t.opticsIncidentMode == opticsIncidentReviews.Key).isEnbale == false)
+                        if (_enableOpticsIlluminationModetList.Single(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeReviews.Key).isEnbale == false)
                             continue;
-                        Cache.OpticsIncidentModeEnum = opticsIncidentReviews.Key;
-                        foreach (var reviewItem in opticsIncidentReviews.GroupBy(t => t.ProductivityInformation))
+                        Cache.OpticsIlluminationModeEnum = opticsIlluminationModeReviews.Key;
+                        foreach (var reviewItem in opticsIlluminationModeReviews.GroupBy(t => t.ProductivityInformation))
                         {
                             if (_enableProductiveInformationList.Single(t => t.productiveInformation == reviewItem.Key).isEnbale == false)
                                 continue;
-                            Logger.LogHtmlInformation($"{Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                            Logger.LogHtmlInformation($"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {reviewItem.Key}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                             Cache.ProductivityInformation = reviewItem.Key;
 
                             if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
@@ -970,7 +970,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                             SelectReviews = [.. reviewItem];
                             if (VerifyCalibration(cancellationToken) == false)
                             {
-                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIncidentModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()} {Cache.ProductivityInformation} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                 result = false;
                                 return result;
                             }

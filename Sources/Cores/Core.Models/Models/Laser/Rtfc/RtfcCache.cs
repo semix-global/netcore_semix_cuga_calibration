@@ -11,7 +11,7 @@ public sealed partial class RtfcCache : CalibrationCacheBase
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     /// <summary>
     /// 入射角（°）

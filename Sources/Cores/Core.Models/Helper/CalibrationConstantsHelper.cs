@@ -49,7 +49,7 @@ public static class CalibrationConstantsHelper
     /// <summary>
     /// 主校准暗场入射方式
     /// </summary>
-    public const OpticsIncidentModeEnum MainOpticsIncidentModeEnum = OpticsIncidentModeEnum.OI;
+    public const OpticsIlluminationModeEnum MainOpticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
 
     /// <summary>
     /// 主校准暗场采集坐标系系统

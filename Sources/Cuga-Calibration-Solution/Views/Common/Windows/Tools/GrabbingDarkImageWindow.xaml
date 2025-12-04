@@ -332,9 +332,9 @@
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:InfoElement.TitleWidth="150"
                                          hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="OpticsIncident Mode: "
-                                         SelectedItem="{Binding OpticsIncidentModeEnum}"
-                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIncidentModeEnum}}}">
+                                         hc:InfoElement.Title="Optics Illumination Mode: "
+                                         SelectedItem="{Binding OpticsIlluminationModeEnum}"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIlluminationModeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />

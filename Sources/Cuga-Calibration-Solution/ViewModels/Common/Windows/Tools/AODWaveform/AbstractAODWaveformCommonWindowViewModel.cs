@@ -37,7 +37,7 @@ public partial class AODWaveformCommonCache : ObservableCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
 
     [ObservableProperty]
@@ -203,7 +203,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             SetAODWaveformProfiles(item);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);

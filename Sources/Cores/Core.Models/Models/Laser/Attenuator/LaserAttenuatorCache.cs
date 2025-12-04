@@ -10,7 +10,7 @@ namespace Core.Models.Models.Laser.Attenuator;
 public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]

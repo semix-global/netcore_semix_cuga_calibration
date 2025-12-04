@@ -15,7 +15,7 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.GridConrner_100um;
@@ -24,13 +24,13 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIncidentModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserLineCentricityCacheItem Item => Items.GetOrAdd((OpticsIncidentModeEnum, ProductivityInformation), new LaserLineCentricityCacheItem());
+    public LaserLineCentricityCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserLineCentricityCacheItem());
 
     [ObservableProperty]
     private double _chuckRadius = 150000;

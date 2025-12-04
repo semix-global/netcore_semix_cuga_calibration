@@ -40,7 +40,7 @@
                                  hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                  SelectedItem="{Binding ProductivityInformation, FallbackValue={x:Static pattern:ProductivityInformation.Default}}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                 ItemsSource="{Binding ApplicationCookie.NIOpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                  Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>

@@ -7,7 +7,7 @@ namespace Core.Models.Models.Laser.PmtAgcDelay;
 public sealed partial class LaserPmtAgcDelayCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;

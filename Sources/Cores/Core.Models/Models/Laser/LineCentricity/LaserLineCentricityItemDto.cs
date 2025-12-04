@@ -13,7 +13,7 @@ namespace Core.Models.Models.Laser.LineCentricity;
 public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICloneable<LaserLineCentricityItemDto>, IAdaptTo<CalibrationLaserLineCentricityItem>
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentMode = OpticsIncidentModeEnum.OI;
+    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -51,7 +51,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     {
         return new LaserLineCentricityItemDto
         {
-            OpticsIncidentMode = OpticsIncidentMode,
+            OpticsIlluminationMode = OpticsIlluminationMode,
             MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
             ProductivityInformation = ProductivityInformation.Clone(),
             PmtId = PmtId,
@@ -74,7 +74,7 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
     {
         return new CalibrationLaserLineCentricityItem
         {
-            CgNIOITypeEnum = OpticsIncidentMode.ToCgNIOITypeEnum(),
+            CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
             CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
             Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),

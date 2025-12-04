@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.OpticalPowerMeter;
 public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]

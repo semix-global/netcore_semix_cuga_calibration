@@ -24,8 +24,8 @@
                        Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Optics Incident Mode: "
-                       Status="{Binding Cache.OpticsIncidentModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Subject="Optics Illumination Mode: "
+                       Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                        Color="{StaticResource SuccessBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Productivity: "

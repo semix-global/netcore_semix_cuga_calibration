@@ -64,6 +64,14 @@ public static class EnumOpticsExtension
         _ => OpticsMagTypeEnum.Low // todo: 后续恢复异常处理
     };
 
+    public static SxMAGEnum ToSxMagEnum(this CgMagTypeEnum cgMagTypeEnum) => cgMagTypeEnum switch
+    {
+        CgMagTypeEnum.Low => SxMAGEnum.Low,
+        CgMagTypeEnum.Mid => SxMAGEnum.Mid,
+        CgMagTypeEnum.High => SxMAGEnum.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(cgMagTypeEnum), cgMagTypeEnum, null)
+    };
+
     public static SxMAGEnum ToSxMagEnum(this OpticsMagTypeEnum opticsMagTypeEnum) => opticsMagTypeEnum switch
     {
         OpticsMagTypeEnum.Low => SxMAGEnum.Low,
@@ -100,45 +108,45 @@ public static class EnumOpticsExtension
 
     #region Polarization
 
-    public static CgPolarizationTypeEnum ToCgPolarizationTypeEnum(this OpticsPolarizationTypeEnum opticsPolarizationTypeEnum) => opticsPolarizationTypeEnum switch
+    public static CgPolarizationTypeEnum ToCgPolarizationTypeEnum(this OpticsPolarizationModeEnum opticsPolarizationModeEnum) => opticsPolarizationModeEnum switch
     {
-        OpticsPolarizationTypeEnum.C => CgPolarizationTypeEnum.C,
-        OpticsPolarizationTypeEnum.S => CgPolarizationTypeEnum.S,
-        OpticsPolarizationTypeEnum.P => CgPolarizationTypeEnum.P,
-        _ => throw new ArgumentOutOfRangeException(nameof(opticsPolarizationTypeEnum), opticsPolarizationTypeEnum, null)
+        OpticsPolarizationModeEnum.C => CgPolarizationTypeEnum.C,
+        OpticsPolarizationModeEnum.S => CgPolarizationTypeEnum.S,
+        OpticsPolarizationModeEnum.P => CgPolarizationTypeEnum.P,
+        _ => throw new ArgumentOutOfRangeException(nameof(opticsPolarizationModeEnum), opticsPolarizationModeEnum, null)
     };
 
-    public static OpticsPolarizationTypeEnum ToOpticsPolarizationTypeEnum(this CgPolarizationTypeEnum cgPolarizationTypeEnum) => cgPolarizationTypeEnum switch
+    public static OpticsPolarizationModeEnum ToOpticsPolarizationModeEnum(this CgPolarizationTypeEnum cgPolarizationTypeEnum) => cgPolarizationTypeEnum switch
     {
-        CgPolarizationTypeEnum.C => OpticsPolarizationTypeEnum.C,
-        CgPolarizationTypeEnum.S => OpticsPolarizationTypeEnum.S,
-        CgPolarizationTypeEnum.P => OpticsPolarizationTypeEnum.P,
+        CgPolarizationTypeEnum.C => OpticsPolarizationModeEnum.C,
+        CgPolarizationTypeEnum.S => OpticsPolarizationModeEnum.S,
+        CgPolarizationTypeEnum.P => OpticsPolarizationModeEnum.P,
         _ => throw new ArgumentOutOfRangeException(nameof(cgPolarizationTypeEnum), cgPolarizationTypeEnum, null)
     };
 
     #endregion Polarization
 
-    #region  OpticsIncidentMode
+    #region OpticsIlluminationMode
 
-    public static OpticsIncidentModeEnum ToOpticsIncidentModeEnum(this CgNIOIType cgNIOIType) => cgNIOIType switch
+    public static OpticsIlluminationModeEnum ToOpticsIlluminationModeEnum(this CgNIOIType cgNIOIType) => cgNIOIType switch
     {
-        CgNIOIType.OI=> OpticsIncidentModeEnum.OI,
-        CgNIOIType.NI => OpticsIncidentModeEnum.NI,
+        CgNIOIType.OI => OpticsIlluminationModeEnum.OI,
+        CgNIOIType.NI => OpticsIlluminationModeEnum.NI,
         _ => throw new ArgumentOutOfRangeException(nameof(cgNIOIType), cgNIOIType, null)
     };
 
-    public static CgNIOIType ToCgNIOITypeEnum(this OpticsIncidentModeEnum opticsIncidentModeEnum) => opticsIncidentModeEnum switch
+    public static CgNIOIType ToCgNIOITypeEnum(this OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
-        OpticsIncidentModeEnum.OI => CgNIOIType.OI,
-        OpticsIncidentModeEnum.NI => CgNIOIType.NI,
-        _ => throw new ArgumentOutOfRangeException(nameof(opticsIncidentModeEnum), opticsIncidentModeEnum, null)
+        OpticsIlluminationModeEnum.OI => CgNIOIType.OI,
+        OpticsIlluminationModeEnum.NI => CgNIOIType.NI,
+        _ => throw new ArgumentOutOfRangeException(nameof(opticsIlluminationModeEnum), opticsIlluminationModeEnum, null)
     };
 
-    public static SxNIOIEnum ToSxNIOIEnum(this OpticsIncidentModeEnum opticsIncidentModeEnum) => opticsIncidentModeEnum switch
+    public static SxNIOIEnum ToSxNIOIEnum(this OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
-        OpticsIncidentModeEnum.OI => SxNIOIEnum.OI,
-        OpticsIncidentModeEnum.NI => SxNIOIEnum.NI,
-        _ => throw new ArgumentOutOfRangeException(nameof(opticsIncidentModeEnum), opticsIncidentModeEnum, null)
+        OpticsIlluminationModeEnum.OI => SxNIOIEnum.OI,
+        OpticsIlluminationModeEnum.NI => SxNIOIEnum.NI,
+        _ => throw new ArgumentOutOfRangeException(nameof(opticsIlluminationModeEnum), opticsIlluminationModeEnum, null)
     };
 
     #endregion

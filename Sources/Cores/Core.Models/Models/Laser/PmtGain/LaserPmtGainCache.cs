@@ -8,7 +8,7 @@ namespace Core.Models.Models.Laser.PmtGain;
 public sealed partial class LaserPmtGainCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;

@@ -692,7 +692,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     Cache.OpticsMagTypeEnum,
                     Cache.StageSpeedEnum,
                     StageCoordinateSystemEnum.Bright,
-                    Cache.OpticsIncidentModeEnum,
+                    Cache.OpticsIlluminationModeEnum,
                     Cache.LaserLightInformation) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -837,7 +837,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                     Cache.OpticsMagTypeEnum,
                     Cache.StageSpeedEnum,
                     StageCoordinateSystemEnum.Bright,
-                    Cache.OpticsIncidentModeEnum,
+                    Cache.OpticsIlluminationModeEnum,
                     Cache.LaserLightInformation,
                     isAutoFocus: false) == false)
             {
@@ -932,7 +932,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 800,
                 Cache.OpticsMagTypeEnum,
                 StageSpeedEnum.Low,
-                Cache.OpticsIncidentModeEnum,
+                Cache.OpticsIlluminationModeEnum,
                 8,
                 3,
                 StageCoordinateSystemEnum.Dark,

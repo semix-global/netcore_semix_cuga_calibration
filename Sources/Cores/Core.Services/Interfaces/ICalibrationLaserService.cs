@@ -81,127 +81,102 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 获取cuga配置的产率列表
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <returns>cuga配置的产率列表</returns>
-    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations();
+    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
 
-    /// <summary>
-    /// 设置mag
-    /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="opticsIncidentMode">照明光入射方式</param>
-    /// <returns>是否成功</returns>
     [Obsolete]
-    SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentMode);
+    SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum);
 
     /// <summary>
-    /// 设置mag
+    /// 设置照明mag
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
-    /// <param name="opticsIncidentMode">照明光入射方式</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentMode);
+    SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
 
     /// <summary>
-    /// 切换扫描模式
+    /// 切换照明扫描模式
     /// </summary>
-    /// <param name="opticsAodWorkingModeEnum">扫描模式</param>
+    /// <param name="opticsAODWorkingModeEnum">扫描模式</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum);
+    SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAODWorkingModeEnum);
 
     /// <summary>
-    /// 切换偏振
+    /// 切换照明偏振
     /// </summary>
-    /// <param name="opticsPolarizationTypeEnum">偏振</param>
+    /// <param name="opticsPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum);
+    SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
+
+    [Obsolete]
+    SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay);
 
     /// <summary>
     /// 设置AOD延迟的值, 并切换Mag
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="prescanAodDelay">Prescan AOD延迟</param>
-    /// <param name="chirpAodDelay">Chirp AOD延迟</param>
     /// </summary>
-    /// <returns>是否成功</returns>
-    [Obsolete]
-    SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentMode, double prescanAodDelay, double chirpAodDelay);
-
-    /// <summary>
-    /// 设置AOD延迟的值, 并切换Mag
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
-    /// <param name="prescanAodDelay">Prescan AOD延迟</param>
-    /// <param name="chirpAodDelay">Chirp AOD延迟</param>
-    /// </summary>
+    /// <param name="prescanAODDelay">Prescan AOD延迟</param>
+    /// <param name="chirpAODDelay">Chirp AOD延迟</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentMode, double prescanAodDelay, double chirpAodDelay);
+    SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay);
+
+    [Obsolete]
+    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double coefficient);
 
     /// <summary>
-    /// 下发默认扫描线功率给cuga
+    /// 下发PrescanAOD波形
     /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="opticsIncidentModeEnum">入射方式</param>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
     /// <returns>是否成功</returns>
-    [Obsolete]
-    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentModeEnum, double coefficient);
+    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient);
 
     /// <summary>
-    /// 下发默认扫描线功率给cuga
+    /// 下发PrescanAOD波形
     /// </summary>
-    /// <param name="productivityInformation">产率</param>
-    /// <param name="opticsIncidentModeEnum">入射方式</param>
-    /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum, double coefficient);
-
-    /// <summary>
-    /// 下发PrescanAod波形给cuga
-    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="prescanAODWaveProfiles">prescanAOD波形</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles);
 
-    /// <summary>
-    /// 下发ChirpAOD波形给cuga
-    /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="opticsIncidentModeEnum">入射方式</param>
-    /// <returns>是否成功</returns>
     [Obsolete]
-    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum);
 
     /// <summary>
-    /// 下发ChirpAOD波形给cuga
+    /// 下发ChirpAOD波形
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
-    /// <param name="opticsIncidentModeEnum">入射方式</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
 
     /// <summary>
-    /// 下发ChirpAOD波形给cuga
+    /// 下发ChirpAOD波形
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="chirpAODWaveProfiles">chirpAOD波形</param>
-    /// <param name="opticsIncidentModeEnum">入射方式</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles);
 
     #region 波形生成
 
     /// <summary>
     /// 根据prescan参数生成prescan波形列表
     /// </summary>
-    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="generatePrescanAODWaveformParam">prescan参数</param>
     /// <returns>prescan波形列表</returns>
-    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(OpticsIncidentModeEnum opticsIncidentModeEnum, GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam);
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam);
 
     /// <summary>
     /// 根据chirp参数生成chirp波形列表
     /// </summary>
-    /// <param name="opticsIncidentModeEnum"></param>
     /// <param name="generateChirpAODWaveformParam">chirp参数</param>
     /// <returns>chirp波形列表</returns>
-    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(OpticsIncidentModeEnum opticsIncidentModeEnum, GenerateChirpAODWaveformParam generateChirpAODWaveformParam);
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam);
 
     #endregion 波形生成
 
@@ -416,26 +391,13 @@ public interface ICalibrationLaserService
     /// <returns>图片的Y像素高度</returns>
     SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight);
 
-    /// <summary>
-    /// 获取暗场图片列表
-    /// </summary>
-    /// <param name="position">位置</param>
-    /// <param name="xWidthPixel">图片X像素宽度</param>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
-    /// <param name="opticsIncidentModeEnum">光路入射方式</param>
-    /// <param name="pmtId">暗场相机 PMT id</param>
-    /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
-    /// <param name="isAutoFocus">是否开启自动聚焦</param>
-    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
-    /// <returns>暗场图片列表</returns>
     [Obsolete]
     SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        OpticsIncidentModeEnum opticsIncidentModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -447,7 +409,7 @@ public interface ICalibrationLaserService
     /// <param name="position">位置</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="productivityInformation">产率模式</param>
-    /// <param name="opticsIncidentModeEnum">光路入射方式</param>
+    /// <param name="opticsIlluminationModeEnum">光路入射方式</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
@@ -457,7 +419,7 @@ public interface ICalibrationLaserService
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
-        OpticsIncidentModeEnum opticsIncidentModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -470,7 +432,7 @@ public interface ICalibrationLaserService
     /// <param name="endPosition">终点位置</param>
     /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
-    /// <param name="opticsIncidentModeEnum">光路入射方式</param>
+    /// <param name="opticsIlluminationModeEnum">光路入射方式</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
@@ -482,7 +444,7 @@ public interface ICalibrationLaserService
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        OpticsIncidentModeEnum opticsIncidentModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -494,7 +456,7 @@ public interface ICalibrationLaserService
     /// <param name="startPosition">起点位置</param>
     /// <param name="endPosition">终点位置</param>
     /// <param name="productivityInformation">产率模式</param>
-    /// <param name="opticsIncidentModeEnum">光路入射方式</param>
+    /// <param name="opticsIlluminationModeEnum">光路入射方式</param>
     /// <param name="pmtId">暗场相机 PMT id</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
@@ -504,7 +466,7 @@ public interface ICalibrationLaserService
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
-        OpticsIncidentModeEnum opticsIncidentModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -518,7 +480,7 @@ public interface ICalibrationLaserService
     ///  <param name="xPixelSize">图片X像素尺寸</param>
     ///  <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
     ///  <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
-    ///  <param name="opticsIncidentModeEnum">光路入射方式</param>
+    ///  <param name="opticsIlluminationModeEnum">光路入射方式</param>
     ///  <param name="pmtId">暗场相机 PMT id</param>
     ///  <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     ///  <param name="isAutoFocus">是否开启自动聚焦</param>
@@ -530,7 +492,7 @@ public interface ICalibrationLaserService
         double xPixelSize,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
-        OpticsIncidentModeEnum opticsIncidentModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus);
@@ -542,7 +504,7 @@ public interface ICalibrationLaserService
     ///  <param name="xWidthPixel">图片X像素宽度</param>
     ///  <param name="xPixelSize">图片X像素尺寸</param>
     ///  <param name="productivityInformation">产率模式</param>
-    ///  <param name="opticsIncidentModeEnum">光路入射方式</param>
+    ///  <param name="opticsIlluminationModeEnum">光路入射方式</param>
     ///  <param name="pmtId">暗场相机 PMT id</param>
     ///  <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     ///  <param name="isAutoFocus">是否开启自动聚焦</param>
@@ -552,7 +514,7 @@ public interface ICalibrationLaserService
         int xWidthPixel,
         double xPixelSize,
         ProductivityInformation productivityInformation,
-        OpticsIncidentModeEnum opticsIncidentModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus);

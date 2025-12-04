@@ -120,7 +120,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AODDelayCache>();
@@ -128,7 +128,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+            ..Calibrations.Where(t => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
@@ -258,9 +258,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
             LaserViewModel.ToggleCIBControlModeAndProfileType(Cache.Item.CIBConfiguration, Constants.NegInt32Value, Constants.NegInt32Value);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum, Cache.Item.LaserLightInformation.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
             AfViewModel.ToggleDarkFieldEnable(true);
 
             Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -363,9 +363,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
             LaserViewModel.ToggleCIBControlModeAndProfileType(Cache.Item.CIBConfiguration, Constants.NegInt32Value, Constants.NegInt32Value);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum, Cache.Item.LaserLightInformation.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
             AfViewModel.ToggleDarkFieldEnable(true);
 
             Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -437,7 +437,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
-            LaserViewModel.SetAODDelayValue(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum, aodDelayDto.RefinedPrescanAODDelay, aodDelayDto.RefinedChirpAODDelay);
+            LaserViewModel.SetAODDelayValue(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, aodDelayDto.RefinedPrescanAODDelay, aodDelayDto.RefinedChirpAODDelay);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 

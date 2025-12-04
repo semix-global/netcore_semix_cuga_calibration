@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.PixelSize;
 public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserPixelSizeItemDto>, IAdaptTo<CalibrationLaserPixelSizeItem>
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentMode = OpticsIncidentModeEnum.OI;
+    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -38,7 +38,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
 
     public LaserPixelSizeItemDto Clone() => new()
     {
-        OpticsIncidentMode = OpticsIncidentMode,
+        OpticsIlluminationMode = OpticsIlluminationMode,
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
         PmtId = PmtId,
@@ -55,7 +55,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
 
     public CalibrationLaserPixelSizeItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIncidentMode.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         PmtId = PmtId,
         YPixelSize = YPixelSize,

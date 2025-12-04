@@ -82,7 +82,7 @@ public class ChirpAODWaveformUniformityWindowViewModel : AbstractAODWaveformUnif
 
     protected override void SetAODWaveformProfiles(ChirpAODWaveformUniformityItem item)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(Cache.PrescanAODWaveformProfiles, OpticsIncidentModeEnum.OI);
-        LaserViewModel.SetChirpAODWaveProfiles(item.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.OI);
+        LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.PrescanAODWaveformProfiles);
+        LaserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum.OI, item.ChirpAODWaveformProfiles);
     }
 }

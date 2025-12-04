@@ -22,8 +22,8 @@
                        Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Optics Incident Mode: "
-                       Status="{Binding Cache.OpticsIncidentModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Subject="Optics Illumination Mode: "
+                       Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel HorizontalAlignment="Left"
@@ -44,7 +44,7 @@
                       VerticalAlignment="Center"
                       ItemsSource="{Binding CalibrationStatuses}">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsIncidentModeEnum, Mode=TwoWay}" />
+                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsIlluminationModeEnum, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -53,9 +53,9 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .OpticsIncidentModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                    <RadioButton Content="{Binding .OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                  FontSize="35"
-                                 Tag="{Binding .OpticsIncidentModeEnum}"
+                                 Tag="{Binding .OpticsIlluminationModeEnum}"
                                  GroupName="7c5f8a2b-9d3e-4f61-88a2-0c1b3d9e4f7a">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

@@ -26,5 +26,5 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
         Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
     }
 
-    protected override void SetAODWaveformProfiles() => LaserViewModel.SetPrescanAODWaveProfiles(Cache.Profiles, OpticsIncidentModeEnum.OI);
+    protected override void SetAODWaveformProfiles() => LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.Profiles);
 }

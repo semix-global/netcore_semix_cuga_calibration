@@ -28,26 +28,34 @@ public interface ICalibrationConfigService
     /// <summary>
     /// 获取prescan默认波形列表
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <returns>prescan波形列表</returns>
-    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 获取chirp默认波形列表
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <returns>chirp波形列表</returns>
-    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation, OpticsIncidentModeEnum opticsIncidentModeEnum);
-    
-    /*/// <summary>
-    /// 获取prescan默认波形列表
-    /// </summary>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath, OpticsIncidentModeEnum opticsIncidentModeEnum);
+    SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
 
     /// <summary>
-    /// 获取chirp默认波形列表
+    /// 设置prescan默认波形列表
     /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="filePath">波形文件路径</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath, OpticsIncidentModeEnum opticsIncidentModeEnum);*/
+    SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath);
+
+    /// <summary>
+    /// 设置chirp默认波形列表
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="filePath">波形文件路径</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath);
 }

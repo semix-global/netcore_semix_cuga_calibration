@@ -103,7 +103,7 @@
                                                      hc:TitleElement.TitleWidth="200"
                                                      SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
+                                                     ItemsSource="{Binding ApplicationCookie.NIOpticsMagTypeProductivityInformations}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude: "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"

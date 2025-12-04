@@ -361,7 +361,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.ChirpAODWaveformProfiles = [];
 
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation, OpticsIncidentModeEnum.NI);
+            LaserViewModel.ToggleOpticsMagType(OpticsIlluminationModeEnum.NI, Cache.ProductivityInformation);
 
             Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -377,8 +377,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
             Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
-            LaserViewModel.SetPrescanAODWaveProfiles([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.Coefficients[0]))], OpticsIncidentModeEnum.NI);
-            LaserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.NI);
+            LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.NI, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.Coefficients[0]))]);
+            LaserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum.NI, Cache.ChirpAODWaveformProfiles);
 
             LaserViewModel.ToggleProfileMode(Cache.CIBProfileMode);
             LaserViewModel.SetGain(Cache.StartGain);
@@ -436,7 +436,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                     try
                     {
-                        LaserViewModel.SetPrescanAODWaveProfiles([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))], OpticsIncidentModeEnum.NI);
+                        LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.NI, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                         await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -487,7 +487,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 try
                 {
                     LaserViewModel.SetGain(Cache.StartGain);
-                    LaserViewModel.SetPrescanAODWaveProfiles([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))], OpticsIncidentModeEnum.NI);
+                    LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.NI, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     foreach (var cibMMDDtos in CalibratingItems.Chunk(Cache.ConcurrentCount))

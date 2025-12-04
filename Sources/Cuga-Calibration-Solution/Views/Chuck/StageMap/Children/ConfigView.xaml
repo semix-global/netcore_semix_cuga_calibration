@@ -25,7 +25,7 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <StackPanel>
-                        <TextBlock Text="Optics Incident"
+                        <TextBlock Text="Optics Illumination"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
@@ -34,9 +34,9 @@
                     <hc:ComboBox HorizontalAlignment="Left"
                                  hc:InfoElement.TitleWidth="150"
                                  hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="OpticsIncident Mode: "
-                                 SelectedItem="{Binding Cache.OpticsIncidentModeEnum}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIncidentModeEnum}}}">
+                                 hc:InfoElement.Title="Optics Illumination Mode: "
+                                 SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIlluminationModeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />

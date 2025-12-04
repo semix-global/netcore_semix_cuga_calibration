@@ -5,10 +5,10 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsIncidentModeEnumAndProductivityInformationCalibrationStatus : ObservableCacheBase
+public sealed partial class OpticsIlluminationModeAndProductivityInformationCalibrationStatus : ObservableCacheBase
 {
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
     private BindingList<ProductivityInformationCalibrationStatus> _productivityInformationCalibrationStatusList = [];

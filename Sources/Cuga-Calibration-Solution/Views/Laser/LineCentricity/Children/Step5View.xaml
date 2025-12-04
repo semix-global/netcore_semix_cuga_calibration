@@ -102,8 +102,8 @@
                             </Style>
                         </GridView.ColumnHeaderContainerStyle>
                         <GridViewColumn Width="100"
-                                        Header="Optics Incident"
-                                        DisplayMemberBinding="{Binding OpticsIncidentMode, Converter={StaticResource EnumDescriptionConverter}}" />
+                                        Header="Optics Illumination"
+                                        DisplayMemberBinding="{Binding OpticsIlluminationMode, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="100"
                                         Header="Productivity"
                                         DisplayMemberBinding="{Binding ProductivityInformation}" />

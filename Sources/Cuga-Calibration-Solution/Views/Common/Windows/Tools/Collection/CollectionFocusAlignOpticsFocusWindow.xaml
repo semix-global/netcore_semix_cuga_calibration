@@ -96,7 +96,7 @@
                                                      hc:TitleElement.TitleWidth="200"
                                                      SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.ProductivityInformations}" />
+                                                     ItemsSource="{Binding ApplicationCookie.NIProductivityInformations}" />
                                         <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
                                                      hc:TitleElement.Title="PMT ID: "

@@ -40,7 +40,7 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private int _channelId = CalibrationConstantsHelper.MainChannelId;
@@ -266,15 +266,15 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-                laserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
+                laserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
                 laserViewModel.ToggleEnableAutoGainControl(true);
 
                 try
                 {
                     stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition));
                     afViewModel.ToggleDarkFieldEnable(true);
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum, Cache.HazeLaserLightInformation.Coefficient);
-                    laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation, Cache.OpticsIncidentModeEnum);
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
+                    laserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
@@ -313,8 +313,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
                     Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
-                    laserViewModel.SetPrescanAODWaveProfiles([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))], OpticsIncidentModeEnum.OI);
-                    laserViewModel.SetChirpAODWaveProfiles(Cache.ChirpAODWaveformProfiles, OpticsIncidentModeEnum.OI);
+                    laserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
+                    laserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.ChirpAODWaveformProfiles);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);

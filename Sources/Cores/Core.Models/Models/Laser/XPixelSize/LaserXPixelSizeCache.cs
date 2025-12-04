@@ -17,7 +17,7 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -29,18 +29,18 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-  
-    public ConcurrentBag<KeyValuePair<(OpticsIncidentModeEnum, ProductivityInformation), LaserXPixelSizeCacheItem>> Items { get; init; } = [];
+
+    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserXPixelSizeCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserXPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIncidentModeEnum, ProductivityInformation),new LaserXPixelSizeCacheItem());
+    public LaserXPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserXPixelSizeCacheItem());
 }
 
 public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
-{ 
+{
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 

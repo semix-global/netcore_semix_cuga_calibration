@@ -59,7 +59,7 @@ public sealed partial class DarkFieldMapView
         if (sender is not ChuckStageMapCalibrationViewModel viewModel) return;
 
         var laserLineCentricityItemDto = viewModel.LaserLineCentricityItems.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                                                                                 && t.ProductivityInformation == _applicationCookie.LowProductivityInformation);
+                                                                                                 && t.ProductivityInformation == _applicationCookie.NILowProductivityInformation);
         if (laserLineCentricityItemDto is null) return;
 
         switch (e.PropertyName)

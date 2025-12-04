@@ -73,7 +73,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
 
     [ObservableProperty]
-    private OpticsIncidentModeEnum _opticsIncidentModeEnum = CalibrationConstantsHelper.MainOpticsIncidentModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
@@ -199,13 +199,13 @@ public partial class GrabbingDarkImageWindowViewModel(
                 if (isCustomPrescanAod)
                 {
                     foreach (var prescanAODWaveformProfile in PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(LaserLightInformation.Coefficient);
-                    laserViewModel.SetPrescanAODWaveProfiles(PrescanAODWaveformProfiles,OpticsIncidentModeEnum);
+                    laserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum, PrescanAODWaveformProfiles);
                 }
 
                 var isCustomChirpAod = ChirpAODWaveformProfiles.Count > 0 && string.IsNullOrWhiteSpace(ChirpAODWaveformResultFilePath) == false;
                 if (isCustomChirpAod)
                 {
-                    laserViewModel.SetChirpAODWaveProfiles(ChirpAODWaveformProfiles, OpticsIncidentModeEnum);
+                    laserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum, ChirpAODWaveformProfiles);
                 }
 
                 var resultPosition = StageCoordinateSystemEnum switch
@@ -224,7 +224,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                             EndPosition,
                             OpticsMagTypeEnum,
                             StageSpeedEnum,
-                            OpticsIncidentModeEnum,
+                            OpticsIlluminationModeEnum,
                             PmtId,
                             StageCoordinateSystemEnum,
                             CIBConfiguration,
@@ -238,7 +238,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                         XWidth,
                         OpticsMagTypeEnum,
                         StageSpeedEnum,
-                        OpticsIncidentModeEnum,
+                        OpticsIlluminationModeEnum,
                         PmtId,
                         StageCoordinateSystemEnum,
                         CIBConfiguration,

@@ -238,7 +238,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
             }), HtmlLogUniqueId.LoggingHtml());
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum, Cache.OpticsIncidentModeEnum);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.OpticsMagTypeEnum);
 
             Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -303,7 +303,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-                LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum, Cache.OpticsIncidentModeEnum);
+                LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.OpticsMagTypeEnum);
 
                 Logger.LogHtmlInformation("Find Pmt Agc Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
