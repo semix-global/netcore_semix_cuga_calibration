@@ -142,6 +142,13 @@ public sealed class LaserViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
+    
+    public void ToggleOpticsOD(bool isEnable)
+    {
+        var ret = calibrationLaserService.ToggleOpticsOD(isEnable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
 
     [Obsolete]
     public void SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)

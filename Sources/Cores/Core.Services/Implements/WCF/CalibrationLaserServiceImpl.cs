@@ -198,6 +198,11 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleOpticsOD(bool isEnable)
+    {
+        throw new NotImplementedException();
+    }
+
     [Obsolete]
     public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {

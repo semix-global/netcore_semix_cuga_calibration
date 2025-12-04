@@ -101,11 +101,6 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         {
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
-                "Origin Attenuator",
-                [.. items.Select(t => new Point(t.Coefficient, t.OriginMeasurePower))]);
-
-            ScatterPlotControl.GetOrAddScatterLine(
-                0,
                 "Attenuator",
                 [.. items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
 
@@ -212,9 +207,6 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     private double _coefficient;
 
     [ObservableProperty]
-    private double _originMeasurePower;
-
-    [ObservableProperty]
     private double _measurePower;
 
     [ObservableProperty]
@@ -230,7 +222,6 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     public CIBMMDItemDto Clone() => new()
     {
         Coefficient = Coefficient,
-        OriginMeasurePower = OriginMeasurePower,
         MeasurePower = MeasurePower,
         Items = [.. Items.Select(t => t.Clone())]
     };

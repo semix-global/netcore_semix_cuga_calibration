@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
@@ -15,6 +16,9 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private Point _findBFMachinePosition;
+
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -62,9 +66,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _pMTValueWaitTime = 1;
 
     [ObservableProperty]
-    private IReadOnlyList<double> _coefficients = [0.01, 0.013, 0.0169, 0.02197, 0.028561, 0.0371293, 0.04826809, 0.062748517, 0.081573072, 0.106044994, 0.137858492, 0.179216039, 0.232980851, 0.302875107, 0.393737639, 0.51185893, 0.665416609, 0.865041592, 1];
-
-    [ObservableProperty]
     private double _startGain = -10;
 
     [ObservableProperty]
@@ -72,6 +73,15 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopGain = 10;
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _coefficients = [0.01, 0.013, 0.0169, 0.02197, 0.028561, 0.0371293, 0.04826809, 0.062748517, 0.081573072, 0.106044994, 0.137858492, 0.179216039, 0.232980851, 0.302875107, 0.393737639, 0.51185893, 0.665416609, 0.865041592, 1];
+
+    [ObservableProperty]
+    private double _ratio = 1 / 1.3;
+
+    [ObservableProperty]
+    private double _minMeasurePower = 1;
 
     [ObservableProperty]
     private double _protectedPMTValue = 409.6;
