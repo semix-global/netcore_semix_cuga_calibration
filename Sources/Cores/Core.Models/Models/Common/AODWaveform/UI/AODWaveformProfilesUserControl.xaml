@@ -6,6 +6,8 @@
              xmlns:aodWaveform="clr-namespace:Core.Models.Models.Common.AODWaveform"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=aodWaveform:AbstractAODWaveformProfile,
                                               CreateList=True}"
              d:DesignHeight="450"
@@ -26,6 +28,9 @@
         </GroupBox.HeaderTemplate>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <TabControl SelectedIndex="0" ItemsSource="{Binding .}">
+                <i:Interaction.Behaviors>
+                    <wpf:TabControlAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />

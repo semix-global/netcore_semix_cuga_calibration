@@ -1,8 +1,11 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
         <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Converters.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Core.Utilities.WPF;component/UI/Themes/ConvertersTest.xaml" />
     </ResourceDictionary.MergedDictionaries>
+    <cookies:MultiApplicationCookieToProductivityInformationsConvert x:Key="MultiApplicationCookieToProductivityInformationsConvert" />
 </ResourceDictionary>

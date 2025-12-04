@@ -1,4 +1,6 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
@@ -68,6 +70,35 @@ public sealed partial class ApplicationCookie : ObservableObject
     private IReadOnlyList<LaserLightInformation> _laserLightInformations = [];
 
     /// <summary>
+    /// OI产率列表
+    /// </summary>
+    [ObservableProperty]
+    private IReadOnlyList<ProductivityInformation> _oIProductivityInformations = [];
+
+    /// <summary>
+    /// OI按照MagType分类的产率列表
+    /// </summary>
+    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OIProductivityInformations
+        .GroupBy(p => p.OpticsMagType)
+        .Select(g => g.OrderByDescending(p => p).First())
+        .OrderBy(t => t)
+        .ToList();
+
+    /// <summary>
+    /// OI最低产率
+    /// </summary>
+    public ProductivityInformation OILowProductivityInformation => OIProductivityInformations
+        .OrderByDescending(t => t)
+        .First();
+
+    /// <summary>
+    /// OI最高产率
+    /// </summary>
+    public ProductivityInformation OIHighProductivityInformation => OIProductivityInformations
+        .OrderBy(t => t)
+        .First();
+
+    /// <summary>
     /// NI产率列表
     /// </summary>
     [ObservableProperty]
@@ -97,33 +128,16 @@ public sealed partial class ApplicationCookie : ObservableObject
         .First();
 
     /// <summary>
-    /// OI产率列表
+    /// 照明方式列表
     /// </summary>
-    [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _oIProductivityInformations = [];
-
-    /// <summary>
-    /// OI按照MagType分类的产率列表
-    /// </summary>
-    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OIProductivityInformations
-        .GroupBy(p => p.OpticsMagType)
-        .Select(g => g.OrderByDescending(p => p).First())
-        .OrderBy(t => t)
-        .ToList();
-
-    /// <summary>
-    /// OI最低产率
-    /// </summary>
-    public ProductivityInformation OILowProductivityInformation => OIProductivityInformations
-        .OrderByDescending(t => t)
-        .First();
-
-    /// <summary>
-    /// OI最高产率
-    /// </summary>
-    public ProductivityInformation OIHighProductivityInformation => OIProductivityInformations
-        .OrderBy(t => t)
-        .First();
+    public IReadOnlyList<OpticsIlluminationModeEnum> OpticsIlluminationModeEnums =>
+        OIProductivityInformations.Count > 0 && NIProductivityInformations.Count > 0
+            ? [OpticsIlluminationModeEnum.OI, OpticsIlluminationModeEnum.NI]
+            : OIProductivityInformations.Count > 0
+                ? [OpticsIlluminationModeEnum.OI]
+                : NIProductivityInformations.Count > 0
+                    ? [OpticsIlluminationModeEnum.NI]
+                    : ThrowHelper.ThrowArgumentException<IReadOnlyList<OpticsIlluminationModeEnum>>("OI NI Productivity Information Is Empty");
 
     /// <summary>
     /// CIB列表
