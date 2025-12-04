@@ -295,6 +295,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     false,
                     Cache.Item.CIBConfiguration,
                     Cache.ProductivityInformation,
+                    OpticsIlluminationModeEnum.NI,
                     xWidthPixel: Cache.Item.ImageWidth,
                     pmtId: Cache.Item.PMTId,
                     channelId: Cache.Item.ChannelId,

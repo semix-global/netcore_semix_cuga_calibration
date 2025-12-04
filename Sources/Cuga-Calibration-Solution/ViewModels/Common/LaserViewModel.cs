@@ -771,7 +771,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         CIBConfiguration cIbConfiguration,
         ProductivityInformation productivityInformation,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,

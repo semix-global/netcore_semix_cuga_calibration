@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -42,6 +41,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
         Cache.ChirpAODWaveformProfiles = [];
         Cache.ChirpAODWaveformResultFilePath = string.Empty;
 
+        Cache.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -62,6 +62,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
 
     protected override void GenerateChangedAODWaveform(PrescanAODWaveformUniformityItem item, CancellationToken cancellationToken)
     {
+        Cache.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -82,7 +83,7 @@ public class PrescanAODWaveformUniformityWindowViewModel : AbstractAODWaveformUn
 
     protected override void SetAODWaveformProfiles(PrescanAODWaveformUniformityItem item)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, item.PrescanAODWaveformProfiles);
-        LaserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
+        LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
     }
 }

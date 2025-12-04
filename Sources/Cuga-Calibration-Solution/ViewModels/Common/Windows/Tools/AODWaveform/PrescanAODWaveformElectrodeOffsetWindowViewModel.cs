@@ -55,6 +55,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
         Cache.ChirpAODWaveformProfiles = [];
         Cache.ChirpAODWaveformResultFilePath = string.Empty;
 
+        Cache.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -75,6 +76,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void GenerateChangedAODWaveform(PrescanAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
     {
+        Cache.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -110,14 +112,12 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void SetAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetItem item)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, item.PrescanAODWaveformProfiles);
-        LaserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
+        LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
     }
 
     protected override void GenerateResultAODWaveform(CancellationToken cancellationToken)
     {
-        Guard.IsTrue(Cache.Results.DistinctBy(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation).Count() == Cache.Results.Count, "The Productivity Information of the results must be the same.");
-
         foreach (var result in Cache.Results)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -131,7 +131,7 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
             result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
             result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
-            Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum}-{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 result.PrescanAODWaveformResultFilePath,
@@ -142,14 +142,14 @@ public class PrescanAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWavef
 
     protected override void SetResultAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.NI, result.PrescanAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, result.PrescanAODWaveformProfiles);
     }
 
     protected override void SetResultAODWaveformConfig(PrescanAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
     {
-        ConfigViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.NI, result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
+        ConfigViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
 
-        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum}-{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
             result.PrescanAODWaveformResultFilePath,
