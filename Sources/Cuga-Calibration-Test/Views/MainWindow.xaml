@@ -42,8 +42,6 @@
                     </hc:UniformSpacingPanel.Resources>
                     <Button Content="Stage Map" Command="{Binding StageMapCommand}" />
                     <Button Content="Split Image" Command="{Binding SplitImageCommand}" />
-                    <Button Content="Prescan AOD Waveform Uniformity" Command="{Binding PrescanAODWaveformUniformityCommand}" />
-                    <Button Content="Chirp AOD Waveform Uniformity" Command="{Binding ChirpAODWaveformUniformityCommand}" />
                     <Button Content="Prescan AOD Waveform Electrode Offset" Command="{Binding PrescanAODWaveformElectrodeOffsetCommand}" />
                     <Button Content="Chirp AOD Waveform Electrode Offset" Command="{Binding ChirpAODWaveformElectrodeOffsetCommand}" />
                     <Button Content="Test Log 1" Command="{Binding TestLog1Command}" />

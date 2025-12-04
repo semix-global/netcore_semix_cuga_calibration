@@ -606,21 +606,6 @@ public sealed partial class MainWindowViewModel(
     }
 
     [RelayCommand]
-    private void PrescanAODWaveformUniformity()
-    {
-        var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformUniformityWindowViewModel>();
-
-        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);
-    }
-
-    [RelayCommand]
-    public void ChirpAODWaveformUniformity()
-    {
-        var chirpAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<ChirpAODWaveformUniformityWindowViewModel>();
-        windowManagerService.ShowWindow(chirpAODWaveformUniformityWindowViewModel);
-    }
-
-    [RelayCommand]
     private void PrescanAODWaveformElectrodeOffset()
     {
         var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformElectrodeOffsetWindowViewModel>();
