@@ -36,7 +36,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "P5"},
+        new() { StepName = "P5" },
         new() { StepName = "Low Mag Base Position" },
         new() { StepName = "High Mag Base Position" },
         new() { StepName = "Top Low Mag Position" },

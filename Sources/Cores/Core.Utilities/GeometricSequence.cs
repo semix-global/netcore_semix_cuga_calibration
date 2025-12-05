@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using MathNet.Numerics;
 using MathNet.Numerics.RootFinding;
 
@@ -44,14 +44,12 @@ public static class GeometricSequence
                 break;
             // 如果比例等于1，只返回第一个值
             case 1:
-            {
                 if (firstValue >= minValue)
                 {
                     sequence.Add(firstValue);
                 }
 
                 break;
-            }
         }
 
         return sequence;

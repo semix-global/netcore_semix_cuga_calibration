@@ -1,7 +1,7 @@
-﻿using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Net.Utilities.WPF.Converters.MultiValueConverters;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.Cookies;
 

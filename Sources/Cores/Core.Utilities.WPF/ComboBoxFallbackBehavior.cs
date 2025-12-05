@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Core.Utilities.WPF;
 
