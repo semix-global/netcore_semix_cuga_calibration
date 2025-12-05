@@ -152,6 +152,46 @@
             仅用作示例说明，无实际含义
             </summary>
         </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectMode.PW">
+            <summary>
+            StartPoint Width
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectMode.PTP">
+            <summary>
+            Point To Point
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Normal">
+            <summary>
+            通用采图
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.NoMove">
+            <summary>
+            非移动采图
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.LightTraining">
+            <summary>
+            光强训练
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Preprocessing">
+            <summary>
+            预处理
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.MosaicImage">
+            <summary>
+            拼图
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Using">
+            <summary>
+            使用中的PMT都采集
+            </summary>
+        </member>
         <member name="T:Semix.WcfTransfer.DTO.SxPointD">
             <summary>
             双浮点类型坐标点
@@ -1796,46 +1836,6 @@
         <member name="P:Semix.WcfTransfer.DTO.SxRecipeProperties.WaferId">
             <summary>
             
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectMode.PW">
-            <summary>
-            StartPoint Width
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectMode.PTP">
-            <summary>
-            Point To Point
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Normal">
-            <summary>
-            通用采图
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.NoMove">
-            <summary>
-            非移动采图
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.LightTraining">
-            <summary>
-            光强训练
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Preprocessing">
-            <summary>
-            预处理
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.MosaicImage">
-            <summary>
-            拼图
-            </summary>
-        </member>
-        <member name="F:Semix.WcfTransfer.DTO.SxCollectImgType.Using">
-            <summary>
-            使用中的PMT都采集
             </summary>
         </member>
         <member name="M:Semix.WcfTransfer.DTO.SxRectangleD.Intersect(Semix.WcfTransfer.DTO.SxRectangleD,Semix.WcfTransfer.DTO.SxRectangleD)">

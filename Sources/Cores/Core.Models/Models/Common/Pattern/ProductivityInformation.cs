@@ -27,6 +27,7 @@ public sealed class ProductivityInformation :
     private string _name = "N/A";
     private int _opticsMagType = -1;
     private int _stageSpeedType = -1;
+    private double _xPixelSize = -1;
     private double _yPixelSize = -1;
     private double _yPixel = -1;
     private double _sampleRate = -1;
@@ -47,6 +48,12 @@ public sealed class ProductivityInformation :
     {
         get => _stageSpeedType;
         private set => SetProperty(ref _stageSpeedType, value);
+    }
+
+    public double XPixelSize
+    {
+        get => _xPixelSize;
+        set => SetProperty(ref _xPixelSize, value);
     }
 
     public double YPixelSize
@@ -123,8 +130,8 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double yPixelSize, out double yPixel, out double sampleRate)
-        => (name, opticsMagType, stageSpeedType, yPixelSize, yPixel, sampleRate) = (Name, OpticsMagType, StageSpeedType, YPixelSize, YPixel, SampleRate);
+    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out double yPixel, out double sampleRate)
+        => (name, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, sampleRate) = (Name, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, SampleRate);
 
     #endregion Deconstruct
 
@@ -155,6 +162,12 @@ public sealed class ProductivityInformation :
         Name = obj.Name;
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
+#if NET48
+        XPixelSize = swathSpeedInfo.Speed
+            .Single(t => t.Key == obj.Speed.ToCgSpeedLevelType())
+            .Value
+            .XPixelSize;
+#endif
         YPixelSize = swathSpeedInfo.YPixelSize;
         YPixel = swathSpeedInfo.YPixel;
         SampleRate = swathSpeedInfo.Hz;
@@ -167,6 +180,7 @@ public sealed class ProductivityInformation :
         Name = Name,
         OpticsMagType = OpticsMagType,
         StageSpeedType = StageSpeedType,
+        XPixelSize = XPixelSize,
         YPixelSize = YPixelSize,
         YPixel = YPixel,
         SampleRate = SampleRate

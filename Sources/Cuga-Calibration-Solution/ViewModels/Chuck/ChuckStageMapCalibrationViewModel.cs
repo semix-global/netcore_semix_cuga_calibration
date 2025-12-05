@@ -270,7 +270,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         Cache.IsDarkField = false;
 
-        Cache.ProductivityInformation = applicationCookie.LoweProductivityInformation.Clone();
+        Cache.ProductivityInformation = applicationCookie.NILowProductivityInformation.Clone();
 
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
@@ -570,6 +570,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             false,
             Cache.CIBConfiguration,
             Cache.ProductivityInformation,
+            Cache.OpticsIlluminationModeEnum,
             Cache.XWidthPixel,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
         var detectImageDirectory = ImageFileDirectory;
@@ -1331,6 +1332,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             false,
                             Cache.CIBConfiguration,
                             Cache.ProductivityInformation,
+                            Cache.OpticsIlluminationModeEnum,
                             Cache.XWidthPixel,
                             CalibrationConstantsHelper.MainPmtId,
                             CalibrationConstantsHelper.MainChannelId,

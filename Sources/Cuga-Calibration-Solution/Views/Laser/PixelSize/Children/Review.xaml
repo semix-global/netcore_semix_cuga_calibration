@@ -117,8 +117,11 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Width="100"
+                                            Header="Optics Illumination"
+                                            DisplayMemberBinding="{Binding OpticsIlluminationMode, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="120"
-                                            Header="Optics Mag"
+                                            Header="Productivity"
                                             DisplayMemberBinding="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="100"
                                             Header="PMT Id"

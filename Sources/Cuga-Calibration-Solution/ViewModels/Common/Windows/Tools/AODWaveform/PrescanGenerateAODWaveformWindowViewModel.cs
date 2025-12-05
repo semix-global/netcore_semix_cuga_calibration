@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Algorithms.Modules;
@@ -25,5 +26,5 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
         Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
     }
 
-    protected override void SetAODWaveformProfiles() => LaserViewModel.SetPrescanAODWaveProfiles(Cache.Profiles);
+    protected override void SetAODWaveformProfiles() => LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.Profiles);
 }

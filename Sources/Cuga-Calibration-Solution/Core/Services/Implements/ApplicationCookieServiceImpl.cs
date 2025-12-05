@@ -5,9 +5,11 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
+using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -21,6 +23,7 @@ namespace CugaCalibration.Core.Services.Implements;
 [IOCAppService(ServiceType = typeof(IApplicationCookieService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class ApplicationCookieServiceImpl(
     ICalibrationStageService calibrationStageServiceImpl,
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider cacheProvider,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options) : IApplicationCookieService
@@ -145,7 +148,7 @@ public sealed class ApplicationCookieServiceImpl(
     {
         var (xDirection, yDirection) = calibrationStageServiceImpl.GetMachineDirection().Anything;
 
-        var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.Get<LaserLineCentricityCache>());
+        var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.GetOrDefault<LaserLineCentricityCache>());
 
         var resultList = result.Where(t => t.ProductivityInformation == productivityInformation)
             .OrderBy(t => t.PmtId)

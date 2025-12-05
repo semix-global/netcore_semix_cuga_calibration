@@ -56,4 +56,10 @@ public sealed partial class LaserDOEAngleCache : CalibrationCacheBase
 
     [ObservableProperty]
     private int _retryCount = 5;
+
+    [ObservableProperty]
+    private double _p5Angle;
+
+    [ObservableProperty]
+    private bool _isDarkFieldAlignment;
 }

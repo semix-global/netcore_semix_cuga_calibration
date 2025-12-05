@@ -98,6 +98,9 @@
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
                                 <GridViewColumn Width="100"
+                                                Header="Optics Illumination"
+                                                DisplayMemberBinding="{Binding OpticsIlluminationMode, Converter={StaticResource EnumDescriptionConverter}}" />
+                                <GridViewColumn Width="100"
                                                 Header="Productivity"
                                                 DisplayMemberBinding="{Binding ProductivityInformation}" />
                                 <GridViewColumn Width="80"

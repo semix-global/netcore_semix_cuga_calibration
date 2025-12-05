@@ -25,7 +25,8 @@ public sealed partial class CalibrationLaserServiceImpl(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICalibrationStageService calibrationStageService,
     ICalibrationConfigService calibrationConfigService,
-    CalibrationSetting calibrationSetting) : BaseService<ICgCalibLaserService, ICgDiagIlluminationOpticsService, ICgFacadeSwathService>, ICalibrationLaserService
+    CalibrationSetting calibrationSetting)
+    : BaseService<ICgCalibLaserService, ICgDiagIlluminationOpticsService, ICgFacadeSwathService>, ICalibrationLaserService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -109,27 +110,19 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.RefreshMag(new SxParamObj<CgMagTypeEnum>(opticsMagTypeEnum.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
-        var sxExecuteRet = Invoke(() => Service?.RefreshMag(new SxParamObj<CgMagTypeEnum>(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum)
@@ -141,62 +134,55 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
+    public SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service2?.SetPolarization(new SxParamObj<CgPolarizationTypeEnum>(opticsPolarizationTypeEnum.ToCgPolarizationTypeEnum())));
+        var sxExecuteRet = Invoke(() => Service2?.SetPolarization(new SxParamObj<CgPolarizationTypeEnum>(opticsPolarizationModeEnum.ToCgPolarizationTypeEnum())));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(new SxParamObj<(CgMagTypeEnum OpticsMagTypeEnum, int? chirpAodDelay, int? prescanAodDelay)>((opticsMagTypeEnum.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(new SxParamObj<(CgMagTypeEnum OpticsMagTypeEnum, int? chirpAodDelay, int? prescanAodDelay)>((productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
         throw new NotImplementedException();
     }
+
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
+    {
+        throw new NotImplementedException();
+    }
+
 
     public SxExecuteRet<bool> ToggleCIBControlTypeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId, int channelId)
     {
@@ -209,8 +195,8 @@ public sealed partial class CalibrationLaserServiceImpl(
             if (setGainRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setGainRet.ErrorMsg, false);
         }
 
-        var toggleL0kRet = ToggleEnableL0K(cIbConfiguration.IsL0K, pmtId, channelId);
-        if (toggleL0kRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleL0kRet.ErrorMsg, false);
+        var toggleL0KRet = ToggleEnableL0K(cIbConfiguration.IsL0K, pmtId, channelId);
+        if (toggleL0KRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleL0KRet.ErrorMsg, false);
 
         var toggleProfileTypeRet = ToggleProfileMode(cIbConfiguration.CIBProfileMode, pmtId, channelId);
         if (toggleProfileTypeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(toggleProfileTypeRet.ErrorMsg, false);
@@ -366,6 +352,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -377,6 +364,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -391,6 +379,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -403,6 +392,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -411,25 +401,18 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    [Obsolete]
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
-        List<Point> machinePositionList,
-        int xWidthPixel,
-        double xPixelSize,
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
-        int pmtId,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        bool isAutoFocus)
+    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(List<Point> machinePositionList, int xWidthPixel, double xPixelSize, OpticsMagTypeEnum opticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum, OpticsIlluminationModeEnum opticsIlluminationModeEnum, int pmtId, StageCoordinateSystemEnum stageCoordinateSystemEnum, bool isAutoFocus)
     {
         throw new NotImplementedException();
     }
+
 
     public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)

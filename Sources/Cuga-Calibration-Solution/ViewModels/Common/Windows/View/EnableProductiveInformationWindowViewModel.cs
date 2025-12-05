@@ -19,7 +19,7 @@ public sealed partial class EnableProductiveInformationWindowViewModel(Applicati
     [RelayCommand]
     private void Loaded()
     {
-        ProductiveInformationEnableList = [.. applicationCookie.ProductivityInformations.Select(t => new EnableOpticsMagItem() { ProductivityInformation = t, IsEnable = false })];
+        ProductiveInformationEnableList = [.. applicationCookie.NIProductivityInformations.Select(t => new EnableOpticsMagItem() { ProductivityInformation = t, IsEnable = false })];
     }
 
     [RelayCommand]

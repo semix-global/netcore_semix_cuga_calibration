@@ -11,7 +11,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
@@ -137,7 +136,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         if (_productivityInformations is not null) return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
 
@@ -162,161 +161,173 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
+    [Obsolete]
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.RefreshMag(opticsMagTypeEnum.ToCgMagTypeEnum(), CgSpeedLevelType.Low));
+        var sxExecuteRet = Invoke(() => Service?.SetMag(opticsMagTypeEnum.ToSxMagEnum(), SxSpeedEnum.Low, opticsIlluminationModeEnum.ToSxNIOIEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
-        var sxExecuteRet = Invoke(() => Service?.RefreshMag(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), CgSpeedLevelType.Low));
+        var sxExecuteRet = Invoke(() => Service?.SetMag(productivityInformation.AdaptTo().Mag, SxSpeedEnum.Low, opticsIlluminationModeEnum.ToSxNIOIEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum)
+    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAODWorkingModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetAOD_NO(opticsAodWorkingModeEnum.ToOpticsAodWorkingMode()));
+        var sxExecuteRet = Invoke(() => Service?.SetAOD_NO(opticsAODWorkingModeEnum.ToOpticsAodWorkingMode()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
+    public SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetPolarization(opticsPolarizationTypeEnum.ToCgPolarizationTypeEnum()));
+        var sxExecuteRet = Invoke(() => Service?.SetPolarization(opticsPolarizationModeEnum.ToCgPolarizationTypeEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    [Obsolete]
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(opticsMagTypeEnum.ToCgMagTypeEnum(), CgSpeedLevelType.Low, Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(opticsMagTypeEnum.ToSxMagEnum(), opticsIlluminationModeEnum.ToSxNIOIEnum(), SxSpeedEnum.Low, Convert.ToInt32(chirpAODDelay), Convert.ToInt32(prescanAODDelay)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
         var c2MProductivityInfo = productivityInformation.AdaptTo();
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(c2MProductivityInfo.Mag.ToCgMagTypeEnum(), c2MProductivityInfo.Speed.ToCgSpeedLevelType(), Convert.ToInt32(chirpAodDelay), Convert.ToInt32(prescanAodDelay)));
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(c2MProductivityInfo.Mag, opticsIlluminationModeEnum.ToSxNIOIEnum(), c2MProductivityInfo.Speed, Convert.ToInt32(chirpAODDelay), Convert.ToInt32(prescanAODDelay)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
+    [Obsolete]
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        var sxExecuteRet = GetProductivityInformations();
+        var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, prescanAODWaveProfiles);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, prescanAODWaveProfiles);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
         Guard.IsNotEmpty(prescanAODWaveProfiles);
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
-
-            var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescanCalibration(
-                aodWaveProfile.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
-                CgWaveType.Prescan,
-                [.. aodWaveProfile.ByteList],
-                aodWaveProfile.TotalSampleCount,
-                aodWaveProfile.ZeroSampleCount));
-
-            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
         }
+
+        var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
+            ..prescanAODWaveProfiles.Select(t => new CgAwgWaveParam()
+            {
+                Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
+                WaveType = CgWaveType.Prescan,
+                Mode = CgAwgSendWaveMode.ElectrodeDataMode,
+                NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+                zeroNum = t.ZeroSampleCount,
+                WaveData = [.. t.ByteList]
+            })
+        ]));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    [Obsolete]
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = GetProductivityInformations();
+        var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
         Guard.IsNotEmpty(chirpAODWaveProfiles);
 
         foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
             Guard.IsNotEmpty(aodWaveProfile.ByteList);
-
-            var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescanCalibration(
-                aodWaveProfile.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
-                CgWaveType.Chirp,
-                [.. aodWaveProfile.ByteList],
-                aodWaveProfile.TotalSampleCount,
-                aodWaveProfile.ZeroSampleCount));
-
-            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
         }
+
+        var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
+            ..chirpAODWaveProfiles.Select(t => new CgAwgWaveParam()
+            {
+                Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
+                WaveType = CgWaveType.Chirp,
+                Mode = CgAwgSendWaveMode.ElectrodeDataMode,
+                NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+                zeroNum = t.ZeroSampleCount,
+                WaveData = [.. t.ByteList]
+            })
+        ]));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -568,7 +579,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = Invoke(() => Service?.SendCIBWave(logGainMul128Bytes, CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        sxExecuteRet = Invoke(() => Service?.SendCIBWave(logGainMul128Bytes, CgCIBWaveType.PMT, cibInformation.PMTId, cibInformation.ChannelId));
+        sxExecuteRet = Invoke(() => Service?.SendCIBWave(gainS16BitBytes, CgCIBWaveType.PMT, cibInformation.PMTId, cibInformation.ChannelId));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -600,9 +611,10 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
             calChipSiteModelEnum.ToCgCalChipType(),
+            Convert.ToUInt16(pmtId),
             level,
-            point?.ToCgPoint(),
-            Convert.ToUInt16(pmtId)));
+            point?.ToCgPoint()
+        ));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
@@ -622,7 +634,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
         else
         {
-            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(opticsMagTypeEnum.ToCgMagTypeEnum()));
+            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(opticsMagTypeEnum.ToSxMagEnum()));
 
             return sxExecuteRet.IsSuccess == false
                 ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
@@ -642,7 +654,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
         else
         {
-            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum()));
+            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(productivityInformation.AdaptTo().Mag));
 
             return sxExecuteRet.IsSuccess == false
                 ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
@@ -656,43 +668,41 @@ public sealed partial class CalibrationLaserServiceImpl(
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
         bool isForward)
     {
-        var darkFieldImagesRet = stageCoordinateSystemEnum switch
-        {
-            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service?.LoadRawImg_Mag_Calibration(
-                opticsMagTypeEnum.ToSxMagEnum(),
-                xStageSpeedEnum.ToSxSpeedEnum(),
-                xWidthPixel,
-                position.ToSxPointD(),
-                pmtId,
-                /*是否单向*/isSingle: true,
-                /*是否正向*/isForward: isForward,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_ToStagePos(
-                opticsMagTypeEnum.ToSxMagEnum(),
-                xStageSpeedEnum.ToSxSpeedEnum(),
-                xWidthPixel,
-                position.ToSxPointD(),
-                pmtId,
-                /*是否单向*/isSingle: true,
-                /*是否正向*/isForward: isForward,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
-        };
+        var darkFieldImagesRet = Invoke(() => Service?.GetDFImgCalibration(
+            new SxCollectImgParam()
+            {
+                Type = SxCollectImgType.Normal,
+                Mag = opticsMagTypeEnum.ToSxMagEnum(),
+                Speed = xStageSpeedEnum.ToSxSpeedEnum(),
+                NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
+                CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                CollectMode = SxCollectMode.PW,
+                PMTId = pmtId,
+                Width = xWidthPixel,
+                StartPoint = [position.ToSxPointD()],
+                IsSingle = true,
+                AF = isAutoFocus ? 0 : 1,
+                IsForward = isForward,
+                IsCalibration = true, /*为true时不下发波形*/
+                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+            }));
 
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
 
         var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
 
-        foreach (var c2MImgModel in darkFieldImagesRet.Anything)
+        foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(c2MImgModel.Img);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(c2MImgModel));
+            var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -702,43 +712,41 @@ public sealed partial class CalibrationLaserServiceImpl(
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
         bool isForward)
     {
-        var darkFieldImagesRet = stageCoordinateSystemEnum switch
-        {
-            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => Invoke(() => Service?.LoadRawImg_Mag_Calibration(
-                productivityInformation.AdaptTo().Mag,
-                productivityInformation.AdaptTo().Speed,
-                xWidthPixel,
-                position.ToSxPointD(),
-                pmtId,
-                /*是否单向*/isSingle: true,
-                /*是否正向*/isForward: isForward,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_ToStagePos(
-                productivityInformation.AdaptTo().Mag,
-                productivityInformation.AdaptTo().Speed,
-                xWidthPixel,
-                position.ToSxPointD(),
-                pmtId,
-                /*是否单向*/isSingle: true,
-                /*是否正向*/isForward: isForward,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
-        };
+        var darkFieldImagesRet = Invoke(() => Service?.GetDFImgCalibration(
+            new SxCollectImgParam()
+            {
+                Type = SxCollectImgType.Normal,
+                Mag = productivityInformation.AdaptTo().Mag,
+                Speed = productivityInformation.AdaptTo().Speed,
+                NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
+                CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                CollectMode = SxCollectMode.PW,
+                PMTId = pmtId,
+                Width = xWidthPixel,
+                StartPoint = [position.ToSxPointD()],
+                IsSingle = true,
+                AF = isAutoFocus ? 0 : 1,
+                IsForward = isForward,
+                IsCalibration = true, /*为true时不下发波形*/
+                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+            }));
 
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
         if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
 
         var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
 
-        foreach (var c2MImgModel in darkFieldImagesRet.Anything)
+        foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(c2MImgModel.Img);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(c2MImgModel));
+            var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -750,6 +758,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -763,15 +772,25 @@ public sealed partial class CalibrationLaserServiceImpl(
 
             darkFieldImagesRet = stageCoordinateSystemEnum switch
             {
-                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
-                    opticsMagTypeEnum.ToSxMagEnum(),
-                    xStageSpeedEnum.ToSxSpeedEnum(),
-                    isForward ? startPosition.ToSxPointD() : endPosition.ToSxPointD(),
-                    isForward ? endPosition.ToSxPointD() : startPosition.ToSxPointD(),
-                    pmtId,
-                    /*是否单向*/isSingle: true,
-                    /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetDFImgCalibration(
+                    new SxCollectImgParam()
+                    {
+                        Type = SxCollectImgType.Normal,
+                        Mag = opticsMagTypeEnum.ToSxMagEnum(),
+                        Speed = xStageSpeedEnum.ToSxSpeedEnum(),
+                        NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
+                        CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                        CollectMode = SxCollectMode.PTP,
+                        PMTId = pmtId,
+                        StartPoint = [startPosition.ToSxPointD()],
+                        EndPoint = [endPosition.ToSxPointD()],
+                        IsSingle = true,
+                        AF = isAutoFocus ? 0 : 1,
+                        IsForward = isForward,
+                        IsCalibration = true, /*为true时不下发波形*/
+                        ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                    })),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
             };
         }
         finally
@@ -785,9 +804,9 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
 
-        foreach (var c2MImgModel in darkFieldImagesRet.Anything)
+        foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDto().AdaptIn(c2MImgModel));
+            result.Add(new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -797,6 +816,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -810,15 +830,25 @@ public sealed partial class CalibrationLaserServiceImpl(
 
             darkFieldImagesRet = stageCoordinateSystemEnum switch
             {
-                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadRawImg_Mag_PTP(
-                    productivityInformation.AdaptTo().Mag,
-                    productivityInformation.AdaptTo().Speed,
-                    isForward ? startPosition.ToSxPointD() : endPosition.ToSxPointD(),
-                    isForward ? endPosition.ToSxPointD() : startPosition.ToSxPointD(),
-                    pmtId,
-                    /*是否单向*/isSingle: true,
-                    /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
-                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+                StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetDFImgCalibration(
+                    new SxCollectImgParam()
+                    {
+                        Type = SxCollectImgType.Normal,
+                        Mag = productivityInformation.AdaptTo().Mag,
+                        Speed = productivityInformation.AdaptTo().Speed,
+                        NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
+                        CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                        CollectMode = SxCollectMode.PTP,
+                        PMTId = pmtId,
+                        StartPoint = [startPosition.ToSxPointD()],
+                        EndPoint = [endPosition.ToSxPointD()],
+                        IsSingle = true,
+                        AF = isAutoFocus ? 0 : 1,
+                        IsForward = isForward,
+                        IsCalibration = true, /*为true时不下发波形*/
+                        ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                    })),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
             };
         }
         finally
@@ -832,9 +862,9 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
 
-        foreach (var c2MImgModel in darkFieldImagesRet.Anything)
+        foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDto().AdaptIn(c2MImgModel));
+            result.Add(new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -848,6 +878,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         double xPixelSize,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)
@@ -881,14 +912,24 @@ public sealed partial class CalibrationLaserServiceImpl(
         // 从起点到终点采图，输出三通道长图片
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
-            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadLongRawImg(
-                opticsMagTypeEnum.ToSxMagEnum(),
-                xStageSpeedEnum.ToSxSpeedEnum(),
-                startPointList,
-                endPointList,
-                pmtId,
-                isForward: isIncreasing,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetDFImgCalibration(
+                new SxCollectImgParam()
+                {
+                    Type = SxCollectImgType.Normal,
+                    Mag = opticsMagTypeEnum.ToSxMagEnum(),
+                    Speed = xStageSpeedEnum.ToSxSpeedEnum(),
+                    NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
+                    CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                    CollectMode = SxCollectMode.PTP,
+                    PMTId = pmtId,
+                    StartPoint = startPointList,
+                    EndPoint = endPointList,
+                    IsSingle = true,
+                    AF = isAutoFocus ? 0 : 1,
+                    IsForward = isIncreasing,
+                    IsCalibration = true, /*为true时不下发波形*/
+                    ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                })),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
 
@@ -931,6 +972,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         int xWidthPixel,
         double xPixelSize,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)
@@ -964,14 +1006,24 @@ public sealed partial class CalibrationLaserServiceImpl(
         // 从起点到终点采图，输出三通道长图片
         var darkFieldImagesRet = stageCoordinateSystemEnum switch
         {
-            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.LoadLongRawImg(
-                productivityInformation.AdaptTo().Mag,
-                productivityInformation.AdaptTo().Speed,
-                startPointList,
-                endPointList,
-                pmtId,
-                isForward: isIncreasing,
-                /*是否开启自动聚焦*/af: isAutoFocus ? 0 : 1)),
+            StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetDFImgCalibration(
+                new SxCollectImgParam()
+                {
+                    Type = SxCollectImgType.Normal,
+                    Mag = productivityInformation.AdaptTo().Mag,
+                    Speed = productivityInformation.AdaptTo().Speed,
+                    NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
+                    CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                    CollectMode = SxCollectMode.PTP,
+                    PMTId = pmtId,
+                    StartPoint = startPointList,
+                    EndPoint = endPointList,
+                    IsSingle = true,
+                    AF = isAutoFocus ? 0 : 1,
+                    IsForward = isIncreasing,
+                    IsCalibration = true, /*为true时不下发波形*/
+                    ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                })),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
 

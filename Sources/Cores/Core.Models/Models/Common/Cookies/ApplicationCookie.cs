@@ -68,31 +68,60 @@ public sealed partial class ApplicationCookie : ObservableObject
     private IReadOnlyList<LaserLightInformation> _laserLightInformations = [];
 
     /// <summary>
-    /// 产率列表
+    /// NI产率列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _productivityInformations = [];
+    private IReadOnlyList<ProductivityInformation> _nIProductivityInformations = [];
 
     /// <summary>
-    /// 按照MagType分类的产率列表
+    /// NI按照MagType分类的产率列表
     /// </summary>
-    public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations => ProductivityInformations
+    public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations => NIProductivityInformations
         .GroupBy(p => p.OpticsMagType)
         .Select(g => g.OrderByDescending(p => p).First())
         .OrderBy(t => t)
         .ToList();
 
     /// <summary>
-    /// 最低产率
+    /// NI最低产率
     /// </summary>
-    public ProductivityInformation LoweProductivityInformation => ProductivityInformations
+    public ProductivityInformation NILowProductivityInformation => NIProductivityInformations
         .OrderByDescending(t => t)
         .First();
 
     /// <summary>
-    /// 最高产率
+    /// NI最高产率
     /// </summary>
-    public ProductivityInformation HighProductivityInformation => ProductivityInformations
+    public ProductivityInformation NIHighProductivityInformation => NIProductivityInformations
+        .OrderBy(t => t)
+        .First();
+
+    /// <summary>
+    /// OI产率列表
+    /// </summary>
+    [ObservableProperty]
+    private IReadOnlyList<ProductivityInformation> _oIProductivityInformations = [];
+
+    /// <summary>
+    /// OI按照MagType分类的产率列表
+    /// </summary>
+    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OIProductivityInformations
+        .GroupBy(p => p.OpticsMagType)
+        .Select(g => g.OrderByDescending(p => p).First())
+        .OrderBy(t => t)
+        .ToList();
+
+    /// <summary>
+    /// OI最低产率
+    /// </summary>
+    public ProductivityInformation OILowProductivityInformation => OIProductivityInformations
+        .OrderByDescending(t => t)
+        .First();
+
+    /// <summary>
+    /// OI最高产率
+    /// </summary>
+    public ProductivityInformation OIHighProductivityInformation => OIProductivityInformations
         .OrderBy(t => t)
         .First();
 

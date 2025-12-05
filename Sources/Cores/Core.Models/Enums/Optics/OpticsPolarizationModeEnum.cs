@@ -3,7 +3,7 @@ namespace Core.Models.Enums.Optics;
 /// <summary>
 /// 偏振
 /// </summary>
-public enum OpticsPolarizationTypeEnum
+public enum OpticsPolarizationModeEnum
 {
     C,
     S,

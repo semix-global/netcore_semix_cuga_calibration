@@ -5,8 +5,8 @@ using Cuga.Data.DataStruct.DTO.Swath;
 
 #if NET
 using Cuga.Data.DataStruct.Basic;
-using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
+using Semix.GRPC.DTO;
 #else
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
@@ -196,6 +196,19 @@ public static class EnumStageExtension
     };
 
     #endregion Speed
+
+    #region Coordinate
+
+#if NETFRAMEWORK
+    public static SxCollectImgCoordinateSystem ToSxCollectImgCoordinateSystemEnum(this StageCoordinateSystemEnum stageCoordinateSystemEnum) => stageCoordinateSystemEnum switch
+    {
+        StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => SxCollectImgCoordinateSystem.DF,
+        StageCoordinateSystemEnum.Machine => SxCollectImgCoordinateSystem.Stage,
+        _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+    };
+#endif
+
+    #endregion
 
     #region Register
 

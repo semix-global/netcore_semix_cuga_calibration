@@ -907,6 +907,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 Cache.XWidthPixel,
                 Cache.OpticsMagTypeEnum,
                 Cache.StageSpeedEnum,
+                Cache.OpticsIlluminationModeEnum,
                 CalibrationConstantsHelper.MainPmtId,
                 CalibrationConstantsHelper.MainChannelId,
                 StageCoordinateSystemEnum.Machine);

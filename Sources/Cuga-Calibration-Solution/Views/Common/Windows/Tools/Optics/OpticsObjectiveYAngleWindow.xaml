@@ -97,7 +97,7 @@
                                                      hc:TitleElement.TitleWidth="200"
                                                      SelectedItem="{Binding Cache.ProductivityInformation}"
                                                      Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
+                                                     ItemsSource="{Binding ApplicationCookie.NIOpticsMagTypeProductivityInformations}" />
                                         <hc:ComboBox hc:TitleElement.Title="Channel Id: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"

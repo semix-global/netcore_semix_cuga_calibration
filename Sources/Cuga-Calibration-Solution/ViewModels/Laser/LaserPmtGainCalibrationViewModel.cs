@@ -372,7 +372,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
             foreach (var laserPmtGainItemDto in pmtList)
             {
                 //设置mag
-                LaserViewModel.ToggleOpticsMagType(Cache.OpticsMagTypeEnum);
+                LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.OpticsMagTypeEnum);
                 //设置饱和值
                 LaserViewModel.SetSaturation(Cache.PmtProtectValue);
 
@@ -430,7 +430,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
                 }
 
                 //设置功率
-                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsMagTypeEnum, double.Parse(laserPmtGainDto.MeasurePower) * 0.005);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.OpticsMagTypeEnum, double.Parse(laserPmtGainDto.MeasurePower) * 0.005);
 
                 foreach (var item in Enumerable.Range(0, Convert.ToInt32((Cache.VoltageMax - Cache.VoltageMin) / Cache.VoltageInterval + 1)).Select(t => Cache.VoltageMin + t * Cache.VoltageInterval))
                 {

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -34,6 +35,10 @@ public partial class AODWaveformCommonCache : ObservableCacheBase
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+
 
     [ObservableProperty]
     private double _defaultAmplitude = 1;
@@ -198,7 +203,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             SetAODWaveformProfiles(item);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);

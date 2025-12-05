@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 
@@ -11,4 +11,7 @@ public sealed partial class ProductivityInformationCalibrationStatus : Observabl
 
     [ObservableProperty]
     private bool _isCalibrated;
+
+    public static List<ProductivityInformationCalibrationStatus> CreateList(IReadOnlyList<ProductivityInformation> productivityInformations) =>
+        productivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false }).ToList();
 }
