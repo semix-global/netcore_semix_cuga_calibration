@@ -306,6 +306,28 @@ public interface ICalibrationLaserService
     SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfPMTDataList(int count, int pmtId, int channelId);
 
     /// <summary>
+    /// 读取所有CIB的PMT数据
+    /// </summary>
+    /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
+    /// <param name="position">什么位置</param>
+    /// <param name="catchCount">数量</param>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <param name="isAutoFocus">是否自动聚焦</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>CIB对应的PMT数据</returns>
+    Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// 获取PMT数值, 不支持群发
     /// </summary>
     /// <returns>获取PMT数值</returns>

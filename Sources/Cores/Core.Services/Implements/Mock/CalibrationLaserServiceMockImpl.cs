@@ -16,9 +16,7 @@ using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.PMT;
 using CommunityToolkit.Diagnostics;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Core.Models.Extensions;
-
 
 #if NET
 using Core.Services.Implements.GRPC;
@@ -570,6 +568,22 @@ public sealed class CalibrationLaserServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(new List<List<double>> { Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList() });
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken)
+
+    {
+        Thread.Sleep(100);
+
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<double>>([..cibInformations.Select(_ => Random.NextDouble() * 3950)]));
     }
 
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()

@@ -263,6 +263,19 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
+    public Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDataALL());

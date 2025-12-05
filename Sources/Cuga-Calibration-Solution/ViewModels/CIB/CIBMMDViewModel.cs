@@ -29,6 +29,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using Core.Models.Models.Common.Pattern;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -353,7 +354,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ProtectedPMTValue,
                 Cache.ProtectedCount,
                 Cache.CatchPMTValueCount,
-                Cache.ConcurrentCount,
                 Cache.DarkCurrent,
                 Cache.Denominator,
                 Cache.ScaleFactor,
@@ -541,46 +541,49 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
-                        foreach (var cibMMDDtos in CalibratingItems.Chunk(Cache.ConcurrentCount))
+                        foreach (var (gainIndex, gain) in gains.Index())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+                            SelectedCalibratingItems = CalibratingItems;
 
-                            SelectedCalibratingItems = cibMMDDtos;
+                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDto>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedCount < Cache.ProtectedCount /* 不超过保护次数 */)];
+                            var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
+                            LaserViewModel.SetGain(cibInformations, gain);
 
-                            foreach (var (gainIndex, gain) in gains.Index())
+                            await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
+
+                            var cibPMTValues = await LaserViewModel.GetCIBPMTValuesAsync(
+                                StageCoordinateSystemEnum.Dark,
+                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
+                                Cache.CatchPMTValueCount,
+                                Cache.OpticsIlluminationModeEnum,
+                                Cache.ProductivityInformation,
+                                cibInformations,
+                                Cache.IsAFEnable,
+                                cancellationToken);
+
+                            await Task.WhenAll(cibPMTValues.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
-                                var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDto>)
-                                [
-                                    .. cibMMDDtos
-                                        .Where(t => t.Items[coefficientIndex].ProtectedCount < Cache.ProtectedCount /* 不超过保护次数 */)
-                                ];
-                                LaserViewModel.SetGain([.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)], gain);
+                                var (index, pmtValue) = t;
 
-                                await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
-
-                                await Task.WhenAll(noProtectedCIBMMDDtos.Select(cibMMDDto => Task.Run(() =>
+                                var cibMMDDto = noProtectedCIBMMDDtos[index];
+                                try
                                 {
-                                    try
-                                    {
-                                        cancellationToken.ThrowIfCancellationRequested();
+                                    var item = cibMMDDto.Items[coefficientIndex];
+                                    var itemItem = item.Items[gainIndex];
 
-                                        var item = cibMMDDto.Items[coefficientIndex];
-                                        var itemItem = item.Items[gainIndex];
+                                    if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedCount++;
+                                    itemItem.PMTValue = pmtValue;
 
-                                        var pmtValue = LaserViewModel.GetCIBOfPMTDataList(Cache.CatchPMTValueCount, cibMMDDto.CIBInformation).SelectMany(t => t).Average();
-                                        if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedCount++;
-                                        itemItem.PMTValue = pmtValue;
-
-                                        if (item.ProtectedCount >= Cache.ProtectedCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
-                                    }
-                                    finally
-                                    {
-                                        cibMMDDto.RefreshPlot();
-                                    }
-                                }, cancellationToken)));
-                            }
+                                    if (item.ProtectedCount >= Cache.ProtectedCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
+                                }
+                                finally
+                                {
+                                    cibMMDDto.RefreshPlot();
+                                }
+                            }, cancellationToken)));
                         }
                     }
                     finally
@@ -596,19 +599,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            foreach (var cibMMDDtos in CalibratingItems.Chunk(Cache.ConcurrentCount))
+            await Task.WhenAll(CalibratingItems.Select(cibMMDDto => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                SelectedCalibratingItems = cibMMDDtos;
-
-                await Task.WhenAll(cibMMDDtos.Select(cibMMDDto => Task.Run(() =>
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    Algorithm(cibMMDDto);
-                }, cancellationToken)));
-            }
+                Algorithm(cibMMDDto);
+            }, cancellationToken)));
 
             Guard.IsTrue(Save(CalibratingItems, cancellationToken));
 
@@ -636,17 +632,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            foreach (var cibMMDDtos in SelectedReviewItems.Chunk(Cache.ConcurrentCount))
+            await Task.WhenAll(SelectedReviewItems.Select(cibMMDDto => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await Task.WhenAll(cibMMDDtos.Select(cibMMDDto => Task.Run(() =>
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    Algorithm(cibMMDDto);
-                }, cancellationToken)));
-            }
+                Algorithm(cibMMDDto);
+            }, cancellationToken)));
 
             var result = SelectedReviewItems.All(t => t.IsCalibrated);
 

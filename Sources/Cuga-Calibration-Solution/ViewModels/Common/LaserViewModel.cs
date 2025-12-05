@@ -305,9 +305,25 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<IReadOnlyList<double>> GetCIBOfPMTDataList(int count, CIBInformation cibInformation)
+    public async Task<IReadOnlyList<double>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken)
     {
-        var ret = calibrationLaserService.GetCIBOfPMTDataList(count, cibInformation.PMTId, cibInformation.ChannelId);
+        var ret = await calibrationLaserService.GetCIBPMTValuesAsync(
+            stageCoordinateSystemEnum,
+            position,
+            catchCount,
+            opticsIlluminationModeEnum,
+            productivityInformation,
+            cibInformations,
+            isAutoFocus,
+            cancellationToken);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

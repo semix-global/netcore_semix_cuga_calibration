@@ -263,12 +263,6 @@
                                                   Minimum="0"
                                                   Style="{StaticResource NumericUpDownExtend}"
                                                   Value="{Binding Cache.CatchPMTValueCount}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Concurrent Count: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.ConcurrentCount}" />
                             </hc:UniformSpacingPanel>
                         </Border>
                     </Expander>

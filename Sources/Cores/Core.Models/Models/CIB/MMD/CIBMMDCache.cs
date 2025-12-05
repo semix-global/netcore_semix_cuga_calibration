@@ -95,9 +95,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private int _catchPMTValueCount = 10;
 
     [ObservableProperty]
-    private int _concurrentCount = 2;
-
-    [ObservableProperty]
     private double _darkCurrent;
 
     [ObservableProperty]
