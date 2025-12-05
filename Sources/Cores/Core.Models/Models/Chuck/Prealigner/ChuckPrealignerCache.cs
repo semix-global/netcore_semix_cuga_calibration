@@ -2,12 +2,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.DataAnnotations;
+using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.Prealigner;
 
 public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 {
+    private double _diePitchWidth = 5100;
+    private int _reticleDieCountX = 1;
+
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
@@ -28,6 +33,7 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _nccTypeTemplateMatchScoreThreshold = 0.8;
+
 
     /// <summary>
     /// 低倍率mark点1位置(wafer中间掩模版芯粒左上角)
@@ -52,6 +58,22 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     /// </summary>
     [ObservableProperty]
     private AlignmentSiteDto _highSite2 = new();
+
+
+
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
+    public double DiePitchWidth
+    {
+        get => _diePitchWidth;
+        set => SetProperty(ref _diePitchWidth, value, true);
+    }
+
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Col Count must be greater than 1.")]
+    public int ReticleDieCountX
+    {
+        get => _reticleDieCountX;
+        set => SetProperty(ref _reticleDieCountX, value, true);
+    }
 
     [ObservableProperty]
     private Point _offsetPosition;

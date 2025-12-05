@@ -12,11 +12,10 @@ using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.AutoFocus;
-using Core.Models.Models.Chuck.Center;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
-using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Cookies;
@@ -569,8 +568,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckGantryCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckGantryDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckCenterCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckCenterObjDto>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckCenterAndThetaCalibrationViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckPrealignerCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckPrealignerObjDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckStageMapCalibrationViewModel>();
@@ -579,8 +578,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckAutoFocusDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckGlobalScaleErrorCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckRotateScaleCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckRotateScaleErrorDto>().IsOk(out _);
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AdsPressureGainsCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AdsPressureGainsDto>().IsOk(out _);

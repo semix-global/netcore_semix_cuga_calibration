@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Chuck.RotateScale.Children;
+namespace CugaCalibration.Views.Chuck.CenterAndThetaScale.Children;
 
 public partial class Step1View
 {

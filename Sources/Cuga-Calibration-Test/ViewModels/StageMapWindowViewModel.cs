@@ -2,7 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
-using Core.Models.Models.Chuck.Center;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
@@ -198,7 +198,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         var wpfPlot = new WpfPlot();
         ConfigureWpfPlot(wpfPlot);
 
-        if (_cacheProvider.TryGetOrDefault<ChuckCenterObjDto>(out var chuckCenter) == false) return;
+        if (_cacheProvider.TryGetOrDefault<ChuckCenterAndThetaItemDto>(out var chuckCenter) == false) return;
         if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
 
         if (_cacheProvider.TryGetOrDefaultArray<LaserLineCentricityItemDto>(out var laserLineCentricityItems) == false) return;

@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -16,17 +18,20 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
     [ObservableProperty]
     private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
-    /// <summary>
-    /// X轴比例误差系数
-    /// </summary>
     [ObservableProperty]
-    private double _scaleX = 1.0;
+    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
 
     /// <summary>
-    /// Y轴比例误差系数
+    /// 当前应用的X/Y轴比例误差系数
     /// </summary>
     [ObservableProperty]
-    private double _scaleY = 1.0;
+    private System.Windows.Point _appliedScaleXY = new(1.0, 1.0);
+
+    /// <summary>
+    /// 应用X/Y轴比例误差系数的结果比例
+    /// </summary>
+    [ObservableProperty]
+    private System.Windows.Point _resultScaleXY;
 
     /// <summary>
     /// 误差值um（x轴，Y轴）
@@ -37,85 +42,54 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
     [ObservableProperty]
     private double _p5Angle;
 
-    #region Real Position
-
-    /// <summary>
-    /// wafer左端点实际坐标-低倍镜
-    /// </summary>
     [ObservableProperty]
-    private Point _leftLowSiteRealPosition;
+    private ChuckGlobalTemplateMatchDtoItem _highSiteMatchResult = new();
 
-    /// <summary>
-    /// wafer右端点实际坐标-低倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _rightLowSiteRealPosition;
+    public void SetMatchResultInfo(Point point, string findResultImageFilePath)
+    {
+        switch (SiteDirection)
+        {
+            case StageDirectionTypeEnum.Up:
+                {
+                    HighSiteMatchResult.TopPosition = point;
+                    HighSiteMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+                }
+                break;
 
-    /// <summary>
-    /// wafer顶部端点实际坐标-低倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _topLowSiteRealPosition;
+            case StageDirectionTypeEnum.Down:
+                {
+                    HighSiteMatchResult.BottomPosition = point;
+                    HighSiteMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+                }
+                break;
 
-    /// <summary>
-    /// wafer底部端点实际坐标-低倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _bottomLowSiteRealPosition;
+            case StageDirectionTypeEnum.Left:
+                {
+                    HighSiteMatchResult.LeftPosition = point;
+                    HighSiteMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+                }
+                break;
 
-    /// <summary>
-    /// wafer左端点实际坐标-高倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _leftHighSiteRealPosition;
+            case StageDirectionTypeEnum.Right:
+                {
+                    HighSiteMatchResult.RightPosition = point;
+                    HighSiteMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+                }
+                break;
+        }
+    }
 
-    /// <summary>
-    /// wafer右端点实际坐标-高倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _rightHighSiteRealPosition;
-
-    /// <summary>
-    /// wafer顶部端点实际坐标-高倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _topHighSiteRealPosition;
-
-    /// <summary>
-    /// wafer底部端点实际坐标-高倍镜
-    /// </summary>
-    [ObservableProperty]
-    private Point _bottomHighSiteRealPosition;
-
-    #endregion Real Position
-
-    #region File Path
-
-    [ObservableProperty]
-    private string _leftLowSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _rightLowSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _topLowSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _bottomLowSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _leftHighSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _rightHighSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _topHighSiteFindResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _bottomHighSiteFindResultFilePath = string.Empty;
-
-    #endregion File Path
+    public Point GetPosition(StageDirectionTypeEnum siteDirection)
+    {
+        return siteDirection switch
+        {
+            StageDirectionTypeEnum.Up => HighSiteMatchResult.TopPosition,
+            StageDirectionTypeEnum.Down => HighSiteMatchResult.BottomPosition,
+            StageDirectionTypeEnum.Left => HighSiteMatchResult.LeftPosition,
+            StageDirectionTypeEnum.Right => HighSiteMatchResult.RightPosition,
+            _ => Point.Origin
+        };
+    }
 
     #region Mapper
 
@@ -123,26 +97,11 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation,
         HighMicroscopeLensInformation = HighMicroscopeLensInformation,
-        ScaleX = ScaleX,
-        ScaleY = ScaleY,
+        AppliedScaleXY = AppliedScaleXY,
+        ResultScaleXY = ResultScaleXY,
         ScaleErrorValue = ScaleErrorValue,
         P5Angle = P5Angle,
-        LeftLowSiteRealPosition = LeftLowSiteRealPosition,
-        RightLowSiteRealPosition = RightLowSiteRealPosition,
-        TopLowSiteRealPosition = TopLowSiteRealPosition,
-        BottomLowSiteRealPosition = BottomLowSiteRealPosition,
-        LeftHighSiteRealPosition = LeftHighSiteRealPosition,
-        RightHighSiteRealPosition = RightHighSiteRealPosition,
-        TopHighSiteRealPosition = TopHighSiteRealPosition,
-        BottomHighSiteRealPosition = BottomHighSiteRealPosition,
-        LeftLowSiteFindResultFilePath = LeftLowSiteFindResultFilePath,
-        RightLowSiteFindResultFilePath = RightLowSiteFindResultFilePath,
-        TopLowSiteFindResultFilePath = TopLowSiteFindResultFilePath,
-        BottomLowSiteFindResultFilePath = BottomLowSiteFindResultFilePath,
-        LeftHighSiteFindResultFilePath = LeftHighSiteFindResultFilePath,
-        RightHighSiteFindResultFilePath = RightHighSiteFindResultFilePath,
-        TopHighSiteFindResultFilePath = TopHighSiteFindResultFilePath,
-        BottomHighSiteFindResultFilePath = BottomHighSiteFindResultFilePath,
+        HighSiteMatchResult = HighSiteMatchResult.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -153,12 +112,55 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
     public CalibrationChuckGlobalScaleError AdaptTo() => new()
     {
         CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
-        ScaleX = ScaleX,
-        ScaleY = ScaleY,
+        ScaleX = AppliedScaleXY.X,
+        ScaleY = AppliedScaleXY.Y,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper
+}
+
+public sealed partial class ChuckGlobalTemplateMatchDtoItem : ObservableCacheBase, ICloneable<ChuckGlobalTemplateMatchDtoItem>
+{
+    [ObservableProperty]
+    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private Point _topPosition = Point.Origin;
+
+    [ObservableProperty]
+    private Point _leftPosition = Point.Origin;
+
+    [ObservableProperty]
+    private Point _bottomPosition = Point.Origin;
+
+    [ObservableProperty]
+    private Point _rightPosition = Point.Origin;
+
+    [ObservableProperty]
+    private string _topFindResultImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _bottomFindResultImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _leftFindResultImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _rightFindResultImageFilePath = string.Empty;
+
+    public ChuckGlobalTemplateMatchDtoItem Clone() => new()
+    {
+        LensInformation = LensInformation.Clone(),
+        TopPosition = TopPosition,
+        BottomPosition = BottomPosition,
+        LeftPosition = LeftPosition,
+        RightPosition = RightPosition,
+        TopFindResultImageFilePath = TopFindResultImageFilePath,
+        BottomFindResultImageFilePath = BottomFindResultImageFilePath,
+        LeftFindResultImageFilePath = LeftFindResultImageFilePath,
+        RightFindResultImageFilePath = RightFindResultImageFilePath
+    };
 }

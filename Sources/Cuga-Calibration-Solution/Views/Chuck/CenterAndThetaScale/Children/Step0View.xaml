@@ -1,12 +1,12 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Chuck.RotateScale.Children.Step0View"
+<UserControl x:Class="CugaCalibration.Views.Chuck.CenterAndThetaScale.Children.Step0View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             d:DataContext="{d:DesignInstance Type=viewModels:ChuckRotateScaleCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckCenterAndThetaCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -19,12 +19,10 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Rotate Scale Step 1: "
+                <hc:Shield Subject="Chuck Center Step 1: "
                            Status="{Binding CalibrationStepList[0].StepName}"
-                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
@@ -36,29 +34,29 @@
                     </StackPanel>
                     <TextBox Text="{Binding AlignmentCacheBrightField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Low Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Low Site1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding AlignmentCacheBrightField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Low Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Low Site2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding AlignmentCacheBrightField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="High Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="High Site1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding AlignmentCacheBrightField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="High Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="High Site2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
@@ -93,27 +91,28 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding IdeaPositionCache.P5Angle, StringFormat={}{0:f10}}"
+                    <TextBox Text="{Binding Cache.P5Angle, StringFormat={}{0:f10}}"
                              Width="275"
-                             hc:InfoElement.Title="Degrees(°): "
+                             hc:TitleElement.Title="Degrees(°): "
                              hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10"
-                                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                                            Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
                                 Command="{Binding Step0CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                Style="{StaticResource ButtonPrimary.Loading}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step0CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                                Style="{StaticResource ButtonWarning}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

@@ -31,7 +31,7 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find Low Bottom Position Template"
+                        <TextBlock Text="Find Bottom Low Mag Position"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
@@ -40,19 +40,9 @@
 
                     <TextBox Text="{Binding Cache.LowBottomPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
-                    <view:CanvasView Width="100"
-                                     Height="100"
-                                     Margin="5"
-                                     BackgroundColor="#0A0A0A"
-                                     AxisColor="Red"
-                                     Interactive="True"
-                                     ShowAxes="True"
-                                     ShowCursor="False"
-                                     ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.LowBottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

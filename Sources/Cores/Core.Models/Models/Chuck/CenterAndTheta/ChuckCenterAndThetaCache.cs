@@ -6,15 +6,18 @@ using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Chuck.GlobalScaleError;
+namespace Core.Models.Models.Chuck.CenterAndTheta;
 
-public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
+public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase
 {
     private double _diePitchWidth = 5100;
     private double _diePitchHeight = 16600;
     private int _reticleDieCountX = 1;
     private int _reticleDieCountY = 1;
     private double _waferRadius = 150_000;
+    private double _rotateAngle = 1d;
+    private int _centerCalibrationThreshold = 200;
+    private int _centerVerifyThreshold = 50;
 
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -22,17 +25,29 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     [ObservableProperty]
     private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
+    [ComparisonRange(0d, 1d, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Rotate Angle: ")]
+    public double RotateAngle
+    {
+        get => _rotateAngle;
+        set => SetProperty(ref _rotateAngle, value, true);
+    }
+
     [ObservableProperty]
-    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
+    private double _p5Angle;
+
+    [ObservableProperty]
+    private double _thetaAngle;
+
+    [ObservableProperty]
+    private int _times = 3;
+
+    #region Wafer Parameters
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftBottom;
 
     [ObservableProperty]
-    private Point _threshold;
-
-    [ObservableProperty]
-    private double _p5Angle;
+    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
     public double DiePitchWidth
@@ -69,7 +84,9 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
         set => SetProperty(ref _reticleDieCountY, value, true);
     }
 
-    #region position
+    #endregion
+
+    #region Position
 
     [ObservableProperty]
     private Point _baseLowSiteFindPosition = Point.Origin;
@@ -91,11 +108,31 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
 
     public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - (Vector)BaseLowSiteFindPosition;
 
-    public double IdeaWidth => Convert.ToInt32(Math.Abs((LeftLowSitePosition - RightLowSitePosition).X) / DiePitchWidth) * DiePitchWidth;
+    #endregion
 
-    public double IdeaHeight => Convert.ToInt32(Math.Abs((TopLowSitePosition - BottomLowSitePosition).Y) / DiePitchHeight) * DiePitchHeight;
+    #region Threshold
 
-    #endregion position
+    [ComparisonRange(0, 500, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Center Calibration Threshold: ")]
+    public int CenterCalibrationThreshold
+    {
+        get => _centerCalibrationThreshold;
+        set => SetProperty(ref _centerCalibrationThreshold, value, true);
+    }
+
+    [ComparisonRange(0, 50, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Center Verify Threshold: ")]
+    public int CenterVerifyThreshold
+    {
+        get => _centerVerifyThreshold;
+        set => SetProperty(ref _centerVerifyThreshold, value, true);
+    }
+
+    /// <summary>
+    /// 角度阈值默认0.00028°,转成半径300mm对应的弧长
+    /// </summary>
+    [ObservableProperty]
+    private double _rotateScaleThreshold = 1.4661;
+
+    #endregion
 
     [ObservableProperty]
     private string _lowBaseTemplateFilePath = string.Empty;
@@ -108,9 +145,6 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
 
     [ObservableProperty]
     private string _highBaseTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private int _times = 3;
 
     public void SetPosition(Point position, StageDirectionTypeEnum? stageDirection = null)
     {
@@ -148,4 +182,26 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
             _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
         };
     }
+
+    #region Verify
+
+    public (bool IsSuccess, string ErrorMessage) Step1Verify()
+    {
+        ClearErrors();
+        ValidateProperty(WaferRadius, nameof(WaferRadius));
+        ValidateProperty(DiePitchHeight, nameof(DiePitchHeight));
+        ValidateProperty(DiePitchWidth, nameof(DiePitchWidth));
+
+        return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
+    }
+
+    public (bool IsSuccess, string ErrorMessage) Step4Verify()
+    {
+        ClearErrors();
+        ValidateProperty(RotateAngle, nameof(RotateAngle));
+
+        return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
+    }
+
+    #endregion Verify
 }

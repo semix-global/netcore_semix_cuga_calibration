@@ -6,111 +6,81 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckGlobalScaleErrorCalibrationViewModel}"
-             d:DesignHeight="1000"
+             d:DesignHeight="900"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="320" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical"
-                                Spacing="10"
-                                IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Global Scale Error Step 3: "
-                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                           Color="{StaticResource InfoBrush}" />
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <hc:Shield Subject="Global Scale Error Step 3: "
+                               Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                               Status="{Binding CalibrationStepList[2].StepName}"
+                               Color="{StaticResource InfoBrush}" />
+                </hc:UniformSpacingPanel>
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Site Direction: "
-                           Status="{Binding Cache.SiteDirection}"
+                           Subject="High Microscope Magnification: "
+                           Status="{Binding Cache.HighMicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find Low Position Template"
+                        <TextBlock Text="Find Base High Mag Position Template"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Width="275"
-                             Margin="5"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Up}">
-                                        <Setter Property="Text" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.TopPosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Down}">
-                                        <Setter Property="Text" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.BottomPosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Left}">
-                                        <Setter Property="Text" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.LeftPosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Right}">
-                                        <Setter Property="Text" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.RightPosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+
+                    <TextBox Text="{Binding Cache.BaseHighSiteFindPosition, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
                     <view:CanvasView Width="100"
                                      Height="100"
+                                     Margin="5"
                                      BackgroundColor="#0A0A0A"
                                      AxisColor="Red"
                                      Interactive="True"
                                      ShowAxes="True"
                                      ShowCursor="False"
-                                     ShowGrid="False">
-                        <view:CanvasView.Style>
-                            <Style TargetType="view:CanvasView">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Up}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.TopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Down}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.BottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Left}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.LeftTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.SiteDirection}" Value="{x:Static stage:StageDirectionTypeEnum.Right}">
-                                        <Setter Property="BackgroundImage" Value="{Binding Cache.LowGlobalScaleErrorCacheItem.RightTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </view:CanvasView.Style>
-                    </view:CanvasView>
+                                     ShowGrid="False"
+                                     BackgroundImage="{Binding Cache.HighBaseTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                </hc:UniformSpacingPanel>
+            </Border>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10"
-                                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                                            Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
                                 Command="{Binding Step2CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                Style="{StaticResource ButtonPrimary.Loading}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step2CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                                Style="{StaticResource ButtonWarning}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->
-
-        <GridSplitter Grid.Column="1" Width="5" />
     </Grid>
 </UserControl>
