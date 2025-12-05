@@ -7,6 +7,7 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB;assembly=Core.Models"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=pattern:CIBConfiguration}"
              mc:Ignorable="d">
     <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

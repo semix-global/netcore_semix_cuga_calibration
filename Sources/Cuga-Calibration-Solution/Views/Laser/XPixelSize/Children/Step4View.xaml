@@ -4,8 +4,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -26,15 +28,11 @@
                        Color="{StaticResource SuccessBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Microscope Lens: "
-                       Status="{Binding Cache.Item.MicroscopeLensInformation}"
+                       Status="{Binding Cache.MicroscopeLensInformation}"
                        Color="{StaticResource SuccessBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
                        Subject="Alignment Degrees(°): "
                        Status="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
-                       Color="{StaticResource SuccessBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="BF Machine Position(um): "
-                       Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -45,24 +43,29 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Template Type: "
+                                 SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+                    <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.WaferRadius}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Die Pitch With(um): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="160"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.DiePitchWith}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Reticle Die Count X: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="160"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.ReticleDieCountX}" />
+                                      Value="{Binding Cache.Item.ImageWidth}" />
+                    <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                             hc:TitleElement.Title="BF Machine Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="160"
+                             Style="{StaticResource TextBoxExtend}" />
                     <StackPanel>
                         <TextBlock Text="Result"
                                    HorizontalAlignment="Center"
@@ -70,13 +73,25 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultSuccess}" />
                     </StackPanel>
-                    <TextBox Text="{Binding CalibratingItem.XPixelSize, StringFormat='0.##########'}"
-                             hc:TitleElement.Title="X Pixel Size(um/px): "
-                             hc:TitleElement.TitleWidth="160"
+                    <TextBox Text="{Binding Cache.Item.TemplateFilePath}"
+                             Height="100"
+                             TextWrapping="Wrap"
+                             hc:TitleElement.Title="Template: "
+                             hc:TitleElement.TitleWidth="90"
                              hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                              Style="{StaticResource TextBoxExtend}" />
+                    <view:CanvasView Width="100"
+                                     Height="100"
+                                     BackgroundColor="#0A0A0A"
+                                     AxisColor="Red"
+                                     Interactive="True"
+                                     ShowAxes="True"
+                                     ShowCursor="False"
+                                     ShowGrid="False"
+                                     BackgroundImage="{Binding Cache.Item.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -92,21 +107,5 @@
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
-        <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="5" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <Border Style="{StaticResource BorderRegion}">
-                    <controls:ScatterMultiPlotControl Title="Slide Match(Y: Score - X: px)" ScatterLine0Points="{Binding CalibratingItem.SlideItemPoints}" />
-                </Border>
-                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <controls:ScatterMultiPlotControl Title="Slide Split Differences(Y: px - X: Die - Die)" ScatterLine0Points="{Binding CalibratingItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}}" />
-                </Border>
-            </Grid>
-        </GroupBox>
     </Grid>
 </UserControl>

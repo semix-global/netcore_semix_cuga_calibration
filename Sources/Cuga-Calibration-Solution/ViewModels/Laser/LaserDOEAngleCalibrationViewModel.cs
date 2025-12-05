@@ -4,6 +4,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
@@ -20,6 +21,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
@@ -34,7 +36,10 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserDOEAngleCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+public sealed partial class LaserDOEAngleCalibrationViewModel(
+    CalibrationSetting calibrationSetting,
+    AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
+    AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -42,6 +47,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
     [
         new() { StepName = "CIB Config" },
         new() { StepName = "PMT Enable Config" },
+        new() { StepName = "P5" },
         new() { StepName = "Find a Position" },
         new() { StepName = "DOE Angle Calibration" }
     ];
@@ -91,6 +97,12 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
 
     [ObservableProperty]
     private LaserDOEAngleDto _laserDOEAngleDto = new();
+
+    [ObservableProperty]
+    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+
+    [ObservableProperty]
+    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
 
     #endregion 缓存
 
@@ -194,6 +206,9 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
             return false;
         }
 
+        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserDOEAngleCache>();
         Calibration = CacheProvider.GetOrDefault<LaserDOEAngleDto>();
 
@@ -241,14 +256,19 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
 
         switch (CalibrationStepIndex)
         {
-            case 3:
+            case 1:
+                DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                Cache.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+                return true;
+
+            case 4:
                 if (ResultLaserDOEAngleDto is null)
                 {
                     DialogWindowProvider.ShowDialog("Please calibration first!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
 
-                var isCalibrated = CalibrationStepIndex == 3;
+                var isCalibrated = CalibrationStepIndex == 4;
 
                 ResultLaserDOEAngleDto.IsCalibrated = isCalibrated;
                 if (Save(ResultLaserDOEAngleDto, cancellationToken) == false)
@@ -315,7 +335,80 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            AlignmentResultDto alignmentResultDto = new();
+
+            if (Cache.IsDarkFieldAlignment)
+            {
+                if (AlignmentCacheDarkField.IsOk)
+                {
+                    alignmentResultDto = StageViewModel.AlignmentDarkField(
+                        AlignmentCacheDarkField.LowSite1,
+                        AlignmentCacheDarkField.LowSite2,
+                        AlignmentCacheDarkField.HighSite1,
+                        AlignmentCacheDarkField.HighSite2,
+                        AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
+                        AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                        AlignmentCacheDarkField.LowMag,
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                    return true;
+                }
+
+                var showDialog = WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel);
+
+                if (showDialog == false)
+                {
+                    DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return false;
+                }
+
+                AlignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
+                StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheDarkField.LowSite1.Location);
+            }
+            else
+            {
+                if (AlignmentCacheBrightField.IsOk)
+                {
+                    alignmentResultDto = StageViewModel.Alignment(
+                        AlignmentCacheBrightField.LowSite1,
+                        AlignmentCacheBrightField.LowSite2,
+                        AlignmentCacheBrightField.HighSite1,
+                        AlignmentCacheBrightField.HighSite2,
+                        AlignmentCacheBrightField.LowMag,
+                        AlignmentCacheBrightField.HighMag,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+                    return true;
+                }
+
+                var showDialog = WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel);
+
+                if (showDialog == false)
+                {
+                    DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return false;
+                }
+
+                AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
+                StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheBrightField.LowSite1.Location);
+            }
+
+            Cache.P5Angle = alignmentResultDto.Degrees;
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.IsDarkFieldAlignment,
+                Cache.P5Angle,
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -332,7 +425,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -421,10 +514,35 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
         {
             try
             {
+                var alignmentResultDto = new AlignmentResultDto();
+                if (Cache.IsDarkFieldAlignment == false)
+                    alignmentResultDto = StageViewModel.Alignment(
+                        AlignmentCacheBrightField.LowSite1,
+                        AlignmentCacheBrightField.LowSite2,
+                        AlignmentCacheBrightField.HighSite1,
+                        AlignmentCacheBrightField.HighSite2,
+                        AlignmentCacheBrightField.LowMag,
+                        AlignmentCacheBrightField.HighMag,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+                else
+                {
+                    alignmentResultDto = StageViewModel.AlignmentDarkField(
+                        AlignmentCacheDarkField.LowSite1,
+                        AlignmentCacheDarkField.LowSite2,
+                        AlignmentCacheDarkField.HighSite1,
+                        AlignmentCacheDarkField.HighSite2,
+                        AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
+                        AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                        AlignmentCacheDarkField.LowMag,
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                }
+
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition), Cache.CalChipSiteModelEnum);
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
+                    Cache.IsDarkFieldAlignment,
+                    Cache.P5Angle,
                     Cache.ObliqueAngle,
                     Cache.PmtInterval,
                     Cache.EcsPerAfOffset,
@@ -453,6 +571,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
 
                 Logger.LogHtmlInformation($"Verify{(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
+                    alignmentResultDto.Degrees,
                     LaserDOEAngleDto.DOEReviseAngle,
                     LaserDOEAngleDto.AfPosError,
                     LaserDOEAngleDto.MultiRtfcFitSlope

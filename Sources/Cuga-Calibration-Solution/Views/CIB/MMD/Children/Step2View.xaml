@@ -48,7 +48,7 @@
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.ProductivityInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
+                                 ItemsSource="{Binding ApplicationCookie.NIOpticsMagTypeProductivityInformations}" />
                     <Expander Header="AF"
                               IsExpanded="True"
                               ExpandDirection="Down">

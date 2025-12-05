@@ -944,6 +944,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
     }
 
+    public void RefreshAutoStepProgress()
+    {
+        AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
+    }
+
     #endregion 状态更新
 
     public virtual void Dispose()

@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -13,6 +14,9 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     ObservableCacheBase,
     IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -196,6 +200,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
     {
+        OpticsIlluminationModeEnum = obj.OpticsIlluminationModeEnum;
         ProductivityInformation = obj.ProductivityInformation.Clone();
         IsHeaderAndFooter = obj.IsHeaderAndFooter;
         HeaderFrequency = obj.HeaderFrequency;
@@ -225,6 +230,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public virtual object ToFlatnessHtmlAnonymous() => new
     {
+        OpticsIlluminationModeEnum,
         ProductivityInformation,
         IsHeaderAndFooter,
         HeaderFrequency,
@@ -242,6 +248,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     public virtual object ToHtmlAnonymous() => new
     {
+        OpticsIlluminationModeEnum,
         ProductivityInformation,
         IsHeaderAndFooter,
         HeaderFrequency,
