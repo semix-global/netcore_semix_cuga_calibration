@@ -6,7 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
-using Core.Models.Models.Chuck.Center;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
@@ -94,7 +94,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private LaserLineCentricityItemDto[] _calibrations = [];
 
     [ObservableProperty]
-    private ChuckCenterObjDto _chuckCenter = new();
+    private ChuckCenterAndThetaItemDto _chuckCenter = new();
 
     [ObservableProperty]
     private LaserPixelSizeItemDto[] _laserPixelSizes = [];
@@ -138,7 +138,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         MicroscopePixelSizeItems = microscopePixelSizeItems;
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterObjDto>(out var chuckCenter, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out var chuckCenter, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

@@ -1,13 +1,12 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Chuck.Gantry.Children.Step5View"
+<UserControl x:Class="CugaCalibration.Views.Chuck.Gantry.Children.Step5View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckGantryCalibrationViewModel}"
-             d:DesignHeight="900"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
@@ -22,41 +21,66 @@
                 <hc:Shield Subject="Chuck Gantry Step 6: "
                            Status="{Binding CalibrationStepList[5].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="High Microscope Magnification: "
-                           Status="{Binding Cache.HighMicroscopeLensInformation.LensName}"
-                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find High Bottom Position Template"
+                        <TextBlock Text="Gantry"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-
-                    <TextBox Text="{Binding Cache.HighBottomPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding ResultChuckGantryDto.Position1, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position1(um): "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <view:CanvasView Width="100"
-                                     Height="100"
-                                     Margin="5"
-                                     BackgroundColor="#0A0A0A"
-                                     AxisColor="Red"
-                                     Interactive="True"
-                                     ShowAxes="True"
-                                     ShowCursor="False"
-                                     ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.HighBottomTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <TextBox Text="{Binding ResultChuckGantryDto.TemplateScore1, StringFormat={}{0:f3}}"
+                             Width="275"
+                             hc:TitleElement.Title="Score1: "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultChuckGantryDto.TemplateAngle1, StringFormat={}{0:f3}}"
+                             Width="275"
+                             hc:TitleElement.Title="Angle1: "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultChuckGantryDto.Position2, Converter={StaticResource PointToStringConverter}}"
+                             Width="275"
+                             hc:TitleElement.Title="Position2(um): "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultChuckGantryDto.TemplateScore2, StringFormat={}{0:f3}}"
+                             Width="275"
+                             hc:TitleElement.Title="Score2: "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultChuckGantryDto.TemplateAngle2, StringFormat={}{0:f3}}"
+                             Width="275"
+                             hc:TitleElement.Title="Angle2: "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultChuckGantryDto.Offset, StringFormat={}{0:f3}}"
+                             Width="275"
+                             hc:TitleElement.Title="Offset(um): "
+                             hc:TitleElement.TitleWidth="90"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

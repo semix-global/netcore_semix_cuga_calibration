@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Chuck.Center.Children;
+namespace CugaCalibration.Views.Chuck.CenterAndThetaScale.Children;
 
 public sealed partial class Step4View
 {

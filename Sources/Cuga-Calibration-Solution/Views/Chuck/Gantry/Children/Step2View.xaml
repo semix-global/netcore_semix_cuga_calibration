@@ -23,25 +23,25 @@
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Low Microscope Magnification: "
-                           Status="{Binding Cache.LowMicroscopeLensInformation.LensName}"
+                           Subject="High Microscope Magnification: "
+                           Status="{Binding Cache.HighMicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find Low Top Position Template"
+                        <TextBlock Text="Find Base High Mag Position Template"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
 
-                    <TextBox Text="{Binding Cache.LowTopPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding Cache.BaseHighFindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
                     <view:CanvasView Width="100"
                                      Height="100"
@@ -52,7 +52,7 @@
                                      ShowAxes="True"
                                      ShowCursor="False"
                                      ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.LowTopTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                     BackgroundImage="{Binding Cache.HighBaseTemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
