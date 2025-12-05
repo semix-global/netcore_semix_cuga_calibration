@@ -111,11 +111,11 @@ public interface ICalibrationLaserService
     SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
 
     /// <summary>
-    /// 切换照明OD
+    /// 切换照明OD滤光片
     /// </summary>
     /// <param name="isEnable">是否开启</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsOD(bool isEnable);
+    SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable);
 
     [Obsolete]
     SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay);

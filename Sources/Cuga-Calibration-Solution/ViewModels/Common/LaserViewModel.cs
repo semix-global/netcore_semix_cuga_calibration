@@ -143,9 +143,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
     
-    public void ToggleOpticsOD(bool isEnable)
+    public void ToggleOpticsODFilter(bool isEnable)
     {
-        var ret = calibrationLaserService.ToggleOpticsOD(isEnable);
+        var ret = calibrationLaserService.ToggleOpticsODFilter(isEnable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

@@ -66,6 +66,24 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _pMTValueWaitTime = 1;
 
     [ObservableProperty]
+    private double _startCoefficient = 0.01;
+
+    [ObservableProperty]
+    private double _stepCoefficient = 0.1;
+
+    [ObservableProperty]
+    private double _stopCoefficient = 1;
+
+    [ObservableProperty]
+    private double _measurePowerSequenceCommonRatio = 1 / 1.3;
+
+    [ObservableProperty]
+    private double _measurePowerNotUseODFilterMinValue = 1;
+
+    [ObservableProperty]
+    private double _mMDMeasurePowerRangeRatio = 1000;
+
+    [ObservableProperty]
     private double _startGain = -10;
 
     [ObservableProperty]
@@ -73,15 +91,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopGain = 10;
-
-    [ObservableProperty]
-    private IReadOnlyList<double> _coefficients = [0.01, 0.013, 0.0169, 0.02197, 0.028561, 0.0371293, 0.04826809, 0.062748517, 0.081573072, 0.106044994, 0.137858492, 0.179216039, 0.232980851, 0.302875107, 0.393737639, 0.51185893, 0.665416609, 0.865041592, 1];
-
-    [ObservableProperty]
-    private double _ratio = 1 / 1.3;
-
-    [ObservableProperty]
-    private double _minMeasurePower = 1;
 
     [ObservableProperty]
     private double _protectedPMTValue = 409.6;

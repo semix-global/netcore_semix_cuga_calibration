@@ -81,19 +81,18 @@ public static class GeometricSequence
         }
 
         return sequence;
-        
     }
-    
-    public static double[] SolveForX(double P0, double P1, double P2, double P3, double yTarget)
+
+    public static double[] SolveForX(double p0, double p1, double p2, double p3, double yTarget)
     {
-        var roots = Cubic.Roots(P0-yTarget, P1, P2, P3);
-        
+        var roots = Cubic.Roots(p0 - yTarget, p1, p2, p3);
+
         var resultList = new List<double>();
-        
-        if(roots.Item1.IsReal()) resultList.Add(roots.Item1.Real);
-        if(roots.Item2.IsReal()) resultList.Add(roots.Item2.Real);
-        if(roots.Item3.IsReal()) resultList.Add(roots.Item3.Real);
-        
+
+        if (roots.Item1.IsReal()) resultList.Add(roots.Item1.Real);
+        if (roots.Item2.IsReal()) resultList.Add(roots.Item2.Real);
+        if (roots.Item3.IsReal()) resultList.Add(roots.Item3.Real);
+
         return resultList.ToArray();
     }
 }

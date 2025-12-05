@@ -143,7 +143,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsOD(bool isEnable)
+    public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
     {
         throw new NotImplementedException();
     }

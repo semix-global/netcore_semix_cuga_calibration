@@ -364,7 +364,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsOD(bool isEnable)
+    public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
     {
         Thread.Sleep(100);
 
