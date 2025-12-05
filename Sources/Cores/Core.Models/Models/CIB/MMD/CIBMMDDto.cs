@@ -4,6 +4,7 @@ using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
@@ -68,6 +69,37 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
+    partial void OnItemsChanged(IReadOnlyList<CIBMMDItemDto> value) => RefreshPlot();
+
+    partial void OnGainResidualChanged(double value) => RefreshPlot();
+
+    partial void OnGainL2NormChanged(double value) => RefreshPlot();
+
+    partial void OnGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnOriginLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnLogGainA1Changed(double value) => RefreshPlot();
+
+    partial void OnLogGainA2Changed(double value) => RefreshPlot();
+
+    partial void OnLogGainX0Changed(double value) => RefreshPlot();
+
+    partial void OnLogGainDxChanged(double value) => RefreshPlot();
+
+    partial void OnLogGainRSquaredChanged(double value) => RefreshPlot();
+
+    partial void OnFitLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnResultLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnLogGainMul128U12BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnGainS16BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
@@ -96,15 +128,14 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     public void RefreshPlot()
     {
-        var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
-        if (items.Length > 0)
+        if (Items.Count > 0)
         {
-            ScatterPlotControl.GetOrAddScatterLine(
+            ScatterPlotControl.GetOrAddScatterMarkers(
                 0,
                 "Attenuator",
-                [.. items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
+                [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
 
-            foreach (var item in items)
+            foreach (var item in Items)
             {
                 var itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
                 if (itemItems.Length > 0)
@@ -127,14 +158,16 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
                 $"Origin Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
-                OriginLogGainPoints);
+                OriginLogGainPoints,
+                Constants.Category10.GetColor(0));
 
             if (FitLogGainPoints.Count > 0)
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
                     $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
-                    FitLogGainPoints);
+                    FitLogGainPoints,
+                    Constants.Category10.GetColor(1));
             }
 
             if (ResultLogGainPoints.Count > 0)
@@ -142,7 +175,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
                     $"Result Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
-                    ResultLogGainPoints);
+                    ResultLogGainPoints,
+                    Constants.Category10.GetColor(2));
             }
         }
 

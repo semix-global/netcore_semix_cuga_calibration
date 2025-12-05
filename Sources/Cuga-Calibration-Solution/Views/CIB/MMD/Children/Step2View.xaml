@@ -406,7 +406,7 @@
                            Placement="Right"
                            AllowsTransparency="True"
                            PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                             <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
                         </Border>

@@ -24,7 +24,6 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
         base.OnDetaching();
 
         AssociatedObject.Loaded -= OnTabControlLoaded;
-
         var itemsSourceDescriptor = System.ComponentModel.DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(TabControl));
         GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
@@ -35,8 +34,6 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
 
     private void TrySelectFirstItem()
     {
-        // ReSharper disable once GenericEnumeratorNotDisposed
-        var enumerator = AssociatedObject.ItemsSource.GetEnumerator();
-        if (enumerator.MoveNext()) AssociatedObject.SelectedIndex = 0;
+        AssociatedObject.SelectedIndex = 0;
     }
 }

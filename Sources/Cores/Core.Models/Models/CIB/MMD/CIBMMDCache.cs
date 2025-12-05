@@ -7,6 +7,7 @@ using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
@@ -173,6 +174,30 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
+    partial void OnMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnODFilterRatioChanged(double value) => RefreshPlot();
+
+    partial void OnP0Changed(double value) => RefreshPlot();
+
+    partial void OnP1Changed(double value) => RefreshPlot();
+
+    partial void OnP2Changed(double value) => RefreshPlot();
+
+    partial void OnP3Changed(double value) => RefreshPlot();
+
+    partial void OnRSquaredChanged(double value) => RefreshPlot();
+
+    partial void OnFitMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnNotUseODFilterMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnUseODFilterMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
+
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
@@ -181,13 +206,16 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         ScatterPlotControl.SetTitle("Measure Power(Y: mW X: Coefficient)");
     }
 
-    public void RefreshPlot()
+    private void RefreshPlot()
     {
         ScatterPlotControl.Clear();
-        ScatterPlotControl.GetOrAddScatterLine($"Origin OD = {ODFilterRatio:0.######}", MeasurePowerPoints);
-        ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints);
-        ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, markerShape: MarkerShape.FilledDiamond);
-        ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, markerShape: MarkerShape.OpenDiamond);
+
+        if (MeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Origin OD = {ODFilterRatio:0.######}", MeasurePowerPoints, Constants.Category10.GetColor(0));
+        if (FitMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(1));
+        if (NotUseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, markerShape: MarkerShape.FilledDiamond, color: Constants.Category10.GetColor(2));
+        if (UseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, markerShape: MarkerShape.OpenDiamond, color: Constants.Category10.GetColor(3));
+
+        ScatterPlotControl.AutoScaleRefresh();
     }
 
     public sealed class GainConfiguration
