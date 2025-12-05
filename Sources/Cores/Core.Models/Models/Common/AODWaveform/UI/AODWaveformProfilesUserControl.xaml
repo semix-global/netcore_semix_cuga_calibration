@@ -29,7 +29,7 @@
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <TabControl SelectedIndex="0" ItemsSource="{Binding .}">
                 <i:Interaction.Behaviors>
-                    <wpf:TabControlAutoSelectFirstBehavior />
+                    <wpf:SelectorAutoSelectFirstBehavior />
                 </i:Interaction.Behaviors>
                 <TabControl.ItemTemplate>
                     <DataTemplate>

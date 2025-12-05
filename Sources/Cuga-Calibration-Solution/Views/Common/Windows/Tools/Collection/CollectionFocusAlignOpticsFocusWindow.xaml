@@ -283,6 +283,9 @@
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <TabControl>
+                    <i:Interaction.Behaviors>
+                        <wpf:SelectorAutoSelectFirstBehavior />
+                    </i:Interaction.Behaviors>
                     <TabItem Header="Plots">
                         <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
                             <TabControl.ItemTemplate>

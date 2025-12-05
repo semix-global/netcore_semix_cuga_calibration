@@ -1,11 +1,12 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
 
 namespace Core.Utilities.WPF;
 
-public sealed class TabControlAutoSelectFirstBehavior : Behavior<TabControl>
+public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
 {
     protected override void OnAttached()
     {

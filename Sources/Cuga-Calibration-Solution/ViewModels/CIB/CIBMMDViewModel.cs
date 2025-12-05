@@ -165,6 +165,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 
+        Cache.RefreshPlot();
+
         return true;
     }
 
@@ -321,6 +323,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
+            CalibratingItems = [];
+            Cache.PrescanAODWaveformResultFilePath = Cache.ChirpAODWaveformResultFilePath = string.Empty;
+            Cache.PrescanAODWaveformProfiles = [];
+            Cache.ChirpAODWaveformProfiles = [];
             Cache.MeasurePowerPoints = Cache.FitMeasurePowerPoints = Cache.NotUseODFilterMeasurePowerPoints = Cache.UseODFilterMeasurePowerPoints = [];
             Cache.P0 = Cache.P1 = Cache.P2 = Cache.P3 = Cache.RSquared = Cache.ODFilterRatio = 0;
             Cache.RefreshPlot();
@@ -363,12 +369,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinLogGain,
                 Table = new HtmlTable([.. Cache.GainConfigurations])
             }), HtmlLogUniqueId.LoggingHtml());
-
-            CalibratingItems = [];
-            Cache.PrescanAODWaveformProfiles = [];
-            Cache.PrescanAODWaveformResultFilePath = string.Empty;
-            Cache.ChirpAODWaveformResultFilePath = string.Empty;
-            Cache.ChirpAODWaveformProfiles = [];
 
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
 

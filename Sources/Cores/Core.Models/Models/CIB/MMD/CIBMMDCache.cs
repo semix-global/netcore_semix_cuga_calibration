@@ -46,19 +46,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _chirpFrequency;
 
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
-
-    [ObservableProperty]
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
-
-    [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 
     [ObservableProperty]
     private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTVoltage;
@@ -132,6 +120,18 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     /********** 缓存的结果 **********/
 
     [ObservableProperty]
+    private string _prescanAODWaveformResultFilePath = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+
+    [ObservableProperty]
+    private string _chirpAODWaveformResultFilePath = string.Empty;
+
+    [ObservableProperty]
+    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+
+    [ObservableProperty]
     private IReadOnlyList<Point> _measurePowerPoints = [];
 
     [ObservableProperty]
@@ -160,6 +160,8 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private IReadOnlyList<Point> _useODFilterMeasurePowerPoints = [];
+
+    /********** 缓存的结果 **********/
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657

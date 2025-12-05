@@ -460,6 +460,9 @@
                 </ListView>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedCalibratingItems}" SelectedIndex="0">
+                        <i:Interaction.Behaviors>
+                            <wpf:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding CIBInformation}" />
