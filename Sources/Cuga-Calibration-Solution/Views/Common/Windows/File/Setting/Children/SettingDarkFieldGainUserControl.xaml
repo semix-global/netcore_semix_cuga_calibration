@@ -39,7 +39,7 @@
                                  hc:TitleElement.TitleWidth="175"
                                  SelectedItem="{Binding ProductivityInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}" />
+                                 ItemsSource="{Binding ApplicationCookie.NIOpticsMagTypeProductivityInformations}" />
                     <hc:ComboBox x:Name="ComboBoxPMTId"
                                  HorizontalAlignment="Left"
                                  hc:TitleElement.TitleWidth="175"

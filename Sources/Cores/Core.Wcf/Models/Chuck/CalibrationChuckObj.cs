@@ -26,17 +26,12 @@ public sealed class CalibrationChuckObj
     /// <summary>
     /// Chuck Center校准对象
     /// </summary>
-    public CalibrationCenterObj CalibrationCenterObj { get; set; } = new CalibrationCenterObj();
+    public CalibrationChuckCenterAndThetaObj CalibrationChuckCenterAndThetaObj { get; set; } = new CalibrationChuckCenterAndThetaObj();
 
     /// <summary>
     /// Prealigner校准对象
     /// </summary>
     public CalibrationPrealignerObj CalibrationPrealignerObj { get; set; } = new CalibrationPrealignerObj();
-
-    /// <summary>
-    /// Chuck 旋转比例误差校准对象
-    /// </summary>
-    public CalibrationChuckRotateScaleError CalibrationChuckRotateScaleError { get; set; } = new CalibrationChuckRotateScaleError();
 
     /// <summary>
     /// Stage Map 校准对象
@@ -86,7 +81,7 @@ public sealed class CalibrationChuckGlobalScaleError : CalibrationBase
 /// Chuck Center校准对象
 /// </summary>
 [Serializable]
-public sealed class CalibrationCenterObj : CalibrationBase
+public sealed class CalibrationChuckCenterAndThetaObj : CalibrationBase
 {
     /// <summary>
     /// 此显微镜镜头下做的校准
@@ -97,6 +92,11 @@ public sealed class CalibrationCenterObj : CalibrationBase
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, 校准后明场中心Stage的物理坐标, **Cuga内部使用以及下发AF硬件**
     /// </summary>
     public CgPoint NewBFCenterStagePosition { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下, T轴比例误差系数, **Cuga内部使用**
+    /// </summary>
+    public double ScaleT { get; set; }
 }
 
 /// <summary>
@@ -119,23 +119,6 @@ public sealed class CalibrationPrealignerObj : CalibrationBase
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, 校准后EFEM上下料时Chuck的起始旋转角度（绝对角度）, **Cuga内部使用**
     /// </summary>
     public double EfemLoadWaferChuckAbsoluteAngle { get; set; }
-}
-
-/// <summary>
-/// 旋转比例误差校准对象
-/// </summary>
-[Serializable]
-public sealed class CalibrationChuckRotateScaleError : CalibrationBase
-{
-    /// <summary>
-    /// 此显微镜镜头下做的校准
-    /// </summary>
-    public CgMicroscopeLens CgMicroscopeLens { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下, T轴比例误差系数, **Cuga内部使用**
-    /// </summary>
-    public double ScaleT { get; set; }
 }
 
 /// <summary>

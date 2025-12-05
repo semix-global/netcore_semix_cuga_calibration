@@ -131,6 +131,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
 
             var size = image.GetSize();
             markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+            return true;
         }
 
         return _calibrationAlgorithmServiceImpl.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out markPoint, out offsetPoint, out score, out angle);

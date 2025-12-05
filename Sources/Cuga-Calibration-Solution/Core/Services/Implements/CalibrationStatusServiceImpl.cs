@@ -4,7 +4,7 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.AODAlignment;
-using Core.Models.Models.Chuck.Center;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
@@ -49,7 +49,7 @@ public class CalibrationStatusServiceImpl(
     {
         if (EnableCalibrationItems<MicroscopeCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckGantryDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckCenterObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckCenterAndThetaItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckPrealignerObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;

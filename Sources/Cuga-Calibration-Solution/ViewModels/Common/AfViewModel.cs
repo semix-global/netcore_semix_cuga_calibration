@@ -46,7 +46,6 @@ public sealed class AfViewModel(
         var ret = calibrationAfService.ToggleBrightFieldEnable(isEnable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-        return;
     }
 
     public void ToggleDarkFieldEnable(bool isEnable)

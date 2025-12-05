@@ -105,7 +105,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
@@ -113,7 +113,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+            ..Calibrations.Where(t => ApplicationCookie.NIOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
@@ -241,9 +241,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             };
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
 
             var repeatCout = 0;
 
@@ -386,9 +386,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             SelectedReviewItem.IsVerified = false;
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, SelectedReviewItem.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, SelectedReviewItem.Coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
 
             var resultList = new List<double>();
 

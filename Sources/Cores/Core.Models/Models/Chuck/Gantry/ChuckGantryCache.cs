@@ -9,21 +9,29 @@ namespace Core.Models.Models.Chuck.Gantry;
 
 public sealed partial class ChuckGantryCache : CalibrationCacheBase
 {
-    private double _rowCellHeight = 1;
-    private double _waferDiameter = 300_000;
+    private double _diePitchHeight = 16600;
+    private int _reticleDieCountY = 1;
+    private double _waferRadius = 150_000;
 
-    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
-    public double RowCellHeight
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Height must be greater than 0.1.")]
+    public double DiePitchHeight
     {
-        get => _rowCellHeight;
-        set => SetProperty(ref _rowCellHeight, value, true);
+        get => _diePitchHeight;
+        set => SetProperty(ref _diePitchHeight, value, true);
     }
 
-    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
-    public double WaferDiameter
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Reticle Reference Die Row Count must be greater than 1.")]
+    public int ReticleDieCountY
     {
-        get => _waferDiameter;
-        set => SetProperty(ref _waferDiameter, value, true);
+        get => _reticleDieCountY;
+        set => SetProperty(ref _reticleDieCountY, value, true);
+    }
+
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Radius: ")]
+    public double WaferRadius
+    {
+        get => _waferRadius;
+        set => SetProperty(ref _waferRadius, value, true);
     }
 
     [ObservableProperty]
@@ -45,43 +53,28 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase
     private Point _baseLowFindPosition = Point.Origin;
 
     [ObservableProperty]
+    private Point _baseHighFindPosition = Point.Origin;
+
+    [ObservableProperty]
     private Point _lowTopPosition = Point.Origin;
 
     [ObservableProperty]
     private Point _lowBottomPosition = Point.Origin;
 
     [ObservableProperty]
-    private Point _highTopPosition = Point.Origin;
+    private string _lowBaseTemplateFilePath = string.Empty;
 
     [ObservableProperty]
-    private Point _highBottomPosition = Point.Origin;
+    private string _lowBaseTemplateImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _lowTopTemplateFilePath = string.Empty;
+    private string _highBaseTemplateFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _lowTopTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTopTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highTopTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowBottomTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _lowBottomTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highBottomTemplateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _highBottomTemplateImageFilePath = string.Empty;
+    private string _highBaseTemplateImageFilePath = string.Empty;
 
     [ObservableProperty]
     private double _p5Angle;
 
-    public Point LowToHighPoint => HighTopPosition - (Vector)LowTopPosition;
+    public Point LowToHighPoint => BaseHighFindPosition - (Vector)BaseLowFindPosition;
 }

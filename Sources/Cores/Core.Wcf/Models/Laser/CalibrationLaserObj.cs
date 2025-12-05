@@ -339,6 +339,11 @@ public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
 public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 {
     /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
     /// 暗场Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
@@ -361,6 +366,11 @@ public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 {
     /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
@@ -382,6 +392,11 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 [Serializable]
 public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// 此显微镜镜头下做的校准
     /// </summary>

@@ -42,10 +42,11 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         var filesName = Directory.GetFiles(fileCacheDirectoryPath);
 
         var filePath = filesName.Length > 0 ? filesName.Last() : $"{fileCacheDirectoryPath}\\Result_{Constants.LongFileDateTimeFormat}.dat";
+
         return SxExecuteRetHelper.CreateSuccess(filePath);
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>([
             AODWaveformProfileFactory.CreatePrescan(OpticsAODElectrodeEnum.Electrode1, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\prescan_high$5175$0$600$02$0$0$.txt")),
@@ -55,7 +56,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         ]);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>([
             AODWaveformProfileFactory.CreateChirp(OpticsAODElectrodeEnum.Electrode1, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\chirp_high$2897$1500$600$03$0$0$.txt")),
@@ -65,7 +66,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         ]);
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
@@ -75,7 +76,7 @@ public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");

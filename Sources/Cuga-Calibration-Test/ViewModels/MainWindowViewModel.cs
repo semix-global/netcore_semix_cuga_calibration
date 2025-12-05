@@ -6,7 +6,6 @@ using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.RotateScaleError;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -534,7 +533,6 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<AdsXGainsItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<AdsYGainsItemDto>([], CancellationToken.None);
         cacheProvider.Set<ChuckGlobalScaleErrorDto>(new(), CancellationToken.None);
-        cacheProvider.Set<ChuckRotateScaleErrorDto>(new(), CancellationToken.None);
         cacheProvider.Set<LaserAutoFocusDto>(new(), CancellationToken.None);
         cacheProvider.Set<LaserBeamStabilizerObjDto>(new(), CancellationToken.None);
         cacheProvider.SetArray<LaserOpticalPowerMeterDto>([], CancellationToken.None);

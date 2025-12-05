@@ -13,7 +13,7 @@
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="10" />
                 <ColumnDefinition Width="8*" />
             </Grid.ColumnDefinitions>
@@ -36,27 +36,23 @@
                         </StackPanel>
                         <TextBox x:Name="ThresholdTextBox"
                                  Text="{Binding Cache.Threshold, Converter={StaticResource PointToStringConverter}}"
-                                 hc:InfoElement.Title="Threshold(x,y): "
+                                 hc:TitleElement.Title="Threshold(x,y): "
                                  hc:TitleElement.TitleWidth="120"
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding ReviewDto.ScaleX, StringFormat={}{0:f4}}"
-                                 hc:InfoElement.Title="X Scale: "
+                        <TextBox Text="{Binding SelectGlobalScaleErrorDto.AppliedScaleXY, StringFormat={}{0:f8}}"
+                                 hc:TitleElement.Title="Applied Scale: "
                                  hc:TitleElement.TitleWidth="120"
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding ReviewDto.ScaleY, StringFormat={}{0:f4}}"
-                                 hc:InfoElement.Title="Y Scale: "
+                        <TextBox Text="{Binding SelectGlobalScaleErrorDto.ScaleErrorValue, Converter={StaticResource PointToStringConverter}, StringFormat={}{0:f4}}"
+                                 hc:TitleElement.Title="Error Value(um): "
                                  hc:TitleElement.TitleWidth="120"
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding SelectGlobalScaleErrorDto.ScaleErrorValue, Converter={StaticResource PointToStringConverter}}"
-                                 hc:InfoElement.Title="Error Value(um): "
-                                 hc:TitleElement.TitleWidth="120"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
@@ -91,7 +87,6 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*" />
@@ -99,9 +94,8 @@
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Row="0" Grid.Column="0"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <Border Grid.Column="0" Margin="10">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                                 <view:CanvasView Width="180"
                                                  Height="180"
                                                  BackgroundColor="#0A0A0A"
@@ -110,117 +104,21 @@
                                                  ShowAxes="True"
                                                  ShowCursor="False"
                                                  ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.TopLowSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.TopLowSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.TopFindResultImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.TopPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
                                          hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="Low-Top Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
-                                         Style="{StaticResource TextBoxExtend}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="1"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                <view:CanvasView Width="180"
-                                                 Height="180"
-                                                 BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="True"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.BottomLowSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.BottomLowSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="Low-Bottom Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
-                                         Style="{StaticResource TextBoxExtend}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="2"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                <view:CanvasView Width="180"
-                                                 Height="180"
-                                                 BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="True"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.LeftLowSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.LeftLowSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="Low-Left Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
-                                         Style="{StaticResource TextBoxExtend}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                        <Border Grid.Row="0" Grid.Column="3"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                <view:CanvasView Width="180"
-                                                 Height="180"
-                                                 BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="True"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.RightLowSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.RightLowSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="Low-Right Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
-                                         Style="{StaticResource TextBoxExtend}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                        <Border Grid.Row="1" Grid.Column="0"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                                <view:CanvasView Width="180"
-                                                 Height="180"
-                                                 BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="True"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.TopHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.TopPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Top Idea Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         hc:TitleElement.Title="High-Top Real Position(um): "
+                                         hc:TitleElement.TitlePlacement="Top"
                                          IsReadOnly="True"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.TopHighSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Top Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
                         </Border>
-                        <Border Grid.Row="1" Grid.Column="1"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <Border Grid.Column="1" Margin="10">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                                 <view:CanvasView Width="180"
                                                  Height="180"
                                                  BackgroundColor="#0A0A0A"
@@ -229,29 +127,21 @@
                                                  ShowAxes="True"
                                                  ShowCursor="False"
                                                  ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.BottomHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.BottomPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.BottomFindResultImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.BottomPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
                                          hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Bottom Idea Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         hc:TitleElement.Title="High-Bottom Real Position(um): "
+                                         hc:TitleElement.TitlePlacement="Top"
                                          IsReadOnly="True"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.BottomHighSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Bottom Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
                         </Border>
-                        <Border Grid.Row="1" Grid.Column="2"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <Border Grid.Column="2" Margin="10">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                                 <view:CanvasView Width="180"
                                                  Height="180"
                                                  BackgroundColor="#0A0A0A"
@@ -260,29 +150,27 @@
                                                  ShowAxes="True"
                                                  ShowCursor="False"
                                                  ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.LeftHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.LeftPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.LeftFindResultImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.LeftPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
                                          hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Left Idea Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         hc:TitleElement.Title="High-Left Real Position(um): "
+                                         hc:TitleElement.TitlePlacement="Top"
                                          IsReadOnly="True"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.LeftHighSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Left Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
                         </Border>
-                        <Border Grid.Row="1" Grid.Column="3"
-                                Margin="20">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
+                        <Border Grid.Column="3"
+                                Margin="10"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
+                                                    Orientation="Vertical"
+                                                    Spacing="3">
                                 <view:CanvasView Width="180"
                                                  Height="180"
                                                  BackgroundColor="#0A0A0A"
@@ -291,23 +179,16 @@
                                                  ShowAxes="True"
                                                  ShowCursor="False"
                                                  ShowGrid="False"
-                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.RightHighSiteFindResultFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                <TextBox Text="{Binding Cache.HighGlobalScaleErrorCacheItem.RightPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 BackgroundImage="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.RightFindResultImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.HighSiteMatchResult.RightPosition, Converter={StaticResource PointToStringConverter}}"
                                          Width="auto"
                                          HorizontalAlignment="Stretch"
                                          VerticalAlignment="Stretch"
                                          hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Right Idea Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         hc:TitleElement.Title="High-Right Real Position(um): "
+                                         hc:TitleElement.TitlePlacement="Top"
                                          IsReadOnly="True"
-                                         Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding SelectGlobalScaleErrorDto.RightHighSiteRealPosition, Converter={StaticResource PointToStringConverter}}"
-                                         Width="auto"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch"
-                                         hc:TitleElement.TitleWidth="auto"
-                                         hc:InfoElement.Title="High-Right Real Position(um): "
-                                         hc:InfoElement.TitlePlacement="Top"
+                                         Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
                         </Border>

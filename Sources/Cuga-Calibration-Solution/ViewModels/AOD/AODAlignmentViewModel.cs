@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
@@ -126,7 +127,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AODAlignmentCache>();
@@ -134,7 +135,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+            ..Calibrations.Where(t => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
@@ -285,7 +286,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem);
                 item.PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath;
 
-                LaserViewModel.SetPrescanAODWaveProfiles(item.PrescanAODWaveformProfiles);
+                LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, item.PrescanAODWaveformProfiles);
 
                 using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
                     CalChipSiteModelEnum.HazeModel,

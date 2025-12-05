@@ -34,17 +34,17 @@
                     </StackPanel>
                     <hc:NumericUpDown x:Name="ThresholdNumeric"
                                       Width="275"
-                                      hc:InfoElement.Title="Threshold: "
+                                      hc:TitleElement.Title="Threshold: "
                                       hc:TitleElement.TitleWidth="90"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Threshold}" />
                     <TextBox Text="{Binding Cache.VerifyResultOffset, StringFormat={}{0:f3}}"
                              Width="275"
-                             hc:InfoElement.Title="Result Offset: "
+                             hc:TitleElement.Title="Result Offset: "
                              hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
@@ -101,15 +101,15 @@
                         <TextBox Text="{Binding ReviewDto.Offset, StringFormat={}{0:f3}}"
                                  VerticalAlignment="Center"
                                  hc:TitleElement.TitleWidth="90"
-                                 hc:InfoElement.Title="Offset(um): "
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Offset(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding ReviewDto.Slope, Mode=OneWay, StringFormat={}{0:f3}}"
                                  VerticalAlignment="Center"
                                  hc:TitleElement.TitleWidth="90"
-                                 hc:InfoElement.Title="Slope: "
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Slope: "
+                                 hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Style="{StaticResource TextBoxExtend}" />
                     </hc:UniformSpacingPanel>
@@ -122,20 +122,20 @@
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <TextBox Text="{Binding ReviewDto.Position1, Converter={StaticResource PointToStringConverter}}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ReviewDto.TemplateScore1, StringFormat={}{0:f3}}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Score:"
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Score:"
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ReviewDto.TemplateAngle1, StringFormat={}{0:f3}}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Angle: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Angle: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <hc:ButtonGroup>
@@ -147,7 +147,7 @@
                                 <Button x:Name="P1ReviewTemplateButton"
                                         Content="Review Template"
                                         Command="{Binding ReviewViewModel.ReviewCommand}"
-                                        CommandParameter="{Binding ReviewDto.LowTemplateImageFilePath}"
+                                        CommandParameter="{Binding Cache.LowBaseTemplateImageFilePath}"
                                         Width="120" />
                                 <Button x:Name="P1ReviewImageButton"
                                         Content="Review Image"
@@ -166,20 +166,20 @@
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <TextBox Text="{Binding ReviewDto.Position2, Converter={StaticResource PointToStringConverter}}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Position(um): "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ReviewDto.TemplateScore2, StringFormat={}{0:f3}}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Score:"
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Score:"
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding ReviewDto.TemplateAngle2, StringFormat={}{0:f3}}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="Angle: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Angle: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <hc:ButtonGroup>
@@ -191,7 +191,7 @@
                                 <Button x:Name="P2ReviewTemplateButton"
                                         Content="Review Template"
                                         Command="{Binding ReviewViewModel.ReviewCommand}"
-                                        CommandParameter="{Binding ReviewDto.HighTemplateImageFilePath}"
+                                        CommandParameter="{Binding Cache.HighBaseTemplateImageFilePath}"
                                         Width="120" />
                                 <Button x:Name="P2ReviewImageButton"
                                         Content="Review Image"

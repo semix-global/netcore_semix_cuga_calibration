@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Local.NoSQL.DB.Providers.Bases;
@@ -25,6 +26,9 @@ public sealed partial class GenerateAODWaveformCache<TParam, TProfile> : Observa
 
     [ObservableProperty]
     private string _aODWaveformResultFilePath = string.Empty;
+
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
 }
 
 public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : ViewModelBase

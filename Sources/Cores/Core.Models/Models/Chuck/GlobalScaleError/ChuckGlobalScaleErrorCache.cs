@@ -10,18 +10,20 @@ namespace Core.Models.Models.Chuck.GlobalScaleError;
 
 public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
 {
-    private double _columnCellWidth = 1;
-    private double _rowCellHeight = 1;
-    private double _waferDiameter = 300_000;
+    private double _diePitchWidth = 5100;
+    private double _diePitchHeight = 16600;
+    private int _reticleDieCountX = 1;
+    private int _reticleDieCountY = 1;
+    private double _waferRadius = 150_000;
+
+    [ObservableProperty]
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
-
-    [ObservableProperty]
-    private ChuckGlobalScaleErrorCacheItem _lowGlobalScaleErrorCacheItem = new();
-
-    [ObservableProperty]
-    private ChuckGlobalScaleErrorCacheItem _highGlobalScaleErrorCacheItem = new();
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftBottom;
@@ -32,68 +34,102 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     [ObservableProperty]
     private double _p5Angle;
 
-    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
-    public double ColumnCellWidth
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
+    public double DiePitchWidth
     {
-        get => _columnCellWidth;
-        set => SetProperty(ref _columnCellWidth, value, true);
+        get => _diePitchWidth;
+        set => SetProperty(ref _diePitchWidth, value, true);
     }
 
-    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
-    public double RowCellHeight
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Height must be greater than 0.1.")]
+    public double DiePitchHeight
     {
-        get => _rowCellHeight;
-        set => SetProperty(ref _rowCellHeight, value, true);
+        get => _diePitchHeight;
+        set => SetProperty(ref _diePitchHeight, value, true);
     }
 
-    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
-    public double WaferDiameter
+    [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Radius: ")]
+    public double WaferRadius
     {
-        get => _waferDiameter;
-        set => SetProperty(ref _waferDiameter, value, true);
+        get => _waferRadius;
+        set => SetProperty(ref _waferRadius, value, true);
     }
 
-    #region Idea Position low site
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Col Count must be greater than 1.")]
+    public int ReticleDieCountX
+    {
+        get => _reticleDieCountX;
+        set => SetProperty(ref _reticleDieCountX, value, true);
+    }
+
+    [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Row Count must be greater than 1.")]
+    public int ReticleDieCountY
+    {
+        get => _reticleDieCountY;
+        set => SetProperty(ref _reticleDieCountY, value, true);
+    }
+
+    #region position
 
     [ObservableProperty]
     private Point _baseLowSiteFindPosition = Point.Origin;
 
-    /// <summary>
-    /// 低倍高倍的相对位置误差
-    /// </summary>
     [ObservableProperty]
-    private Point _lowToHighMagnificationOffset = Point.Origin;
+    private Point _baseHighSiteFindPosition = Point.Origin;
 
-    public double IdeaWidth => Convert.ToInt32(Math.Abs((HighGlobalScaleErrorCacheItem.LeftPosition - HighGlobalScaleErrorCacheItem.RightPosition).X) / ColumnCellWidth) * ColumnCellWidth;
+    [ObservableProperty]
+    private Point _topLowSitePosition = Point.Origin;
 
-    public double IdeaHeight => Convert.ToInt32(Math.Abs((HighGlobalScaleErrorCacheItem.TopPosition - HighGlobalScaleErrorCacheItem.BottomPosition).Y) / RowCellHeight) * RowCellHeight;
+    [ObservableProperty]
+    private Point _leftLowSitePosition = Point.Origin;
 
-    #endregion Idea Position low site
+    [ObservableProperty]
+    private Point _bottomLowSitePosition = Point.Origin;
 
-    public double GetActualWaferDiameter(bool isAxisX)
+    [ObservableProperty]
+    private Point _rightLowSitePosition = Point.Origin;
+
+    public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - (Vector)BaseLowSiteFindPosition;
+
+    public double IdeaWidth => Convert.ToInt32(Math.Abs((LeftLowSitePosition - RightLowSitePosition).X) / DiePitchWidth) * DiePitchWidth;
+
+    public double IdeaHeight => Convert.ToInt32(Math.Abs((TopLowSitePosition - BottomLowSitePosition).Y) / DiePitchHeight) * DiePitchHeight;
+
+    #endregion position
+
+    [ObservableProperty]
+    private string _lowBaseTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _lowBaseTemplateImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _highBaseTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _highBaseTemplateImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private int _times = 3;
+
+    public void SetPosition(Point position, StageDirectionTypeEnum? stageDirection = null)
     {
-        return isAxisX ? WaferDiameter - ColumnCellWidth : WaferDiameter - RowCellHeight;
-    }
-
-    public void SetPosition(Point position, MicroscopeLensInformation lensInformation, StageDirectionTypeEnum? stageDirection = null)
-    {
-        var chuckCenterCacheItem = lensInformation == LowGlobalScaleErrorCacheItem.LensInformation ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
         switch (stageDirection ?? SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
-                chuckCenterCacheItem.TopPosition = position;
+                TopLowSitePosition = position;
                 break;
 
             case StageDirectionTypeEnum.Down:
-                chuckCenterCacheItem.BottomPosition = position;
+                BottomLowSitePosition = position;
                 break;
 
             case StageDirectionTypeEnum.Left:
-                chuckCenterCacheItem.LeftPosition = position;
+                LeftLowSitePosition = position;
                 break;
 
             case StageDirectionTypeEnum.Right:
-                chuckCenterCacheItem.RightPosition = position;
+                RightLowSitePosition = position;
                 break;
 
             default:
@@ -101,58 +137,14 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
         }
     }
 
-    public void SetTemplate(string templatePath, string templateImagePath, MicroscopeLensInformation lensInformation, StageDirectionTypeEnum? stageDirection = null)
+    public Point GetPosition()
     {
-        var chuckCenterCacheItem = lensInformation == LowGlobalScaleErrorCacheItem.LensInformation ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
-        switch (stageDirection ?? SiteDirection)
-        {
-            case StageDirectionTypeEnum.Up:
-                chuckCenterCacheItem.TopTemplateFilePath = templatePath;
-                chuckCenterCacheItem.TopTemplateImageFilePath = templateImagePath;
-                break;
-
-            case StageDirectionTypeEnum.Down:
-                chuckCenterCacheItem.BottomTemplateFilePath = templatePath;
-                chuckCenterCacheItem.BottomTemplateImageFilePath = templateImagePath;
-                break;
-
-            case StageDirectionTypeEnum.Left:
-                chuckCenterCacheItem.LeftTemplateFilePath = templatePath;
-                chuckCenterCacheItem.LeftTemplateImageFilePath = templateImagePath;
-                break;
-
-            case StageDirectionTypeEnum.Right:
-                chuckCenterCacheItem.RightTemplateFilePath = templatePath;
-                chuckCenterCacheItem.RightTemplateImageFilePath = templateImagePath;
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null);
-        }
-    }
-
-    public Point GetPosition(MicroscopeLensInformation lensInformation)
-    {
-        var chuckCenterCacheItem = lensInformation == LowGlobalScaleErrorCacheItem.LensInformation ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
         return SiteDirection switch
         {
-            StageDirectionTypeEnum.Up => chuckCenterCacheItem.TopPosition,
-            StageDirectionTypeEnum.Down => chuckCenterCacheItem.BottomPosition,
-            StageDirectionTypeEnum.Left => chuckCenterCacheItem.LeftPosition,
-            StageDirectionTypeEnum.Right => chuckCenterCacheItem.RightPosition,
-            _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
-        };
-    }
-
-    public (string templatePath, string templateImagePath) GetTemplate(MicroscopeLensInformation lensInformation)
-    {
-        var chuckCenterCacheItem = lensInformation == LowGlobalScaleErrorCacheItem.LensInformation ? LowGlobalScaleErrorCacheItem : HighGlobalScaleErrorCacheItem;
-        return SiteDirection switch
-        {
-            StageDirectionTypeEnum.Up => (chuckCenterCacheItem.TopTemplateFilePath, chuckCenterCacheItem.TopTemplateImageFilePath),
-            StageDirectionTypeEnum.Down => (chuckCenterCacheItem.BottomTemplateFilePath, chuckCenterCacheItem.BottomTemplateImageFilePath),
-            StageDirectionTypeEnum.Left => (chuckCenterCacheItem.LeftTemplateFilePath, chuckCenterCacheItem.LeftTemplateImageFilePath),
-            StageDirectionTypeEnum.Right => (chuckCenterCacheItem.RightTemplateFilePath, chuckCenterCacheItem.RightTemplateImageFilePath),
+            StageDirectionTypeEnum.Up => TopLowSitePosition,
+            StageDirectionTypeEnum.Down => BottomLowSitePosition,
+            StageDirectionTypeEnum.Left => LeftLowSitePosition,
+            StageDirectionTypeEnum.Right => RightLowSitePosition,
             _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
         };
     }

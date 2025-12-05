@@ -489,9 +489,9 @@
             <param name="lens"></param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImg_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Int32,Semix.WcfTransfer.DTO.SxPointD,System.Int32,System.Boolean,System.Int32,System.Boolean,System.Double)">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetDFImg(Semix.WcfTransfer.DTO.SxCollectImgParam)">
             <summary>
-            高产率暗场采图
+            高产率暗场采图 返回值强转List(CgRawImgModel)/List(C2MImgModel)/List(M2CImgSysCollectImgDTO)后使用
             </summary>
             <param name="mag"></param>
             <param name="speedLevel"></param>
@@ -509,28 +509,6 @@
             </summary>
             <param name="mag"></param>
             <param name="speedLevel"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImg_Mosaic_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Double,System.Double,Semix.WcfTransfer.DTO.SxPointD,System.Double)">
-            <summary>
-            die图采图 宽高单位um
-            </summary>
-            <param name="mag"></param>
-            <param name="speedLevel"></param>
-            <param name="width">单位um</param>
-            <param name="dieHeight">单位um</param>
-            <param name="pos"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImg_LightTraing_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,System.Double,Semix.WcfTransfer.DTO.SxPointD,Semix.WcfTransfer.DTO.SxPointD@,System.Double)">
-            <summary>
-            lightTraing暗场采图 宽度单位um
-            </summary>
-            <param name="mag"></param>
-            <param name="speedLevel"></param>
-            <param name="width"></param>
-            <param name="pos"></param>
-            <param name="pxSize"></param>
             <returns></returns>
         </member>
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DefectRunSwath_LightTraining(Semix.WcfTransfer.DTO.SxSwathRecipe)">
@@ -680,7 +658,7 @@
             <param name="lpos">转盘位置</param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAOD(Semix.WcfTransfer.DTO.SxMAGEnum,System.Double)">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAOD(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxNIOIEnum,System.Double)">
             <summary>
             设置光强
             </summary>
@@ -777,7 +755,7 @@
             <param name="type"></param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Mag_SetType(Semix.WcfTransfer.DTO.SxMagTypeEnum)">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.Mag_SetType(Semix.WcfTransfer.DTO.SxMAGEnum)">
             <summary>
             设置MAG类型
             </summary>
@@ -871,6 +849,18 @@
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.ReadMachineState">
             <summary>
             读取设备状态
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetCalibrationFileName">
+            <summary>
+            获取校准文件名
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CheckCalibrationResoult">
+            <summary>
+            检查校准结果是否正常
             </summary>
             <returns></returns>
         </member>

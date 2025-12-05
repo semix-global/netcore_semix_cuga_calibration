@@ -497,22 +497,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     }
 
     [RelayCommand]
-    private async Task MagnificationSelectedAsync(object obj)
+    private void MagnificationSelected(object obj)
     {
-        try
+        if (obj is MicroscopeLensInformation lensInformation && ApplicationCookie.MicroscopeLensInformations.Contains(lensInformation) == false)
         {
-            if (obj is not MicroscopeLensInformation lensInformation || ApplicationCookie.MicroscopeLensInformations.Contains(lensInformation) == false)
-            {
-                Logger.LogError("{@Name}: Select magnification illegal!", Name);
-                return;
-            }
-
-            await Task.Run(() => MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformations.Single(t => t == (MicroscopeLensInformation)obj))
-            ).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
+            Logger.LogError("{@Name}: Select magnification is illegal!", Name);
         }
     }
 
@@ -953,6 +942,11 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
+    }
+
+    public void RefreshAutoStepProgress()
+    {
+        AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
     }
 
     #endregion 状态更新

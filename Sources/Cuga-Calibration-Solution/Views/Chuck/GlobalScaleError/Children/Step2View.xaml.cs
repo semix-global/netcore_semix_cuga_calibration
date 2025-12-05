@@ -1,6 +1,6 @@
-namespace CugaCalibration.Views.Chuck.GlobalScaleError.Children;
+﻿namespace CugaCalibration.Views.Chuck.GlobalScaleError.Children;
 
-public partial class Step2View
+public sealed partial class Step2View
 {
     public Step2View()
     {

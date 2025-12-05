@@ -15,13 +15,15 @@ using Semix.CoreLib;
 using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.PMT;
 using CommunityToolkit.Diagnostics;
-using Core.Models.Extensions;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using Core.Models.Extensions;
+
 
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
+
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -35,9 +37,11 @@ public sealed class CalibrationLaserServiceMockImpl(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICalibrationStageService calibrationStageService,
     ICalibrationConfigService calibrationConfigService,
-    CalibrationSetting calibrationSetting) : ICalibrationLaserService
+    CalibrationSetting calibrationSetting)
+    : ICalibrationLaserService
 {
     private static readonly Random Random = new();
+
     private readonly CalibrationLaserServiceImpl _calibrationLaserServiceImpl = new(calibrationAlgorithmService, calibrationStageService, calibrationConfigService, calibrationSetting);
     private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
 
@@ -138,94 +142,273 @@ public sealed class CalibrationLaserServiceMockImpl(
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         Thread.Sleep(100);
 
-        var productivityInformations = new[]
+        var oiProductivityInformations = new[]
         {
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S5", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520, Hz = 219 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S10", Mag = SxMAGEnum.Low, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Low, YPixelSize = 0.327, YPixel = 520, Hz = 219 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S25", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080, Hz = 302 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S40", Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid, YPixelSize = 0.1635, YPixel = 1080, Hz = 302 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S55", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.High, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560, Hz = 425 }),
-            ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = "S90", Mag = SxMAGEnum.High, Speed = SxSpeedEnum.Low, IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.High, YPixelSize = 0.11286, YPixel = 1560, Hz = 425 })
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S5",
+                    Mag = SxMAGEnum.Low,
+                    Speed = SxSpeedEnum.High,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.Low,
+                    YPixelSize = 0.327,
+                    YPixel = 508,
+                    Hz = 408
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445, XPixelSize = 1.091 } }
+                    }
+#endif
+                }),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S10",
+                    Mag = SxMAGEnum.Low,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.Low,
+                    YPixelSize = 0.327,
+                    YPixel = 508,
+                    Hz = 408
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222.5, XPixelSize = 0.546 } }
+                    }
+#endif
+                }),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S25",
+                    Mag = SxMAGEnum.Mid,
+                    Speed = SxSpeedEnum.High,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.Mid,
+                    YPixelSize = 0.1635,
+                    YPixel = 1008,
+                    Hz = 290
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175.9, XPixelSize = 0.61 } }
+                    }
+#endif
+                }),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S40",
+                    Mag = SxMAGEnum.Mid,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.Mid,
+                    YPixelSize = 0.1635,
+                    YPixel = 1008,
+                    Hz = 290
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88.06, XPixelSize = 0.304 } }
+                    }
+#endif
+                }),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S55",
+                    Mag = SxMAGEnum.High,
+                    Speed = SxSpeedEnum.High,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.High,
+                    YPixelSize = 0.11286,
+                    YPixel = 1500,
+                    Hz = 210
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87.24, XPixelSize = 0.416 } }
+                    }
+#endif
+                }),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S90",
+                    Mag = SxMAGEnum.High,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.High,
+                    YPixelSize = 0.11286,
+                    YPixel = 1500,
+                    Hz = 210
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43.6, XPixelSize = 0.208 } }
+                    }
+#endif
+                })
         };
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformations.OrderBy(t => t)]);
+        var niProductivityInformations = new[]
+        {
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S90",
+                    Mag = SxMAGEnum.High,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.High,
+                    YPixelSize = 0.096,
+                    YPixel = 1720,
+                    Hz = 200
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26.88, XPixelSize = 0.135 } }
+                    }
+#endif
+                }),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S40",
+                    Mag = SxMAGEnum.Mid,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    Mag = CgMagTypeEnum.Mid,
+                    YPixelSize = 0.144,
+                    YPixel = 1160,
+                    Hz = 200
+#if NETFRAMEWORK
+                    ,
+                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
+                    {
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40, XPixelSize = 0.2 } }
+                    }
+#endif
+                })
+        };
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>(opticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI
+            ? [.. oiProductivityInformations.OrderBy(t => t)]
+            : [.. niProductivityInformations.OrderBy(t => t)]);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsMagTypeEnum opticsMagTypeEnum)
+    [Obsolete]
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAodWorkingModeEnum)
+    public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAODWorkingModeEnum)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsPolarization(OpticsPolarizationTypeEnum opticsPolarizationTypeEnum)
+    public SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(OpticsMagTypeEnum opticsMagTypeEnum, double prescanAodDelay, double chirpAodDelay)
+    [Obsolete]
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAodDelay, double chirpAodDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
+    [Obsolete]
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double coefficient)
     {
-        var sxExecuteRet = GetProductivityInformations();
+        var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, prescanAODWaveProfiles);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(prescanAODWaveProfiles);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, prescanAODWaveProfiles);
 
         var isSuccess = sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess;
         if (isSuccess) _coefficient = coefficient;
@@ -235,7 +418,7 @@ public sealed class CalibrationLaserServiceMockImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
+    public SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
         Guard.IsNotEmpty(prescanAODWaveProfiles);
 
@@ -249,34 +432,35 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsMagTypeEnum opticsMagTypeEnum)
+    [Obsolete]
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
-        var sxExecuteRet = GetProductivityInformations();
+        var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveProfiles(IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
+    public SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
         Guard.IsNotEmpty(chirpAODWaveProfiles);
 
@@ -498,6 +682,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -519,6 +704,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -544,6 +730,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -565,6 +752,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
@@ -589,6 +777,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         double xPixelSize,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)
@@ -616,6 +805,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         int xWidthPixel,
         double xPixelSize,
         ProductivityInformation productivityInformation,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus)

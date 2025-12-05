@@ -1,7 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -44,6 +46,9 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private int _pmtId;
@@ -549,6 +554,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         brightFieldPosition,
                         Cache.ImageWidthPixel,
                         Cache.ProductivityInformation,
+                        Cache.OpticsIlluminationModeEnum,
                         Cache.PmtId,
                         StageCoordinateSystemEnum.Dark,
                         cibConfiguration,

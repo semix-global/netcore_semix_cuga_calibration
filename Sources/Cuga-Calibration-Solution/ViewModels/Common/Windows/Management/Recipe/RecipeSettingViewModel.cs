@@ -5,7 +5,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Helper;
-using Core.Models.Models.Chuck.Center;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -473,7 +473,7 @@ public sealed partial class RecipeSettingViewModel(
                 return false;
             }
 
-            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterObjDto>();
+            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
             var originDieMachinePosition = StageViewModel.GetMachineStagePosition();
             var originDieMachineOffset = originDieMachinePosition - chuckCenterMachinePosition.NewBFCenterStagePosition;
             var originDieWaferPosition = new Point(_stageDirection.X * originDieMachineOffset.X, _stageDirection.Y * originDieMachineOffset.Y)
@@ -685,7 +685,7 @@ public sealed partial class RecipeSettingViewModel(
                 return;
             }
 
-            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterObjDto>();
+            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
             var waferPosition = machinePosition - (Vector)chuckCenterMachinePosition.NewBFCenterStagePosition;
 
             var diePitchHeight = reticleBuilder.DiePitchSize.Height;
@@ -719,7 +719,7 @@ public sealed partial class RecipeSettingViewModel(
 
             var diePitchHeight = reticleBuilder.DiePitchSize.Height;
             var scribeSize = reticleBuilder.DieScribeSize;
-            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterObjDto>();
+            var chuckCenterMachinePosition = cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
 
             var maskWaferPosition = maskDto.MaskWaferCellPosition +
                                     (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, diePitchHeight + scribeSize.Height));

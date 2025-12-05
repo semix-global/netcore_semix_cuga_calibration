@@ -7,7 +7,8 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
-using Core.Models.Models.Chuck.Center;
+
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
@@ -115,7 +116,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
-    private ChuckCenterObjDto _chuckCenter = new();
+    private ChuckCenterAndThetaItemDto _chuckCenter = new();
 
     [ObservableProperty]
     private ChuckGlobalScaleErrorDto _chuckGlobalScaleError = new();
@@ -177,7 +178,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterObjDto>(out var chuckCenter, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out var chuckCenter, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -269,7 +270,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         Cache.IsDarkField = false;
 
-        Cache.ProductivityInformation = applicationCookie.LoweProductivityInformation.Clone();
+        Cache.ProductivityInformation = applicationCookie.NILowProductivityInformation.Clone();
 
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
@@ -569,6 +570,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             false,
             Cache.CIBConfiguration,
             Cache.ProductivityInformation,
+            Cache.OpticsIlluminationModeEnum,
             Cache.XWidthPixel,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
         var detectImageDirectory = ImageFileDirectory;
@@ -1330,6 +1332,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             false,
                             Cache.CIBConfiguration,
                             Cache.ProductivityInformation,
+                            Cache.OpticsIlluminationModeEnum,
                             Cache.XWidthPixel,
                             CalibrationConstantsHelper.MainPmtId,
                             CalibrationConstantsHelper.MainChannelId,
