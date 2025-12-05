@@ -148,10 +148,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         foreach (var c2MProductivityInfo in sxExecuteRet.Anything.Where(t => t.IsUsed))
         {
-            var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag));
+            var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag, opticsIlluminationModeEnum.ToSxNIOIEnum()));
             if (speedInfoSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
 
-            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything));
+            var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag));
+            if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
+
+            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
         }
 
         Guard.IsNotEmpty(productivityInformationList, "Productivity Information is empty");
@@ -200,7 +203,11 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.None : CgODEnum.OD1_3));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     [Obsolete]
@@ -400,13 +407,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -624,47 +631,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
             : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
-    }
-
-    [Obsolete]
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
-    {
-        if (isCuttingPixelHeight)
-        {
-            var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(opticsMagTypeEnum.ToSxMagEnum()));
-
-            return sxExecuteRet.IsSuccess == false
-                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-        }
-        else
-        {
-            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(opticsMagTypeEnum.ToSxMagEnum()));
-
-            return sxExecuteRet.IsSuccess == false
-                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything));
-        }
-    }
-
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight)
-    {
-        if (isCuttingPixelHeight)
-        {
-            var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(productivityInformation.AdaptTo().Mag));
-
-            return sxExecuteRet.IsSuccess == false
-                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-        }
-        else
-        {
-            var sxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(productivityInformation.AdaptTo().Mag));
-
-            return sxExecuteRet.IsSuccess == false
-                ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-                : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything));
-        }
     }
 
     [Obsolete]

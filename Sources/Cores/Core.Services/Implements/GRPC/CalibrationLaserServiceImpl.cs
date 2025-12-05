@@ -330,29 +330,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
-    {
-        if (isCuttingPixelHeight == false) throw new NotImplementedException();
-
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(opticsMagTypeEnum.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-    }
-
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight)
-    {
-        if (isCuttingPixelHeight == false) throw new NotImplementedException();
-
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-    }
-
-    [Obsolete]
     public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,

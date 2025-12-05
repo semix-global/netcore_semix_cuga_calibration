@@ -47,15 +47,7 @@ public sealed class CalibrationStageServiceImpl(
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
-
-    public SxExecuteRet<bool> SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetStageSpeed(stageSpeedEnum.ToSxSpeedEnum(), opticsMagTypeEnum.ToSxMagEnum()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
+    
 
     public SxExecuteRet<bool> SetXSpeedValue(double speedValue)
     {

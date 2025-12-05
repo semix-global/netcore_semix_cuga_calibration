@@ -23,7 +23,6 @@ using Core.Models.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -158,7 +157,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.Low,
                     YPixelSize = 0.327,
                     YPixel = 508,
                     Hz = 408
@@ -169,7 +167,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445, XPixelSize = 1.091 } }
                     }
 #endif
-                }),
+                },
+                508),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -180,7 +179,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.Low,
                     YPixelSize = 0.327,
                     YPixel = 508,
                     Hz = 408
@@ -191,7 +189,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222.5, XPixelSize = 0.546 } }
                     }
 #endif
-                }),
+                },
+                508),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -202,7 +201,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.Mid,
                     YPixelSize = 0.1635,
                     YPixel = 1008,
                     Hz = 290
@@ -213,7 +211,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175.9, XPixelSize = 0.61 } }
                     }
 #endif
-                }),
+                },
+                1008),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -224,7 +223,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.Mid,
                     YPixelSize = 0.1635,
                     YPixel = 1008,
                     Hz = 290
@@ -235,7 +233,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88.06, XPixelSize = 0.304 } }
                     }
 #endif
-                }),
+                },
+                1008),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -246,7 +245,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.High,
                     YPixelSize = 0.11286,
                     YPixel = 1500,
                     Hz = 210
@@ -257,7 +255,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87.24, XPixelSize = 0.416 } }
                     }
 #endif
-                }),
+                },
+                1500),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -268,7 +267,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.High,
                     YPixelSize = 0.11286,
                     YPixel = 1500,
                     Hz = 210
@@ -279,7 +277,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43.6, XPixelSize = 0.208 } }
                     }
 #endif
-                })
+                },
+                1500)
         };
 
         var niProductivityInformations = new[]
@@ -294,7 +293,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.High,
                     YPixelSize = 0.096,
                     YPixel = 1720,
                     Hz = 200
@@ -305,7 +303,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26.88, XPixelSize = 0.135 } }
                     }
 #endif
-                }),
+                },
+                1720),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -316,7 +315,6 @@ public sealed class CalibrationLaserServiceMockImpl(
                 },
                 new CgSwathSpeedInfo
                 {
-                    Mag = CgMagTypeEnum.Mid,
                     YPixelSize = 0.144,
                     YPixel = 1160,
                     Hz = 200
@@ -327,7 +325,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                         { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40, XPixelSize = 0.2 } }
                     }
 #endif
-                })
+                },
+                1160)
         };
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>(opticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI
@@ -667,21 +666,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
-    }
-
-    [Obsolete]
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(1080);
-    }
-
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(1080);
     }
 
     [Obsolete]

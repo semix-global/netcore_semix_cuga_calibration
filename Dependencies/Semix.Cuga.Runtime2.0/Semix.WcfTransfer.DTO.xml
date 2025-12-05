@@ -2191,7 +2191,7 @@
             OpticsSelector 使用
             </summary>
         </member>
-        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.IncidenceAngle">
+        <member name="P:Semix.WcfTransfer.DTO.SxOpticsParam.NIOI">
             <summary>
             入射倾斜角
             倾斜 or 正常  Oblique or Normal 1.NI 2. OI

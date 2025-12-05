@@ -381,23 +381,6 @@ public interface ICalibrationLaserService
         double? coefficient = null,
         Point? point = null);
 
-    /// <summary>
-    /// 获取暗场图片的Y像素高度
-    /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
-    /// <returns>图片的Y像素高度</returns>
-    [Obsolete]
-    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight);
-
-    /// <summary>
-    /// 获取暗场图片的Y像素高度
-    /// </summary>
-    /// <param name="productivityInformation">产率</param>
-    /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
-    /// <returns>图片的Y像素高度</returns>
-    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight);
-
     [Obsolete]
     SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
         Point position,

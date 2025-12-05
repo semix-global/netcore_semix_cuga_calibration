@@ -37,14 +37,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
-
-    public SxExecuteRet<bool> SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
+    
     public SxExecuteRet<bool> SetXSpeedValue(double speedValue)
     {
         return SxExecuteRetHelper.CreateSuccess(true);

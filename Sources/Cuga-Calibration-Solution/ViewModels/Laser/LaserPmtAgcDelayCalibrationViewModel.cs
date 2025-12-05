@@ -367,7 +367,7 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
 
             try
             {
-                var height = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.OpticsMagTypeEnum, false);
+                var height = 1;
                 // 从1开始
                 var baseIndex = (height + 1) / 2d;
                 if (isReview == false)

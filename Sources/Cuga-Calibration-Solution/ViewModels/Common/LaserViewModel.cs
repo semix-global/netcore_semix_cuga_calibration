@@ -507,21 +507,6 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight = true)
-    {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(opticsMagTypeEnum, isCuttingPixelHeight);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public int GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight = true)
-    {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(productivityInformation, isCuttingPixelHeight);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    [Obsolete]
     public bool TrySendAodFile(
         OpticsMagTypeEnum yOpticsMagTypeEnum,
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
