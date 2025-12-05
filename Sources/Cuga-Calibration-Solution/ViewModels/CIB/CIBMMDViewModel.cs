@@ -28,7 +28,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
-using ScottPlot;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -321,6 +320,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Guard.IsNotEmpty(Cache.CIBInformations);
             Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
+
+            Cache.MeasurePowerPoints = Cache.FitMeasurePowerPoints = Cache.NotUseODFilterMeasurePowerPoints = Cache.UseODFilterMeasurePowerPoints = [];
+            Cache.P0 = Cache.P1 = Cache.P2 = Cache.P3 = Cache.RSquared = Cache.ODFilterRatio = 0;
+            Cache.RefreshPlot();
+
             var laserOpticalPowerMeter = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -401,9 +405,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             // 获取功率
             var coefficients = Generate.LinearRange(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
-            var measurePowerPoints = new Point[coefficients.Length];
-            Point maxMeasurePowerPoint;
-            double odFilterRatio;
+            Cache.MeasurePowerPoints = new Point[coefficients.Length];
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
             try
             {
@@ -431,7 +433,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                         var measurePower = LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
 
-                        measurePowerPoints[coefficientIndex] = new Point(coefficient, measurePower - measurePowerNoise);
+                        GuardUtils.IsAssignableToType<Point[]>(Cache.MeasurePowerPoints)[coefficientIndex] = new Point(coefficient, measurePower - measurePowerNoise);
                     }
                     finally
                     {
@@ -439,7 +441,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     }
                 }
 
-                maxMeasurePowerPoint = measurePowerPoints.MaxBy(t => t.Y);
+                var maxMeasurePowerPoint = Cache.MeasurePowerPoints.MaxBy(t => t.Y);
 
                 try
                 {
@@ -448,7 +450,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
-                    odFilterRatio = maxMeasurePowerPoint.Y / LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                    Cache.ODFilterRatio = maxMeasurePowerPoint.Y / LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
                 }
                 finally
                 {
@@ -460,34 +462,23 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
             }
 
-            var (p0, p1, p2, p3, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial3Fit(Vector<double>.Build.DenseOfEnumerable(measurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(measurePowerPoints.Select(t => t.Y)));
-
-            var isNotUseODFilterMeasurePowers = GeometricSequence.Generate(maxMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
+            (Cache.P0, Cache.P1, Cache.P2, Cache.P3, Cache.RSquared, var yPredicted) = PolynomialLeastSquares.Polynomial3Fit(Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.Y)));
+            Cache.FitMeasurePowerPoints = [..Cache.MeasurePowerPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+            Cache.NotUseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerPoints.Max(t => t.Y), Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
                 .OrderBy(t => t)
-                .Select(t => (Coefficient: GeometricSequence.SolveForX(p0, p1, p2, p3, t).Single(), MeasurePower: t, IsUseODFilter: false))
+                .Select(t => new Point(GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t).Single(), t))
                 .ToArray();
-            var isUseODFilterMeasurePowers = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
-                .Where(t => isNotUseODFilterMeasurePowers[0].MeasurePower >= t)
+            Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerPoints.Max(t => t.Y) / Cache.MMDMeasurePowerRangeRatio)
+                .Where(t => Cache.NotUseODFilterMeasurePowerPoints[0].Y >= t)
                 .OrderBy(t => t)
-                .Select(t => (Coefficient: GeometricSequence.SolveForX(p0, p1, p2, p3, t * odFilterRatio).Single(), MeasurePower: t, IsUseODFilter: true))
+                .Select(t => t * Cache.ODFilterRatio)
+                .Select(t => new Point(GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t).Single(), t))
                 .ToArray();
+            Cache.RefreshPlot();
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                p0,
-                p1,
-                p2,
-                p3,
-                rSquared,
-                yPredicted,
-                measurePowerPoints = new HtmlPlot2DLinesChart([
-                    ("Origin", measurePowerPoints, string.Empty),
-                    ("Fit", [.. measurePowerPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index])),], string.Empty),
-                    ("Not Use OD Filter", [.. isNotUseODFilterMeasurePowers.Select(t => new Point(t.Coefficient, t.MeasurePower))], MarkerShape.FilledDiamond.ToPlotJsMarker()),
-                    ("Use OD Filter", [.. isUseODFilterMeasurePowers.Select(t => new Point(t.Coefficient, t.MeasurePower * odFilterRatio))], MarkerShape.OpenDiamond.ToPlotJsMarker())
-                ], string.Empty),
-                maxMeasurePowerPoint,
-                odFilterRatio
+                measurePowerPoints = Cache.ScatterPlotControl.GetHtmlPlot2DLinesChart(),
             }), HtmlLogUniqueId.LoggingHtml());
 
             // 获取gain
@@ -501,16 +492,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         CIBInformation = t,
                         Items =
                         [
-                            ..isUseODFilterMeasurePowers.Select(tt => new CIBMMDItemDto
+                            .. Cache.NotUseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
                             {
-                                Coefficient = tt.Coefficient,
-                                MeasurePower = tt.MeasurePower,
+                                Coefficient = tt.X,
+                                MeasurePower = tt.Y,
                                 Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
                             }),
-                            ..isNotUseODFilterMeasurePowers.Select(tt => new CIBMMDItemDto
+                            .. Cache.UseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
                             {
-                                Coefficient = tt.Coefficient,
-                                MeasurePower = tt.MeasurePower,
+                                Coefficient = tt.X,
+                                MeasurePower = tt.Y / Cache.ODFilterRatio,
                                 Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
                             })
                         ]
@@ -534,7 +525,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             try
             {
-                foreach (var (coefficientIndex, (coefficient, _, isUseODFilter)) in ((IReadOnlyList<(double Coefficient, double MeasurePower, bool IsUseOD)>)[.. isUseODFilterMeasurePowers, ..isNotUseODFilterMeasurePowers]).Index())
+                foreach (var (coefficientIndex, (coefficient, isUseODFilter)) in ((IReadOnlyList<(double Coefficient, bool IsUseODFilter)>)
+                         [
+                             ..Cache.NotUseODFilterMeasurePowerPoints.Select(t => (t.X, false)),
+                             ..Cache.UseODFilterMeasurePowerPoints.Select(t => (t.X, true))
+                         ]).Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 

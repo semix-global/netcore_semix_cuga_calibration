@@ -6,6 +6,10 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.WPF.MVVM;
+using ScottPlot;
 
 namespace Core.Models.Models.CIB.MMD;
 
@@ -124,6 +128,65 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     private IReadOnlyList<GainConfiguration> _gainConfigurations = [];
+
+    /********** 缓存的结果 **********/
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _measurePowerPoints = [];
+
+    [ObservableProperty]
+    private double _p0;
+
+    [ObservableProperty]
+    private double _p1;
+
+    [ObservableProperty]
+    private double _p2;
+
+    [ObservableProperty]
+    private double _p3;
+
+    [ObservableProperty]
+    private double _rSquared;
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _fitMeasurePowerPoints = [];
+
+    [ObservableProperty]
+    private double _oDFilterRatio;
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _notUseODFilterMeasurePowerPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _useODFilterMeasurePowerPoints = [];
+
+#pragma warning disable IDE0079
+#pragma warning disable CS0657
+
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
+    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+#pragma warning restore CS0657
+#pragma warning restore IDE0079
+
+    public CIBMMDCache()
+    {
+        ScatterPlotControl.SetTitle("Measure Power(Y: mW X: Coefficient)");
+    }
+
+    public void RefreshPlot()
+    {
+        ScatterPlotControl.Clear();
+        ScatterPlotControl.GetOrAddScatterLine($"Origin OD = {ODFilterRatio:0.######}", MeasurePowerPoints);
+        ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints);
+        ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, markerShape: MarkerShape.FilledDiamond);
+        ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, markerShape: MarkerShape.OpenDiamond);
+    }
 
     public sealed class GainConfiguration
     {

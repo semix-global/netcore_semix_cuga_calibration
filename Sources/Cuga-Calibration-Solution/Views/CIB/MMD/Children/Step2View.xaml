@@ -395,6 +395,22 @@
                             <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
                         </Border>
                     </Popup>
+                    <ToggleButton x:Name="ToggleButtonODFilterResult"
+                                  Content="OD Filter Result"
+                                  HorizontalAlignment="Left"
+                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                    <Popup Width="800"
+                           Height="800"
+                           StaysOpen="False"
+                           PlacementTarget="{Binding ElementName=ToggleButtonODFilterResult}"
+                           Placement="Right"
+                           AllowsTransparency="True"
+                           PopupAnimation="Slide"
+                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                        </Border>
+                    </Popup>
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
