@@ -401,6 +401,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
             try
             {
+                LaserViewModel.ToggleOpticsODFilter(false);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
                 var measurePowerNoises = Enumerable.Range(0, HostEnvironment.IsDevelopment() ? 0 : 10000)
@@ -462,7 +463,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Single(), t);
+                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Min(), t);
                 })
                 .ToArray();
             Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerPoints.Max(t => t.Y) / Cache.MMDMeasurePowerRangeRatio)
@@ -473,7 +474,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Single(), t);
+                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Min(), t);
                 })
                 .ToArray();
 

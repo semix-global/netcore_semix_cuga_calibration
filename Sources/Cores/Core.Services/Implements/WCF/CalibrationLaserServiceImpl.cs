@@ -177,7 +177,8 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetMag(productivityInformation.AdaptTo().Mag, SxSpeedEnum.Low, opticsIlluminationModeEnum.ToSxNIOIEnum()));
+        var c2MProductivityInfo = productivityInformation.AdaptTo();
+        var sxExecuteRet = Invoke(() => Service?.SetMag(c2MProductivityInfo.Mag, c2MProductivityInfo.Speed, opticsIlluminationModeEnum.ToSxNIOIEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -204,7 +205,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.None : CgODEnum.OD1_3));
+        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD1_3 : CgODEnum.None));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
