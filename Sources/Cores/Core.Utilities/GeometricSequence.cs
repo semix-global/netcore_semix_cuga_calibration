@@ -83,14 +83,29 @@ public static class GeometricSequence
 
     public static double[] SolveForX(double p0, double p1, double p2, double p3, double yTarget)
     {
-        var roots = Cubic.Roots(p0 - yTarget, p1, p2, p3);
+        // 化简：p3*x^3 + p2*x^2 + p1*x + (p0 - yTarget) = 0
+        double a0 = p0 - yTarget;
+        double a1 = p1;
+        double a2 = p2;
+        double a3 = p3;
 
-        var resultList = new List<double>();
+        // 标准化成：x^3 + b2*x^2 + b1*x + b0 = 0
+        if (Math.Abs(a3) < 1e-12)
+            throw new Exception("p3 不能为 0，这是三次方程求根器");
 
-        if (roots.Item1.IsReal()) resultList.Add(roots.Item1.Real);
-        if (roots.Item2.IsReal()) resultList.Add(roots.Item2.Real);
-        if (roots.Item3.IsReal()) resultList.Add(roots.Item3.Real);
+        double b0 = a0 / a3;
+        double b1 = a1 / a3;
+        double b2 = a2 / a3;
 
-        return resultList.ToArray();
+        // 解三次方程
+        var (x1, x2, x3) = Cubic.RealRoots(b0, b1, b2);
+
+        List<double> roots = new();
+
+        if (!double.IsNaN(x1)) roots.Add(x1);
+        if (!double.IsNaN(x2)) roots.Add(x2);
+        if (!double.IsNaN(x3)) roots.Add(x3);
+
+        return roots.ToArray();
     }
 }

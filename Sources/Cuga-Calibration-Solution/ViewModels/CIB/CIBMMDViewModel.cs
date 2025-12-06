@@ -40,9 +40,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => string.Join("_", Cache.CIBInformations);
+    public override string CalibrateDirectoryName => string.Join("_", Cache.CIBInformations)[..50];
 
-    public override string CalibrateFileName => string.Join("_", Cache.CIBInformations);
+    public override string CalibrateFileName => string.Join("_", Cache.CIBInformations)[..50];
 
     public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -315,7 +315,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
-            Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
             CalibratingItems = [];
@@ -337,7 +336,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.AFOffsetMotor,
                 Cache.AFECS,
                 Cache.IsAFEnable,
-                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.CIBProfileMode,
                 Cache.MeasurePowerWaitTime,
@@ -435,8 +434,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
 
                 var maxMeasurePowerPoint = Cache.MeasurePowerPoints.MaxBy(t => t.Y);
-
-                Cache.MeasurePowerPoints = [.. Cache.MeasurePowerPoints.Where(t => Cache.MeasurePowerNotUseODFilterMinValue <= t.Y && t.Y <= maxMeasurePowerPoint.Y)];
                 try
                 {
                     LaserViewModel.ToggleOpticsODFilter(true);
@@ -457,25 +454,36 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             (Cache.P0, Cache.P1, Cache.P2, Cache.P3, Cache.RSquared, var yPredicted) = PolynomialLeastSquares.Polynomial3Fit(Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.Y)));
+
             Cache.FitMeasurePowerPoints = [.. Cache.MeasurePowerPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
-            Cache.NotUseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerPoints.Max(t => t.Y), Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
+            var minFitMeasurePowerPoint = Cache.FitMeasurePowerPoints.MinBy(t => t.Y);
+            var maxFitMeasurePowerPoint = Cache.FitMeasurePowerPoints.MaxBy(t => t.Y);
+            Cache.NotUseODFilterMeasurePowerPoints = GeometricSequence.Generate(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
+                .Where(t => minFitMeasurePowerPoint.Y <= t && t <= maxFitMeasurePowerPoint.Y)
                 .OrderBy(t => t)
                 .Select(t =>
                 {
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Single(), t);
+                    return new Point(HostEnvironment.IsDevelopment()
+                        ? solveForX.SingleOrDefault(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3, Cache.StartCoefficient)
+                        : solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3),
+                        t);
                 })
                 .ToArray();
-            Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerPoints.Max(t => t.Y) / Cache.MMDMeasurePowerRangeRatio)
+            Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
                 .Where(t => Cache.NotUseODFilterMeasurePowerPoints[0].Y >= t)
                 .OrderBy(t => t)
                 .Select(t => t * Cache.ODFilterRatio)
+                .Where(t => minFitMeasurePowerPoint.Y <= t && t <= maxFitMeasurePowerPoint.Y)
                 .Select(t =>
                 {
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Single(), t);
+                    return new Point(HostEnvironment.IsDevelopment()
+                        ? solveForX.SingleOrDefault(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3, Cache.StartCoefficient)
+                        : solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3),
+                         t);
                 })
                 .ToArray();
 

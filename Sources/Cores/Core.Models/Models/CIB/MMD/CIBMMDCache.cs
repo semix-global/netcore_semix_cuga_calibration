@@ -41,7 +41,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _prescanFrequency;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam;
 
     [ObservableProperty]
     private double _chirpFrequency;

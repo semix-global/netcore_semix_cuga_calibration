@@ -111,9 +111,8 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.PrescanFrequency}" />
                                 </hc:UniformSpacingPanel>
-                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                      IsVisibleFrequency="False"
-                                                                                      IsVisibleAmplitude="False"
+                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False" 
+                                                                                      IsVisibleProductivityInformation="False"
                                                                                       IsVisibleDirectoryPath="False"
                                                                                       IsVisibleUniformityConfiguration="False"
                                                                                       IsVisibleSlopeDeltaKConfiguration="False"
@@ -137,9 +136,8 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.ChirpFrequency}" />
                                 </hc:UniformSpacingPanel>
-                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                    IsVisibleFrequency="False"
-                                                                                    IsVisibleAmplitude="False"
+                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False" 
+                                                                                    IsVisibleProductivityInformation="False"
                                                                                     IsVisibleDirectoryPath="False"
                                                                                     IsVisibleUniformityConfiguration="False"
                                                                                     IsVisibleSlopeDeltaKConfiguration="False"
