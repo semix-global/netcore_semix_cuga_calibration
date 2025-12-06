@@ -30,15 +30,8 @@
            WindowState="Maximized"
            mc:Ignorable="d">
     <Window.Resources>
-
         <converters:MultiValueEqualityViewModelConverter x:Key="MultiValueEqualityViewModelConverter" />
         <converters:MultiValueMouseDoubleClickConverter x:Key="MultiValueMouseDoubleClickConverter" />
-        <valueConverters:ValueConverterGroup x:Key="IntIsLessThan1ToBooleanConverter">
-            <!--  [1, 100000000]之间true  -->
-            <valueConverters:IsInRangeConverter MaxValue="100000000" MinValue="1" />
-            <!--  反转  -->
-            <valueConverters:BoolNegationConverter />
-        </valueConverters:ValueConverterGroup>
     </Window.Resources>
     <hc:Window.NonClientAreaContent>
         <TextBlock Text="{Binding ApplicationCookie.Title, Mode=OneWay}"
@@ -215,12 +208,9 @@
                 </hc:UniformSpacingPanel>
                 <!--#endregion-->
                 <!--#region body-->
-                <hc:ScrollViewer Grid.Row="1"
-                                 HorizontalScrollBarVisibility="Disabled"
-                                 IsInertiaEnabled="True"
-                                 VerticalScrollBarVisibility="Disabled">
-                    <hc:ScrollViewer.Style>
-                        <Style BasedOn="{StaticResource ScrollViewerBaseStyle}" TargetType="{x:Type hc:ScrollViewer}">
+                <ContentControl Grid.Row="1">
+                    <ContentControl.Style>
+                        <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.True}">
                                     <Setter Property="Content">
@@ -242,8 +232,8 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </hc:ScrollViewer.Style>
-                </hc:ScrollViewer>
+                    </ContentControl.Style>
+                </ContentControl>
                 <!--#endregion-->
                 <GridSplitter Grid.Row="2"
                               Height="10"

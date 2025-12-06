@@ -41,7 +41,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _prescanFrequency;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam;
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
     private double _chirpFrequency;
@@ -89,7 +89,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _protectedPMTValue = 409.6;
 
     [ObservableProperty]
-    private double _protectedCount = 3;
+    private int _protectedOverflowProtectedPMTValueCount = 3;
 
     [ObservableProperty]
     private int _catchPMTValueCount = 10;
@@ -98,7 +98,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _darkCurrent;
 
     [ObservableProperty]
-    private double _denominator = 16384d;
+    private double _denominator = 4096d;
 
     [ObservableProperty]
     private double _scaleFactor = 2000000d;

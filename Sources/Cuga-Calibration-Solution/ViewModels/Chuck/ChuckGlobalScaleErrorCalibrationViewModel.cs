@@ -475,7 +475,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.SiteDirection,
-                Position = result,
+                Position = result
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -509,7 +509,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                     TopPosition = Cache.TopLowSitePosition,
                     BottomPosition = Cache.BottomLowSitePosition,
                     LeftPosition = Cache.LeftLowSitePosition,
-                    RightPosition = Cache.RightLowSitePosition,
+                    RightPosition = Cache.RightLowSitePosition
                 }
             };
 
@@ -560,7 +560,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 ResultScaleXYCurve = new HtmlPlot2DLinesChart([
                     ("Times-AxisXResultScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ResultScaleXY.X).ToList().ToPoints()),
                     ("Times-AxisYResultScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ResultScaleXY.Y).ToList().ToPoints())
-                ], "AppliedScaleXYCurve"),
+                ], "AppliedScaleXYCurve")
             }), HtmlLogUniqueId.LoggingHtml());
 
             result = calibrationResult;
@@ -718,7 +718,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                     TopHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     BottomHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     LeftHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    RightHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    RightHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 

@@ -251,7 +251,7 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private double _protectedCount;
+    private double _protectedOverflowProtectedPMTValueCount;
 
     public CIBMMDItemDto Clone() => new()
     {

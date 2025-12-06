@@ -186,11 +186,11 @@
                                      hc:TitleElement.TitlePlacement="Left"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      Style="{StaticResource TextBoxExtend}"
-                                     Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                     Visibility="{Binding IsVisibleDirectoryPath, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Button Content="Change AOD Waveform Directory Path"
                                     Command="{Binding ChangeDirectoryPathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     Style="{StaticResource ButtonDefault}"
-                                    Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    Visibility="{Binding IsVisibleDirectoryPath, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Separator />
                             <hc:NumericUpDown hc:TitleElement.Title="Zero Sample Count(sa): "
                                               hc:TitleElement.TitlePlacement="Left"
@@ -245,7 +245,10 @@
                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                     <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
                                     <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                    <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
+                                    <DataGridTextColumn Header="Amplitude"
+                                                        Binding="{Binding Amplitude, StringFormat='0.###'}"
+                                                        Visibility="{Binding Value.IsVisibleAmplitude, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}" />
                                     <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
                                     <DataGridTemplateColumn Header="Uniformity Configurations" Visibility="{Binding Value.IsVisibleUniformityConfiguration, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -311,8 +314,7 @@
                                                                 </TabItem>
                                                                 <TabItem Header="Plots">
                                                                     <Border Style="{StaticResource BorderRegion}">
-                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                     </Border>
                                                                 </TabItem>
                                                             </TabControl>

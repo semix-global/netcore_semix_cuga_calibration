@@ -282,7 +282,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
+                Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });

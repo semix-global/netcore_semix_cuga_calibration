@@ -36,374 +36,380 @@
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="200"
-                                 SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
-                    <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="200"
-                                 IsEditable="True"
-                                 IsReadOnly="True"
-                                 SelectedItem="{Binding Cache.ProductivityInformation}"
-                                 Style="{StaticResource ComboBoxExtend}">
-                        <i:Interaction.Behaviors>
-                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                        </i:Interaction.Behaviors>
-                        <hc:ComboBox.ItemsSource>
-                            <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
-                                <Binding Path="ApplicationCookie" />
-                                <Binding Path="Cache.OpticsIlluminationModeEnum" />
-                            </MultiBinding>
-                        </hc:ComboBox.ItemsSource>
-                    </hc:ComboBox>
-                    <Expander Header="AF"
-                              IsExpanded="True"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:NumericUpDown hc:TitleElement.Title="AF Offset Motor(mm): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.AFOffsetMotor}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="AF ECS: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.AFECS}" />
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="AF Enable: "
-                                               Width="200"
-                                               HorizontalAlignment="Left"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton IsChecked="{Binding Cache.IsAFEnable}"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DangerBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </StackPanel>
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Prescan AOD Waveform"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:UniformSpacingPanel Margin="11,0"
-                                                        Orientation="Vertical"
-                                                        Spacing="2">
-                                    <hc:NumericUpDown hc:TitleElement.Title="Prescan Frequency(MHz): "
+                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                 IsInertiaEnabled="True"
+                                 VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                     Style="{StaticResource ComboBoxExtend}"
+                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="200"
+                                     IsEditable="True"
+                                     IsReadOnly="True"
+                                     SelectedItem="{Binding Cache.ProductivityInformation}"
+                                     Style="{StaticResource ComboBoxExtend}">
+                            <i:Interaction.Behaviors>
+                                <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                            <hc:ComboBox.ItemsSource>
+                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
+                                    <Binding Path="ApplicationCookie" />
+                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                                </MultiBinding>
+                            </hc:ComboBox.ItemsSource>
+                        </hc:ComboBox>
+                        <Expander Header="AF"
+                                  IsExpanded="True"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.Title="AF Offset Motor(mm): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.AFOffsetMotor}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="AF ECS: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.AFECS}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="AF Enable: "
+                                                   Width="200"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ToggleButton IsChecked="{Binding Cache.IsAFEnable}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Background="{StaticResource DangerBrush}"
+                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                    </StackPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander Header="Prescan AOD Waveform"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <hc:NumericUpDown hc:TitleElement.Title="Prescan Frequency(MHz): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
+                                                          Minimum="0"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.PrescanFrequency}" />
+                                    </hc:UniformSpacingPanel>
+                                    <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                          IsVisibleProductivityInformation="False"
+                                                                                          IsVisibleFrequency="False"
+                                                                                          IsVisibleDirectoryPath="False"
+                                                                                          IsVisibleUniformityConfiguration="False"
+                                                                                          IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                          IsVisibleCompensation="False"
+                                                                                          DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander Header="Chirp AOD Waveform"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Frequency(MHz): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
+                                                          Minimum="0"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.ChirpFrequency}" />
+                                    </hc:UniformSpacingPanel>
+                                    <generates:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                        IsVisibleProductivityInformation="False"
+                                                                                        IsVisibleFrequency="False"
+                                                                                        IsVisibleDirectoryPath="False"
+                                                                                        IsVisibleUniformityConfiguration="False"
+                                                                                        IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                        IsVisibleCompensation="False"
+                                                                                        DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </Expander>
+                        <Expander Header="MMD"
+                                  IsExpanded="True"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:ComboBox hc:TitleElement.Title="Log Mode: "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="200"
+                                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
+                                                 SelectedItem="{Binding Path=Cache.CIBProfileMode}">
+                                        <hc:ComboBox.Style>
+                                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" Value="LightGray" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:ComboBox.Style>
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+                                    </hc:ComboBox>
+                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.PrescanFrequency}" />
-                                </hc:UniformSpacingPanel>
-                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False" 
-                                                                                      IsVisibleProductivityInformation="False"
-                                                                                      IsVisibleDirectoryPath="False"
-                                                                                      IsVisibleUniformityConfiguration="False"
-                                                                                      IsVisibleSlopeDeltaKConfiguration="False"
-                                                                                      IsVisibleCompensation="False"
-                                                                                      DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Chirp AOD Waveform"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:UniformSpacingPanel Margin="11,0"
-                                                        Orientation="Vertical"
-                                                        Spacing="2">
-                                    <hc:NumericUpDown hc:TitleElement.Title="Chirp Frequency(MHz): "
+                                                      Value="{Binding Cache.MeasurePowerWaitTime}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="PMT Value Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.ChirpFrequency}" />
+                                                      Value="{Binding Cache.PMTValueWaitTime}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Maximum="1"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StartCoefficient}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Maximum="1"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StepCoefficient}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Maximum="1"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StopCoefficient}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Common Ratio: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MeasurePowerSequenceCommonRatio}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Not Use OD Min Value(mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MeasurePowerNotUseODFilterMinValue}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Max/Min(mW/mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MMDMeasurePowerRangeRatio}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="-10"
+                                                      Maximum="10"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StartGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Step Gain(V): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="-10"
+                                                      Maximum="10"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StepGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Gain(V): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="-10"
+                                                      Maximum="10"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StopGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ProtectedPMTValue}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Protected Count: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ProtectedOverflowProtectedPMTValueCount}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.CatchPMTValueCount}" />
                                 </hc:UniformSpacingPanel>
-                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False" 
-                                                                                    IsVisibleProductivityInformation="False"
-                                                                                    IsVisibleDirectoryPath="False"
-                                                                                    IsVisibleUniformityConfiguration="False"
-                                                                                    IsVisibleSlopeDeltaKConfiguration="False"
-                                                                                    IsVisibleCompensation="False"
-                                                                                    DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="MMD"
-                              IsExpanded="True"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:ComboBox hc:TitleElement.Title="Log Mode: "
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
-                                             SelectedItem="{Binding Path=Cache.CIBProfileMode}">
-                                    <hc:ComboBox.Style>
-                                        <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Background" Value="LightGray" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </hc:ComboBox.Style>
-                                    <hc:ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                        </DataTemplate>
-                                    </hc:ComboBox.ItemTemplate>
-                                </hc:ComboBox>
-                                <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MeasurePowerWaitTime}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="PMT Value Wait Time(s): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.PMTValueWaitTime}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StartCoefficient}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StepCoefficient}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StopCoefficient}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Measure Power Common Ratio: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MeasurePowerSequenceCommonRatio}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Not Use OD Min Value(mW): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MeasurePowerNotUseODFilterMinValue}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Max/Min(mW/mW): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MMDMeasurePowerRangeRatio}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="-10"
-                                                  Maximum="10"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StartGain}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Step Gain(V): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="-10"
-                                                  Maximum="10"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StepGain}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Stop Gain(V): "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="-10"
-                                                  Maximum="10"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.StopGain}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.ProtectedPMTValue}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Protected Count: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.ProtectedCount}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.CatchPMTValueCount}" />
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <Expander Header="Algorithm"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.DarkCurrent}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.Denominator}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.ScaleFactor}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MinValidFraction}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MaxValidFraction}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MinLogGain}" />
-                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                        VerticalAlignment="Top"
-                                                        Spacing="10">
-                                    <Button Content="Import"
-                                            Command="{Binding ImportGainConfigurationCommand}"
-                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                            Style="{StaticResource ButtonInfo}" />
-                                    <ToggleButton x:Name="ToggleButtonGainConfigurations"
-                                                  Content="Gain Configurations"
-                                                  HorizontalAlignment="Left"
-                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                    <Popup Width="800"
-                                           Height="800"
-                                           StaysOpen="False"
-                                           PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
-                                           Placement="Right"
-                                           AllowsTransparency="True"
-                                           PopupAnimation="Slide"
-                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
-                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                                      Style="{StaticResource DataGrid.Small}"
-                                                      HeadersVisibility="All"
-                                                      RowHeaderWidth="60"
-                                                      AutoGenerateColumns="False"
-                                                      ItemsSource="{Binding Cache.GainConfigurations}">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
-                                                    <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
-                                                    <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
-                                                </DataGrid.Columns>
-                                            </DataGrid>
-                                        </Border>
-                                    </Popup>
+                            </Border>
+                        </Expander>
+                        <Expander Header="Algorithm"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DarkCurrent}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.Denominator}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ScaleFactor}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MinValidFraction}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MaxValidFraction}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MinLogGain}" />
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                            VerticalAlignment="Top"
+                                                            Spacing="10">
+                                        <Button Content="Import"
+                                                Command="{Binding ImportGainConfigurationCommand}"
+                                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                Style="{StaticResource ButtonInfo}" />
+                                        <ToggleButton x:Name="ToggleButtonGainConfigurations"
+                                                      Content="Gain Configurations"
+                                                      HorizontalAlignment="Left"
+                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                        <Popup Width="800"
+                                               Height="800"
+                                               StaysOpen="False"
+                                               PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
+                                               Placement="Right"
+                                               AllowsTransparency="True"
+                                               PopupAnimation="Slide"
+                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
+                                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="All"
+                                                          RowHeaderWidth="60"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding Cache.GainConfigurations}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
+                                                        <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Border>
+                                        </Popup>
+                                    </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                            </Border>
+                        </Expander>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                        <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                      Content="Prescan AOD Waveform Profiles"
+                                      HorizontalAlignment="Left"
+                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                        <Popup Width="800"
+                               Height="800"
+                               StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                               Placement="Right"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
+                            </Border>
+                        </Popup>
+                        <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                      Content="Chirp AOD Waveform Profiles"
+                                      HorizontalAlignment="Left"
+                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                        <Popup Width="800"
+                               Height="800"
+                               StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                               Placement="Right"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
+                            </Border>
+                        </Popup>
+                        <ToggleButton x:Name="ToggleButtonODFilterResult"
+                                      Content="OD Filter Result"
+                                      HorizontalAlignment="Left"
+                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                        <Popup Width="800"
+                               Height="800"
+                               StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButtonODFilterResult}"
+                               Placement="Right"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
+                        </Popup>
                     </hc:UniformSpacingPanel>
-                    <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                  Content="Prescan AOD Waveform Profiles"
-                                  HorizontalAlignment="Left"
-                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                    <Popup Width="800"
-                           Height="800"
-                           StaysOpen="False"
-                           PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
-                           Placement="Right"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                            <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
-                        </Border>
-                    </Popup>
-                    <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
-                                  Content="Chirp AOD Waveform Profiles"
-                                  HorizontalAlignment="Left"
-                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                    <Popup Width="800"
-                           Height="800"
-                           StaysOpen="False"
-                           PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
-                           Placement="Right"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                            <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
-                        </Border>
-                    </Popup>
-                    <ToggleButton x:Name="ToggleButtonODFilterResult"
-                                  Content="OD Filter Result"
-                                  HorizontalAlignment="Left"
-                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                    <Popup Width="800"
-                           Height="800"
-                           StaysOpen="False"
-                           PlacementTarget="{Binding ElementName=ToggleButtonODFilterResult}"
-                           Placement="Right"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                            <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
-                        </Border>
-                    </Popup>
-                </hc:UniformSpacingPanel>
+                </hc:ScrollViewer>
             </Border>
         </hc:UniformSpacingPanel>
         <!--#endregion-->

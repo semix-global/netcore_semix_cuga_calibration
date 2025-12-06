@@ -9,8 +9,6 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using Cuga.Interface.Calibration;
 using Cuga.Interface.Facade;

@@ -10,16 +10,17 @@ namespace Core.Models.Models.Common.Cookies;
 public sealed class MultiApplicationCookieToProductivityInformationsConvert : AbstractSingletonMultiConverterBase<MultiApplicationCookieToProductivityInformationsConvert>
 {
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
-        => values is [ApplicationCookie applicationCookie, OpticsIlluminationModeEnum opticsIlluminationModeEnum]
-            ? opticsIlluminationModeEnum switch
+        => values switch
+        {
+            [ApplicationCookie applicationCookie, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
             {
                 OpticsIlluminationModeEnum.NI => applicationCookie.NIProductivityInformations,
                 OpticsIlluminationModeEnum.OI => applicationCookie.OIProductivityInformations,
                 _ => ThrowHelper.ThrowNotSupportedException<object>(nameof(opticsIlluminationModeEnum))
-            }
-            : values is [ApplicationCookie, object o]
-                     ? o == DependencyProperty.UnsetValue ? (IReadOnlyList<ProductivityInformation>)[] : ThrowHelper.ThrowNotSupportedException<object>()
-                     : ThrowHelper.ThrowNotSupportedException<object>();
+            },
+            [ApplicationCookie, { } o] => o == DependencyProperty.UnsetValue ? (IReadOnlyList<ProductivityInformation>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
+            _ => ThrowHelper.ThrowNotSupportedException<object>()
+        };
 
     public override object[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture) => ThrowHelper.ThrowNotSupportedException<object[]>(nameof(value));
 }

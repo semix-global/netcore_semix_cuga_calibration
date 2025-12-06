@@ -421,7 +421,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
+                Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -506,7 +506,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.IsDarkFieldAlignment,
-                Cache.P5Angle,
+                Cache.P5Angle
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;

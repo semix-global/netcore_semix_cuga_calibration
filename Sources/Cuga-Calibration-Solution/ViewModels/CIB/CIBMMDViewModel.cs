@@ -30,6 +30,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using Core.Models.Models.Common.Pattern;
+using Humanizer;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -40,9 +41,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => string.Join("_", Cache.CIBInformations)[..50];
+    public override string CalibrateDirectoryName => string.Join("_", Cache.CIBInformations).Truncate(50);
 
-    public override string CalibrateFileName => string.Join("_", Cache.CIBInformations)[..50];
+    public override string CalibrateFileName => string.Join("_", Cache.CIBInformations).Truncate(50);
 
     public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -315,6 +316,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
+            Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
             CalibratingItems = [];
@@ -336,7 +338,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.AFOffsetMotor,
                 Cache.AFECS,
                 Cache.IsAFEnable,
-                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.CIBProfileMode,
                 Cache.MeasurePowerWaitTime,
@@ -351,7 +353,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.StepGain,
                 Cache.StopGain,
                 Cache.ProtectedPMTValue,
-                Cache.ProtectedCount,
+                Cache.ProtectedOverflowProtectedPMTValueCount,
                 Cache.CatchPMTValueCount,
                 Cache.DarkCurrent,
                 Cache.Denominator,
@@ -465,10 +467,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(HostEnvironment.IsDevelopment()
-                        ? solveForX.SingleOrDefault(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3, Cache.StartCoefficient)
-                        : solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3),
-                        t);
+                    return new Point(solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X)
+                                                            || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3
+                                                            || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3), t);
                 })
                 .ToArray();
             Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
@@ -480,16 +481,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(HostEnvironment.IsDevelopment()
-                        ? solveForX.SingleOrDefault(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3, Cache.StartCoefficient)
-                        : solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X) || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3 || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3),
-                         t);
+                    return new Point(solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X)
+                                                            || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3
+                                                            || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3), t);
                 })
                 .ToArray();
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                measurePowerPoints = Cache.ScatterPlotControl.GetHtmlPlot2DLinesChart(),
+                measurePowerPoints = Cache.ScatterPlotControl.GetHtmlPlot2DLinesChart()
             }), HtmlLogUniqueId.LoggingHtml());
 
             // 获取gain
@@ -503,16 +503,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         CIBInformation = t,
                         Items =
                         [
-                            .. Cache.NotUseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
-                            {
-                                Coefficient = tt.X,
-                                MeasurePower = tt.Y,
-                                Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
-                            }),
                             .. Cache.UseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
                             {
                                 Coefficient = tt.X,
                                 MeasurePower = tt.Y / Cache.ODFilterRatio,
+                                Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
+                            }),
+                            .. Cache.NotUseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
+                            {
+                                Coefficient = tt.X,
+                                MeasurePower = tt.Y,
                                 Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
                             })
                         ]
@@ -538,8 +538,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 foreach (var (coefficientIndex, (coefficient, isUseODFilter)) in ((IReadOnlyList<(double Coefficient, bool IsUseODFilter)>)
                          [
-                             ..Cache.NotUseODFilterMeasurePowerPoints.Select(t => (t.X, false)),
-                             ..Cache.UseODFilterMeasurePowerPoints.Select(t => (t.X, true))
+                             ..Cache.UseODFilterMeasurePowerPoints.Select(t => (t.X, true)),
+                             ..Cache.NotUseODFilterMeasurePowerPoints.Select(t => (t.X, false))
                          ]).Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -556,7 +556,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             cancellationToken.ThrowIfCancellationRequested();
                             SelectedCalibratingItems = CalibratingItems;
 
-                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDto>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedCount < Cache.ProtectedCount /* 不超过保护次数 */)];
+                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDto>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
                             LaserViewModel.SetGain(cibInformations, gain);
 
@@ -584,10 +584,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                     var item = cibMMDDto.Items[coefficientIndex];
                                     var itemItem = item.Items[gainIndex];
 
-                                    if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedCount++;
+                                    if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedOverflowProtectedPMTValueCount++;
                                     itemItem.PMTValue = pmtValue;
 
-                                    if (item.ProtectedCount >= Cache.ProtectedCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
+                                    if (item.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
                                 }
                                 finally
                                 {
