@@ -434,10 +434,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     }
                 }
 
-                var minMeasurePowerPoint = Cache.MeasurePowerPoints.MinBy(t => t.Y);
                 var maxMeasurePowerPoint = Cache.MeasurePowerPoints.MaxBy(t => t.Y);
 
-                Cache.MeasurePowerPoints = [.. Cache.MeasurePowerPoints.Where(t => minMeasurePowerPoint.X <= t.X && t.X <= maxMeasurePowerPoint.X)];
+                Cache.MeasurePowerPoints = [.. Cache.MeasurePowerPoints.Where(t => Cache.MeasurePowerNotUseODFilterMinValue <= t.Y && t.Y <= maxMeasurePowerPoint.Y)];
                 try
                 {
                     LaserViewModel.ToggleOpticsODFilter(true);

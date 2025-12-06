@@ -172,7 +172,6 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="230" />
                 </Grid.RowDefinitions>
                 <!--#region button group-->
@@ -215,7 +214,6 @@
                             Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
                 </hc:UniformSpacingPanel>
                 <!--#endregion-->
-
                 <!--#region body-->
                 <hc:ScrollViewer Grid.Row="1"
                                  HorizontalScrollBarVisibility="Disabled"
@@ -247,37 +245,42 @@
                     </hc:ScrollViewer.Style>
                 </hc:ScrollViewer>
                 <!--#endregion-->
-                <hc:StepBar Grid.Row="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontSize="10"
-                            StepIndex="{Binding CalibrationStepIndex}"
-                            ItemsSource="{Binding CalibrationStepList}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-                    <hc:StepBar.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding StepName}"
-                                       TextWrapping="Wrap"
-                                       TextAlignment="Center" />
-                        </DataTemplate>
-                    </hc:StepBar.ItemTemplate>
-                </hc:StepBar>
-                <GridSplitter Grid.Row="3"
+                <GridSplitter Grid.Row="2"
                               Height="10"
                               Margin="-5"
                               IsEnabled="{Binding AutoCalibrationIsRunning}" />
-
                 <!--#region log-->
-                <hc:SimplePanel Grid.Row="4" Margin="5">
-                    <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
-                    <Button Content="Popup"
-                            Command="{Binding ShowLogCommand}"
-                            Margin="6"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
-                            hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                            Style="{StaticResource ButtonDefault.Small}" />
-                </hc:SimplePanel>
+                <Grid Grid.Row="3" Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <hc:StepBar HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="10"
+                                StepIndex="{Binding CalibrationStepIndex}"
+                                ItemsSource="{Binding CalibrationStepList}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
+                        <hc:StepBar.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding StepName}"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center" />
+                            </DataTemplate>
+                        </hc:StepBar.ItemTemplate>
+                    </hc:StepBar>
+                    <hc:SimplePanel Grid.Row="1">
+                        <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
+                        <Button Content="Popup"
+                                Command="{Binding ShowLogCommand}"
+                                Margin="6"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                Style="{StaticResource ButtonDefault.Small}" />
+                    </hc:SimplePanel>
+                </Grid>
+
                 <!--#endregion-->
             </Grid>
             <!--#endregion-->
