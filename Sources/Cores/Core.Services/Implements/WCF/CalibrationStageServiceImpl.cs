@@ -362,7 +362,7 @@ public sealed class CalibrationStageServiceImpl(
             Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
             type: C2MAlignType.Mid));
 
-        return sxExecuteRet.IsSuccess == false
+        return sxExecuteRet.Anything is null
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
             : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
     }

@@ -132,7 +132,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>();
 
         CalibrationStatuses =
@@ -871,7 +871,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         ];
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

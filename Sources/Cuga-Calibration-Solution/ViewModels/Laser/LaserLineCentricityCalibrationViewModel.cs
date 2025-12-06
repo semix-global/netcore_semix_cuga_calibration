@@ -220,6 +220,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserLineCentricityCache>();
+
         Calibrations = CacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>();
 
         CalibrationStatuses =
