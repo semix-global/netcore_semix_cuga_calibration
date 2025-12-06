@@ -323,7 +323,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.PrescanAODWaveformProfiles = [];
             Cache.ChirpAODWaveformProfiles = [];
             Cache.MeasurePowerPoints = Cache.FitMeasurePowerPoints = Cache.NotUseODFilterMeasurePowerPoints = Cache.UseODFilterMeasurePowerPoints = [];
-            Cache.P0 = Cache.P1 = Cache.P2 = Cache.P3 = Cache.RSquared = Cache.ODFilterRatio = 0;
+            Cache.A1 = Cache.A2 = Cache.X0 = Cache.Dx = Cache.RSquared = Cache.ODFilterRatio = 0;
 
             var laserOpticalPowerMeter = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && t.IsOk);
 
@@ -455,27 +455,17 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
             }
 
-            (Cache.P0, Cache.P1, Cache.P2, Cache.P3, Cache.RSquared, var yPredicted) = PolynomialLeastSquares.Polynomial3Fit(Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.Y)));
+            (Cache.A1, Cache.A2, Cache.X0, Cache.Dx, Cache.RSquared, var yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.Y)));
             Cache.FitMeasurePowerPoints = [.. Cache.MeasurePowerPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
             Cache.NotUseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerPoints.Max(t => t.Y), Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
                 .OrderBy(t => t)
-                .Select(t =>
-                {
-                    var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
-
-                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Min(), t);
-                })
+                .Select(t => new Point(Boltzmann.BoltzmannInverse(Cache.A1, Cache.A2, Cache.X0, Cache.Dx, t), t))
                 .ToArray();
             Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerPoints.Max(t => t.Y) / Cache.MMDMeasurePowerRangeRatio)
                 .Where(t => Cache.NotUseODFilterMeasurePowerPoints[0].Y >= t)
                 .OrderBy(t => t)
                 .Select(t => t * Cache.ODFilterRatio)
-                .Select(t =>
-                {
-                    var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
-
-                    return new Point(HostEnvironment.IsDevelopment() ? solveForX.FirstOrDefault(tt => tt > 0, Cache.StartCoefficient) : solveForX.Min(), t);
-                })
+                .Select(t => new Point(Boltzmann.BoltzmannInverse(Cache.A1, Cache.A2, Cache.X0, Cache.Dx, t), t))
                 .ToArray();
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new

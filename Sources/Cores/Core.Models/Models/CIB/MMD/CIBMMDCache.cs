@@ -133,16 +133,16 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private IReadOnlyList<Point> _measurePowerPoints = [];
 
     [ObservableProperty]
-    private double _p0;
+    private double _a1;
 
     [ObservableProperty]
-    private double _p1;
+    private double _a2;
 
     [ObservableProperty]
-    private double _p2;
+    private double _x0;
 
     [ObservableProperty]
-    private double _p3;
+    private double _dx;
 
     [ObservableProperty]
     private double _rSquared;
@@ -177,13 +177,13 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     partial void OnODFilterRatioChanged(double value) => RefreshPlot();
 
-    partial void OnP0Changed(double value) => RefreshPlot();
+    partial void OnA1Changed(double value) => RefreshPlot();
 
-    partial void OnP1Changed(double value) => RefreshPlot();
+    partial void OnA2Changed(double value) => RefreshPlot();
 
-    partial void OnP2Changed(double value) => RefreshPlot();
+    partial void OnX0Changed(double value) => RefreshPlot();
 
-    partial void OnP3Changed(double value) => RefreshPlot();
+    partial void OnDxChanged(double value) => RefreshPlot();
 
     partial void OnRSquaredChanged(double value) => RefreshPlot();
 
@@ -208,7 +208,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         ScatterPlotControl.Clear();
 
         if (MeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Origin OD = {ODFilterRatio:0.######}", MeasurePowerPoints, Constants.Category10.GetColor(0));
-        if (FitMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(1));
+        if (FitMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {A2:0.######} + ({A1:0.######} - {A2:0.######}) / (1 + exp((x - {X0:0.######}) / {Dx:0.######})) r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(1));
         if (NotUseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, markerShape: MarkerShape.FilledDiamond, color: Constants.Category10.GetColor(2));
         if (UseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, markerShape: MarkerShape.OpenDiamond, color: Constants.Category10.GetColor(3));
 
