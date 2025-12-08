@@ -233,8 +233,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            var values = MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath).ToArray();
-            if (values.Length > 0) Cache.GainConfigurations = values;
+            var values = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[..MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath)];
+            if (values.Count > 0) Cache.GainConfigurations = values;
 
             DialogWindowProvider.ShowDialog($"{nameof(ImportGainConfiguration)} OK!");
         }
@@ -405,14 +405,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleOpticsODFilter(false);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
-                var measurePowerNoises = Enumerable.Range(0, HostEnvironment.IsDevelopment() ? 0 : 10000)
-                    .Select(_ =>
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
+                var measurePowerNoises = (IReadOnlyList<double>)
+                [
+                    ..Enumerable.Range(0, HostEnvironment.IsDevelopment() ? 0 : 10000)
+                        .Select(_ =>
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                        return LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
-                    })
-                    .ToArray();
+                            return LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                        })
+                ];
                 var measurePowerNoise = HostEnvironment.IsDevelopment() ? 0 : measurePowerNoises.Average();
 
                 foreach (var coefficient in coefficients)
@@ -463,31 +465,35 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, minFitMeasurePowerPoint.X);
 
-            Cache.NotUseODFilterMeasurePowerPoints = GeometricSequence.Generate(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
-                .Select((t, index) =>
-                {
-                    if (index == 0) return maxFitMeasurePowerPoint;
+            Cache.NotUseODFilterMeasurePowerPoints =
+            [
+                ..GeometricSequence.Generate(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
+                    .Select((t, index) =>
+                    {
+                        if (index == 0) return maxFitMeasurePowerPoint;
 
-                    var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
+                        var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
-                })
-                .OrderBy(t => t.X)
-                .ToArray();
-            Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
-                .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
-                .Select(t => t * Cache.ODFilterRatio)
-                .Select(t =>
-                {
-                    Guard.IsGreaterThan(t, minFitMeasurePowerPoint.Y);
-                    Guard.IsLessThan(t, maxFitMeasurePowerPoint.Y);
+                        return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
+                    })
+                    .OrderBy(t => t.X)
+            ];
+            Cache.UseODFilterMeasurePowerPoints =
+            [
+                ..GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
+                    .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
+                    .Select(t => t * Cache.ODFilterRatio)
+                    .Select(t =>
+                    {
+                        Guard.IsGreaterThan(t, minFitMeasurePowerPoint.Y);
+                        Guard.IsLessThan(t, maxFitMeasurePowerPoint.Y);
 
-                    var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
+                        var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
-                })
-                .OrderBy(t => t.X)
-                .ToArray();
+                        return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
+                    })
+                    .OrderBy(t => t.X)
+            ];
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
