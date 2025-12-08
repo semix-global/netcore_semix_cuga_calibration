@@ -583,7 +583,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<double>>([..cibInformations.Select(_ => Random.NextDouble() * 3950)]));
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<double>>([.. cibInformations.Select(_ => Random.NextDouble() * 3950)]));
     }
 
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()

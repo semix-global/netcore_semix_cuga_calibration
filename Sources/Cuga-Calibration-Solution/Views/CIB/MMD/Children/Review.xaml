@@ -31,7 +31,9 @@
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Grid.Row="2" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <Border Grid.Row="2"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="Algorithm Param"

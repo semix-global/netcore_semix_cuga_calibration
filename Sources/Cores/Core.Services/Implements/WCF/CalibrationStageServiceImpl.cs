@@ -47,7 +47,7 @@ public sealed class CalibrationStageServiceImpl(
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
-    
+
 
     public SxExecuteRet<bool> SetXSpeedValue(double speedValue)
     {
