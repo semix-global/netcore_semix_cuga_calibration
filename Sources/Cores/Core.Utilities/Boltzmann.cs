@@ -91,19 +91,34 @@ public static class Boltzmann
         }
 
         // 计算 R²
+        var rSquared = RSquared(yPredicted, y);
+
+        return (a1Fit, a2Fit, x0Fit, dxFit, rSquared, yPredicted);
+    }
+
+    /// <summary>
+    /// 决定系数
+    /// </summary>
+    /// <param name="yPredicted">模型预测值</param>
+    /// <param name="y">实际值</param>
+    /// <returns>决定系数</returns>
+    public static double RSquared(Vector<double> yPredicted, Vector<double> y)
+    {
+        Guard.IsTrue(y.Count == yPredicted.Count, "Vectors y and yPredicted must have the same length.");
+
         var yMean = y.Average();
         var sse = 0d;
         var sst = 0d;
 
-        for (var i = 0; i < x.Count; i++)
+        for (var i = 0; i < y.Count; i++)
         {
-            var residual = y[i] - yPredicted[i];
-            sse += residual * residual;
-            sst += Math.Pow(y[i] - yMean, 2);
+            var residual = y[i] - yPredicted[i]; // 残差
+            sse += Math.Pow(residual, 2);
+
+            var deviation = y[i] - yMean; // 偏差
+            sst += Math.Pow(deviation, 2);
         }
 
-        var rSquared = 1 - (sse / sst);
-
-        return (a1Fit, a2Fit, x0Fit, dxFit, rSquared, yPredicted);
+        return 1 - sse / sst;
     }
 }
