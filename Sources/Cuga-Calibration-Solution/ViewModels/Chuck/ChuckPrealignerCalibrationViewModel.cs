@@ -372,7 +372,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Cache.LowSite1 = resultLowSite1;
             Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
             Cache.LowSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
-            Cache.LowSiteTemplateFilePath = lowTemplateFilePath;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.AlgorithmTemplateTypeEnum,

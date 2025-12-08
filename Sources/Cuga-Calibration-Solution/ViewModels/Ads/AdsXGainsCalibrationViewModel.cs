@@ -68,13 +68,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     private ObservableCollection<AdsXGainsCacheItem> _adsXGainsHrpCacheConverseItemList = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsHrpCacheConverseItemList = [];
-
-    [ObservableProperty]
     private ObservableCollection<AdsXGainsCacheItem> _resultAdsXGainsHrpCacheItemList = [];
-
-    [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _resultAdsXGainsHrpCacheConverseItemList = [];
 
     [ObservableProperty]
     private ObservableCollection<AdsXGainsCacheItem> _resultAdsXGainsHrpCacheConverseItemList = [];
