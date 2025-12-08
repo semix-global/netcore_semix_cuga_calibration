@@ -23,6 +23,33 @@ public static class Boltzmann
     public static double BoltzmannFunction(double a1, double a2, double x0, double dx, double x) => a2 + (a1 - a2) / (1 + Math.Exp((x - x0) / dx));
 
     /// <summary>
+    /// 计算 Boltzmann 函数的逆运算:
+    /// 已知 y，求 x：
+    /// x = x0 + dx * ln( (A1 - A2) / (y - A2) - 1 )
+    /// </summary>
+    /// <param name="a1">上渐近线</param>
+    /// <param name="a2">下渐近线</param>
+    /// <param name="x0">中心点（拐点）</param>
+    /// <param name="dx">斜率参数</param>
+    /// <param name="y">函数值</param>
+    /// <returns>使 BoltzmannFunction(a1, a2, x0, dx, x) = y 的 x</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// 当 y 不在可逆范围内（介于 a1 和 a2 之间）时抛出
+    /// </exception>
+    public static double BoltzmannInverse(double a1, double a2, double x0, double dx, double y)
+    {
+        // y 必须严格处于 (min(a1, a2), max(a1, a2)) 区间内，否则无法求逆
+        var min = Math.Min(a2, a1);
+        var max = Math.Max(a2, a1);
+
+        if (y <= min || y >= max) return ThrowHelper.ThrowArgumentOutOfRangeException<double>("The value y is out of the valid range for inversion.");
+
+        double ratio = (a1 - a2) / (y - a2) - 1.0;
+
+        return x0 + dx * Math.Log(ratio);
+    }
+
+    /// <summary>
     /// 将提供的数据拟合到 Boltzmann S型模型
     /// </summary>
     /// <param name="x">自变量向量</param>

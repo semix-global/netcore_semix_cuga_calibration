@@ -143,6 +143,13 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void ToggleOpticsODFilter(bool isEnable)
+    {
+        var ret = calibrationLaserService.ToggleOpticsODFilter(isEnable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     [Obsolete]
     public void SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
@@ -298,9 +305,25 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<IReadOnlyList<double>> GetCIBOfPMTDataList(int count, CIBInformation cibInformation)
+    public async Task<IReadOnlyList<double>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken)
     {
-        var ret = calibrationLaserService.GetCIBOfPMTDataList(count, cibInformation.PMTId, cibInformation.ChannelId);
+        var ret = await calibrationLaserService.GetCIBPMTValuesAsync(
+            stageCoordinateSystemEnum,
+            position,
+            catchCount,
+            opticsIlluminationModeEnum,
+            productivityInformation,
+            cibInformations,
+            isAutoFocus,
+            cancellationToken);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -497,21 +520,6 @@ public sealed class LaserViewModel(
         }
 
         return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
-    }
-
-    [Obsolete]
-    public int GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight = true)
-    {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(opticsMagTypeEnum, isCuttingPixelHeight);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public int GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight = true)
-    {
-        var ret = calibrationLaserService.GetDarkFieldLineScanImageYPixelHeight(productivityInformation, isCuttingPixelHeight);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]
@@ -771,7 +779,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         CIBConfiguration cIbConfiguration,
         ProductivityInformation productivityInformation,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         int channelId = CalibrationConstantsHelper.MainChannelId,

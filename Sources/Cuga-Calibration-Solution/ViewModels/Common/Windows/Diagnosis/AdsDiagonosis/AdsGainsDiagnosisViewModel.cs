@@ -180,9 +180,9 @@ public partial class AdsGainsDiagnosisViewModel(
                 adsViewModel.SetSensorXSpeedFeedForwardValue(XGainCache.IsPositive, (x1, x2));
 
                 stageViewModel.SetXSpeedValue(SingleDiagnosisSpeed);
-                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition(), false);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition());
                 await Task.Delay(hostEnvironment.IsDevelopment() ? 1000 : 10000, cancellationToken);
-                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetEndPosition(), false);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetEndPosition());
             }
             else
             {
@@ -196,9 +196,9 @@ public partial class AdsGainsDiagnosisViewModel(
 
                 stageViewModel.SetYSpeedValue(SingleDiagnosisSpeed);
 
-                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition(), false);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition());
                 await Task.Delay(hostEnvironment.IsDevelopment() ? 1000 : 10000, cancellationToken);
-                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetEndPosition(), false);
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetEndPosition());
             }
         }
         catch (Exception ex)
@@ -326,13 +326,13 @@ public partial class AdsGainsDiagnosisViewModel(
             adsViewModel.SetSensorXSpeedFeedForwardValue(XGainCache.IsPositive, (x1, x2));
 
             stageViewModel.SetXSpeedValue(SingleDiagnosisSpeed);
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition(), false);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetStartPosition());
 
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 10000);
 
             var task = Task.Run(() => adsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(WaitTime)));
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 3000);
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetEndPosition(), false);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(XGainCache.GetEndPosition());
 
             var transBuffer = await task.ConfigureAwait(false);
 
@@ -406,13 +406,13 @@ public partial class AdsGainsDiagnosisViewModel(
 
             stageViewModel.SetYSpeedValue(SingleDiagnosisSpeed);
 
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition(), false);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetStartPosition());
 
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 10000);
 
             var task = Task.Run(() => adsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(WaitTime)));
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 3000);
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetEndPosition(), false);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(YGainCache.GetEndPosition());
 
             var transBuffer = await task.ConfigureAwait(false);
 

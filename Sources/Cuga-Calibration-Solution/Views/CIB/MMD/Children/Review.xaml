@@ -9,6 +9,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -19,14 +20,20 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="CIB MMD: "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <Border Grid.Row="2"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="Algorithm Param"
@@ -138,12 +145,58 @@
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
+                    <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                  Content="Prescan AOD Waveform Profiles"
+                                  HorizontalAlignment="Left"
+                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                    <Popup Width="800"
+                           Height="800"
+                           StaysOpen="False"
+                           PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                           Placement="Right"
+                           AllowsTransparency="True"
+                           PopupAnimation="Slide"
+                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
+                        </Border>
+                    </Popup>
+                    <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                  Content="Chirp AOD Waveform Profiles"
+                                  HorizontalAlignment="Left"
+                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                    <Popup Width="800"
+                           Height="800"
+                           StaysOpen="False"
+                           PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                           Placement="Right"
+                           AllowsTransparency="True"
+                           PopupAnimation="Slide"
+                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
+                        </Border>
+                    </Popup>
+                    <ToggleButton x:Name="ToggleButtonODFilterResult"
+                                  Content="OD Filter Result"
+                                  HorizontalAlignment="Left"
+                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                    <Popup Width="800"
+                           Height="800"
+                           StaysOpen="False"
+                           PlacementTarget="{Binding ElementName=ToggleButtonODFilterResult}"
+                           Placement="Right"
+                           AllowsTransparency="True"
+                           PopupAnimation="Slide"
+                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
+                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                        </Border>
+                    </Popup>
                 </hc:UniformSpacingPanel>
             </Border>
-        </hc:UniformSpacingPanel>
-        <!--#endregion-->
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <!--#region Right-->
         <GroupBox Grid.Column="2" Header="Calibration Data">
             <Grid>
                 <Grid.RowDefinitions>
@@ -211,6 +264,9 @@
                 </ListView>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
+                        <i:Interaction.Behaviors>
+                            <wpf:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding CIBInformation}" />
@@ -225,6 +281,5 @@
                 </Border>
             </Grid>
         </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

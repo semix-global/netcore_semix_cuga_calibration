@@ -37,10 +37,10 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     #region Param
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _channelId = CalibrationConstantsHelper.MainChannelId;
@@ -113,6 +113,7 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 
     public object ToHtmlAnonymous() => new
     {
+        OpticsIlluminationModeEnum,
         ProductivityInformation,
         ChannelId,
         GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
@@ -299,6 +300,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     stageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition));
                     afViewModel.ToggleDarkFieldEnable(true);
 
+                    Cache.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
                     Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                     var (prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
@@ -306,6 +308,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
                     Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
+                    Cache.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
                     Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                     (var chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
@@ -313,8 +316,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
                     Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
-                    laserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
-                    laserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum.OI, Cache.ChirpAODWaveformProfiles);
+                    laserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
+                    laserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);

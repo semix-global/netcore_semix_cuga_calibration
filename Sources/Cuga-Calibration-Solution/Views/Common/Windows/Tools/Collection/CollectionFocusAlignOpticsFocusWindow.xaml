@@ -10,6 +10,8 @@
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionFocusAlignOpticsFocusWindowViewModel}"
@@ -91,12 +93,29 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
+                                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="200"
+                                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
                                         <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
+                                                     IsEditable="True"
+                                                     IsReadOnly="True"
                                                      SelectedItem="{Binding Cache.ProductivityInformation}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.NIProductivityInformations}" />
+                                                     Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                            <hc:ComboBox.ItemsSource>
+                                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
+                                                    <Binding Path="ApplicationCookie" />
+                                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                                                </MultiBinding>
+                                            </hc:ComboBox.ItemsSource>
+                                        </hc:ComboBox>
                                         <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="200"
                                                      hc:TitleElement.Title="PMT ID: "
@@ -264,6 +283,9 @@
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <TabControl>
+                    <i:Interaction.Behaviors>
+                        <wpf:SelectorAutoSelectFirstBehavior />
+                    </i:Interaction.Behaviors>
                     <TabItem Header="Plots">
                         <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
                             <TabControl.ItemTemplate>

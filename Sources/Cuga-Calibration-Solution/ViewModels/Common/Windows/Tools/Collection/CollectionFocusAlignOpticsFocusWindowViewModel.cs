@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -45,10 +44,10 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private int _pmtId;
@@ -159,6 +158,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
 
     public object ToHtmlAnonymous() => new
     {
+        OpticsIlluminationModeEnum,
         ProductivityInformation,
         PmtId,
         ImageWidth = ImageWidthPixel,
@@ -389,6 +389,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     false,
                     Cache.DSWCIBConfiguration,
                     Cache.ProductivityInformation,
+                    opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum,
                     xWidthPixel: Cache.ImageWidthPixel,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
                     pmtId: Cache.PmtId,

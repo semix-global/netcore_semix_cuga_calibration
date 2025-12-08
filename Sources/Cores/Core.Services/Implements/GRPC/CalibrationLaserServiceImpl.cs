@@ -143,6 +143,11 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
         throw new NotImplementedException();
@@ -258,6 +263,19 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
+    public Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDataALL());
@@ -322,29 +340,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         Point? point = null)
     {
         throw new NotImplementedException();
-    }
-
-    [Obsolete]
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight)
-    {
-        if (isCuttingPixelHeight == false) throw new NotImplementedException();
-
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(opticsMagTypeEnum.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
-    }
-
-    public SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight)
-    {
-        if (isCuttingPixelHeight == false) throw new NotImplementedException();
-
-        var sxExecuteRet = Invoke(() => Service?.GetSpeedInfo(new SxParamObj<CgMagTypeEnum>(productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<int>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(Convert.ToInt32(sxExecuteRet.Anything.YPixel));
     }
 
     [Obsolete]

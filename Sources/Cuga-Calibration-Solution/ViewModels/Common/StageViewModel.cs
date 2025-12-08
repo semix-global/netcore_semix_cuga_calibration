@@ -37,13 +37,6 @@ public sealed partial class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum)
-    {
-        var ret = calibrationStageService.SetSpeed(stageSpeedEnum, opticsMagTypeEnum);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
     public void SetXSpeedValue(double speedValue)
     {
         var ret = calibrationStageService.SetXSpeedValue(speedValue);
@@ -91,7 +84,6 @@ public sealed partial class StageViewModel(
         var result = GetBrightFieldStagePosition();
         result = BrightFieldToMachinePosition(result + (Vector)point);
 
-        SetSpeed(StageSpeedEnum.Low, OpticsMagTypeEnum.Low);
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(result);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
@@ -138,11 +130,9 @@ public sealed partial class StageViewModel(
         SetBrightFieldAbsoluteStageXy(result);
     }
 
-    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point, bool isAutoSpeedMove = true)
+    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point)
     {
         afViewModel.ToggleBrightFieldEnable(false);
-
-        if (isAutoSpeedMove) SetSpeed(StageSpeedEnum.Low, OpticsMagTypeEnum.Low);
 
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
@@ -214,8 +204,6 @@ public sealed partial class StageViewModel(
     public void SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
     {
         afViewModel.ToggleBrightFieldEnable(false);
-
-        SetSpeed(StageSpeedEnum.Low, OpticsMagTypeEnum.Low);
 
         var ret = calibrationStageService.SetDarkFieldAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);

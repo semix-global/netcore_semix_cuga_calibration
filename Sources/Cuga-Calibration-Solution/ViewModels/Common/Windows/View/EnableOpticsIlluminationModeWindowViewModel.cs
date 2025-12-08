@@ -15,7 +15,7 @@ public sealed partial class EnableOpticsIlluminationModeWindowViewModel : ViewMo
     private ObservableCollection<OpticsIlluminationModeItem> _opticsIlluminationModeEnableList =
     [
         new() { OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI, IsEnable = false },
-        new() { OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.NI, IsEnable = false },
+        new() { OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.NI, IsEnable = false }
     ];
 
     [RelayCommand]

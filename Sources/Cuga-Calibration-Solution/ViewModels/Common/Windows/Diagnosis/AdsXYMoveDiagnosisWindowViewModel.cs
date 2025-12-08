@@ -178,11 +178,11 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(
 
                 if (StageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
                 {
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(StartPosition, false);
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(StartPosition);
                     await Task.Delay(hostEnvironment.IsDevelopment() ? 100 : 10000, cancellationToken);
                     task = Task.Run(() => adsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(WaitTime)));
                     await Task.Delay(hostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(EndPosition, false);
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(EndPosition);
                 }
 
                 var transBuffer = await task.ConfigureAwait(false);

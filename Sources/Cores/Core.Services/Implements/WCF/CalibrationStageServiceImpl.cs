@@ -48,14 +48,6 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetStageSpeed(stageSpeedEnum.ToSxSpeedEnum(), opticsMagTypeEnum.ToSxMagEnum()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
 
     public SxExecuteRet<bool> SetXSpeedValue(double speedValue)
     {
@@ -370,7 +362,7 @@ public sealed class CalibrationStageServiceImpl(
             Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
             type: C2MAlignType.Mid));
 
-        return sxExecuteRet.IsSuccess == false
+        return sxExecuteRet.Anything is null
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
             : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
     }

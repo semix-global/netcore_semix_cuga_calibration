@@ -578,7 +578,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             item.Reset();
 
-            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.ProductivityInformation);
+            var yPixelHeight = Cache.ProductivityInformation.YPixel;
             if (servings > yPixelHeight || yPixelHeight % servings != 0)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Servings must be a factor of {yPixelHeight}!"), HtmlLogUniqueId.LoggingHtml());

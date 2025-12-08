@@ -321,7 +321,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
 
             adsViewModel.SetAdsXyEnabled(true);
 
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(adsCenterOfMassDto.StartPosition, false);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(adsCenterOfMassDto.StartPosition);
 
             var isPositive = adsCenterOfMassDto.IsPositive;
             var (forwardValue1, forwardValue2, forwardValue3) = cache.GetForwardValue(isPositive);
@@ -335,7 +335,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var task = Task.Run(() => adsViewModel.GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(!adsCenterOfMassDto.IsFindX, TimeSpan.FromSeconds(Cache.WaitTime)));
             Thread.Sleep(hostEnvironment.IsDevelopment() ? 1000 : 3000);
 
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(adsCenterOfMassDto.EndPosition, false);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(adsCenterOfMassDto.EndPosition);
 
             var traceBuffer = await task.ConfigureAwait(false);
 

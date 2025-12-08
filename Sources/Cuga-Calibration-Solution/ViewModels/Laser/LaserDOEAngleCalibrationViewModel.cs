@@ -400,7 +400,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.IsDarkFieldAlignment,
-                Cache.P5Angle,
+                Cache.P5Angle
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;

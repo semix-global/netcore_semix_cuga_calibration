@@ -4,6 +4,7 @@
              xmlns:coreModels="clr-namespace:Core.Models.Enums;assembly=Core.Models"
              xmlns:wpfMvvmConverters="clr-namespace:Net.Utilities.WPF.MVVM.Converters;assembly=Net.Utilities.WPF.MVVM"
              xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
+             xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies;assembly=Core.Models"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
@@ -18,6 +19,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <wpfMvvmConverters:ViewModel2ViewConverter x:Key="ViewModel2ViewConverter" />
+            <cookies:MultiApplicationCookieToProductivityInformationsConvert x:Key="MultiApplicationCookieToProductivityInformationsConvert" />
             <valueConverters:ValueConverterGroup x:Key="IntIs0ToVisibilityConverter">
                 <valueConverters:IntegerToBoolConverter TrueValue="0" FalseValue="-999" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
