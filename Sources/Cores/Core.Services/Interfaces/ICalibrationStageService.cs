@@ -27,14 +27,6 @@ public interface ICalibrationStageService
     SxExecuteRet<bool> ToggleEnableJoystick(bool enable);
 
     /// <summary>
-    /// 设置平移台速度
-    /// </summary>
-    /// <param name="stageSpeedEnum">速度</param>
-    /// <param name="opticsMagTypeEnum">暗场Mag</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum);
-
-    /// <summary>
     /// 设置X轴速度数值
     /// </summary>
     /// <param name="speedValue"></param>

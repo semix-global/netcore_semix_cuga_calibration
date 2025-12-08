@@ -4,6 +4,7 @@ using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
@@ -20,10 +21,10 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     private IReadOnlyList<CIBMMDItemDto> _items = [];
 
     [ObservableProperty]
-    private double _gainResidual;
+    private double _gainRSquared;
 
     [ObservableProperty]
-    private double _gainL2Norm;
+    private double _gainResidual;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _gainPoints = [];
@@ -68,6 +69,37 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
+    partial void OnItemsChanged(IReadOnlyList<CIBMMDItemDto> value) => RefreshPlot();
+
+    partial void OnGainRSquaredChanged(double value) => RefreshPlot();
+
+    partial void OnGainResidualChanged(double value) => RefreshPlot();
+
+    partial void OnGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnOriginLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnLogGainA1Changed(double value) => RefreshPlot();
+
+    partial void OnLogGainA2Changed(double value) => RefreshPlot();
+
+    partial void OnLogGainX0Changed(double value) => RefreshPlot();
+
+    partial void OnLogGainDxChanged(double value) => RefreshPlot();
+
+    partial void OnLogGainRSquaredChanged(double value) => RefreshPlot();
+
+    partial void OnFitLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnResultLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnLogGainMul128U12BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnGainS16BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
@@ -96,20 +128,14 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     public void RefreshPlot()
     {
-        var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
-        if (items.Length > 0)
+        if (Items.Count > 0)
         {
-            ScatterPlotControl.GetOrAddScatterLine(
-                0,
-                "Origin Attenuator",
-                [.. items.Select(t => new Point(t.Coefficient, t.OriginMeasurePower))]);
-
-            ScatterPlotControl.GetOrAddScatterLine(
+            ScatterPlotControl.GetOrAddScatterMarkers(
                 0,
                 "Attenuator",
-                [.. items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
+                [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
 
-            foreach (var item in items)
+            foreach (var item in Items)
             {
                 var itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
                 if (itemItems.Length > 0)
@@ -123,7 +149,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         if (GainPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 2,
-                $"Gain Residual: {GainResidual:0.000#} Gain Norm: {GainL2Norm:0.###}",
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainPoints);
 
         if (OriginLogGainPoints.Count > 0)
@@ -131,36 +157,39 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
             ScatterPlotControl.Clear(3);
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
-                $"Origin Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
-                OriginLogGainPoints);
+                $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                OriginLogGainPoints,
+                Constants.Category10.GetColor(0));
 
             if (FitLogGainPoints.Count > 0)
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
                     $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
-                    FitLogGainPoints);
+                    FitLogGainPoints,
+                    Constants.Category10.GetColor(1));
             }
 
             if (ResultLogGainPoints.Count > 0)
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
-                    $"Result Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
-                    ResultLogGainPoints);
+                    $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                    ResultLogGainPoints,
+                    Constants.Category10.GetColor(2));
             }
         }
 
         if (LogGainMul128U12BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 4,
-                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 LogGainMul128U12BitPoints);
 
         if (GainS16BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 5,
-                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainS16BitPoints);
 
         ScatterPlotControl.AutoScaleRefresh();
@@ -172,8 +201,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
+        GainRSquared = GainRSquared,
         GainResidual = GainResidual,
-        GainL2Norm = GainL2Norm,
         GainPoints = [.. GainPoints],
         OriginLogGainPoints = [.. OriginLogGainPoints],
         LogGainA1 = LogGainA1,
@@ -212,9 +241,6 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     private double _coefficient;
 
     [ObservableProperty]
-    private double _originMeasurePower;
-
-    [ObservableProperty]
     private double _measurePower;
 
     [ObservableProperty]
@@ -225,12 +251,11 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private double _protectedCount;
+    private double _protectedOverflowProtectedPMTValueCount;
 
     public CIBMMDItemDto Clone() => new()
     {
         Coefficient = Coefficient,
-        OriginMeasurePower = OriginMeasurePower,
         MeasurePower = MeasurePower,
         Items = [.. Items.Select(t => t.Clone())]
     };

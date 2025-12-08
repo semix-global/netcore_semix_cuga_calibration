@@ -444,7 +444,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.SiteDirection,
-                Position = result,
+                Position = result
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -493,7 +493,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
                     BottomPosition = Cache.BottomLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
                     LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
-                    RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
+                    RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle)
                 },
                 NegativeMatchResult = new()
                 {
@@ -501,7 +501,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
                     BottomPosition = Cache.BottomLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
                     LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
-                    RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
+                    RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle)
                 }
             };
 
@@ -760,14 +760,14 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     TopHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     BottomHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     LeftHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }),
                 NegativeMatchResultTab = new HtmlTab(new
                 {
                     TopHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     BottomHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     LeftHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -842,7 +842,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     chuckCenterAndThetaItemDto.AppliedScaleT,
                     chuckCenterAndThetaItemDto.ResultScaleT,
                     chuckCenterAndThetaItemDto.RealAngleOffsetAverage,
-                    chuckCenterAndThetaItemDto.ScaleErrorUmAverage,
+                    chuckCenterAndThetaItemDto.ScaleErrorUmAverage
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;

@@ -36,7 +36,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "P5"},
+        new() { StepName = "P5" },
         new() { StepName = "Low Mag Base Position" },
         new() { StepName = "High Mag Base Position" },
         new() { StepName = "Top Low Mag Position" },
@@ -363,7 +363,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
             Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.LowTopPosition,
+                Cache.LowTopPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -382,7 +382,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
             Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.LowBottomPosition,
+                Cache.LowBottomPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -505,7 +505,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                     LowTopTemplateImage = new HtmlImage(Cache.LowBaseTemplateImageFilePath,
                         htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     HighTopTemplateImage = new HtmlImage(Cache.HighBaseTemplateImageFilePath,
-                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }),
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());

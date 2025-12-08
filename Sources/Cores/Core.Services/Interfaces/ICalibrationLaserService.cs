@@ -110,6 +110,13 @@ public interface ICalibrationLaserService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
 
+    /// <summary>
+    /// 切换照明OD滤光片
+    /// </summary>
+    /// <param name="isEnable">是否开启</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable);
+
     [Obsolete]
     SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay);
 
@@ -299,6 +306,28 @@ public interface ICalibrationLaserService
     SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfPMTDataList(int count, int pmtId, int channelId);
 
     /// <summary>
+    /// 读取所有CIB的PMT数据
+    /// </summary>
+    /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
+    /// <param name="position">什么位置</param>
+    /// <param name="catchCount">数量</param>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <param name="isAutoFocus">是否自动聚焦</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>CIB对应的PMT数据</returns>
+    Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        int catchCount,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isAutoFocus,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// 获取PMT数值, 不支持群发
     /// </summary>
     /// <returns>获取PMT数值</returns>
@@ -373,23 +402,6 @@ public interface ICalibrationLaserService
         int pmtId,
         double? coefficient = null,
         Point? point = null);
-
-    /// <summary>
-    /// 获取暗场图片的Y像素高度
-    /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
-    /// <returns>图片的Y像素高度</returns>
-    [Obsolete]
-    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(OpticsMagTypeEnum opticsMagTypeEnum, bool isCuttingPixelHeight);
-
-    /// <summary>
-    /// 获取暗场图片的Y像素高度
-    /// </summary>
-    /// <param name="productivityInformation">产率</param>
-    /// <param name="isCuttingPixelHeight">是否是不切割像素高度</param>
-    /// <returns>图片的Y像素高度</returns>
-    SxExecuteRet<int> GetDarkFieldLineScanImageYPixelHeight(ProductivityInformation productivityInformation, bool isCuttingPixelHeight);
 
     [Obsolete]
     SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(

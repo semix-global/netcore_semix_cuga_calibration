@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -28,17 +27,16 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public partial class AODWaveformCommonCache : ObservableCacheBase
 {
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
-
-    [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
 
+    [ObservableProperty]
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
 
     [ObservableProperty]
     private double _defaultAmplitude = 1;
@@ -51,6 +49,7 @@ public partial class AODWaveformCommonCache : ObservableCacheBase
 
     public virtual object ToHtmlAnonymous() => new
     {
+        OpticsIlluminationModeEnum,
         ProductivityInformation,
         DefaultAmplitude,
         MeasureMaxPowerMachinePosition,

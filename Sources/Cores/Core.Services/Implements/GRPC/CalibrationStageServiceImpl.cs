@@ -9,8 +9,6 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using Cuga.Interface.Calibration;
 using Cuga.Interface.Facade;
@@ -42,15 +40,6 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
     public SxExecuteRet<bool> ToggleEnableJoystick(bool enable)
     {
         var sxExecuteRet = Invoke(() => Service?.ToggleEnableJoystick(new SxParamObj<bool>(enable)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetSpeed(StageSpeedEnum stageSpeedEnum, OpticsMagTypeEnum opticsMagTypeEnum)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetSpeed(new SxParamObj<(CgSpeedLevelType speed, CgMagTypeEnum mag)>((stageSpeedEnum.ToCgSpeedLevelType(), opticsMagTypeEnum.ToCgMagTypeEnum()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
