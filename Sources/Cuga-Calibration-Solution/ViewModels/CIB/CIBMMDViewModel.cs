@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -13,6 +14,7 @@ using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
+using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -29,8 +31,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
-using Core.Models.Models.Common.Pattern;
-using Humanizer;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -460,31 +460,33 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.FitMeasurePowerPoints = [.. Cache.MeasurePowerPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
             var minFitMeasurePowerPoint = Cache.FitMeasurePowerPoints.MinBy(t => t.Y);
             var maxFitMeasurePowerPoint = Cache.FitMeasurePowerPoints.MaxBy(t => t.Y);
+
+            Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, minFitMeasurePowerPoint.X);
+
             Cache.NotUseODFilterMeasurePowerPoints = GeometricSequence.Generate(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
-                .Where(t => minFitMeasurePowerPoint.Y <= t && t <= maxFitMeasurePowerPoint.Y)
-                .OrderBy(t => t)
-                .Select(t =>
+                .Select((t, index) =>
                 {
+                    if (index == 0) return maxFitMeasurePowerPoint;
+
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X)
-                                                            || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3
-                                                            || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3), t);
+                    return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
                 })
+                .OrderBy(t => t)
                 .ToArray();
             Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
-                .Where(t => Cache.NotUseODFilterMeasurePowerPoints[0].Y >= t)
-                .OrderBy(t => t)
+                .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
                 .Select(t => t * Cache.ODFilterRatio)
-                .Where(t => minFitMeasurePowerPoint.Y <= t && t <= maxFitMeasurePowerPoint.Y)
                 .Select(t =>
                 {
+                    Guard.IsGreaterThan(t, minFitMeasurePowerPoint.Y);
+                    Guard.IsLessThan(t, maxFitMeasurePowerPoint.Y);
+
                     var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                    return new Point(solveForX.Single(tt => (minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X)
-                                                            || Math.Abs(minFitMeasurePowerPoint.X - tt) <= 1e-3
-                                                            || Math.Abs(maxFitMeasurePowerPoint.X - tt) <= 1e-3), t);
+                    return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
                 })
+                .OrderBy(t => t)
                 .ToArray();
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
