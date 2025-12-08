@@ -11,6 +11,8 @@
                                                 xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
                                                 xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
                                                 xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern"
+                                                xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                                                xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
                                                 d:DataContext="{d:DesignInstance Type=generates:AbstractGenerateAODWaveformParam}"
                                                 d:DesignWidth="400"
                                                 d:DesignHeight="1000"
@@ -35,13 +37,31 @@
                 <hc:UniformSpacingPanel Margin="11,0"
                                         Orientation="Vertical"
                                         Spacing="2">
+                    <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                                 SelectedItem="{Binding OpticsIlluminationModeEnum}"
+                                 Style="{StaticResource ComboBoxExtend}"
+                                 ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                 Visibility="{Binding IsVisibleOpticsIlluminationModeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                 SelectedItem="{Binding ProductivityInformation, FallbackValue={x:Static pattern:ProductivityInformation.Default}}"
+                                 IsEditable="True"
+                                 IsReadOnly="True"
+                                 SelectedItem="{Binding ProductivityInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.NIOpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                 Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                 Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <i:Interaction.Behaviors>
+                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                        </i:Interaction.Behaviors>
+                        <hc:ComboBox.ItemsSource>
+                            <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
+                                <Binding Path="ApplicationCookie" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                <Binding Path="OpticsIlluminationModeEnum" />
+                            </MultiBinding>
+                        </hc:ComboBox.ItemsSource>
+                    </hc:ComboBox>
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>
                 <Expander Header="Frequency(MHz)"
@@ -166,11 +186,11 @@
                                      hc:TitleElement.TitlePlacement="Left"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      Style="{StaticResource TextBoxExtend}"
-                                     Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                     Visibility="{Binding IsVisibleDirectoryPath, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Button Content="Change AOD Waveform Directory Path"
                                     Command="{Binding ChangeDirectoryPathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     Style="{StaticResource ButtonDefault}"
-                                    Visibility="{Binding IsVisibleFrequency, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    Visibility="{Binding IsVisibleDirectoryPath, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Separator />
                             <hc:NumericUpDown hc:TitleElement.Title="Zero Sample Count(sa): "
                                               hc:TitleElement.TitlePlacement="Left"
@@ -225,7 +245,10 @@
                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                     <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
                                     <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                    <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
+                                    <DataGridTextColumn Header="Amplitude"
+                                                        Binding="{Binding Amplitude, StringFormat='0.###'}"
+                                                        Visibility="{Binding Value.IsVisibleAmplitude, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}" />
                                     <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
                                     <DataGridTemplateColumn Header="Uniformity Configurations" Visibility="{Binding Value.IsVisibleUniformityConfiguration, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <DataGridTemplateColumn.CellTemplate>

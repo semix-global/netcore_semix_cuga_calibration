@@ -23,6 +23,33 @@ public static class Boltzmann
     public static double BoltzmannFunction(double a1, double a2, double x0, double dx, double x) => a2 + (a1 - a2) / (1 + Math.Exp((x - x0) / dx));
 
     /// <summary>
+    /// 计算 Boltzmann 函数的逆运算:
+    /// 已知 y，求 x：
+    /// x = x0 + dx * ln( (A1 - A2) / (y - A2) - 1 )
+    /// </summary>
+    /// <param name="a1">上渐近线</param>
+    /// <param name="a2">下渐近线</param>
+    /// <param name="x0">中心点（拐点）</param>
+    /// <param name="dx">斜率参数</param>
+    /// <param name="y">函数值</param>
+    /// <returns>使 BoltzmannFunction(a1, a2, x0, dx, x) = y 的 x</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// 当 y 不在可逆范围内（介于 a1 和 a2 之间）时抛出
+    /// </exception>
+    public static double BoltzmannInverse(double a1, double a2, double x0, double dx, double y)
+    {
+        // y 必须严格处于 (min(a1, a2), max(a1, a2)) 区间内，否则无法求逆
+        var min = Math.Min(a2, a1);
+        var max = Math.Max(a2, a1);
+
+        if (y <= min || y >= max) return ThrowHelper.ThrowArgumentOutOfRangeException<double>("The value y is out of the valid range for inversion.");
+
+        double ratio = (a1 - a2) / (y - a2) - 1.0;
+
+        return x0 + dx * Math.Log(ratio);
+    }
+
+    /// <summary>
     /// 将提供的数据拟合到 Boltzmann S型模型
     /// </summary>
     /// <param name="x">自变量向量</param>
@@ -64,19 +91,34 @@ public static class Boltzmann
         }
 
         // 计算 R²
+        var rSquared = RSquared(yPredicted, y);
+
+        return (a1Fit, a2Fit, x0Fit, dxFit, rSquared, yPredicted);
+    }
+
+    /// <summary>
+    /// 决定系数
+    /// </summary>
+    /// <param name="yPredicted">模型预测值</param>
+    /// <param name="y">实际值</param>
+    /// <returns>决定系数</returns>
+    public static double RSquared(Vector<double> yPredicted, Vector<double> y)
+    {
+        Guard.IsTrue(y.Count == yPredicted.Count, "Vectors y and yPredicted must have the same length.");
+
         var yMean = y.Average();
         var sse = 0d;
         var sst = 0d;
 
-        for (var i = 0; i < x.Count; i++)
+        for (var i = 0; i < y.Count; i++)
         {
-            var residual = y[i] - yPredicted[i];
-            sse += residual * residual;
-            sst += Math.Pow(y[i] - yMean, 2);
+            var residual = y[i] - yPredicted[i]; // 残差
+            sse += Math.Pow(residual, 2);
+
+            var deviation = y[i] - yMean; // 偏差
+            sst += Math.Pow(deviation, 2);
         }
 
-        var rSquared = 1 - (sse / sst);
-
-        return (a1Fit, a2Fit, x0Fit, dxFit, rSquared, yPredicted);
+        return 1 - sse / sst;
     }
 }

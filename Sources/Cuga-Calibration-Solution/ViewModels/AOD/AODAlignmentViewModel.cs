@@ -268,7 +268,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             };
             Cache.Item.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
 
-            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.ProductivityInformation);
+            var yPixelHeight = Cache.ProductivityInformation.YPixel;
 
             foreach (var prescanFrequency in Generate.LinearRange(Cache.Item.StartPrescanFrequency, Cache.Item.StepPrescanFrequency, Cache.Item.StopPrescanFrequency))
             {
@@ -295,6 +295,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     false,
                     Cache.Item.CIBConfiguration,
                     Cache.ProductivityInformation,
+                    OpticsIlluminationModeEnum.NI,
                     xWidthPixel: Cache.Item.ImageWidth,
                     pmtId: Cache.Item.PMTId,
                     channelId: Cache.Item.ChannelId,

@@ -56,19 +56,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseBestItemList = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheBestItemList = [];
-
-    [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseItemList = [];
-
-    [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseBestItemList = [];
-
-    [ObservableProperty]
     private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheItemList = [];
-
-    [ObservableProperty]
-    private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheConverseItemList = [];
 
     [ObservableProperty]
     private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheConverseItemList = [];
@@ -80,13 +68,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     private ObservableCollection<AdsYGainsCacheItem> _adsYGainsHrpCacheConverseItemList = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsHrpCacheConverseItemList = [];
-
-    [ObservableProperty]
     private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheItemList = [];
-
-    [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheConverseItemList = [];
 
     [ObservableProperty]
     private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheConverseItemList = [];
@@ -99,9 +81,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
     [ObservableProperty]
     private AdsYGainsCacheItem _selectAdsYGainsCacheItem = new();
-
-    [ObservableProperty]
-    private AdsYGainsCacheItem _selectAdsYGainsCacheConverseItem = new();
 
     [ObservableProperty]
     private AdsYGainsCacheItem _selectAdsYGainsCacheConverseItem = new();

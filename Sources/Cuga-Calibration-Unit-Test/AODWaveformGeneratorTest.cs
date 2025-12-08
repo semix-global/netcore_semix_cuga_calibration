@@ -10,7 +10,6 @@ using Net.Utilities.Models.Enums.Maths;
 using System.IO;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Xunit;
 
 #if NET
@@ -44,7 +43,7 @@ public class AODWaveformUnitTest
 
         AbstractGenerateAODWaveformParam param = new GeneratePrescanAODWaveformParam
         {
-            ProductivityInformation = ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = string.Empty, Mag = SxMAGEnum.Mid, Speed = (SxSpeedEnum)(-1), IsUsed = true }, new CgSwathSpeedInfo { Mag = CgMagTypeEnum.Mid }),
+            ProductivityInformation = ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = string.Empty, Mag = SxMAGEnum.Mid, Speed = (SxSpeedEnum)(-1), IsUsed = true }, new CgSwathSpeedInfo(), -1),
             IsHeaderAndFooter = false,
             BandWidth = 210d,
             CenterFrequency = 200d,

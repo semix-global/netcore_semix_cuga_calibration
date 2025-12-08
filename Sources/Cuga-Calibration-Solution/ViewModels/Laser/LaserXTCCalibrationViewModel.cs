@@ -478,7 +478,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
 
             item.Reset();
 
-            var yPixelHeight = LaserViewModel.GetDarkFieldLineScanImageYPixelHeight(Cache.ProductivityInformation);
+            var yPixelHeight = Cache.ProductivityInformation.YPixel;
 
             if (servings > yPixelHeight || yPixelHeight % servings != 0)
             {

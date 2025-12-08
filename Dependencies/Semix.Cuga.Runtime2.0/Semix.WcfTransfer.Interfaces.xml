@@ -503,7 +503,7 @@
             <param name="isForward"></param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImgPxSize_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum)">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetImgPxSize_Mag(Semix.WcfTransfer.DTO.SxMAGEnum,Semix.WcfTransfer.DTO.SxSpeedEnum,Semix.WcfTransfer.DTO.SxNIOIEnum)">
             <summary>
             获取像素比例
             </summary>
