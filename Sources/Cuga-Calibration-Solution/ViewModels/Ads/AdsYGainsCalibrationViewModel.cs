@@ -56,7 +56,19 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseBestItemList = [];
 
     [ObservableProperty]
+    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheBestItemList = [];
+
+    [ObservableProperty]
+    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseItemList = [];
+
+    [ObservableProperty]
+    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseBestItemList = [];
+
+    [ObservableProperty]
     private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheItemList = [];
+
+    [ObservableProperty]
+    private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheConverseItemList = [];
 
     [ObservableProperty]
     private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheConverseItemList = [];
@@ -68,7 +80,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     private ObservableCollection<AdsYGainsCacheItem> _adsYGainsHrpCacheConverseItemList = [];
 
     [ObservableProperty]
+    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsHrpCacheConverseItemList = [];
+
+    [ObservableProperty]
     private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheItemList = [];
+
+    [ObservableProperty]
+    private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheConverseItemList = [];
 
     [ObservableProperty]
     private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheConverseItemList = [];
@@ -86,6 +104,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     private AdsYGainsCacheItem _selectAdsYGainsCacheConverseItem = new();
 
     [ObservableProperty]
+    private AdsYGainsCacheItem _selectAdsYGainsCacheConverseItem = new();
+
+    [ObservableProperty]
     private AdsYGainsItemDto _resultAdsYGainsItemDto = new();
 
     [ObservableProperty]
@@ -97,12 +118,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     [ObservableProperty]
     private List<WpfPlotModel> _plotY4Y5Y6List = [];
 
-    private bool IsY1Stop = false;
-    private bool IsY4Stop = false;
-    private bool IsY2Stop = false;
-    private bool IsY5Stop = false;
-    private bool IsY3Stop = false;
-    private bool IsY6Stop = false;
+    private bool IsY1Stop = false; private bool IsY4Stop = false;
+    private bool IsY2Stop = false; private bool IsY5Stop = false;
+    private bool IsY3Stop = false; private bool IsY6Stop = false;
 
     #endregion Calibrate
 
@@ -358,17 +376,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     var z4IsPositive = false;
                     var z5IsPositive = false;
                     var z6IsPositive = false;
-                    IsY1Stop = false;
-                    IsY2Stop = false;
-                    IsY3Stop = false;
-                    IsY4Stop = false;
-                    IsY5Stop = false;
-                    IsY6Stop = false;
+                    IsY1Stop = false; IsY2Stop = false; IsY3Stop = false; IsY4Stop = false; IsY5Stop = false; IsY6Stop = false;
                     {
                         var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem()
                         {
                             IsPositive = Cache.IsPositive,
-                            SpeedYValue = speedvalue
+                            SpeedYValue = speedvalue,
                         };
                         SynchronizationContextProvider.Send(() => AdsYGainsDichotomySpeedCacheItemList.Add(adsYGainsDichotomySpeedCacheItem));
                         var adsYGainsCacheItem = new AdsYGainsCacheItem
@@ -393,7 +406,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Get Z1Z2Z3 Failed!"), HtmlLogUniqueId.LoggingHtml());
                             break;
                         }
-
                         FindAdsYGainZ1Z2Z3(adsYGainsCacheItem, transBuffer);
                         SelectAdsYGainsCacheItem = adsYGainsCacheItem;
                         OnPropertyChanged(nameof(SelectAdsYGainsCacheItem));
@@ -402,12 +414,10 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         {
                             z1IsPositive = true;
                         }
-
                         if (adsYGainsCacheItem.GetZ2() <= 0)
                         {
                             z2IsPositive = true;
                         }
-
                         if (adsYGainsCacheItem.GetZ3() <= 0)
                         {
                             z3IsPositive = true;
@@ -417,7 +427,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem()
                         {
                             IsPositive = !Cache.IsPositive,
-                            SpeedYValue = speedvalue
+                            SpeedYValue = speedvalue,
                         };
                         SynchronizationContextProvider.Send(() => AdsYGainsDichotomySpeedCacheConverseItemList.Add(adsYGainsDichotomySpeedCacheItem));
                         var adsYGainsCacheItem = new AdsYGainsCacheItem
@@ -436,7 +446,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Get Z1Z2Z3 Failed!"), HtmlLogUniqueId.LoggingHtml());
                             break;
                         }
-
                         FindAdsYGainZ1Z2Z3(adsYGainsCacheItem, transBuffer);
                         SelectAdsYGainsCacheConverseItem = adsYGainsCacheItem;
                         OnPropertyChanged(nameof(SelectAdsYGainsCacheConverseItem));
@@ -445,42 +454,29 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         {
                             z4IsPositive = true;
                         }
-
                         if (adsYGainsCacheItem.GetZ2() <= 0)
                         {
                             z5IsPositive = true;
                         }
-
                         if (adsYGainsCacheItem.GetZ3() <= 0)
                         {
                             z6IsPositive = true;
                         }
                     }
 
-                    var y1Min = Cache.FindMinY;
-                    var y4Min = Cache.FindMinY;
-                    var y1Max = Cache.FindMaxY;
-                    var y4Max = Cache.FindMaxY;
-                    var y2Min = Cache.FindMinY;
-                    var y5Min = Cache.FindMinY;
-                    var y2Max = Cache.FindMaxY;
-                    var y5Max = Cache.FindMaxY;
-                    var y3Min = Cache.FindMinY;
-                    var y6Min = Cache.FindMinY;
-                    var y3Max = Cache.FindMaxY;
-                    var y6Max = Cache.FindMaxY;
-                    var Z1List = new List<(int y1, double z1)>();
-                    var Z4List = new List<(int y1, double z1)>();
-                    var Z2List = new List<(int y2, double z2)>();
-                    var Z5List = new List<(int y2, double z2)>();
-                    var Z3List = new List<(int y3, double z3)>();
-                    var Z6List = new List<(int y3, double z3)>();
+                    var y1Min = Cache.FindMinY; var y4Min = Cache.FindMinY;
+                    var y1Max = Cache.FindMaxY; var y4Max = Cache.FindMaxY;
+                    var y2Min = Cache.FindMinY; var y5Min = Cache.FindMinY;
+                    var y2Max = Cache.FindMaxY; var y5Max = Cache.FindMaxY;
+                    var y3Min = Cache.FindMinY; var y6Min = Cache.FindMinY;
+                    var y3Max = Cache.FindMaxY; var y6Max = Cache.FindMaxY;
+                    var Z1List = new List<(int y1, double z1)>(); var Z4List = new List<(int y1, double z1)>();
+                    var Z2List = new List<(int y2, double z2)>(); var Z5List = new List<(int y2, double z2)>();
+                    var Z3List = new List<(int y3, double z3)>(); var Z6List = new List<(int y3, double z3)>();
                     double Z10 = 0, Z20 = 0, Z30 = 0, Z40 = 0, Z50 = 0, Z60 = 0;
                     int N1 = 0, N2 = 0, N3 = 0, N4 = 0, N5 = 0, N6 = 0;
-                    var isStop123 = true;
-                    var isStop456 = true;
-                    var index123 = 1;
-                    var index456 = 1;
+                    var isStop123 = true; var isStop456 = true;
+                    var index123 = 1; var index456 = 1;
                     while (true)
                     {
                         if (isStop123)
@@ -502,48 +498,20 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         N1++;
                                         if (N1 <= 1)
                                         {
-                                            if (resultValue.z1IsPositive == z1IsPositive)
-                                            {
-                                                y1Max = resultValue.y1;
-                                                y2Max = resultValue.y1 - 2;
-                                                y1Min = Cache.FindMinY;
-                                                y2Min = Cache.FindMinY;
-                                            } //y1Min = Cache.FindMinY; }
-                                            else
-                                            {
-                                                y1Min = resultValue.y1;
-                                                y2Min = resultValue.y1 + 2;
-                                                y1Max = Cache.FindMaxY;
-                                                y2Max = Cache.FindMaxY;
-                                            } //y1Max = Cache.FindMaxY; }
+                                            if (resultValue.z1IsPositive == z1IsPositive) { y1Max = resultValue.y1; y2Max = resultValue.y1 - 2; y1Min = Cache.FindMinY; y2Min = Cache.FindMinY; }//y1Min = Cache.FindMinY; }
+                                            else { y1Min = resultValue.y1; y2Min = resultValue.y1 + 2; y1Max = Cache.FindMaxY; y2Max = Cache.FindMaxY; } //y1Max = Cache.FindMaxY; }
                                         }
                                         else
                                         {
-                                            if (resultValue.z1IsPositive == z1IsPositive)
-                                            {
-                                                y1Min = resultValue.y1;
-                                                y2Min = resultValue.y1 + 2;
-                                            }
-                                            else
-                                            {
-                                                y1Max = resultValue.y1;
-                                                y2Max = resultValue.y1 - 2;
-                                            }
+                                            if (resultValue.z1IsPositive == z1IsPositive) { y1Min = resultValue.y1; y2Min = resultValue.y1 + 2; }
+                                            else { y1Max = resultValue.y1; y2Max = resultValue.y1 - 2; }
                                         }
                                     }
                                     else
                                     {
                                         N1 = 0;
-                                        if (resultValue.z1IsPositive == z1IsPositive)
-                                        {
-                                            y1Min = resultValue.y1;
-                                            y2Min = resultValue.y1 + 2;
-                                        }
-                                        else
-                                        {
-                                            y1Max = resultValue.y1;
-                                            y2Max = resultValue.y1 - 2;
-                                        }
+                                        if (resultValue.z1IsPositive == z1IsPositive) { y1Min = resultValue.y1; y2Min = resultValue.y1 + 2; }
+                                        else { y1Max = resultValue.y1; y2Max = resultValue.y1 - 2; }
                                     }
 
                                     if (y1Max > Cache.FindMaxY)
@@ -566,18 +534,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                 }
                                 else
                                 {
-                                    if (resultValue.z1IsPositive == z1IsPositive)
-                                    {
-                                        y1Min = resultValue.y1;
-                                        y2Min = resultValue.y1 + 2;
-                                    }
-                                    else
-                                    {
-                                        y1Max = resultValue.y1;
-                                        y2Max = resultValue.y1 - 2;
-                                    }
+                                    if (resultValue.z1IsPositive == z1IsPositive) { y1Min = resultValue.y1; y2Min = resultValue.y1 + 2; }
+                                    else { y1Max = resultValue.y1; y2Max = resultValue.y1 - 2; }
                                 }
-
                                 Z10 = resultValue.Z1;
 
                                 if (y1Min == y1Max || (y1Min + 1 == y1Max))
@@ -604,29 +563,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         N3++;
                                         if (N3 <= 1)
                                         {
-                                            if (resultValue.z3IsPositive == z3IsPositive)
-                                            {
-                                                y3Max = resultValue.y3;
-                                                y3Min = Cache.FindMinY;
-                                            }
-                                            else
-                                            {
-                                                y3Min = resultValue.y3;
-                                                y3Max = Cache.FindMaxY;
-                                            }
+                                            if (resultValue.z3IsPositive == z3IsPositive) { y3Max = resultValue.y3; y3Min = Cache.FindMinY; }
+                                            else { y3Min = resultValue.y3; y3Max = Cache.FindMaxY; }
                                         }
                                         else
                                         {
-                                            if (resultValue.z3IsPositive == z3IsPositive)
-                                            {
-                                                y3Min = resultValue.y3;
-                                                y3Max = Cache.FindMaxY;
-                                            }
-                                            else
-                                            {
-                                                y3Max = resultValue.y3;
-                                                y3Min = Cache.FindMinY;
-                                            }
+                                            if (resultValue.z3IsPositive == z3IsPositive) { y3Min = resultValue.y3; y3Max = Cache.FindMaxY; }
+                                            else { y3Max = resultValue.y3; y3Min = Cache.FindMinY; }
                                         }
                                     }
                                     else
@@ -635,7 +578,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         if (resultValue.z3IsPositive == z3IsPositive) y3Min = resultValue.y3;
                                         else y3Max = resultValue.y3;
                                     }
-
                                     if (y3Max > Cache.FindMaxY)
                                         y3Max = Cache.FindMaxY;
                                     if (y3Min < Cache.FindMinY)
@@ -646,7 +588,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                     if (resultValue.z3IsPositive == z3IsPositive) y3Min = resultValue.y3;
                                     else y3Max = resultValue.y3;
                                 }
-
                                 Z30 = resultValue.Z3;
 
                                 if (y3Min == y3Max || (y3Min + 1 == y3Max))
@@ -684,44 +625,22 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         N4++;
                                         if (N4 <= 1)
                                         {
-                                            if (resultValue.z1IsPositive == z4IsPositive)
-                                            {
-                                                y4Max = resultValue.y1;
-                                                y4Min = Cache.FindMinY;
-                                            } //y5Max = resultValue.y1 - 2; y5Min = Cache.FindMinY; 
-                                            else
-                                            {
-                                                y4Min = resultValue.y1;
-                                                y4Max = Cache.FindMaxY;
-                                            } //y5Min = resultValue.y1 + 2; y5Max = Cache.FindMaxY;
+                                            if (resultValue.z1IsPositive == z4IsPositive) { y4Max = resultValue.y1; y4Min = Cache.FindMinY; }//y5Max = resultValue.y1 - 2; y5Min = Cache.FindMinY; 
+                                            else { y4Min = resultValue.y1; y4Max = Cache.FindMaxY; }//y5Min = resultValue.y1 + 2; y5Max = Cache.FindMaxY;
                                         }
                                         else
                                         {
                                             //if (resultValue.z1IsPositive == z4IsPositive) y4Min = resultValue.y1;
                                             //else y4Max = resultValue.y1;
-                                            if (resultValue.z1IsPositive == z4IsPositive)
-                                            {
-                                                y4Min = resultValue.y1;
-                                                y4Max = Cache.FindMaxY;
-                                            } //y5Min = resultValue.y1 + 2;
-                                            else
-                                            {
-                                                y4Max = resultValue.y1;
-                                                y4Min = Cache.FindMinY;
-                                            } //y5Max = resultValue.y1 - 2; 
+                                            if (resultValue.z1IsPositive == z4IsPositive) { y4Min = resultValue.y1; y4Max = Cache.FindMaxY; }    //y5Min = resultValue.y1 + 2;
+                                            else { y4Max = resultValue.y1; y4Min = Cache.FindMinY; }   //y5Max = resultValue.y1 - 2; 
                                         }
                                     }
                                     else
                                     {
                                         N4 = 0;
-                                        if (resultValue.z1IsPositive == z4IsPositive)
-                                        {
-                                            y4Min = resultValue.y1;
-                                        } //y5Min = resultValue.y1 + 2; 
-                                        else
-                                        {
-                                            y4Max = resultValue.y1;
-                                        } //y5Max = resultValue.y1 - 2;
+                                        if (resultValue.z1IsPositive == z4IsPositive) { y4Min = resultValue.y1; }   //y5Min = resultValue.y1 + 2; 
+                                        else { y4Max = resultValue.y1; }   //y5Max = resultValue.y1 - 2;
                                     }
 
                                     if (y4Max > Cache.FindMaxY)
@@ -744,16 +663,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                 }
                                 else
                                 {
-                                    if (resultValue.z1IsPositive == z4IsPositive)
-                                    {
-                                        y4Min = resultValue.y1;
-                                    }
-                                    else
-                                    {
-                                        y4Max = resultValue.y1;
-                                    }
+                                    if (resultValue.z1IsPositive == z4IsPositive) { y4Min = resultValue.y1; }
+                                    else { y4Max = resultValue.y1; }
                                 }
-
                                 Z40 = resultValue.Z1;
 
                                 if (y4Min == y4Max || (y4Min + 1 == y4Max))
@@ -778,31 +690,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         N5++;
                                         if (N5 <= 1)
                                         {
-                                            if (resultValue.z2IsPositive == z5IsPositive)
-                                            {
-                                                y5Max = resultValue.y2;
-                                                y5Min = Cache.FindMinY;
-                                            }
-                                            else
-                                            {
-                                                y5Min = resultValue.y2;
-                                                y5Max = Cache.FindMaxY;
-                                            }
+                                            if (resultValue.z2IsPositive == z5IsPositive) { y5Max = resultValue.y2; y5Min = Cache.FindMinY; }
+                                            else { y5Min = resultValue.y2; y5Max = Cache.FindMaxY; }
                                         }
                                         else
                                         {
-                                            if (resultValue.z2IsPositive == z5IsPositive)
-                                            {
-                                                y5Min = resultValue.y2;
-                                                y5Max = Cache.FindMaxY;
-                                            }
-                                            else
-                                            {
-                                                y5Max = resultValue.y2;
-                                                y5Min = Cache.FindMinY;
-                                            }
+                                            if (resultValue.z2IsPositive == z5IsPositive) { y5Min = resultValue.y2; y5Max = Cache.FindMaxY; }
+                                            else { y5Max = resultValue.y2; y5Min = Cache.FindMinY; }
                                         }
-
                                         if (y5Max > Cache.FindMaxY)
                                             y5Max = Cache.FindMaxY;
                                         if (y5Min < Cache.FindMinY)
@@ -845,29 +740,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         N6++;
                                         if (N6 <= 1)
                                         {
-                                            if (resultValue.z3IsPositive == z6IsPositive)
-                                            {
-                                                y6Max = resultValue.y3;
-                                                y6Min = Cache.FindMinY;
-                                            }
-                                            else
-                                            {
-                                                y6Min = resultValue.y3;
-                                                y6Max = Cache.FindMaxY;
-                                            }
+                                            if (resultValue.z3IsPositive == z6IsPositive) { y6Max = resultValue.y3; y6Min = Cache.FindMinY; }
+                                            else { y6Min = resultValue.y3; y6Max = Cache.FindMaxY; }
                                         }
                                         else
                                         {
-                                            if (resultValue.z3IsPositive == z6IsPositive)
-                                            {
-                                                y6Min = resultValue.y3;
-                                                y6Max = Cache.FindMaxY;
-                                            }
-                                            else
-                                            {
-                                                y6Max = resultValue.y3;
-                                                y6Min = Cache.FindMinY;
-                                            }
+                                            if (resultValue.z3IsPositive == z6IsPositive) { y6Min = resultValue.y3; y6Max = Cache.FindMaxY; }
+                                            else { y6Max = resultValue.y3; y6Min = Cache.FindMinY; }
                                         }
                                     }
                                     else
@@ -876,7 +755,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         if (resultValue.z3IsPositive == z6IsPositive) y6Min = resultValue.y3;
                                         else y6Max = resultValue.y3;
                                     }
-
                                     if (y6Max > Cache.FindMaxY)
                                         y6Max = Cache.FindMaxY;
                                     if (y6Min < Cache.FindMinY)
@@ -887,7 +765,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                     if (resultValue.z3IsPositive == z6IsPositive) y6Min = resultValue.y3;
                                     else y6Max = resultValue.y3;
                                 }
-
                                 Z60 = resultValue.Z3;
 
                                 if (y6Min == y6Max || (y6Min + 1 == y6Max))
@@ -926,14 +803,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 {
                     Cache.Threshold,
                     //SpeedXPositiveTable = new HtmlTable([.. AdsYGainsDichotomySpeedCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
-                    SpeedYPositiveTable = new HtmlTable([.. AdsYGainsCacheBestItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 })])
+                    SpeedYPositiveTable = new HtmlTable([.. AdsYGainsCacheBestItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("SpeedBestYValueTable_Converse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
                     //SpeedXNegativeTable = new HtmlTable([.. AdsYGainsDichotomySpeedCacheConverseItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
-                    SpeedYNegativeTable = new HtmlTable([.. AdsYGainsCacheConverseBestItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 })])
+                    SpeedYNegativeTable = new HtmlTable([.. AdsYGainsCacheConverseBestItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
                 }), HtmlLogUniqueId.LoggingHtml());
             }
             catch (Exception ex)
@@ -997,13 +874,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 Logger.LogHtmlInformation("SpeedBestYValueTable", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedYPositiveTable = new HtmlTable([.. ResultAdsYGainsHrpCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 })])
+                    SpeedYPositiveTable = new HtmlTable([.. ResultAdsYGainsHrpCacheItemList.Select(t => new { t.SpeedYValue, t.PositiveY1, t.PositiveY2, t.PositiveY3 }).Cast<object>()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("SpeedBestYValueTable_Converse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Cache.Threshold,
-                    SpeedYNegativeTable = new HtmlTable([.. ResultAdsYGainsHrpCacheConverseItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 })])
+                    SpeedYNegativeTable = new HtmlTable([.. ResultAdsYGainsHrpCacheConverseItemList.Select(t => new { t.SpeedYValue, t.NegativeY4, t.NegativeY5, t.NegativeY6 }).Cast<object>()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 {
@@ -1157,8 +1034,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     Y3P3 = ResultAdsYGainsItemDto.PositiveY3P3,
                     Y1X2Plots = new HtmlPlot2DLinesChart([
                         ("Y1Plots", ResultAdsYGainsItemDto.PositiveY1Plots.ToArray()), ($"Y1={ResultAdsYGainsItemDto.PositiveY1P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY1P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY1P3)}", ResultAdsYGainsItemDto.PositiveY1SmoothPlots.ToArray()),
-                        ("Y2Plots", ResultAdsYGainsItemDto.PositiveY2Plots.ToArray()), ($"Y2={ResultAdsYGainsItemDto.PositiveY2P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P3)}", ResultAdsYGainsItemDto.PositiveY2SmoothPlots.ToArray()),
-                        ("Y3Plots", ResultAdsYGainsItemDto.PositiveY3Plots.ToArray()), ($"Y3={ResultAdsYGainsItemDto.PositiveY3P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P3)}", ResultAdsYGainsItemDto.PositiveY3SmoothPlots.ToArray())
+                            ("Y2Plots", ResultAdsYGainsItemDto.PositiveY2Plots.ToArray()), ($"Y2={ResultAdsYGainsItemDto.PositiveY2P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P3)}", ResultAdsYGainsItemDto.PositiveY2SmoothPlots.ToArray()),
+                            ("Y3Plots", ResultAdsYGainsItemDto.PositiveY3Plots.ToArray()), ($"Y3={ResultAdsYGainsItemDto.PositiveY3P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P3)}", ResultAdsYGainsItemDto.PositiveY3SmoothPlots.ToArray())
                     ], "Y1X2Y3Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1174,11 +1051,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     Y6P2 = ResultAdsYGainsItemDto.NegativeY6P2,
                     Y6P3 = ResultAdsYGainsItemDto.NegativeY6P3,
                     Y4X5Plots = new HtmlPlot2DLinesChart([
-                        ("Y4Plots", ResultAdsYGainsItemDto.NegativeY4Plots.ToArray()), ($"Y4={ResultAdsYGainsItemDto.NegativeY4P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P3)}", ResultAdsYGainsItemDto.NegativeY4SmoothPlots.ToArray()),
-                        ("Y5Plots", ResultAdsYGainsItemDto.NegativeY5Plots.ToArray()), ($"Y5={ResultAdsYGainsItemDto.NegativeY5P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P3)}", ResultAdsYGainsItemDto.NegativeY5SmoothPlots.ToArray()),
-                        ("Y6Plots", ResultAdsYGainsItemDto.NegativeY6Plots.ToArray()), ($"Y6={ResultAdsYGainsItemDto.NegativeY6P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P3)}", ResultAdsYGainsItemDto.NegativeY6SmoothPlots.ToArray())
-                    ], "Y4X5Y6Plots")
+                       ("Y4Plots", ResultAdsYGainsItemDto.NegativeY4Plots.ToArray()), ($"Y4={ResultAdsYGainsItemDto.NegativeY4P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P3)}", ResultAdsYGainsItemDto.NegativeY4SmoothPlots.ToArray()),
+                            ("Y5Plots", ResultAdsYGainsItemDto.NegativeY5Plots.ToArray()), ($"Y5={ResultAdsYGainsItemDto.NegativeY5P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P3)}", ResultAdsYGainsItemDto.NegativeY5SmoothPlots.ToArray()),
+                            ("Y6Plots", ResultAdsYGainsItemDto.NegativeY6Plots.ToArray()), ($"Y6={ResultAdsYGainsItemDto.NegativeY6P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P3)}", ResultAdsYGainsItemDto.NegativeY6SmoothPlots.ToArray())
+                   ], "Y4X5Y6Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
+
             }
             catch (Exception ex)
             {
@@ -1456,25 +1334,25 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             if (adsYGainsCacheItem.IsPositive)
             {
                 StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
                 InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsCacheItem.IsPositive, (adsYGainsCacheItem.GetAdsY1(), adsYGainsCacheItem.GetAdsY2(), adsYGainsCacheItem.GetAdsY3())), cancellationToken);
                 StageViewModel.SetYSpeedValue(adsYGainsCacheItem.SpeedYValue);
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
                 var task = Task.Run(() => AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetEndPosition());
                 transBuffer = await task.ConfigureAwait(false);
             }
             else
             {
                 StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetEndPosition());
                 InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsCacheItem.IsPositive, (adsYGainsCacheItem.GetAdsY1(), adsYGainsCacheItem.GetAdsY2(), adsYGainsCacheItem.GetAdsY3())), cancellationToken);
                 StageViewModel.SetYSpeedValue(adsYGainsCacheItem.SpeedYValue);
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
                 var task = Task.Run(() => AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
                 transBuffer = await task.ConfigureAwait(false);
             }
 
@@ -1520,14 +1398,14 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         try
         {
             StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
+            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
             InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsItemDto.IsPositive, (adsYGainsItemDto.GetAdsY1(), adsYGainsItemDto.GetAdsY2(), adsYGainsItemDto.GetAdsY3())), cancellationToken);
             StageViewModel.SetYSpeedValue(adsYGainsItemDto.SpeedYValue);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
+            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
             await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
             var task = Task.Run(() => AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
+            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetEndPosition());
             var transBuffer = await task.ConfigureAwait(false);
             StageViewModel.SetXSpeedValue(Cache.DefaultSpeedYValue);
             if (transBuffer.Count > 0)
@@ -1853,27 +1731,27 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             StageViewModel.SetYSpeedValue(Cache.DefaultSpeedYValue);
             if (adsYGainsItemDto.IsPositive)
             {
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
                 InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsItemDto.IsPositive, (adsYGainsItemDto.GetAdsY1(), adsYGainsItemDto.GetAdsY2(), adsYGainsItemDto.GetAdsY3())), cancellationToken);
                 StageViewModel.SetYSpeedValue(adsYGainsItemDto.SpeedYValue);
 
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
                 var task = Task.Run(() => AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetEndPosition());
                 transBuffer = await task.ConfigureAwait(false);
                 StageViewModel.SetXSpeedValue(Cache.DefaultSpeedYValue);
             }
             else
             {
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetEndPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetEndPosition());
                 InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(adsYGainsItemDto.IsPositive, (adsYGainsItemDto.GetAdsY1(), adsYGainsItemDto.GetAdsY2(), adsYGainsItemDto.GetAdsY3())), cancellationToken);
                 StageViewModel.SetYSpeedValue(adsYGainsItemDto.SpeedYValue);
 
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 1000 : 30000, cancellationToken);
                 var task = Task.Run(() => AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(Cache.WaitTime)));
                 await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.GetStartPosition(), false);
+                StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
                 transBuffer = await task.ConfigureAwait(false);
                 StageViewModel.SetXSpeedValue(Cache.DefaultSpeedYValue);
             }
@@ -1932,7 +1810,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                             PitchMax = pitchMax,
                             PositiveZ1 = z1,
                             PositiveZ2 = z2,
-                            PositiveZ3 = z3
+                            PositiveZ3 = z3,
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
                 else

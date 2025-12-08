@@ -177,6 +177,15 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetMachineAbsoluteStageXyByFixedSpeed(Point point)
+    {
+        var sxExecuteRet = Invoke(() => Service!.PTPByFixSpeed(point.X, point.Y));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<(double XDirection, double YDirection)> GetMachineDirection()
     {
         var sxExecuteRet = Invoke(() => Service!.GetStageCoordinateSystem());

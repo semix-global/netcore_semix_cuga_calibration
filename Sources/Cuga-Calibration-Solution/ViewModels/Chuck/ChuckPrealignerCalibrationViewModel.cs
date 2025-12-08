@@ -195,7 +195,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
                 return true;
             case 1:
-                Cache.LowSite2.Location= Cache.LowSite1.Location + (Vector)new Point(Cache.DiePitchWidth * Cache.ReticleDieCountX, 0);
+                Cache.LowSite2.Location = Cache.LowSite1.Location + (Vector)new Point(Cache.DiePitchWidth * Cache.ReticleDieCountX, 0);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
                 return true;
 

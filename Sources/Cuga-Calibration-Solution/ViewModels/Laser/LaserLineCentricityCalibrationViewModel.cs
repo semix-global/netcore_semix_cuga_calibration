@@ -7,6 +7,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -38,7 +39,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
-using Core.Models.Models.Chuck.CenterAndTheta;
 
 namespace CugaCalibration.ViewModels.Laser;
 
