@@ -18,11 +18,18 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:Shield Subject="CIB MMD Step 1: "
                        Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <Border Grid.Row="2"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
@@ -38,7 +45,7 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
-        </hc:UniformSpacingPanel>
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <ListBox Grid.Column="2"
                  HorizontalAlignment="Center"
