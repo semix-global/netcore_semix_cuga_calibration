@@ -134,6 +134,13 @@ public interface ICalibrationStageService
     SxExecuteRet<bool> SetMachineAbsoluteStageXy(Point point);
 
     /// <summary>
+    /// 机械移动平台(步进的形式,固定的速度)
+    /// </summary>
+    /// <param name="point">点</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetMachineAbsoluteStageXyByFixedSpeed(Point point);
+
+    /// <summary>
     /// 获取机械方向
     /// </summary>
     /// <returns>是否成功</returns>
