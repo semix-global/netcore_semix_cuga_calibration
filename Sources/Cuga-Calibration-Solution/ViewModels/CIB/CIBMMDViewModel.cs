@@ -472,7 +472,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                     return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
                 })
-                .OrderBy(t => t)
+                .OrderBy(t => t.X)
                 .ToArray();
             Cache.UseODFilterMeasurePowerPoints = GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
                 .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
@@ -486,7 +486,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                     return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
                 })
-                .OrderBy(t => t)
+                .OrderBy(t => t.X)
                 .ToArray();
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new

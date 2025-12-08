@@ -536,7 +536,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
             var (index, cibInformation) = t;
 
-            var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId - ((tt.Channel - 1) * 15) == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
+            var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
             var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var (_, bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
             var bodySpan = rawBytes.AsSpan().Slice(Convert.ToInt32(bodyBytesStartIndex), Convert.ToInt32(bodyBytesLength));
