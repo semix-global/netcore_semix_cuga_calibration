@@ -724,6 +724,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var coefficientCount = cibMMDDto.Items.Count;
             var gainCount = gains.Count;
 
+            // Log(Light) + Log(Gain) = Log(Current)
             // A * X = B (最小二乘法)
             var aMatrix = Matrix<double>.Build.Dense(coefficientCount * gainCount, coefficientCount + gainCount);
             for (var i = 0; i < coefficientCount; i++)
@@ -779,29 +780,30 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
 
             var aValidMatrix = Matrix<double>.Build.Dense(validIndices.Count, aMatrix.ColumnCount);
-            var bLogCurrentValidVector = Vector<double>.Build.Dense(validIndices.Count);
+            var bValidLogCurrentVector = Vector<double>.Build.Dense(validIndices.Count);
             for (var i = 0; i < validIndices.Count; i++)
             {
                 var originalRow = validIndices[i];
                 aValidMatrix.SetRow(i, aMatrix.Row(originalRow));
-                bLogCurrentValidVector[i] = bLogCurrentVector[originalRow];
+                bValidLogCurrentVector[i] = bLogCurrentVector[originalRow];
             }
 
             var aValidCoefficientSubMatrix = aValidMatrix.SubMatrix(0, validIndices.Count, 0, coefficientCount);
             var aValidGainSubMatrix = aValidMatrix.SubMatrix(0, validIndices.Count, coefficientCount, gainCount);
 
-            var xLogGainVector = aValidGainSubMatrix.Solve(bLogCurrentValidVector - aValidCoefficientSubMatrix * xLogMeasurePowerVector);
+            var bValidVector = bValidLogCurrentVector - aValidCoefficientSubMatrix * xLogMeasurePowerVector;
+            var xValidLogGainVector = aValidGainSubMatrix.QR().Solve(bValidVector);
 
-            var xLogVector = Vector<double>.Build.Dense([.. xLogMeasurePowerVector, .. xLogGainVector]);
-            var gainResidual = (aValidMatrix * xLogVector - bLogCurrentValidVector).L2Norm();
-            var gainL2Norm = xLogGainVector.L2Norm();
+            var xLogVector = Vector<double>.Build.Dense([.. xLogMeasurePowerVector, .. xValidLogGainVector]);
+            var gainRSquared = Boltzmann.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
+            var gainResidual = (aValidMatrix * xLogVector - bValidLogCurrentVector).L2Norm();
 
+            cibMMDDto.GainRSquared = gainRSquared;
             cibMMDDto.GainResidual = gainResidual;
-            cibMMDDto.GainL2Norm = gainL2Norm;
 
             cibMMDDto.GainPoints =
             [
-                ..xLogGainVector
+                ..xValidLogGainVector
                     .Map(t => Math.Pow(2, t))
                     .Enumerate()
                     .Index()
@@ -809,7 +811,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
             cibMMDDto.OriginLogGainPoints =
             [
-                ..xLogGainVector
+                ..xValidLogGainVector
                     .Enumerate()
                     .Index()
                     .Select(t => new Point(gains[t.Index], t.Item))
@@ -829,9 +831,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 /*aValidMatrix = Environment.NewLine + aValidMatrix.ToMatrixString(aValidMatrix.RowCount, aValidMatrix.ColumnCount),
                 xLogVector = Environment.NewLine + xLogVector.ToVectorString(xLogVector.Count, 1),
-                bLogCurrentValidVector = Environment.NewLine + bLogCurrentValidVector.ToVectorString(bLogCurrentValidVector.Count, 1),*/
+                bLogCurrentValidVector = Environment.NewLine + bValidLogCurrentVector.ToVectorString(bValidLogCurrentVector.Count, 1),*/
+                gainRSquared,
                 gainResidual,
-                gainNorm = gainL2Norm,
                 Plot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
@@ -905,6 +907,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             htmlList.Add(new HtmlQuote(new
             {
+                SuccessPlot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                 Exception = ex
             }));
         }

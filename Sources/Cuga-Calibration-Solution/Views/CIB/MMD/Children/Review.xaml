@@ -243,8 +243,8 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
+                            <GridViewColumn Header="Gain RSquared" DisplayMemberBinding="{Binding GainRSquared, StringFormat='0.###'}" />
                             <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Gain Norm" DisplayMemberBinding="{Binding GainL2Norm, StringFormat='0.###'}" />
                             <GridViewColumn Header="LogGain RSquared" DisplayMemberBinding="{Binding LogGainRSquared, StringFormat='0.###'}" />
                             <GridViewColumn Header="Set CIB MMD">
                                 <GridViewColumn.CellTemplate>

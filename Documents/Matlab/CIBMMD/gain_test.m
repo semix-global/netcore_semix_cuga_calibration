@@ -40,6 +40,19 @@ A2 = A_valid(:, (a+1):end);
 B2 = A2 \ (C_valid - A1 * B_known);
 B = [B_known; B2];
 
+% 计算决定系数 R²
+y_actual = C_valid - A1 * B_known;  % 实际因变量
+y_predicted = A2 * B2;               % 预测值
+y_mean = mean(y_actual);             % 平均值
+
+SS_res = sum((y_actual - y_predicted).^2);  % 残差平方和
+SS_tot = sum((y_actual - y_mean).^2);       % 总平方和
+
+R_squared = 1 - (SS_res / SS_tot);
+
+disp(['决定系数 R²: ', num2str(R_squared)]);
+
+% 原有残差计算
 residual = norm(A_valid * B - C_valid);
 disp(['有效数据残差: ', num2str(residual)]);
 disp(['B2的范数: ', num2str(norm(B2))]);

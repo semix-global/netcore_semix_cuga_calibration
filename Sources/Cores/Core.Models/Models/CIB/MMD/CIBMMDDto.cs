@@ -21,10 +21,10 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     private IReadOnlyList<CIBMMDItemDto> _items = [];
 
     [ObservableProperty]
-    private double _gainResidual;
+    private double _gainRSquared;
 
     [ObservableProperty]
-    private double _gainL2Norm;
+    private double _gainResidual;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _gainPoints = [];
@@ -73,9 +73,9 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     partial void OnItemsChanged(IReadOnlyList<CIBMMDItemDto> value) => RefreshPlot();
 
-    partial void OnGainResidualChanged(double value) => RefreshPlot();
+    partial void OnGainRSquaredChanged(double value) => RefreshPlot();
 
-    partial void OnGainL2NormChanged(double value) => RefreshPlot();
+    partial void OnGainResidualChanged(double value) => RefreshPlot();
 
     partial void OnGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
@@ -149,7 +149,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         if (GainPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 2,
-                $"Gain Residual: {GainResidual:0.000#} Gain Norm: {GainL2Norm:0.###}",
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainPoints);
 
         if (OriginLogGainPoints.Count > 0)
@@ -157,7 +157,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
             ScatterPlotControl.Clear(3);
             ScatterPlotControl.GetOrAddScatterLine(
                 3,
-                $"Origin Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 OriginLogGainPoints,
                 Constants.Category10.GetColor(0));
 
@@ -174,7 +174,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
-                    $"Result Curve Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                    $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                     ResultLogGainPoints,
                     Constants.Category10.GetColor(2));
             }
@@ -183,13 +183,13 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         if (LogGainMul128U12BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 4,
-                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 LogGainMul128U12BitPoints);
 
         if (GainS16BitPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 5,
-                $"Residual: {GainResidual:0.000#} GainL2Norm: {GainL2Norm:0.###}",
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainS16BitPoints);
 
         ScatterPlotControl.AutoScaleRefresh();
@@ -201,8 +201,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
+        GainRSquared = GainRSquared,
         GainResidual = GainResidual,
-        GainL2Norm = GainL2Norm,
         GainPoints = [.. GainPoints],
         OriginLogGainPoints = [.. OriginLogGainPoints],
         LogGainA1 = LogGainA1,
