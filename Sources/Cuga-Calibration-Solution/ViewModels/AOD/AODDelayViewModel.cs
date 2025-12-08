@@ -173,7 +173,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition != Point.Origin
                     ? Cache.Item.FindBFMachinePosition
-                    : MicroscopeCalChip.HazeBrightFieldMachinePosition));
+                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 

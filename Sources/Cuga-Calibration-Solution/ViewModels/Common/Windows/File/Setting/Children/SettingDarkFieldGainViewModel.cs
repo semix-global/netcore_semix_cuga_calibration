@@ -107,7 +107,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
 
                 var (isSuccess, gain) = await AutoPmtGainAsync(
                     coefficient.Value,
-                    microscopeCalChipCache.HazePosition,
+                    microscopeCalChipCache.Items.Single(t => t.Key == CalChipSiteModelEnum.HazeModel).Value.CenterPosition,
                     CalChipSiteModelEnum.HazeModel,
                     ProductivityInformation,
                     Guid.NewGuid(),

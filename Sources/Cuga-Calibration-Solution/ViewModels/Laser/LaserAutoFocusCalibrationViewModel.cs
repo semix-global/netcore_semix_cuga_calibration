@@ -12,6 +12,7 @@ using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -138,7 +139,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         await Task.CompletedTask.ConfigureAwait(false);
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-        Cache.FindPosition = MicroscopeCalChip.ShinyWaferBrightFieldMachinePosition;
+        Cache.FindPosition = GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
         return true;

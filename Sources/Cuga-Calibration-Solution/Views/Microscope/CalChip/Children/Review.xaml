@@ -5,13 +5,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:calChip="clr-namespace:Core.Models.Models.Microscope.CalChip;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
              d:DesignHeight="700"
-             d:DesignWidth="1500"
+             d:DesignWidth="1800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="400" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -31,52 +34,32 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                      Width="275"
-                                      hc:InfoElement.Title="Quality Threshold: "
-                                      hc:InfoElement.TitlePlacement="Left"
+                    <hc:NumericUpDown hc:TitleElement.Title="Bright Field Quality Threshold: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="180"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Threshold}" />
-                    <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Rtfc Af Ecs Threshold: "
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      Value="{Binding Cache.BfQualityThreshold}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Dark Field Quality Threshold: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="180"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.AfEcsErrorThreshold}" />
-                    <hc:NumericUpDown Width="275"
-                                      hc:InfoElement.Title="Rtfc Af Motor Threshold: "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.AfMotorErrorThreshold}" />
-                    <TextBox Text="{Binding Cache.VerifyResultQuality}"
-                             Width="275"
-                             hc:InfoElement.Title="Result Quality: "
-                             hc:TitleElement.TitleWidth="100"
-                             hc:InfoElement.TitlePlacement="Left"
+                                      Value="{Binding Cache.DfQualityThreshold}" />
+                    <TextBox Text="{Binding Cache.VerifyBrightFieldResultError}"
+                             hc:TitleElement.Title="Bright Field Result Error: "
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.TitlePlacement="Left"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.VerifyResultError}"
-                             Width="275"
-                             hc:InfoElement.Title="Result Error: "
-                             hc:TitleElement.TitleWidth="100"
-                             hc:InfoElement.TitlePlacement="Left"
+                    <TextBox Text="{Binding Cache.VerifyDarkFieldResultError}"
+                             hc:TitleElement.Title="Dark Field Result Error: "
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.TitlePlacement="Left"
+                             Background="{StaticResource SecondaryRegionBrush}"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ReviewDto.ChuckAfEcsValue}"
-                             Width="275"
-                             hc:InfoElement.Title="Chuck Af Ecs: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ReviewDto.ChuckAfMotorValue}"
-                             Width="275"
-                             hc:InfoElement.Title="Chuck Af Motor: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -97,268 +80,85 @@
         <!--#endregion-->
         <GridSplitter Grid.Column="1" Width="5" />
         <!--#region Right-->
-        <GroupBox Grid.Column="2" Header="Calibration Data">
-            <UniformGrid Columns="2" Rows="2">
-                <UniformGrid.Resources>
-                    <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
-                        <Setter Property="Margin" Value="5" />
+        <GroupBox Grid.Column="2" Header="History">
+            <ListView d:SelectedIndex="0"
+                      ItemsSource="{Binding ResultMicroscopeCalChipDto.Items}"
+                      Style="{StaticResource ListView.Small}"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <b:Interaction.Behaviors>
+                    <behaviors:ListBoxScrollToCurrentBehavior />
+                </b:Interaction.Behaviors>
+                <ListView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
-                    <Style BasedOn="{StaticResource TextBlockDefaultInfo}" TargetType="TextBlock">
-                        <Setter Property="HorizontalAlignment" Value="Center" />
-                        <Setter Property="FontSize" Value="13" />
-                        <Setter Property="FontWeight" Value="Bold" />
-                        <Setter Property="Foreground" Value="{Binding ReviewDto.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
-                    </Style>
-                </UniformGrid.Resources>
-                <Border>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <StackPanel>
-                            <TextBlock Text="DSW" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding Cache.DswPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.DswBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Bright Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.DswDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Dark Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.DswQuality, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Quality: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.DswEcsValue, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Ecs: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.DswToChuckAfEcsValue, Mode=OneWay}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Rtfc Af Ecs Error: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.DswToChuckAfMotorValue, Mode=OneWay}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Rtfc Af Motor Error: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                            <Button x:Name="DswBrightFieldGotoButton"
-                                    Content="Goto Bright Field"
-                                    Command="{Binding GotoBrightFieldPositionCommand}"
-                                    CommandParameter="DSW"
-                                    Width="120" />
-                            <Button x:Name="DswDarkFieldGotoButton"
-                                    Content="Goto Dark Field"
-                                    Command="{Binding GotoDarkFieldPositionCommand}"
-                                    CommandParameter="DSW"
-                                    Width="120" />
-                            <Button x:Name="DswReviewButton"
-                                    Content="Review"
-                                    Command="{Binding ReviewViewModel.ReviewCommand}"
-                                    CommandParameter="{Binding ReviewDto.DswFilePath}"
-                                    Width="70" />
-                        </hc:UniformSpacingPanel>
-                    </hc:UniformSpacingPanel>
-                </Border>
-                <Border>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <StackPanel>
-                            <TextBlock Text="Undefined" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding Cache.UndefinedPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.UndefinedBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Bright Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.UndefinedDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Dark Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.UndefinedQuality, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Quality: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.UndefinedEcsValue, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Ecs: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                            <Button x:Name="UndefinedBrightFieldGotoButton"
-                                    Content="Goto Bright Field"
-                                    Command="{Binding GotoBrightFieldPositionCommand}"
-                                    CommandParameter="Undefined"
-                                    Width="120" />
-                            <Button x:Name="UndefinedDarkFieldGotoButton"
-                                    Content="Goto Dark Field"
-                                    Command="{Binding GotoDarkFieldPositionCommand}"
-                                    CommandParameter="Undefined"
-                                    Width="120" />
-                            <Button x:Name="UndefinedReviewButton"
-                                    Content="Review"
-                                    Command="{Binding ReviewViewModel.ReviewCommand}"
-                                    CommandParameter="{Binding ReviewDto.UndefinedFilePath}"
-                                    Width="70" />
-                        </hc:UniformSpacingPanel>
-                    </hc:UniformSpacingPanel>
-                </Border>
-                <Border>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <StackPanel>
-                            <TextBlock Text="Haze" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding Cache.HazePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.HazeBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Bright Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.HazeDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Dark Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.HazeQuality, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Quality: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.HazeEcsValue, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Ecs: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.HazeToChuckAfEcsValue, Mode=OneWay}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Rtfc Af Ecs Error: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.HazeToChuckAfMotorValue, Mode=OneWay}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Rtfc Af Motor Error: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                            <Button x:Name="HazeBrightFieldGotoButton"
-                                    Content="Goto Bright Field"
-                                    Command="{Binding GotoBrightFieldPositionCommand}"
-                                    CommandParameter="Haze"
-                                    Width="120" />
-                            <Button x:Name="HazeDarkFieldGotoButton"
-                                    Content="Goto Dark Field"
-                                    Command="{Binding GotoDarkFieldPositionCommand}"
-                                    CommandParameter="Haze"
-                                    Width="120" />
-                            <Button x:Name="HazeReviewButton"
-                                    Content="Review"
-                                    Command="{Binding ReviewViewModel.ReviewCommand}"
-                                    CommandParameter="{Binding ReviewDto.HazeFilePath}"
-                                    Width="70" />
-                        </hc:UniformSpacingPanel>
-                    </hc:UniformSpacingPanel>
-                </Border>
-                <Border>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                        <StackPanel>
-                            <TextBlock Text="Shiny Wafer" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <TextBox Text="{Binding Cache.ShinyWaferPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.ShinyWaferBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Bright Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.ShinyWaferDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Dark Machine Position(um): "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.ShinyWaferQuality, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Quality: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ReviewDto.ShinyWaferEcsValue, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="180"
-                                     hc:InfoElement.Title="Ecs: "
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="5">
-                            <Button x:Name="ShinyBrightFieldGotoButton"
-                                    Content="Goto Bright Field"
-                                    Command="{Binding GotoBrightFieldPositionCommand}"
-                                    CommandParameter="ShinyWafer"
-                                    Width="120" />
-                            <Button x:Name="ShinyDarkFieldGotoButton"
-                                    Content="Goto Dark Field"
-                                    Command="{Binding GotoDarkFieldPositionCommand}"
-                                    CommandParameter="ShinyWafer"
-                                    Width="120" />
-                            <Button x:Name="ShinyReviewButton"
-                                    Content="Review"
-                                    Command="{Binding ReviewViewModel.ReviewCommand}"
-                                    CommandParameter="{Binding ReviewDto.ShinyWaferFilePath}"
-                                    Width="70" />
-                        </hc:UniformSpacingPanel>
-                    </hc:UniformSpacingPanel>
-                </Border>
-            </UniformGrid>
+                </ListView.ItemContainerStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn Width="100"
+                                        Header="CalChip"
+                                        DisplayMemberBinding="{Binding Key, Converter={StaticResource EnumDescriptionConverter}}" />
+                        <GridViewColumn Width="120"
+                                        Header="BrightFieldEcs"
+                                        DisplayMemberBinding="{Binding Value.EcsValue, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="150"
+                                        Header="BrightFieldQuality"
+                                        DisplayMemberBinding="{Binding Value.BrightFieldQuality, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="200"
+                                        Header="BrightFieldMachinePosition"
+                                        DisplayMemberBinding="{Binding Value.BrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="120"
+                                        Header="DarkFieldAfEcs"
+                                        DisplayMemberBinding="{Binding Value.AfEcsValue, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="120"
+                                        Header="DarkFieldAfMotor"
+                                        DisplayMemberBinding="{Binding Value.AfMotorValue, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="150"
+                                        Header="DarkFieldQuality"
+                                        DisplayMemberBinding="{Binding Value.DarkFieldQuality, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="200"
+                                        Header="DarkFieldMachinePosition"
+                                        DisplayMemberBinding="{Binding Value.DarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}, StringFormat={}{0:f3}}" />
+                        <GridViewColumn Width="500" Header="Action Review">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <hc:ButtonGroup>
+                                        <Button Content="BF Review"
+                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Value.BrightFieldFilePath}"
+                                                d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
+                                        <Button Content="DF Review"
+                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Value.DarkFieldFilePath}"
+                                                d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
+                                        <Button Content="Goto BF"
+                                                Command="{Binding Path=DataContext.GotoBrightFieldPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Value.CalChipSiteModelEnum}"
+                                                d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
+                                        <Button Content="Goto DF"
+                                                Command="{Binding Path=DataContext.GotoDarkFieldPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Value.CalChipSiteModelEnum}"
+                                                d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
+                                    </hc:ButtonGroup>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
         </GroupBox>
         <!--#endregion-->
     </Grid>

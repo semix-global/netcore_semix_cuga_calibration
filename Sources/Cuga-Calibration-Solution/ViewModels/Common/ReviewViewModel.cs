@@ -379,9 +379,8 @@ public sealed partial class ReviewViewModel(
     {
         await Task.Run(() =>
         {
-            var HImage = GetBrightFieldImage();
-            using var _ = HImage;
-            Quality = GetQuality(HImage);
+            using var hImage = GetBrightFieldImage();
+            Quality = GetQuality(hImage);
         }).ConfigureAwait(false);
     }
 

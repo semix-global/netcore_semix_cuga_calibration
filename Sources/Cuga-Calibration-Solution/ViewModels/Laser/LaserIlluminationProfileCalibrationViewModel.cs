@@ -254,7 +254,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         Cache.CurrentDarkFieldImageListToPrescanListCacheItem.Reset();
 
-        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
+        Cache.FindPosition = GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
 

@@ -1,13 +1,17 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
+using Core.Utilities;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.NoSQL.DB.Providers.Bases;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
@@ -16,342 +20,211 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
-    #region Chuck
-
     [ObservableProperty]
-    private double _chuckAfEcsValue;
+    [NotifyPropertyChangedFor(nameof(CurrentItem))]
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    [ObservableProperty]
-    private double _chuckAfMotorValue;
+    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDtoItem>> Items { get; private init; } = [];
 
-    #endregion Chuck
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipDtoItem CurrentItem => Items.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipDtoItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
-    #region Dsw
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipDtoItem? ChuckItem => Items.Get(CalChipSiteModelEnum.ChuckModel);
 
-    [ObservableProperty]
-    private Point _dswBrightFieldMachinePosition;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipDtoItem? DswItem => Items.Get(CalChipSiteModelEnum.DswModel);
 
-    [ObservableProperty]
-    private Point _dswDarkFieldMachinePosition;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipDtoItem? HazeItem => Items.Get(CalChipSiteModelEnum.HazeModel);
 
-    [ObservableProperty]
-    private double _dswEcsValue;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipDtoItem? ShinyWaferItem => Items.Get(CalChipSiteModelEnum.ShinyWaferModel);
 
-    [ObservableProperty]
-    private double _dswQuality;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipDtoItem? UndefineWaferItem => Items.Get(CalChipSiteModelEnum.UndefinedModel);
 
-    [ObservableProperty]
-    private string _dswFilePath = string.Empty;
+    private double _dswToChuckAfEcsValue;
 
-    [ObservableProperty]
-    private double _dswAfEcsValue;
-
-    [ObservableProperty]
-    private double _dswAfMotorValue;
-
-    #endregion Dsw
-
-    #region Undefined
-
-    [ObservableProperty]
-    private Point _undefinedBrightFieldMachinePosition;
-
-    [ObservableProperty]
-    private Point _undefinedDarkFieldMachinePosition;
-
-    [ObservableProperty]
-    private double _undefinedEcsValue;
-
-    [ObservableProperty]
-    private string _undefinedFilePath = string.Empty;
-
-    [ObservableProperty]
-    private double _undefinedQuality;
-
-    #endregion Undefined
-
-    #region Haze
-
-    [ObservableProperty]
-    private Point _hazeBrightFieldMachinePosition;
-
-    [ObservableProperty]
-    private Point _hazeDarkFieldMachinePosition;
-
-    [ObservableProperty]
-    private double _hazeEcsValue;
-
-    [ObservableProperty]
-    private string _hazeFilePath = string.Empty;
-
-    [ObservableProperty]
-    private double _hazeAfEcsValue;
-
-    [ObservableProperty]
-    private double _hazeAfMotorValue;
-
-    [ObservableProperty]
-    private double _hazeQuality;
-
-    #endregion Haze
-
-    #region ShinyWafer
-
-    [ObservableProperty]
-    private Point _shinyWaferBrightFieldMachinePosition;
-
-    [ObservableProperty]
-    private Point _shinyWaferDarkFieldMachinePosition;
-
-    [ObservableProperty]
-    private double _shinyWaferEcsValue;
-
-    [ObservableProperty]
-    private double _shinyWaferQuality;
-
-    [ObservableProperty]
-    private string _shinyWaferFilePath = string.Empty;
-
-    #endregion ShinyWafer
-
-    public double DswToChuckAfEcsValue => DswAfEcsValue - ChuckAfEcsValue;
-
-    public double DswToChuckAfMotorValue => DswAfMotorValue - ChuckAfMotorValue;
-
-    public double HazeToChuckAfEcsValue => HazeAfEcsValue - ChuckAfEcsValue;
-
-    public double HazeToChuckAfMotorValue => HazeAfMotorValue - ChuckAfMotorValue;
-
-    public Point GetBrightFieldMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
+    public double DswToChuckAfEcsValue
     {
-        CalChipSiteModelEnum.DswModel => DswBrightFieldMachinePosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedBrightFieldMachinePosition,
-        CalChipSiteModelEnum.HazeModel => HazeBrightFieldMachinePosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferBrightFieldMachinePosition,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(calChipSiteModelEnum))
-    };
-
-    public Point GetDarkFieldMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswDarkFieldMachinePosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedDarkFieldMachinePosition,
-        CalChipSiteModelEnum.HazeModel => HazeDarkFieldMachinePosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferDarkFieldMachinePosition,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(calChipSiteModelEnum))
-    };
-
-    public double GetEcsValue(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswEcsValue,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedEcsValue,
-        CalChipSiteModelEnum.HazeModel => HazeEcsValue,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferEcsValue,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(calChipSiteModelEnum))
-    };
-
-    public double GetQuality(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswQuality,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedQuality,
-        CalChipSiteModelEnum.HazeModel => HazeQuality,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferQuality,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(calChipSiteModelEnum))
-    };
-
-    public double GetAfEcsValue(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.ChuckModel => ChuckAfEcsValue,
-        CalChipSiteModelEnum.DswModel => DswAfEcsValue,
-        CalChipSiteModelEnum.HazeModel => HazeAfEcsValue,
-        _ => 0d
-    };
-
-    public double GetAfMotorValue(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.ChuckModel => ChuckAfMotorValue,
-        CalChipSiteModelEnum.DswModel => DswAfMotorValue,
-        CalChipSiteModelEnum.HazeModel => HazeAfMotorValue,
-        _ => 0d
-    };
-
-    public string GetFilePath(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswFilePath,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedFilePath,
-        CalChipSiteModelEnum.HazeModel => HazeFilePath,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferFilePath,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(calChipSiteModelEnum))
-    };
-
-    public void SetEcsValue(CalChipSiteModelEnum calChipSiteModelEnum, double value)
-    {
-        switch (calChipSiteModelEnum)
+        get
         {
-            case CalChipSiteModelEnum.DswModel:
-                DswEcsValue = value;
-                break;
-
-            case CalChipSiteModelEnum.UndefinedModel:
-                UndefinedEcsValue = value;
-                break;
-
-            case CalChipSiteModelEnum.HazeModel:
-                HazeEcsValue = value;
-                break;
-
-            case CalChipSiteModelEnum.ShinyWaferModel:
-                ShinyWaferEcsValue = value;
-                break;
-
-            default:
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(calChipSiteModelEnum));
-                break;
+            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
+            var dswItem = Items.Get(CalChipSiteModelEnum.DswModel);
+            if (chuckItem == null || dswItem == null)
+                return 0d;
+            return dswItem.AfEcsValue - chuckItem.AfEcsValue;
         }
+        set => _dswToChuckAfEcsValue = value;
     }
 
-    public void SetQuality(CalChipSiteModelEnum calChipSiteModelEnum, double value)
+    private double _dswToChuckAfMotorValue;
+
+    public double DswToChuckAfMotorValue
     {
-        switch (calChipSiteModelEnum)
+        get
         {
-            case CalChipSiteModelEnum.DswModel:
-                DswQuality = value;
-                break;
-
-            case CalChipSiteModelEnum.UndefinedModel:
-                UndefinedQuality = value;
-                break;
-
-            case CalChipSiteModelEnum.HazeModel:
-                HazeQuality = value;
-                break;
-
-            case CalChipSiteModelEnum.ShinyWaferModel:
-                ShinyWaferQuality = value;
-                break;
-
-            default:
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(calChipSiteModelEnum));
-                break;
+            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
+            var dswItem = Items.Get(CalChipSiteModelEnum.DswModel);
+            if (chuckItem == null || dswItem == null)
+                return 0d;
+            return dswItem.AfMotorValue - chuckItem.AfMotorValue;
         }
+        set => _dswToChuckAfMotorValue = value;
     }
 
-    public void SetAfEcsValue(CalChipSiteModelEnum calChipSiteModelEnum, double value)
-    {
-        switch (calChipSiteModelEnum)
-        {
-            case CalChipSiteModelEnum.DswModel:
-                DswAfEcsValue = value;
-                break;
+    private double _hazeToChuckAfEcsValue;
 
-            case CalChipSiteModelEnum.HazeModel:
-                HazeAfEcsValue = value;
-                break;
+    public double HazeToChuckAfEcsValue
+    {
+        get
+        {
+            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
+            var hazeItem = Items.Get(CalChipSiteModelEnum.HazeModel);
+            if (chuckItem == null || hazeItem == null)
+                return 0d;
+            return hazeItem.AfEcsValue - chuckItem.AfEcsValue;
         }
+        set => _hazeToChuckAfEcsValue = value;
     }
 
-    public void SetAfMotorValue(CalChipSiteModelEnum calChipSiteModelEnum, double value)
+    private double _hazeToChuckAfMotorValue;
+
+    public double HazeToChuckAfMotorValue
     {
-        switch (calChipSiteModelEnum)
+        get
         {
-            case CalChipSiteModelEnum.DswModel:
-                DswAfMotorValue = value;
-                break;
-
-            case CalChipSiteModelEnum.HazeModel:
-                HazeAfMotorValue = value;
-                break;
+            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
+            var hazeItem = Items.Get(CalChipSiteModelEnum.HazeModel);
+            if (chuckItem == null || hazeItem == null)
+                return 0d;
+            return hazeItem.AfMotorValue - chuckItem.AfMotorValue;
         }
-    }
-
-    public void SetFilePath(CalChipSiteModelEnum calChipSiteModelEnum, string filePath)
-    {
-        switch (calChipSiteModelEnum)
-        {
-            case CalChipSiteModelEnum.DswModel:
-                DswFilePath = filePath;
-                break;
-
-            case CalChipSiteModelEnum.UndefinedModel:
-                UndefinedFilePath = filePath;
-                break;
-
-            case CalChipSiteModelEnum.HazeModel:
-                HazeFilePath = filePath;
-                break;
-
-            case CalChipSiteModelEnum.ShinyWaferModel:
-                ShinyWaferFilePath = filePath;
-                break;
-
-            default:
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(calChipSiteModelEnum));
-                break;
-        }
+        set => _hazeToChuckAfMotorValue = value;
     }
 
     #region Mapper
 
-    public MicroscopeCalChipDto Clone() => new()
+    public MicroscopeCalChipDto Clone()
     {
-        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
-        DswBrightFieldMachinePosition = DswBrightFieldMachinePosition,
-        DswDarkFieldMachinePosition = DswDarkFieldMachinePosition,
-        UndefinedBrightFieldMachinePosition = UndefinedBrightFieldMachinePosition,
-        UndefinedDarkFieldMachinePosition = UndefinedDarkFieldMachinePosition,
-        HazeBrightFieldMachinePosition = HazeBrightFieldMachinePosition,
-        HazeDarkFieldMachinePosition = HazeDarkFieldMachinePosition,
-        ShinyWaferBrightFieldMachinePosition = ShinyWaferBrightFieldMachinePosition,
-        ShinyWaferDarkFieldMachinePosition = ShinyWaferDarkFieldMachinePosition,
-        ChuckAfEcsValue = ChuckAfEcsValue,
-        ChuckAfMotorValue = ChuckAfMotorValue,
-        DswEcsValue = DswEcsValue,
-        DswAfEcsValue = DswAfEcsValue,
-        DswAfMotorValue = DswAfMotorValue,
-        UndefinedEcsValue = UndefinedEcsValue,
-        HazeEcsValue = HazeEcsValue,
-        HazeAfEcsValue = HazeAfEcsValue,
-        HazeAfMotorValue = HazeAfMotorValue,
-        ShinyWaferEcsValue = ShinyWaferEcsValue,
-        DswQuality = DswQuality,
-        UndefinedQuality = UndefinedQuality,
-        HazeQuality = HazeQuality,
-        ShinyWaferQuality = ShinyWaferQuality,
-        DswFilePath = DswFilePath,
-        UndefinedFilePath = UndefinedFilePath,
-        HazeFilePath = HazeFilePath,
-        ShinyWaferFilePath = ShinyWaferFilePath,
-        IsCalibrated = IsCalibrated,
-        IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck,
-        Id = Id,
-        Expiration = Expiration
-    };
+        var cloneItems = new ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDtoItem>>();
+        foreach (var item in Items)
+        {
+            cloneItems.GetOrAdd(item.Key, item.Value.Clone());
+        }
 
-    public CalibrationMicroscopeCalChip AdaptTo() => new()
+        return new()
+        {
+            CalChipSiteModelEnum = CalChipSiteModelEnum,
+            MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+            Items = cloneItems,
+            IsCalibrated = IsCalibrated,
+            IsVerified = IsVerified,
+            IsRequiredSelfCheck = IsRequiredSelfCheck,
+            Id = Id,
+            Expiration = Expiration
+        };
+    }
+
+    public CalibrationMicroscopeCalChip AdaptTo()
     {
-        CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
-        ChuckAfEcsValue = ChuckAfEcsValue,
-        ChuckAfMotorValue = ChuckAfMotorValue,
-        DswBrightFieldMachinePosition = DswBrightFieldMachinePosition.ToCgPoint(),
-        DswDarkFieldMachinePosition = DswDarkFieldMachinePosition.ToCgPoint(),
-        DswEcsValue = DswEcsValue,
-        DswAfEcsValue = DswAfEcsValue,
-        DswAfMotorValue = DswAfMotorValue,
-        UndefinedBrightFieldMachinePosition = UndefinedBrightFieldMachinePosition.ToCgPoint(),
-        UndefinedDarkFieldMachinePosition = UndefinedDarkFieldMachinePosition.ToCgPoint(),
-        UndefinedEcsValue = UndefinedEcsValue,
-        HazeBrightFieldMachinePosition = HazeBrightFieldMachinePosition.ToCgPoint(),
-        HazeDarkFieldMachinePosition = HazeDarkFieldMachinePosition.ToCgPoint(),
-        HazeEcsValue = HazeEcsValue,
-        HazeAfEcsValue = HazeAfEcsValue,
-        HazeAfMotorValue = HazeAfMotorValue,
-        ShinyWaferBrightFieldMachinePosition = ShinyWaferBrightFieldMachinePosition.ToCgPoint(),
-        ShinyWaferDarkFieldMachinePosition = ShinyWaferDarkFieldMachinePosition.ToCgPoint(),
-        ShinyWaferEcsValue = ShinyWaferEcsValue,
-        IsCalibrated = IsCalibrated,
-        IsVerified = IsVerified,
-        IsRequiredCalibrate = IsRequiredSelfCheck
-    };
+        var chuck = GuardUtils.IsNotNullAndReturn(ChuckItem);
+        var dsw = GuardUtils.IsNotNullAndReturn(DswItem);
+        var haze = GuardUtils.IsNotNullAndReturn(HazeItem);
+        var shiny = GuardUtils.IsNotNullAndReturn(ShinyWaferItem);
+        var undefine = GuardUtils.IsNotNullAndReturn(UndefineWaferItem);
+        return new CalibrationMicroscopeCalChip
+        {
+            CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
+            ChuckAfEcsValue = chuck.AfEcsValue,
+            ChuckAfMotorValue = chuck.AfMotorValue,
+            DswBrightFieldMachinePosition = dsw.BrightFieldMachinePosition.ToCgPoint(),
+            DswDarkFieldMachinePosition = dsw.DarkFieldMachinePosition.ToCgPoint(),
+            DswEcsValue = dsw.EcsValue,
+            DswAfEcsValue = dsw.AfEcsValue,
+            DswAfMotorValue = dsw.AfMotorValue,
+            UndefinedBrightFieldMachinePosition = undefine.BrightFieldMachinePosition.ToCgPoint(),
+            UndefinedDarkFieldMachinePosition = undefine.DarkFieldMachinePosition.ToCgPoint(),
+            UndefinedEcsValue = undefine.EcsValue,
+            HazeBrightFieldMachinePosition = haze.BrightFieldMachinePosition.ToCgPoint(),
+            HazeDarkFieldMachinePosition = haze.DarkFieldMachinePosition.ToCgPoint(),
+            HazeEcsValue = haze.EcsValue,
+            HazeAfEcsValue = haze.AfEcsValue,
+            HazeAfMotorValue = haze.AfMotorValue,
+            ShinyWaferBrightFieldMachinePosition = shiny.BrightFieldMachinePosition.ToCgPoint(),
+            ShinyWaferDarkFieldMachinePosition = shiny.DarkFieldMachinePosition.ToCgPoint(),
+            ShinyWaferEcsValue = shiny.EcsValue,
+            IsCalibrated = IsCalibrated,
+            IsVerified = IsVerified,
+            IsRequiredCalibrate = IsRequiredSelfCheck
+        };
+    }
 
     #endregion Mapper
+}
+
+public sealed partial class MicroscopeCalChipDtoItem : ObservableCacheBase, ICloneable<MicroscopeCalChipDtoItem>
+{
+    [ObservableProperty]
+    private CalChipSiteModelEnum _calChipSiteModelEnum;
+
+    [ObservableProperty]
+    private Point _brightFieldMachinePosition;
+
+    [ObservableProperty]
+    private Point _darkFieldMachinePosition;
+
+    [ObservableProperty]
+    private double _ecsValue;
+
+    [ObservableProperty]
+    private double _brightFieldQuality;
+
+    [ObservableProperty]
+    private double _darkFieldQuality;
+
+    [ObservableProperty]
+    private string _brightFieldFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _darkFieldFilePath = string.Empty;
+
+    [ObservableProperty]
+    private double _afEcsValue;
+
+    [ObservableProperty]
+    private double _afMotorValue;
+
+    public MicroscopeCalChipDtoItem Clone() => new()
+    {
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        BrightFieldMachinePosition = BrightFieldMachinePosition,
+        DarkFieldMachinePosition = DarkFieldMachinePosition,
+        EcsValue = EcsValue,
+        BrightFieldQuality = BrightFieldQuality,
+        DarkFieldQuality = DarkFieldQuality,
+        BrightFieldFilePath = BrightFieldFilePath,
+        DarkFieldFilePath = DarkFieldFilePath,
+        AfEcsValue = AfEcsValue,
+        AfMotorValue = AfMotorValue
+    };
 }

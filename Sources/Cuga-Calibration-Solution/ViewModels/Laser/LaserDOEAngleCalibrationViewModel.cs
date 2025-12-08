@@ -633,6 +633,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                     Cache.CIBConfiguration,
                     darkFieldRtfcDto.Position,
                     calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                    out _,
                     calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
                     pmtId: darkFieldRtfcDto.PmtId,
                     saveImageFileDirectory: ImageFileDirectory,

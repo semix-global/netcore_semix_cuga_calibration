@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -29,28 +28,11 @@
                                FontWeight="Bold"
                                Style="{StaticResource TextBlockDefaultInfo}" />
                 </StackPanel>
-                <TextBox Width="275"
+                <TextBox Text="{Binding Cache.Item.RightBottomPosition, Converter={StaticResource PointToStringConverter}}"
+                         Width="275"
                          hc:InfoElement.Title="Right-Bottom Position(um): "
-                         hc:InfoElement.TitlePlacement="Left">
-                    <TextBox.Style>
-                        <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                    <Setter Property="Text" Value="{Binding Cache.DswRightBottomPosition, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                    <Setter Property="Text" Value="{Binding Cache.UndefinedRightBottomPosition, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                    <Setter Property="Text" Value="{Binding Cache.HazeRightBottomPosition, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                    <Setter Property="Text" Value="{Binding Cache.ShinyWaferRightBottomPosition, Converter={StaticResource PointToStringConverter}}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
+                         hc:InfoElement.TitlePlacement="Left"
+                         Style="{StaticResource TextBoxExtend}" />
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"

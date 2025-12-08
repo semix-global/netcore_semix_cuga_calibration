@@ -199,7 +199,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
                     ? Cache.FindBFMachinePosition
-                    : MicroscopeCalChip.HazeBrightFieldMachinePosition));
+                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
