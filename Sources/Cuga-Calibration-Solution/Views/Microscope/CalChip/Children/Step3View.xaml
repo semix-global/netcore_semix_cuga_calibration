@@ -7,7 +7,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
              d:DesignHeight="500"
-             d:DesignWidth="800"
+             d:DesignWidth="1000"
              mc:Ignorable="d">
     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                             Orientation="Vertical"
@@ -16,7 +16,9 @@
             <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat='Cal Chip Step {0}'}" Color="{StaticResource InfoBrush}" />
         </hc:UniformSpacingPanel>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+            <hc:UniformSpacingPanel Width="300"
+                                    Orientation="Vertical"
+                                    Spacing="2">
                 <StackPanel>
                     <TextBlock Text="Find Chuck Position"
                                HorizontalAlignment="Center"
@@ -24,28 +26,34 @@
                                FontWeight="Bold"
                                Style="{StaticResource TextBlockDefaultInfo}" />
                 </StackPanel>
-                <hc:NumericUpDown Width="275"
-                                  hc:InfoElement.Title="Af Offset Threshold: "
-                                  hc:InfoElement.TitlePlacement="Left"
+                <hc:NumericUpDown hc:TitleElement.Title="Af Motor Offset Threshold: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="170"
                                   Minimum="0"
                                   Maximum="1"
                                   Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding Cache.AfOffsetThreshold}" />
+                                  Value="{Binding Cache.AfMotorOffsetThreshold}" />
                 <TextBox Text="{Binding Cache.ChuckPosition, Converter={StaticResource PointToStringConverter}}"
-                         Width="275"
-                         hc:InfoElement.Title="Position(um): "
-                         hc:InfoElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="170"
+                         hc:TitleElement.Title="Position(um): "
+                         hc:TitleElement.TitlePlacement="Left"
                          Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding ResultMicroscopeCalChipDto.ChuckAfEcsValue}"
-                         hc:TitleElement.TitleWidth="150"
-                         hc:InfoElement.Title="Rtfc Af Ecs: "
-                         hc:InfoElement.TitlePlacement="Left"
+                <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.AfEcsValue, StringFormat={}{0:f3}}"
+                         hc:TitleElement.TitleWidth="170"
+                         hc:TitleElement.Title="Rtfc Af Ecs: "
+                         hc:TitleElement.TitlePlacement="Left"
                          IsReadOnly="True"
                          Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding ResultMicroscopeCalChipDto.ChuckAfMotorValue}"
-                         hc:TitleElement.TitleWidth="150"
-                         hc:InfoElement.Title="Rtfc Af Motor: "
-                         hc:InfoElement.TitlePlacement="Left"
+                <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.AfMotorValue, StringFormat={}{0:f3}}"
+                         hc:TitleElement.TitleWidth="170"
+                         hc:TitleElement.Title="Rtfc Af Motor: "
+                         hc:TitleElement.TitlePlacement="Left"
+                         IsReadOnly="True"
+                         Style="{StaticResource TextBoxExtend}" />
+                <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality}"
+                         hc:TitleElement.TitleWidth="170"
+                         hc:TitleElement.Title="Rtfc Quality: "
+                         hc:TitleElement.TitlePlacement="Left"
                          IsReadOnly="True"
                          Style="{StaticResource TextBoxExtend}" />
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -53,11 +61,11 @@
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button Content="Action"
-                                Command="{Binding Step1CalibrateActionCommand}"
+                                Command="{Binding Step2CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button Content="Cancel"
-                                Command="{Binding Step1CalibrateActionCancelCommand}"
+                                Command="{Binding Step2CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>

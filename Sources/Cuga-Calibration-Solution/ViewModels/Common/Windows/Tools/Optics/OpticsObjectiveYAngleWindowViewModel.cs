@@ -215,8 +215,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
         {
             if (microscopeCalChip.IsOk)
             {
-                Cache.HazeBFMachinePosition = microscopeCalChip.HazeBrightFieldMachinePosition;
-                Cache.ShinyWaferBFMachinePosition = microscopeCalChip.ShinyWaferBrightFieldMachinePosition;
+                Cache.HazeBFMachinePosition = GuardUtils.IsNotNullAndReturn(microscopeCalChip.HazeItem).BrightFieldMachinePosition;
+                Cache.ShinyWaferBFMachinePosition = GuardUtils.IsNotNullAndReturn(microscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
 
                 return;
             }

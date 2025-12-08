@@ -27,6 +27,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -219,7 +220,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         switch (CalibrationStepIndex)
         {
             case 1:
-                Cache.Item.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
+                Cache.Item.FindPosition = GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition));
                 LaserXTCCalibrationItemDtoList = [];
                 return true;
