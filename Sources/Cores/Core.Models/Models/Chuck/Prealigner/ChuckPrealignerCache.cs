@@ -59,7 +59,11 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     [ObservableProperty]
     private AlignmentSiteDto _highSite2 = new();
 
+    [ObservableProperty]
+    private string _lowSiteTemplateFilePath = string.Empty;
 
+    [ObservableProperty]
+    private string _highSiteTemplateFilePath = string.Empty;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
     public double DiePitchWidth

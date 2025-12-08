@@ -350,6 +350,15 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             var position = StageViewModel.GetBrightFieldStagePosition();
             Cache.LowSite1.Location = position;
             var lowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            Cache.LowSiteTemplateFilePath = lowTemplateFilePath;
+            
+            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            if (generateTemplate == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false ;
+            }
+
             var lowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(lowTemplateFilePath);
 
             var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
@@ -385,7 +394,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         await InvokeCalibrateAsync(() =>
         {
             var position = StageViewModel.GetBrightFieldStagePosition();
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.LowMicroscopeLensInformation, Cache.LowSite1.Template.Name, out var lowPositionResult) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.LowMicroscopeLensInformation,  Cache.LowSiteTemplateFilePath, out var lowPositionResult) == false) return false;
 
             Cache.LowSite2.Location = lowPositionResult;
             var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1, Cache.AlgorithmWaferTypeEnum);
@@ -418,8 +427,18 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             var position = StageViewModel.GetBrightFieldStagePosition();
             Cache.HighSite1.Location = position;
+            
             var highTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            Cache.HighSiteTemplateFilePath = highTemplateFilePath;
+           
+            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            if (generateTemplate == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false ;
+            }
             var highTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(highTemplateFilePath);
+            
             var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
             if (resultHighSite1.Template is null)
             {
@@ -431,7 +450,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             Cache.HighSite1 = resultHighSite1;
             Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
             Cache.HighSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
-
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.HighMicroscopeLensInformation.LensName,
@@ -453,7 +471,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         await InvokeCalibrateAsync(() =>
         {
             var position = StageViewModel.GetBrightFieldStagePosition();
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.HighMicroscopeLensInformation, Cache.HighSite1.Template.Name, out var highPositionResult) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.HighMicroscopeLensInformation, Cache.HighSiteTemplateFilePath, out var highPositionResult) == false) return false;
 
             Cache.HighSite2.Location = highPositionResult;
             var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1, Cache.AlgorithmWaferTypeEnum);
