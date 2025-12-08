@@ -168,6 +168,15 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetMachineAbsoluteStageXyByFixedSpeed(Point point)
+    {
+        _curPosition = point;
+
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<(double XDirection, double YDirection)> GetMachineDirection()
     {
         Thread.Sleep(100);

@@ -150,6 +150,16 @@ public sealed partial class StageViewModel(
         afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
     }
 
+    public void SetMachineAbsoluteStageXyByFixedSpeed(Point point)
+    {
+        afViewModel.ToggleBrightFieldEnable(false);
+
+        var ret = calibrationStageService.SetMachineAbsoluteStageXyByFixedSpeed(point);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
+    }
+
     public (double XDirection, double YDirection) GetMachineDirection()
     {
         var ret = calibrationStageService.GetMachineDirection();

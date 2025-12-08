@@ -165,6 +165,15 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetMachineAbsoluteStageXyByFixedSpeed(Point point)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetMachineAbsoluteStageXy(new SxParamObj<CgPoint>(point.ToCgPoint())));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<(double XDirection, double YDirection)> GetMachineDirection()
     {
         var sxExecuteRet = Invoke(() => Service?.GetMachineDirection());
