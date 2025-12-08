@@ -9,7 +9,6 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
              d:DesignHeight="800"
@@ -47,91 +46,28 @@
                                   Text="{Binding ReviewViewModel.Quality, Mode=OneWay, StringFormat={}{0:f3}}"
                                   Command="{Binding ReviewViewModel.GetQualityCommand}"
                                   hc:TitleElement.TitleWidth="180"
-                                  hc:InfoElement.Title="Quality: "
-                                  hc:InfoElement.TitlePlacement="Left"
+                                  hc:TitleElement.Title="Quality: "
+                                  hc:TitleElement.TitlePlacement="Left"
                                   IsReadOnly="True"
                                   Style="{StaticResource SearchBarExtend}" />
-                    <hc:NumericUpDown x:Name="ZLimitMinNumeric"
-                                      hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.Title="Z Limit Min: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMinDsw}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMinUndefined}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMinHaze}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMinShinyWafer}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
-                    <hc:NumericUpDown x:Name="ZLimitMaxNumeric"
-                                      hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.Title="Z Limit Max: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMaxDsw}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMaxUndefined}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMaxHaze}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusMaxShinyWafer}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
-                    <hc:NumericUpDown x:Name="IntervalNumeric"
-                                      hc:TitleElement.TitleWidth="180"
-                                      hc:InfoElement.Title="Z Limit Interval: "
-                                      hc:InfoElement.Necessary="True"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1">
-                        <hc:NumericUpDown.Style>
-                            <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusIntervalDsw}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusIntervalUndefined}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusIntervalHaze}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Value" Value="{Binding Cache.FindFocusIntervalShinyWafer}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:NumericUpDown.Style>
-                    </hc:NumericUpDown>
+                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                      hc:TitleElement.Title="Z Limit Min: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.FindFocusMin}" />
+                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                      hc:TitleElement.Title="Z Limit Max: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.FindFocusMax}" />
+                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                      hc:TitleElement.Title="Z Limit Interval: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Item.FindFocusInterval}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -143,78 +79,24 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox x:Name="PositionTextbox"
+                    <TextBox Text="{Binding Cache.Item.CenterPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding Cache.DswPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding Cache.UndefinedPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding Cache.HazePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding Cache.ShinyWaferPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <TextBox x:Name="BrightMachinePositionTextbox"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.BrightFieldMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Bright Machine Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.UndefinedBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.ShinyWaferBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <TextBox x:Name="DarkMachinePositionTextbox"
+                             hc:TitleElement.Title="Bright Machine Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.DarkFieldMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Dark Machine Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.UndefinedDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.ShinyWaferDarkFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                             hc:TitleElement.Title="Dark Machine Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -226,97 +108,47 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Find Focus Max Quality: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswQuality, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.UndefinedQuality, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeQuality, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.ShinyWaferQuality, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <TextBox hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Find Focus Max Ecs: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.UndefinedEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.ShinyWaferEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <TextBox hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Rtfc Af Ecs: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeAfEcsValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <TextBox hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Rtfc Af Motor: "
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True">
-                        <TextBox.Style>
-                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.DswAfMotorValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                        <Setter Property="Text" Value="{Binding ResultMicroscopeCalChipDto.HazeAfMotorValue, StringFormat={}{0:f3}}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.BrightFieldQuality, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.Title="Find Focus Max Quality: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.EcsValue, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.Title="Find Focus Max Ecs: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}"
+                             IsReadOnly="True" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.AfEcsValue, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.Title="Rtfc Af Ecs: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}"
+                             IsReadOnly="True" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.AfMotorValue, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.Title="Rtfc Af Motor: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             Style="{StaticResource TextBoxExtend}"
+                             IsReadOnly="True" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.Title="Rtfc Quality: "
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
-                                Command="{Binding CalibrateActionCommand}"
+                                Command="{Binding Step1CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
-                                Command="{Binding CalibrateActionCancelCommand}"
+                                Command="{Binding Step1CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>

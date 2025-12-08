@@ -1,271 +1,117 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
+using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
 public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 {
-    private double _findFocusMinDsw = 1;
-    private double _findFocusMinUndefined = 1;
-    private double _findFocusMinHaze = 1;
-    private double _findFocusMinShinyWafer = 1;
-    private double _findFocusMaxDsw = 1;
-    private double _findFocusMaxUndefined = 1;
-    private double _findFocusMaxHaze = 1;
-    private double _findFocusMaxShinyWafer = 1;
-    private double _findFocusIntervalDsw = 1;
-    private double _findFocusIntervalUndefined = 1;
-    private double _findFocusIntervalHaze = 1;
-    private double _findFocusIntervalShinyWafer = 1;
-    private double _threshold = 1;
-    private double _afOffsetThreshold = 1;
+    private double _bfQualityThreshold = 1;
+    private double _dfQualityThreshold = 1;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinDsw: ")]
-    public double FindFocusMinDsw
-    {
-        get => _findFocusMinDsw;
-        set => SetProperty(ref _findFocusMinDsw, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinUndefined: ")]
-    public double FindFocusMinUndefined
-    {
-        get => _findFocusMinUndefined;
-        set => SetProperty(ref _findFocusMinUndefined, value);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinHaze: ")]
-    public double FindFocusMinHaze
-    {
-        get => _findFocusMinHaze;
-        set => SetProperty(ref _findFocusMinHaze, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMinShinyWafer: ")]
-    public double FindFocusMinShinyWafer
-    {
-        get => _findFocusMinShinyWafer;
-        set => SetProperty(ref _findFocusMinShinyWafer, value);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxDsw: ")]
-    public double FindFocusMaxDsw
-    {
-        get => _findFocusMaxDsw;
-        set => SetProperty(ref _findFocusMaxDsw, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxUndefined: ")]
-    public double FindFocusMaxUndefined
-    {
-        get => _findFocusMaxUndefined;
-        set => SetProperty(ref _findFocusMaxUndefined, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxHaze: ")]
-    public double FindFocusMaxHaze
-    {
-        get => _findFocusMaxHaze;
-        set => SetProperty(ref _findFocusMaxHaze, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMaxShinyWafer: ")]
-    public double FindFocusMaxShinyWafer
-    {
-        get => _findFocusMaxShinyWafer;
-        set => SetProperty(ref _findFocusMaxShinyWafer, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalDsw: ")]
-    public double FindFocusIntervalDsw
-    {
-        get => _findFocusIntervalDsw;
-        set => SetProperty(ref _findFocusIntervalDsw, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalUndefined: ")]
-    public double FindFocusIntervalUndefined
-    {
-        get => _findFocusIntervalUndefined;
-        set => SetProperty(ref _findFocusIntervalUndefined, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalHaze: ")]
-    public double FindFocusIntervalHaze
-    {
-        get => _findFocusIntervalHaze;
-        set => SetProperty(ref _findFocusIntervalHaze, value, validate: true);
-    }
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusIntervalShinyWafer: ")]
-    public double FindFocusIntervalShinyWafer
-    {
-        get => _findFocusIntervalShinyWafer;
-        set => SetProperty(ref _findFocusIntervalShinyWafer, value, validate: true);
-    }
-
     [ObservableProperty]
-    private string _verifyResultQuality = string.Empty;
+    private MicroscopeCalChipCacheItem[] _microscopeCalChipCacheItems = [];
 
-    [ObservableProperty]
-    private string _verifyResultError = string.Empty;
+    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipCacheItem>> Items { get; init; } = [];
 
-    /// <summary>
-    /// verify清晰度得分和校准结果的清晰度差值需小于该阈值
-    /// </summary>
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Threshold: ")]
-    public double Threshold
-    {
-        get => _threshold;
-        set => SetProperty(ref _threshold, value, validate: true);
-    }
-
-    /// <summary>
-    /// chuck、dsw、haze 分别做rtfc输出的afOffset值的差值需小于该阈值
-    /// </summary>
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "AfOffsetThreshold: ")]
-    public double AfOffsetThreshold
-    {
-        get => _afOffsetThreshold;
-        set => SetProperty(ref _afOffsetThreshold, value, validate: true);
-    }
-
-    /// <summary>
-    /// verify chuck、dsw、haze rtfc输出的af ecs和校准结果的差值需小于该阈值 
-    /// </summary>
-    [ObservableProperty]
-    private double _afEcsErrorThreshold;
-
-    /// <summary>
-    /// verify chuck、dsw、haze rtfc输出的af offset和校准结果的差值需小于该阈值 
-    /// </summary>
-    [ObservableProperty]
-    private double _afMotorErrorThreshold;
-
-    #region Position
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     [ObservableProperty]
     private Point _chuckPosition = Point.Origin;
 
-    #region DSW
+    [ObservableProperty]
+    private string _verifyBrightFieldResultError = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DswPosition))]
-    private Point _dswLeftTopPosition = new(122000, 128000);
+    private string _verifyDarkFieldResultError = string.Empty;
+
+    /// <summary>
+    /// 校准 chuck、dsw、haze rtfc输出的af offset和校准结果的差值需小于该阈值 
+    /// </summary>
+    [ObservableProperty]
+    private double _afMotorOffsetThreshold;
+
+    /// <summary>
+    /// BF verify清晰度得分和校准结果的清晰度差值需小于该阈值
+    /// </summary>
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "BfQualityThreshold: ")]
+    public double BfQualityThreshold
+    {
+        get => _bfQualityThreshold;
+        set => SetProperty(ref _bfQualityThreshold, value, validate: true);
+    }
+
+    /// <summary>
+    /// DF verify清晰度得分和校准结果的清晰度差值需小于该阈值
+    /// </summary>
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "DfQualityThreshold: ")]
+    public double DfQualityThreshold
+    {
+        get => _dfQualityThreshold;
+        set => SetProperty(ref _dfQualityThreshold, value, validate: true);
+    }
+}
+
+public sealed partial class MicroscopeCalChipCacheItem : ObservableCacheBase
+{
+    [ObservableProperty]
+    private CalChipSiteModelEnum _calChipSiteModelEnum;
+
+    private double _findFocusMin = 1;
+
+    private double _findFocusMax = 1;
+
+    private double _findFocusInterval = 1;
+
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMin: ")]
+    public double FindFocusMin
+    {
+        get => _findFocusMin;
+        set => SetProperty(ref _findFocusMin, value, validate: true);
+    }
+
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMax: ")]
+    public double FindFocusMax
+    {
+        get => _findFocusMax;
+        set => SetProperty(ref _findFocusMax, value, validate: true);
+    }
+
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusInterval: ")]
+    public double FindFocusInterval
+    {
+        get => _findFocusInterval;
+        set => SetProperty(ref _findFocusInterval, value, validate: true);
+    }
+
+    #region Position
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DswPosition))]
-    private Point _dswRightBottomPosition = new(122000, 128000);
-
-    public Point DswPosition => (DswLeftTopPosition + (Vector)DswRightBottomPosition) / 2;
-
-    #endregion DSW
-
-    #region Undefined
+    [NotifyPropertyChangedFor(nameof(CenterPosition))]
+    private Point _leftTopPosition;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(UndefinedPosition))]
-    private Point _undefinedLeftTopPosition = new(-122000, 128000);
+    [NotifyPropertyChangedFor(nameof(CenterPosition))]
+    private Point _rightBottomPosition;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(UndefinedPosition))]
-    private Point _undefinedRightBottomPosition = new(-122000, 128000);
-
-    public Point UndefinedPosition => (UndefinedLeftTopPosition + (Vector)UndefinedRightBottomPosition) / 2;
-
-    #endregion Undefined
-
-    #region Haze
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HazePosition))]
-    private Point _hazeLeftTopPosition = new(-122000, -128000);
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HazePosition))]
-    private Point _hazeRightBottomPosition = new(-122000, -128000);
-
-    public Point HazePosition => (HazeLeftTopPosition + (Vector)HazeRightBottomPosition) / 2;
-
-    #endregion Haze
-
-    #region ShinyWafer
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShinyWaferPosition))]
-    private Point _shinyWaferLeftTopPosition = new(122000, -128000);
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ShinyWaferPosition))]
-    private Point _shinyWaferRightBottomPosition = new(122000, -128000);
-
-    public Point ShinyWaferPosition => (ShinyWaferLeftTopPosition + (Vector)ShinyWaferRightBottomPosition) / 2;
-
-    #endregion ShinyWafer
+    public Point CenterPosition => (LeftTopPosition + (Vector)RightBottomPosition) / 2;
 
     #endregion Position
-
-    public double GetFindFocusMin() => CalChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => FindFocusMinDsw,
-        CalChipSiteModelEnum.UndefinedModel => FindFocusMinUndefined,
-        CalChipSiteModelEnum.HazeModel => FindFocusMinHaze,
-        CalChipSiteModelEnum.ShinyWaferModel => FindFocusMinShinyWafer,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public double GetFindFocusMax() => CalChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => FindFocusMaxDsw,
-        CalChipSiteModelEnum.UndefinedModel => FindFocusMaxUndefined,
-        CalChipSiteModelEnum.HazeModel => FindFocusMaxHaze,
-        CalChipSiteModelEnum.ShinyWaferModel => FindFocusMaxShinyWafer,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public double GetFindFocusInterval() => CalChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => FindFocusIntervalDsw,
-        CalChipSiteModelEnum.UndefinedModel => FindFocusIntervalUndefined,
-        CalChipSiteModelEnum.HazeModel => FindFocusIntervalHaze,
-        CalChipSiteModelEnum.ShinyWaferModel => FindFocusIntervalShinyWafer,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public Point GetFindPosition() => CalChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswPosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedPosition,
-        CalChipSiteModelEnum.HazeModel => HazePosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferPosition,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public Point GetLeftTopPosition() => CalChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswLeftTopPosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedLeftTopPosition,
-        CalChipSiteModelEnum.HazeModel => HazeLeftTopPosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferLeftTopPosition,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    public Point GetRightBottomPosition() => CalChipSiteModelEnum switch
-    {
-        CalChipSiteModelEnum.DswModel => DswRightBottomPosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefinedRightBottomPosition,
-        CalChipSiteModelEnum.HazeModel => HazeRightBottomPosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferRightBottomPosition,
-        _ => throw new ArgumentOutOfRangeException()
-    };
 }

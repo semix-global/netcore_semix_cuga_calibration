@@ -369,6 +369,7 @@ public sealed class LaserViewModel(
         CIBConfiguration cibConfiguration,
         Point position,
         LaserLightInformation laserLightInformation,
+        out string resultImageFilePath,
         bool isAppliedDefaultRtfcParam = true,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
@@ -381,6 +382,7 @@ public sealed class LaserViewModel(
         string? logName = null
     )
     {
+        resultImageFilePath = string.Empty;
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
         Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
 
@@ -428,6 +430,7 @@ public sealed class LaserViewModel(
                         RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
                     })
                 }), logGuid.Value.LoggingHtml());
+            resultImageFilePath = rtfcResultImagePath;
         }
 
         return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
@@ -438,6 +441,7 @@ public sealed class LaserViewModel(
         Point position,
         LaserLightInformation laserLightInformation,
         ProductivityInformation productivityInformation,
+        out string resultImageFilePath,
         bool isAppliedDefaultRtfcParam = true,
         int pmtId = CalibrationConstantsHelper.MainPmtId,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
@@ -448,6 +452,7 @@ public sealed class LaserViewModel(
         string? logName = null
     )
     {
+        resultImageFilePath = string.Empty;
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
         Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
 
@@ -480,6 +485,9 @@ public sealed class LaserViewModel(
             var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
             darkFieldImageDto.Image.Save(rtfcResultImagePath);
             File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcResultImagePath), darkFieldImageDto.Bytes);
+
+            resultImageFilePath = rtfcResultImagePath;
+
             if (logGuid is not null && logName is not null)
                 logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {

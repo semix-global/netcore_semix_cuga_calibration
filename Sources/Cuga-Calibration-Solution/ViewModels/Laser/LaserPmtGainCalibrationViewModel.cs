@@ -17,6 +17,7 @@ using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -173,7 +174,7 @@ public sealed partial class LaserPmtGainCalibrationViewModel : CalibrationViewMo
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.FindPosition = MicroscopeCalChip.HazeBrightFieldMachinePosition;
+        Cache.FindPosition = GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
 
         StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
         return true;

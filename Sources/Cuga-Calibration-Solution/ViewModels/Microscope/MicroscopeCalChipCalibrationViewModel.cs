@@ -6,8 +6,10 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -22,7 +24,9 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCalChipCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSetting calibrationSetting, ApplicationCookie applicationCookie) : CalibrationViewModelBase
+public sealed partial class MicroscopeCalChipCalibrationViewModel(
+    CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -89,6 +93,11 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
 
     #endregion 缓存
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(GotoBrightFieldPositionCommand))]
+    [NotifyCanExecuteChangedFor(nameof(GotoDarkFieldPositionCommand))]
+    private bool _isWindowEnable = true;
+
     #endregion 属性
 
     #region 控制校准业务
@@ -133,7 +142,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
             return false;
         }
 
-        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
 
         DialogWindowProvider.TryShowDialog("Do you want to skip dark field rtfc step?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
         _isSkipRtfc = dialogResult == DialogResultEnum.Yes;
@@ -145,6 +154,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         await Task.CompletedTask.ConfigureAwait(false);
 
         ReviewDto = Calibration.Clone();
+        ResultMicroscopeCalChipDto = Calibration.Clone();
         if (ReviewDto.IsCalibrated == false) return false;
 
         AfViewModel.ToggleBrightFieldEnable(false);
@@ -180,55 +190,55 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         switch (CalibrationStepIndex)
         {
             case 1:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 return true;
 
             case 2:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 return true;
 
             case 3:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
             case 4:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 return true;
 
             case 5:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 return true;
 
             case 6:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
             case 7:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 return true;
 
             case 8:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 return true;
 
             case 9:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
             case 10:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 return true;
 
             case 11:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 return true;
 
             case 12:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
             default:
@@ -243,50 +253,50 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         switch (CalibrationStepIndex)
         {
             case 0:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
             case 1:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.DswPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
             case 2:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 break;
 
             case 3:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
             case 4:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.UndefinedPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
             case 5:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 break;
 
             case 6:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazeRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
             case 7:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.HazePosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
             case 8:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferLeftTopPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 break;
 
             case 9:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferRightBottomPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
             case 10:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ShinyWaferPosition);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
             case 11:
@@ -326,11 +336,13 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
 
     #region 校准
 
-    [RelayCommand]
-    private async Task GotoBrightFieldPositionAsync(string name)
+    [RelayCommand(CanExecute = nameof(IsWindowEnable))]
+    private async Task GotoBrightFieldPositionAsync(CalChipSiteModelEnum? calChipSiteModelEnum)
     {
         try
         {
+            if (calChipSiteModelEnum is null)
+                return;
             if (ReviewDto is null)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -339,31 +351,10 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
 
             await Task.Run(() =>
             {
-                switch (name)
-                {
-                    case "DSW":
-                        var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.DswBrightFieldMachinePosition);
-                        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
-                        break;
+                ReviewDto.CalChipSiteModelEnum = calChipSiteModelEnum.Value;
 
-                    case "Undefined":
-                        brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.UndefinedBrightFieldMachinePosition);
-                        StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(brightFieldPosition);
-                        break;
-
-                    case "Haze":
-                        brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.HazeBrightFieldMachinePosition);
-                        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(brightFieldPosition);
-                        break;
-
-                    case "ShinyWafer":
-                        brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.ShinyWaferBrightFieldMachinePosition);
-                        StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(brightFieldPosition);
-                        break;
-
-                    default:
-                        break;
-                }
+                var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ReviewDto.CurrentItem.BrightFieldMachinePosition);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -372,11 +363,14 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         }
     }
 
-    [RelayCommand]
-    private async Task GotoDarkFieldPositionAsync(string name)
+    [RelayCommand(CanExecute = nameof(IsWindowEnable))]
+    private async Task GotoDarkFieldPositionAsync(CalChipSiteModelEnum? calChipSiteModelEnum)
     {
         try
         {
+            if (calChipSiteModelEnum is null)
+                return;
+
             if (ReviewDto is null)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -385,31 +379,10 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
 
             await Task.Run(() =>
             {
-                switch (name)
-                {
-                    case "DSW":
-                        var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.DswDarkFieldMachinePosition);
-                        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(darkFieldPosition);
-                        break;
+                ReviewDto.CalChipSiteModelEnum = calChipSiteModelEnum.Value;
 
-                    case "Undefined":
-                        darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.UndefinedDarkFieldMachinePosition);
-                        StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(darkFieldPosition);
-                        break;
-
-                    case "Haze":
-                        darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.HazeDarkFieldMachinePosition);
-                        StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(darkFieldPosition);
-                        break;
-
-                    case "ShinyWafer":
-                        darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.ShinyWaferDarkFieldMachinePosition);
-                        StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(darkFieldPosition);
-                        break;
-
-                    default:
-                        break;
-                }
+                var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ReviewDto.CurrentItem.DarkFieldMachinePosition);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(darkFieldPosition);
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -424,86 +397,28 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         return InvokeCalibrateAsync(() =>
         {
             var resultMachine = StageViewModel.GetMachineStagePosition();
-
-            switch (Cache.CalChipSiteModelEnum)
+            switch (name)
             {
-                case CalChipSiteModelEnum.DswModel:
-                    switch (name)
-                    {
-                        case "LeftTop":
-                            Cache.DswLeftTopPosition = resultMachine;
-                            break;
-
-                        case "RightBottom":
-                            Cache.DswRightBottomPosition = resultMachine;
-                            break;
-                    }
-
-                    ResultMicroscopeCalChipDto.DswBrightFieldMachinePosition = Cache.DswPosition;
-                    var darkFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.DswPosition);
-                    ResultMicroscopeCalChipDto.DswDarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(darkFieldPosition);
+                case "LeftTop":
+                    Cache.Item.LeftTopPosition = resultMachine;
                     break;
 
-                case CalChipSiteModelEnum.UndefinedModel:
-                    switch (name)
-                    {
-                        case "LeftTop":
-                            Cache.UndefinedLeftTopPosition = resultMachine;
-                            break;
-
-                        case "RightBottom":
-                            Cache.UndefinedRightBottomPosition = resultMachine;
-                            break;
-                    }
-
-                    ResultMicroscopeCalChipDto.UndefinedBrightFieldMachinePosition = Cache.UndefinedPosition;
-                    darkFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.UndefinedPosition);
-                    ResultMicroscopeCalChipDto.UndefinedDarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(darkFieldPosition);
+                case "RightBottom":
+                    Cache.Item.RightBottomPosition = resultMachine;
                     break;
-
-                case CalChipSiteModelEnum.HazeModel:
-                    switch (name)
-                    {
-                        case "LeftTop":
-                            Cache.HazeLeftTopPosition = resultMachine;
-                            break;
-
-                        case "RightBottom":
-                            Cache.HazeRightBottomPosition = resultMachine;
-                            break;
-                    }
-
-                    ResultMicroscopeCalChipDto.HazeBrightFieldMachinePosition = Cache.HazePosition;
-                    darkFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazePosition);
-                    ResultMicroscopeCalChipDto.HazeDarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(darkFieldPosition);
-                    break;
-
-                case CalChipSiteModelEnum.ShinyWaferModel:
-                    switch (name)
-                    {
-                        case "LeftTop":
-                            Cache.ShinyWaferLeftTopPosition = resultMachine;
-                            break;
-
-                        case "RightBottom":
-                            Cache.ShinyWaferRightBottomPosition = resultMachine;
-                            break;
-                    }
-
-                    ResultMicroscopeCalChipDto.ShinyWaferBrightFieldMachinePosition = Cache.ShinyWaferPosition;
-                    darkFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferPosition);
-                    ResultMicroscopeCalChipDto.ShinyWaferDarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(darkFieldPosition);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
+
+            ResultMicroscopeCalChipDto.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            var darkFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.CenterPosition);
+            ResultMicroscopeCalChipDto.CurrentItem.BrightFieldMachinePosition = Cache.Item.CenterPosition;
+            ResultMicroscopeCalChipDto.CurrentItem.DarkFieldMachinePosition = StageViewModel.DarkFieldToMachinePosition(darkFieldPosition);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Direction = name,
                 Cache.CalChipSiteModelEnum,
-                MachinePosition = resultMachine
+                MachinePosition = resultMachine,
+                darkFieldPosition,
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -511,47 +426,6 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(() =>
-        {
-            Cache.ChuckPosition = StageViewModel.GetBrightFieldStagePosition();
-            if (_isSkipRtfc) return true;
-            var (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(
-                GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
-                Cache.ChuckPosition,
-                calibrationSetting.SettingCommonParam.MainLaserLightInformation,
-                calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
-                saveImageFileDirectory: ImageFileDirectory,
-                logGuid: HtmlLogUniqueId,
-                logName: "Chuck");
-            ResultMicroscopeCalChipDto.ChuckAfEcsValue = ecs;
-            ResultMicroscopeCalChipDto.ChuckAfMotorValue = afMotor;
-
-            var afMotorResults = new[] { afMotor, ResultMicroscopeCalChipDto.DswAfMotorValue, ResultMicroscopeCalChipDto.HazeAfMotorValue };
-            var afOffsetAbs = Math.Abs(afMotorResults.Max() - afMotorResults.Min());
-            var result = afOffsetAbs < Cache.AfOffsetThreshold;
-
-            Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                Cache.CalChipSiteModelEnum,
-                ChuckAfEcsValue = ecs,
-                ChuckAfMotorValue = afMotor,
-                ResultMicroscopeCalChipDto.DswAfEcsValue,
-                ResultMicroscopeCalChipDto.DswAfMotorValue,
-                ResultMicroscopeCalChipDto.HazeAfEcsValue,
-                ResultMicroscopeCalChipDto.HazeAfMotorValue,
-                ResultMicroscopeCalChipDto.DswToChuckAfEcsValue,
-                ResultMicroscopeCalChipDto.DswToChuckAfMotorValue,
-                ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue,
-                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue,
-                AfOffsetAbs = afOffsetAbs
-            }), HtmlLogUniqueId.LoggingHtml());
-            return result;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -566,10 +440,12 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
             ClearCalibrationTemp();
             var detectImageDirectory = ImageFileDirectory;
 
-            var findFocusPosition = Cache.GetFindPosition();
-            var findFocusMin = Cache.GetFindFocusMin();
-            var findFocusMax = Cache.GetFindFocusMax();
-            var findFocusInterval = Cache.GetFindFocusInterval();
+            #region BF
+
+            var findFocusPosition = Cache.Item.CenterPosition;
+            var findFocusMin = Cache.Item.FindFocusMin;
+            var findFocusMax = Cache.Item.FindFocusMax;
+            var findFocusInterval = Cache.Item.FindFocusInterval;
 
             if (findFocusMin > findFocusMax || findFocusInterval == 0)
             {
@@ -632,44 +508,36 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
             var findFocalItemResult = MicroscopeFocusItemDtoList.OrderByDescending(t => t.Quality).ToList();
             var temp = findFocalItemResult[0];
             SelectedMicroscopeFocusItemDto = temp;
-            ResultMicroscopeCalChipDto.SetEcsValue(Cache.CalChipSiteModelEnum, SelectedMicroscopeFocusItemDto.EcsValue);
-            ResultMicroscopeCalChipDto.SetQuality(Cache.CalChipSiteModelEnum, SelectedMicroscopeFocusItemDto.Quality);
-            ResultMicroscopeCalChipDto.SetFilePath(Cache.CalChipSiteModelEnum, SelectedMicroscopeFocusItemDto.FilePath);
+            ResultMicroscopeCalChipDto.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            ResultMicroscopeCalChipDto.CurrentItem.EcsValue = SelectedMicroscopeFocusItemDto.EcsValue;
+            ResultMicroscopeCalChipDto.CurrentItem.BrightFieldQuality = SelectedMicroscopeFocusItemDto.Quality;
+            ResultMicroscopeCalChipDto.CurrentItem.BrightFieldFilePath = SelectedMicroscopeFocusItemDto.FilePath;
 
-            AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.GetEcsValue(Cache.CalChipSiteModelEnum));
-            AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.GetBrightFieldMachinePosition(Cache.CalChipSiteModelEnum));
-            AfViewModel.SetSensorDarkFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.GetDarkFieldMachinePosition(Cache.CalChipSiteModelEnum));
+            AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.CurrentItem.EcsValue);
+            AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.CurrentItem.BrightFieldMachinePosition);
+            AfViewModel.SetSensorDarkFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.CurrentItem.DarkFieldMachinePosition);
 
-            double ecs = 0d;
-            double afMotor = 0d;
+            #endregion BF
+
+            #region DF
+
             if (!_isSkipRtfc && Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
             {
-                var position = StageViewModel.MachineToBrightFieldPosition(findFocusPosition);
-                (ecs, afMotor) = LaserViewModel.RuntimeAfCalibration(
-                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
-                    position,
-                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
-                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
-                    saveImageFileDirectory: ImageFileDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: Cache.CalChipSiteModelEnum.ToString());
-                ResultMicroscopeCalChipDto.SetAfEcsValue(Cache.CalChipSiteModelEnum, ecs);
-                ResultMicroscopeCalChipDto.SetAfMotorValue(Cache.CalChipSiteModelEnum, afMotor);
+                RuntimeAfCalibration(ResultMicroscopeCalChipDto, Cache.CalChipSiteModelEnum);
             }
+
+            #endregion DF
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 IsSkipRtfc = _isSkipRtfc,
                 Cache.CalChipSiteModelEnum,
-                RtfcAfEcs = ecs,
-                RtfcAfMotor = afMotor,
                 Cache.MicroscopeLensInformation.LensName,
-                EcsValue = ResultMicroscopeCalChipDto.GetEcsValue(Cache.CalChipSiteModelEnum),
-                ImageQuality = ResultMicroscopeCalChipDto.GetQuality(Cache.CalChipSiteModelEnum),
-                HtmlTab = new HtmlTab(new
-                {
-                    Image = new HtmlImage(ResultMicroscopeCalChipDto.GetFilePath(Cache.CalChipSiteModelEnum), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
+                ResultMicroscopeCalChipDto.CurrentItem.EcsValue,
+                ResultMicroscopeCalChipDto.CurrentItem.AfEcsValue,
+                ResultMicroscopeCalChipDto.CurrentItem.AfMotorValue,
+                ResultMicroscopeCalChipDto.CurrentItem.BrightFieldQuality,
+                ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -677,187 +545,219 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Cache.ChuckPosition = StageViewModel.GetBrightFieldStagePosition();
+            if (_isSkipRtfc) return true;
+
+            RuntimeAfCalibration(ResultMicroscopeCalChipDto, CalChipSiteModelEnum.ChuckModel);
+
+            var afMotorResults = new[]
+            {
+                GuardUtils.IsNotNullAndReturn(ResultMicroscopeCalChipDto.ChuckItem).AfMotorValue,
+                GuardUtils.IsNotNullAndReturn(ResultMicroscopeCalChipDto.DswItem).AfMotorValue,
+                GuardUtils.IsNotNullAndReturn(ResultMicroscopeCalChipDto.HazeItem).AfMotorValue
+            };
+            var afOffsetAbs = Math.Abs(afMotorResults.Max() - afMotorResults.Min());
+            var result = afOffsetAbs < Cache.AfMotorOffsetThreshold;
+
+            Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.AfMotorOffsetThreshold,
+                Cache.CalChipSiteModelEnum,
+                ResultMicroscopeCalChipDto.DswToChuckAfEcsValue,
+                ResultMicroscopeCalChipDto.DswToChuckAfMotorValue,
+                ResultMicroscopeCalChipDto.HazeToChuckAfEcsValue,
+                ResultMicroscopeCalChipDto.HazeToChuckAfMotorValue,
+                AfOffsetAbs = afOffsetAbs,
+                CalibrationResult = new HtmlTable([
+                    .. ResultMicroscopeCalChipDto.Items.OrderBy(t => t.Key)
+                        .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, t.Value.BrightFieldQuality, t.Value.DarkFieldMachinePosition, t.Value.AfEcsValue, t.Value.AfMotorValue, t.Value.DarkFieldQuality })
+                ])
+            }), HtmlLogUniqueId.LoggingHtml());
+            return result;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
+        SynchronizationContextProvider.Send(() => { IsWindowEnable = false; });
+
         if (ReviewDto is null)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
 
-        await InvokeVerifyAsync(() =>
+        try
         {
-            ClearCalibrationTemp();
-            var detectImageDirectory = ImageFileDirectory;
-            var oldQualityList = new List<double>();
-            var newQualityList = new List<double>();
-            var errorList = new List<double>();
-            var resultList = new List<bool>();
-
-            AfViewModel.ToggleBrightFieldEnable(false);
-
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-
-            foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
+            await InvokeVerifyAsync(() =>
             {
-                Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
-                Logger.LogHtmlInformation($"{Cache.CalChipSiteModelEnum}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+                ClearCalibrationTemp();
+                var detectImageDirectory = ImageFileDirectory;
 
-                var findFocusPosition = Cache.GetFindPosition();
-                var findFocusMin = Cache.GetFindFocusMin();
-                var findFocusMax = Cache.GetFindFocusMax();
-                var findFocusInterval = Cache.GetFindFocusInterval();
-
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    Cache.CalChipSiteModelEnum,
-                    Cache.MicroscopeLensInformation,
-                    FindFocusPosition = findFocusPosition,
-                    FindFocusLimitMin = findFocusMin,
-                    FindFocusLimitMax = findFocusMax,
-                    FindFocusInterval = findFocusInterval,
-                    ImageFileDirectory = detectImageDirectory
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
-
-                if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
-
-                AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, ReviewDto.GetEcsValue(Cache.CalChipSiteModelEnum));
-                AfViewModel.ToggleBrightFieldEnable(true);
-
-                Thread.Sleep(5000);
-
-                var microscopeFocusItemDto = new MicroscopeFocusItemDto
-                {
-                    Index = 0,
-                    LensInformation = Cache.MicroscopeLensInformation,
-                    FindPosition = findFocusPosition,
-                    Quality = 0,
-                    EcsValue = ReviewDto.GetEcsValue(Cache.CalChipSiteModelEnum),
-                    FilePath = detectImageDirectory
-                };
-                GetQuality(microscopeFocusItemDto);
+                Cache.VerifyBrightFieldResultError = string.Empty;
+                Cache.VerifyDarkFieldResultError = string.Empty;
 
                 AfViewModel.ToggleBrightFieldEnable(false);
 
-                var quality = microscopeFocusItemDto.Quality;
-                var error = quality - ReviewDto.GetQuality(Cache.CalChipSiteModelEnum);
-                var resultTemp = Math.Abs(error) < Cache.Threshold;
-                oldQualityList.Add(ReviewDto.GetQuality(Cache.CalChipSiteModelEnum));
-                newQualityList.Add(quality);
-                errorList.Add(error);
-                resultList.Add(resultTemp);
-            }
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
-            Cache.VerifyResultQuality = string.Join(", ", newQualityList);
-            Cache.VerifyResultError = string.Join(", ", errorList);
+                ResultMicroscopeCalChipDto = ReviewDto.Clone();
 
-            var result = resultList.All(t => t);
-            var calchipVerifyItemDto = new MicroscopeCalChipDto();
-            if (_isSkipRtfc == false)
-            {
-                // Rtfc
-                (calchipVerifyItemDto.ChuckAfEcsValue, calchipVerifyItemDto.ChuckAfMotorValue) = LaserViewModel.RuntimeAfCalibration(
-                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
-                    Cache.ChuckPosition,
-                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
-                    saveImageFileDirectory: ImageFileDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: "Chuck");
-
-                var position = StageViewModel.MachineToBrightFieldPosition(Cache.DswPosition);
-                (calchipVerifyItemDto.DswAfEcsValue, calchipVerifyItemDto.DswAfMotorValue) = LaserViewModel.RuntimeAfCalibration(
-                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
-                    position,
-                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
-                    calChipSiteModelEnum: CalChipSiteModelEnum.DswModel,
-                    saveImageFileDirectory: ImageFileDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: "DSW");
-
-                position = StageViewModel.MachineToBrightFieldPosition(Cache.HazePosition);
-                (calchipVerifyItemDto.HazeAfEcsValue, calchipVerifyItemDto.HazeAfMotorValue) = LaserViewModel.RuntimeAfCalibration(
-                    GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
-                    position,
-                    calibrationSetting.SettingCommonParam.MainLaserLightInformation,
-                    calChipSiteModelEnum: CalChipSiteModelEnum.HazeModel,
-                    saveImageFileDirectory: ImageFileDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: "Haze");
-
-                var dswToChuckAfEcsOffset = calchipVerifyItemDto.DswToChuckAfEcsValue - ReviewDto.DswToChuckAfEcsValue;
-                var dswToChuckAfMotorOffset = calchipVerifyItemDto.DswToChuckAfMotorValue - ReviewDto.DswToChuckAfMotorValue;
-                var hazeToChuckAfEcsOffset = calchipVerifyItemDto.HazeToChuckAfEcsValue - ReviewDto.HazeToChuckAfEcsValue;
-                var hazeToChuckAfMotorOffset = calchipVerifyItemDto.HazeToChuckAfMotorValue - ReviewDto.HazeToChuckAfMotorValue;
-                var rtfcResult = Math.Abs(dswToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
-                                 && Math.Abs(dswToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold
-                                 && Math.Abs(hazeToChuckAfEcsOffset) < Cache.AfEcsErrorThreshold
-                                 && Math.Abs(hazeToChuckAfMotorOffset) < Cache.AfMotorErrorThreshold;
-
-                result = result && rtfcResult;
-                Logger.LogHtmlInformation("RTFC Result", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+                var settingDarkFieldAutoFocusParam = new SettingDarkFieldAutoFocusParam
                 {
-                    Cache.AfEcsErrorThreshold,
-                    Cache.AfMotorErrorThreshold,
-                    calchipVerifyItemDto.ChuckAfEcsValue,
-                    calchipVerifyItemDto.ChuckAfMotorValue,
-                    calchipVerifyItemDto.DswAfEcsValue,
-                    calchipVerifyItemDto.DswAfMotorValue,
-                    calchipVerifyItemDto.HazeAfEcsValue,
-                    calchipVerifyItemDto.HazeAfMotorValue,
-                    calchipVerifyItemDto.DswToChuckAfEcsValue,
-                    calchipVerifyItemDto.DswToChuckAfMotorValue,
-                    calchipVerifyItemDto.HazeToChuckAfEcsValue,
-                    calchipVerifyItemDto.HazeToChuckAfMotorValue,
-                    dswToChuckAfEcsOffset,
-                    dswToChuckAfMotorOffset,
-                    hazeToChuckAfEcsOffset,
-                    hazeToChuckAfMotorOffset
+                    ChuckEcsValue = GuardUtils.IsNotNullAndReturn(ReviewDto.ChuckItem).AfEcsValue,
+                    DswEcsValue = GuardUtils.IsNotNullAndReturn(ReviewDto.DswItem).AfEcsValue,
+                    HazeEcsValue = GuardUtils.IsNotNullAndReturn(ReviewDto.HazeItem).AfEcsValue,
+                    ChuckMotorValue = GuardUtils.IsNotNullAndReturn(ReviewDto.ChuckItem).AfMotorValue,
+                    DswMotorValue = GuardUtils.IsNotNullAndReturn(ReviewDto.DswItem).AfMotorValue,
+                    HazeMotorValue = GuardUtils.IsNotNullAndReturn(ReviewDto.HazeItem).AfMotorValue,
+                };
+                foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
+                {
+                    ResultMicroscopeCalChipDto.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
+                    Logger.LogHtmlInformation($"{Cache.CalChipSiteModelEnum}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+
+                    var findFocusPosition = Cache.Item.CenterPosition;
+                    var findFocusMin = Cache.Item.FindFocusMin;
+                    var findFocusMax = Cache.Item.FindFocusMax;
+                    var findFocusInterval = Cache.Item.FindFocusInterval;
+
+                    Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                    {
+                        Cache.CalChipSiteModelEnum,
+                        Cache.MicroscopeLensInformation,
+                        FindFocusPosition = findFocusPosition,
+                        FindFocusLimitMin = findFocusMin,
+                        FindFocusLimitMax = findFocusMax,
+                        FindFocusInterval = findFocusInterval,
+                        ImageFileDirectory = detectImageDirectory
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+                    AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
+
+                    if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
+                    {
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
+                        return false;
+                    }
+
+                    AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.CurrentItem.EcsValue);
+                    AfViewModel.ToggleBrightFieldEnable(true);
+
+                    Thread.Sleep(5000);
+
+                    var microscopeFocusItemDto = new MicroscopeFocusItemDto
+                    {
+                        Index = 0,
+                        LensInformation = Cache.MicroscopeLensInformation,
+                        FindPosition = findFocusPosition,
+                        Quality = 0,
+                        EcsValue = ResultMicroscopeCalChipDto.CurrentItem.EcsValue,
+                        FilePath = detectImageDirectory
+                    };
+                    GetQuality(microscopeFocusItemDto);
+
+                    AfViewModel.ToggleBrightFieldEnable(false);
+
+                    ResultMicroscopeCalChipDto.CurrentItem.BrightFieldQuality = microscopeFocusItemDto.Quality;
+                    ResultMicroscopeCalChipDto.CurrentItem.BrightFieldFilePath = microscopeFocusItemDto.FilePath;
+
+                    if (!_isSkipRtfc && calChipSiteModelEnum is not CalChipSiteModelEnum.UndefinedModel && calChipSiteModelEnum is not CalChipSiteModelEnum.ShinyWaferModel)
+                    {
+                        AfViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, calChipSiteModelEnum);
+                        using var darkFieldImageDto =
+                            LaserViewModel.GetDarkFieldLineScanImage(
+                                calChipSiteModelEnum,
+                                findFocusPosition,
+                                (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
+                                false,
+                                GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+                                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine
+                            );
+
+                        ResultMicroscopeCalChipDto.CurrentItem.DarkFieldFilePath = $"{ImageFileDirectory}\\Verify_({calChipSiteModelEnum.ToDescriptionOrString()})_Guid({HtmlLogUniqueId}).jpg";
+                        darkFieldImageDto.Image.Save(ResultMicroscopeCalChipDto.CurrentItem.DarkFieldFilePath);
+
+                        ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image.ScaleImageTo8Bit());
+
+                        Logger.LogHtmlInformation("RTFC Review", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            ResultMicroscopeCalChipDto.CurrentItem.CalChipSiteModelEnum,
+                            ResultMicroscopeCalChipDto.CurrentItem.AfEcsValue,
+                            ResultMicroscopeCalChipDto.CurrentItem.AfMotorValue,
+                            ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality,
+                            HtmlTab = new HtmlTab(new
+                            {
+                                Image = new HtmlImage(ResultMicroscopeCalChipDto.CurrentItem.DarkFieldFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                            })
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+                }
+
+                var calibrationQualitys = ReviewDto.Items.OrderBy(t => t.Key)
+                    .Select(t => (t.Key, t.Value.BrightFieldQuality, t.Value.DarkFieldQuality))
+                    .ToArray();
+                var qualitys = ResultMicroscopeCalChipDto.Items.OrderBy(t => t.Key)
+                    .Select(t => (t.Key, t.Value.BrightFieldQuality, t.Value.DarkFieldQuality))
+                    .ToArray();
+
+                var brightFieldQualityErrors = qualitys
+                    .Select((t, i) => (t.Key, Value: t.BrightFieldQuality - calibrationQualitys[i].BrightFieldQuality))
+                    .ToArray();
+                var darkFieldQualityErrors = qualitys
+                    .Select((t, i) => (t.Key, Value: t.DarkFieldQuality - calibrationQualitys[i].DarkFieldQuality))
+                    .Where(t => t.Key is CalChipSiteModelEnum.ChuckModel or CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
+                    .ToArray();
+
+                Cache.VerifyBrightFieldResultError = string.Join("; ", brightFieldQualityErrors.Select(t => $"{t.Key.ToDescriptionOrString()}: {t.Value}"));
+                Cache.VerifyDarkFieldResultError = string.Join("; ", darkFieldQualityErrors.Select(t => $"{t.Key.ToDescriptionOrString()}: {t.Value}"));
+
+                var result = brightFieldQualityErrors.All(t => t.Value < Cache.BfQualityThreshold)
+                             && darkFieldQualityErrors.All(t => t.Value < Cache.DfQualityThreshold);
+
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
+                                                $"Bright Field Quality Error: ({Cache.VerifyBrightFieldResultError}){Environment.NewLine}" +
+                                                $"Dark Field Quality Error: ({Cache.VerifyDarkFieldResultError})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+                {
+                    Cache.MicroscopeLensInformation,
+                    Cache.VerifyBrightFieldResultError,
+                    Cache.VerifyDarkFieldResultError,
+                    QualityThreshold = Cache.BfQualityThreshold,
+                    Cache.BfQualityThreshold,
+                    Cache.DfQualityThreshold,
+                    CalibrationResult = new HtmlTable([
+                        .. ReviewDto.Items.OrderBy(t => t.Key)
+                            .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, t.Value.BrightFieldQuality, t.Value.DarkFieldMachinePosition, t.Value.AfEcsValue, t.Value.AfMotorValue, t.Value.DarkFieldQuality })
+                    ]),
+                    VerifyResult = new HtmlTable([
+                        .. ResultMicroscopeCalChipDto.Items.OrderBy(t => t.Key)
+                            .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, t.Value.BrightFieldQuality, t.Value.DarkFieldMachinePosition, t.Value.AfEcsValue, t.Value.AfMotorValue, t.Value.DarkFieldQuality })
+                    ])
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
-                                                $"New Offset: ({Cache.VerifyResultQuality}){Environment.NewLine}" +
-                                                $"New Offset: ({string.Join(", ", oldQualityList)}){Environment.NewLine}" +
-                                                $"Error: ({Cache.VerifyResultError})" +
-                                                $"DswToChuckAfEcsOffset:({dswToChuckAfEcsOffset})" +
-                                                $"DswToChuckAfMotorOffset: ({dswToChuckAfMotorOffset})" +
-                                                $"HazeToChuckAfEcsOffset: ({hazeToChuckAfEcsOffset})" +
-                                                $"HazeToChuckAfMotorOffset: ({hazeToChuckAfMotorOffset})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-            }
-            else
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
-                                                $"New Offset: ({Cache.VerifyResultQuality}){Environment.NewLine}" +
-                                                $"New Offset: ({string.Join(", ", oldQualityList)}){Environment.NewLine}" +
-                                                $"Error: ({Cache.VerifyResultError})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                ReviewDto.IsVerified = result;
+                if (Save(ReviewDto, cancellationToken) == false)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed."), HtmlLogUniqueId.LoggingHtml());
+                    ReviewDto.IsVerified = false;
+                    return false;
+                }
 
-            Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-            {
-                Cache.MicroscopeLensInformation,
-                NewOffset = Cache.VerifyResultQuality,
-                OldOffset = string.Join(", ", oldQualityList),
-                Error = Cache.VerifyResultError,
-                QualityThreshold = Cache.Threshold,
-                Cache.AfEcsErrorThreshold,
-                Cache.AfMotorErrorThreshold
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            ReviewDto.IsVerified = result;
-            if (Save(ReviewDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed."), HtmlLogUniqueId.LoggingHtml());
-                ReviewDto.IsVerified = false;
-                return false;
-            }
-
-
-            return result;
-        }).ConfigureAwait(false);
+                return result;
+            }).ConfigureAwait(false);
+        }
+        finally
+        {
+            SynchronizationContextProvider.Send(() => { IsWindowEnable = true; });
+        }
     }
 
     private void GetQuality(MicroscopeFocusItemDto microscopeFocusItemDto)
@@ -891,6 +791,32 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(CalibrationSet
         });
 
         Logger.LogHtmlInformation($"Get Quality OK! Time:{microscopeFocusItemDto.Index}", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
+    }
+
+    private void RuntimeAfCalibration(MicroscopeCalChipDto microscopeCalChipDto, CalChipSiteModelEnum calChipSiteModelEnum)
+    {
+        microscopeCalChipDto.CalChipSiteModelEnum = calChipSiteModelEnum;
+
+        var position = StageViewModel.MachineToBrightFieldPosition(
+            GuardUtils.IsNotNullAndReturn(Cache.Items.Get(calChipSiteModelEnum)).CenterPosition);
+
+        var (afEcs, afMotor) = LaserViewModel.RuntimeAfCalibration(
+            GuardUtils.IsNotNullAndReturn(applicationCookie.CalibrationRecipeDto).CalibrationRecipeInfoDto.CIBConfiguration,
+            position,
+            calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+            out var rtfcFilePath,
+            calChipSiteModelEnum: calChipSiteModelEnum,
+            stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
+            saveImageFileDirectory: ImageFileDirectory,
+            logGuid: HtmlLogUniqueId,
+            logName: calChipSiteModelEnum.ToDescriptionOrString());
+
+        using var rtfcImage = HalconFactory.CreateImage(rtfcFilePath);
+
+        microscopeCalChipDto.CurrentItem.AfEcsValue = afEcs;
+        microscopeCalChipDto.CurrentItem.AfMotorValue = afMotor;
+        microscopeCalChipDto.CurrentItem.DarkFieldFilePath = rtfcFilePath;
+        microscopeCalChipDto.CurrentItem.DarkFieldQuality = CalibrationAlgorithmService.GetDarkFieldQuality(rtfcImage);
     }
 
     private bool Save(MicroscopeCalChipDto dto, CancellationToken cancellationToken) => InvokeSave(update =>
