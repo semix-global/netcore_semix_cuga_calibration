@@ -1,4 +1,4 @@
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
@@ -11,7 +11,7 @@ using Net.Utilities.Nlog.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformElectrodeOffsetCache : AODWaveformElectrodeOffsetCache<ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetResult>
+public sealed partial class ChirpAODWaveformInitializeCache : AODWaveformInitializeCache<ChirpAODWaveformInitializeItem, ChirpAODWaveformInitializeResult>
 {
     [ObservableProperty]
     private double _prescanFrequency;
@@ -23,7 +23,7 @@ public sealed partial class ChirpAODWaveformElectrodeOffsetCache : AODWaveformEl
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 }
 
-public sealed partial class ChirpAODWaveformElectrodeOffsetItem : AODWaveformElectrodeOffsetItem
+public sealed partial class ChirpAODWaveformInitializeItem : AODWaveformInitializeItem
 {
     [ObservableProperty]
     private string _chirpAODWaveformResultFilePath = string.Empty;
@@ -32,7 +32,7 @@ public sealed partial class ChirpAODWaveformElectrodeOffsetItem : AODWaveformEle
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 }
 
-public sealed partial class ChirpAODWaveformElectrodeOffsetResult : AODWaveformElectrodeOffsetResult
+public sealed partial class ChirpAODWaveformInitializeResult : AODWaveformInitializeResult
 {
     [ObservableProperty]
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
@@ -44,8 +44,8 @@ public sealed partial class ChirpAODWaveformElectrodeOffsetResult : AODWaveformE
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 }
 
-[IOCAppService(ServiceType = typeof(ChirpAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAODWaveformElectrodeOffsetWindowViewModel<ChirpAODWaveformElectrodeOffsetCache, ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetResult>
+[IOCAppService(ServiceType = typeof(ChirpAODWaveformInitializeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed class ChirpAODWaveformInitializeWindowViewModel : AbstractAODWaveformInitializeWindowViewModel<ChirpAODWaveformInitializeCache, ChirpAODWaveformInitializeItem, ChirpAODWaveformInitializeResult>
 {
     public override string Name => "Chirp AOD Waveform Electrode Offset";
 
@@ -73,7 +73,7 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAOD
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void GenerateChangedAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
+    protected override void GenerateChangedAODWaveform(ChirpAODWaveformInitializeItem item, CancellationToken cancellationToken)
     {
         Cache.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
@@ -95,13 +95,13 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAOD
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetItem item)
+    protected override void SetAODWaveformProfiles(ChirpAODWaveformInitializeItem item)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.PrescanAODWaveformProfiles);
         LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
     }
 
-    protected override void GenerateResultAODWaveform(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    protected override void GenerateResultAODWaveform(ChirpAODWaveformInitializeResult result, CancellationToken cancellationToken)
     {
         result.GenerateChirpAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
         result.GenerateChirpAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
@@ -120,12 +120,12 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel : AbstractAOD
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetResultAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformProfiles(ChirpAODWaveformInitializeResult result, CancellationToken cancellationToken)
     {
         LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, result.ChirpAODWaveformProfiles);
     }
 
-    protected override void SetResultAODWaveformConfig(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformConfig(ChirpAODWaveformInitializeResult result, CancellationToken cancellationToken)
     {
         ConfigViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
 

@@ -23,7 +23,6 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using ScottPlot;
 using System.Collections;
 using System.ComponentModel;
-using System.IO;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -228,11 +227,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
-    public string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
-
-    public string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    protected abstract void GenerateResultAODWaveform(CancellationToken cancellationToken);
+    protected abstract void GenerateResultAODWaveform(TResult result, CancellationToken cancellationToken);
 
     protected abstract void SetResultAODWaveformProfiles(TResult result, CancellationToken cancellationToken);
 
@@ -268,29 +263,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             foreach (var step0 in Cache.Step0Items) step0.RefreshPlot();
             foreach (var step1 in Cache.Step1Items) step1.RefreshPlot();
         });
-    }
-
-    [RelayCommand]
-    private void AddResult()
-    {
-        var resultList = Cache.Results.ToList();
-        resultList.Add(new TResult());
-
-        Cache.Results = resultList;
-    }
-
-    [RelayCommand]
-    private void RemoveResult(IEnumerable? selectItems)
-    {
-        if (selectItems is null) return;
-
-        var resultList = Cache.Results.ToList();
-        foreach (TResult selectItem in selectItems)
-        {
-            resultList.Remove(selectItem);
-        }
-
-        Cache.Results = resultList;
     }
 
     [RelayCommand]
@@ -359,6 +331,26 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         Cache.ElectrodeFrequencyUniformityParams = electrodeFrequencyUniformityParamList;
     }
 
+    [RelayCommand]
+    private void AddResult()
+    {
+        var resultList = Cache.Results.ToList();
+        resultList.Add(new TResult());
+
+        Cache.Results = resultList;
+    }
+
+    [RelayCommand]
+    private void RemoveResult(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var resultList = Cache.Results.ToList();
+        foreach (TResult selectItem in selectItems) resultList.Remove(selectItem);
+
+        Cache.Results = resultList;
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task SetResultAODWaveformProfilesAsync(TResult result, CancellationToken cancellationToken)
     {
@@ -417,8 +409,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         return await InvokeAsync(0, "Step 1 Electrode Offset", async () =>
         {
             Guard.IsNotEmpty(Cache.ElectrodeOffsetParams);
-            Guard.IsTrue(Cache.ElectrodeOffsetParams.Count >= 2);
-            Guard.IsTrue(Cache.Frequencies.Count >= 2);
+            Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetParams.Count, 2);
+            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
             Cache.Step0Items = [];
@@ -511,7 +503,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
                 {
                     var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel>();
-                    aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = GuardUtils.IsNotNullAndReturn(step0.OffsetFrequencyPeriodCoefficient);
+                    aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = step0.OffsetFrequencyPeriodCoefficient.Value;
 
                     var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
                     if (showDialog == true) step0.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
@@ -523,7 +515,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     {
                         OpticsAODElectrodeEnum = param.OpticsAODElectrodeEnum,
                         OffsetFrequency = Cache.OffsetFrequency,
-                        OffsetFrequencyPeriodCoefficient = GuardUtils.IsNotNullAndReturn(step0.OffsetFrequencyPeriodCoefficient)
+                        OffsetFrequencyPeriodCoefficient = step0.OffsetFrequencyPeriodCoefficient.Value
                     }
                 ];
 
@@ -539,7 +531,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         return await InvokeAsync(1, "Step 2 Uniformity", async () =>
         {
-            Guard.IsTrue(Cache.Frequencies.Count >= 2);
+            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
             Guard.IsNotEmpty(Cache.ElectrodeFrequencyUniformityParams);
 
@@ -640,18 +632,21 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         }, isShowDialog).ConfigureAwait(false);
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step2Async(bool isShowDialog, CancellationToken cancellationToken)
     {
         return await InvokeAsync(2, "Step 3 Generate AOD Waveform", () =>
         {
             Guard.IsNotEmpty(Cache.ElectrodeOffsetParams);
-            Guard.IsTrue(Cache.ElectrodeOffsetParams.Count == Cache.ElectrodeConfigurationResults.Count);
+            Guard.IsEqualTo(Cache.ElectrodeOffsetParams.Count, Cache.ElectrodeConfigurationResults.Count);
             Guard.IsNotEmpty(Cache.Results);
 
-            Logger.LogHtmlInformation("Result Chirp AOD Waveforms", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-            GenerateResultAODWaveform(cancellationToken);
+            foreach (var result in Cache.Results)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                GenerateResultAODWaveform(result, cancellationToken);
+            }
 
             return Task.FromResult(true);
         }, isShowDialog).ConfigureAwait(false);
@@ -681,7 +676,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 #if NET
         await
 #endif
-        using
+            using
             var _ = cancellationToken.Register(() =>
             {
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();
@@ -976,9 +971,9 @@ public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableC
     public AODWaveformElectrodeOffsetStep1()
     {
         ScatterPlotControl.Configure(totalPlotCount: 3);
-        ScatterPlotControl.SetTitle(0, "Step1 Uniformity Items(Y: mW - X: AMP)");
-        ScatterPlotControl.SetTitle(1, "Step1 Uniformity Amplitude Result(Y: AMP - X: MHz)");
-        ScatterPlotControl.SetTitle(2, "Step1 Uniformity Measure Power Result(Y: mW - X: MHz)");
+        ScatterPlotControl.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
+        ScatterPlotControl.SetTitle(1, "Uniformity Amplitude Result(Y: AMP - X: MHz)");
+        ScatterPlotControl.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
     }
 
     public void RefreshPlot()
@@ -995,7 +990,7 @@ public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableC
                 index,
                 new Range(0, Items.Count - 1));
 
-            item.MaxItem = GuardUtils.IsNotNullAndReturn(item.FrequencyItems.MaxBy(t => t.MeasurePower));
+            item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).Single();
 
             isNeedRefreshes[index] = true;
         }
