@@ -271,7 +271,6 @@
                                                                                                     IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
-                                                                                                    IsVisibleElectrodeConfiguration="False"
                                                                                                     IsVisibleUniformityConfiguration="False"
                                                                                                     DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
@@ -329,7 +328,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                                 <TextBox Text="{Binding Cache.Electrode2OffsetFrequencyPeriodCoefficients, Converter={StaticResource DoublesToStringConverter}}"
-                                                         Height="100"
+                                                         Height="50"
                                                          TextWrapping="Wrap"
                                                          hc:TitleElement.Title="Electrode 2 Offset(2pi): "
                                                          hc:TitleElement.TitlePlacement="Left"
@@ -337,7 +336,7 @@
                                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                          Style="{StaticResource TextBoxExtend}" />
                                                 <TextBox Text="{Binding Cache.Electrode4OffsetFrequencyPeriodCoefficients, Converter={StaticResource DoublesToStringConverter}}"
-                                                         Height="100"
+                                                         Height="50"
                                                          TextWrapping="Wrap"
                                                          hc:TitleElement.Title="Electrode 4 Offset(2pi): "
                                                          hc:TitleElement.TitlePlacement="Left"
@@ -381,8 +380,6 @@
                                                 <hc:NumericUpDown hc:TitleElement.Title="Stop Offset Period(2pi): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0.5"
-                                                                  Maximum="2"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.StopElectrode3OffsetFrequencyPeriodCoefficient}" />
                                             </hc:UniformSpacingPanel>
@@ -394,7 +391,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                                 <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
-                                                         Height="100"
+                                                         Height="50"
                                                          TextWrapping="Wrap"
                                                          hc:TitleElement.Title="Frequencies(MHz): "
                                                          hc:TitleElement.TitlePlacement="Left"
@@ -402,7 +399,7 @@
                                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                          Style="{StaticResource TextBoxExtend}" />
                                                 <TextBox Text="{Binding Cache.Weights, Converter={StaticResource DoublesToStringConverter}}"
-                                                         Height="100"
+                                                         Height="50"
                                                          TextWrapping="Wrap"
                                                          hc:TitleElement.Title="Weights: "
                                                          hc:TitleElement.TitlePlacement="Left"
@@ -665,12 +662,12 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
-                    <TabItem Header="Step1 Electrode2 Electrode4 Offset">
+                    <TabItem Header="Step1 Offset">
                         <Border Style="{StaticResource BorderRegion}">
                             <ContentControl Grid.Row="1" Content="{Binding Cache.Step0.ScatterPlotControl, Mode=OneWay}" />
                         </Border>
                     </TabItem>
-                    <TabItem Header="Step1 Electrode2 Electrode4 Offset Details">
+                    <TabItem Header="Step1 Offset Details">
                         <Border Style="{StaticResource BorderRegion}">
                             <TabControl Grid.Row="1" ItemsSource="{Binding Cache.Step0.Items}">
                                 <TabControl.ItemTemplate>
@@ -686,7 +683,7 @@
                             </TabControl>
                         </Border>
                     </TabItem>
-                    <TabItem Header="Step2 Electrode3 Offset">
+                    <TabItem Header="Step2 Offset">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -714,7 +711,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step2 Electrode3 Offset Details">
+                    <TabItem Header="Step2 Offset Details">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -753,7 +750,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step 3 Result Chirp AOD Waveform Profiles">
+                    <TabItem Header="Step 3 Result">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
