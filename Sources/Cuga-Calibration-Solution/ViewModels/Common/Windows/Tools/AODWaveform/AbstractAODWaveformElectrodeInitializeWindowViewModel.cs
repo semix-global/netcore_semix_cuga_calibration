@@ -24,10 +24,16 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformInitializeCache<TItem, TResult> : AODWaveformCommonCache
-    where TItem : AODWaveformInitializeItem, new()
-    where TResult : AODWaveformInitializeResult, new()
+public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWaveformCommonCache
+    where TItem : AODWaveformElectrodeInitializeItem, new()
+    where TResult : AODWaveformElectrodeInitializeResult, new()
 {
+    [ObservableProperty]
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+
+    [ObservableProperty]
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+
     [ObservableProperty]
     private int _interpolationCount = 3;
 
@@ -68,7 +74,7 @@ public partial class AODWaveformInitializeCache<TItem, TResult> : AODWaveformCom
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private IReadOnlyList<AODWaveformInitializeStep1<TItem>> _step1Items = [];
+    private IReadOnlyList<AODWaveformElectrodeInitializeStep1<TItem>> _step1Items = [];
 
     #endregion
 
@@ -79,7 +85,7 @@ public partial class AODWaveformInitializeCache<TItem, TResult> : AODWaveformCom
     private IReadOnlyList<TResult> _results = [];
 }
 
-public partial class AODWaveformInitializeItem : AODWaveformCommonItem
+public partial class AODWaveformElectrodeInitializeItem : AODWaveformCommonItem
 {
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
@@ -98,19 +104,21 @@ public partial class AODWaveformInitializeItem : AODWaveformCommonItem
     };
 }
 
-public class AODWaveformInitializeResult : ObservableCacheBase;
+public class AODWaveformElectrodeInitializeResult : ObservableCacheBase;
 
-public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCache, TItem, TResult> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
-    where TCache : AODWaveformInitializeCache<TItem, TResult>, new()
-    where TItem : AODWaveformInitializeItem, new()
-    where TResult : AODWaveformInitializeResult, new()
+public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewModel<TCache, TItem, TResult> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
+    where TCache : AODWaveformElectrodeInitializeCache<TItem, TResult>, new()
+    where TItem : AODWaveformElectrodeInitializeItem, new()
+    where TResult : AODWaveformElectrodeInitializeResult, new()
 {
+    protected abstract void GenerateAODWaveform(TItem item, CancellationToken cancellationToken);
+
     protected abstract void GenerateResultAODWaveform(TResult result, CancellationToken cancellationToken);
 
     protected abstract void SetResultAODWaveformProfiles(TResult result, CancellationToken cancellationToken);
 
     protected abstract void SetResultAODWaveformConfig(TResult result, CancellationToken cancellationToken);
-    
+
     protected override void LoggerResult(int stepIndex)
     {
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(
@@ -211,18 +219,18 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, 4);
             Cache.Step0.Items = [];
 
-            await GetElectrodeMaxMeasurePowerAsync(OpticsAODElectrodeEnum.Electrode2, Cache.Electrode2OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
+            await GetElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2], Cache.Electrode2OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
 
-            await GetElectrodeMaxMeasurePowerAsync(OpticsAODElectrodeEnum.Electrode4, Cache.Electrode4OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
+            await GetElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
 
             return true;
 
-            async Task GetElectrodeMaxMeasurePowerAsync(OpticsAODElectrodeEnum opticsAODElectrodeEnum, IReadOnlyList<double> offsetFrequencyPeriodCoefficients)
+            async Task GetElectrodeMaxMeasurePowerAsync(IReadOnlyList<OpticsAODElectrodeEnum> electrodes, IReadOnlyList<double> offsetFrequencyPeriodCoefficients)
             {
-                Logger.LogHtmlInformation($"{opticsAODElectrodeEnum}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-
-                var step0Item = new AODWaveformInitializeStep0Item<TItem> { Electrode = opticsAODElectrodeEnum };
+                var step0Item = new AODWaveformInitializeStep0Item<TItem> { Electrodes = electrodes };
                 Cache.Step0.Items = [.. Cache.Step0.Items, step0Item];
+
+                Logger.LogHtmlInformation(step0Item.Title, HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                 foreach (var offsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                 {
@@ -235,11 +243,11 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
                                 {
                                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                                     OffsetFrequency = t.OffsetFrequency,
-                                    OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == opticsAODElectrodeEnum
+                                    OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == electrodes[^1]
                                         ? offsetFrequencyPeriodCoefficient
                                         : 0,
                                     Amplitude = Cache.DefaultAmplitude,
-                                    IsGenerateAODWaveformZero = t.OpticsAODElectrodeEnum != opticsAODElectrodeEnum
+                                    IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
                                 })
                         ],
                         OffsetFrequencyPeriodCoefficient = offsetFrequencyPeriodCoefficient
@@ -247,12 +255,32 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
 
                     Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
-                    await UpdateMeasurePowerAsync(item, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        GenerateAODWaveform(item, cancellationToken);
+                        SetAODWaveformProfiles(item);
+
+                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+                        LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
+
+                        await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
+
+                        var measurePower = LaserViewModel.GetOpticalMeasurePower();
+
+                        item.MeasurePower = measurePower;
+
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    }
+                    finally
+                    {
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+                    }
 
                     step0Item.Items = [.. step0Item.Items, item];
                 }
 
-                Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == opticsAODElectrodeEnum)
+                Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == electrodes[^1])
                     .OffsetFrequencyPeriodCoefficient = step0Item.Items.Maxima(t => t.MeasurePower).Single().OffsetFrequencyPeriodCoefficient;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([..Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
@@ -270,11 +298,11 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
             Cache.Step1Items = [];
-            GenerateFixedAODWaveform(cancellationToken);
+            GenerateFlatnessFixedAODWaveform(cancellationToken);
 
             var electrodes = (IReadOnlyList<OpticsAODElectrodeEnum>)[OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3];
 
-            var step1 = new AODWaveformInitializeStep1<TItem> { Electrodes = electrodes };
+            var step1 = new AODWaveformElectrodeInitializeStep1<TItem> { Electrodes = electrodes };
             Cache.Step1Items = [.. Cache.Step1Items, step1];
 
             Logger.LogHtmlInformation(step1.Title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -286,7 +314,7 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var step1Item = new AODWaveformInitializeStep1Item<TItem>();
+                var step1Item = new AODWaveformElectrodeInitializeStep1Item<TItem>();
                 step1.Items = [.. step1.Items, step1Item];
 
                 Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
@@ -306,9 +334,7 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
                                     OffsetFrequency = t.OffsetFrequency,
                                     OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode3
                                         ? currentOffsetFrequencyPeriodCoefficient
-                                        : Cache.ElectrodeConfigurationResults
-                                            .SingleOrDefault(tt => tt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum)
-                                            ?.OffsetFrequencyPeriodCoefficient ?? 0,
+                                        : t.OffsetFrequencyPeriodCoefficient,
                                     Amplitude = Cache.DefaultAmplitude,
                                     IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
                                 })
@@ -334,6 +360,8 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
 
             Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode3)
                 .OffsetFrequencyPeriodCoefficient = step1.OffsetFrequencyPeriodCoefficient.Value;
+            Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode4)
+                .OffsetFrequencyPeriodCoefficient += step1.OffsetFrequencyPeriodCoefficient.Value;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([..Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
 
@@ -389,6 +417,7 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();
                 if (Step1Command.CanBeCanceled) Step1Command.Cancel();
                 if (Step2Command.CanBeCanceled) Step2Command.Cancel();
+                if (Step3Command.CanBeCanceled) Step3Command.Cancel();
             });
 
         var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync(false));
@@ -397,12 +426,15 @@ public abstract partial class AbstractAODWaveformInitializeWindowViewModel<TCach
         var step1Task = GuardUtils.IsAssignableToType<Task<bool>>(Step1Command.ExecuteAsync(false));
         if (await step1Task == false) return;
 
-        await Step2Command.ExecuteAsync(true);
+        var step2Task = GuardUtils.IsAssignableToType<Task<bool>>(Step2Command.ExecuteAsync(false));
+        if (await step2Task == false) return;
+
+        await Step3Command.ExecuteAsync(true);
     }
 }
 
 public sealed partial class AODWaveformInitializeStep0<TItem> : ObservableCacheBase
-    where TItem : AODWaveformInitializeItem, new()
+    where TItem : AODWaveformElectrodeInitializeItem, new()
 {
     #region Result
 
@@ -456,7 +488,7 @@ public sealed partial class AODWaveformInitializeStep0<TItem> : ObservableCacheB
             if (item.Items.Count <= 0) continue;
 
             ScatterPlotControl.GetOrAddScatterLine(
-                $"{item.Electrode}",
+                item.Title,
                 [.. item.Items.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
                 index,
                 new Range(0, Items.Count - 1));
@@ -467,17 +499,19 @@ public sealed partial class AODWaveformInitializeStep0<TItem> : ObservableCacheB
 }
 
 public sealed partial class AODWaveformInitializeStep0Item<TItem> : ObservableCacheBase
-    where TItem : AODWaveformInitializeItem, new()
+    where TItem : AODWaveformElectrodeInitializeItem, new()
 {
     [ObservableProperty]
-    private OpticsAODElectrodeEnum _electrode;
+    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
+
+    public string Title => string.Join(", ", Electrodes.Select(t => EnumHelper.ToDescriptionString(t)));
 
     [ObservableProperty]
     private IReadOnlyList<TItem> _items = [];
 }
 
-public sealed partial class AODWaveformInitializeStep1<TItem> : ObservableCacheBase
-    where TItem : AODWaveformInitializeItem, new()
+public sealed partial class AODWaveformElectrodeInitializeStep1<TItem> : ObservableCacheBase
+    where TItem : AODWaveformElectrodeInitializeItem, new()
 {
     [ObservableProperty]
     private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
@@ -487,9 +521,9 @@ public sealed partial class AODWaveformInitializeStep1<TItem> : ObservableCacheB
     #region Result
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformInitializeStep1Item<TItem>> _items = [];
+    private IReadOnlyList<AODWaveformElectrodeInitializeStep1Item<TItem>> _items = [];
 
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformInitializeStep1Item<TItem>>? oldValue, IReadOnlyList<AODWaveformInitializeStep1Item<TItem>> newValue)
+    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeInitializeStep1Item<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeInitializeStep1Item<TItem>> newValue)
     {
         foreach (var step1Item in oldValue ?? [])
         {
@@ -530,7 +564,7 @@ public sealed partial class AODWaveformInitializeStep1<TItem> : ObservableCacheB
 
     #endregion
 
-    public AODWaveformInitializeStep1()
+    public AODWaveformElectrodeInitializeStep1()
     {
         ScatterPlotControl.ToggleLegend(false);
     }
@@ -615,8 +649,8 @@ public sealed partial class AODWaveformInitializeStep1<TItem> : ObservableCacheB
     }
 }
 
-public sealed partial class AODWaveformInitializeStep1Item<TItem> : ObservableCacheBase
-    where TItem : AODWaveformInitializeItem, new()
+public sealed partial class AODWaveformElectrodeInitializeStep1Item<TItem> : ObservableCacheBase
+    where TItem : AODWaveformElectrodeInitializeItem, new()
 {
     [ObservableProperty]
     private IReadOnlyList<TItem> _frequencyItems = [];

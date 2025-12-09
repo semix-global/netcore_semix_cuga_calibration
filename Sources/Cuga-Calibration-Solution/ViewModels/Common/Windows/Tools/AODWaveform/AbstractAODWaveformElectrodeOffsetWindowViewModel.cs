@@ -424,7 +424,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 }
             ];
 
-            GenerateFixedAODWaveform(cancellationToken);
+            GenerateFlatnessFixedAODWaveform(cancellationToken);
 
             foreach (var param in Cache.ElectrodeOffsetParams)
             {
@@ -549,7 +549,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 electrodeConfiguration.UniformityConfigurations = [];
             }
 
-            GenerateFixedAODWaveform(cancellationToken);
+            GenerateFlatnessFixedAODWaveform(cancellationToken);
 
             var frequencies = Generate.LinearRange(Cache.Frequencies[0], Cache.StepFrequency, Cache.Frequencies[^1]);
             Guard.IsNotEmpty(frequencies);

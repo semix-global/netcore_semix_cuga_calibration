@@ -206,7 +206,7 @@
                                                                                                     IsVisibleUniformityConfiguration="False"
                                                                                                     IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                     IsVisibleCompensation="False"
-                                                                                                    DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                                                                                    DataContext="{Binding Cache.FlatnessGeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -233,7 +233,7 @@
                                                                                                   IsVisibleUniformityConfiguration="False"
                                                                                                   IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                   IsVisibleCompensation="False"
-                                                                                                  DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                                                                                  DataContext="{Binding Cache.FlatnessGenerateChirpAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>

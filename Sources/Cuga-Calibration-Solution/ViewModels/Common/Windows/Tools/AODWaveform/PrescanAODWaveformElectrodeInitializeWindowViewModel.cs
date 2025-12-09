@@ -1,8 +1,10 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -12,7 +14,7 @@ using Net.Utilities.Nlog.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class PrescanAODWaveformInitializeCache : AODWaveformInitializeCache<PrescanAODWaveformInitializeItem, PrescanAODWaveformInitializeResult>
+public sealed partial class PrescanAODWaveformElectrodeInitializeCache : AODWaveformElectrodeInitializeCache<PrescanAODWaveformElectrodeInitializeItem, PrescanAODWaveformElectrodeInitializeResult>
 {
     [ObservableProperty]
     private double _chirpFrequency;
@@ -24,7 +26,7 @@ public sealed partial class PrescanAODWaveformInitializeCache : AODWaveformIniti
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 }
 
-public sealed partial class PrescanAODWaveformInitializeItem : AODWaveformInitializeItem
+public sealed partial class PrescanAODWaveformElectrodeInitializeItem : AODWaveformElectrodeInitializeItem
 {
     [ObservableProperty]
     private string _prescanAODWaveformResultFilePath = string.Empty;
@@ -33,7 +35,7 @@ public sealed partial class PrescanAODWaveformInitializeItem : AODWaveformInitia
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 }
 
-public sealed partial class PrescanAODWaveformInitializeResult : AODWaveformInitializeResult
+public sealed partial class PrescanAODWaveformElectrodeInitializeResult : AODWaveformElectrodeInitializeResult
 {
     [ObservableProperty]
     private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
@@ -45,22 +47,35 @@ public sealed partial class PrescanAODWaveformInitializeResult : AODWaveformInit
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 }
 
-[IOCAppService(ServiceType = typeof(PrescanAODWaveformInitializeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class PrescanAODWaveformInitializeWindowViewModel : AbstractAODWaveformInitializeWindowViewModel<PrescanAODWaveformInitializeCache, PrescanAODWaveformInitializeItem, PrescanAODWaveformInitializeResult>
+[IOCAppService(ServiceType = typeof(PrescanAODWaveformElectrodeInitializeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class PrescanAODWaveformElectrodeInitializeWindowViewModel : AbstractAODWaveformElectrodeInitializeWindowViewModel<PrescanAODWaveformElectrodeInitializeCache, PrescanAODWaveformElectrodeInitializeItem, PrescanAODWaveformElectrodeInitializeResult>
 {
-    public override string Name => "Prescan AOD Waveform Electrode Offset";
+    public override string Name => "Prescan AOD Waveform Initialize";
 
-    protected override void GenerateFixedAODWaveform(CancellationToken cancellationToken)
+    [RelayCommand]
+    private async Task LoadedAsync()
+    {
+        await Task.Run(() =>
+        {
+            Cache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeInitializeCache>();
+            var prescanAODWaveformElectrodeOffsetCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+
+            Cache.ElectrodeConfigurationResults = prescanAODWaveformElectrodeOffsetCache.ElectrodeConfigurationResults;
+        });
+    }
+
+
+    protected override void GenerateFlatnessFixedAODWaveform(CancellationToken cancellationToken)
     {
         Cache.ChirpAODWaveformProfiles = [];
         Cache.ChirpAODWaveformResultFilePath = string.Empty;
 
-        Cache.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
-        Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
-        Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
-        Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+        Cache.FlatnessGenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+        Cache.FlatnessGenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        Cache.FlatnessGenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
+        Cache.FlatnessGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.FlatnessGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
@@ -68,35 +83,21 @@ public sealed class PrescanAODWaveformInitializeWindowViewModel : AbstractAODWav
 
         Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
-            GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
+            GenerateChirpAODWaveformParam = new HtmlQuote(Cache.FlatnessGenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
             Cache.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void GenerateChangedAODWaveform(PrescanAODWaveformInitializeItem item, CancellationToken cancellationToken)
+    protected override void GenerateFlatnessChangedAODWaveform(PrescanAODWaveformElectrodeInitializeItem item, CancellationToken cancellationToken)
     {
-        Cache.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
-        Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
-        Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
-        Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-        Cache.GeneratePrescanAODWaveformParam.ElectrodeConfigurations =
-        [
-            new GenerateAODWaveformElectrodeConfiguration
-            {
-                OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1,
-                OffsetFrequency = Cache.OffsetFrequency,
-                OffsetFrequencyPeriodCoefficient = 0
-            },
-            new GenerateAODWaveformElectrodeConfiguration
-            {
-                OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2,
-                OffsetFrequency = Cache.OffsetFrequency,
-                OffsetFrequencyPeriodCoefficient = item.OffsetFrequencyPeriodCoefficient
-            }
-        ];
+        Cache.FlatnessGeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+        Cache.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        Cache.FlatnessGeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
+        Cache.FlatnessGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+        Cache.FlatnessGenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.FlatnessGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
@@ -104,19 +105,24 @@ public sealed class PrescanAODWaveformInitializeWindowViewModel : AbstractAODWav
 
         Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
-            GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+            GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
             item.PrescanAODWaveformResultFilePath,
             PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetAODWaveformProfiles(PrescanAODWaveformInitializeItem item)
+    protected override void SetAODWaveformProfiles(PrescanAODWaveformElectrodeInitializeItem item)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
         LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
     }
 
-    protected override void GenerateResultAODWaveform(PrescanAODWaveformInitializeResult result, CancellationToken cancellationToken)
+    protected override void GenerateAODWaveform(PrescanAODWaveformElectrodeInitializeItem item, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override void GenerateResultAODWaveform(PrescanAODWaveformElectrodeInitializeResult result, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -137,12 +143,12 @@ public sealed class PrescanAODWaveformInitializeWindowViewModel : AbstractAODWav
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetResultAODWaveformProfiles(PrescanAODWaveformInitializeResult result, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformProfiles(PrescanAODWaveformElectrodeInitializeResult result, CancellationToken cancellationToken)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, result.PrescanAODWaveformProfiles);
     }
 
-    protected override void SetResultAODWaveformConfig(PrescanAODWaveformInitializeResult result, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformConfig(PrescanAODWaveformElectrodeInitializeResult result, CancellationToken cancellationToken)
     {
         ConfigViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
 
