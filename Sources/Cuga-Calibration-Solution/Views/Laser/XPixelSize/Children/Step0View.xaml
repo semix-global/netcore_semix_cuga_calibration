@@ -7,6 +7,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -36,40 +37,43 @@
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
-
         <GridSplitter Grid.Column="1" Width="5" />
-
-        <ItemsControl Grid.Column="2"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      ItemsSource="{Binding CalibrationStatuses}">
-            <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsIlluminationModeEnum, Mode=TwoWay}" />
-            </i:Interaction.Behaviors>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="32" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
+        <ListBox Grid.Column="2"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemsSource="{Binding CalibrationStatuses}"
+                 SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                 SelectionMode="Extended">
+            <ListBox.ItemContainerStyle>
+                <Style BasedOn="{StaticResource ListBoxItemBaseStyle}" TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                                 FontSize="35"
-                                 Tag="{Binding .OpticsIlluminationModeEnum}"
-                                 GroupName="7c5f8a2b-9d3e-4f61-88a2-0c1b3d9e4f7a">
-                        <RadioButton.Style>
-                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
+                    <TextBlock Text="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                               Margin="100,5"
+                               HorizontalAlignment="Center"
+                               FontSize="16">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
                                         <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </RadioButton.Style>
-                    </RadioButton>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>
