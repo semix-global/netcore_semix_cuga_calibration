@@ -58,9 +58,9 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Content="{Binding ProductivityInformation}"
+                        <RadioButton Content="{Binding SelectedItem}"
                                      FontSize="35"
-                                     Tag="{Binding ProductivityInformation}"
+                                     Tag="{Binding SelectedItem}"
                                      GroupName="39a1ea15-11ef-4c86-acc4-8da28e722bd0">
                             <RadioButton.Style>
                                 <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">

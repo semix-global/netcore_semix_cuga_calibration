@@ -181,7 +181,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
         Calibrations =
@@ -189,7 +189,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             ..Calibrations.Where(t => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated;
+                    t.IsCalibrated = CalibrationStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated;
                     return t;
                 })
         ];
@@ -256,7 +256,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                     }
                 }
 
-                CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
                 //DialogWindowProvider.ShowDialog("Find XTC Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);

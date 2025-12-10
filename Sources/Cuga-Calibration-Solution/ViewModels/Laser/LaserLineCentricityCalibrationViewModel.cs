@@ -82,9 +82,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     [ObservableProperty]
     private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
-    [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatusesItem = [];
-
     #endregion Calibrate
 
     #region Review
@@ -228,18 +225,17 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
-                    OpticsIlluminationModeEnum = t,
+                    SelectedItem = t,
                     ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
-        CalibrationStatusesItem = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)];
 
         foreach (var calibrationStatus in Calibrations)
         {
-            var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == calibrationStatus.OpticsIlluminationMode);
+            var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
             var status = opticsIlluminationModeEnumStatus
                 .ProductivityInformationCalibrationStatusList
-                .SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
+                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
@@ -279,14 +275,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 0:
-                foreach (var temp in CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum).ProductivityInformationCalibrationStatusList)
-                {
-                    CalibrationStatusesItem.Single(t => t.ProductivityInformation == temp.ProductivityInformation).IsCalibrated = temp.IsCalibrated;
-                }
-
-                return true;
-
             case 1:
                 Cache.Item.FindPosition = Cache.Item.FindPosition.ToOriginLength >= Cache.ChuckRadius
                     ? new Point(0, 0)
@@ -331,9 +319,9 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     }
                 }
 
-                CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum)
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
-                    .Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -1063,7 +1051,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 calibrationStatus => calibrationStatus.ProductivityInformationCalibrationStatusList,
                 (calibrationStatus, productivityInformations) => new CalibrationItemStep()
                 {
-                    StepName = $"{calibrationStatus.OpticsIlluminationModeEnum.ToDescriptionOrString()} {productivityInformations.ProductivityInformation}"
+                    StepName = $"{calibrationStatus.SelectedItem.ToDescriptionOrString()} {productivityInformations.SelectedItem}"
                 }),
             new() { StepName = "Review" }
         ];
@@ -1140,11 +1128,11 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 {
                     foreach (var status in CalibrationStatuses)
                     {
-                        Cache.OpticsIlluminationModeEnum = status.OpticsIlluminationModeEnum;
+                        Cache.OpticsIlluminationModeEnum = status.SelectedItem;
 
                         foreach (var productivity in status.ProductivityInformationCalibrationStatusList)
                         {
-                            if (await AutoActionStepAsync(productivity.ProductivityInformation, cancellationToken) == false)
+                            if (await AutoActionStepAsync(productivity.SelectedItem, cancellationToken) == false)
                             {
                                 DialogWindowProvider.ShowDialog("Auto Calibration Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                 return false;

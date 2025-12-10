@@ -5,8 +5,9 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserLineCentricityCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -38,38 +39,33 @@
         </hc:UniformSpacingPanel>
 
         <GridSplitter Grid.Column="1" Width="5" />
-
-        <ItemsControl Grid.Column="2"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      ItemsSource="{Binding CalibrationStatuses}">
+        <ListBox Grid.Column="2"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemsSource="{Binding CalibrationStatuses}"
+                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 SelectionMode="Single">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsIlluminationModeEnum, Mode=TwoWay}" />
+                <behaviours:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
             </i:Interaction.Behaviors>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="32" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                                 FontSize="35"
-                                 Tag="{Binding .OpticsIlluminationModeEnum}"
-                                 GroupName="7c5f8a2b-9d3e-4f61-88a2-0c1b3d9e4f7a">
-                        <RadioButton.Style>
-                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
+                    <TextBlock Text="{Binding SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
+                               Margin="100,5"
+                               FontSize="16">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
                                         <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </RadioButton.Style>
-                    </RadioButton>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

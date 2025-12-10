@@ -30,6 +30,10 @@
                            Subject="Productivity Information: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Optics Illumination Mode: "
+                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">

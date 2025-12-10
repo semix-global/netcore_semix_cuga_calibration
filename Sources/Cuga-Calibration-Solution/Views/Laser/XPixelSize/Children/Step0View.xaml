@@ -8,6 +8,7 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -43,24 +44,15 @@
                  VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemsSource="{Binding CalibrationStatuses}"
-                 SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                 SelectionMode="Extended">
-            <ListBox.ItemContainerStyle>
-                <Style BasedOn="{StaticResource ListBoxItemBaseStyle}" TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
+                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 SelectionMode="Single">
+            <i:Interaction.Behaviors>
+                <behaviours:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
+            </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                    <TextBlock Text="{Binding SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
                                Margin="100,5"
-                               HorizontalAlignment="Center"
                                FontSize="16">
                         <TextBlock.Style>
                             <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">

@@ -7,6 +7,9 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+             xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserLineCentricityCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -21,6 +24,14 @@
             <hc:Shield Subject="Laser Line Centricity Step 2: "
                        Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
+            <hc:Shield DockPanel.Dock="Bottom"
+                       Subject="Productivity Information: "
+                       Status="{Binding Cache.ProductivityInformation}"
+                       Color="{StaticResource SuccessBrush}" />
+            <hc:Shield DockPanel.Dock="Bottom"
+                       Subject="Optics Illumination Mode: "
+                       Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
@@ -39,38 +50,38 @@
             </Border>
         </hc:UniformSpacingPanel>
         <GridSplitter Grid.Column="1" Width="5" />
-
-        <ItemsControl Grid.Column="2"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      ItemsSource="{Binding CalibrationStatusesItem}">
+        <ListBox Grid.Column="2"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 SelectionMode="Single">
+            <ListBox.ItemsSource>
+                <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">
+                    <Binding Path="CalibrationStatuses" />
+                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                </MultiBinding>
+            </ListBox.ItemsSource>
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
+                <behaviours:ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
             </i:Interaction.Behaviors>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="32" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <RadioButton Content="{Binding .ProductivityInformation}"
-                                 FontSize="35"
-                                 Tag="{Binding .ProductivityInformation}"
-                                 GroupName="a92e6b81-4f3e-4c98-b6c5-7d8f1a4e3b21">
-                        <RadioButton.Style>
-                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type status:ProductivityInformationCalibrationStatus}">
+                    <TextBlock Text="{Binding SelectedItem}"
+                               Margin="100,5"
+                               FontSize="16">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
                                         <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </RadioButton.Style>
-                    </RadioButton>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>
