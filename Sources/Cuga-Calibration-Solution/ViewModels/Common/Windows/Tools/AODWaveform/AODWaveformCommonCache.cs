@@ -1,0 +1,48 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Models.Models.Common.Pattern;
+using Local.NoSQL.DB.Providers.Bases;
+using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
+
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+
+public partial class AODWaveformCommonCache : ObservableCacheBase
+{
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+
+    [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private double _defaultAmplitude = 1;
+
+    [ObservableProperty]
+    private GeneratePrescanAODWaveformParam _flatnessGeneratePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+
+    [ObservableProperty]
+    private GenerateChirpAODWaveformParam _flatnessGenerateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+
+    [ObservableProperty]
+    private GeneratePrescanAODWaveformParam _scanGeneratePrescanAODWaveformParam = new();
+
+    [ObservableProperty]
+    private GenerateChirpAODWaveformParam _scanGenerateChirpAODWaveformParam = new();
+
+    [ObservableProperty]
+    private Point _measureMaxPowerMachinePosition = Point.Origin;
+
+    [ObservableProperty]
+    private double _waitTime = 5;
+
+    public virtual object ToHtmlAnonymous() => new
+    {
+        OpticsIlluminationModeEnum,
+        ProductivityInformation,
+        DefaultAmplitude,
+        MeasureMaxPowerMachinePosition,
+        WaitTime
+    };
+}

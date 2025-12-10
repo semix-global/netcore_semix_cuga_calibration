@@ -57,6 +57,9 @@
     <ItemGroup>
         <ApplicationDefinition Remove="App.xaml" />
         <Page Include="App.xaml" />
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformCommon*.cs">
+            <DependentUpon>AbstractAODWaveformCommonWindowViewModel.cs</DependentUpon>
+        </Compile>
         <Content Include="appsettings.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
