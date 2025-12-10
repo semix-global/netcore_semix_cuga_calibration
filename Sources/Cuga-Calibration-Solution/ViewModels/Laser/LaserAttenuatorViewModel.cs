@@ -98,7 +98,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { ProductivityInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
@@ -109,7 +109,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
             ..Calibrations.Where(t => ApplicationCookie.NIOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses.Single(tt => tt.ProductivityInformation == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+                    CalibrationStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
 
                     return t;
                 })
@@ -153,7 +153,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 return true;
 
             case 1:
-                CalibrationStatuses.Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog($"Attenuator {Cache.ProductivityInformation} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);

@@ -27,6 +27,14 @@
                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Productivity Information: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Optics Illumination Mode: "
+                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
                            Status="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
