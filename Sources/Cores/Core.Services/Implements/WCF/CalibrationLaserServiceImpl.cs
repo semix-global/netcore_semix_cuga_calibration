@@ -36,7 +36,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
     private IReadOnlyList<LaserLightInformation>? _laserLightInformations;
-    private IReadOnlyList<ProductivityInformation>? _productivityInformations;
     private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
 
     public SxExecuteRet<bool> Connect()
@@ -139,8 +138,6 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
-        if (_productivityInformations is not null) return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
-
         var sxExecuteRet = Invoke(() => Service?.GetProductivityInfos());
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(sxExecuteRet.ErrorMsg, []);
@@ -161,9 +158,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         Guard.IsNotEmpty(productivityInformationList, "Productivity Information is empty");
 
-        _productivityInformations = [.. productivityInformationList.OrderBy(t => t)];
-
-        return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
 
     [Obsolete]

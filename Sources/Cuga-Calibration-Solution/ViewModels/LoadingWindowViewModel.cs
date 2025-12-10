@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -88,6 +89,8 @@ public sealed partial class LoadingWindowViewModel(
             applicationCookie.NIProductivityInformations = [.. niProductivityInformations.Select(t => t.Clone())];
             applicationCookie.OIProductivityInformations = [.. oiProductivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
+
+            Guard.IsNotEmpty(applicationCookie.OpticsIlluminationModeEnums);
 
             contextProvider.Send(() => CloseView(true));
 
