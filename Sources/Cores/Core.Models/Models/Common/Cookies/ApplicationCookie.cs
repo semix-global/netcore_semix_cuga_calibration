@@ -89,14 +89,14 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public ProductivityInformation OILowProductivityInformation => OIProductivityInformations
         .OrderByDescending(t => t)
-        .First();
+        .FirstOrDefault() ?? ProductivityInformation.Default;
 
     /// <summary>
     /// OI最高产率
     /// </summary>
     public ProductivityInformation OIHighProductivityInformation => OIProductivityInformations
         .OrderBy(t => t)
-        .First();
+        .FirstOrDefault() ?? ProductivityInformation.Default;
 
     /// <summary>
     /// NI产率列表
@@ -118,14 +118,14 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public ProductivityInformation NILowProductivityInformation => NIProductivityInformations
         .OrderByDescending(t => t)
-        .First();
+        .FirstOrDefault() ?? ProductivityInformation.Default;
 
     /// <summary>
     /// NI最高产率
     /// </summary>
     public ProductivityInformation NIHighProductivityInformation => NIProductivityInformations
         .OrderBy(t => t)
-        .First();
+        .FirstOrDefault() ?? ProductivityInformation.Default;
 
     /// <summary>
     /// 照明方式列表
