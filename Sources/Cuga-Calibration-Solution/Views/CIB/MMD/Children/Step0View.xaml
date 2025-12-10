@@ -52,28 +52,16 @@
                  VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemsSource="{Binding CalibrationStatuses}"
+                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
                  SelectionMode="Extended">
             <i:Interaction.Behaviors>
                 <behaviours:CIBInformationCalibrationStatusListBoxSelectedItemsBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" />
             </i:Interaction.Behaviors>
-            <ListBox.ItemContainerStyle>
-                <Style BasedOn="{StaticResource ListBoxItemBaseStyle}" TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding CIBInformation}"
+                    <TextBlock Text="{Binding SelectedItem}"
                                Margin="100,5"
-                               HorizontalAlignment="Center"
-                               FontSize="16"
-                               Tag="{Binding CIBInformation}">
+                               FontSize="16">
                         <TextBlock.Style>
                             <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
