@@ -36,7 +36,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
     private IReadOnlyList<LaserLightInformation>? _laserLightInformations;
-    private IReadOnlyList<ProductivityInformation>? _productivityInformations;
     private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
 
     public SxExecuteRet<bool> Connect()
@@ -139,8 +138,6 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
-        if (_productivityInformations is not null) return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
-
         var sxExecuteRet = Invoke(() => Service?.GetProductivityInfos());
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(sxExecuteRet.ErrorMsg, []);
@@ -161,9 +158,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         Guard.IsNotEmpty(productivityInformationList, "Productivity Information is empty");
 
-        _productivityInformations = [.. productivityInformationList.OrderBy(t => t)];
-
-        return SxExecuteRetHelper.CreateSuccess(_productivityInformations);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
 
     [Obsolete]
@@ -410,13 +405,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case (> 0, > 0):
+            case ( > 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case (> 0, Constants.NegInt32Value):
+            case ( > 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -661,7 +656,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = Invoke(() => Service?.SendCIBWave(logGainMul128Bytes, CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        sxExecuteRet = Invoke(() => Service?.SendCIBWave(gainS16BitBytes, CgCIBWaveType.PMT, cibInformation.PMTId, cibInformation.ChannelId));
+        sxExecuteRet = Invoke(() => Service?.SendCIBWave(gainS16BitBytes, CgCIBWaveType.IG, cibInformation.PMTId, cibInformation.ChannelId));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

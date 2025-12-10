@@ -144,7 +144,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationCalibrationStatus { CIBInformation = t, IsCalibrated = false })
+                .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<CIBMMDCache>();
@@ -155,7 +155,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ..Calibrations.Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses.Single(tt => tt.CIBInformation == t.CIBInformation).IsCalibrated = t.IsCalibrated;
+                    CalibrationStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
 
                     return t;
                 })
@@ -207,7 +207,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
-                foreach (var cacheCIBInformation in Cache.CIBInformations) CalibrationStatuses.Single(t => t.CIBInformation == cacheCIBInformation).IsCalibrated = true;
+                foreach (var cacheCIBInformation in Cache.CIBInformations) CalibrationStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"AOD Alignment {CalibrateDirectoryName} Ok!");
 
@@ -233,7 +233,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            var values = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[..MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath)];
+            var values = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[.. MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath)];
             if (values.Count > 0) Cache.GainConfigurations = values;
 
             DialogWindowProvider.ShowDialog($"{nameof(ImportGainConfiguration)} OK!");

@@ -9,7 +9,6 @@ using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -147,32 +146,32 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
 
     public CalibrationMicroscopeCalChip AdaptTo()
     {
-        var chuck = GuardUtils.IsNotNullAndReturn(ChuckItem);
-        var dsw = GuardUtils.IsNotNullAndReturn(DswItem);
-        var haze = GuardUtils.IsNotNullAndReturn(HazeItem);
-        var shiny = GuardUtils.IsNotNullAndReturn(ShinyWaferItem);
-        var undefine = GuardUtils.IsNotNullAndReturn(UndefineWaferItem);
+        var chuck = ChuckItem;
+        var dsw = DswItem;
+        var haze = HazeItem;
+        var shiny = ShinyWaferItem;
+        var undefine = UndefineWaferItem;
         return new CalibrationMicroscopeCalChip
         {
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
-            ChuckAfEcsValue = chuck.AfEcsValue,
-            ChuckAfMotorValue = chuck.AfMotorValue,
-            DswBrightFieldMachinePosition = dsw.BrightFieldMachinePosition.ToCgPoint(),
-            DswDarkFieldMachinePosition = dsw.DarkFieldMachinePosition.ToCgPoint(),
-            DswEcsValue = dsw.EcsValue,
-            DswAfEcsValue = dsw.AfEcsValue,
-            DswAfMotorValue = dsw.AfMotorValue,
-            UndefinedBrightFieldMachinePosition = undefine.BrightFieldMachinePosition.ToCgPoint(),
-            UndefinedDarkFieldMachinePosition = undefine.DarkFieldMachinePosition.ToCgPoint(),
-            UndefinedEcsValue = undefine.EcsValue,
-            HazeBrightFieldMachinePosition = haze.BrightFieldMachinePosition.ToCgPoint(),
-            HazeDarkFieldMachinePosition = haze.DarkFieldMachinePosition.ToCgPoint(),
-            HazeEcsValue = haze.EcsValue,
-            HazeAfEcsValue = haze.AfEcsValue,
-            HazeAfMotorValue = haze.AfMotorValue,
-            ShinyWaferBrightFieldMachinePosition = shiny.BrightFieldMachinePosition.ToCgPoint(),
-            ShinyWaferDarkFieldMachinePosition = shiny.DarkFieldMachinePosition.ToCgPoint(),
-            ShinyWaferEcsValue = shiny.EcsValue,
+            ChuckAfEcsValue = chuck is null ? 0d : chuck.AfEcsValue,
+            ChuckAfMotorValue = chuck is null ? 0d : chuck.AfMotorValue,
+            DswBrightFieldMachinePosition = dsw is null ? Point.Origin.ToCgPoint() : dsw.BrightFieldMachinePosition.ToCgPoint(),
+            DswDarkFieldMachinePosition = dsw is null ? Point.Origin.ToCgPoint() : dsw.DarkFieldMachinePosition.ToCgPoint(),
+            DswEcsValue = dsw is null ? 0d : dsw.EcsValue,
+            DswAfEcsValue = dsw is null ? 0d : dsw.AfEcsValue,
+            DswAfMotorValue = dsw is null ? 0d : dsw.AfMotorValue,
+            UndefinedBrightFieldMachinePosition = undefine is null ? Point.Origin.ToCgPoint() : undefine.BrightFieldMachinePosition.ToCgPoint(),
+            UndefinedDarkFieldMachinePosition = undefine is null ? Point.Origin.ToCgPoint() : undefine.DarkFieldMachinePosition.ToCgPoint(),
+            UndefinedEcsValue = undefine is null ? 0 : undefine.EcsValue,
+            HazeBrightFieldMachinePosition = haze is null ? Point.Origin.ToCgPoint() : haze.BrightFieldMachinePosition.ToCgPoint(),
+            HazeDarkFieldMachinePosition = haze is null ? Point.Origin.ToCgPoint() : haze.DarkFieldMachinePosition.ToCgPoint(),
+            HazeEcsValue = haze is null ? 0d : haze.EcsValue,
+            HazeAfEcsValue = haze is null ? 0d : haze.AfEcsValue,
+            HazeAfMotorValue = haze is null ? 0d : haze.AfMotorValue,
+            ShinyWaferBrightFieldMachinePosition = shiny is null ? Point.Origin.ToCgPoint() : shiny.BrightFieldMachinePosition.ToCgPoint(),
+            ShinyWaferDarkFieldMachinePosition = shiny is null ? Point.Origin.ToCgPoint() : shiny.DarkFieldMachinePosition.ToCgPoint(),
+            ShinyWaferEcsValue = shiny is null ? 0d : shiny.EcsValue,
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
             IsRequiredCalibrate = IsRequiredSelfCheck

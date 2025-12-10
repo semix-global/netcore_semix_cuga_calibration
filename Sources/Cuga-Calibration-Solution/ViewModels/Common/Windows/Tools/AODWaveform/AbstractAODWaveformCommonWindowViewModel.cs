@@ -12,6 +12,7 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -33,10 +34,10 @@ public partial class AODWaveformCommonCache : ObservableCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+    private GeneratePrescanAODWaveformParam _flatnessGeneratePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    private GenerateChirpAODWaveformParam _flatnessGenerateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
     private double _defaultAmplitude = 1;
@@ -83,6 +84,10 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
+    public string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
+
+    public string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
     public ApplicationCookie ApplicationCookie => HostApplication.GetRequiredService<ApplicationCookie>();
 
     [ObservableProperty]
@@ -92,9 +97,9 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public abstract string Name { get; }
 
-    protected abstract void GenerateFixedAODWaveform(CancellationToken cancellationToken);
+    protected abstract void GenerateFlatnessFixedAODWaveform(CancellationToken cancellationToken);
 
-    protected abstract void GenerateChangedAODWaveform(TItem item, CancellationToken cancellationToken);
+    protected abstract void GenerateFlatnessChangedAODWaveform(TItem item, CancellationToken cancellationToken);
 
     protected abstract void SetAODWaveformProfiles(TItem item);
 
@@ -198,7 +203,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     {
         try
         {
-            GenerateChangedAODWaveform(item, cancellationToken);
+            GenerateFlatnessChangedAODWaveform(item, cancellationToken);
             SetAODWaveformProfiles(item);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);

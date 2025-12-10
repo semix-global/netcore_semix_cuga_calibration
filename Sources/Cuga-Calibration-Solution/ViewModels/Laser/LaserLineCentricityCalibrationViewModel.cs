@@ -770,7 +770,9 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 return false;
             }
 
-            var centerLineCentricityItemDto = Reviews.Single(t => t.ProductivityInformation == productiveGroups.First().Key && t.PmtId == 8);
+            var centerLineCentricityItemDto = Reviews.Single(t => t.ProductivityInformation == productiveGroups.First().Key
+                                                                && t.OpticsIlluminationMode == Cache.OpticsIlluminationModeEnum
+                                                                && t.PmtId == 8);
 
             if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false) result = false;
 
@@ -814,6 +816,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var resultLineCentricityItemDtoList = new List<LaserLineCentricityItemDto>();
 
         Cache.ProductivityInformation = centerLineCentricityItemDto.ProductivityInformation;
+        Cache.OpticsIlluminationModeEnum = centerLineCentricityItemDto.OpticsIlluminationMode;
         if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
                 out var resultPosition, out _, out _, out _, out _) == false) return false;
         var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(resultPosition);
