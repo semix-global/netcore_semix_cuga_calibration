@@ -93,20 +93,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public LaserLightInformation LevelToLaserLightInformation(double level)
-    {
-        var ret = calibrationLaserService.LevelToLaserLightInformation(level);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public LaserLightInformation CoefficientToLaserLightInformation(double coefficient)
-    {
-        var ret = calibrationLaserService.CoefficientToLaserLightInformation(coefficient);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         var ret = calibrationLaserService.GetProductivityInformations(opticsIlluminationModeEnum);

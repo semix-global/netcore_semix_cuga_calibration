@@ -35,9 +35,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
-    private IReadOnlyList<LaserLightInformation>? _laserLightInformations;
-    private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
-
     public SxExecuteRet<bool> Connect()
     {
         if (IsConnected) return SxExecuteRetHelper.CreateSuccess(true);
@@ -98,18 +95,16 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
     {
-        if (_laserLightInformations is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInformations);
-
         var sxExecuteRet = Invoke(() => Service?.GetLightConfig());
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        _laserLightInformations = [.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
+        var laserLightInformations = (IReadOnlyList<LaserLightInformation>)[.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
 
-        Guard.IsTrue(_laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
-        Guard.IsTrue(_laserLightInformations.Select(t => t.Level).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Level is not unique");
+        Guard.IsTrue(laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
+        Guard.IsTrue(laserLightInformations.Select(t => t.Level).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Level is not unique");
 
-        return SxExecuteRetHelper.CreateSuccess(_laserLightInformations);
+        return SxExecuteRetHelper.CreateSuccess(laserLightInformations);
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
@@ -405,13 +400,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -442,8 +437,6 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
     {
-        if (_pmtConfigList is not null) return SxExecuteRetHelper.CreateSuccess(_pmtConfigList);
-
         var sxExecuteRet = Invoke(() => Service?.GetPmtState());
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>>(sxExecuteRet.Msg, []);
@@ -465,8 +458,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         Guard.IsTrue(firstChannelList.SequenceEqual(Enumerable.Range(1, firstChannelList.Count)), "Channel Id is not from 1 to ..");
         Guard.IsTrue(result.All(item => item.ChannelIdList.SequenceEqual(firstChannelList)), "Channel Id is not equal");
         Guard.IsTrue(result.Any(item => item.IsUsed), "Pmt Config List is not used");
-
-        _pmtConfigList = result;
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>>(result);
     }

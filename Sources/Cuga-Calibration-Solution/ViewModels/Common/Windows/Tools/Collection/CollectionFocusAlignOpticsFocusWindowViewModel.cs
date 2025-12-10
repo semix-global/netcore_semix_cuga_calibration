@@ -299,7 +299,11 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             if (ScatterPlotControls.Count > 0) return;
 
-            ScatterPlotControls = laserViewModel.GetIsUsedCIBConfigList()[0].ChannelIdList.ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
+            ScatterPlotControls = laserViewModel.GetCIBInformations()
+                .GroupBy(t => t.PMTId)
+                .Select(t => t.Select(tt => tt.ChannelId).ToImmutableArray())
+                .First()
+                .ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
         }
         finally
         {
