@@ -20,11 +20,12 @@ using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, TItem> : ViewModelBase
+public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult> : ViewModelBase
     where TCache : AODWaveformCommonCache, new()
     where TItem : AODWaveformCommonItem, new()
+    where TResult : AODWaveformCommonResult, new()
 {
-    protected readonly ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem>> Logger;
+    protected readonly ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>> Logger;
     protected readonly ApplicationSetting ApplicationSetting;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IWindowManagerService WindowManagerService;
@@ -58,13 +59,17 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     protected abstract void GenerateScanChangedAODWaveform(TItem item, CancellationToken cancellationToken);
 
+    protected abstract void GenerateResultAODWaveform(TResult result, CancellationToken cancellationToken);
+
+    protected abstract void SetResultAODWaveformConfig(TResult result, CancellationToken cancellationToken);
+
     protected abstract void SetAODWaveformProfiles(TItem item);
 
     protected abstract void LoggerResult(int stepIndex);
 
     protected AbstractAODWaveformCommonWindowViewModel()
     {
-        Logger = (ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+        Logger = (ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();

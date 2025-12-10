@@ -24,84 +24,10 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWaveformCommonCache
-    where TItem : AODWaveformElectrodeInitializeItem, new()
-    where TResult : AODWaveformElectrodeInitializeResult, new()
-{
-    [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
-
-    [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
-
-    [ObservableProperty]
-    private int _interpolationCount = 3;
-
-    [ObservableProperty]
-    private IReadOnlyList<double> _electrode2OffsetFrequencyPeriodCoefficients = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<double> _electrode4OffsetFrequencyPeriodCoefficients = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<double> _frequencies = [];
-
-    partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [.. value.Select(_ => 1)];
-
-    [ObservableProperty]
-    private IReadOnlyList<double> _weights = [];
-
-    [ObservableProperty]
-    private double _startElectrode3OffsetFrequencyPeriodCoefficient;
-
-    [ObservableProperty]
-    private double _stepElectrode3OffsetFrequencyPeriodCoefficient;
-
-    [ObservableProperty]
-    private double _stopElectrode3OffsetFrequencyPeriodCoefficient;
-
-    #region Items
-
-    [ObservableProperty]
-    private AODWaveformInitializeStep0<TItem> _step0 = new();
-
-    [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeInitializeStep1<TItem>> _step1Items = [];
-
-    #endregion
-
-    [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurationResults = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<TResult> _results = [];
-}
-
-public partial class AODWaveformElectrodeInitializeItem : AODWaveformCommonItem
-{
-    [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
-
-    [ObservableProperty]
-    private double _frequency;
-
-    [ObservableProperty]
-    private double _offsetFrequencyPeriodCoefficient;
-
-    public override object ToHtmlAnonymous() => new
-    {
-        Frequency,
-        OffsetFrequencyPeriodCoefficient,
-        Base = new HtmlQuote(base.ToHtmlAnonymous())
-    };
-}
-
-public class AODWaveformElectrodeInitializeResult : ObservableCacheBase;
-
-public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewModel<TCache, TItem, TResult> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
+public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewModel<TCache, TItem, TResult> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>
     where TCache : AODWaveformElectrodeInitializeCache<TItem, TResult>, new()
     where TItem : AODWaveformElectrodeInitializeItem, new()
-    where TResult : AODWaveformElectrodeInitializeResult, new()
+    where TResult : AODWaveformCommonResult, new()
 {
     protected abstract void GenerateAODWaveform(TItem item, CancellationToken cancellationToken);
 

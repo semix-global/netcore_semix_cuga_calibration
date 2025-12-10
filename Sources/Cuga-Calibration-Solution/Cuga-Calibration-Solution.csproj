@@ -55,11 +55,20 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ApplicationDefinition Remove="App.xaml" />
-        <Page Include="App.xaml" />
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformCommon*.cs">
             <DependentUpon>AbstractAODWaveformCommonWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeOffset*.cs">
+            <DependentUpon>AbstractAODWaveformElectrodeOffsetWindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeInitialize*.cs">
+            <DependentUpon>AbstractAODWaveformElectrodeInitializeWindowViewModel.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ApplicationDefinition Remove="App.xaml" />
+        <Page Include="App.xaml" />
         <Content Include="appsettings.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>

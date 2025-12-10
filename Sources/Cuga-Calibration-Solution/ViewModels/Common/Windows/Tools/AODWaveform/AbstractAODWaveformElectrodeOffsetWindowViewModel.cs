@@ -3,224 +3,22 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
-using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
-using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using ScottPlot;
 using System.Collections;
-using System.ComponentModel;
 using Generate = MathNet.Numerics.Generate;
-using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
-
-public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWaveformCommonCache
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-    where TResult : AODWaveformElectrodeOffsetResult, new()
-{
-    #region Param
-
-    [ObservableProperty]
-    private double _offsetFrequency;
-
-    [ObservableProperty]
-    private int _interpolationCount = 3;
-
-    [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetParam> _electrodeOffsetParams =
-    [
-        new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }
-    ];
-
-    partial void OnElectrodeOffsetParamsChanged(IReadOnlyList<AODWaveformElectrodeOffsetParam> value)
-    {
-        var oldElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams;
-
-        ElectrodeOffsetFrequencyWeightParams =
-        [
-            ..value
-                .Where(t => t.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode1)
-                .SelectMany(t => Frequencies.Select(tt => new AODWaveformOffsetElectrodeFrequencyWeightParam
-                {
-                    OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
-                    Frequency = tt,
-                    Weight = oldElectrodeOffsetFrequencyWeightParams
-                        .FirstOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
-                        ?.Weight ?? 1d
-                }))
-        ];
-
-        ElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams.DistinctBy(t => (t.OpticsAODElectrodeEnum, t.Frequency)).ToArray();
-    }
-
-    [ObservableProperty]
-    private bool _isConfirmAODWaveformElectrodeOffsetResult = true;
-
-    [ObservableProperty]
-    private IReadOnlyList<double> _frequencies = [];
-
-    partial void OnFrequenciesChanged(IReadOnlyList<double> value)
-    {
-        var oldElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams;
-
-        ElectrodeOffsetFrequencyWeightParams =
-        [
-            ..ElectrodeOffsetParams
-                .Where(t => t.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode1)
-                .SelectMany(t => value.Select(tt => new AODWaveformOffsetElectrodeFrequencyWeightParam
-                {
-                    OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
-                    Frequency = tt,
-                    Weight = oldElectrodeOffsetFrequencyWeightParams
-                        .FirstOrDefault(ttt => ttt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum && Equals(ttt.Frequency, tt))
-                        ?.Weight ?? 1d
-                }))
-        ];
-
-        ElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams.DistinctBy(t => (t.OpticsAODElectrodeEnum, t.Frequency)).ToArray();
-    }
-
-    [ObservableProperty]
-    private double _stepFrequency;
-
-    [ObservableProperty]
-    private IReadOnlyList<AODWaveformOffsetElectrodeFrequencyWeightParam> _electrodeOffsetFrequencyWeightParams = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeFrequencyUniformityParam> _electrodeFrequencyUniformityParams = [];
-
-    [ObservableProperty]
-    private int _electrodeFrequencyUniformityParamChunkSize;
-
-    #endregion Param
-
-    #region Items
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> _step0Items = [];
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>> _step1Items = [];
-
-    partial void OnStep0ItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep0<TItem>> newValue)
-    {
-        foreach (var step0 in oldValue ?? [])
-        {
-            step0.PropertyChanged -= Step0ItemOnPropertyChanged;
-        }
-
-        foreach (var step0 in newValue)
-        {
-            step0.PropertyChanged -= Step0ItemOnPropertyChanged;
-            step0.PropertyChanged += Step0ItemOnPropertyChanged;
-        }
-
-        return;
-
-        void Step0ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not AODWaveformElectrodeOffsetStep0<TItem> step0) return;
-
-            step0.RefreshPlot();
-        }
-    }
-
-    partial void OnStep1ItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep1<TItem>> newValue)
-    {
-        foreach (var step1 in oldValue ?? [])
-        {
-            step1.PropertyChanged -= Step1ItemOnPropertyChanged;
-        }
-
-        foreach (var step1 in newValue)
-        {
-            step1.PropertyChanged -= Step1ItemOnPropertyChanged;
-            step1.PropertyChanged += Step1ItemOnPropertyChanged;
-        }
-
-        return;
-
-        void Step1ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not AODWaveformElectrodeOffsetStep1<TItem> step1) return;
-
-            step1.RefreshPlot();
-        }
-    }
-
-    #endregion Items
-
-    #region Result
-
-    [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurationResults = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<TResult> _results = [];
-
-    #endregion Result
-
-    public override object ToHtmlAnonymous() => new
-    {
-        OffsetFrequency,
-        InterpolationCount,
-        ElectrodeOffsetParams = new HtmlTable([.. ElectrodeOffsetParams.Select(t => t.ToHtmlAnonymous())]),
-        IsConfirmAODWaveformElectrodeOffsetResult,
-        Frequencies,
-        StepFrequency,
-        ElectrodeOffsetFrequencyWeightParams = new HtmlTable([.. ElectrodeOffsetFrequencyWeightParams.Select(t => t.ToHtmlAnonymous())]),
-        ElectrodeFrequencyUniformityParams = new HtmlTable([.. ElectrodeFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),
-        ElectrodeFrequencyUniformityParamChunkSize,
-        Base = new HtmlQuote(base.ToHtmlAnonymous())
-    };
-}
-
-public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
-{
-    [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
-
-    [ObservableProperty]
-    private double _frequency;
-
-    [ObservableProperty]
-    private double _amplitude;
-
-    [ObservableProperty]
-    private double _offsetFrequencyPeriodCoefficient;
-
-    public override object ToHtmlAnonymous() => new
-    {
-        Frequency,
-        Amplitude,
-        OffsetFrequencyPeriodCoefficient,
-        Base = new HtmlQuote(base.ToHtmlAnonymous())
-    };
-}
-
-public class AODWaveformElectrodeOffsetResult : ObservableCacheBase;
 
 public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<TCache, TItem, TResult> : AbstractAODWaveformCommonWindowViewModel<TCache, TItem>
     where TCache : AODWaveformElectrodeOffsetCache<TItem, TResult>, new()
@@ -273,7 +71,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         if (Cache.ElectrodeOffsetParams.Count > electrodeEnums.Length) return;
 
         var electrodeOffsetParamList = Cache.ElectrodeOffsetParams.ToList();
-        electrodeOffsetParamList.Add(new AODWaveformElectrodeOffsetParam());
+        electrodeOffsetParamList.Add(new AODWaveformElectrodeOffsetFrequencyPeriodOffsetParam());
 
         foreach (var (index, item) in electrodeOffsetParamList
                      .Select((item, index) => (index, t: item)))
@@ -292,7 +90,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
         var electrodeOffsetParamList = Cache.ElectrodeOffsetParams.ToList();
-        foreach (AODWaveformElectrodeOffsetParam selectItem in selectItems)
+        foreach (AODWaveformElectrodeOffsetFrequencyPeriodOffsetParam selectItem in selectItems)
         {
             if (selectItem.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode1) continue;
 
@@ -312,7 +110,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     private void AddElectrodeFrequencyUniformityParam()
     {
         var electrodeFrequencyUniformityParamList = Cache.ElectrodeFrequencyUniformityParams.ToList();
-        electrodeFrequencyUniformityParamList.Add(new AODWaveformElectrodeFrequencyUniformityParam());
+        electrodeFrequencyUniformityParamList.Add(new AODWaveformElectrodeOffsetFrequencyUniformityParam());
 
         Cache.ElectrodeFrequencyUniformityParams = electrodeFrequencyUniformityParamList;
     }
@@ -323,7 +121,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         if (selectItems is null) return;
 
         var electrodeFrequencyUniformityParamList = Cache.ElectrodeFrequencyUniformityParams.ToList();
-        foreach (AODWaveformElectrodeFrequencyUniformityParam selectItem in selectItems)
+        foreach (AODWaveformElectrodeOffsetFrequencyUniformityParam selectItem in selectItems)
         {
             electrodeFrequencyUniformityParamList.Remove(selectItem);
         }
@@ -696,335 +494,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         await Step3Command.ExecuteAsync(true);
     }
-}
-
-public sealed partial class AODWaveformElectrodeOffsetParam : ObservableCacheBase
-{
-    [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
-
-    [ObservableProperty]
-    private double _startOffsetFrequencyPeriodCoefficient;
-
-    [ObservableProperty]
-    private double _stepOffsetFrequencyPeriodCoefficient;
-
-    [ObservableProperty]
-    private double _stopOffsetFrequencyPeriodCoefficient;
-
-    public object ToHtmlAnonymous() => new
-    {
-        OpticsAODElectrodeEnum,
-        StartOffsetFrequencyPeriodCoefficient,
-        StepOffsetFrequencyPeriodCoefficient,
-        StopOffsetFrequencyPeriodCoefficient
-    };
-}
-
-public sealed partial class AODWaveformOffsetElectrodeFrequencyWeightParam : ObservableCacheBase
-{
-    [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
-
-    [ObservableProperty]
-    private double _frequency;
-
-    [ObservableProperty]
-    private double _weight;
-
-    public object ToHtmlAnonymous() => new
-    {
-        OpticsAODElectrodeEnum,
-        Frequency,
-        Weight
-    };
-}
-
-public sealed partial class AODWaveformElectrodeFrequencyUniformityParam : ObservableCacheBase
-{
-    [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
-
-    [ObservableProperty]
-    private double _startAmplitude = 1;
-
-    [ObservableProperty]
-    private double _stepAmplitude = 1;
-
-    [ObservableProperty]
-    private double _stopAmplitude = 1;
-
-    public object ToHtmlAnonymous() => new
-    {
-        OpticsAODElectrodeEnum,
-        StartAmplitude,
-        StepAmplitude,
-        StopAmplitude
-    };
-}
-
-public sealed partial class AODWaveformElectrodeOffsetStep0<TItem> : ObservableCacheBase
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-{
-    [ObservableProperty]
-    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
-
-    public string Title => string.Join(", ", Electrodes.Select(t => EnumHelper.ToDescriptionString(t)));
-
-    #region Result
-
-    [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetStep0Item<TItem>> _items = [];
-
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep0Item<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep0Item<TItem>> newValue)
-    {
-        foreach (var step0Item in oldValue ?? [])
-        {
-            step0Item.PropertyChanged -= ItemOnPropertyChanged;
-        }
-
-        foreach (var step0Item in newValue)
-        {
-            step0Item.PropertyChanged -= ItemOnPropertyChanged;
-            step0Item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Items));
-        }
-    }
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _closestMaximaPoints = [];
-
-    [ObservableProperty]
-    private double? _offsetFrequencyPeriodCoefficient;
-
-#pragma warning disable IDE0079
-#pragma warning disable CS0657
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-#pragma warning restore CS0657
-#pragma warning restore IDE0079
-
-    #endregion
-
-    public AODWaveformElectrodeOffsetStep0()
-    {
-        ScatterPlotControl.ToggleLegend(false);
-    }
-
-    public void RefreshPlot()
-    {
-        ScatterPlotControl.SetTitle($"Result: {(OffsetFrequencyPeriodCoefficient is null ? "-" : $"{OffsetFrequencyPeriodCoefficient:0.###}(2pi)")} (Y: mW - X: 2pi)");
-
-        foreach (var (index, item) in Items.Index())
-        {
-            if (item.FrequencyItems.Count <= 0) continue;
-
-            var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
-                $"Origin {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
-                index,
-                new Range(0, Items.Count - 1),
-                markerShape: MarkerShape.OpenCircle);
-            scatterMarkersOrigin.MarkerSize = 10;
-
-            ScatterPlotControl.GetOrAddScatterLine(
-                $"Interpolation {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                item.FrequencyInterpolationPoints,
-                index,
-                new Range(0, Items.Count - 1));
-
-            var scatterMarkersMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
-                $"Maxima {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                item.FrequencyMaximaPoints,
-                index,
-                new Range(0, Items.Count - 1),
-                markerShape: MarkerShape.Asterisk);
-            scatterMarkersMaxima.MarkerSize = 20;
-        }
-
-        if (ClosestMaximaPoints.Count > 0)
-        {
-            var scatterMarkersClosestMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
-                "Closest Maxima",
-                ClosestMaximaPoints,
-                Colors.Blue,
-                markerShape: MarkerShape.FilledSquare);
-            scatterMarkersClosestMaxima.MarkerSize = 20;
-        }
-
-        ScatterPlotControl.AutoScaleRefresh();
-    }
-
-    public void InterpolationMaxima(int densityFactor)
-    {
-        ClosestMaximaPoints = [];
-
-        foreach (var item in Items)
-        {
-            item.FrequencyInterpolationPoints = [];
-            item.FrequencyMaximaPoints = [];
-
-            var (frequencyInterpolationX, frequencyInterpolationY) = Interpolator.SplineInterpolation(
-                Vector<double>.Build.Dense([.. item.FrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
-                Vector<double>.Build.Dense([.. item.FrequencyItems.Select(t => t.MeasurePower)]),
-                densityFactor);
-            item.FrequencyInterpolationPoints = [.. frequencyInterpolationX.Index().Select(t => new Point(t.Item, frequencyInterpolationY[t.Index]))];
-
-            var (frequencyMaximaX, frequencyMaximaY) = Extremumor.FindMaxima(
-                Vector<double>.Build.Dense([.. item.FrequencyInterpolationPoints.Select(t => t.X)]),
-                Vector<double>.Build.Dense([.. item.FrequencyInterpolationPoints.Select(t => t.Y)]));
-            item.FrequencyMaximaPoints =
-            [
-                .. frequencyMaximaY
-                    .Index()
-                    .Where(t => t.Item > frequencyInterpolationY.Average())
-                    .Select(t => new Point(frequencyMaximaX[t.Index], t.Item))
-            ];
-        }
-
-        var (results, _) = Extremumor.FindClosestExtremum([.. Items.Select(t => Vector<double>.Build.DenseOfEnumerable(t.FrequencyMaximaPoints.Select(tt => tt.X)))]);
-
-        foreach (var (index, (xIndex, xValue)) in results.Index())
-        {
-            ClosestMaximaPoints = [.. ClosestMaximaPoints, new Point(xValue, Items[index].FrequencyMaximaPoints[xIndex].Y)];
-        }
-    }
-}
-
-public sealed partial class AODWaveformElectrodeOffsetStep0Item<TItem> : ObservableCacheBase
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-{
-    [ObservableProperty]
-    private IReadOnlyList<TItem> _frequencyItems = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _frequencyInterpolationPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _frequencyMaximaPoints = [];
-}
-
-public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableCacheBase
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-{
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Title))]
-    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
-
-    public string Title => string.Join(", ", Electrodes.Select(t => EnumHelper.ToDescriptionString(t)));
-
-    #region Result
-
-    [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetStep1Item<TItem>> _items = [];
-
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep1Item<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep1Item<TItem>> newValue)
-    {
-        foreach (var step1Item in oldValue ?? [])
-        {
-            step1Item.PropertyChanged -= ItemOnPropertyChanged;
-        }
-
-        foreach (var step1Item in newValue)
-        {
-            step1Item.PropertyChanged -= ItemOnPropertyChanged;
-            step1Item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(AODWaveformElectrodeOffsetStep1Item<TItem>.MaxItem)) return;
-
-            OnPropertyChanged(nameof(Items));
-        }
-    }
-
-#pragma warning disable IDE0079
-#pragma warning disable CS0657
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-#pragma warning restore CS0657
-#pragma warning restore IDE0079
-
-    #endregion
-
-    public AODWaveformElectrodeOffsetStep1()
-    {
-        ScatterPlotControl.Configure(totalPlotCount: 3);
-        ScatterPlotControl.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
-        ScatterPlotControl.SetTitle(1, "Uniformity Amplitude Result(Y: AMP - X: MHz)");
-        ScatterPlotControl.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
-    }
-
-    public void RefreshPlot()
-    {
-        var isNeedRefreshes = new bool[Items.Count];
-        foreach (var (index, item) in Items.Index())
-        {
-            if (item.FrequencyItems.Count <= 0) continue;
-
-            ScatterPlotControl.GetOrAddScatterLine(
-                0,
-                $"{item.FrequencyItems[0].Frequency}(MHz)",
-                [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
-                index,
-                new Range(0, Items.Count - 1));
-
-            item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).Single();
-
-            isNeedRefreshes[index] = true;
-        }
-
-        if (isNeedRefreshes.All(b => b))
-        {
-            ScatterPlotControl.GetOrAddScatterLine(
-                1,
-                "Amplitude",
-                [
-                    .. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxItem?.Amplitude ?? 0))
-                ],
-                Colors.Blue);
-            ScatterPlotControl.GetOrAddScatterLine(
-                2,
-                "Measure Power",
-                [
-                    .. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxItem?.MeasurePower ?? 0))
-                ],
-                Colors.Blue);
-        }
-
-        ScatterPlotControl.AutoScaleRefresh();
-    }
-}
-
-public sealed partial class AODWaveformElectrodeOffsetStep1Item<TItem> : ObservableCacheBase
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-{
-    [ObservableProperty]
-    private IReadOnlyList<TItem> _frequencyItems = [];
-
-    [ObservableProperty]
-    private TItem? _maxItem;
 }
 
 [IOCAppService(ServiceType = typeof(AODWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
