@@ -233,7 +233,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            var values = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[..MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath)];
+            var values = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[.. MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath)];
             if (values.Count > 0) Cache.GainConfigurations = values;
 
             DialogWindowProvider.ShowDialog($"{nameof(ImportGainConfiguration)} OK!");

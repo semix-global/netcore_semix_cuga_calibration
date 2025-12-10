@@ -213,6 +213,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         return false;
                     }
                 }
+
                 IsCalibrated = isCalibrated;
                 ClearCalibrationTemp();
                 return true;
@@ -378,7 +379,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     var z2IsPositive = false;
                     var z3IsPositive = false;
                     var z4IsPositive = false;
-                    IsX1Stop = false; IsX2Stop = false; IsX3Stop = false; IsX4Stop = false;
+                    IsX1Stop = false;
+                    IsX2Stop = false;
+                    IsX3Stop = false;
+                    IsX4Stop = false;
                     {
                         var adsXGainsDichotomySpeedCacheItem = new AdsXGainsDichotomySpeedCacheItem()
                         {
@@ -415,6 +419,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         {
                             z1IsPositive = true;
                         }
+
                         if (adsXGainsCacheItem.GetZ2() <= 0)
                         {
                             z2IsPositive = true;
@@ -451,6 +456,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         {
                             z3IsPositive = true;
                         }
+
                         if (adsXGainsCacheConverseItem.GetZ2() <= 0)
                         {
                             z4IsPositive = true;
@@ -490,8 +496,16 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                 {
                                     if (((Math.Abs(resultValue.Z1) - Math.Abs(Z10)) > 200) || (Math.Abs(resultValue.Z1) > 300))
                                     {
-                                        if (resultValue.z1IsPositive == z1IsPositive) { x1Max = resultValue.x1; x1Min = Cache.FindMinX; }
-                                        else { x1Min = resultValue.x1; x1Max = Cache.FindMaxX; }
+                                        if (resultValue.z1IsPositive == z1IsPositive)
+                                        {
+                                            x1Max = resultValue.x1;
+                                            x1Min = Cache.FindMinX;
+                                        }
+                                        else
+                                        {
+                                            x1Min = resultValue.x1;
+                                            x1Max = Cache.FindMaxX;
+                                        }
 
                                         if (x1Max > Cache.FindMaxX)
                                             x1Max = Cache.FindMaxX;
@@ -509,6 +523,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                     if (resultValue.z1IsPositive == z1IsPositive) x1Min = resultValue.x1;
                                     else x1Max = resultValue.x1;
                                 }
+
                                 Z10 = resultValue.Z1;
                                 if (x1Min == x1Max || (x1Min + 1 == x1Max))
                                 {
@@ -529,8 +544,17 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                 {
                                     if (((Math.Abs(resultValue.Z2) - Math.Abs(Z20)) > 200) || (Math.Abs(resultValue.Z2) > 300))
                                     {
-                                        if (resultValue.z2IsPositive == z2IsPositive) { x2Max = resultValue.x2; x2Min = Cache.FindMinX; }
-                                        else { x2Min = resultValue.x2; x2Max = Cache.FindMaxX; }
+                                        if (resultValue.z2IsPositive == z2IsPositive)
+                                        {
+                                            x2Max = resultValue.x2;
+                                            x2Min = Cache.FindMinX;
+                                        }
+                                        else
+                                        {
+                                            x2Min = resultValue.x2;
+                                            x2Max = Cache.FindMaxX;
+                                        }
+
                                         if (x2Max > Cache.FindMaxX)
                                             x2Max = Cache.FindMaxX;
                                         if (x2Min < Cache.FindMinX)
@@ -547,6 +571,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                     if (resultValue.z2IsPositive == z2IsPositive) x2Min = resultValue.x2;
                                     else x2Max = resultValue.x2;
                                 }
+
                                 Z20 = resultValue.Z2;
                                 if ((x2Min == x2Max) || (x2Min + 1 == x2Max))
                                 {
@@ -563,6 +588,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
                             if (IsX1Stop && IsX2Stop) isStop12 = false;
                         }
+
                         if (isStop34)
                         {
                             index34++;
@@ -578,13 +604,29 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                         N3++;
                                         if (N3 <= 1)
                                         {
-                                            if (resultValue.z1IsPositive == z3IsPositive) { x3Max = resultValue.x1; x3Min = Cache.FindMinX; }
-                                            else { x3Min = resultValue.x1; x3Max = Cache.FindMaxX; }
+                                            if (resultValue.z1IsPositive == z3IsPositive)
+                                            {
+                                                x3Max = resultValue.x1;
+                                                x3Min = Cache.FindMinX;
+                                            }
+                                            else
+                                            {
+                                                x3Min = resultValue.x1;
+                                                x3Max = Cache.FindMaxX;
+                                            }
                                         }
                                         else
                                         {
-                                            if (resultValue.z1IsPositive == z3IsPositive) { x3Min = resultValue.x1; x3Max = Cache.FindMaxX; }
-                                            else { x3Max = resultValue.x1; x3Min = Cache.FindMinX; }
+                                            if (resultValue.z1IsPositive == z3IsPositive)
+                                            {
+                                                x3Min = resultValue.x1;
+                                                x3Max = Cache.FindMaxX;
+                                            }
+                                            else
+                                            {
+                                                x3Max = resultValue.x1;
+                                                x3Min = Cache.FindMinX;
+                                            }
                                         }
 
                                         if (x3Max > Cache.FindMaxX)
@@ -604,6 +646,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                     if (resultValue.z1IsPositive == z3IsPositive) x3Min = resultValue.x1;
                                     else x3Max = resultValue.x1;
                                 }
+
                                 Z30 = resultValue.Z1;
                                 if (x3Min == x3Max || (x3Min + 1 == x3Max))
                                 {
@@ -627,13 +670,29 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                         N4++;
                                         if (N4 <= 1)
                                         {
-                                            if (resultValue.z2IsPositive == z4IsPositive) { x4Max = resultValue.x2; x4Min = Cache.FindMinX; }
-                                            else { x4Min = resultValue.x2; x4Max = Cache.FindMaxX; }
+                                            if (resultValue.z2IsPositive == z4IsPositive)
+                                            {
+                                                x4Max = resultValue.x2;
+                                                x4Min = Cache.FindMinX;
+                                            }
+                                            else
+                                            {
+                                                x4Min = resultValue.x2;
+                                                x4Max = Cache.FindMaxX;
+                                            }
                                         }
                                         else
                                         {
-                                            if (resultValue.z2IsPositive == z4IsPositive) { x4Min = resultValue.x2; x4Max = Cache.FindMaxX; }
-                                            else { x4Max = resultValue.x2; x4Min = Cache.FindMinX; }
+                                            if (resultValue.z2IsPositive == z4IsPositive)
+                                            {
+                                                x4Min = resultValue.x2;
+                                                x4Max = Cache.FindMaxX;
+                                            }
+                                            else
+                                            {
+                                                x4Max = resultValue.x2;
+                                                x4Min = Cache.FindMinX;
+                                            }
                                         }
 
                                         if (x4Max > Cache.FindMaxX)
@@ -653,6 +712,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                                     if (resultValue.z2IsPositive == z4IsPositive) x4Min = resultValue.x2;
                                     else x4Max = resultValue.x2;
                                 }
+
                                 Z40 = resultValue.Z2;
                                 if ((x4Min == x4Max) || (x4Min + 1 == x4Max))
                                 {
@@ -669,6 +729,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
                             if (IsX3Stop && IsX4Stop) isStop34 = false;
                         }
+
                         if ((isStop12 == false) && (isStop34 == false))
                             break;
                     }
@@ -919,9 +980,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     X2P2 = ResultAdsXGainsItemDto.PositiveX2P2,
                     X2P3 = ResultAdsXGainsItemDto.PositiveX2P3,
                     X1X2Plots = new HtmlPlot2DLinesChart([
-                            ("X1Plots", ResultAdsXGainsItemDto.PositiveX1Plots.ToArray()), ($"X1={ResultAdsXGainsItemDto.PositiveX1P1})*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P3)}", ResultAdsXGainsItemDto.PositiveX1SmoothPlots.ToArray()),
-                            ("X2Plots", ResultAdsXGainsItemDto.PositiveX2Plots.ToArray()), ($"X2={ResultAdsXGainsItemDto.PositiveX2P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P3)}", ResultAdsXGainsItemDto.PositiveX2SmoothPlots.ToArray())
-                        ], "X1X2Plots")
+                        ("X1Plots", ResultAdsXGainsItemDto.PositiveX1Plots.ToArray()), ($"X1={ResultAdsXGainsItemDto.PositiveX1P1})*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P3)}", ResultAdsXGainsItemDto.PositiveX1SmoothPlots.ToArray()),
+                        ("X2Plots", ResultAdsXGainsItemDto.PositiveX2Plots.ToArray()), ($"X2={ResultAdsXGainsItemDto.PositiveX2P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P3)}", ResultAdsXGainsItemDto.PositiveX2SmoothPlots.ToArray())
+                    ], "X1X2Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -934,7 +995,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     X4P3 = ResultAdsXGainsItemDto.NegativeX4P3,
                     X3X4Plots = new HtmlPlot2DLinesChart([
                         ("X3Plots", ResultAdsXGainsItemDto.NegativeX3Plots.ToArray()), ($"X3={ResultAdsXGainsItemDto.NegativeX3P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX3P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX3P3)}", ResultAdsXGainsItemDto.NegativeX3SmoothPlots.ToArray()),
-                            ("X4Plots", ResultAdsXGainsItemDto.NegativeX4Plots.ToArray()), ($"X4={ResultAdsXGainsItemDto.NegativeX4P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P3)}", ResultAdsXGainsItemDto.NegativeX4SmoothPlots.ToArray())
+                        ("X4Plots", ResultAdsXGainsItemDto.NegativeX4Plots.ToArray()), ($"X4={ResultAdsXGainsItemDto.NegativeX4P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P3)}", ResultAdsXGainsItemDto.NegativeX4SmoothPlots.ToArray())
                     ], "X3X4Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
             }
@@ -1061,6 +1122,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 resultTemp = false;
                 return resultTemp;
             }
+
             return resultTemp;
         }
     }
@@ -1256,6 +1318,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                             ], "PlotHrp")
                         }), HtmlLogUniqueId.LoggingHtml());
                 }
+
                 return (result, transBuffer);
             }
 
@@ -1517,6 +1580,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 transBuffer = await task.ConfigureAwait(false);
                 StageViewModel.SetXSpeedValue(Cache.SpeedXValueList.First());
             }
+
             if (transBuffer.Count > 0)
             {
                 var XSpeedList = transBuffer.Select(t => t.xSpeed).ToList();

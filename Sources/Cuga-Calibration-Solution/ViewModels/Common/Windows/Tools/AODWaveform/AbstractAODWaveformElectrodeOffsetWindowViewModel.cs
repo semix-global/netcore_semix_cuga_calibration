@@ -676,7 +676,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 #if NET
         await
 #endif
-            using
+        using
             var _ = cancellationToken.Register(() =>
             {
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();

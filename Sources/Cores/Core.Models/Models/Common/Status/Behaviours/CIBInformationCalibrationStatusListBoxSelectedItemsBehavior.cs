@@ -2,4 +2,4 @@
 
 namespace Core.Models.Models.Common.Status.Behaviours;
 
-public sealed class CIBInformationCalibrationStatusListBoxSelectedItemsBehavior: CalibrationStatusListBoxSelectedItemsBehavior<CIBInformationCalibrationStatus, CIBInformation>;
+public sealed class CIBInformationCalibrationStatusListBoxSelectedItemsBehavior : CalibrationStatusListBoxSelectedItemsBehavior<CIBInformationCalibrationStatus, CIBInformation>;

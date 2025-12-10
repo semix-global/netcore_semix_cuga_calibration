@@ -12,6 +12,7 @@ using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -21,7 +22,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Net.Utilities.Models.Enums.Maths;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 

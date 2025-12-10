@@ -9,7 +9,6 @@ using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -150,7 +149,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         var chuck = ChuckItem;
         var dsw = DswItem;
         var haze = HazeItem;
-        var shiny =ShinyWaferItem;
+        var shiny = ShinyWaferItem;
         var undefine = UndefineWaferItem;
         return new CalibrationMicroscopeCalChip
         {

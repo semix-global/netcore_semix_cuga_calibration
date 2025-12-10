@@ -46,7 +46,7 @@ public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWa
     [ObservableProperty]
     private IReadOnlyList<double> _frequencies = [];
 
-    partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [..value.Select(_ => 1)];
+    partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [.. value.Select(_ => 1)];
 
     [ObservableProperty]
     private IReadOnlyList<double> _weights = [];
@@ -279,7 +279,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == electrodes[^1])
                     .OffsetFrequencyPeriodCoefficient = step0Item.Items.Maxima(t => t.MeasurePower).Single().OffsetFrequencyPeriodCoefficient;
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([..Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
             }
         }, isShowDialog).ConfigureAwait(false);
     }
@@ -305,7 +305,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
 
             var electrode2OffsetFrequencyPeriodCoefficient = Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode2).OffsetFrequencyPeriodCoefficient;
             var offsetFrequencyPeriodCoefficients = Generate.LinearRange(
-                electrode2OffsetFrequencyPeriodCoefficient + Cache.StartElectrode3OffsetFrequencyPeriodCoefficient, 
+                electrode2OffsetFrequencyPeriodCoefficient + Cache.StartElectrode3OffsetFrequencyPeriodCoefficient,
                 Cache.StepElectrode3OffsetFrequencyPeriodCoefficient,
                 electrode2OffsetFrequencyPeriodCoefficient + Cache.StopElectrode3OffsetFrequencyPeriodCoefficient);
             Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
@@ -363,7 +363,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
             Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode4)
                 .OffsetFrequencyPeriodCoefficient += step1.OffsetFrequencyPeriodCoefficient.Value;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([..Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
 
             return true;
         }, isShowDialog).ConfigureAwait(false);
@@ -411,7 +411,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
 #if NET
         await
 #endif
-            using
+        using
             var _ = cancellationToken.Register(() =>
             {
                 if (Step0Command.CanBeCanceled) Step0Command.Cancel();
