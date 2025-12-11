@@ -326,6 +326,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
 
+            CalibratingItem.Items = [];
+
             try
             {
                 Logger.LogHtmlInformation("Relay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -335,6 +337,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 var relayMotorAbsoluteValues = Generate.LinearRange(Cache.Item.StartRelayMotorAbsoluteValue, Cache.Item.StepRelayMotorAbsoluteValue, Cache.Item.StopRelayMotorAbsoluteValue);
                 foreach (var relayMotorAbsoluteValue in relayMotorAbsoluteValues)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
+
                     var opticsRelayDTOItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
 
                     CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
@@ -349,6 +355,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     foreach (var ecs in ecss)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         AfViewModel.SetSensorEcsValue(ecs);
                         var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
                             Cache.OpticsIlluminationModeEnum,
@@ -382,6 +390,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     foreach (var ecs in ecss)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         AfViewModel.SetSensorEcsValue(ecs);
                         var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
                             Cache.OpticsIlluminationModeEnum,
