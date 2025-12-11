@@ -551,3 +551,20 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
     /// </summary>
     public IReadOnlyList<double> GainS16Bits { get; set; }
 }
+
+/// <summary>
+/// Optics Relay 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationOpticsRelay : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// 斜率(mm/ECS), **Cuga内部使用**
+    /// </summary>
+    public double Slope { get; set; }
+}

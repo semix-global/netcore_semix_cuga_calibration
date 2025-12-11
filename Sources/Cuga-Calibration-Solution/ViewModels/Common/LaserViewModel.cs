@@ -766,6 +766,7 @@ public sealed class LaserViewModel(
         return darkFieldImageDto;
     }
 
+    [Obsolete]
     public DarkFieldImageDto GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
@@ -798,6 +799,44 @@ public sealed class LaserViewModel(
         var darkFieldImageDto = result.Single(t => t.ChannelId == channelId);
 
         foreach (var item in result.Where(t => t.ChannelId != channelId).Select(t => t.Image))
+        {
+            using var _ = item;
+        }
+
+        return darkFieldImageDto;
+    }
+
+    public DarkFieldImageDto GetDarkFieldLineScanImage(
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point position,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+        bool isCustomChirpAod,
+        CIBInformation cibInformation,
+        CIBConfiguration cIbConfiguration,
+        int xWidthPixel,
+        bool isForward = true,
+        bool isAutoFocus = true)
+    {
+        var result = GetDarkFieldLineScanImageList(
+            calChipSiteModelEnum,
+            position,
+            xWidthPixel,
+            productivityInformation,
+            opticsIlluminationModeEnum,
+            cibInformation.PMTId,
+            stageCoordinateSystemEnum,
+            cIbConfiguration,
+            customPrescanAod,
+            isCustomChirpAod,
+            isForward,
+            isAutoFocus);
+
+        var darkFieldImageDto = result.Single(t => t.ChannelId == cibInformation.ChannelId);
+
+        foreach (var item in result.Where(t => t.ChannelId != cibInformation.ChannelId).Select(t => t.Image))
         {
             using var _ = item;
         }

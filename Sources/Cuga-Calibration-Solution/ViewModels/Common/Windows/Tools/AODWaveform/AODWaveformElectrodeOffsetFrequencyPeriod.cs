@@ -21,7 +21,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
     [NotifyPropertyChangedFor(nameof(Title))]
     private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
 
-    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize(LetterCasing.Title)));
+    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> _items = [];

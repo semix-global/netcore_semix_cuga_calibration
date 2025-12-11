@@ -435,7 +435,7 @@
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDto}" BindableSelectedItems="{Binding SelectedCalibratingItems}" />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDTO}" BindableSelectedItems="{Binding SelectedCalibratingItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -474,7 +474,7 @@
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
-                            <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                            <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
                                 <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
                             </DataTemplate>
                         </TabControl.ContentTemplate>

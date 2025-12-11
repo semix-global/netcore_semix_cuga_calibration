@@ -59,10 +59,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDto> _calibratingItems = [];
+    private IReadOnlyList<CIBMMDDTO> _calibratingItems = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDto> _selectedCalibratingItems = [];
+    private IReadOnlyList<CIBMMDDTO> _selectedCalibratingItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<CIBInformationCalibrationStatus> _calibrationStatuses = [];
@@ -70,10 +70,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDto> _reviews = [];
+    private IReadOnlyList<CIBMMDDTO> _reviews = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDto> _selectedReviewItems = [];
+    private IReadOnlyList<CIBMMDDTO> _selectedReviewItems = [];
 
     #endregion 界面相关
 
@@ -83,7 +83,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     private CIBMMDCache _cache = new();
 
     [ObservableProperty]
-    private CIBMMDDto[] _calibrations = [];
+    private CIBMMDDTO[] _calibrations = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -148,7 +148,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
 
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<CIBMMDCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBMMDDto>();
+        Calibrations = CacheProvider.GetOrDefaultArray<CIBMMDDTO>();
 
         Calibrations =
         [
@@ -249,7 +249,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand]
-    private void SetCIBMMD(CIBMMDDto cibMMDDto)
+    private void SetCIBMMD(CIBMMDDTO cibMMDDto)
     {
         try
         {
@@ -506,7 +506,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             CalibratingItems =
             [
                 ..Cache.CIBInformations
-                    .Select(t => new CIBMMDDto
+                    .Select(t => new CIBMMDDTO
                     {
                         CIBInformation = t,
                         Items =
@@ -564,7 +564,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             cancellationToken.ThrowIfCancellationRequested();
                             SelectedCalibratingItems = CalibratingItems;
 
-                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDto>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
+                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
                             LaserViewModel.SetGain(cibInformations, gain);
 
@@ -587,20 +587,14 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 var (index, pmtValue) = t;
 
                                 var cibMMDDto = noProtectedCIBMMDDtos[index];
-                                try
-                                {
-                                    var item = cibMMDDto.Items[coefficientIndex];
-                                    var itemItem = item.Items[gainIndex];
 
-                                    if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedOverflowProtectedPMTValueCount++;
-                                    itemItem.PMTValue = pmtValue;
+                                var item = cibMMDDto.Items[coefficientIndex];
+                                var itemItem = item.Items[gainIndex];
 
-                                    if (item.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
-                                }
-                                finally
-                                {
-                                    cibMMDDto.RefreshPlot();
-                                }
+                                if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedOverflowProtectedPMTValueCount++;
+                                itemItem.PMTValue = pmtValue;
+
+                                if (item.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
                             }, cancellationToken)));
                         }
                     }
@@ -707,7 +701,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private void Algorithm(CIBMMDDto cibMMDDto)
+    private void Algorithm(CIBMMDDTO cibMMDDto)
     {
         var htmlList = new List<BaseHtmlElement>();
         var htmlContainer = new HtmlContainer(htmlList);
@@ -922,7 +916,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }
     }
 
-    private bool Save(IReadOnlyList<CIBMMDDto> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<CIBMMDDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
 

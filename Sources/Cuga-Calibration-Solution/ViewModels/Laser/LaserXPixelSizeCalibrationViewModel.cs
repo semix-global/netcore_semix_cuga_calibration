@@ -217,6 +217,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
+            case 0:
+                return true;
+
             case 1:
                 CalibratingItem = new LaserXPixelSizeItemDto();
 
@@ -256,7 +259,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 return true;
 
             default:
-                return true;
+                return false;
         }
     }
 
@@ -528,7 +531,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 #if NET
             await
 #endif
-            using var fileSteam = File.OpenRead(rawImageFilePath);
+                using var fileSteam = File.OpenRead(rawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -757,7 +760,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 #if NET
                 await
 #endif
-                using var fileSteam = File.OpenRead(verifyRawImageFilePath);
+                    using var fileSteam = File.OpenRead(verifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);

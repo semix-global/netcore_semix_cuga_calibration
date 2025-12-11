@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Humanizer;
 using Local.NoSQL.DB.Providers.Bases;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -19,7 +20,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
     [NotifyPropertyChangedFor(nameof(Title))]
     private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
 
-    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize(LetterCasing.Title)));
+    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> _items = [];
@@ -86,16 +87,12 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
             ScatterPlotControl.GetOrAddScatterLine(
                 1,
                 "Amplitude",
-                [
-                    .. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxItem?.Amplitude ?? 0))
-                ],
+                [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).Amplitude))],
                 Colors.Blue);
             ScatterPlotControl.GetOrAddScatterLine(
                 2,
                 "Measure Power",
-                [
-                    .. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, t.MaxItem?.MeasurePower ?? 0))
-                ],
+                [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
                 Colors.Blue);
         }
 

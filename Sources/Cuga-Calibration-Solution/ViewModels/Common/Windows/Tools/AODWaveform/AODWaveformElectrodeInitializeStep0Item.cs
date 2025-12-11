@@ -11,7 +11,7 @@ public sealed partial class AODWaveformElectrodeInitializeStep0Item<TItem> : Obs
     [ObservableProperty]
     private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
 
-    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize(LetterCasing.Title)));
+    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
     private IReadOnlyList<TItem> _items = [];

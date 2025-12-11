@@ -453,7 +453,7 @@ public static class CoreWcfModelsExtension
 
     #region CIB
 
-    public static bool IsOk(this CIBMMDDto[] result, out string errorMessage)
+    public static bool IsOk(this CIBMMDDTO[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 

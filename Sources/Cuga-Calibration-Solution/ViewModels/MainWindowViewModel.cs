@@ -623,7 +623,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBMMDViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBMMDDto>().IsOk(out _);
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBMMDDTO>().IsOk(out _);
             }
             catch (Exception ex)
             {
