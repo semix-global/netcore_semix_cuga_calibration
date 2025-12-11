@@ -13,6 +13,9 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
+    [ObservableProperty]
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
     public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -31,10 +34,10 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
     private Point _findBFMachinePosition;
@@ -43,10 +46,10 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private double _opticsIlluminationModeDegreeAngle = 90;
+    private double _opticsIlluminationDegreeAngle = 90;
 
     [ObservableProperty]
-    private double _defaultRelayMotorSlope = 100;
+    private double _defaultRelayMotorRatio = 100;
 
     [ObservableProperty]
     private double _currentRelayMotorAbsoluteValue;

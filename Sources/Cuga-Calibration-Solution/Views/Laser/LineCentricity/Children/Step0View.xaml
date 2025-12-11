@@ -6,8 +6,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+             xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserLineCentricityCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -47,7 +47,7 @@
                  ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
                  SelectionMode="Single">
             <i:Interaction.Behaviors>
-                <behaviours:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
+                <behaviors:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
             </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate>

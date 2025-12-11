@@ -241,7 +241,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return true;
+            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
         });
     }
 
@@ -251,17 +251,22 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetAbsoluteStageTheta(0);
-            Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.MicroscopeLensInformation,
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.CIBInformation
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
+                   && ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.Item.ProductivityInformation)
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
         });
     }
 
@@ -277,6 +282,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             {
                 Cache.Item.FindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -293,14 +299,15 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
+                Cache.MicroscopeLensInformation,
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
                 Cache.Item.FindBFMachinePosition,
                 Cache.Item.ImageWidth,
-                Cache.Item.OpticsIlluminationModeDegreeAngle,
-                Cache.Item.DefaultRelayMotorSlope,
+                Cache.Item.OpticsIlluminationDegreeAngle,
+                Cache.Item.DefaultRelayMotorRatio,
                 Cache.Item.CurrentRelayMotorAbsoluteValue,
                 Cache.Item.StartRelayMotorAbsoluteValue,
                 Cache.Item.StepRelayMotorAbsoluteValue,
@@ -332,9 +339,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
 
-                    var deltaECS = (relayMotorAbsoluteValue - Cache.Item.CurrentRelayMotorAbsoluteValue) / Cache.Item.DefaultRelayMotorSlope /*mm*/
+                    var deltaECS = (relayMotorAbsoluteValue - Cache.Item.CurrentRelayMotorAbsoluteValue) / Cache.Item.DefaultRelayMotorRatio /*mm*/
                                    * 1e6
-                                   * Math.Sin(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationModeDegreeAngle))
+                                   * Math.Sin(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle))
                                    / nmPerEcs;
 
                     var ecss = Generate.LinearRange(Cache.Item.StartRoughECS - deltaECS, Cache.Item.StepRoughECS, Cache.Item.StopRoughECS - deltaECS);

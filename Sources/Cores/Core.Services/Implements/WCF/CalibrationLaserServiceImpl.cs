@@ -1090,7 +1090,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<double> ReadDOECurrentAngle()
     {
-        var sxExecuteRet = Invoke(() => Service?.ReadDoePos(CgCommonType.OI_DOE));
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(CgCommonType.OI_DOE));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
@@ -1098,7 +1098,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDOEAngle(double angle)
     {
-        var sxExecuteRet = Invoke(() => Service?.DoeMove(CgCommonType.OI_DOE, angle));
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(CgCommonType.OI_DOE, angle));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);

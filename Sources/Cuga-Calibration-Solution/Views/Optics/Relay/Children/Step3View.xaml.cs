@@ -1,8 +1,8 @@
 ﻿namespace CugaCalibration.Views.Optics.Relay.Children;
 
-public sealed partial class Step1View
+public sealed partial class Step3View
 {
-    public Step1View()
+    public Step3View()
     {
         InitializeComponent();
     }
