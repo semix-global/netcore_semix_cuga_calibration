@@ -432,6 +432,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
+                Guard.IsTrue(Save([CalibratingItem], cancellationToken));
+
                 return true;
             }
             finally

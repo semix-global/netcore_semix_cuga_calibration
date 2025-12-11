@@ -10,6 +10,8 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot.MultiplotLayouts;
+using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
+using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.Optics.Relay;
 
@@ -97,7 +99,9 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
                 $"{item.RelayMotorAbsoluteValue:0.###}",
-                [.. item.Qualitys.Select(t => new Point(t.ECS, t.Quality))]);
+                [.. item.Qualitys.Select(t => new Point(t.ECS, t.Quality))],
+                index,
+                new Range(0, Items.Count - 1));
 
             item.MaxItem = item.Qualitys.Maxima(t => t.Quality).First();
 
@@ -109,14 +113,16 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             ScatterPlotControl.GetOrAddScatterLine(
                 1,
                 "Relay",
-                [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))]);
+                [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
+                Constants.Category10.GetColor(0));
         }
 
         if (FitRelayPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 1,
                 $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######})",
-                FitRelayPoints);
+                FitRelayPoints,
+                Constants.Category10.GetColor(1));
 
         ScatterPlotControl.AutoScaleRefresh();
     }
