@@ -423,6 +423,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 CalibratingItem.Intercept = intercept;
                 CalibratingItem.RSquared = rSquared;
                 CalibratingItem.FitRelayPoints = [..CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
+                CalibratingItem.IsCalibrated = true;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
