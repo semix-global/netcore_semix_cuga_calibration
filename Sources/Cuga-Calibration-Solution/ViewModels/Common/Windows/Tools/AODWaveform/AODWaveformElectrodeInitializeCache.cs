@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWaveformCommonCache
-    where TItem : AODWaveformElectrodeInitializeItem, new()
+public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWaveformCommonCache<TResult>
+    where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformCommonResult, new()
 {
     [ObservableProperty]
@@ -17,29 +19,21 @@ public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWa
     private IReadOnlyList<double> _electrode4OffsetFrequencyPeriodCoefficients = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _frequencies = [];
+    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode3OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
 
-    partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [.. value.Select(_ => 1)];
+    [ObservableProperty]
+    private IReadOnlyList<double> _frequencies = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _weights = [];
 
-    [ObservableProperty]
-    private double _startElectrode3OffsetFrequencyPeriodCoefficient;
-
-    [ObservableProperty]
-    private double _stepElectrode3OffsetFrequencyPeriodCoefficient;
-
-    [ObservableProperty]
-    private double _stopElectrode3OffsetFrequencyPeriodCoefficient;
-
     #region Items
 
     [ObservableProperty]
-    private AODWaveformInitializeStep0<TItem> _step0 = new();
+    private AODWaveformElectrodeInitializeStep0<TItem> _step0 = new();
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeInitializeStep1<TItem>> _step1Items = [];
+    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> _step1Items = [];
 
     #endregion
 
@@ -48,4 +42,17 @@ public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWa
 
     [ObservableProperty]
     private IReadOnlyList<TResult> _results = [];
+
+    partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [.. value.Select(_ => 1)];
+
+    public override object ToHtmlAnonymous() => new
+    {
+        InterpolationCount,
+        Electrode2OffsetFrequencyPeriodCoefficients,
+        Electrode4OffsetFrequencyPeriodCoefficients,
+        Electrode3OffsetFrequencyPeriodParam = new HtmlQuote(Electrode3OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
+        Frequencies,
+        Weights,
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
+    };
 }

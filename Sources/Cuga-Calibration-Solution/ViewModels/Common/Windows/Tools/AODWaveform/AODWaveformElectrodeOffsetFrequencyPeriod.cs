@@ -18,6 +18,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title))]
     private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
 
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize(LetterCasing.Title)));
@@ -46,15 +47,12 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 
     partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> newValue)
     {
-        foreach (var step0Item in oldValue ?? [])
-        {
-            step0Item.PropertyChanged -= ItemOnPropertyChanged;
-        }
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
-        foreach (var step0Item in newValue)
+        foreach (var item in newValue)
         {
-            step0Item.PropertyChanged -= ItemOnPropertyChanged;
-            step0Item.PropertyChanged += ItemOnPropertyChanged;
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
         }
 
         RefreshPlot();

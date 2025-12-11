@@ -48,7 +48,7 @@ public interface ICalibrationConfigService
     /// <param name="productivityInformation">产率</param>
     /// <param name="filePath">波形文件路径</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath);
+    SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath);
 
     /// <summary>
     /// 设置chirp默认波形列表
@@ -57,5 +57,5 @@ public interface ICalibrationConfigService
     /// <param name="productivityInformation">产率</param>
     /// <param name="filePath">波形文件路径</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath);
+    SxExecuteRet<bool> SetChirpAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath);
 }

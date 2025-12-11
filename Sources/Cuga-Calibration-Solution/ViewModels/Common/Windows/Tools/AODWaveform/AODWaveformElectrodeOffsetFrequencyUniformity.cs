@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Humanizer;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -12,42 +12,17 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableCacheBase
+public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem> : ObservableCacheBase
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]
     private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
 
-    public string Title => string.Join(", ", Electrodes.Select(t => EnumHelper.ToDescriptionString(t)));
-
-    #region Result
+    public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize(LetterCasing.Title)));
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetStep1Item<TItem>> _items = [];
-
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetStep1Item<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetStep1Item<TItem>> newValue)
-    {
-        foreach (var step1Item in oldValue ?? [])
-        {
-            step1Item.PropertyChanged -= ItemOnPropertyChanged;
-        }
-
-        foreach (var step1Item in newValue)
-        {
-            step1Item.PropertyChanged -= ItemOnPropertyChanged;
-            step1Item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(AODWaveformElectrodeOffsetStep1Item<TItem>.MaxItem)) return;
-
-            OnPropertyChanged(nameof(Items));
-        }
-    }
+    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> _items = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -62,9 +37,24 @@ public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableC
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    #endregion
+    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
-    public AODWaveformElectrodeOffsetStep1()
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        RefreshPlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
+    }
+
+    public AODWaveformElectrodeOffsetFrequencyUniformity()
     {
         ScatterPlotControl.Configure(totalPlotCount: 3);
         ScatterPlotControl.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
@@ -72,7 +62,7 @@ public sealed partial class AODWaveformElectrodeOffsetStep1<TItem> : ObservableC
         ScatterPlotControl.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
     }
 
-    public void RefreshPlot()
+    private void RefreshPlot()
     {
         var isNeedRefreshes = new bool[Items.Count];
         foreach (var (index, item) in Items.Index())
