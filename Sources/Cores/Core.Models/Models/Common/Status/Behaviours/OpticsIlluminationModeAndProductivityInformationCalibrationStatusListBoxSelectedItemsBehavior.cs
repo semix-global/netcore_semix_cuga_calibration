@@ -1,0 +1,5 @@
+using Core.Models.Enums.Optics;
+
+namespace Core.Models.Models.Common.Status.Behaviours;
+
+public class OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior : CalibrationStatusListBoxSelectedItemBehavior<OpticsIlluminationModeAndProductivityInformationCalibrationStatus, OpticsIlluminationModeEnum>;

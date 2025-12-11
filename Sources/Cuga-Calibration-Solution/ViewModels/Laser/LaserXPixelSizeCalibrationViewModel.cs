@@ -73,9 +73,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
     [ObservableProperty]
     private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
-    [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatusesItem = [];
-
     #endregion Calibrate
 
     #region Review
@@ -140,18 +137,17 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
-                    OpticsIlluminationModeEnum = t,
+                    SelectedItem = t,
                     ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
-        CalibrationStatusesItem = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)];
 
         foreach (var calibrationStatus in Calibrations)
         {
-            var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == calibrationStatus.OpticsIlluminationMode);
+            var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
             var status = opticsIlluminationModeStatus
                 .ProductivityInformationCalibrationStatusList
-                .SingleOrDefault(t => t.ProductivityInformation == calibrationStatus.ProductivityInformation);
+                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
@@ -221,13 +217,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 0:
-                foreach (var temp in CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum).ProductivityInformationCalibrationStatusList)
-                {
-                    CalibrationStatusesItem.Single(t => t.ProductivityInformation == temp.ProductivityInformation).IsCalibrated = temp.IsCalibrated;
-                }
-
-                return true;
             case 1:
                 CalibratingItem = new LaserXPixelSizeItemDto();
 
@@ -255,9 +244,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                                     || t.ProductivityInformation != Cache.ProductivityInformation)
                 ];
 
-                CalibrationStatuses.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum)
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
-                    .Single(t => t.ProductivityInformation == Cache.ProductivityInformation).IsCalibrated = true;
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"X Pixel Size {Cache.ProductivityInformation} Ok!");
 
@@ -267,7 +256,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 return true;
 
             default:
-                return false;
+                return true;
         }
     }
 

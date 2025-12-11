@@ -10,9 +10,9 @@ namespace Core.Models.Models.Common.Status.Behaviours;
 public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TCalibrationSelectedItem> : Behavior<ListBox>
     where TCalibrationStatus : ICalibrationStatus<TCalibrationSelectedItem>
 {
-    public TCalibrationSelectedItem? BindableSelectedItem
+    public TCalibrationSelectedItem BindableSelectedItem
     {
-        get => (TCalibrationSelectedItem?)GetValue(BindableSelectedItemProperty);
+        get => (TCalibrationSelectedItem)GetValue(BindableSelectedItemProperty);
         set => SetValue(BindableSelectedItemProperty, value);
     }
 
@@ -20,7 +20,7 @@ public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TC
         nameof(BindableSelectedItem),
         typeof(TCalibrationSelectedItem),
         typeof(CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TCalibrationSelectedItem>),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
+        new FrameworkPropertyMetadata(default(TCalibrationSelectedItem), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
     );
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
@@ -65,6 +65,7 @@ public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TC
 
         var listBox = GuardUtils.IsNotNullAndAssignableToType<ListBox>(sender);
 
+        if (listBox.SelectedItem is null) return;
         BindableSelectedItem = GuardUtils.IsAssignableToType<TCalibrationStatus>(listBox.SelectedItem).SelectedItem;
 
         GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemProperty)).UpdateSource();

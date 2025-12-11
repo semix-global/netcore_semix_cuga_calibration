@@ -10,9 +10,9 @@ namespace Core.Models.Models.Common.Status.Behaviours;
 public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem> : Behavior<ListBox>
     where TCalibrationStatus : ICalibrationStatus<TCalibrationSelectedItem>
 {
-    public IReadOnlyList<TCalibrationSelectedItem>? BindableSelectedItems
+    public IReadOnlyList<TCalibrationSelectedItem> BindableSelectedItems
     {
-        get => (IReadOnlyList<TCalibrationSelectedItem>?)GetValue(BindableSelectedItemsProperty);
+        get => (IReadOnlyList<TCalibrationSelectedItem>)GetValue(BindableSelectedItemsProperty);
         set => SetValue(BindableSelectedItemsProperty, value);
     }
 
@@ -20,7 +20,7 @@ public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, T
         nameof(BindableSelectedItems),
         typeof(IReadOnlyList<TCalibrationSelectedItem>),
         typeof(CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem>),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
+        new FrameworkPropertyMetadata(default(TCalibrationSelectedItem), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
     );
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
