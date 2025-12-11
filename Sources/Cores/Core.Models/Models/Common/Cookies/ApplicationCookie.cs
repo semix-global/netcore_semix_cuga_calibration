@@ -161,8 +161,8 @@ public sealed partial class ApplicationCookie : ObservableObject
 
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
-        OpticsIlluminationModeEnum.OI => OIOpticsMagTypeProductivityInformations,
-        OpticsIlluminationModeEnum.NI => NIOpticsMagTypeProductivityInformations,
+        OpticsIlluminationModeEnum.OI => OIProductivityInformations,
+        OpticsIlluminationModeEnum.NI => NIProductivityInformations,
         _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
     };
 }

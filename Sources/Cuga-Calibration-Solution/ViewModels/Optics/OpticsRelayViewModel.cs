@@ -341,7 +341,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     var deltaECS = (relayMotorAbsoluteValue - Cache.Item.CurrentRelayMotorAbsoluteValue) / Cache.Item.DefaultRelayMotorRatio /*mm*/
                                    * 1e6
-                                   * Math.Sin(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle))
+                                   * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle))
                                    / nmPerEcs;
 
                     var ecss = Generate.LinearRange(Cache.Item.StartRoughECS - deltaECS, Cache.Item.StepRoughECS, Cache.Item.StopRoughECS - deltaECS);
