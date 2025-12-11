@@ -46,6 +46,8 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
     partial void OnItemsChanged(IReadOnlyList<OpticsRelayDTOItem>? oldValue, IReadOnlyList<OpticsRelayDTOItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
@@ -62,6 +64,16 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
+
+    partial void OnSlopeChanged(double value) => RefreshPlot();
+
+    partial void OnInterceptChanged(double value) => RefreshPlot();
+
+    partial void OnRSquaredChanged(double value) => RefreshPlot();
+
+    partial void OnFitRelayPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
 
     public OpticsRelayDTO()
     {
@@ -105,6 +117,8 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
                 1,
                 $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######})",
                 FitRelayPoints);
+
+        ScatterPlotControl.AutoScaleRefresh();
     }
 
     #region Mapper
@@ -147,15 +161,11 @@ public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneabl
     [ObservableProperty]
     private Item? _maxItem;
 
-    [ObservableProperty]
-    private string _imageFilePath = string.Empty;
-
     public OpticsRelayDTOItem Clone() => new()
     {
         RelayMotorAbsoluteValue = RelayMotorAbsoluteValue,
         Qualitys = [.. Qualitys.Select(t => t.Clone())],
         MaxItem = MaxItem?.Clone(),
-        ImageFilePath = ImageFilePath,
         Id = Id,
         Expiration = Expiration
     };

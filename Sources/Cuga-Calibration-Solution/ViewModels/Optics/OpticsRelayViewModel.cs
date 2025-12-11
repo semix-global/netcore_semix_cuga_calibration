@@ -406,6 +406,13 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     }
 
                     GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
+
+                    Logger.LogHtmlInformation($"{relayMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        opticsRelayDTOItem.MaxItem.ECS,
+                        opticsRelayDTOItem.MaxItem.Quality,
+                        Image = new HtmlImage(opticsRelayDTOItem.MaxItem.ImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
                 }
 
                 var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(

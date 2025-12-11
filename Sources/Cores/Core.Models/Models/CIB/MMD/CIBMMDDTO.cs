@@ -121,7 +121,6 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
     // ReSharper restore UnusedParameterInPartialMethod
 
-
     public CIBMMDDTO()
     {
         var customGrid = new CustomGrid();

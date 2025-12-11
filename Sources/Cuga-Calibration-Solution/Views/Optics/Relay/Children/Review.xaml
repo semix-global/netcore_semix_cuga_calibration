@@ -116,7 +116,7 @@
                                                             Style="{StaticResource BorderRegion}">
                                                         <view:CanvasView AxisColor="Red"
                                                                          BackgroundColor="#0A0A0A"
-                                                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                         BackgroundImage="{Binding MaxItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                                          Interactive="True"
                                                                          ShowAxes="True"
                                                                          ShowCursor="False"
