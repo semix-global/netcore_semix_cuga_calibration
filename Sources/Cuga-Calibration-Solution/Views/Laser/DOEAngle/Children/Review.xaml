@@ -51,7 +51,7 @@
                                           Minimum="-5"
                                           Maximum="5"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Threshold}" />
+                                          Value="{Binding Cache.Item.Threshold}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

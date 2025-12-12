@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -6,6 +7,9 @@ namespace Core.Models.Models.Laser.DOEAngle;
 
 public partial class LaserDOEAngleDto : CalibrationDtoBase, ICloneable<LaserDOEAngleDto>, IAdaptTo<CalibrationLaserDOEAngle>
 {
+    [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
     [ObservableProperty]
     private double _dOEAngle;
 
@@ -22,6 +26,7 @@ public partial class LaserDOEAngleDto : CalibrationDtoBase, ICloneable<LaserDOEA
 
     public LaserDOEAngleDto Clone() => new()
     {
+        ProductivityInformation = ProductivityInformation.Clone(),
         DOEAngle = DOEAngle,
         DOEReviseAngle = DOEReviseAngle,
         MultiRtfcFitSlope = MultiRtfcFitSlope,
