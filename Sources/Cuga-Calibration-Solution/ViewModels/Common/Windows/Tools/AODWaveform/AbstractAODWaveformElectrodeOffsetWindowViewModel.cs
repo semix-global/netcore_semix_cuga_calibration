@@ -74,7 +74,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
                     Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
-                    var fileName = $"{Name}_{Steps[stepIndex]}_{FileHelper.RemoveInvalidFileName(aodWaveformElectrodeOffsetFrequencyPeriod.Title)}";
+                    var fileName = $"{Name}_{Steps[stepIndex]}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}";
                     Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}"), htmlLogUniqueId.LoggingHtml());
 
                     var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
@@ -218,7 +218,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
                     Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
-                    var fileName = $"{Name}_{Steps[stepIndex]}_{FileHelper.RemoveInvalidFileName(aodWaveformElectrodeOffsetFrequencyPeriod.Title)}";
+                    var fileName = $"{Name}_{Steps[stepIndex]}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}";
                     Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}"), htmlLogUniqueId.LoggingHtml());
 
                     var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
@@ -355,7 +355,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 var aodWaveformElectrodeOffsetFrequencyUniformity = new AODWaveformElectrodeOffsetFrequencyUniformity<TItem> { Electrodes = electrodes };
                 Cache.Step1Items = [.. Cache.Step1Items, aodWaveformElectrodeOffsetFrequencyUniformity];
 
-                var fileName = $"{Name}_{Steps[stepIndex]}_{FileHelper.RemoveInvalidFileName(aodWaveformElectrodeOffsetFrequencyUniformity.Title)}";
+                var fileName = $"{Name}_{Steps[stepIndex]}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyUniformity.Electrodes)}";
                 Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyUniformity.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}"), htmlLogUniqueId.LoggingHtml());
 
                 var aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId = Guid.NewGuid();
