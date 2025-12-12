@@ -367,8 +367,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     if (CalibratingItem.Items.Count > 1)
                     {
                         (defalutSlope, _, _, _) = PolynomialLeastSquares.Polynomial1Fit(
-                                                   Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
-                                                   Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
+                            Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
+                            Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
                     }
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
