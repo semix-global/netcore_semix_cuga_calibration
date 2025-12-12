@@ -295,7 +295,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             var currentMotorAbsoluteValue = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum);
             var nmPerEcs = AfViewModel.GetNmPerEcs();
             var detectImageDirectory = ImageFileDirectory;
-
+            // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
+            var defalutIntercept = 1 / Cache.Item.DefaultRelayMotorRatio * 1e6 /* mm 转为 nm*/
+                                                                         * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
+                                                                         / nmPerEcs; /* 转为 ECS */
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
@@ -318,7 +321,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.StepRefinedECS,
                 currentMotorAbsoluteValue,
                 nmPerEcs,
-                detectImageDirectory
+                detectImageDirectory,
+                defalutIntercept
             }), HtmlLogUniqueId.LoggingHtml());
 
             var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition);
@@ -344,11 +348,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     var opticsRelayDTOItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
                     CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
 
-                    // relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大
-                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) / Cache.Item.DefaultRelayMotorRatio
-                                   * 1e6 /* mm 转为 nm*/
-                                   * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
-                                   / nmPerEcs; /* 转为 ECS */
+                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defalutIntercept;
 
                     CatchImage(Generate.LinearRange(
                         Cache.Item.StartRoughECS + deltaECS,
@@ -362,8 +362,16 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         opticsRelayDTOItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
                     GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
 
+                    if (CalibratingItem.Items.Count > 1)
+                    {
+                        (_, defalutIntercept, _, _) = PolynomialLeastSquares.Polynomial1Fit(
+                                                   Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
+                                                   Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
+                    }
+
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
+                        defalutIntercept,
                         opticsRelayDTOItem.MaxItem.ECS,
                         opticsRelayDTOItem.MaxItem.Quality,
                         opticsRelayDTOItem.MaxItem.RawImageFilePath,
