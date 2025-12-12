@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform;
+using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -15,7 +16,18 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
 {
     public override string Name => "Chirp AOD Waveform Electrode Offset";
 
-    protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken)
+    protected override async Task LoadedAsync()
+    {
+        await Task.Run(() =>
+        {
+            Cache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+            var chirpAODWaveformElectrodeOffsetCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+
+            Cache.ElectrodeConfigurationResults = chirpAODWaveformElectrodeOffsetCache.ElectrodeConfigurationResults;
+        });
+    }
+
+    protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         item.PrescanAODWaveformProfiles = [];
         item.PrescanAODWaveformResultFilePath = string.Empty;
@@ -46,6 +58,8 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
         item.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
@@ -54,18 +68,18 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
             FlatnessGenerateChirpAODWaveformParam = new HtmlQuote(Cache.FlatnessGenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
             item.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void GenerateScanAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, CancellationToken cancellationToken) => ThrowHelper.ThrowNotSupportedException();
+    protected override void GenerateScanAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken) => ThrowHelper.ThrowNotSupportedException();
 
-    protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetItem item)
+    protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
         LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
     }
 
-    protected override void GenerateResultAODWaveform(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    protected override void GenerateResultAODWaveform(ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         result.ChirpAODWaveformProfiles = [];
         result.ChirpAODWaveformResultFilePath = string.Empty;
@@ -79,23 +93,27 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         result.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         result.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum}-{result.GenerateChirpAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
             result.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeOffsetResult result, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         ConfigViewModel.SetChirpAODWaveformConfiguration(Cache.OpticsIlluminationModeEnum, result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum}-{result.GenerateChirpAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
             result.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 }

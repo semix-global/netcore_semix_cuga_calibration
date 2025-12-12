@@ -27,7 +27,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         });
     }
 
-    protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeInitializeItem item, CancellationToken cancellationToken)
+    protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeInitializeItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         item.PrescanAODWaveformProfiles = [];
         item.PrescanAODWaveformResultFilePath = string.Empty;
@@ -58,6 +58,8 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
         item.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
@@ -66,10 +68,10 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
             FlatnessGenerateChirpAODWaveformParam = new HtmlQuote(Cache.FlatnessGenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
             item.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void GenerateScanAODWaveform(ChirpAODWaveformElectrodeInitializeItem item, CancellationToken cancellationToken)
+    protected override void GenerateScanAODWaveform(ChirpAODWaveformElectrodeInitializeItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         item.PrescanAODWaveformProfiles = [];
         item.PrescanAODWaveformResultFilePath = string.Empty;
@@ -98,6 +100,8 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
         item.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             ScanGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.ScanGeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
@@ -106,16 +110,16 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
             ScanGenerateChirpAODWaveformParam = new HtmlQuote(Cache.ScanGenerateChirpAODWaveformParam.ToHtmlAnonymous()),
             item.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeInitializeItem item)
+    protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeInitializeItem item, Guid htmlLogUniqueId)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
         LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
     }
 
-    protected override void GenerateResultAODWaveform(ChirpAODWaveformElectrodeInitializeResult result, CancellationToken cancellationToken)
+    protected override void GenerateResultAODWaveform(ChirpAODWaveformElectrodeInitializeResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         result.ChirpAODWaveformProfiles = [];
         result.ChirpAODWaveformResultFilePath = string.Empty;
@@ -129,23 +133,27 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         result.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         result.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum}-{result.GenerateChirpAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
             result.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeInitializeResult result, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeInitializeResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         ConfigViewModel.SetChirpAODWaveformConfiguration(Cache.OpticsIlluminationModeEnum, result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
 
+        if (htmlLogUniqueId == Guid.Empty) return;
+
         Logger.LogHtmlInformation($"{result.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum}-{result.GenerateChirpAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
             result.ChirpAODWaveformResultFilePath,
             ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-        }), HtmlLogUniqueId.LoggingHtml());
+        }), htmlLogUniqueId.LoggingHtml());
     }
 }

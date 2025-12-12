@@ -43,8 +43,6 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public ApplicationCookie ApplicationCookie { get; }
 
-    public Guid HtmlLogUniqueId { get; private set; }
-
     [ObservableProperty]
     private TCache _cache = new();
 
@@ -52,15 +50,15 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public abstract IReadOnlyList<string> Steps { get; }
 
-    protected abstract void GenerateFlatnessAODWaveform(TItem item, CancellationToken cancellationToken);
+    protected abstract void GenerateFlatnessAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
-    protected abstract void GenerateScanAODWaveform(TItem item, CancellationToken cancellationToken);
+    protected abstract void GenerateScanAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
-    protected abstract void SetAODWaveformProfiles(TItem item);
+    protected abstract void SetAODWaveformProfiles(TItem item, Guid htmlLogUniqueId);
 
-    protected abstract void GenerateResultAODWaveform(TResult result, CancellationToken cancellationToken);
+    protected abstract void GenerateResultAODWaveform(TResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
-    protected abstract void SetResultAODWaveformConfiguration(TResult result, CancellationToken cancellationToken);
+    protected abstract void SetResultAODWaveformConfiguration(TResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
     protected AbstractAODWaveformCommonWindowViewModel()
     {
@@ -98,13 +96,13 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task SetResultAODWaveformConfigurationAsync(TResult result, CancellationToken cancellationToken)
+    private async Task TestSetResultAODWaveformConfigurationAsync(TResult result, CancellationToken cancellationToken)
     {
         await Task.Run(() =>
         {
             try
             {
-                SetResultAODWaveformConfiguration(result, cancellationToken);
+                SetResultAODWaveformConfiguration(result, Guid.Empty, cancellationToken);
 
                 DialogWindowProvider.ShowDialog($"{Name}: Set AOD Waveform Configuration Success");
             }
@@ -126,9 +124,11 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> StepSecondLastAsync(bool isSilent, CancellationToken cancellationToken)
+    private async Task<bool> StepSecondLastAsync(bool isNotSilent, CancellationToken cancellationToken)
     {
-        return await InvokeAsync(Steps.Count - 2, () =>
+        var htmlLogUniqueId = Guid.NewGuid();
+
+        return await InvokeAsync(Steps.Count - 2, htmlLogUniqueId, () =>
         {
             Guard.IsNotEmpty(Cache.Results);
 
@@ -136,37 +136,31 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                GenerateResultAODWaveform(result, cancellationToken);
+                GenerateResultAODWaveform(result, htmlLogUniqueId, cancellationToken);
             }
 
             return Task.FromResult(true);
-        }, isSilent).ConfigureAwait(false);
+        }, isNotSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> StepFirstLastAsync(bool isSilent, CancellationToken cancellationToken)
+    private async Task<bool> StepFirstLastAsync(bool isNotSilent, CancellationToken cancellationToken)
     {
-        return await InvokeAsync(Steps.Count - 1, async () =>
+        var htmlLogUniqueId = Guid.NewGuid();
+
+        return await InvokeAsync(Steps.Count - 1, htmlLogUniqueId, () =>
         {
             Guard.IsNotEmpty(Cache.Results);
-
-#if NET
-            await
-#endif
-            using var _ = cancellationToken.Register(() =>
-            {
-                if (SetResultAODWaveformConfigurationCommand.CanBeCanceled) SetResultAODWaveformConfigurationCommand.Cancel();
-            });
 
             foreach (var result in Cache.Results)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await SetResultAODWaveformConfigurationCommand.ExecuteAsync(result);
+                SetResultAODWaveformConfiguration(result, htmlLogUniqueId, cancellationToken);
             }
 
-            return true;
-        }, isSilent).ConfigureAwait(false);
+            return Task.FromResult(true);
+        }, isNotSilent).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -188,19 +182,18 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     protected async Task<bool> InvokeAsync(
         int stepIndex,
+        Guid htmlLogUniqueId,
         Func<Task<bool>> func,
-        bool isSilent)
+        bool isNotSilent)
     {
         return await Task.Run(async () =>
         {
-            var isInitHtmlLog = isSilent == false || stepIndex == 0;
-            var isLastStep = isSilent == false || stepIndex == Steps.Count - 1;
+            var isInitHtmlLog = isNotSilent || stepIndex == 0;
+            var isEndHtml = isNotSilent || stepIndex == Steps.Count - 1;
 
-            HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
-
-            if (isInitHtmlLog) Logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            if (isInitHtmlLog) Logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             try
@@ -212,7 +205,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                 if (ex is OperationCanceledException)
                 {
                     DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     return false;
                 }
@@ -221,16 +214,16 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                                                  {Name}: {Steps[stepIndex]} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
             }
             finally
             {
-                if (isLastStep) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{Steps[stepIndex]}_{(isSuccess ? "OK" : "Failed")}"));
+                if (isEndHtml) Logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name}_{Steps[stepIndex]}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                if (isLastStep) DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Success");
+                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Success");
             }
             else
                 DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -239,14 +232,14 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         }).ConfigureAwait(false);
     }
 
-    protected async Task UpdateMeasurePowerAsync(TItem item, CancellationToken cancellationToken, bool isGenerateFlatnessAODWaveform = true)
+    protected async Task UpdateMeasurePowerAsync(TItem item, bool isGenerateFlatnessAODWaveform, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         try
         {
-            if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, cancellationToken);
-            else GenerateScanAODWaveform(item, cancellationToken);
+            if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
+            else GenerateScanAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
-            SetAODWaveformProfiles(item);
+            SetAODWaveformProfiles(item, htmlLogUniqueId);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -258,7 +251,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
             item.MeasurePower = measurePower;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
         }
         finally
         {
