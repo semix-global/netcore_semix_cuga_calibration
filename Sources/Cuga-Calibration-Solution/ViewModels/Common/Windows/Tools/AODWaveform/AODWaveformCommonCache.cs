@@ -1,4 +1,3 @@
-﻿using System.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -7,6 +6,7 @@ using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
+using System.Collections;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -48,7 +48,7 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     #endregion Result
 
     [RelayCommand]
-    private void AddResult() => Results = [..Results, new TResult()];
+    private void AddResult() => Results = [.. Results, new TResult()];
 
     [RelayCommand]
     private void RemoveResults(IEnumerable? selectItems)

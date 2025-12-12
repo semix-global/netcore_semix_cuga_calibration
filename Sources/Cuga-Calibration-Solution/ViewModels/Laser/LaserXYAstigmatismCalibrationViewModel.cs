@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
-using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
@@ -1042,11 +1041,10 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
             xyAstigmatismItemDto.FilePath =
                 $"{ImageFileDirectory}\\ECS({xyAstigmatismItemDto.EcsX})_SpectralDensity({xyAstigmatismItemDto.SpectralDensity})_Guid({HtmlLogUniqueId}).jpg";
-            xyAstigmatismItemDto.OriginFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(xyAstigmatismItemDto.FilePath);
+            xyAstigmatismItemDto.OriginFilePath = channel3DarkFieldImageDto.RawImageFilePath;
             xyAstigmatismItemDto.QualityX = qualityX;
             xyAstigmatismItemDto.QualityY = qualityY;
 
-            FileHelper.Save(channel3DarkFieldImageDto.Bytes, xyAstigmatismItemDto.OriginFilePath);
             channel3DarkFieldImageDto.Image.Save(xyAstigmatismItemDto.FilePath);
 
             var ch1FilePath =

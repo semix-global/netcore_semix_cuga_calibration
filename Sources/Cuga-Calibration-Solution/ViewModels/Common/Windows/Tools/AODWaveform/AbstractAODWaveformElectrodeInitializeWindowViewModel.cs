@@ -168,13 +168,13 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
 #if NET
         await
 #endif
-            using var _ = cancellationToken.Register(() =>
-            {
-                if (Step0Command.CanBeCanceled) Step0Command.Cancel();
-                if (Step1Command.CanBeCanceled) Step1Command.Cancel();
-                if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
-                if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
-            });
+        using var _ = cancellationToken.Register(() =>
+        {
+            if (Step0Command.CanBeCanceled) Step0Command.Cancel();
+            if (Step1Command.CanBeCanceled) Step1Command.Cancel();
+            if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
+            if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
+        });
 
         var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync(false));
         if (await step0Task == false) return;

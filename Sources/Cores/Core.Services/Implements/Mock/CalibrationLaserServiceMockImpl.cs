@@ -21,7 +21,6 @@ using Core.Models.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -701,7 +700,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         foreach (var i in Enumerable.Range(0, 3))
         {
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Image = image, Matrix = matrix });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -723,7 +722,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         foreach (var i in Enumerable.Range(0, 3))
         {
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Image = image, Matrix = matrix });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -748,7 +747,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Url = uri });
+            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -770,7 +769,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Url = uri });
+            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -797,7 +796,7 @@ public sealed class CalibrationLaserServiceMockImpl(
             foreach (var i in Enumerable.Range(0, 3))
             {
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Image = image, Matrix = matrix });
             }
 
             result.Add(temp);
@@ -825,7 +824,7 @@ public sealed class CalibrationLaserServiceMockImpl(
             foreach (var i in Enumerable.Range(0, 3))
             {
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Bytes = bytes, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Image = image, Matrix = matrix });
             }
 
             result.Add(temp);

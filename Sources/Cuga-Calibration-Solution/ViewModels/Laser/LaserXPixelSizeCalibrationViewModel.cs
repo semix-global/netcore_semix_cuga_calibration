@@ -524,14 +524,14 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
-            var rawImageFilePath = darkFieldLineScanImage.Url;
+            var rawImageFilePath = darkFieldLineScanImage.RawImageFilePath;
 
             Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { rawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
             await
 #endif
-                using var fileSteam = File.OpenRead(rawImageFilePath);
+            using var fileSteam = File.OpenRead(rawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -747,7 +747,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                     pmtId: Cache.Item.PMTId,
                     channelId: Cache.Item.ChannelId,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
-                var verifyRawImageFilePath = verifyDarkFieldLineScanImage.Url;
+                var verifyRawImageFilePath = verifyDarkFieldLineScanImage.RawImageFilePath;
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
@@ -760,7 +760,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 #if NET
                 await
 #endif
-                    using var fileSteam = File.OpenRead(verifyRawImageFilePath);
+                using var fileSteam = File.OpenRead(verifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);

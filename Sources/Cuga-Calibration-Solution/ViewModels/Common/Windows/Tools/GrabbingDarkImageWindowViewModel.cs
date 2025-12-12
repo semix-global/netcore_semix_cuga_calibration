@@ -253,13 +253,12 @@ public partial class GrabbingDarkImageWindowViewModel(
                     using var _ = darkFieldImageDto;
                     var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{LaserLightInformation}\\{CIBConfiguration.Gain}\\{htmlLogUniqueId}.jpg";
                     darkFieldImageDto.Image.Save(filePath);
-                    var size = darkFieldImageDto.Image.GetSize();
                     darkFieldImageList.Add(new DarkFieldImage
                     {
-                        ByteArray = darkFieldImageDto.Bytes,
-                        Width = size.Width,
-                        Height = size.Height,
+                        Width = darkFieldImageDto.Width,
+                        Height = darkFieldImageDto.Height,
                         FilePath = filePath,
+                        RawImageFilePath = darkFieldImageDto.RawImageFilePath,
                         DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
                     });
                 }
@@ -326,14 +325,13 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             DarkFieldImageDto ToDarkFieldImageDto(DarkFieldRawScanImageDto origin)
             {
-                var rawBytes = System.IO.File.ReadAllBytes(origin.Url);
+                var rawBytes = System.IO.File.ReadAllBytes(origin.RawImageFilePath);
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
 
                 return new DarkFieldImageDto
                 {
                     Image = image,
-                    Matrix = matrix,
-                    Bytes = rawBytes
+                    Matrix = matrix
                 }.AdaptIn(origin);
             }
         });
@@ -350,7 +348,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 if (tryShowSaveFilePathDialog == false) return;
 
                 System.IO.File.Copy(darkFieldImage.FilePath, saveFilePath, true);
-                System.IO.File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(saveFilePath), darkFieldImage.ByteArray);
+                System.IO.File.WriteAllBytes($"{saveFilePath}.raw", System.IO.File.ReadAllBytes(darkFieldImage.RawImageFilePath));
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -436,9 +434,6 @@ public partial class GrabbingDarkImageWindowViewModel(
     public sealed partial class DarkFieldImage : ObservableObject
     {
         [ObservableProperty]
-        private byte[] _byteArray = [];
-
-        [ObservableProperty]
         private double _width;
 
         [ObservableProperty]
@@ -446,6 +441,9 @@ public partial class GrabbingDarkImageWindowViewModel(
 
         [ObservableProperty]
         private string _filePath = string.Empty;
+
+        [ObservableProperty]
+        private string _rawImageFilePath = string.Empty;
 
         [ObservableProperty]
         private List<double> _darkFieldImageList = [];

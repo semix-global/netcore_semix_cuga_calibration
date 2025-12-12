@@ -1,4 +1,3 @@
-﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -10,6 +9,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot.MultiplotLayouts;
+using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
@@ -132,7 +132,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     public OpticsRelayDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
-        Items = [..Items.Select(t => t.Clone())],
+        Items = [.. Items.Select(t => t.Clone())],
         Slope = Slope,
         Intercept = Intercept,
         RSquared = RSquared,

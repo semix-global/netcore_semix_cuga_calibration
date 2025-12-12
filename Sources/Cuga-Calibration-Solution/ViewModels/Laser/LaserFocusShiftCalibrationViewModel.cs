@@ -31,7 +31,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -945,10 +944,9 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
             var qualityX = xQuality;
             focusShiftDto.DarkFieldImageFilePath =
                 $"{ImageFileDirectory}\\ECS({focusShiftDto.DarkFieldEcsValue})_Guid({HtmlLogUniqueId}).jpg";
-            focusShiftDto.DarkFieldOriginImageFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(focusShiftDto.DarkFieldImageFilePath);
+            focusShiftDto.DarkFieldOriginImageFilePath = darkFieldImageDto.RawImageFilePath;
             focusShiftDto.DarkFieldQuality = qualityX;
 
-            FileHelper.Save(darkFieldImageDto.Bytes, focusShiftDto.DarkFieldOriginImageFilePath);
             darkFieldImageDto.Image.Save(focusShiftDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new

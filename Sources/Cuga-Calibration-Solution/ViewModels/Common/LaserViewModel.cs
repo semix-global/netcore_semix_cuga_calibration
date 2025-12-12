@@ -26,7 +26,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.IO;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -424,7 +423,7 @@ public sealed class LaserViewModel(
         {
             var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
             darkFieldImageDto.Image.Save(rtfcResultImagePath);
-            File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcResultImagePath), darkFieldImageDto.Bytes);
+
             if (logGuid is not null && logName is not null)
                 logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
@@ -434,6 +433,7 @@ public sealed class LaserViewModel(
                     laserLightInformation,
                     ret.Anything.Ecs,
                     ret.Anything.AfMotor,
+                    darkFieldImageDto.RawImageFilePath,
                     HtmlTab = new HtmlTab(new
                     {
                         RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
@@ -493,7 +493,6 @@ public sealed class LaserViewModel(
         {
             var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
             darkFieldImageDto.Image.Save(rtfcResultImagePath);
-            File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcResultImagePath), darkFieldImageDto.Bytes);
 
             resultImageFilePath = rtfcResultImagePath;
 
@@ -506,6 +505,7 @@ public sealed class LaserViewModel(
                     laserLightInformation,
                     ret.Anything.Ecs,
                     ret.Anything.AfMotor,
+                    darkFieldImageDto.RawImageFilePath,
                     HtmlTab = new HtmlTab(new
                     {
                         RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
@@ -1372,7 +1372,7 @@ public sealed class LaserViewModel(
                 var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
                 resultImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
                 darkFieldImageDto.Image.Save(resultImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
+
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
@@ -1385,6 +1385,7 @@ public sealed class LaserViewModel(
                         OriginPosition = position,
                         Score = resultScore,
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
+                        darkFieldImageDto.RawImageFilePath,
                         HtmlTab = new HtmlTab(new
                         {
                             OriginImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -1402,7 +1403,6 @@ public sealed class LaserViewModel(
                 using var temp = darkFieldImageDto.Image.DrawCrossLine(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y));
 
                 temp.Save(resultImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
             }
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
@@ -1425,6 +1425,7 @@ public sealed class LaserViewModel(
                     ResultOffset = actualOffset,
                     ResultScore = resultScore,
                     ResultAngle = resultAngle,
+                    darkFieldImageDto.RawImageFilePath,
                     HtmlTab = new HtmlTab(new
                     {
                         ResultImage = new HtmlImage(resultImageFilePath, description: "ResultImage", htmlImageOverlays: [new HtmlImageCrossOverlay(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y)), new HtmlImageCrossOverlay(true)]),
@@ -1530,7 +1531,7 @@ public sealed class LaserViewModel(
                 var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
                 resultImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
                 darkFieldImageDto.Image.Save(resultImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
+
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
@@ -1542,6 +1543,7 @@ public sealed class LaserViewModel(
                         OriginPosition = position,
                         Score = resultScore,
                         TemplateMatchScoreThreshold = templateMatchScoreThreshold,
+                        darkFieldImageDto.RawImageFilePath,
                         HtmlTab = new HtmlTab(new
                         {
                             OriginImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -1559,7 +1561,6 @@ public sealed class LaserViewModel(
                 using var temp = darkFieldImageDto.Image.DrawCrossLine(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y));
 
                 temp.Save(resultImageFilePath);
-                File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(resultImageFilePath), darkFieldImageDto.Bytes);
             }
 
             if (stageCoordinateSystemEnum == StageCoordinateSystemEnum.Machine)
@@ -1581,6 +1582,7 @@ public sealed class LaserViewModel(
                     ResultOffset = actualOffset,
                     ResultScore = resultScore,
                     ResultAngle = resultAngle,
+                    darkFieldImageDto.RawImageFilePath,
                     HtmlTab = new HtmlTab(new
                     {
                         ResultImage = new HtmlImage(resultImageFilePath, description: "ResultImage", htmlImageOverlays: [new HtmlImageCrossOverlay(isForward ? markPoint : new Point(xWidthPixel - markPoint.X, markPoint.Y)), new HtmlImageCrossOverlay(true)]),

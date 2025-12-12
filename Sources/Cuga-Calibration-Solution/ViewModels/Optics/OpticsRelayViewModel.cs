@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -25,6 +24,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -377,7 +377,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                         var quality = CalibrationAlgorithmService.GetQuality(darkFieldImage.Image);
 
-                        opticsRelayDTOItem.Qualitys = [..opticsRelayDTOItem.Qualitys, new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath }];
+                        opticsRelayDTOItem.Qualitys = [.. opticsRelayDTOItem.Qualitys, new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath }];
                     }
 
                     GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
@@ -412,7 +412,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                         var quality = CalibrationAlgorithmService.GetQuality(darkFieldImage.Image);
 
-                        opticsRelayDTOItem.Qualitys = [..((IReadOnlyList<OpticsRelayDTOItem.Item>)[..opticsRelayDTOItem.Qualitys, new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath }]).OrderBy(t => t.ECS)];
+                        opticsRelayDTOItem.Qualitys = [.. ((IReadOnlyList<OpticsRelayDTOItem.Item>)[.. opticsRelayDTOItem.Qualitys, new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath }]).OrderBy(t => t.ECS)];
                     }
 
                     GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
@@ -432,7 +432,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 CalibratingItem.Slope = slope;
                 CalibratingItem.Intercept = intercept;
                 CalibratingItem.RSquared = rSquared;
-                CalibratingItem.FitRelayPoints = [..CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
+                CalibratingItem.FitRelayPoints = [.. CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
                 CalibratingItem.IsCalibrated = true;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new

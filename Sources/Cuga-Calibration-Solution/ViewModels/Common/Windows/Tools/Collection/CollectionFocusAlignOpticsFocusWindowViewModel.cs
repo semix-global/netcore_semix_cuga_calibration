@@ -343,7 +343,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 logger.LogHtmlInformation($"Channel Id: {hazeResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     Image = new HtmlImage(hazeResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
-                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(hazeResultItem.ImageFilePath)}.raw"),
+                    darkFieldImageDto.RawImageFilePath,
                     Result = new HtmlQuote(hazeResultItem.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
             },
@@ -430,7 +430,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 logger.LogHtmlInformation($"Channel Id: {dswResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     Image = new HtmlImage(dswResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
-                    RawImageFile = new HtmlDownload(darkFieldImageDto.Bytes, $"{Path.GetFileName(dswResultItem.ImageFilePath)}.raw"),
+                    darkFieldImageDto.RawImageFilePath,
                     xFitLine = new HtmlPlot2DLinesChart([(nameof(xFitLine), xFitLine.ToPoints()), (nameof(xLine), xLine.ToPoints())], string.Empty),
                     yFitLine = new HtmlPlot2DLinesChart([(nameof(yFitLine), yFitLine.ToPoints()), (nameof(yLine), yLine.ToPoints())], string.Empty),
                     Result = new HtmlQuote(dswResultItem.ToHtmlAnonymous())

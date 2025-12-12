@@ -31,7 +31,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -1150,10 +1149,9 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
             var qualityX = xQuality;
             rtfcItemDto.DarkFieldImageFilePath =
                 $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).jpg";
-            rtfcItemDto.DarkFieldOriginImageFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcItemDto.DarkFieldImageFilePath);
+            rtfcItemDto.DarkFieldOriginImageFilePath = darkFieldImageDto.RawImageFilePath;
             rtfcItemDto.Quality = qualityX;
 
-            FileHelper.Save(darkFieldImageDto.Bytes, rtfcItemDto.DarkFieldOriginImageFilePath);
             darkFieldImageDto.Image.Save(rtfcItemDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new

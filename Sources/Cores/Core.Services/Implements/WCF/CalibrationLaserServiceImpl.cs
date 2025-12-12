@@ -151,8 +151,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
         }
 
-        Guard.IsNotEmpty(productivityInformationList, "Productivity Information is empty");
-
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
 
@@ -400,13 +398,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case (> 0, > 0):
+            case ( > 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case (> 0, Constants.NegInt32Value):
+            case ( > 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -982,7 +980,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Bytes = bytes, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -1076,7 +1074,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Bytes = bytes, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 

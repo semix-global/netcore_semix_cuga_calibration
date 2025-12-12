@@ -973,16 +973,16 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
             var qualityX = xQuality;
             rtfcItemDto.DarkFieldImageFilePath =
                 $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).jpg";
-            rtfcItemDto.DarkFieldOriginImageFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcItemDto.DarkFieldImageFilePath);
+            rtfcItemDto.DarkFieldOriginImageFilePath = darkFieldImageDto.RawImageFilePath;
             rtfcItemDto.Quality = qualityX;
 
-            FileHelper.Save(darkFieldImageDto.Bytes, rtfcItemDto.DarkFieldOriginImageFilePath);
             darkFieldImageDto.Image.Save(rtfcItemDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 rtfcItemDto.EcsValue,
                 ImageQuality = rtfcItemDto.Quality,
+                rtfcItemDto.DarkFieldOriginImageFilePath,
                 HtmlTab = new HtmlTab(new
                 {
                     Image = new HtmlImage(rtfcItemDto.DarkFieldImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])

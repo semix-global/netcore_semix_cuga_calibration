@@ -55,7 +55,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
                 Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                
+
                 var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
                 Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
 
@@ -254,13 +254,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 #if NET
         await
 #endif
-            using var _ = cancellationToken.Register(() =>
-            {
-                if (Step0Command.CanBeCanceled) Step0Command.Cancel();
-                if (Step1Command.CanBeCanceled) Step1Command.Cancel();
-                if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
-                if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
-            });
+        using var _ = cancellationToken.Register(() =>
+        {
+            if (Step0Command.CanBeCanceled) Step0Command.Cancel();
+            if (Step1Command.CanBeCanceled) Step1Command.Cancel();
+            if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
+            if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
+        });
 
         var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync(false));
         if (await step0Task == false) return;
