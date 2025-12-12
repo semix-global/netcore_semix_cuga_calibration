@@ -21,14 +21,35 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Optics Relay Delay: "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <Border Grid.Row="2"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(RSquared): "
+                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Maximum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Threshold}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -43,7 +64,7 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
-        </hc:UniformSpacingPanel>
+        </Grid>
         <!--#endregion-->
         <GridSplitter Grid.Column="1" Width="5" />
         <!--#region Right-->
@@ -83,6 +104,7 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Optics Illumination Mode(mm)" DisplayMemberBinding="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Header="Slope(mm/ECS)" DisplayMemberBinding="{Binding Slope, StringFormat='0.###'}" />
+                            <GridViewColumn Header="RSquared" DisplayMemberBinding="{Binding RSquared, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

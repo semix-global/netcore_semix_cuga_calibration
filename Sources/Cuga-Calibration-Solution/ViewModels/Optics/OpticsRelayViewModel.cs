@@ -25,6 +25,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -380,7 +381,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         CalibratingItem.Intercept = intercept;
                         CalibratingItem.RSquared = rSquared;
                         CalibratingItem.FitRelayPoints = [.. CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
-                        CalibratingItem.IsCalibrated = true;
                     }
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -439,6 +439,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     }
                 }
 
+                CalibratingItem.IsCalibrated = true;
+
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     CalibratingItem.Slope,
@@ -470,25 +472,43 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.Threshold
+            }), HtmlLogUniqueId.LoggingHtml());
+
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                selectedReviewItem.IsVerified = true;
+                selectedReviewItem.IsVerified = selectedReviewItem.RSquared > Cache.Threshold;
 
                 var htmlBullet = new HtmlBullet(new
                 {
+                    selectedReviewItem.RSquared,
+                    selectedReviewItem.IsVerified,
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
-                Logger.LogHtmlInformation($"OK: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                if (selectedReviewItem.IsOk)
+                    Logger.LogHtmlInformation($"OK: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                {
+                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}: {selectedReviewItem.IsOk}");
+                    Logger.LogHtmlError($"Error: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
             var result = SelectedReviewItems.All(t => t.IsOk);
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}",
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 

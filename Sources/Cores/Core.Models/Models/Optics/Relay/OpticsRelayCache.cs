@@ -16,6 +16,9 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
+    [ObservableProperty]
+    private double _threshold = 0.9;
+
     public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
