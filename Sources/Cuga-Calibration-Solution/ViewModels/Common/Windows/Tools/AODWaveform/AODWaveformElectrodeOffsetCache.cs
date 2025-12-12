@@ -10,7 +10,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWaveformCommonCache<TResult>
     where TItem : AODWaveformElectrodeOffsetItem, new()
-    where TResult : AODWaveformCommonResult, new()
+    where TResult : AODWaveformElectrodeOffsetResult, new()
 {
     #region Param
 

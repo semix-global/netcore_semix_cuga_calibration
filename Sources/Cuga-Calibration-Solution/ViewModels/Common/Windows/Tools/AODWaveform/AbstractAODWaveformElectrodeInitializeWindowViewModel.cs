@@ -32,8 +32,12 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, 4);
             Cache.Step0.Items = [];
 
-            await GetElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2], Cache.Electrode2OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
-            await GetElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2], Cache.Electrode2OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodCoefficients).ConfigureAwait(false);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -42,7 +46,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
 
             return true;
 
-            async Task GetElectrodeMaxMeasurePowerAsync(IReadOnlyList<OpticsAODElectrodeEnum> electrodes, IReadOnlyList<double> offsetFrequencyPeriodCoefficients)
+            async Task InvokeElectrodeMaxMeasurePowerAsync(IReadOnlyList<OpticsAODElectrodeEnum> electrodes, IReadOnlyList<double> offsetFrequencyPeriodCoefficients)
             {
                 var step0Item = new AODWaveformElectrodeInitializeStep0Item<TItem> { Electrodes = electrodes };
                 Cache.Step0.Items = [.. Cache.Step0.Items, step0Item];
@@ -51,6 +55,8 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
 
                 foreach (var offsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var item = new TItem
                     {
                         ElectrodeConfigurations =
@@ -63,7 +69,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                                     OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == electrodes[^1]
                                         ? offsetFrequencyPeriodCoefficient
                                         : 0,
-                                    Amplitude = Cache.DefaultAmplitude,
+                                    Amplitude = t.Amplitude,
                                     IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
                                 })
                         ],
@@ -135,10 +141,10 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                                 {
                                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                                     OffsetFrequency = t.OffsetFrequency,
-                                    OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode3
+                                    OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == Cache.Electrode3OffsetFrequencyPeriodParam.OpticsAODElectrodeEnum
                                         ? currentOffsetFrequencyPeriodCoefficient
                                         : t.OffsetFrequencyPeriodCoefficient,
-                                    Amplitude = Cache.DefaultAmplitude,
+                                    Amplitude = t.Amplitude,
                                     IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
                                 })
                         ],

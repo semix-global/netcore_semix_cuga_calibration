@@ -64,9 +64,9 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnOffsetFrequencyPeriodCoefficientChanged(double? value) => RefreshPlot();
-
     partial void OnClosestMaximaPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnOffsetFrequencyPeriodCoefficientChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 

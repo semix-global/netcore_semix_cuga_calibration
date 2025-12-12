@@ -67,6 +67,15 @@
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveformElectrodeOffset*.cs">
             <DependentUpon>ChirpAODWaveformElectrodeOffsetWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeOffset1Cache.cs">
+            <DependentUpon>AbstractAODWaveformElectrodeOffset1WindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeOffset1Result.cs">
+            <DependentUpon>AbstractAODWaveformElectrodeOffset1WindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeOffset1Item.cs">
+            <DependentUpon>AbstractAODWaveformElectrodeOffset1WindowViewModel.cs</DependentUpon>
+        </Compile>
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveformElectrodeInitialize*.cs">
             <DependentUpon>ChirpAODWaveformElectrodeInitializeWindowViewModel.cs</DependentUpon>
         </Compile>

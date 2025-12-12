@@ -6,8 +6,8 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWaveformCommonCache<TResult>
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-    where TResult : AODWaveformCommonResult, new()
+    where TItem : AODWaveformElectrodeInitializeItem, new()
+    where TResult : AODWaveformElectrodeInitializeResult, new()
 {
     [ObservableProperty]
     private int _interpolationCount = 3;

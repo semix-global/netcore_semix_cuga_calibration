@@ -1,3 +1,3 @@
 ﻿namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public class AODWaveformElectrodeInitializeResult : AODWaveformCommonResult;
+public class AODWaveformElectrodeInitializeResult : AODWaveformElectrodeOffsetResult;
