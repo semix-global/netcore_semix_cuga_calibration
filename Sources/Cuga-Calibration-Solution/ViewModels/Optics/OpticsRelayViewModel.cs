@@ -297,8 +297,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             var nmPerEcs = AfViewModel.GetNmPerEcs();
             var detectImageDirectory = ImageFileDirectory;
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
-            var defalutSlope = 1 / Cache.Item.DefaultRelayMotorRatio /* 1mm */
-                               * 1e6 /* mm 转为 nm*/
+            var defalutSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* 1mm */
+                               * 1e6d /* mm 转为 nm*/
                                * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
                                / nmPerEcs; /* 转为 ECS */
 
@@ -329,14 +329,16 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
 
             CalibratingItem.Items = [];
-            CalibratingItem.Slope = 0;
-            CalibratingItem.Intercept = 0;
-            CalibratingItem.RSquared = 0;
+            CalibratingItem.Slope = 0d;
+            CalibratingItem.Intercept = 0d;
+            CalibratingItem.RSquared = 0d;
             CalibratingItem.FitRelayPoints = [];
+            CalibratingItem.MinRelayMotorAbsoluteValue = 0d;
+            CalibratingItem.MaxRelayMotorAbsoluteValue = 0d;
             CalibratingItem.IsCalibrated = false;
 
             try
@@ -439,6 +441,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     }
                 }
 
+                CalibratingItem.MinRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[0].X;
+                CalibratingItem.MaxRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[^1].X;
                 CalibratingItem.IsCalibrated = true;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -490,7 +494,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     selectedReviewItem.IsVerified,
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
-
 
                 if (selectedReviewItem.IsOk)
                     Logger.LogHtmlInformation($"OK: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());

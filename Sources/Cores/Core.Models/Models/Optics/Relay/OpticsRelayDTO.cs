@@ -35,6 +35,12 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     [ObservableProperty]
     private IReadOnlyList<Point> _fitRelayPoints = [];
 
+    [ObservableProperty]
+    private double _minRelayMotorAbsoluteValue;
+
+    [ObservableProperty]
+    private double _maxRelayMotorAbsoluteValue;
+
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
@@ -137,6 +143,8 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         Intercept = Intercept,
         RSquared = RSquared,
         FitRelayPoints = [.. FitRelayPoints],
+        MinRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
+        MaxRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -148,6 +156,8 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
         Slope = Slope,
+        MinRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
+        MaxRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -183,7 +193,7 @@ public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneabl
         public double Quality { get; set; }
 
         public string ImageFilePath { get; set; } = string.Empty;
-        
+
         public string RawImageFilePath { get; set; } = string.Empty;
 
         public Item Clone() => new()

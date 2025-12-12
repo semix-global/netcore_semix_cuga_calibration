@@ -567,4 +567,14 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
     /// 斜率(mm/ECS), **Cuga内部使用**
     /// </summary>
     public double Slope { get; set; }
+
+    /// <summary>
+    /// Relay 工作范围 最小值, **Cuga内部使用**
+    /// </summary>
+    public double MinRelayMotorAbsoluteValue { get; set; }
+
+    /// <summary>
+    /// Relay 工作范围 最大值, **Cuga内部使用**
+    /// </summary>
+    public double MaxRelayMotorAbsoluteValue { get; set; }
 }
