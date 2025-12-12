@@ -6,25 +6,28 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserLineOrientationOffsetCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="360" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="Laser Line Orientation Offset Step 2: "
-                       Status="{Binding CalibrationStepList[2].StepName}"
+                       Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Optics Mag: "
-                       Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Subject="Productivity: "
+                       Status="{Binding Cache.ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -46,41 +49,39 @@
         <!--#endregion-->
         <GridSplitter Grid.Column="1" Width="5" />
         <!--#region Right-->
-        <Border Grid.Column="2"
-                Style="{StaticResource BorderRegion}"
-                Effect="{StaticResource EffectShadow1}">
-            <ItemsControl HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          ItemsSource="{Binding CalibrationStatusListItem}">
-                <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.StageSpeedEnum, Mode=TwoWay}" />
-                </i:Interaction.Behaviors>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton Content="{Binding .StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                                     HorizontalAlignment="Left"
-                                     FontSize="35"
-                                     Tag="{Binding .StageSpeedEnum}"
-                                     GroupName="dc736e3e-9b5e-49b9-8c4b-22bd8da622ae">
-                            <RadioButton.Style>
-                                <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </RadioButton.Style>
-                        </RadioButton>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
+        <GridSplitter Grid.Column="1" Width="5" />
+        <ListBox Grid.Column="2"
+         HorizontalAlignment="Center"
+         VerticalAlignment="Center"
+         BorderThickness="0"
+         ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+         SelectionMode="Single">
+            <ListBox.ItemsSource>
+                <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">
+                    <Binding Path="CalibrationStatuses" />
+                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                </MultiBinding>
+            </ListBox.ItemsSource>
+            <i:Interaction.Behaviors>
+                <behaviours:ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
+            </i:Interaction.Behaviors>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type status:ProductivityInformationCalibrationStatus}">
+                    <TextBlock Text="{Binding SelectedItem}"
+                       Margin="100,5"
+                       FontSize="16">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
+                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

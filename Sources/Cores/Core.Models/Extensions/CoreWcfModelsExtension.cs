@@ -323,8 +323,10 @@ public static class CoreWcfModelsExtension
     public static bool IsOk(this LineOrientationOffsetItemDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
-
-        var isOk = result.SingleOrDefault(t => t is { PmtId: 8, OpticsMagTypeEnum: OpticsMagTypeEnum.High, StageSpeedEnum: StageSpeedEnum.Low })?.IsOk == true;
+        
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
+                                               && t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Line Orientation Offset is Empty";

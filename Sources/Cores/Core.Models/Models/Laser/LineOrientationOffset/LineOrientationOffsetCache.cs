@@ -5,8 +5,10 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
+using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.LineOrientationOffset;
 
@@ -17,7 +19,7 @@ public sealed partial class LineOrientationOffsetCache : CalibrationCacheBase
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
+      
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
@@ -29,12 +31,6 @@ public sealed partial class LineOrientationOffsetCache : CalibrationCacheBase
 
     [ObservableProperty]
     private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.GridConrner_100um;
-
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
 
     [ObservableProperty]
     private int _pmtId;
@@ -55,6 +51,12 @@ public sealed partial class LineOrientationOffsetCache : CalibrationCacheBase
     private int _xWidthPixel = 800;
 
     [ObservableProperty]
+    private Point _threshold;
+
+    [ObservableProperty]
+    private double _p5Angle;
+
+    [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
 
     [ObservableProperty]
@@ -68,12 +70,6 @@ public sealed partial class LineOrientationOffsetCache : CalibrationCacheBase
 
     [ObservableProperty]
     private string _templateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private Point _threshold;
-
-    [ObservableProperty]
-    private double _p5Angle;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth

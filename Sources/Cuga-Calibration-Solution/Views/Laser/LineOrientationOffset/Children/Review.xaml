@@ -97,13 +97,10 @@
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Width="200"
+                                                Header="Production"
+                                                DisplayMemberBinding="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}" />
                                 <GridViewColumn Width="100"
-                                                Header="Optics Mag"
-                                                DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                <GridViewColumn Width="80"
                                                 Header="PMT Id"
                                                 DisplayMemberBinding="{Binding PmtId}" />
                                 <GridViewColumn Width="200"
