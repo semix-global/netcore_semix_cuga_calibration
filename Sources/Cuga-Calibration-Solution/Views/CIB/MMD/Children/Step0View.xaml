@@ -54,7 +54,7 @@
                  VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemsSource="{Binding CalibrationStatuses}"
-                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Extended">
             <i:Interaction.Behaviors>
                 <behaviors:CIBInformationCalibrationStatusListBoxSelectedItemsBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" />

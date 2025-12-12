@@ -183,12 +183,15 @@ public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneabl
         public double Quality { get; set; }
 
         public string ImageFilePath { get; set; } = string.Empty;
+        
+        public string RawImageFilePath { get; set; } = string.Empty;
 
         public Item Clone() => new()
         {
             ECS = ECS,
             Quality = Quality,
-            ImageFilePath = ImageFilePath
+            ImageFilePath = ImageFilePath,
+            RawImageFilePath = RawImageFilePath,
         };
     }
 }

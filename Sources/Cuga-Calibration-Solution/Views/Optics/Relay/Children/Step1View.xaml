@@ -47,53 +47,51 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.MicroscopeLensInformation}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              SelectedItem="{Binding Cache.MicroscopeLensInformation}"
+                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}"
+                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <i:Interaction.Behaviors>
                             <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:MicroscopeLensInformation.Default}}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                         </i:Interaction.Behaviors>
-                    </hc:ComboBox>
-                    <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsEditable="True"
-                                 IsReadOnly="True"
-                                 SelectedItem="{Binding Cache.Item.ProductivityInformation}"
-                                 Style="{StaticResource ComboBoxExtend}">
+                    </ComboBox>
+                    <ComboBox hc:TitleElement.Title="Productivity Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              SelectedItem="{Binding Cache.Item.ProductivityInformation}"
+                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}">
                         <i:Interaction.Behaviors>
                             <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                         </i:Interaction.Behaviors>
-                        <hc:ComboBox.ItemsSource>
+                        <ComboBox.ItemsSource>
                             <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                 <Binding Path="ApplicationCookie" />
                                 <Binding Path="Cache.OpticsIlluminationModeEnum" />
                             </MultiBinding>
-                        </hc:ComboBox.ItemsSource>
-                    </hc:ComboBox>
-                    <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.Item.LaserLightInformation}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                        </ComboBox.ItemsSource>
+                    </ComboBox>
+                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              SelectedItem="{Binding Cache.Item.LaserLightInformation}"
+                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}"
+                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
                         <i:Interaction.Behaviors>
                             <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:LaserLightInformation.Default}}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                         </i:Interaction.Behaviors>
-                    </hc:ComboBox>
-                    <hc:ComboBox hc:TitleElement.Title="CIB Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.Item.CIBInformation}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                    </ComboBox>
+                    <ComboBox hc:TitleElement.Title="CIB Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              SelectedItem="{Binding Cache.Item.CIBInformation}"
+                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}"
+                              ItemsSource="{Binding ApplicationCookie.CIBInformations}">
                         <i:Interaction.Behaviors>
                             <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:CIBInformation.Default}}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                         </i:Interaction.Behaviors>
-                    </hc:ComboBox>
+                    </ComboBox>
                     <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"

@@ -3,6 +3,8 @@ using Net.Utilities.Models;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 
 namespace Core.Utilities.WPF;
 
@@ -64,10 +66,17 @@ public sealed class ComboBoxFallbackBehavior : Behavior<ComboBox>
 
     private void CheckAndApplyFallback()
     {
-        var selectedItem = AssociatedObject.SelectedItem;
-        if (AssociatedObject.ItemsSource?.Cast<object>().Any(item => Equals(item, selectedItem)) ?? false) return;
+        try
+        {
+            var selectedItem = AssociatedObject.SelectedItem;
+            if (AssociatedObject.ItemsSource?.Cast<object>().Any(item => Equals(item, selectedItem)) ?? false) return;
 
-        AssociatedObject.SelectedItem = FallbackSelectItem;
-        AssociatedObject.Text = FallbackDisplayText;
+            AssociatedObject.SelectedItem = FallbackSelectItem;
+            AssociatedObject.Text = FallbackDisplayText;
+        }
+        finally
+        {
+            GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(AssociatedObject, Selector.SelectedItemProperty)).UpdateSource();
+        }
     }
 }

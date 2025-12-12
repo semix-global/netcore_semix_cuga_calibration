@@ -64,7 +64,7 @@
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  BorderThickness="0"
-                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Single">
             <ListBox.ItemsSource>
                 <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">

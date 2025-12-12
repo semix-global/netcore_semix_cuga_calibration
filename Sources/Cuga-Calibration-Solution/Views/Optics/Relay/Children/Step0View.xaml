@@ -54,7 +54,7 @@
                  VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemsSource="{Binding CalibrationStatuses}"
-                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Single">
             <i:Interaction.Behaviors>
                 <behaviors:OpticsIlluminationModeCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
