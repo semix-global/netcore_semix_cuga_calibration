@@ -217,7 +217,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition), Cache.CalChipSiteModelEnum);
+        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
 
         if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
@@ -258,7 +258,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         {
             case 1:
                 DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-                Cache.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+                Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
 
             case 4:
@@ -341,7 +341,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         {
             AlignmentResultDto alignmentResultDto = new();
 
-            if (Cache.IsDarkFieldAlignment)
+            if (Cache.Item.IsDarkFieldAlignment)
             {
                 if (AlignmentCacheDarkField.IsOk)
                 {
@@ -395,12 +395,12 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheBrightField.LowSite1.Location);
             }
 
-            Cache.P5Angle = alignmentResultDto.Degrees;
+            Cache.Item.P5Angle = alignmentResultDto.Degrees;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.IsDarkFieldAlignment,
-                Cache.P5Angle
+                Cache.Item.IsDarkFieldAlignment,
+                Cache.Item.P5Angle
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -412,13 +412,13 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.FindPosition = StageViewModel.GetBrightFieldStagePosition();
+            Cache.Item.FindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.CalChipSiteModelEnum,
-                FindMachinePosition = Cache.FindPosition
+                FindMachinePosition = Cache.Item.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -431,25 +431,25 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         {
             try
             {
-                Cache.EcsPerAfOffset = AfViewModel.GetEcsPerOffsetMotorMm();
+                Cache.Item.EcsPerAfOffset = AfViewModel.GetEcsPerOffsetMotorMm();
                 Cache.UmPerEcs = AfViewModel.GetNmPerEcs() / 1000;
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     Cache.OriginDOEAngle,
-                    Cache.ObliqueAngle,
+                    Cache.Item.ObliqueAngle,
                     Cache.PmtInterval,
-                    Cache.EcsPerAfOffset,
+                    Cache.Item.EcsPerAfOffset,
                     Cache.UmPerEcs,
-                    Cache.RetryCount
+                    Cache.Item.RetryCount
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 SynchronizationContextProvider.Send(() => LaserDOEAngleDtoItems.Clear());
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
                 LaserViewModel.SetDOEAngle(Cache.OriginDOEAngle);
 
                 var result = false;
-                for (var times = 0; times < Cache.RetryCount; times++)
+                for (var times = 0; times < Cache.Item.RetryCount; times++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -459,7 +459,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                         return false;
 
                     SynchronizationContextProvider.Send(() => LaserDOEAngleDtoItems.Add(LaserDOEAngleDto.Clone()));
-                    if (LaserDOEAngleDto.AfPosError < Cache.Threshold)
+                    if (LaserDOEAngleDto.AfPosError < Cache.Item.Threshold)
                     {
                         result = true;
                         break;
@@ -471,7 +471,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 }
 
                 // 迭代后出现振荡时取斜率最小的两次平均角度
-                if (LaserDOEAngleDtoItems.Count == Cache.RetryCount && result == false)
+                if (LaserDOEAngleDtoItems.Count == Cache.Item.RetryCount && result == false)
                     LaserDOEAngleDto = LaserDOEAngleDtoItems.OrderBy(t => t.AfPosError).First();
 
                 ResultLaserDOEAngleDto = LaserDOEAngleDto.Clone();
@@ -515,7 +515,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
             try
             {
                 var alignmentResultDto = new AlignmentResultDto();
-                if (Cache.IsDarkFieldAlignment == false)
+                if (Cache.Item.IsDarkFieldAlignment == false)
                     alignmentResultDto = StageViewModel.Alignment(
                         AlignmentCacheBrightField.LowSite1,
                         AlignmentCacheBrightField.LowSite2,
@@ -537,17 +537,17 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                         AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
                 }
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    Cache.IsDarkFieldAlignment,
-                    Cache.P5Angle,
-                    Cache.ObliqueAngle,
+                    Cache.Item.IsDarkFieldAlignment,
+                    Cache.Item.P5Angle,
+                    Cache.Item.ObliqueAngle,
                     Cache.PmtInterval,
-                    Cache.EcsPerAfOffset,
+                    Cache.Item.EcsPerAfOffset,
                     Cache.UmPerEcs,
-                    Cache.Threshold,
+                    Cache.Item.Threshold,
                     Cache.OriginDOEAngle,
                     ReviewDto.DOEAngle
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -556,7 +556,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 if (MultipleLightRuntimeAfCalibration(cancellationToken) == false)
                     return false;
 
-                var result = ReviewDto.IsVerified = LaserDOEAngleDto.AfPosError < Cache.Threshold;
+                var result = ReviewDto.IsVerified = LaserDOEAngleDto.AfPosError < Cache.Item.Threshold;
                 if (Save(ReviewDto, cancellationToken) == false)
                 {
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed."), HtmlLogUniqueId.LoggingHtml());
@@ -606,7 +606,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 var pmt = new DarkFieldRTFCDto
                 {
                     PmtId = i,
-                    Position = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i))
+                    Position = Cache.Item.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i))
                 };
                 SynchronizationContextProvider.Send(() => DarkFieldRTFCDtoList.Add(pmt));
             }
@@ -619,7 +619,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 var pmt = new DarkFieldRTFCDto
                 {
                     PmtId = i,
-                    Position = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8))
+                    Position = Cache.Item.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8))
                 };
                 SynchronizationContextProvider.Send(() => DarkFieldRTFCDtoList.Add(pmt));
             }
@@ -645,22 +645,22 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
             }
 
             var xVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => (t.PmtId - 1) * Cache.PmtInterval)]);
-            var yVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => t.AfOffset * Cache.EcsPerAfOffset * Cache.UmPerEcs)]);
+            var yVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => t.AfOffset * Cache.Item.EcsPerAfOffset * Cache.UmPerEcs)]);
             var (slope, intercept, _, _) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
 
-            var doeReviseAngle = Math.Atan(slope / Math.Sin(Cache.ObliqueAngle * Math.PI / 180)) * 180 / Math.PI;
+            var doeReviseAngle = Math.Atan(slope / Math.Sin(Cache.Item.ObliqueAngle * Math.PI / 180)) * 180 / Math.PI;
 
             var currentDOEAngle = LaserViewModel.ReadDOECurrentAngle();
             LaserDOEAngleDto.DOEAngle = currentDOEAngle;
             LaserDOEAngleDto.DOEReviseAngle = doeReviseAngle;
             LaserDOEAngleDto.MultiRtfcFitSlope = slope;
-            LaserDOEAngleDto.AfPosError = Math.Abs((darkFieldRTFCDtoList.Last().AfOffset - darkFieldRTFCDtoList.First().AfOffset) * Cache.EcsPerAfOffset * Cache.UmPerEcs);
+            LaserDOEAngleDto.AfPosError = Math.Abs((darkFieldRTFCDtoList.Last().AfOffset - darkFieldRTFCDtoList.First().AfOffset) * Cache.Item.EcsPerAfOffset * Cache.UmPerEcs);
 
             Logger.LogHtmlInformation("Multiple RTFC Result", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
-                Cache.Threshold,
+                Cache.Item.Threshold,
                 Cache.OriginDOEAngle,
-                Cache.EcsPerAfOffset,
+                Cache.Item.EcsPerAfOffset,
                 Cache.UmPerEcs,
                 L = Math.Abs(Cache.PmtInterval * (DarkFieldRTFCDtoList.Count - 1)),
                 LaserDOEAngleDto.MultiRtfcFitSlope,
@@ -669,7 +669,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 LaserDOEAngleDto.DOEReviseAngle,
                 LaserDOEAngleDto.AfPosError,
                 RtfcResult = new HtmlPlot2DLinesChart([
-                    ("Pmt-AfPos", darkFieldRTFCDtoList.Select(t => new Point((t.PmtId - 1) * Cache.PmtInterval, t.AfOffset * Cache.EcsPerAfOffset * Cache.UmPerEcs)).ToArray()),
+                    ("Pmt-AfPos", darkFieldRTFCDtoList.Select(t => new Point((t.PmtId - 1) * Cache.PmtInterval, t.AfOffset * Cache.Item.EcsPerAfOffset * Cache.UmPerEcs)).ToArray()),
                     ("Pmt-AfPos-Plot1Fit", darkFieldRTFCDtoList.Select(t => new Point((t.PmtId - 1) * Cache.PmtInterval, slope * (t.PmtId - 1) * Cache.PmtInterval + intercept)).ToArray())
                 ], "RtfcResult")
             }), HtmlLogUniqueId.LoggingHtml());
