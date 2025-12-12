@@ -45,24 +45,20 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}-{EnumHelper.ToDescriptionString(Cache.StageSpeedEnum)}";
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.OpticsMagTypeEnum)}-{EnumHelper.ToDescriptionString(Cache.StageSpeedEnum)}";
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Select Optics Illumination Mode" },
+        new() { StepName = "Select Productivity" },
         new() { StepName = "Config" },
-        new() { StepName = "Select a Mag" },
-        new() { StepName = "Select a Speed" },
         new() { StepName = "P5" },
         new() { StepName = "Find a Position" },
         new() { StepName = "Find Template" },
         new() { StepName = "Calibration" }
     ];
-
-    private List<(OpticsMagTypeEnum mag, bool isEnbale)> _enableOpticsMagList = [];
-
-    private List<(StageSpeedEnum stageSpeed, bool isEnbale)> _enableStageSpeedList = [];
 
     #region 界面相关
 
@@ -72,20 +68,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     private ObservableCollection<LineOrientationOffsetItemDto> _resultLaserLineOrientationOffsetDtoList = [];
 
     [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus
-        {
-            OpticsMagTypeEnum = t,
-            StageSpeedEnumCalibrationStatusList = [..EnumHelper.Enums<StageSpeedEnum>().Select(tt => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = tt, IsCalibrated = false })]
-        })
-    ];
-
-    [ObservableProperty]
-    private ObservableCollection<StageSpeedEnumCalibrationStatus> _calibrationStatusListItem =
-    [
-        .. EnumHelper.Enums<StageSpeedEnum>().Select(t => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = t, IsCalibrated = false })
-    ];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
     private bool _isDarkFieldAlignment;
@@ -221,21 +204,34 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
+        (var isHasCacheNew, Cache) = CacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
+
         Calibrations = CacheProvider.GetOrDefaultArray<LineOrientationOffsetItemDto>();
+
+        CalibrationStatuses =
+        [
+           ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                {
+                    SelectedItem = t,
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                })
+        ];
 
         foreach (var calibrationStatus in Calibrations)
         {
-            CalibrationStatusList
-                .Single(t => t.OpticsMagTypeEnum == calibrationStatus.OpticsMagTypeEnum)
-                .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == calibrationStatus.StageSpeedEnum)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+            var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
+            var status = opticsIlluminationModeStatus
+                .ProductivityInformationCalibrationStatusList
+                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
+            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
+        }      
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCacheNew == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -260,8 +256,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsMagTypeEnum)
-                .ThenBy(t => t.StageSpeedEnum)
+                .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
 
@@ -280,26 +275,26 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 1:
-                foreach (var temp in CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).StageSpeedEnumCalibrationStatusList)
-                {
-                    CalibrationStatusListItem.Single(t => t.StageSpeedEnum == temp.StageSpeedEnum).IsCalibrated = temp.IsCalibrated;
-                }
+            case 1:                
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
+                    .ProductivityInformationCalibrationStatusList
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = false;
 
                 return true;
-            case 2:
+            case 3:
                 DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
                 IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
-            case 3:
+            case 4:
                 await AutomationRecipeInformationAsync(string.Empty);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
-            case 4:
-                return true;
             case 5:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
+
+            //case 5:
+            //    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
+            //    return true;
 
             case 6:
                 if (ResultLaserLineOrientationOffsetDtoList.Count <= 0)
@@ -309,7 +304,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 }
                 else
                 {
-                    Calibrations = [.. Calibrations.ToList().Where(t => (t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum && t.StageSpeedEnum == Cache.StageSpeedEnum) == false)];
+                    Calibrations = [.. Calibrations.ToList().Where(t => (t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && t.ProductivityInformation.StageSpeedType == Cache.ProductivityInformation.StageSpeedType) == false)];
                     foreach (var (index, lineOrientationOffsetItemDto) in ResultLaserLineOrientationOffsetDtoList.Select((dto, i) => (i, dto)))
                     {
                         lineOrientationOffsetItemDto.IsCalibrated = true;
@@ -319,13 +314,13 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }
-                }
+                }               
 
-                CalibrationStatusList.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum)
-                    .StageSpeedEnumCalibrationStatusList.Single(t => t.StageSpeedEnum == Cache.StageSpeedEnum).IsCalibrated = true;
-                //DialogWindowProvider.ShowDialog("Find Offset Ok!");
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
+                    .ProductivityInformationCalibrationStatusList
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;               
 
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -404,14 +399,14 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         });
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    [RelayCommand]
+    private Task Step0CalibrateActionAsync()
     {
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsMagTypeEnum
+                Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -424,7 +419,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.StageSpeedEnum
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -601,10 +596,12 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
             Cache.CIBConfiguration,
-            Cache.XWidthPixel,
-            Cache.OpticsMagTypeEnum,
-            Cache.StageSpeedEnum,
+            Cache.ProductivityInformation,
+            Cache.OpticsIlluminationModeEnum,
+            xWidthPixel: Cache.XWidthPixel,
+            pmtId: Cache.PmtId,
             stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+
         var detectImageDirectory = ImageFileDirectory;
         using var _ = darkFieldImageDto;
 
@@ -637,8 +634,8 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
         {
-            Cache.OpticsMagTypeEnum,
-            Cache.StageSpeedEnum,
+            Cache.ProductivityInformation.OpticsMagType,
+            Cache.ProductivityInformation.StageSpeedType,
             Cache.FindPosition,
             HtmlTab = new HtmlTab(new
             {
@@ -683,8 +680,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             var centerPmt = new LineOrientationOffsetItemDto
             {
                 MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                StageSpeedEnum = Cache.StageSpeedEnum,
                 PmtId = 8,
                 FindPosition = Cache.FindPosition,
                 StartPosition = Cache.StartPosition,
@@ -703,8 +698,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 var pmt = new LineOrientationOffsetItemDto
                 {
                     MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    StageSpeedEnum = Cache.StageSpeedEnum,
                     PmtId = i,
                     FindPosition = Cache.FindPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i)),
                     StartPosition = Cache.StartPosition - (Vector)new Point(0, Cache.PmtInterval * (8 - i)),
@@ -722,8 +715,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 var pmt = new LineOrientationOffsetItemDto
                 {
                     MicroscopeLensInformation = Cache.MicroscopeLensInformation,
-                    OpticsMagTypeEnum = Cache.OpticsMagTypeEnum,
-                    StageSpeedEnum = Cache.StageSpeedEnum,
                     PmtId = i,
                     FindPosition = Cache.FindPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8)),
                     StartPosition = Cache.StartPosition + (Vector)new Point(0, Cache.PmtInterval * (i - 8)),
@@ -904,10 +895,9 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
                 Cache.CIBConfiguration,
-                Cache.XWidthPixel,
-                Cache.OpticsMagTypeEnum,
-                Cache.StageSpeedEnum,
+                Cache.ProductivityInformation,
                 Cache.OpticsIlluminationModeEnum,
+                xWidthPixel: Cache.XWidthPixel,
                 CalibrationConstantsHelper.MainPmtId,
                 CalibrationConstantsHelper.MainChannelId,
                 StageCoordinateSystemEnum.Machine);
@@ -927,13 +917,12 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                     HtmlLogUniqueId,
                     string.Empty,
                     $"{lineOrientationOffsetDto.PmtId} {(isForward ? "Forward" : "Reverse")}",
+                    Cache.ProductivityInformation,
                     out var position,
                     out _,
                     out _,
                     out var resultImageFilePath,
                     xWidthPixel: Cache.XWidthPixel,
-                    yOpticsMagTypeEnum: lineOrientationOffsetDto.OpticsMagTypeEnum,
-                    xStageSpeedEnum: Cache.StageSpeedEnum,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -964,7 +953,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (t.PmtId == itemDto.PmtId && t.OpticsMagTypeEnum == itemDto.OpticsMagTypeEnum && t.StageSpeedEnum == itemDto.StageSpeedEnum) == false),
+                .Where(t => (t.PmtId == itemDto.PmtId && t.ProductivityInformation == itemDto.ProductivityInformation) == false),
             itemDto.Clone()
         ];
         if (isSave == false) return;
