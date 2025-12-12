@@ -308,7 +308,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.ImageWidth,
                 Cache.Item.OpticsIlluminationDegreeAngle,
                 Cache.Item.DefaultRelayMotorRatio,
-                Cache.Item.CurrentRelayMotorAbsoluteValue,
                 Cache.Item.StartRelayMotorAbsoluteValue,
                 Cache.Item.StepRelayMotorAbsoluteValue,
                 Cache.Item.StopRelayMotorAbsoluteValue,
@@ -346,7 +345,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
 
                     // relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大
-                    var deltaECS = (relayMotorAbsoluteValue - Cache.Item.CurrentRelayMotorAbsoluteValue) / Cache.Item.DefaultRelayMotorRatio
+                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) / Cache.Item.DefaultRelayMotorRatio
                                    * 1e6 /* mm 转为 nm*/
                                    * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
                                    / nmPerEcs; /* 转为 ECS */
@@ -377,6 +376,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     {
                         Guard.IsNotEmpty(ecses);
 
+                        var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
+
                         foreach (var ecs in ecses)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
@@ -397,10 +398,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                                 Cache.Item.ImageWidth,
                                 isAutoFocus: false);
 
-                            var filePath = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{ecs:0.###}ECS_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                            darkFieldImage.Image.Save(filePath);
+                            var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 
-                            var quality = CalibrationAlgorithmService.GetQuality(darkFieldImage.Image);
+                            var filePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                            darkFieldImage.Image.Save(filePath);
 
                             var item = new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath, RawImageFilePath = darkFieldImage.RawImageFilePath };
                             opticsRelayDTOItem.Qualitys = [.. ((IReadOnlyList<OpticsRelayDTOItem.Item>)[.. opticsRelayDTOItem.Qualitys, item]).OrderBy(t => t.ECS)];

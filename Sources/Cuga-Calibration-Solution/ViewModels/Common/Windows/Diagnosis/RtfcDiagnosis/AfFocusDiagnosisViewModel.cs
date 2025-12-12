@@ -967,8 +967,7 @@ public partial class AfFocusDiagnosisViewModel(CreateDarkImageTemplateWindowView
                 StageCoordinateSystemEnum.Dark,
                 false);
 
-            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
-            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
+            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
             rtfcItemDto.DarkFieldImageFilePath =

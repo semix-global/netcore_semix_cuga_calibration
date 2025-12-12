@@ -937,8 +937,7 @@ public sealed partial class LaserFocusShiftCalibrationViewModel(CreateDarkImageT
                 StageCoordinateSystemEnum.Dark,
                 isAutoFocus: false);
 
-            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
-            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
+            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
             //var path = $"{ImageFileDirectory}\\ECS({focusShiftDto.DarkFieldEcsValue})_Guid({HtmlLogUniqueId}).hobj";
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;

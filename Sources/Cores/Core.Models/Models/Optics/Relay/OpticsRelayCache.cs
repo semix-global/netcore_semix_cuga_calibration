@@ -52,9 +52,6 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private double _defaultRelayMotorRatio = 100;
 
     [ObservableProperty]
-    private double _currentRelayMotorAbsoluteValue;
-
-    [ObservableProperty]
     private double _startRelayMotorAbsoluteValue;
 
     [ObservableProperty]

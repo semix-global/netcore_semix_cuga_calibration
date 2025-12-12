@@ -82,12 +82,6 @@
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Item.DefaultRelayMotorRatio}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Current Relay(mm): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.CurrentRelayMotorAbsoluteValue}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Start Relay(mm): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"

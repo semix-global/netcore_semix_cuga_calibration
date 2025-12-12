@@ -1142,8 +1142,7 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 StageCoordinateSystemEnum.Dark,
                 false);
 
-            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
-            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
+            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
             var path = $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).hobj";
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
