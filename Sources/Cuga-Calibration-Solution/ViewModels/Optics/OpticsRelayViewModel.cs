@@ -366,9 +366,16 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     if (CalibratingItem.Items.Count > 1)
                     {
-                        (defalutSlope, _, _, _) = PolynomialLeastSquares.Polynomial1Fit(
+                        var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
                             Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
                             Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
+
+                        defalutSlope = slope;
+                        CalibratingItem.Slope = slope;
+                        CalibratingItem.Intercept = intercept;
+                        CalibratingItem.RSquared = rSquared;
+                        CalibratingItem.FitRelayPoints = [.. CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
+                        CalibratingItem.IsCalibrated = true;
                     }
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -426,16 +433,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         }
                     }
                 }
-
-                var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
-                    Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
-                    Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
-
-                CalibratingItem.Slope = slope;
-                CalibratingItem.Intercept = intercept;
-                CalibratingItem.RSquared = rSquared;
-                CalibratingItem.FitRelayPoints = [.. CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
-                CalibratingItem.IsCalibrated = true;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
