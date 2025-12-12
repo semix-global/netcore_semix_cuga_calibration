@@ -376,7 +376,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     {
                         Guard.IsNotEmpty(ecses);
 
-                        var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
+                        var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_[{ecses[0]:0.###}ECS, {ecses[^1]:0.###}ECS]_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
 
                         foreach (var ecs in ecses)
                         {
@@ -442,6 +442,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             finally
             {
                 OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
             }
         });
     }
