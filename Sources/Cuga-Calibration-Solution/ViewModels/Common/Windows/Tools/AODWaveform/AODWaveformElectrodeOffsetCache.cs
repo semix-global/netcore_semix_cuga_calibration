@@ -21,19 +21,42 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     private int _interpolationCount = 3;
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> _electrodeOffsetFrequencyPeriodParams = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
-
-    [ObservableProperty]
-    private bool _isConfirmAODWaveformElectrodeOffsetResult = true;
-
-    [ObservableProperty]
     private IReadOnlyList<double> _frequencies = [];
 
     [ObservableProperty]
     private double _stepFrequency;
 
     [ObservableProperty]
+    private bool _isOnlyElectrode4 = true;
+
+    #region 方式一逐步遍历
+
+    [ObservableProperty]
+    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> _electrodeOffsetFrequencyPeriodParams = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+
+    [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam> _electrodeOffsetFrequencyWeightParams = [];
+
+    #endregion
+
+    #region 方式二两两之间遍历
+
+    [ObservableProperty]
+    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode2OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2 };
+
+    [ObservableProperty]
+    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode3OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
+
+    [ObservableProperty]
+    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode4OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode4 };
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _weights = [];
+
+    #endregion
+
+    [ObservableProperty]
+    private bool _isConfirmAODWaveformElectrodeOffsetResult = true;
 
     [ObservableProperty]
     private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityParam> _electrodeOffsetFrequencyUniformityParams = [];
@@ -157,10 +180,13 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     {
         OffsetFrequency,
         InterpolationCount,
-        ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
-        IsConfirmAODWaveformElectrodeOffsetResult,
         Frequencies,
         StepFrequency,
+        ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
+        Electrode2OffsetFrequencyPeriodParam = new HtmlQuote(Electrode2OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
+        Electrode3OffsetFrequencyPeriodParam = new HtmlQuote(Electrode3OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
+        Electrode4OffsetFrequencyPeriodParam = new HtmlQuote(Electrode4OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
+        IsConfirmAODWaveformElectrodeOffsetResult,
         ElectrodeOffsetFrequencyWeightParams = new HtmlTable([.. ElectrodeOffsetFrequencyWeightParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyUniformityParams = new HtmlTable([.. ElectrodeOffsetFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyUniformityParamChunkSize,

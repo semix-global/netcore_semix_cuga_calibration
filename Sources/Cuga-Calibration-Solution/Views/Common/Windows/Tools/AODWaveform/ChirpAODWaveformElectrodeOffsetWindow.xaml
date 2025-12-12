@@ -304,22 +304,36 @@
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
                                     <Separator />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.OffsetFrequency}" />
+                                    <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
+                                             Height="40"
+                                             TextWrapping="Wrap"
+                                             hc:TitleElement.Title="Frequencies(MHz): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(MHz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.StepFrequency}" />
                                     <StackPanel>
                                         <TextBlock Text="Step1 Params"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
                                     <Expander Header="Electrode Offset Frequency Period Params"
-                                              IsExpanded="False"
+                                              IsExpanded="True"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.OffsetFrequency}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Interpolation Count: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -337,84 +351,162 @@
                                                                   Background="{StaticResource DangerBrush}"
                                                                   Style="{StaticResource ToggleButtonSwitch}" />
                                                 </StackPanel>
-                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                    <Button Content="Add"
-                                                            Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                            Style="{StaticResource ButtonInfo}" />
-                                                    <Button Content="Delete"
-                                                            Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
-                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                            Style="{StaticResource ButtonDanger}" />
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Is Enable Type 2:  "
+                                                               Width="150"
+                                                               HorizontalAlignment="Left"
+                                                               VerticalAlignment="Center" />
+                                                    <ToggleButton IsChecked="{Binding Cache.IsOnlyElectrode4}"
+                                                                  HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  Background="{StaticResource InfoBrush}"
+                                                                  Style="{StaticResource ToggleButtonSwitch}" />
+                                                </StackPanel>
+                                                <hc:UniformSpacingPanel Orientation="Vertical"
+                                                                        Spacing="8"
+                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                        <Button Content="Add"
+                                                                Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                Style="{StaticResource ButtonInfo}" />
+                                                        <Button Content="Delete"
+                                                                Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
+                                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                Style="{StaticResource ButtonDanger}" />
+                                                    </hc:UniformSpacingPanel>
+                                                    <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
+                                                              MaxHeight="500"
+                                                              hc:DataGridAttach.ShowRowNumber="False"
+                                                              Style="{StaticResource DataGrid.Small}"
+                                                              HeadersVisibility="Column"
+                                                              RowHeaderWidth="60"
+                                                              AutoGenerateColumns="False"
+                                                              ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
+                                                        <DataGrid.Columns>
+                                                            <DataGridTextColumn IsReadOnly="True"
+                                                                                Header="AOD Electrode"
+                                                                                Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                            <DataGridTextColumn Header="Start(2pi)" Binding="{Binding StartOffsetFrequencyPeriodCoefficient}" />
+                                                            <DataGridTextColumn Header="Step Period(2pi)" Binding="{Binding StepOffsetFrequencyPeriodCoefficient}" />
+                                                            <DataGridTextColumn Header="Stop Period(2pi)" Binding="{Binding StopOffsetFrequencyPeriodCoefficient}" />
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
                                                 </hc:UniformSpacingPanel>
-                                                <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
-                                                          MaxHeight="500"
-                                                          hc:DataGridAttach.ShowRowNumber="False"
-                                                          Style="{StaticResource DataGrid.Small}"
-                                                          HeadersVisibility="Column"
-                                                          RowHeaderWidth="60"
-                                                          AutoGenerateColumns="False"
-                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn IsReadOnly="True"
-                                                                            Header="AOD Electrode"
-                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        <DataGridTextColumn Header="Start(2pi)" Binding="{Binding StartOffsetFrequencyPeriodCoefficient}" />
-                                                        <DataGridTextColumn Header="Step Period(2pi)" Binding="{Binding StepOffsetFrequencyPeriodCoefficient}" />
-                                                        <DataGridTextColumn Header="Stop Period(2pi)" Binding="{Binding StopOffsetFrequencyPeriodCoefficient}" />
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="Electrode Offset Frequency Weight Params"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
-                                                         Height="100"
-                                                         TextWrapping="Wrap"
-                                                         hc:TitleElement.Title="Frequencies(MHz): "
-                                                         hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
-                                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                         Style="{StaticResource TextBoxExtend}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(MHz): "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepFrequency}" />
-                                                <DataGrid MaxHeight="500"
-                                                          hc:DataGridAttach.ShowRowNumber="False"
-                                                          Style="{StaticResource DataGrid.Small}"
-                                                          HeadersVisibility="Column"
-                                                          RowHeaderWidth="60"
-                                                          AutoGenerateColumns="False"
-                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyWeightParams}">
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn IsReadOnly="True"
-                                                                            Header="AOD Electrode"
-                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        <DataGridTextColumn IsReadOnly="True"
-                                                                            Header="Frequency(MHz)"
-                                                                            Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                                        <DataGridTemplateColumn Header="Weight">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding Weight}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <hc:NumericUpDown Minimum="1" Value="{Binding Weight}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
+                                                <hc:UniformSpacingPanel Orientation="Vertical"
+                                                                        Spacing="8"
+                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Electrode2"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                    <StackPanel>
+                                                        <TextBlock Text="Electrode3"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                    <StackPanel>
+                                                        <TextBlock Text="Electrode4"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                </hc:UniformSpacingPanel>
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Offset Frequency Weight Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:UniformSpacingPanel Orientation="Vertical"
+                                                                        Spacing="8"
+                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                                                    <DataGrid MaxHeight="500"
+                                                              hc:DataGridAttach.ShowRowNumber="False"
+                                                              Style="{StaticResource DataGrid.Small}"
+                                                              HeadersVisibility="Column"
+                                                              RowHeaderWidth="60"
+                                                              AutoGenerateColumns="False"
+                                                              ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyWeightParams}">
+                                                        <DataGrid.Columns>
+                                                            <DataGridTextColumn IsReadOnly="True"
+                                                                                Header="AOD Electrode"
+                                                                                Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                            <DataGridTextColumn IsReadOnly="True"
+                                                                                Header="Frequency(MHz)"
+                                                                                Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                            <DataGridTemplateColumn Header="Weight">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding Weight}" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                                <DataGridTemplateColumn.CellEditingTemplate>
+                                                                    <DataTemplate>
+                                                                        <hc:NumericUpDown Minimum="1" Value="{Binding Weight}" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellEditingTemplate>
+                                                            </DataGridTemplateColumn>
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
+                                                </hc:UniformSpacingPanel>
+                                                <hc:UniformSpacingPanel Orientation="Vertical"
+                                                                        Spacing="8"
+                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <TextBox Text="{Binding Cache.Weights, Converter={StaticResource DoublesToStringConverter}}"
+                                                             Height="50"
+                                                             TextWrapping="Wrap"
+                                                             hc:TitleElement.Title="Weights: "
+                                                             hc:TitleElement.TitlePlacement="Left"
+                                                             hc:TitleElement.TitleWidth="200"
+                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                             Style="{StaticResource TextBoxExtend}" />
+                                                </hc:UniformSpacingPanel>
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -921,13 +1013,13 @@
                                                              HorizontalAlignment="Center"
                                                              Rows="1"
                                                              Columns="2">
-                                                    <Button Content="Set Config"
-                                                            Command="{Binding DataContext.SetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    <Button Content="Test Set Config"
+                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
                                                             Margin="2"
                                                             Style="{StaticResource ButtonInfo.Loading}" />
                                                     <Button Content="Cancel"
-                                                            Command="{Binding DataContext.SetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             Margin="2"
                                                             Style="{StaticResource ButtonWarning}" />
                                                 </UniformGrid>

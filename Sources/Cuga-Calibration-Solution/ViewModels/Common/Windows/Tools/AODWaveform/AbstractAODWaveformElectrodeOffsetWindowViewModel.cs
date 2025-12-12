@@ -15,6 +15,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
+    public readonly IReadOnlyList<OpticsAODElectrodeEnum> OpticsAODElectrodeEnums = [OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4];
+
     public override IReadOnlyList<string> Steps { get; } =
     [
         "Step1 Electrode Offset",
@@ -28,133 +30,290 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         var htmlLogUniqueId = Guid.NewGuid();
         const int stepIndex = 0;
-        
-        return await InvokeAsync(stepIndex, htmlLogUniqueId, async () =>
-        {
-            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
-            Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyPeriodParams.Count, 2);
-            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
-            Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
-            Cache.Step0Items = [];
-            Cache.ElectrodeConfigurationResults =
-            [
-                new GenerateAODWaveformElectrodeConfiguration
-                {
-                    OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1,
-                    OffsetFrequency = Cache.OffsetFrequency,
-                    OffsetFrequencyPeriodCoefficient = 0d
-                }
-            ];
-
-            foreach (var param in Cache.ElectrodeOffsetFrequencyPeriodParams)
+        return Cache.IsOnlyElectrode4
+            ? await InvokeAsync(0, htmlLogUniqueId, async () =>
             {
+                Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
+                Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
+
+                Cache.Step0Items = [];
+                Cache.ElectrodeConfigurationResults =
+                [
+                    ..OpticsAODElectrodeEnums.Select(t => new GenerateAODWaveformElectrodeConfiguration
+                    {
+                        OpticsAODElectrodeEnum = t,
+                        OffsetFrequency = Cache.OffsetFrequency,
+                        OffsetFrequencyPeriodCoefficient = 0d,
+                        Amplitude = Cache.DefaultAmplitude,
+                        IsGenerateAODWaveformZero = true
+                    })
+                ];
+
                 cancellationToken.ThrowIfCancellationRequested();
+                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2], Cache.Electrode2OffsetFrequencyPeriodParam).ConfigureAwait(false);
 
-                if (Cache.ElectrodeConfigurationResults.Any(t => t.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)) continue;
+                cancellationToken.ThrowIfCancellationRequested();
+                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodParam).ConfigureAwait(false);
 
-                var electrodes = (OpticsAODElectrodeEnum[])[.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum];
+                cancellationToken.ThrowIfCancellationRequested();
+                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode3OffsetFrequencyPeriodParam).ConfigureAwait(false);
 
-                var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
-                Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
+                var isSuccess = Cache.ElectrodeConfigurationResults.Count == OpticsAODElectrodeEnums.Count;
 
-                var fileName = $"{Name}_{Steps[stepIndex]}_{aodWaveformElectrodeOffsetFrequencyPeriod.Title}";
-                Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}"), htmlLogUniqueId.LoggingHtml());
-
-                var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
-                Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
-
-                var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
-
-                foreach (var frequency in Cache.Frequencies)
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
+                }), htmlLogUniqueId.LoggingHtml());
 
-                    var aodWaveformElectrodeOffsetFrequencyPeriodItem = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>();
-                    aodWaveformElectrodeOffsetFrequencyPeriod.Items = [.. aodWaveformElectrodeOffsetFrequencyPeriod.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
+                return isSuccess;
 
-                    Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+                async Task InvokeElectrodeMaxMeasurePowerAsync(IReadOnlyList<OpticsAODElectrodeEnum> electrodes, AODWaveformElectrodeOffsetFrequencyPeriodParam param)
+                {
+                    var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
+                    Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
-                    foreach (var currentOffsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
+                    var fileName = $"{Name}_{Steps[stepIndex]}_{aodWaveformElectrodeOffsetFrequencyPeriod.Title}";
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}"), htmlLogUniqueId.LoggingHtml());
+
+                    var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
+                    Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
+
+                    var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
+
+                    foreach (var frequency in Cache.Frequencies)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var item = new TItem
+                        var aodWaveformElectrodeOffsetFrequencyPeriodItem = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>();
+                        aodWaveformElectrodeOffsetFrequencyPeriod.Items = [.. aodWaveformElectrodeOffsetFrequencyPeriod.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
+
+                        Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+
+                        foreach (var currentOffsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                         {
-                            ElectrodeConfigurations =
-                            [
-                                ..Cache.ElectrodeOffsetFrequencyPeriodParams
-                                    .Select(t => new GenerateAODWaveformElectrodeConfiguration
-                                    {
-                                        OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
-                                        OffsetFrequency = Cache.OffsetFrequency,
-                                        OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum
-                                            ? currentOffsetFrequencyPeriodCoefficient
-                                            : Cache.ElectrodeConfigurationResults
-                                                .SingleOrDefault(tt => tt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum)
-                                                ?.OffsetFrequencyPeriodCoefficient ?? 0,
-                                        Amplitude = Cache.DefaultAmplitude,
-                                        IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
-                                    })
-                            ],
-                            Frequency = frequency,
-                            Amplitude = Cache.DefaultAmplitude,
-                            OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
-                        };
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                        Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+                            TItem item;
+                            if (param.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode3)
+                                item = new TItem
+                                {
+                                    ElectrodeConfigurations =
+                                    [
+                                        ..Cache.ElectrodeConfigurationResults
+                                            .Select(t => new GenerateAODWaveformElectrodeConfiguration
+                                            {
+                                                OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
+                                                OffsetFrequency = t.OffsetFrequency,
+                                                OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum
+                                                    ? currentOffsetFrequencyPeriodCoefficient
+                                                    : 0,
+                                                Amplitude = t.Amplitude,
+                                                IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
+                                            })
+                                    ],
+                                    Frequency = frequency,
+                                    Amplitude = Cache.DefaultAmplitude,
+                                    OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
+                                };
+                            else
+                            {
+                                var electrodes2 = Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode2);
+                                var electrodes4 = Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode4);
+                                var electrodes3OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient;
+                                var electrodes4OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient + electrodes4.OffsetFrequencyPeriodCoefficient;
 
-                        await UpdateMeasurePowerAsync(item, true, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                                item = new TItem
+                                {
+                                    ElectrodeConfigurations =
+                                    [
+                                        ..Cache.ElectrodeConfigurationResults
+                                            .Select(t => new GenerateAODWaveformElectrodeConfiguration
+                                            {
+                                                OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
+                                                OffsetFrequency = t.OffsetFrequency,
+                                                OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum switch
+                                                {
+                                                    OpticsAODElectrodeEnum.Electrode1 => 0,
+                                                    OpticsAODElectrodeEnum.Electrode2 => electrodes2.OffsetFrequencyPeriodCoefficient,
+                                                    OpticsAODElectrodeEnum.Electrode3 => electrodes3OffsetFrequencyPeriodCoefficient,
+                                                    OpticsAODElectrodeEnum.Electrode4 => electrodes4OffsetFrequencyPeriodCoefficient,
+                                                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(t.OpticsAODElectrodeEnum))
+                                                },
+                                                Amplitude = t.Amplitude,
+                                                IsGenerateAODWaveformZero = false
+                                            })
+                                    ],
+                                    Frequency = frequency,
+                                    Amplitude = Cache.DefaultAmplitude,
+                                    OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
+                                };
+                            }
 
-                        aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
+                            Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+
+                            await UpdateMeasurePowerAsync(item, true, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+
+                            aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
+                        }
+                    }
+
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggedEndHtml(fileName));
+
+                    aodWaveformElectrodeOffsetFrequencyPeriod.InterpolationMaxima(Cache.InterpolationCount);
+
+                    aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.ClosestMaximaPoints
+                        .Index()
+                        .Select(t => Cache.Weights[t.Index] * t.Item.X)
+                        .Sum() / Cache.Weights.Sum();
+
+                    if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
+                    {
+                        var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel>();
+                        aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
+
+                        var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
+                        if (showDialog == true) aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
+                    }
+
+                    if (param.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode3)
+                        Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
+                            .OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
+                    else
+                    {
+                        Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode3)
+                            .OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
+                        Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode4)
+                            .OffsetFrequencyPeriodCoefficient += aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
                     }
                 }
+            }, isNotSilent).ConfigureAwait(false)
+            : await InvokeAsync(stepIndex, htmlLogUniqueId, async () =>
+            {
+                Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
+                Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyPeriodParams.Count, 2);
+                Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
+                Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
-                Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggedEndHtml(fileName));
-
-                aodWaveformElectrodeOffsetFrequencyPeriod.InterpolationMaxima(Cache.InterpolationCount);
-
-                var allWeight = Cache.ElectrodeOffsetFrequencyWeightParams
-                    .Where(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
-                    .Select(t => t.Weight)
-                    .Sum();
-
-                aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.ClosestMaximaPoints
-                    .Index()
-                    .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams
-                        .Single(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum &&
-                                      Equals(tt.Frequency, aodWaveformElectrodeOffsetFrequencyPeriod.Items[t.Index].FrequencyItems[0].Frequency)).Weight * t.Item.X)
-                    .Sum() / allWeight;
-
-                if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
-                {
-                    var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel>();
-                    aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
-
-                    var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
-                    if (showDialog == true) aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
-                }
-
+                Cache.Step0Items = [];
                 Cache.ElectrodeConfigurationResults =
                 [
-                    .. Cache.ElectrodeConfigurationResults, new GenerateAODWaveformElectrodeConfiguration
+                    new GenerateAODWaveformElectrodeConfiguration
                     {
-                        OpticsAODElectrodeEnum = param.OpticsAODElectrodeEnum,
+                        OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1,
                         OffsetFrequency = Cache.OffsetFrequency,
-                        OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value
+                        OffsetFrequencyPeriodCoefficient = 0d
                     }
                 ];
-            }
 
-            var isSuccess = Cache.ElectrodeConfigurationResults.Count == Cache.ElectrodeOffsetFrequencyPeriodParams.Count;
+                foreach (var param in Cache.ElectrodeOffsetFrequencyPeriodParams)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
-            }), htmlLogUniqueId.LoggingHtml());
+                    if (Cache.ElectrodeConfigurationResults.Any(t => t.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)) continue;
 
-            return isSuccess;
-        }, isNotSilent).ConfigureAwait(false);
+                    var electrodes = (OpticsAODElectrodeEnum[])[.. Cache.ElectrodeConfigurationResults.Select(t => t.OpticsAODElectrodeEnum), param.OpticsAODElectrodeEnum];
+
+                    var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
+                    Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
+
+                    var fileName = $"{Name}_{Steps[stepIndex]}_{aodWaveformElectrodeOffsetFrequencyPeriod.Title}";
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}"), htmlLogUniqueId.LoggingHtml());
+
+                    var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
+                    Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
+
+                    var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
+
+                    foreach (var frequency in Cache.Frequencies)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var aodWaveformElectrodeOffsetFrequencyPeriodItem = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>();
+                        aodWaveformElectrodeOffsetFrequencyPeriod.Items = [.. aodWaveformElectrodeOffsetFrequencyPeriod.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
+
+                        Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+
+                        foreach (var currentOffsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            var item = new TItem
+                            {
+                                ElectrodeConfigurations =
+                                [
+                                    ..Cache.ElectrodeOffsetFrequencyPeriodParams
+                                        .Select(t => new GenerateAODWaveformElectrodeConfiguration
+                                        {
+                                            OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
+                                            OffsetFrequency = Cache.OffsetFrequency,
+                                            OffsetFrequencyPeriodCoefficient = t.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum
+                                                ? currentOffsetFrequencyPeriodCoefficient
+                                                : Cache.ElectrodeConfigurationResults
+                                                    .SingleOrDefault(tt => tt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum)
+                                                    ?.OffsetFrequencyPeriodCoefficient ?? 0,
+                                            Amplitude = Cache.DefaultAmplitude,
+                                            IsGenerateAODWaveformZero = electrodes.Contains(t.OpticsAODElectrodeEnum) == false
+                                        })
+                                ],
+                                Frequency = frequency,
+                                Amplitude = Cache.DefaultAmplitude,
+                                OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
+                            };
+
+                            Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+
+                            await UpdateMeasurePowerAsync(item, true, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+
+                            aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
+                        }
+                    }
+
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggedEndHtml(fileName));
+
+                    aodWaveformElectrodeOffsetFrequencyPeriod.InterpolationMaxima(Cache.InterpolationCount);
+
+                    var allWeight = Cache.ElectrodeOffsetFrequencyWeightParams
+                        .Where(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
+                        .Select(t => t.Weight)
+                        .Sum();
+
+                    aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.ClosestMaximaPoints
+                        .Index()
+                        .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams
+                            .Single(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum &&
+                                          Equals(tt.Frequency, aodWaveformElectrodeOffsetFrequencyPeriod.Items[t.Index].FrequencyItems[0].Frequency)).Weight * t.Item.X)
+                        .Sum() / allWeight;
+
+                    if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
+                    {
+                        var aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel = HostApplication.GetRequiredService<AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel>();
+                        aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
+
+                        var showDialog = WindowManagerService.ShowDialog(aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel);
+                        if (showDialog == true) aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetStep0ConfirmResultWindowViewModel.OffsetFrequencyPeriodCoefficient;
+                    }
+
+                    Cache.ElectrodeConfigurationResults =
+                    [
+                        .. Cache.ElectrodeConfigurationResults, new GenerateAODWaveformElectrodeConfiguration
+                        {
+                            OpticsAODElectrodeEnum = param.OpticsAODElectrodeEnum,
+                            OffsetFrequency = Cache.OffsetFrequency,
+                            OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value
+                        }
+                    ];
+                }
+
+                var isSuccess = Cache.ElectrodeConfigurationResults.Count == Cache.ElectrodeOffsetFrequencyPeriodParams.Count;
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
+                }), htmlLogUniqueId.LoggingHtml());
+
+                return isSuccess;
+            }, isNotSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -165,8 +324,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, htmlLogUniqueId, async () =>
         {
-            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
-            Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyPeriodParams.Count, 2);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Count, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);

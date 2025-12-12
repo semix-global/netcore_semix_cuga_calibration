@@ -766,13 +766,13 @@
                                                              HorizontalAlignment="Center"
                                                              Rows="1"
                                                              Columns="2">
-                                                    <Button Content="Set Config"
-                                                            Command="{Binding DataContext.SetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    <Button Content="Test Set Config"
+                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
                                                             Margin="2"
                                                             Style="{StaticResource ButtonInfo.Loading}" />
                                                     <Button Content="Cancel"
-                                                            Command="{Binding DataContext.SetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             Margin="2"
                                                             Style="{StaticResource ButtonWarning}" />
                                                 </UniformGrid>
