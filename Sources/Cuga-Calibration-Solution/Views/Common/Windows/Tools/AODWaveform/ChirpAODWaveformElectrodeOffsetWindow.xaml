@@ -353,7 +353,7 @@
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="Is Enable Type 2:  "
-                                                               Width="150"
+                                                               Width="200"
                                                                HorizontalAlignment="Left"
                                                                VerticalAlignment="Center" />
                                                     <ToggleButton IsChecked="{Binding Cache.IsOnlyElectrode4}"

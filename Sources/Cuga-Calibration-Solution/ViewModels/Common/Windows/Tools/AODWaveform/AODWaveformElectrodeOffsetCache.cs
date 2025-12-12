@@ -93,7 +93,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     partial void OnElectrodeOffsetFrequencyPeriodParamsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> value) => UpdateElectrodeOffsetFrequencyWeightParams(value, Frequencies);
 
-    partial void OnFrequenciesChanged(IReadOnlyList<double> value) => UpdateElectrodeOffsetFrequencyWeightParams(ElectrodeOffsetFrequencyPeriodParams, value);
+    partial void OnFrequenciesChanged(IReadOnlyList<double> value)
+    {
+        UpdateElectrodeOffsetFrequencyWeightParams(ElectrodeOffsetFrequencyPeriodParams, value);
+        Weights = [.. value.Select(_ => 1)];
+    }
 
     [RelayCommand]
     private void AddElectrodeOffsetFrequencyPeriodParam()
