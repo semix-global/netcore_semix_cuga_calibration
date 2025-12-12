@@ -332,6 +332,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
 
             CalibratingItem.Items = [];
+            CalibratingItem.Slope = 0;
+            CalibratingItem.Intercept = 0;
+            CalibratingItem.RSquared = 0;
+            CalibratingItem.FitRelayPoints = [];
+            CalibratingItem.IsCalibrated = false;
 
             try
             {
