@@ -126,6 +126,13 @@
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Item.StepRefinedECS}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(RSquared): "
+                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Maximum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Threshold}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

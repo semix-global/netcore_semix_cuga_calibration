@@ -297,7 +297,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             var nmPerEcs = AfViewModel.GetNmPerEcs();
             var detectImageDirectory = ImageFileDirectory;
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
-            var defalutSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* 1mm */
+            var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* 1mm */
                                * 1e6d /* mm 转为 nm*/
                                * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
                                / nmPerEcs; /* 转为 ECS */
@@ -322,16 +322,18 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.StopRoughECS,
                 Cache.Item.RangeRefinedECS,
                 Cache.Item.StepRefinedECS,
+                Cache.Threshold,
                 currentMotorAbsoluteValue,
                 nmPerEcs,
                 detectImageDirectory,
-                defalutSlope
+                defaultSlope
             }), HtmlLogUniqueId.LoggingHtml());
 
             var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
 
+            CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.Items = [];
             CalibratingItem.Slope = 0d;
             CalibratingItem.Intercept = 0d;
@@ -358,7 +360,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     var opticsRelayDTOItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
                     CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
 
-                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defalutSlope;
+                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
 
                     CatchImage(Generate.LinearRange(
                         Cache.Item.StartRoughECS + deltaECS,
@@ -378,7 +380,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
                             Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
 
-                        defalutSlope = slope;
+                        defaultSlope = slope;
                         CalibratingItem.Slope = slope;
                         CalibratingItem.Intercept = intercept;
                         CalibratingItem.RSquared = rSquared;
@@ -387,7 +389,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
-                        defalutSlope,
+                        defalutSlope = defaultSlope,
                         opticsRelayDTOItem.MaxItem.ECS,
                         opticsRelayDTOItem.MaxItem.Quality,
                         opticsRelayDTOItem.MaxItem.RawImageFilePath,
@@ -443,19 +445,24 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                 CalibratingItem.MinRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[0].X;
                 CalibratingItem.MaxRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[^1].X;
-                CalibratingItem.IsCalibrated = true;
+                CalibratingItem.IsCalibrated = CalibratingItem.RSquared >= Cache.Threshold;
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                var htmlBullet = new HtmlBullet(new
                 {
                     CalibratingItem.Slope,
                     CalibratingItem.Intercept,
                     CalibratingItem.RSquared,
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-                }), HtmlLogUniqueId.LoggingHtml());
+                });
+
+                if (CalibratingItem.IsCalibrated)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                 Guard.IsTrue(Save([CalibratingItem], cancellationToken));
 
-                return true;
+                return CalibratingItem.IsCalibrated;
             }
             finally
             {
@@ -486,7 +493,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                selectedReviewItem.IsVerified = selectedReviewItem.RSquared > Cache.Threshold;
+                selectedReviewItem.IsCalibrated = selectedReviewItem.RSquared >= Cache.Threshold;
+                if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
                 {
