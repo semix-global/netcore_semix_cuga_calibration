@@ -1007,6 +1007,7 @@ public sealed class LaserViewModel(
         }
     }
 
+    [Obsolete]
     public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
@@ -1037,6 +1038,37 @@ public sealed class LaserViewModel(
             isAutoFocus);
 
         return result.Single(t => t.ChannelId == channelId);
+    }
+
+    public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point endPosition,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+        bool isCustomChirpAod,
+        CIBInformation cibInformation,
+        CIBConfiguration cIbConfiguration,
+        bool isForward = true,
+        bool isAutoFocus = true)
+    {
+        var result = GetDarkFieldLineScanImageList(
+            calChipSiteModelEnum,
+            startPosition,
+            endPosition,
+            productivityInformation,
+            opticsIlluminationModeEnum,
+            cibInformation.PMTId,
+            stageCoordinateSystemEnum,
+            cIbConfiguration,
+            customPrescanAod,
+            isCustomChirpAod,
+            isForward,
+            isAutoFocus);
+
+        return result.Single(t => t.ChannelId == cibInformation.ChannelId);
     }
 
     /// <summary>

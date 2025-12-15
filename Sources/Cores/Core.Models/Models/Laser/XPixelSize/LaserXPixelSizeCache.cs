@@ -20,10 +20,6 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
-
-    [ObservableProperty]
     private double _threshold = 15;
 
     [ObservableProperty]
@@ -42,16 +38,16 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
 public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
+    private CIBInformation _cIBInformation = CIBInformation.Default;
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
-    private int _pMTId = CalibrationConstantsHelper.MainPmtId;
-
-    [ObservableProperty]
-    private int _channelId = CalibrationConstantsHelper.MainChannelId;
 
     [ObservableProperty]
     private bool _isDarkFieldAlignment;

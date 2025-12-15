@@ -14,9 +14,6 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
-    [ObservableProperty]
     private double _threshold = 0.999;
 
     public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>> Items { get; init; } = [];
@@ -30,6 +27,9 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
 
 public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
 {
+    [ObservableProperty]
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 

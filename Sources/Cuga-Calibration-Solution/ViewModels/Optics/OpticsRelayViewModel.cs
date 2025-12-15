@@ -252,19 +252,20 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            StageViewModel.SetAbsoluteStageTheta(0);
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
             StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeLensInformation,
+                Cache.Item.MicroscopeLensInformation,
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
                    && ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.Item.ProductivityInformation)
                    && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
                    && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
@@ -298,14 +299,14 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             var detectImageDirectory = ImageFileDirectory;
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
             var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* mm */
-                               * 1e6d /* mm 转为 nm*/
+                               * 1e6d /* mm 转为 nm */
                                * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
                                / nmPerEcs; /* 转为 ECS */
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
-                Cache.MicroscopeLensInformation,
+                Cache.Item.MicroscopeLensInformation,
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),

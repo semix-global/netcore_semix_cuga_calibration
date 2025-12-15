@@ -14,7 +14,6 @@ using Core.Models.Models.Laser.XPixelSize;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using CugaCalibration.ViewModels.Common.Windows.View;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
@@ -37,11 +36,7 @@ using System.Threading.Channels;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserXPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXPixelSizeCalibrationViewModel(
-    AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
-    AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
-    EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
-    EnableOpticsIlluminationModeWindowViewModel enableOpticsIlluminationModeWindowViewModel) : CalibrationViewModelBase
+public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -58,10 +53,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         new() { StepName = "Find Position" },
         new() { StepName = "X Pixel Size" }
     ];
-
-    private List<(OpticsIlluminationModeEnum OpticsIlluminationModeEnum, bool isEnbale)> _enableOpticsIlluminationModeList = [];
-
-    private List<(ProductivityInformation productiveInformation, bool isEnbale)> _enableProductiveInformationList = [];
 
     #region 界面相关
 
@@ -151,7 +142,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
+        if (Cache.Item.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.Item.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -302,20 +293,19 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
         return InvokeCalibrateAsync(() =>
         {
             StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
+                Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.PMTId,
-                Cache.Item.ChannelId
+                Cache.Item.CIBInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
                    && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
         });
     }
@@ -392,11 +382,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             {
                 Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
+                Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.PMTId,
-                Cache.Item.ChannelId,
+                Cache.Item.CIBInformation,
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth
@@ -405,21 +394,20 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
                 CalChipSiteModelEnum.ChuckModel,
+                StageCoordinateSystemEnum.Bright,
                 StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
                 (false, Cache.Item.LaserLightInformation),
                 false,
+                Cache.Item.CIBInformation,
                 Cache.Item.CIBConfiguration,
-                Cache.ProductivityInformation,
-                Cache.OpticsIlluminationModeEnum,
-                xWidthPixel: Cache.Item.ImageWidth,
-                pmtId: Cache.Item.PMTId,
-                channelId: Cache.Item.ChannelId,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                Cache.Item.ImageWidth);
 
             using var _ = darkFieldImageDto;
 
-            var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
+            var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
             Cache.Item.TemplateFilePath = $"{originImageFilePath}_Template";
             darkFieldImageDto.Image.Save(originImageFilePath);
 
@@ -462,11 +450,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             {
                 Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
+                Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.PMTId,
-                Cache.Item.ChannelId,
+                Cache.Item.CIBInformation,
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,
@@ -488,9 +475,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
 
             CalibratingItem.OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
-            CalibratingItem.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
-            CalibratingItem.PMTId = Cache.Item.PMTId;
-            CalibratingItem.ChannelId = Cache.Item.ChannelId;
+            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
+            CalibratingItem.CIBInformation = Cache.Item.CIBInformation;
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
@@ -510,17 +496,16 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
             var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
             var darkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
                 CalChipSiteModelEnum.ChuckModel,
+                StageCoordinateSystemEnum.Bright,
                 startPosition,
                 endPosition,
                 (false, Cache.Item.LaserLightInformation),
                 false,
-                Cache.Item.CIBConfiguration,
-                Cache.ProductivityInformation,
-                Cache.OpticsIlluminationModeEnum,
-                pmtId: Cache.Item.PMTId,
-                channelId: Cache.Item.ChannelId,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                Cache.Item.CIBInformation,
+                Cache.Item.CIBConfiguration);
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
@@ -693,11 +678,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 {
                     Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation,
-                    Cache.MicroscopeLensInformation,
+                    Cache.Item.MicroscopeLensInformation,
                     Cache.Item.LaserLightInformation,
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                    Cache.Item.PMTId,
-                    Cache.Item.ChannelId,
+                    Cache.Item.CIBInformation,
                     Cache.Item.IsDarkFieldAlignment,
                     AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                     Cache.Item.ImageWidth,
@@ -736,17 +720,16 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel(
                 var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
                 var verifyDarkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
+                    Cache.OpticsIlluminationModeEnum,
+                    Cache.ProductivityInformation,
                     CalChipSiteModelEnum.ChuckModel,
+                    StageCoordinateSystemEnum.Bright,
                     verifyStartPosition,
                     verifyEndPosition,
                     (false, Cache.Item.LaserLightInformation),
                     false,
-                    Cache.Item.CIBConfiguration,
-                    Cache.ProductivityInformation,
-                    Cache.OpticsIlluminationModeEnum,
-                    pmtId: Cache.Item.PMTId,
-                    channelId: Cache.Item.ChannelId,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+                    Cache.Item.CIBInformation,
+                    Cache.Item.CIBConfiguration);
                 var verifyRawImageFilePath = verifyDarkFieldLineScanImage.RawImageFilePath;
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));

@@ -53,7 +53,7 @@
                               Style="{StaticResource ComboBoxExtend}"
                               ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                         </i:Interaction.Behaviors>
                     </ComboBox>
                     <ComboBox hc:TitleElement.Title="Productivity Information: "
