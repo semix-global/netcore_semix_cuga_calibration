@@ -608,9 +608,9 @@ public sealed partial class MainWindowViewModel(
     [RelayCommand]
     private void PrescanAODWaveformElectrodeOffset()
     {
-        var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformElectrodeOffsetWindowViewModel>();
+        /*var prescanAODWaveformUniformityWindowViewModel = HostApplication.GetRequiredService<PrescanAODWaveformElectrodeOffsetWindowViewModel>();
 
-        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);
+        windowManagerService.ShowWindow(prescanAODWaveformUniformityWindowViewModel);*/
     }
 
     [RelayCommand]

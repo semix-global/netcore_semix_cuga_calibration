@@ -29,7 +29,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    <Style x:Key="DefaultListBoxItemStyle"
+    <Style x:Key="ListBoxItemStyle.Center"
            BasedOn="{StaticResource ListBoxItemBaseStyle}"
            TargetType="ListBoxItem">
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -39,5 +39,28 @@
                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
             </Trigger>
         </Style.Triggers>
+    </Style>
+    <Style x:Key="ListBoxItemStyle.Small.Center"
+           BasedOn="{StaticResource ListBoxItemBaseStyle.Small}"
+           TargetType="ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="ComboBoxExtend.ReadOnlyEditable"
+           BasedOn="{StaticResource ComboBoxExtend}"
+           TargetType="ComboBox">
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="IsEditable" Value="True" />
+    </Style>
+    <Style x:Key="ComboBoxExtend.Small.ReadOnlyEditable"
+           BasedOn="{StaticResource ButtonDanger.Small}"
+           TargetType="ComboBox">
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="IsEditable" Value="True" />
     </Style>
 </ResourceDictionary>

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -9,10 +10,11 @@ using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
+using System.ComponentModel;
 
 namespace Core.Models.Models.CIB.MMD;
 
-public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto>, IAdaptTo<CalibrationLaserCIBMMDItem>
+public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
@@ -69,9 +71,27 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
+#pragma warning restore CS0657
+#pragma warning restore IDE0079
+
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<CIBMMDItemDto> value) => RefreshPlot();
+    partial void OnItemsChanged(IReadOnlyList<CIBMMDItemDto>? oldValue, IReadOnlyList<CIBMMDItemDto> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        RefreshPlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
+    }
 
     partial void OnGainRSquaredChanged(double value) => RefreshPlot();
 
@@ -100,11 +120,8 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     partial void OnGainS16BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
-#pragma warning restore CS0657
-#pragma warning restore IDE0079
 
-
-    public CIBMMDDto()
+    public CIBMMDDTO()
     {
         var customGrid = new CustomGrid();
         ScatterPlotControl.Configure(customGrid, 6,
@@ -126,7 +143,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
         ScatterPlotControl.SetTitle(5, "Gain S16Bit(Y: Gain S16Bit - X: LogGain * 128 U12Bit )");
     }
 
-    public void RefreshPlot()
+    private void RefreshPlot()
     {
         if (Items.Count > 0)
         {
@@ -197,7 +214,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
 
     #region Mapper
 
-    public CIBMMDDto Clone() => new()
+    public CIBMMDDTO Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
@@ -235,7 +252,7 @@ public sealed partial class CIBMMDDto : CalibrationDtoBase, ICloneable<CIBMMDDto
     #endregion Mapper
 }
 
-public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIBMMDItemDto>
+public sealed partial class CIBMMDItemDto : ObservableCacheBase, ICloneable<CIBMMDItemDto>
 {
     [ObservableProperty]
     private double _coefficient;
@@ -257,7 +274,9 @@ public sealed partial class CIBMMDItemDto : CalibrationCacheBase, ICloneable<CIB
     {
         Coefficient = Coefficient,
         MeasurePower = MeasurePower,
-        Items = [.. Items.Select(t => t.Clone())]
+        Items = [.. Items.Select(t => t.Clone())],
+        Id = Id,
+        Expiration = Expiration
     };
 
     public sealed class Item : ICloneable<Item>

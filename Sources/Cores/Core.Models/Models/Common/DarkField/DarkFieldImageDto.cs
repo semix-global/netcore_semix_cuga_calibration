@@ -3,14 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 
 #if NET
 using Semix.GRPC.DTO;
-using C2MImgModel = Cuga.Data.DataStruct.DTO.Calibration.CgRawImgModel;
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -21,14 +19,10 @@ namespace Core.Models.Models.Common.DarkField;
 public sealed partial class DarkFieldImageDto :
     ObservableCacheBase,
     ICloneable<DarkFieldImageDto>,
-    IAdaptTo<C2MImgModel>,
-    IAdaptIn<C2MImgModel, DarkFieldImageDto>,
     IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldImageDto>,
     IAdaptIn<DarkFieldRawScanImageDto, DarkFieldImageDto>,
     IDisposable
 {
-    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconFactory.EmptyHImage };
-
     /// <summary>
     /// PMT Id
     /// </summary>
@@ -54,10 +48,10 @@ public sealed partial class DarkFieldImageDto :
     private int _height;
 
     /// <summary>
-    /// 16bit raw 图片
+    /// RAW文件路径
     /// </summary>
     [ObservableProperty]
-    private byte[] _bytes = [];
+    private string _rawImageFilePath = string.Empty;
 
     /// <summary>
     /// 图片矩阵
@@ -83,43 +77,18 @@ public sealed partial class DarkFieldImageDto :
 
     #region Mapper
 
-    public DarkFieldImageDto Clone()
+    public DarkFieldImageDto Clone() => new()
     {
-        return new DarkFieldImageDto
-        {
-            PmtId = PmtId,
-            ChannelId = ChannelId,
-            Width = Width,
-            Height = Height,
-            Bytes = [.. Bytes],
-            Matrix = MatrixUtils.Clone(Matrix),
-            Image = Image.Copy(),
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
-
-    public C2MImgModel AdaptTo() => new()
-    {
-        PMTId = PmtId,
-        Channel = ChannelId,
+        PmtId = PmtId,
+        ChannelId = ChannelId,
         Width = Width,
         Height = Height,
-        Img = [.. Bytes]
+        RawImageFilePath = RawImageFilePath,
+        Matrix = MatrixUtils.Clone(Matrix),
+        Image = Image.Copy(),
+        Id = Id,
+        Expiration = Expiration
     };
-
-    public DarkFieldImageDto AdaptIn(C2MImgModel obj)
-    {
-        Guard.IsNotNull(obj);
-
-        PmtId = obj.PMTId;
-        ChannelId = obj.Channel;
-        Width = obj.Width;
-        Height = obj.Height;
-        Bytes = obj.Img is not null ? [.. obj.Img] : [];
-
-        return this;
-    }
 
     public DarkFieldImageDto AdaptIn(M2CImgSysCollectImgDTO obj)
     {
@@ -129,6 +98,7 @@ public sealed partial class DarkFieldImageDto :
         ChannelId = obj.Channel;
         Width = obj.ImgWidth;
         Height = obj.ImgHeight;
+        RawImageFilePath = obj.Url;
 
         return this;
     }
@@ -141,6 +111,7 @@ public sealed partial class DarkFieldImageDto :
         ChannelId = obj.ChannelId;
         Width = obj.Width;
         Height = obj.Height;
+        RawImageFilePath = obj.RawImageFilePath;
 
         return this;
     }
@@ -156,11 +127,8 @@ public sealed partial class DarkFieldImageDto :
 public sealed partial class DarkFieldRawScanImageDto :
     ObservableCacheBase,
     ICloneable<DarkFieldRawScanImageDto>,
-    IAdaptTo<M2CImgSysCollectImgDTO>,
     IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDto>
 {
-    public static DarkFieldImageDto Empty { get; } = new() { Matrix = MatrixUtils.EmptyMatrix<short>(), Image = HalconFactory.EmptyHImage };
-
     /// <summary>
     /// PMT Id
     /// </summary>
@@ -174,6 +142,12 @@ public sealed partial class DarkFieldRawScanImageDto :
     private int _channelId;
 
     /// <summary>
+    /// RAW文件路径
+    /// </summary>
+    [ObservableProperty]
+    private string _rawImageFilePath = string.Empty;
+
+    /// <summary>
     /// 图片宽度
     /// </summary>
     [ObservableProperty]
@@ -185,40 +159,17 @@ public sealed partial class DarkFieldRawScanImageDto :
     [ObservableProperty]
     private int _height;
 
-    /// <summary>
-    /// 图片路径
-    /// </summary>
-    [ObservableProperty]
-    private string _url = string.Empty;
-
-    [ObservableProperty]
-    private int _direction;
-
     #region Mapper
 
-    public DarkFieldRawScanImageDto Clone()
+    public DarkFieldRawScanImageDto Clone() => new()
     {
-        return new DarkFieldRawScanImageDto
-        {
-            PmtId = PmtId,
-            ChannelId = ChannelId,
-            Width = Width,
-            Height = Height,
-            Url = Url,
-            Direction = Direction,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
-
-    public M2CImgSysCollectImgDTO AdaptTo() => new()
-    {
-        PMTId = PmtId,
-        Channel = ChannelId,
-        ImgWidth = Width,
-        ImgHeight = Height,
-        Url = Url,
-        Dir = Direction
+        PmtId = PmtId,
+        ChannelId = ChannelId,
+        Width = Width,
+        Height = Height,
+        RawImageFilePath = RawImageFilePath,
+        Id = Id,
+        Expiration = Expiration
     };
 
     public DarkFieldRawScanImageDto AdaptIn(M2CImgSysCollectImgDTO obj)
@@ -229,8 +180,7 @@ public sealed partial class DarkFieldRawScanImageDto :
         ChannelId = obj.Channel;
         Width = obj.ImgWidth;
         Height = obj.ImgHeight;
-        Url = obj.Url;
-        Direction = obj.Dir;
+        RawImageFilePath = obj.Url;
 
         return this;
     }

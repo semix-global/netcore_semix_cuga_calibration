@@ -94,35 +94,32 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
-                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     IsEditable="True"
-                                                     IsReadOnly="True"
-                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
-                                                     Style="{StaticResource ComboBoxExtend}">
+                                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
-                                            <hc:ComboBox.ItemsSource>
+                                            <ComboBox.ItemsSource>
                                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                                     <Binding Path="ApplicationCookie" />
                                                     <Binding Path="Cache.OpticsIlluminationModeEnum" />
                                                 </MultiBinding>
-                                            </hc:ComboBox.ItemsSource>
-                                        </hc:ComboBox>
-                                        <hc:ComboBox hc:TitleElement.Title="Channel Id: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.ChannelId}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
+                                            </ComboBox.ItemsSource>
+                                        </ComboBox>
+                                        <ComboBox hc:TitleElement.Title="Channel Id: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  SelectedItem="{Binding Cache.ChannelId}"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
                                     </hc:UniformSpacingPanel>
                                     <Expander Header="Prescan AOD Waveform"
                                               IsExpanded="False"
@@ -197,18 +194,18 @@
                                     <Button Content="Refresh Machine Position"
                                             Command="{Binding RefreshBFMachinePositionCommand}"
                                             Style="{StaticResource ButtonDefault}" />
-                                    <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.Title="Haze Laser Light Information: "
-                                                 SelectedItem="{Binding Cache.HazeLaserLightInformation}"
-                                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
-                                    <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.Title="Shiny Laser Light Information: "
-                                                 SelectedItem="{Binding Cache.ShinyWaferLaserLightInformation}"
-                                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
+                                    <ComboBox HorizontalAlignment="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.Title="Haze Laser Light Information: "
+                                              SelectedItem="{Binding Cache.HazeLaserLightInformation}"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
+                                    <ComboBox HorizontalAlignment="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.Title="Shiny Laser Light Information: "
+                                              SelectedItem="{Binding Cache.ShinyWaferLaserLightInformation}"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"

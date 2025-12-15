@@ -35,9 +35,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     CalibrationSetting calibrationSetting)
     : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
-    private IReadOnlyList<LaserLightInformation>? _laserLightInformations;
-    private IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>? _pmtConfigList;
-
     public SxExecuteRet<bool> Connect()
     {
         if (IsConnected) return SxExecuteRetHelper.CreateSuccess(true);
@@ -98,18 +95,16 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
     {
-        if (_laserLightInformations is not null) return SxExecuteRetHelper.CreateSuccess(_laserLightInformations);
-
         var sxExecuteRet = Invoke(() => Service?.GetLightConfig());
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        _laserLightInformations = [.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
+        var laserLightInformations = (IReadOnlyList<LaserLightInformation>)[.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
 
-        Guard.IsTrue(_laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
-        Guard.IsTrue(_laserLightInformations.Select(t => t.Level).Distinct().Count() == _laserLightInformations.Count, "Laser Light Information Level is not unique");
+        Guard.IsTrue(laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
+        Guard.IsTrue(laserLightInformations.Select(t => t.Level).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Level is not unique");
 
-        return SxExecuteRetHelper.CreateSuccess(_laserLightInformations);
+        return SxExecuteRetHelper.CreateSuccess(laserLightInformations);
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
@@ -155,8 +150,6 @@ public sealed partial class CalibrationLaserServiceImpl(
 
             productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
         }
-
-        Guard.IsNotEmpty(productivityInformationList, "Productivity Information is empty");
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
@@ -442,8 +435,6 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
     {
-        if (_pmtConfigList is not null) return SxExecuteRetHelper.CreateSuccess(_pmtConfigList);
-
         var sxExecuteRet = Invoke(() => Service?.GetPmtState());
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>>(sxExecuteRet.Msg, []);
@@ -465,8 +456,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         Guard.IsTrue(firstChannelList.SequenceEqual(Enumerable.Range(1, firstChannelList.Count)), "Channel Id is not from 1 to ..");
         Guard.IsTrue(result.All(item => item.ChannelIdList.SequenceEqual(firstChannelList)), "Channel Id is not equal");
         Guard.IsTrue(result.Any(item => item.IsUsed), "Pmt Config List is not used");
-
-        _pmtConfigList = result;
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>>(result);
     }
@@ -991,7 +980,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Bytes = bytes, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -1085,7 +1074,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Bytes = bytes, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -1099,7 +1088,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<double> ReadDOECurrentAngle()
     {
-        var sxExecuteRet = Invoke(() => Service?.ReadDoePos(CgCommonType.OI_DOE));
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(CgCommonType.OI_DOE));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
@@ -1107,7 +1096,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetDOEAngle(double angle)
     {
-        var sxExecuteRet = Invoke(() => Service?.DoeMove(CgCommonType.OI_DOE, angle));
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(CgCommonType.OI_DOE, angle));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);

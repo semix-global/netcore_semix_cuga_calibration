@@ -37,31 +37,28 @@
                 <hc:UniformSpacingPanel Margin="11,0"
                                         Orientation="Vertical"
                                         Spacing="2">
-                    <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                 SelectedItem="{Binding OpticsIlluminationModeEnum}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                 Visibility="{Binding IsVisibleOpticsIlluminationModeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
-                    <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                 IsEditable="True"
-                                 IsReadOnly="True"
-                                 SelectedItem="{Binding ProductivityInformation}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                              SelectedItem="{Binding OpticsIlluminationModeEnum}"
+                              Style="{StaticResource ComboBoxExtend}"
+                              ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              Visibility="{Binding IsVisibleOpticsIlluminationModeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <ComboBox hc:TitleElement.Title="Productivity Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                              Style="{StaticResource ComboBoxExtend}"
+                              Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                         </i:Interaction.Behaviors>
-                        <hc:ComboBox.ItemsSource>
+                        <ComboBox.ItemsSource>
                             <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                 <Binding Path="ApplicationCookie" RelativeSource="{RelativeSource AncestorType=UserControl}" />
                                 <Binding Path="OpticsIlluminationModeEnum" />
                             </MultiBinding>
-                        </hc:ComboBox.ItemsSource>
-                    </hc:ComboBox>
+                        </ComboBox.ItemsSource>
+                    </ComboBox>
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>
                 <Expander Header="Frequency(MHz)"
@@ -143,27 +140,27 @@
                                     </Style>
                                 </hc:NumericUpDown.Style>
                             </hc:NumericUpDown>
-                            <hc:ComboBox hc:TitleElement.Title="Monotonic: "
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                         IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
-                                         SelectedItem="{Binding FunctionMonotonicTypeEnum}"
-                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
-                                <hc:ComboBox.Style>
-                                    <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                            <ComboBox hc:TitleElement.Title="Monotonic: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                                      IsEnabled="{Binding IsHeaderAndFooter, Converter={StaticResource BoolNegationConverter}}"
+                                      SelectedItem="{Binding FunctionMonotonicTypeEnum}"
+                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:FunctionMonotonicTypeEnum}}}">
+                                <ComboBox.Style>
+                                    <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="ComboBox">
                                         <Style.Triggers>
                                             <Trigger Property="IsEnabled" Value="False">
                                                 <Setter Property="Background" Value="LightGray" />
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
-                                </hc:ComboBox.Style>
-                                <hc:ComboBox.ItemTemplate>
+                                </ComboBox.Style>
+                                <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                     </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
@@ -314,8 +311,7 @@
                                                                 </TabItem>
                                                                 <TabItem Header="Plots">
                                                                     <Border Style="{StaticResource BorderRegion}">
-                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                     </Border>
                                                                 </TabItem>
                                                             </TabControl>

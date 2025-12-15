@@ -1,5 +1,5 @@
 using Core.Models.Models.Common.Pattern;
 
-namespace Core.Models.Models.Common.Status.Behaviours;
+namespace Core.Models.Models.Common.Status.Behaviors;
 
 public class ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior : CalibrationStatusListBoxSelectedItemBehavior<ProductivityInformationCalibrationStatus, ProductivityInformation>;

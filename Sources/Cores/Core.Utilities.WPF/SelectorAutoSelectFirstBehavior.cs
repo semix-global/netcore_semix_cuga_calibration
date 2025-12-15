@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
 using System.Windows;
@@ -15,7 +16,7 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
         AssociatedObject.Loaded -= OnTabControlLoaded;
         AssociatedObject.Loaded += OnTabControlLoaded;
 
-        var itemsSourceDescriptor = System.ComponentModel.DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(TabControl));
+        var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(Selector));
         GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
@@ -24,7 +25,8 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
         base.OnDetaching();
 
         AssociatedObject.Loaded -= OnTabControlLoaded;
-        var itemsSourceDescriptor = System.ComponentModel.DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(TabControl));
+
+        var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(Selector));
         GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 

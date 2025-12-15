@@ -684,7 +684,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                         ResultMicroscopeCalChipDto.CurrentItem.DarkFieldFilePath = $"{ImageFileDirectory}\\Verify_({calChipSiteModelEnum.ToDescriptionOrString()})_Guid({HtmlLogUniqueId}).jpg";
                         darkFieldImageDto.Image.Save(ResultMicroscopeCalChipDto.CurrentItem.DarkFieldFilePath);
 
-                        ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image.ScaleImageTo8Bit());
+                        ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
                         Logger.LogHtmlInformation("RTFC Review", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                         {

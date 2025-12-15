@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
@@ -24,7 +23,6 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -694,9 +692,8 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         }
 
         laserPixelSizeItemDto.FilePath = $"{laserPixelSizeItemDto.OriginFilePath}{(algoRet ? string.Empty : "\\Error")}\\PmtId({laserPixelSizeItemDto.PmtId})_YPixelSize({laserPixelSizeItemDto.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg";
-        laserPixelSizeItemDto.OriginFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(laserPixelSizeItemDto.FilePath);
+        laserPixelSizeItemDto.OriginFilePath = darkFieldImageDto.RawImageFilePath;
 
-        FileHelper.Save(darkFieldImageDto.Bytes, laserPixelSizeItemDto.OriginFilePath);
         darkFieldImageDto.Image.Save(laserPixelSizeItemDto.FilePath);
 
         Logger.LogHtmlInformation($"Get Y Pixel Size Success:PMT ID {laserPixelSizeItemDto.PmtId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -707,6 +704,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             laserPixelSizeItemDto.ProductivityInformation,
             laserPixelSizeItemDto.FindPosition,
             laserPixelSizeItemDto.YPixelSize,
+            laserPixelSizeItemDto.OriginFilePath,
             HtmlTab = new HtmlTab(new
             {
                 Image = new HtmlImage(laserPixelSizeItemDto.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])

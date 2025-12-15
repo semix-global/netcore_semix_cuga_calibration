@@ -86,6 +86,12 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     private StageViewModel _stageViewModel = HostApplication.GetRequiredService<StageViewModel>();
 
     [ObservableProperty]
+    private FourierViewModel _fourierViewModel = HostApplication.GetRequiredService<FourierViewModel>();
+
+    [ObservableProperty]
+    private OpticsViewModel _opticsViewModel = HostApplication.GetRequiredService<OpticsViewModel>();
+
+    [ObservableProperty]
     private ConfigViewModel _configureViewModel = HostApplication.GetRequiredService<ConfigViewModel>();
 
     [ObservableProperty]
