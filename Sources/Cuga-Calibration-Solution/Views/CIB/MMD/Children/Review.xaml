@@ -221,7 +221,6 @@
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                     <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
                                     <Setter Property="FontWeight" Value="Bold" />
                                 </DataTrigger>

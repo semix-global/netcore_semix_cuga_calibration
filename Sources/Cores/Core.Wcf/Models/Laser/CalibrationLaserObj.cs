@@ -564,7 +564,7 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
     /// <summary>
-    /// 斜率(mm/ECS), **Cuga内部使用**
+    /// 斜率(ECS/mm), **Cuga内部使用**
     /// </summary>
     public double Slope { get; set; }
 

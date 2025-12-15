@@ -36,6 +36,9 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     private IReadOnlyList<Point> _fitRelayPoints = [];
 
     [ObservableProperty]
+    private double _relayMotorRatio;
+
+    [ObservableProperty]
     private double _minRelayMotorAbsoluteValue;
 
     [ObservableProperty]
@@ -81,6 +84,8 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
 
     partial void OnFitRelayPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
+    partial void OnRelayMotorRatioChanged(double value) => RefreshPlot();
+
     // ReSharper restore UnusedParameterInPartialMethod
 
     public OpticsRelayDTO()
@@ -88,7 +93,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         ScatterPlotControl.Configure(new Columns(), 2);
 
         ScatterPlotControl.SetTitle(0, "Quality(Y: Quality - X: ECS)");
-        ScatterPlotControl.SetTitle(1, "Relay(Y: mm - X: ECS)");
+        ScatterPlotControl.SetTitle(1, "Relay(Y: ECS - X: mm)");
     }
 
     private void RefreshPlot()
@@ -126,7 +131,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         if (FitRelayPoints.Count > 0)
             ScatterPlotControl.GetOrAddScatterLine(
                 1,
-                $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######})",
+                $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}), Ratio = {RelayMotorRatio:0.###}",
                 FitRelayPoints,
                 Constants.Category10.GetColor(1));
 
@@ -143,6 +148,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         Intercept = Intercept,
         RSquared = RSquared,
         FitRelayPoints = [.. FitRelayPoints],
+        RelayMotorRatio = RelayMotorRatio,
         MinRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
         MaxRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,

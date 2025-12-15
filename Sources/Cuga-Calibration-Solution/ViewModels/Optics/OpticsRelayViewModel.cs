@@ -297,7 +297,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             var nmPerEcs = AfViewModel.GetNmPerEcs();
             var detectImageDirectory = ImageFileDirectory;
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
-            var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* 1mm */
+            var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* mm */
                                * 1e6d /* mm 转为 nm*/
                                * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
                                / nmPerEcs; /* 转为 ECS */
@@ -338,6 +338,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             CalibratingItem.Slope = 0d;
             CalibratingItem.Intercept = 0d;
             CalibratingItem.RSquared = 0d;
+            CalibratingItem.RelayMotorRatio = 0d;
             CalibratingItem.FitRelayPoints = [];
             CalibratingItem.MinRelayMotorAbsoluteValue = 0d;
             CalibratingItem.MaxRelayMotorAbsoluteValue = 0d;
@@ -385,6 +386,12 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         CalibratingItem.Intercept = intercept;
                         CalibratingItem.RSquared = rSquared;
                         CalibratingItem.FitRelayPoints = [.. CalibratingItem.Items.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
+                        CalibratingItem.RelayMotorRatio = 1 / (
+                            CalibratingItem.Slope /* ECS/mm */
+                            * nmPerEcs /* 分子 ECS 转为 nm */
+                            / 1e6d /* 分母mm 转为 nm */
+                            / Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为照明方向移动的距离 */
+                        );
                     }
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -452,6 +459,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     CalibratingItem.Slope,
                     CalibratingItem.Intercept,
                     CalibratingItem.RSquared,
+                    CalibratingItem.RelayMotorRatio,
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -494,11 +502,14 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
                 selectedReviewItem.IsCalibrated = selectedReviewItem.RSquared >= Cache.Threshold;
-                if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
+                selectedReviewItem.IsVerified = selectedReviewItem.IsCalibrated;
 
                 var htmlBullet = new HtmlBullet(new
                 {
+                    selectedReviewItem.Slope,
+                    selectedReviewItem.Intercept,
                     selectedReviewItem.RSquared,
+                    selectedReviewItem.RelayMotorRatio,
                     selectedReviewItem.IsVerified,
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
