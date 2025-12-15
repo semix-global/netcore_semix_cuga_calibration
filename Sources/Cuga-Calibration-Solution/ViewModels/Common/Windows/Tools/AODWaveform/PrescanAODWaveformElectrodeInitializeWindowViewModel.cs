@@ -1,0 +1,159 @@
+using CommunityToolkit.Diagnostics;
+using Core.Models.Models.Common.AODWaveform;
+using Local.NoSQL.DB.Providers.Extensions;
+using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Attributes;
+using Net.Utilities.Enums;
+using Net.Utilities.Models;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
+
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+
+[IOCAppService(ServiceType = typeof(PrescanAODWaveformElectrodeInitializeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed class PrescanAODWaveformElectrodeInitializeWindowViewModel :
+    AbstractAODWaveformElectrodeInitializeWindowViewModel<PrescanAODWaveformElectrodeInitializeCache, PrescanAODWaveformElectrodeInitializeItem, PrescanAODWaveformElectrodeInitializeResult>
+{
+    public override string Name => "Prescan AOD Waveform Electrode Offset";
+
+    protected override async Task LoadedAsync()
+    {
+        await Task.Run(() =>
+        {
+            Cache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeInitializeCache>();
+            var prescanAODWaveformElectrodeOffsetCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+
+            Cache.ElectrodeConfigurationResults = prescanAODWaveformElectrodeOffsetCache.ElectrodeConfigurationResults;
+        });
+    }
+
+    protected override void GenerateFlatnessAODWaveform(PrescanAODWaveformElectrodeInitializeItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    {
+        item.ChirpAODWaveformProfiles = [];
+        item.ChirpAODWaveformResultFilePath = string.Empty;
+
+        Cache.FlatnessGenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+        Cache.FlatnessGenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        Cache.FlatnessGenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
+        Cache.FlatnessGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+
+        var (chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.FlatnessGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        if (chirpAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+        item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
+        item.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
+
+        item.PrescanAODWaveformProfiles = [];
+        item.PrescanAODWaveformResultFilePath = string.Empty;
+
+        Cache.FlatnessGeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+        Cache.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        Cache.FlatnessGeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
+        Cache.FlatnessGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+        Cache.FlatnessGeneratePrescanAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
+
+        (var prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.FlatnessGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        if (prescanAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+        item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
+        item.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
+
+        if (htmlLogUniqueId == Guid.Empty) return;
+
+        Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            FlatnessGenerateChirpAODWaveformParam = new HtmlQuote(Cache.FlatnessGenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
+            item.ChirpAODWaveformResultFilePath,
+            ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+            FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+            item.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+        }), htmlLogUniqueId.LoggingHtml());
+    }
+
+    protected override void GenerateScanAODWaveform(PrescanAODWaveformElectrodeInitializeItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    {
+        item.ChirpAODWaveformProfiles = [];
+        item.ChirpAODWaveformResultFilePath = string.Empty;
+
+        Cache.ScanGenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+        Cache.ScanGenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        Cache.ScanGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+
+        var (chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.ScanGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        if (chirpAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+        item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
+        item.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
+
+        item.PrescanAODWaveformProfiles = [];
+        item.PrescanAODWaveformResultFilePath = string.Empty;
+
+        Cache.ScanGeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+        Cache.ScanGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        Cache.ScanGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+        Cache.ScanGeneratePrescanAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
+
+        (var prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.ScanGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        if (prescanAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+        item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
+        item.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
+
+        if (htmlLogUniqueId == Guid.Empty) return;
+
+        Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            ScanGenerateChirpAODWaveformParam = new HtmlQuote(Cache.ScanGenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+            item.ChirpAODWaveformResultFilePath,
+            ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+            ScanGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.ScanGeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+            item.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), htmlLogUniqueId.LoggingHtml());
+    }
+
+    protected override void SetAODWaveformProfiles(PrescanAODWaveformElectrodeInitializeItem item, Guid htmlLogUniqueId)
+    {
+        LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
+    }
+
+    protected override void GenerateResultAODWaveform(PrescanAODWaveformElectrodeInitializeResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    {
+        result.PrescanAODWaveformProfiles = [];
+        result.PrescanAODWaveformResultFilePath = string.Empty;
+
+        result.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
+        result.GeneratePrescanAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
+
+        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(result.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+
+        result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
+        result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
+
+        if (htmlLogUniqueId == Guid.Empty) return;
+
+        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum}-{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+            result.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), htmlLogUniqueId.LoggingHtml());
+    }
+
+    protected override void SetResultAODWaveformConfiguration(PrescanAODWaveformElectrodeInitializeResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    {
+        ConfigViewModel.SetPrescanAODWaveformConfiguration(Cache.OpticsIlluminationModeEnum, result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
+
+        if (htmlLogUniqueId == Guid.Empty) return;
+
+        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum}-{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+            result.PrescanAODWaveformResultFilePath,
+            PrescanAODWaveformProfiles = new HtmlTable([.. result.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+        }), htmlLogUniqueId.LoggingHtml());
+    }
+}
