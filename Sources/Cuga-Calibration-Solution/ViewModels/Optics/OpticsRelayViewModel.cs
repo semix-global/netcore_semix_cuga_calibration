@@ -163,7 +163,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
         ];
 
-        return Reviews.Any(t => t.IsCalibrated);
+        return Reviews.Count > 0;
     }
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)

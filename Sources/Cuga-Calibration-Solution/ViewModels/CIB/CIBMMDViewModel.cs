@@ -184,7 +184,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 .OrderBy(t => t.CIBInformation)
         ];
 
-        return Reviews.Any(t => t.IsCalibrated);
+        return Reviews.Count > 0;
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)

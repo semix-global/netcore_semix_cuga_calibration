@@ -54,29 +54,25 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="200"
-                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                     Style="{StaticResource ComboBoxExtend}"
-                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
-                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="200"
-                                     IsEditable="True"
-                                     IsReadOnly="True"
-                                     SelectedItem="{Binding Cache.ProductivityInformation}"
-                                     Style="{StaticResource ComboBoxExtend}">
+                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="200"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="200"
+                                  Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
-                            <hc:ComboBox.ItemsSource>
+                            <ComboBox.ItemsSource>
                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                     <Binding Path="ApplicationCookie" />
                                     <Binding Path="Cache.OpticsIlluminationModeEnum" />
                                 </MultiBinding>
-                            </hc:ComboBox.ItemsSource>
-                        </hc:ComboBox>
+                            </ComboBox.ItemsSource>
+                        </ComboBox>
                         <Expander Header="AF"
                                   IsExpanded="True"
                                   ExpandDirection="Down">
@@ -163,26 +159,26 @@
                                   ExpandDirection="Down">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:ComboBox hc:TitleElement.Title="Log Mode: "
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
-                                                 SelectedItem="{Binding Path=Cache.CIBProfileMode}">
-                                        <hc:ComboBox.Style>
-                                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
+                                    <ComboBox hc:TitleElement.Title="Log Mode: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
+                                              SelectedItem="{Binding Path=Cache.CIBProfileMode}">
+                                        <ComboBox.Style>
+                                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="ComboBox">
                                                 <Style.Triggers>
                                                     <Trigger Property="IsEnabled" Value="False">
                                                         <Setter Property="Background" Value="LightGray" />
                                                     </Trigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </hc:ComboBox.Style>
-                                        <hc:ComboBox.ItemTemplate>
+                                        </ComboBox.Style>
+                                        <ComboBox.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                             </DataTemplate>
-                                        </hc:ComboBox.ItemTemplate>
-                                    </hc:ComboBox>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
                                     <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"

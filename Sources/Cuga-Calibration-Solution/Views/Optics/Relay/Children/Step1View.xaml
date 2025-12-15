@@ -50,20 +50,18 @@
                     <ComboBox hc:TitleElement.Title="Microscope Lens: "
                               hc:TitleElement.TitlePlacement="Left"
                               hc:TitleElement.TitleWidth="190"
-                              SelectedItem="{Binding Cache.MicroscopeLensInformation}"
-                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}"
+                              Style="{StaticResource ComboBoxExtend}"
                               ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:MicroscopeLensInformation.Default}}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                         </i:Interaction.Behaviors>
                     </ComboBox>
                     <ComboBox hc:TitleElement.Title="Productivity Information: "
                               hc:TitleElement.TitlePlacement="Left"
                               hc:TitleElement.TitleWidth="190"
-                              SelectedItem="{Binding Cache.Item.ProductivityInformation}"
-                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}">
+                              Style="{StaticResource ComboBoxExtend}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                         </i:Interaction.Behaviors>
                         <ComboBox.ItemsSource>
                             <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
@@ -75,21 +73,19 @@
                     <ComboBox hc:TitleElement.Title="Laser Light Information: "
                               hc:TitleElement.TitlePlacement="Left"
                               hc:TitleElement.TitleWidth="190"
-                              SelectedItem="{Binding Cache.Item.LaserLightInformation}"
-                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}"
+                              Style="{StaticResource ComboBoxExtend}"
                               ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:LaserLightInformation.Default}}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                         </i:Interaction.Behaviors>
                     </ComboBox>
                     <ComboBox hc:TitleElement.Title="CIB Information: "
                               hc:TitleElement.TitlePlacement="Left"
                               hc:TitleElement.TitleWidth="190"
-                              SelectedItem="{Binding Cache.Item.CIBInformation}"
-                              Style="{StaticResource ComboBoxExtend.ReadOnlyEditable}"
+                              Style="{StaticResource ComboBoxExtend}"
                               ItemsSource="{Binding ApplicationCookie.CIBInformations}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:CIBInformation.Default}}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                         </i:Interaction.Behaviors>
                     </ComboBox>
                     <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
