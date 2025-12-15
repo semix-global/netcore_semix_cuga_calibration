@@ -7,6 +7,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserLineOrientationOffsetCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -18,58 +20,53 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="Laser Line Orientation Offset Step 1: "
-                       Status="{Binding CalibrationStepList[1].StepName}"
+            <hc:Shield Subject="Laser Pixel Size Step 1: "
+                       Status="{Binding CalibrationStepList[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
+            <hc:Shield DockPanel.Dock="Bottom"
+                       Subject="Optics Illumination Mode: "
+                       Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                       Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step0CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step0CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
-                    </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Spacing="10">
+                    <Button Content="Action"
+                            Command="{Binding Step0CalibrateActionCommand}"
+                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
                 </hc:UniformSpacingPanel>
             </Border>
         </hc:UniformSpacingPanel>
+
         <GridSplitter Grid.Column="1" Width="5" />
-        <ItemsControl Grid.Column="2"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      ItemsSource="{Binding CalibrationStatusList}">
+        <ListBox Grid.Column="2"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemsSource="{Binding CalibrationStatuses}"
+                 ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+                 SelectionMode="Single">
             <i:Interaction.Behaviors>
-                <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.OpticsMagTypeEnum, Mode=TwoWay}" />
+                <behaviours:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
             </i:Interaction.Behaviors>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="32" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <RadioButton Content="{Binding .OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                                 FontSize="35"
-                                 Tag="{Binding .OpticsMagTypeEnum}"
-                                 GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
-                        <RadioButton.Style>
-                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
+                    <TextBlock Text="{Binding SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
+                               Margin="100,5"
+                               FontSize="16">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
                                         <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </RadioButton.Style>
-                    </RadioButton>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

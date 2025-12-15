@@ -22,18 +22,14 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Line Centricity Step 6: "
+                <hc:Shield Subject="Laser Line Centricity Step 7: "
                            Status="{Binding CalibrationStepList[6].StepName}"
                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                           Color="{StaticResource InfoBrush}" />
+                           Color="{StaticResource InfoBrush}" />             
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Speed: "
-                           Status="{Binding Cache.StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
+                       Subject="Productivity: "
+                       Status="{Binding Cache.ProductivityInformation}"
+                       Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Position: "
                            Status="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
@@ -109,12 +105,9 @@
                                 <Setter Property="VerticalContentAlignment" Value="Center" />
                             </Style>
                         </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Width="100"
-                                        Header="Optics Mag"
-                                        DisplayMemberBinding="{Binding OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                        <GridViewColumn Width="100"
-                                        Header="Speed"
-                                        DisplayMemberBinding="{Binding StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                        <GridViewColumn Width="200"
+                                        Header="Production"
+                                        DisplayMemberBinding="{Binding ProductivityInformation, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Width="80"
                                         Header="PMT Id"
                                         DisplayMemberBinding="{Binding PmtId}" />

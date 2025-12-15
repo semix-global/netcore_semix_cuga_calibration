@@ -21,17 +21,13 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Laser Line Centricity Step 5: "
+                <hc:Shield Subject="Laser Line Centricity Step 6: "
                            Status="{Binding CalibrationStepList[5].StepName}"
-                           Color="{StaticResource InfoBrush}" />
+                           Color="{StaticResource InfoBrush}" />                
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Mag: "
-                           Status="{Binding Cache.OpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Speed: "
-                           Status="{Binding Cache.StageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
+                       Subject="Productivity: "
+                       Status="{Binding Cache.ProductivityInformation}"
+                       Color="{StaticResource SuccessBrush}" />
                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>

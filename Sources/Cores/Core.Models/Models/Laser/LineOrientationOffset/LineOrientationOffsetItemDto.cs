@@ -14,16 +14,13 @@ namespace Core.Models.Models.Laser.LineOrientationOffset;
 public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, ICloneable<LineOrientationOffsetItemDto>, IAdaptTo<CalibrationLaserLineOrientationOffsetItem>
 {
     [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+
+    [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum;
 
     [ObservableProperty]
     private int _pmtId;
@@ -63,9 +60,8 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
     {
         return new LineOrientationOffsetItemDto
         {
+            ProductivityInformation = ProductivityInformation.Clone(),
             MicroscopeLensInformation = MicroscopeLensInformation,
-            OpticsMagTypeEnum = OpticsMagTypeEnum,
-            StageSpeedEnum = StageSpeedEnum,
             PmtId = PmtId,
             FindPosition = FindPosition,
             StartPosition = StartPosition,
@@ -89,8 +85,6 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
         return new CalibrationLaserLineOrientationOffsetItem
         {
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
-            CgMagTypeEnum = OpticsMagTypeEnum.ToCgMagTypeEnum(),
-            Speed = StageSpeedEnum.ToCgSpeedLevelType(),
             PmtId = PmtId,
             Offset = Offset.ToCgPoint(),
             IsCalibrated = IsCalibrated,

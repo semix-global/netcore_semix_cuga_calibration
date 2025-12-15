@@ -22,7 +22,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Laser Line Orientation Offset Step 3: "
+                <hc:Shield Subject="Laser Line Orientation Offset Step 4: "
                            Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
