@@ -82,11 +82,11 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="{StaticResource PrimaryParamTitleString}">
+                            <GridViewColumn Header="AOD Waveform Profiles">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeInitializeItem}">
                                         <Grid>
-                                            <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                            <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
                                                           Content="Profiles"
                                                           Margin="0,2"
                                                           HorizontalAlignment="Left"
@@ -94,13 +94,20 @@
                                             <Popup Width="800"
                                                    Height="800"
                                                    StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonAODWaveformProfiles}"
                                                    Placement="Right"
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                    <TabControl>
+                                                        <TabItem Header="Prescan AOD Waveform">
+                                                            <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                        <TabItem Header="Chirp AOD Waveform">
+                                                            <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                    </TabControl>
                                                 </Border>
                                             </Popup>
                                         </Grid>
@@ -184,29 +191,26 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
-                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     IsEditable="True"
-                                                     IsReadOnly="True"
-                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
-                                                     Style="{StaticResource ComboBoxExtend}">
+                                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
-                                            <hc:ComboBox.ItemsSource>
+                                            <ComboBox.ItemsSource>
                                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                                     <Binding Path="ApplicationCookie" />
                                                     <Binding Path="Cache.OpticsIlluminationModeEnum" />
                                                 </MultiBinding>
-                                            </hc:ComboBox.ItemsSource>
-                                        </hc:ComboBox>
+                                            </ComboBox.ItemsSource>
+                                        </ComboBox>
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude(AMP): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"
@@ -262,7 +266,7 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <Expander Header="Prescan AOD Waveform"
+                                    <Expander Header="Scan Prescan AOD Waveform"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
@@ -271,12 +275,11 @@
                                                                                                     IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
-                                                                                                    IsVisibleUniformityConfiguration="False"
-                                                                                                    DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                                                                                    DataContext="{Binding Cache.ScanGeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <Expander Header="Chirp AOD Waveform"
+                                    <Expander Header="Scan Chirp AOD Waveform"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
@@ -287,7 +290,7 @@
                                                                                                   IsVisibleDirectoryPath="False"
                                                                                                   IsVisibleElectrodeConfiguration="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
-                                                                                                  DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                                                                                  DataContext="{Binding Cache.ScanGenerateChirpAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -351,7 +354,7 @@
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
-                                    <Expander Header="Electrode3 Offset Params"
+                                    <Expander Header="Electrode3 Offset Frequency Period Params"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
@@ -362,26 +365,21 @@
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.InterpolationCount}" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Electrode3"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start Offset Period(2pi): "
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartElectrode3OffsetFrequencyPeriodCoefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step Offset Period(2pi): "
+                                                                  Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepElectrode3OffsetFrequencyPeriodCoefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop Offset Period(2pi): "
+                                                                  Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopElectrode3OffsetFrequencyPeriodCoefficient}" />
+                                                                  Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -421,11 +419,11 @@
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
-                                                            Command="{Binding AddResultCommand}"
+                                                            Command="{Binding Cache.AddResultCommand}"
                                                             hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                             Style="{StaticResource ButtonInfo}" />
                                                     <Button Content="Delete"
-                                                            Command="{Binding RemoveResultCommand}"
+                                                            Command="{Binding Cache.RemoveResultsCommand}"
                                                             CommandParameter="{Binding SelectedItems, ElementName=ResultTabControl}"
                                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                             Style="{StaticResource ButtonDanger}" />
@@ -525,7 +523,7 @@
                                             </DataGrid>
                                         </Border>
                                     </Expander>
-                                    <hc:Divider Content="Step 1 Electrode2 Electrode4" Margin="0" />
+                                    <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step0Command}"
@@ -536,8 +534,8 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
-                                                    <Binding Path="Step2Command.IsRunning" />
-                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="StepSecondLastCommand.IsRunning" />
+                                                    <Binding Path="StepFirstLastCommand.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
@@ -547,7 +545,7 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="Step 2 Electrode3" Margin="0" />
+                                    <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step1Command}"
@@ -558,8 +556,8 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
-                                                    <Binding Path="Step2Command.IsRunning" />
-                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="StepSecondLastCommand.IsRunning" />
+                                                    <Binding Path="StepFirstLastCommand.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
@@ -569,10 +567,10 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="Step 3 Generate AOD Waveform" Margin="0" />
+                                    <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
-                                                Command="{Binding Step2Command}"
+                                                Command="{Binding StepSecondLastCommand}"
                                                 CommandParameter="{x:Static models:Constants.True}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
@@ -580,21 +578,21 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
-                                                    <Binding Path="Step2Command.IsRunning" />
-                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="StepSecondLastCommand.IsRunning" />
+                                                    <Binding Path="StepFirstLastCommand.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
                                         <Button Content="Cancel"
-                                                Command="{Binding Step2CancelCommand}"
+                                                Command="{Binding StepSecondLastCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="Step 4 Set AOD Waveform Config" Margin="0" />
+                                    <hc:Divider Content="{Binding Steps[3]}" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
-                                                Command="{Binding Step3Command}"
+                                                Command="{Binding StepFirstLastCommand}"
                                                 CommandParameter="{x:Static models:Constants.True}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
@@ -602,14 +600,14 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
-                                                    <Binding Path="Step2Command.IsRunning" />
-                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="StepSecondLastCommand.IsRunning" />
+                                                    <Binding Path="StepFirstLastCommand.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
                                         <Button Content="Cancel"
-                                                Command="{Binding Step3CancelCommand}"
+                                                Command="{Binding StepFirstLastCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -623,8 +621,8 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
-                                                    <Binding Path="Step2Command.IsRunning" />
-                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="StepSecondLastCommand.IsRunning" />
+                                                    <Binding Path="StepFirstLastCommand.IsRunning" />
                                                     <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
@@ -634,23 +632,6 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                                  Content="{StaticResource SecondaryParamTitleString}"
-                                                  Margin="0,5"
-                                                  HorizontalAlignment="Left"
-                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                    <Popup Width="800"
-                                           Height="800"
-                                           StaysOpen="False"
-                                           PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
-                                           Placement="Right"
-                                           AllowsTransparency="True"
-                                           PopupAnimation="Slide"
-                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
-                                        </Border>
-                                    </Popup>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -662,12 +643,12 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
-                    <TabItem Header="Step1 Offset">
+                    <TabItem Header="Step1 Plots">
                         <Border Style="{StaticResource BorderRegion}">
                             <ContentControl Grid.Row="1" Content="{Binding Cache.Step0.ScatterPlotControl, Mode=OneWay}" />
                         </Border>
                     </TabItem>
-                    <TabItem Header="Step1 Offset Details">
+                    <TabItem Header="Step1 Details">
                         <Border Style="{StaticResource BorderRegion}">
                             <TabControl Grid.Row="1" ItemsSource="{Binding Cache.Step0.Items}">
                                 <TabControl.ItemTemplate>
@@ -683,7 +664,7 @@
                             </TabControl>
                         </Border>
                     </TabItem>
-                    <TabItem Header="Step2 Offset">
+                    <TabItem Header="Step2 Plots">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -711,7 +692,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step2 Offset Details">
+                    <TabItem Header="Step2 Details">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -750,7 +731,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step 3 Result">
+                    <TabItem Header="Step3 Plots">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
@@ -763,7 +744,6 @@
                                         <Border Height="800" Style="{StaticResource BorderRegion}">
                                             <Grid>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="*" />
@@ -779,36 +759,21 @@
                                                     </TextBlock.Text>
                                                 </TextBlock>
                                                 <UniformGrid Grid.Row="1"
-                                                             Margin="2"
+                                                             Margin="0,2"
                                                              HorizontalAlignment="Center"
                                                              Rows="1"
                                                              Columns="2">
-                                                    <Button Content="Set Profiles"
-                                                            Command="{Binding DataContext.SetResultAODWaveformProfilesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    <Button Content="Test Set Config"
+                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
                                                             Margin="2"
                                                             Style="{StaticResource ButtonInfo.Loading}" />
                                                     <Button Content="Cancel"
-                                                            Command="{Binding DataContext.SetResultAODWaveformProfilesCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             Margin="2"
                                                             Style="{StaticResource ButtonWarning}" />
                                                 </UniformGrid>
-                                                <UniformGrid Grid.Row="2"
-                                                             Margin="0,0,0,2"
-                                                             HorizontalAlignment="Center"
-                                                             Rows="1"
-                                                             Columns="2">
-                                                    <Button Content="Set Config"
-                                                            Command="{Binding DataContext.SetResultAODWaveformConfigCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Margin="2"
-                                                            Style="{StaticResource ButtonInfo.Loading}" />
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding DataContext.SetResultAODWaveformConfigCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            Margin="2"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </UniformGrid>
-                                                <Border Grid.Row="3"
+                                                <Border Grid.Row="2"
                                                         Style="{StaticResource BorderRegion}"
                                                         Effect="{StaticResource EffectShadow1}">
                                                     <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />

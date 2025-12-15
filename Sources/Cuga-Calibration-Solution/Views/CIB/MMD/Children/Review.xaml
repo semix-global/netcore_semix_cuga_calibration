@@ -210,7 +210,7 @@
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDto}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBMMDDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -221,7 +221,6 @@
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                     <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
                                     <Setter Property="FontWeight" Value="Bold" />
                                 </DataTrigger>
@@ -248,7 +247,7 @@
                             <GridViewColumn Header="LogGain RSquared" DisplayMemberBinding="{Binding LogGainRSquared, StringFormat='0.###'}" />
                             <GridViewColumn Header="Set CIB MMD">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                                    <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
                                         <Grid>
                                             <Button Content="Set"
                                                     Command="{Binding DataContext.SetCIBMMDCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -273,7 +272,7 @@
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
-                            <DataTemplate DataType="{x:Type mmd:CIBMMDDto}">
+                            <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
                                 <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
                             </DataTemplate>
                         </TabControl.ContentTemplate>

@@ -67,7 +67,7 @@ public sealed class CIBInformation :
     {
         formatProvider ??= CultureInfo.CurrentCulture;
 
-        return $"{PMTId.ToString(format, formatProvider)}-{ChannelId.ToString(format, formatProvider)}";
+        return $"{PMTId.ToString(format, formatProvider)}({ChannelId.ToString(format, formatProvider)})";
     }
 
     #endregion IEquatable、IFormattable

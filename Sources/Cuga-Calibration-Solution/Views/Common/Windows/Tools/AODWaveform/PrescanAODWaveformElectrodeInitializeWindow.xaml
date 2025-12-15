@@ -1,0 +1,363 @@
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.PrescanAODWaveformElectrodeInitializeWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
+           xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
+           xmlns:system="clr-namespace:System;assembly=mscorlib"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
+           xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           Width="1500"
+           Height="1000"
+           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeInitializeWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <hc:Window.Resources>
+        <ResourceDictionary>
+            <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
+            <system:String x:Key="PrimaryParamTitleString">Flatness Changed Prescan AOD Waveform</system:String>
+            <system:String x:Key="SecondaryParamTitleString">Flatness Fixed Chirp AOD Waveform</system:String>
+            <system:String x:Key="ResultParamTitleString">Flatness Result Prescan AOD Waveform</system:String>
+            <Style x:Key="FrequencyItemsListViewStyle"
+                   x:Shared="False"
+                   TargetType="ListView"
+                   BasedOn="{StaticResource ListView.Small}">
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle.Small}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="View">
+                    <Setter.Value>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Header="Frequency(MHz)">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeInitializeItem}">
+                                        <TextBlock Text="{Binding Frequency, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Period(2pi)">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeInitializeItem}">
+                                        <TextBlock Text="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Measure Power(mW)">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeInitializeItem}">
+                                        <TextBlock Text="{Binding MeasurePower, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="AOD Waveform Profiles">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeInitializeItem}">
+                                        <Grid>
+                                            <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
+                                                          Content="Profiles"
+                                                          Margin="0,2"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonAODWaveformProfiles}"
+                                                   Placement="Right"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Slide"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
+                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                    <TabControl>
+                                                        <TabItem Header="Chirp AOD Waveform">
+                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                        <TabItem Header="Prescan AOD Waveform">
+                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                    </TabControl>
+                                                </Border>
+                                            </Popup>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </hc:Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0"
+                Margin="5"
+                Style="{StaticResource BorderRegion}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{StaticResource SecondaryParamTitleString}"
+                           Style="{StaticResource TextBlockTitle}" />
+                <Button Grid.Column="1"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveCommand}"
+                        Content="保存(Save)" />
+                <Button Grid.Column="2"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding LoadedCommand}"
+                        Content="加载(Load)" />
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1" Margin="5">
+            <Border Width="500"
+                    Style="{StaticResource BorderRegion}"
+                    Effect="{StaticResource EffectShadow1}">
+                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                 IsInertiaEnabled="True"
+                                 VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                        <GroupBox Header="AOD Waveform Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="{StaticResource PrimaryParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                                     IsVisibleProductivityInformation="False"
+                                                                                                     IsVisibleFrequency="False"
+                                                                                                     IsVisibleAmplitude="False"
+                                                                                                     IsVisibleDirectoryPath="False"
+                                                                                                     IsVisibleUniformityConfiguration="False"
+                                                                                                     IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                                     IsVisibleCompensation="False"
+                                                                                                     DataContext="{Binding Cache.FlatnessGeneratePrescanAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="{StaticResource SecondaryParamTitleString}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:UniformSpacingPanel Margin="11,0"
+                                                                        Orientation="Vertical"
+                                                                        Spacing="2">
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Chirp Frequency(MHz): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.ChirpFrequency}" />
+                                                </hc:UniformSpacingPanel>
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                                  IsVisibleProductivityInformation="False"
+                                                                                                  IsVisibleFrequency="False"
+                                                                                                  IsVisibleAmplitude="False"
+                                                                                                  IsVisibleDirectoryPath="False"
+                                                                                                  IsVisibleElectrodeConfiguration="False"
+                                                                                                  IsVisibleUniformityConfiguration="False"
+                                                                                                  IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                                  IsVisibleCompensation="False"
+                                                                                                  DataContext="{Binding Cache.FlatnessGenerateChirpAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="Scan Chirp AOD Waveform"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                                  IsVisibleProductivityInformation="False"
+                                                                                                  IsVisibleAmplitude="False"
+                                                                                                  IsVisibleDirectoryPath="False"
+                                                                                                  IsVisibleElectrodeConfiguration="False"
+                                                                                                  DataContext="{Binding Cache.ScanGenerateChirpAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="Scan Prescan AOD Waveform"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                                    IsVisibleProductivityInformation="False"
+                                                                                                    IsVisibleAmplitude="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    DataContext="{Binding Cache.ScanGeneratePrescanAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <Expander Header="{StaticResource ResultParamTitleString}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <ListBox x:Name="ResultTabControl"
+                                                         SelectionMode="Extended"
+                                                         ItemsSource="{Binding Cache.Results}">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeInitializeResult}">
+                                                            <Border Height="360"
+                                                                    Margin="0,2"
+                                                                    Style="{StaticResource BorderRegion}">
+                                                                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                                                                 IsInertiaEnabled="True"
+                                                                                 VerticalScrollBarVisibility="Auto">
+                                                                    <Grid>
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition Height="Auto" />
+                                                                            <RowDefinition Height="*" />
+                                                                        </Grid.RowDefinitions>
+                                                                        <TextBlock Text="{Binding ResultFileName}" />
+                                                                        <paramUI:GeneratePrescanAODWaveformParamUserControl Grid.Row="2"
+                                                                                                                            IsVisibleDirectoryPath="False"
+                                                                                                                            IsVisibleUniformityConfiguration="False"
+                                                                                                                            DataContext="{Binding GeneratePrescanAODWaveformParam}" />
+                                                                    </Grid>
+                                                                </hc:ScrollViewer>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                    </hc:UniformSpacingPanel>
+                </hc:ScrollViewer>
+            </Border>
+            <GroupBox Grid.Column="2"
+                      Padding="5"
+                      Header="History">
+                <TabControl>
+                    <TabItem Header="Step2 Details">
+                        <hc:ScrollViewer>
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="400" Style="{StaticResource BorderRegion}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{Binding ResultFileName}" />
+                                                <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
+                                                    <TabControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:PrescanAODWaveformElectrodeInitializeConvert}}" />
+                                                        </DataTemplate>
+                                                    </TabControl.ItemTemplate>
+                                                    <TabControl.ContentTemplate>
+                                                        <DataTemplate>
+                                                            <Border Style="{StaticResource BorderRegion}">
+                                                                <hc:ScrollViewer>
+                                                                    <ItemsControl ItemsSource="{Binding WaveformItems}">
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <Border Height="300" Style="{StaticResource BorderRegion}">
+                                                                                    <Grid>
+                                                                                        <Grid.RowDefinitions>
+                                                                                            <RowDefinition Height="Auto" />
+                                                                                            <RowDefinition Height="*" />
+                                                                                        </Grid.RowDefinitions>
+                                                                                        <TextBlock Text="{Binding WaveformFileName}" />
+                                                                                        <profileUI:PrescanAODWaveformProfilesUserControl Grid.Row="1" DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                                                    </Grid>
+                                                                                </Border>
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                    </ItemsControl>
+                                                                </hc:ScrollViewer>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </TabControl.ContentTemplate>
+                                                </TabControl>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Step3 Plots">
+                        <hc:ScrollViewer>
+                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Height="800" Style="{StaticResource BorderRegion}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="{Binding ResultFileName}" />
+                                                <Border Grid.Row="2"
+                                                        Style="{StaticResource BorderRegion}"
+                                                        Effect="{StaticResource EffectShadow1}">
+                                                    <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </hc:ScrollViewer>
+                    </TabItem>
+                </TabControl>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</hc:Window>

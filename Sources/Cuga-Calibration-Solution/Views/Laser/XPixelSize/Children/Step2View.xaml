@@ -6,7 +6,9 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
-             xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -38,31 +40,34 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.MicroscopeLensInformation}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
-                    <hc:ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.Item.LaserLightInformation}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
+                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              Style="{StaticResource ComboBoxExtend}"
+                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                        <i:Interaction.Behaviors>
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                        </i:Interaction.Behaviors>
+                    </ComboBox>
+                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              Style="{StaticResource ComboBoxExtend}"
+                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                        <i:Interaction.Behaviors>
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                        </i:Interaction.Behaviors>
+                    </ComboBox>
+                    <ComboBox hc:TitleElement.Title="CIB Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="190"
+                              Style="{StaticResource ComboBoxExtend}"
+                              ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                        <i:Interaction.Behaviors>
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                        </i:Interaction.Behaviors>
+                    </ComboBox>
                     <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
-                    <hc:ComboBox hc:TitleElement.Title="PMT Id: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.Item.PMTId}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}" />
-                    <hc:ComboBox hc:TitleElement.Title="Channel Id: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 SelectedItem="{Binding Cache.Item.ChannelId}"
-                                 Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

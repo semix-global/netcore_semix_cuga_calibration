@@ -1,19 +1,15 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
-using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities;
-using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
-using Net.Utilities.Models.Enums.Maths;
-using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
@@ -25,56 +21,13 @@ using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformCommonCache : ObservableCacheBase
-{
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-
-    [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _flatnessGeneratePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
-
-    [ObservableProperty]
-    private GenerateChirpAODWaveformParam _flatnessGenerateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
-
-    [ObservableProperty]
-    private double _defaultAmplitude = 1;
-
-    [ObservableProperty]
-    private Point _measureMaxPowerMachinePosition = Point.Origin;
-
-    [ObservableProperty]
-    private double _waitTime = 15;
-
-    public virtual object ToHtmlAnonymous() => new
-    {
-        OpticsIlluminationModeEnum,
-        ProductivityInformation,
-        DefaultAmplitude,
-        MeasureMaxPowerMachinePosition,
-        WaitTime
-    };
-}
-
-public partial class AODWaveformCommonItem : ObservableObject
-{
-    [ObservableProperty]
-    private double _measurePower;
-
-    public virtual object ToHtmlAnonymous() => new
-    {
-        MeasurePower
-    };
-}
-
-public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, TItem> : ViewModelBase
-    where TCache : AODWaveformCommonCache, new()
+public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult> : ViewModelBase
+    where TCache : AODWaveformCommonCache<TResult>, new()
     where TItem : AODWaveformCommonItem, new()
+    where TResult : AODWaveformCommonResult, new()
 {
+    protected readonly ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>> Logger;
     protected readonly ApplicationSetting ApplicationSetting;
-    protected readonly ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem>> Logger;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IWindowManagerService WindowManagerService;
     protected readonly IDialogWindowProvider DialogWindowProvider;
@@ -82,46 +35,54 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly StageViewModel StageViewModel;
     protected readonly ConfigViewModel ConfigViewModel;
 
-    public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public string AODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "CSV", $"{GetType().Name}.CSV");
+    public string ResultAODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", "CSV", $"{GetType().Name}.CSV");
 
-    public string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", nameof(AODWaveform), GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public ApplicationCookie ApplicationCookie => HostApplication.GetRequiredService<ApplicationCookie>();
+    public ApplicationCookie ApplicationCookie { get; }
 
     [ObservableProperty]
     private TCache _cache = new();
 
-    protected Guid HtmlLogUniqueId { get; private set; }
-
     public abstract string Name { get; }
 
-    protected abstract void GenerateFlatnessFixedAODWaveform(CancellationToken cancellationToken);
+    public abstract IReadOnlyList<string> Steps { get; }
 
-    protected abstract void GenerateFlatnessChangedAODWaveform(TItem item, CancellationToken cancellationToken);
+    protected abstract void GenerateFlatnessAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
-    protected abstract void SetAODWaveformProfiles(TItem item);
+    protected abstract void GenerateScanAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
-    protected abstract void LoggerResult(int stepIndex);
+    protected abstract void SetAODWaveformProfiles(TItem item, Guid htmlLogUniqueId);
+
+    protected abstract void GenerateResultAODWaveform(TResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken);
+
+    protected abstract void SetResultAODWaveformConfiguration(TResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
     protected AbstractAODWaveformCommonWindowViewModel()
     {
+        Logger = (ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
-        Logger = (ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
         StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
         ConfigViewModel = HostApplication.GetRequiredService<ConfigViewModel>();
+
+        ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
     }
+
+    [RelayCommand]
+    protected virtual async Task LoadedAsync() => await Task.Run(() => Cache = CacheProvider.GetOrDefault<TCache>());
 
     [RelayCommand]
     private void RefreshMeasureMachinePosition()
     {
         if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerMeterDto>(out var laserOpticalPowerDtos))
         {
+            // todo: 改了之后记得这儿也得改
             var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
             if (laserOpticalPowerDto is not null && laserOpticalPowerDto.IsOk)
             {
@@ -132,6 +93,74 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         }
 
         DialogWindowProvider.ShowDialog($"Please Calibrate {Cache.ProductivityInformation} Laser Optical Power First", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TestSetResultAODWaveformConfigurationAsync(TResult result, CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                SetResultAODWaveformConfiguration(result, Guid.Empty, cancellationToken);
+
+                DialogWindowProvider.ShowDialog($"{Name}: Set AOD Waveform Configuration Success");
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
+                DialogWindowProvider.ShowDialog($"""
+                                                 {Name}: Set AOD Waveform Configuration Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, "Set AOD Waveform Configuration");
+            }
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> StepSecondLastAsync(bool isNotSilent, CancellationToken cancellationToken)
+    {
+        var htmlLogUniqueId = Guid.NewGuid();
+
+        return await InvokeAsync(Steps.Count - 2, htmlLogUniqueId, () =>
+        {
+            Guard.IsNotEmpty(Cache.Results);
+
+            foreach (var result in Cache.Results)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                GenerateResultAODWaveform(result, htmlLogUniqueId, cancellationToken);
+            }
+
+            return Task.FromResult(true);
+        }, isNotSilent).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> StepFirstLastAsync(bool isNotSilent, CancellationToken cancellationToken)
+    {
+        var htmlLogUniqueId = Guid.NewGuid();
+
+        return await InvokeAsync(Steps.Count - 1, htmlLogUniqueId, () =>
+        {
+            Guard.IsNotEmpty(Cache.Results);
+
+            foreach (var result in Cache.Results)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                SetResultAODWaveformConfiguration(result, htmlLogUniqueId, cancellationToken);
+            }
+
+            return Task.FromResult(true);
+        }, isNotSilent).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -151,60 +180,66 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         CloseView(null);
     }
 
-    protected async Task<bool> InvokeAsync(int stepIndex, string stepName, Func<Task<bool>> func, bool isShowDialog)
+    protected async Task<bool> InvokeAsync(
+        int stepIndex,
+        Guid htmlLogUniqueId,
+        Func<Task<bool>> func,
+        bool isNotSilent)
     {
         return await Task.Run(async () =>
         {
-            HtmlLogUniqueId = Guid.NewGuid();
+            var isInitHtmlLog = isNotSilent || stepIndex == 0;
+            var isEndHtml = isNotSilent || stepIndex == Steps.Count - 1;
 
-            Logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            if (isInitHtmlLog) Logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             try
             {
                 isSuccess = await func().ConfigureAwait(false);
-                LoggerResult(stepIndex);
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    DialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     return false;
                 }
 
                 DialogWindowProvider.ShowDialog($"""
-                                                 {Name}: {stepName} Failed
+                                                 {Name}: {Steps[stepIndex]} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
             }
             finally
             {
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(isSuccess ? "OK" : "Failed")}"));
+                if (isEndHtml) Logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name}_{Steps[stepIndex]}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                if (isShowDialog) DialogWindowProvider.ShowDialog($"{Name}: {stepName} Success");
+                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Success");
             }
             else
-                DialogWindowProvider.ShowDialog($"{Name}: {stepName} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
             return isSuccess;
         }).ConfigureAwait(false);
     }
 
-    protected async Task UpdateMeasurePowerAsync(TItem item, CancellationToken cancellationToken)
+    protected async Task UpdateMeasurePowerAsync(TItem item, bool isGenerateFlatnessAODWaveform, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         try
         {
-            GenerateFlatnessChangedAODWaveform(item, cancellationToken);
-            SetAODWaveformProfiles(item);
+            if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
+            else GenerateScanAODWaveform(item, htmlLogUniqueId, cancellationToken);
+
+            SetAODWaveformProfiles(item, htmlLogUniqueId);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -216,7 +251,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
             item.MeasurePower = measurePower;
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
         }
         finally
         {

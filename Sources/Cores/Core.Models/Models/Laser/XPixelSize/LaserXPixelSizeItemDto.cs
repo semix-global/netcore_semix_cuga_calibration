@@ -20,10 +20,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private int _pMTId;
-
-    [ObservableProperty]
-    private int _channelId;
+    private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
     private double _xPixelSize;
@@ -62,8 +59,9 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     public LaserXPixelSizeItemDto Clone() => new()
     {
         OpticsIlluminationMode = OpticsIlluminationMode,
-        MicroscopeLensInformation = MicroscopeLensInformation,
         ProductivityInformation = ProductivityInformation.Clone(),
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
         XPixelSize = XPixelSize,
         RawImageFilePath = RawImageFilePath,
         SlideItems = [.. SlideItems],

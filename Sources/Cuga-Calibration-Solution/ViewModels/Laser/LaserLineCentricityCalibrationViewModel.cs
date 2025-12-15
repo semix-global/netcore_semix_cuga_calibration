@@ -759,8 +759,8 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             }
 
             var centerLineCentricityItemDto = Reviews.Single(t => t.ProductivityInformation == productiveGroups.First().Key
-                                                                && t.OpticsIlluminationMode == Cache.OpticsIlluminationModeEnum
-                                                                && t.PmtId == 8);
+                                                                  && t.OpticsIlluminationMode == Cache.OpticsIlluminationModeEnum
+                                                                  && t.PmtId == 8);
 
             if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false) result = false;
 

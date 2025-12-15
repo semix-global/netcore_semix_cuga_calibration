@@ -47,16 +47,16 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
+    public void SetPrescanAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
     {
-        var ret = calibrationConfigService.SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation, filePath);
+        var ret = calibrationConfigService.SetPrescanAODWaveformConfiguration(opticsIlluminationModeEnum, productivityInformation, filePath);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
+    public void SetChirpAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
     {
-        var ret = calibrationConfigService.SetChirpAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation, filePath);
+        var ret = calibrationConfigService.SetChirpAODWaveformConfiguration(opticsIlluminationModeEnum, productivityInformation, filePath);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

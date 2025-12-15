@@ -1,0 +1,28 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
+using Local.NoSQL.DB.Providers.Bases;
+
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+
+public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityParam : ObservableCacheBase
+{
+    [ObservableProperty]
+    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+
+    [ObservableProperty]
+    private double _startAmplitude = 1;
+
+    [ObservableProperty]
+    private double _stepAmplitude = 1;
+
+    [ObservableProperty]
+    private double _stopAmplitude = 1;
+
+    public object ToHtmlAnonymous() => new
+    {
+        OpticsAODElectrodeEnum,
+        StartAmplitude,
+        StepAmplitude,
+        StopAmplitude
+    };
+}
