@@ -51,7 +51,13 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode4OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode4 };
 
     [ObservableProperty]
-    private IReadOnlyList<double> _weights = [];
+    private IReadOnlyList<double> _electrode2Weights = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _electrode3Weights = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _electrode4Weights = [];
 
     #endregion
 
@@ -96,7 +102,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     partial void OnFrequenciesChanged(IReadOnlyList<double> value)
     {
         UpdateElectrodeOffsetFrequencyWeightParams(ElectrodeOffsetFrequencyPeriodParams, value);
-        Weights = [.. value.Select(_ => 1)];
+        Electrode2Weights = [.. value.Select(_ => 1)];
+        Electrode3Weights = [.. value.Select(_ => 1)];
+        Electrode4Weights = [.. value.Select(_ => 1)];
     }
 
     [RelayCommand]
@@ -190,6 +198,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         Electrode2OffsetFrequencyPeriodParam = new HtmlQuote(Electrode2OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
         Electrode3OffsetFrequencyPeriodParam = new HtmlQuote(Electrode3OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
         Electrode4OffsetFrequencyPeriodParam = new HtmlQuote(Electrode4OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
+        Electrode2Weights,
+        Electrode3Weights,
+        Electrode4Weights,
         IsConfirmAODWaveformElectrodeOffsetResult,
         ElectrodeOffsetFrequencyWeightParams = new HtmlTable([.. ElectrodeOffsetFrequencyWeightParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyUniformityParams = new HtmlTable([.. ElectrodeOffsetFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),

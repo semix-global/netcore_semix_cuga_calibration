@@ -414,6 +414,14 @@
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                    <TextBox Text="{Binding Cache.Electrode2Weights, Converter={StaticResource DoublesToStringConverter}}"
+                                                             Height="50"
+                                                             TextWrapping="Wrap"
+                                                             hc:TitleElement.Title="Weights: "
+                                                             hc:TitleElement.TitlePlacement="Left"
+                                                             hc:TitleElement.TitleWidth="200"
+                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                             Style="{StaticResource TextBoxExtend}" />
                                                     <StackPanel>
                                                         <TextBlock Text="Electrode3"
                                                                    HorizontalAlignment="Center"
@@ -434,6 +442,14 @@
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                    <TextBox Text="{Binding Cache.Electrode3Weights, Converter={StaticResource DoublesToStringConverter}}"
+                                                             Height="50"
+                                                             TextWrapping="Wrap"
+                                                             hc:TitleElement.Title="Weights: "
+                                                             hc:TitleElement.TitlePlacement="Left"
+                                                             hc:TitleElement.TitleWidth="200"
+                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                             Style="{StaticResource TextBoxExtend}" />
                                                     <StackPanel>
                                                         <TextBlock Text="Electrode4"
                                                                    HorizontalAlignment="Center"
@@ -454,6 +470,14 @@
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                    <TextBox Text="{Binding Cache.Electrode4Weights, Converter={StaticResource DoublesToStringConverter}}"
+                                                             Height="50"
+                                                             TextWrapping="Wrap"
+                                                             hc:TitleElement.Title="Weights: "
+                                                             hc:TitleElement.TitlePlacement="Left"
+                                                             hc:TitleElement.TitleWidth="200"
+                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                             Style="{StaticResource TextBoxExtend}" />
                                                 </hc:UniformSpacingPanel>
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Offset Frequency Weight Params"
@@ -491,18 +515,6 @@
                                                             </DataGridTemplateColumn>
                                                         </DataGrid.Columns>
                                                     </DataGrid>
-                                                </hc:UniformSpacingPanel>
-                                                <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
-                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <TextBox Text="{Binding Cache.Weights, Converter={StaticResource DoublesToStringConverter}}"
-                                                             Height="50"
-                                                             TextWrapping="Wrap"
-                                                             hc:TitleElement.Title="Weights: "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="200"
-                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                             Style="{StaticResource TextBoxExtend}" />
                                                 </hc:UniformSpacingPanel>
                                             </hc:UniformSpacingPanel>
                                         </Border>

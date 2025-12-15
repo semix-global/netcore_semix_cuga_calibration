@@ -51,13 +51,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 ];
 
                 cancellationToken.ThrowIfCancellationRequested();
-                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2], Cache.Electrode2OffsetFrequencyPeriodParam).ConfigureAwait(false);
+                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2], Cache.Electrode2OffsetFrequencyPeriodParam, Cache.Electrode2Weights).ConfigureAwait(false);
 
                 cancellationToken.ThrowIfCancellationRequested();
-                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodParam).ConfigureAwait(false);
+                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodParam, Cache.Electrode4Weights).ConfigureAwait(false);
 
                 cancellationToken.ThrowIfCancellationRequested();
-                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode3OffsetFrequencyPeriodParam).ConfigureAwait(false);
+                await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode3OffsetFrequencyPeriodParam, Cache.Electrode3Weights).ConfigureAwait(false);
 
                 var isSuccess = Cache.ElectrodeConfigurationResults.Count == OpticsAODElectrodeEnums.Count;
 
@@ -68,7 +68,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                 return isSuccess;
 
-                async Task InvokeElectrodeMaxMeasurePowerAsync(IReadOnlyList<OpticsAODElectrodeEnum> electrodes, AODWaveformElectrodeOffsetFrequencyPeriodParam param)
+                async Task InvokeElectrodeMaxMeasurePowerAsync(IReadOnlyList<OpticsAODElectrodeEnum> electrodes, AODWaveformElectrodeOffsetFrequencyPeriodParam param, IReadOnlyList<double> weights)
                 {
                     var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
                     Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
@@ -164,8 +164,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.ClosestMaximaPoints
                         .Index()
-                        .Select(t => Cache.Weights[t.Index] * t.Item.X)
-                        .Sum() / Cache.Weights.Sum();
+                        .Select(t => weights[t.Index] * t.Item.X)
+                        .Sum() / weights.Sum();
 
                     if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
                     {
