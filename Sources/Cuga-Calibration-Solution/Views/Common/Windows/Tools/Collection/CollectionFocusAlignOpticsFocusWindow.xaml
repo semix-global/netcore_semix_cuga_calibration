@@ -93,41 +93,38 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
-                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                                     hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     IsEditable="True"
-                                                     IsReadOnly="True"
-                                                     SelectedItem="{Binding Cache.ProductivityInformation}"
-                                                     Style="{StaticResource ComboBoxExtend}">
+                                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxFallbackBehavior FallbackDisplayText="{Binding Source={x:Static pattern:ProductivityInformation.Default}}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
-                                            <hc:ComboBox.ItemsSource>
+                                            <ComboBox.ItemsSource>
                                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                                     <Binding Path="ApplicationCookie" />
                                                     <Binding Path="Cache.OpticsIlluminationModeEnum" />
                                                 </MultiBinding>
-                                            </hc:ComboBox.ItemsSource>
-                                        </hc:ComboBox>
-                                        <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
-                                                     hc:TitleElement.TitleWidth="200"
-                                                     hc:TitleElement.Title="PMT ID: "
-                                                     SelectedItem="{Binding Cache.PmtId}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
-                                            <hc:ComboBox.ItemTemplate>
+                                            </ComboBox.ItemsSource>
+                                        </ComboBox>
+                                        <ComboBox hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  hc:TitleElement.Title="PMT ID: "
+                                                  SelectedItem="{Binding Cache.PmtId}"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
+                                            <ComboBox.ItemTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding}" />
                                                 </DataTemplate>
-                                            </hc:ComboBox.ItemTemplate>
-                                        </hc:ComboBox>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                         <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"
@@ -158,12 +155,12 @@
                                               Header="CIB">
                                         <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
                                     </Expander>
-                                    <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.Title="Laser Light Information: "
-                                                 SelectedItem="{Binding Cache.HazeLaserLightInformation}"
-                                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
+                                    <ComboBox HorizontalAlignment="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.Title="Laser Light Information: "
+                                              SelectedItem="{Binding Cache.HazeLaserLightInformation}"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.HazeBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:TitleElement.Title="Bright Field Position:"
                                              hc:TitleElement.TitlePlacement="Left"
@@ -202,12 +199,12 @@
                                               Header="CIB">
                                         <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
                                     </Expander>
-                                    <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.Title="Coefficient: "
-                                                 SelectedItem="{Binding Cache.DSWLaserLightInformation}"
-                                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
+                                    <ComboBox HorizontalAlignment="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.Title="Coefficient: "
+                                              SelectedItem="{Binding Cache.DSWLaserLightInformation}"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.DSWBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:TitleElement.Title="Bright Field Position:"
                                              hc:TitleElement.TitlePlacement="Left"

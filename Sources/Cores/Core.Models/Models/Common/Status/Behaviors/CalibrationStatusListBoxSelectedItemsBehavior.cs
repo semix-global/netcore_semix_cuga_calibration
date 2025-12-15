@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Core.Models.Models.Common.Status.Interfaces;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
@@ -5,22 +6,16 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace Core.Models.Models.Common.Status.Behaviours;
+namespace Core.Models.Models.Common.Status.Behaviors;
 
 public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem> : Behavior<ListBox>
     where TCalibrationStatus : ICalibrationStatus<TCalibrationSelectedItem>
 {
-    public IReadOnlyList<TCalibrationSelectedItem> BindableSelectedItems
-    {
-        get => (IReadOnlyList<TCalibrationSelectedItem>)GetValue(BindableSelectedItemsProperty);
-        set => SetValue(BindableSelectedItemsProperty, value);
-    }
-
     public static readonly DependencyProperty BindableSelectedItemsProperty = DependencyProperty.Register(
         nameof(BindableSelectedItems),
         typeof(IReadOnlyList<TCalibrationSelectedItem>),
         typeof(CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem>),
-        new FrameworkPropertyMetadata(default(TCalibrationSelectedItem), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
+        new FrameworkPropertyMetadata(Array.Empty<TCalibrationSelectedItem>(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
     );
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
@@ -29,24 +24,13 @@ public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, T
 
         if (e.NewValue is null) return;
 
-        var items = GuardUtils.IsAssignableToType<IReadOnlyList<TCalibrationSelectedItem>>(e.NewValue);
+        behavior.OnItemsSourceChanged(behavior.AssociatedObject, EventArgs.Empty);
+    }
 
-        behavior._isUpdatingSelection = true;
-        try
-        {
-            behavior.AssociatedObject.SelectedItems.Clear();
-
-            foreach (var calibrationStatus in behavior.AssociatedObject.ItemsSource
-                         .Cast<TCalibrationStatus>()
-                         .Where(t => items.Contains(t.SelectedItem)))
-            {
-                behavior.AssociatedObject.SelectedItems.Add(calibrationStatus);
-            }
-        }
-        finally
-        {
-            behavior._isUpdatingSelection = false;
-        }
+    public IReadOnlyList<TCalibrationSelectedItem> BindableSelectedItems
+    {
+        get => (IReadOnlyList<TCalibrationSelectedItem>)GetValue(BindableSelectedItemsProperty);
+        set => SetValue(BindableSelectedItemsProperty, value);
     }
 
     private bool _isUpdatingSelection;
@@ -57,6 +41,9 @@ public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, T
 
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
         AssociatedObject.SelectionChanged += OnSelectionChanged;
+
+        var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
+        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     protected override void OnDetaching()
@@ -64,6 +51,31 @@ public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, T
         base.OnDetaching();
 
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
+
+        var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
+        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
+    }
+
+    private void OnItemsSourceChanged(object sender, EventArgs e)
+    {
+        _isUpdatingSelection = true;
+        try
+        {
+            AssociatedObject.SelectedItems.Clear();
+
+            if (AssociatedObject.ItemsSource is null) return;
+
+            foreach (var calibrationStatus in AssociatedObject.ItemsSource
+                         .Cast<TCalibrationStatus>()
+                         .Where(t => BindableSelectedItems.Contains(t.SelectedItem)))
+            {
+                AssociatedObject.SelectedItems.Add(calibrationStatus);
+            }
+        }
+        finally
+        {
+            _isUpdatingSelection = false;
+        }
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)

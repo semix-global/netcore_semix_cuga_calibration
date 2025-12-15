@@ -32,6 +32,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -453,12 +454,28 @@ public static class CoreWcfModelsExtension
 
     #region CIB
 
-    public static bool IsOk(this CIBMMDDto[] result, out string errorMessage)
+    public static bool IsOk(this CIBMMDDTO[] result, out string errorMessage)
     {
+        var cibInformations = HostApplication.GetRequiredService<ApplicationCookie>().CIBInformations;
+
         errorMessage = string.Empty;
 
-        var isOk = result.Length > 0 && result.All(t => t.IsOk);
+        var isOk = cibInformations.All(t => result.SingleOrDefault(tt => t.Equals(tt.CIBInformation))?.IsOk ?? false);
+
         if (isOk == false) errorMessage = "CIB MMD is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this OpticsRelayDTO[] result, out string errorMessage)
+    {
+        var opticsIlluminationModeEnums = HostApplication.GetRequiredService<ApplicationCookie>().OpticsIlluminationModeEnums;
+
+        errorMessage = string.Empty;
+
+        var isOk = opticsIlluminationModeEnums.All(t => result.SingleOrDefault(tt => t.Equals(tt.OpticsIlluminationModeEnum))?.IsOk ?? false);
+
+        if (isOk == false) errorMessage = "Optics Relay is Empty";
 
         return isOk;
     }

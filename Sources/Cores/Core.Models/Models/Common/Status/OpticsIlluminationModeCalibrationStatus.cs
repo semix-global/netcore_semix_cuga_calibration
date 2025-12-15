@@ -13,5 +13,4 @@ public sealed partial class OpticsIlluminationModeCalibrationStatus : Observable
 
     [ObservableProperty]
     private bool _isCalibrated;
-
 }

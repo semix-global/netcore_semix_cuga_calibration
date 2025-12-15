@@ -31,7 +31,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -1143,17 +1142,15 @@ public sealed partial class LaserRtfcCalibrationViewModel(CreateDarkImageTemplat
                 StageCoordinateSystemEnum.Dark,
                 false);
 
-            using var scaleImage = darkFieldImageDto.Image.ScaleImageTo8Bit();
-            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(scaleImage);
+            var xQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
             var path = $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).hobj";
             //HOperatorSet.WriteObject(scaleImage, path);
             var qualityX = xQuality;
             rtfcItemDto.DarkFieldImageFilePath =
                 $"{ImageFileDirectory}\\ECS({rtfcItemDto.EcsValue})_Guid({HtmlLogUniqueId}).jpg";
-            rtfcItemDto.DarkFieldOriginImageFilePath = CalibrationConstantsHelper.ImagePathToRawImagePath(rtfcItemDto.DarkFieldImageFilePath);
+            rtfcItemDto.DarkFieldOriginImageFilePath = darkFieldImageDto.RawImageFilePath;
             rtfcItemDto.Quality = qualityX;
 
-            FileHelper.Save(darkFieldImageDto.Bytes, rtfcItemDto.DarkFieldOriginImageFilePath);
             darkFieldImageDto.Image.Save(rtfcItemDto.DarkFieldImageFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new

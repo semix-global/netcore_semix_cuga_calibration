@@ -1,6 +1,5 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Net.Utilities.Helpers.Helpers.Files;
 
 namespace Core.Models.Helper;
 
@@ -98,16 +97,6 @@ public static class CalibrationConstantsHelper
     public static string TemplatePathToTemplateImagePath(string templateFilePath)
     {
         return $"{templateFilePath}.jpg";
-    }
-
-    /// <summary>
-    /// 根据图片文件路径获取raw图片路径
-    /// </summary>
-    /// <param name="templateFilePath">模板文件</param>
-    /// <returns>raw图片路径</returns>
-    public static string ImagePathToRawImagePath(string templateFilePath)
-    {
-        return $"{FileHelper.GetFileFullName(templateFilePath)}.raw";
     }
 
     #endregion 规则

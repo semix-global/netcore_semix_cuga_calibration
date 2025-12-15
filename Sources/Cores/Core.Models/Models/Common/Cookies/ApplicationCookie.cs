@@ -158,4 +158,11 @@ public sealed partial class ApplicationCookie : ObservableObject
     private CalibrationRecipeDto? _calibrationReviseRecipeDto;
 
     public string Title => $"{ApplicationName} [{SysUser.NickName}] {(CalibrationRecipeDto is not null ? $"[{CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName}]" : string.Empty)}";
+
+    public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
+    {
+        OpticsIlluminationModeEnum.OI => OIProductivityInformations,
+        OpticsIlluminationModeEnum.NI => NIProductivityInformations,
+        _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
+    };
 }

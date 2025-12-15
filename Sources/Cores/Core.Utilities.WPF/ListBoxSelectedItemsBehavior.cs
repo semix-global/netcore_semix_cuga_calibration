@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
 using System.Collections;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,13 +11,11 @@ namespace Core.Utilities.WPF;
 
 public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 {
-    public Type? Type { get; set; }
-
-    public IEnumerable? BindableSelectedItems
-    {
-        get => (IEnumerable?)GetValue(BindableSelectedItemsProperty);
-        set => SetValue(BindableSelectedItemsProperty, value);
-    }
+    public static readonly DependencyProperty TypeProperty = DependencyProperty.Register(
+        nameof(Type),
+        typeof(Type),
+        typeof(ListBoxSelectedItemsBehavior),
+        new PropertyMetadata(null));
 
     public static readonly DependencyProperty BindableSelectedItemsProperty = DependencyProperty.Register(
         nameof(BindableSelectedItems),
@@ -31,19 +30,19 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 
         if (e.NewValue is null) return;
 
-        var items = GuardUtils.IsAssignableToType<IEnumerable>(e.NewValue);
+        behavior.OnItemsSourceChanged(behavior.AssociatedObject, EventArgs.Empty);
+    }
 
-        behavior._isUpdatingSelection = true;
-        try
-        {
-            behavior.AssociatedObject.SelectedItems.Clear();
+    public Type? Type
+    {
+        get => (Type?)GetValue(TypeProperty);
+        set => SetValue(TypeProperty, value);
+    }
 
-            foreach (var item in items) behavior.AssociatedObject.SelectedItems.Add(item);
-        }
-        finally
-        {
-            behavior._isUpdatingSelection = false;
-        }
+    public IEnumerable? BindableSelectedItems
+    {
+        get => (IEnumerable?)GetValue(BindableSelectedItemsProperty);
+        set => SetValue(BindableSelectedItemsProperty, value);
     }
 
     private bool _isUpdatingSelection;
@@ -54,6 +53,9 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
         AssociatedObject.SelectionChanged += OnSelectionChanged;
+
+        var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
+        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     protected override void OnDetaching()
@@ -61,6 +63,32 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
         base.OnDetaching();
 
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
+
+        var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
+        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
+    }
+
+
+    private void OnItemsSourceChanged(object sender, EventArgs e)
+    {
+        _isUpdatingSelection = true;
+        try
+        {
+            AssociatedObject.SelectedItems.Clear();
+
+            if (AssociatedObject.ItemsSource is null) return;
+
+            if (BindableSelectedItems is null) return;
+
+            foreach (var item in BindableSelectedItems)
+            {
+                if (AssociatedObject.Items.Contains(item)) AssociatedObject.SelectedItems.Add(item);
+            }
+        }
+        finally
+        {
+            _isUpdatingSelection = false;
+        }
     }
 
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)

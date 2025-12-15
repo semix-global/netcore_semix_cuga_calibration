@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Utilities;
@@ -91,14 +90,13 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                     using var _ = darkFieldImageDto;
                     var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImagePointToPointWindowViewModel)}\\{positionList[index]}_row_scan.jpg";
                     darkFieldImageDto.Image.Save(filePath);
-                    var size = darkFieldImageDto.Image.GetSize();
                     contextProvider.Send(() => DarkFieldRowScanImageList.Add(new DarkFieldCropImage
                     {
                         Position = positionList[index],
-                        ByteArray = darkFieldImageDto.Bytes,
-                        Width = size.Width,
-                        Height = size.Height,
+                        Width = darkFieldImageDto.Width,
+                        Height = darkFieldImageDto.Height,
                         FilePath = filePath,
+                        RawImageFilePath = darkFieldImageDto.RawImageFilePath,
                         DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
                     }));
                 }
@@ -141,19 +139,16 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
 
                     var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{resultPosition}.jpg";
                     darkFieldImageDto.Image.Save(filePath);
-                    var size = darkFieldImageDto.Image.GetSize();
-                    var byteArray = darkFieldImageDto.Bytes;
-                    var projectionYs = darkFieldImageDto.ProjectionYs;
                     contextProvider.Send(() =>
                     {
                         DarkFieldImageList.Add(new DarkFieldCropImage
                         {
                             Position = resultPosition,
-                            ByteArray = byteArray,
-                            Width = size.Width,
-                            Height = size.Height,
+                            Width = darkFieldImageDto.Width,
+                            Height = darkFieldImageDto.Height,
                             FilePath = filePath,
-                            DarkFieldImageList = [.. projectionYs]
+                            RawImageFilePath = darkFieldImageDto.RawImageFilePath,
+                            DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
                         });
                     });
                 }
@@ -189,7 +184,6 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                 if (tryShowSaveFilePathDialog == false) return;
 
                 System.IO.File.Copy(darkFieldImage.FilePath, saveFilePath, true);
-                System.IO.File.WriteAllBytes(CalibrationConstantsHelper.ImagePathToRawImagePath(saveFilePath), darkFieldImage.ByteArray);
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -223,13 +217,13 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
         private Point _position;
 
         [ObservableProperty]
-        private byte[] _byteArray = [];
-
-        [ObservableProperty]
         private double _width;
 
         [ObservableProperty]
         private double _height;
+
+        [ObservableProperty]
+        private string _rawImageFilePath = string.Empty;
 
         [ObservableProperty]
         private string _filePath = string.Empty;
