@@ -25,9 +25,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
     {
-        var htmlLogUniqueId = Guid.NewGuid();
-
-        return await InvokeAsync(0, htmlLogUniqueId, async () =>
+        return await InvokeAsync(0, async () =>
         {
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, 4);
             Cache.Step0.Items = [];
@@ -47,13 +45,14 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
             {
                 var htmlBullet = new HtmlBullet(new
                 {
+                    Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
                     ElectrodeOffsetItems = Cache.Step0.ScatterPlotControl.GetHtmlPlot2DLinesChart()
                 });
 
                 if (isSuccess)
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
 
             return isSuccess;
@@ -63,7 +62,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 var step0Item = new AODWaveformElectrodeInitializeStep0Item<TItem> { Electrodes = electrodes };
                 Cache.Step0.Items = [.. Cache.Step0.Items, step0Item];
 
-                Logger.LogHtmlInformation(step0Item.Title, HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation(step0Item.Title, HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                 foreach (var offsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                 {
@@ -88,9 +87,9 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                         OffsetFrequencyPeriodCoefficient = offsetFrequencyPeriodCoefficient
                     };
 
-                    Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
-                    await UpdateMeasurePowerAsync(item, false, htmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                    await UpdateMeasurePowerAsync(item, false, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                     step0Item.Items = [.. step0Item.Items, item];
                 }
@@ -98,7 +97,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == electrodes[^1])
                     .OffsetFrequencyPeriodCoefficient = step0Item.Items.Maxima(t => t.MeasurePower).Single().OffsetFrequencyPeriodCoefficient;
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), htmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
             }
         }, isNotSilent).ConfigureAwait(false);
     }
@@ -106,9 +105,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step1Async(bool isNotSilent, CancellationToken cancellationToken)
     {
-        var htmlLogUniqueId = Guid.NewGuid();
-
-        return await InvokeAsync(1, htmlLogUniqueId, async () =>
+        return await InvokeAsync(1, async () =>
         {
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, 4);
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
@@ -126,7 +123,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
                 Cache.Step1Items = [.. Cache.Step1Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
-                Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var electrode2OffsetFrequencyPeriodCoefficient = Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode2).OffsetFrequencyPeriodCoefficient;
                 var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(
@@ -142,7 +139,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                     var aodWaveformElectrodeOffsetFrequencyPeriodItem = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>();
                     aodWaveformElectrodeOffsetFrequencyPeriod.Items = [.. aodWaveformElectrodeOffsetFrequencyPeriod.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
 
-                    Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                     foreach (var currentOffsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                     {
@@ -168,9 +165,9 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                             OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
                         };
 
-                        Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
-                        await UpdateMeasurePowerAsync(item, true, htmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                        await UpdateMeasurePowerAsync(item, true, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                         aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                     }
@@ -200,9 +197,9 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 });
 
                 if (isSuccess)
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
 
             return isSuccess;

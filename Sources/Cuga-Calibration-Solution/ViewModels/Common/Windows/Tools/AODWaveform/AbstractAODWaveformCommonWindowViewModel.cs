@@ -18,6 +18,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Net.Utilities.Helpers.Helpers.Files;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -49,6 +50,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     public abstract string Name { get; }
 
     public abstract IReadOnlyList<string> Steps { get; }
+
+    public Guid HtmlLogUniqueId { get; private set; }
 
     protected abstract void GenerateFlatnessAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
@@ -126,9 +129,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> StepSecondLastAsync(bool isNotSilent, CancellationToken cancellationToken)
     {
-        var htmlLogUniqueId = Guid.NewGuid();
-
-        return await InvokeAsync(Steps.Count - 2, htmlLogUniqueId, () =>
+        return await InvokeAsync(Steps.Count - 2, () =>
         {
             Guard.IsNotEmpty(Cache.Results);
 
@@ -136,7 +137,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                GenerateResultAODWaveform(result, htmlLogUniqueId, cancellationToken);
+                GenerateResultAODWaveform(result, HtmlLogUniqueId, cancellationToken);
             }
 
             return Task.FromResult(true);
@@ -146,9 +147,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> StepFirstLastAsync(bool isNotSilent, CancellationToken cancellationToken)
     {
-        var htmlLogUniqueId = Guid.NewGuid();
-
-        return await InvokeAsync(Steps.Count - 1, htmlLogUniqueId, () =>
+        return await InvokeAsync(Steps.Count - 1, () =>
         {
             Guard.IsNotEmpty(Cache.Results);
 
@@ -156,7 +155,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                SetResultAODWaveformConfiguration(result, htmlLogUniqueId, cancellationToken);
+                SetResultAODWaveformConfiguration(result, HtmlLogUniqueId, cancellationToken);
             }
 
             return Task.FromResult(true);
@@ -182,7 +181,6 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     protected async Task<bool> InvokeAsync(
         int stepIndex,
-        Guid htmlLogUniqueId,
         Func<Task<bool>> func,
         bool isNotSilent)
     {
@@ -191,9 +189,11 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             var isInitHtmlLog = isNotSilent || stepIndex == 0;
             var isEndHtml = isNotSilent || stepIndex == Steps.Count - 1;
 
-            if (isInitHtmlLog) Logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
+            HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
+
+            if (isInitHtmlLog) Logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             try
@@ -204,8 +204,10 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 if (ex is OperationCanceledException)
                 {
+                    if (isNotSilent == false) isEndHtml = true;
+
                     DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                     return false;
                 }
@@ -214,16 +216,19 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                                                  {Name}: {Steps[stepIndex]} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             }
             finally
             {
-                if (isEndHtml) Logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name}_{Steps[stepIndex]}_{(isSuccess ? "OK" : "Failed")}"));
+                if (isEndHtml)
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{GetType().Name}_{(
+                        isNotSilent ? FileHelper.RemoveInvalidFileName(Steps[stepIndex].Replace(" ", string.Empty)) : "Silent"
+                    )}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Success");
+                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isNotSilent ? Steps[stepIndex] : "Silent")} Success");
             }
             else
                 DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
